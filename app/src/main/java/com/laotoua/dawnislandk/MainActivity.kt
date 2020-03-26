@@ -2,6 +2,7 @@ package com.laotoua.dawnislandk
 
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -16,13 +17,12 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var forumVM: ForumViewModel
-    private lateinit var sharedVM: SharedViewModel
+    private val sharedVM: SharedViewModel by viewModels()
     private val TAG = "MainAct"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sharedVM = ViewModelProvider(this).get(SharedViewModel::class.java)
-
+        Log.i(TAG, "sharedVM instance: ${sharedVM.toString()}")
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
@@ -34,6 +34,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    // left forum drawer
     private fun setUpForumDrawer() {
         val mAdapter = QuickAdapter(R.layout.forum_list_item)
         binding.forumContainer.layoutManager = LinearLayoutManager(this)
@@ -43,15 +44,14 @@ class MainActivity : AppCompatActivity() {
         // item click
         mAdapter.setOnItemClickListener { adapter, _, position ->
             sharedVM.setForum(adapter.getItem(position) as Forum)
+            binding.drawerLayout.closeDrawers()
         }
 
         forumVM.forumList.observe(this, Observer {
             mAdapter.replaceData(it)
-//            mAdapter.loadMoreModule!!.loadMoreComplete()
-            Log.i(TAG, "Forum Adapter now have ${mAdapter.data.size} forums")
-
+            Log.i(TAG, "Loaded ${mAdapter.data.size} forums")
         })
 
-        // TODO refresh
+        // TODO refresh click
     }
 }

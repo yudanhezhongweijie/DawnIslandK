@@ -32,7 +32,10 @@ class ThreadViewModel : ViewModel() {
             val newthreads = api.getThreads("id=" + forumId + "&page=${pageCount}")
             val noDuplicates = newthreads.filterNot { threadIds.contains(it.id) }
             threadIds.addAll(noDuplicates.map { it.id })
-            Log.i(TAG, "new threads size ${noDuplicates.size}, threadIds size ${threadIds.size}")
+            Log.i(
+                TAG,
+                "no duplicate thread size ${noDuplicates.size}, threadIds size ${threadIds.size}"
+            )
             threadList.addAll(noDuplicates)
             _newPage.postValue(noDuplicates)
             pageCount += 1

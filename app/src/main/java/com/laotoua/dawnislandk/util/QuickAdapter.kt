@@ -14,7 +14,7 @@ import com.laotoua.dawnislandk.R
 class QuickAdapter(private val layoutResId: Int) :
     BaseQuickAdapter<Any, BaseViewHolder>(layoutResId, ArrayList()),
     LoadMoreModule {
-    private val TAG = "ForumQuickAdapter"
+    private val TAG = "QuickAdapter"
     private val thumbCDN = "https://nmbimg.fastmirror.org/thumb/"
 
     init {
@@ -22,16 +22,23 @@ class QuickAdapter(private val layoutResId: Int) :
         this.loadMoreModule!!.enableLoadMoreEndClick = true
     }
 
-    override fun convert(card: BaseViewHolder, item: Any) {
+    override fun convert(helper: BaseViewHolder, item: Any) {
 
         if (layoutResId == R.layout.forum_list_item && item is Forum) {
-            convertForum(card, item)
+            convertForum(helper, item)
         } else if (layoutResId == R.layout.thread_list_item && item is ThreadList) {
-            convertThread(card, item)
+            convertThread(helper, item)
         }
     }
 
     private fun convertForum(card: BaseViewHolder, item: Forum) {
+        // special handling for drawable resource ID, which cannot have -
+        val biId = if (item.id.toInt() > 0) item.id.toInt() else 1
+        val resourceId: Int = context.getResources().getIdentifier(
+            "bi_$biId", "drawable",
+            context.packageName
+        )
+        card.setImageResource(R.id.forumIcon, resourceId)
         card.setText(R.id.forumName, item.name)
     }
 

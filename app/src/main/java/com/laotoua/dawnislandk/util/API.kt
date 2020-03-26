@@ -66,50 +66,64 @@ class API {
     }
 
     suspend fun getForums(): List<Forum> {
-
-        val rawResponse =
-            withContext(Dispatchers.IO) {
-                Log.i(TAG, "downloading forums...")
-                getRawResponse("forums")
-            }
-        val forumsList =
-            withContext(Dispatchers.Default) {
-                Log.i(TAG, "parsing forums...")
-                parseForums(rawResponse)
-            }
-        return forumsList
+        try {
+            val rawResponse =
+                withContext(Dispatchers.IO) {
+                    Log.i(TAG, "downloading forums...")
+                    getRawResponse("forums")
+                }
+            val forumsList =
+                withContext(Dispatchers.Default) {
+                    Log.i(TAG, "parsing forums...")
+                    parseForums(rawResponse)
+                }
+            return forumsList
+        } catch (e: Exception) {
+            Log.e(TAG, e.stackTrace.toString())
+            return emptyList()
+        }
     }
 
     suspend fun getThreads(params: String): List<ThreadList> {
-        val rawResponse =
-            withContext(Dispatchers.IO) {
-                Log.i(TAG, "downloading threads...")
-                getRawResponse("threads", params)
-            }
+        try {
+            val rawResponse =
+                withContext(Dispatchers.IO) {
+                    Log.i(TAG, "downloading threads...")
+                    getRawResponse("threads", params)
+                }
 
-        val threadsList =
-            withContext(Dispatchers.Default) {
-                Log.i(TAG, "parsing threads...")
-                parseThreads(rawResponse)
-            }
+            val threadsList =
+                withContext(Dispatchers.Default) {
+                    Log.i(TAG, "parsing threads...")
+                    parseThreads(rawResponse)
+                }
 
-        return threadsList
+            return threadsList
+        } catch (e: Exception) {
+            Log.e(TAG, e.stackTrace.toString())
+            return emptyList()
+        }
     }
 
     suspend fun getReplys(params: String): List<Reply> {
-        val rawResponse =
-            withContext(Dispatchers.IO) {
-                Log.i(TAG, "downloading replys...")
-                getRawResponse("threads", params)
-            }
+        try {
+            val rawResponse =
+                withContext(Dispatchers.IO) {
+                    Log.i(TAG, "downloading replys...")
+                    getRawResponse("threads", params)
+                }
 
-        val replysList =
-            withContext(Dispatchers.Default) {
-                Log.i(TAG, "parsing replys...")
-                parseReplys(rawResponse)
-            }
+            val replysList =
+                withContext(Dispatchers.Default) {
+                    Log.i(TAG, "parsing replys...")
+                    parseReplys(rawResponse)
+                }
 
-        return replysList
+            return replysList
+        } catch (e: Exception) {
+            Log.e(TAG, e.stackTrace.toString())
+            return emptyList()
+        }
     }
 }
 
@@ -134,7 +148,7 @@ class Community(
     val forums: List<Forum>
 )
 
-
+// TODO: timeline has extra fid field
 class ThreadList(
     val id: String, //	该串的id
     val img: String, //	该串的图片相对地址

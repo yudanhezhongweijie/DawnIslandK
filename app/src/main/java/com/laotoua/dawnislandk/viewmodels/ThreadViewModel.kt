@@ -1,5 +1,6 @@
 package com.laotoua.dawnislandk.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,7 +13,8 @@ class ThreadViewModel : ViewModel() {
     private val TAG = "ThreadVM"
     private val api = API()
 
-    private lateinit var threadList: List<ThreadList>
+    private val threadList = mutableListOf<ThreadList>()
+    private val threadIds = mutableSetOf<String>()
     private var _newPage = MutableLiveData<List<ThreadList>>()
     val newPage: LiveData<List<ThreadList>>
         get() = _newPage
@@ -27,8 +29,12 @@ class ThreadViewModel : ViewModel() {
 
     fun getThreads() {
         viewModelScope.launch {
-            threadList = api.getThreads("id=" + forumId + "&page=${pageCount}")
-            _newPage.postValue(threadList)
+            val newthreads = api.getThreads("id=" + forumId + "&page=${pageCount}")
+            val noDuplicates = newthreads.filterNot { threadIds.contains(it.id) }
+            threadIds.addAll(noDuplicates.map { it.id })
+            Log.i(TAG, "new threads size ${noDuplicates.size}, threadIds size ${threadIds.size}")
+            threadList.addAll(noDuplicates)
+            _newPage.postValue(noDuplicates)
             pageCount += 1
         }
     }

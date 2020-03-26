@@ -83,3 +83,6 @@ lint/generated/
 lint/outputs/
 lint/tmp/
 # lint/reports/
+/gradle/wrapper/gradle-wrapper.properties
+/.idea/
+/gradle/wrapper/

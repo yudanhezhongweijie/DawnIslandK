@@ -3,7 +3,9 @@ package com.laotoua.dawnislandk.util
 import android.os.Build
 import android.text.Html
 import android.text.SpannableString
+import android.util.Log
 import androidx.core.text.HtmlCompat
+import com.bumptech.glide.Glide
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.module.LoadMoreModule
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
@@ -13,6 +15,7 @@ class QuickAdapter(private val layoutResId: Int) :
     BaseQuickAdapter<Any, BaseViewHolder>(layoutResId, ArrayList()),
     LoadMoreModule {
     private val TAG = "ForumQuickAdapter"
+    private val thumbCDN = "https://nmbimg.fastmirror.org/thumb/"
 
     init {
         // 所有数据加载完成后，是否允许点击（默认为false）
@@ -47,16 +50,16 @@ class QuickAdapter(private val layoutResId: Int) :
         }
 
         // load image
-//        if (item.getThumbUrl() != "") {
-//            Glide.with(context)
-//                .load(item.getThumbUrl())
-//                .override(100,100)
-//                .fitCenter()
-//                .into(card.getView(R.id.image))
-//            Log.i(TAG, "added Thumbnail from URL: ${item.getThumbUrl()}")
-//        } else {
-//            card.setGone(R.id.image, true)
-//        }
+        if (item.img != "") {
+            Glide.with(context)
+                .load(thumbCDN + item.img + item.ext)
+                .override(100, 100)
+                .fitCenter()
+                .into(card.getView(R.id.threadImage))
+            Log.i(TAG, "added Thumbnail from URL: ${thumbCDN + item.img + item.ext}")
+        } else {
+            card.setGone(R.id.threadImage, true)
+        }
 
         // spannable content
         val s = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

@@ -3,14 +3,15 @@ package com.laotoua.dawnislandk.util
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import java.io.IOException
 import java.lang.reflect.Type
 
-class API() {
+class API {
     private val TAG: String = "API calls"
     private val baseApi = "https://adnmb2.com/api/"
     private val suffix_forumList = "getForumList"
@@ -64,52 +65,51 @@ class API() {
         return replys
     }
 
-    suspend fun getForums(scope: CoroutineScope): List<Forum> {
-        val rawResponse = scope.async {
-            withContext(Dispatchers.IO + CoroutineName("forum_download")) {
-                Log.d(TAG, "downloading forums... in Coroutine: $coroutineContext")
+    suspend fun getForums(): List<Forum> {
+
+        val rawResponse =
+            withContext(Dispatchers.IO) {
+                Log.i(TAG, "downloading forums...")
                 getRawResponse("forums")
             }
-        }
-        val forumsList = scope.async {
-            withContext(Dispatchers.Default + CoroutineName("forum_parsing")) {
-                Log.d(TAG, "parsing forums... in Coroutine: $coroutineContext")
-                parseForums(rawResponse.await())
+        val forumsList =
+            withContext(Dispatchers.Default) {
+                Log.i(TAG, "parsing forums...")
+                parseForums(rawResponse)
             }
-        }
-        return forumsList.await()
+        return forumsList
     }
 
-    suspend fun getThreads(scope: CoroutineScope, params: String): List<ThreadList> {
-        val rawResponse = scope.async {
-            withContext(Dispatchers.IO + CoroutineName("forum_download")) {
-                Log.d(TAG, "downloading threads... in Coroutine: $coroutineContext")
+    suspend fun getThreads(params: String): List<ThreadList> {
+        val rawResponse =
+            withContext(Dispatchers.IO) {
+                Log.i(TAG, "downloading threads...")
                 getRawResponse("threads", params)
             }
-        }
-        val threadsList = scope.async {
-            withContext(Dispatchers.Default + CoroutineName("forum_parsing")) {
-                Log.d(TAG, "parsing threads... in Coroutine: $coroutineContext")
-                parseThreads(rawResponse.await())
+
+        val threadsList =
+            withContext(Dispatchers.Default) {
+                Log.i(TAG, "parsing threads...")
+                parseThreads(rawResponse)
             }
-        }
-        return threadsList.await()
+
+        return threadsList
     }
 
-    suspend fun getReplys(scope: CoroutineScope, params: String): List<Reply> {
-        val rawResponse = scope.async {
-            withContext(Dispatchers.IO + CoroutineName("forum_download")) {
-                Log.d(TAG, "downloading replys... in Coroutine: $coroutineContext")
+    suspend fun getReplys(params: String): List<Reply> {
+        val rawResponse =
+            withContext(Dispatchers.IO) {
+                Log.i(TAG, "downloading replys...")
                 getRawResponse("threads", params)
             }
-        }
-        val replysList = scope.async {
-            withContext(Dispatchers.Default + CoroutineName("forum_parsing")) {
-                Log.d(TAG, "parsing replys... in Coroutine: $coroutineContext")
-                parseReplys(rawResponse.await())
+
+        val replysList =
+            withContext(Dispatchers.Default) {
+                Log.i(TAG, "parsing replys...")
+                parseReplys(rawResponse)
             }
-        }
-        return replysList.await()
+
+        return replysList
     }
 }
 

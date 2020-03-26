@@ -27,7 +27,7 @@ class ThreadViewModel : ViewModel() {
 
     fun getThreads() {
         viewModelScope.launch {
-            threadList = api.getThreads(this, "id=" + forumId + "&page=${pageCount}")
+            threadList = api.getThreads("id=" + forumId + "&page=${pageCount}")
             _newPage.postValue(threadList)
             pageCount += 1
         }

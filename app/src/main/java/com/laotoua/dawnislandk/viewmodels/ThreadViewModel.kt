@@ -30,8 +30,8 @@ class ThreadViewModel : ViewModel() {
     fun getThreads() {
         viewModelScope.launch {
             val fid = currentForum?.id ?: "4"
-            Log.i(TAG, "getting threads from ${currentForum?.name ?: "综合版1(default)"}")
-            val list = api.getThreads("id=" + fid + "&page=${pageCount}")
+            Log.i(TAG, "getting threads from $fid ${currentForum?.name ?: "综合版1(default)"}")
+            val list = api.getThreads("id=" + fid + "&page=${pageCount}", fid.equals("-1"), fid)
             val noDuplicates = list.filterNot { threadIds.contains(it.id) }
             threadIds.addAll(noDuplicates.map { it.id })
             Log.i(

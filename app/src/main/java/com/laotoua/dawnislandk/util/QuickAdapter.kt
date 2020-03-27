@@ -47,9 +47,8 @@ class QuickAdapter(private val layoutResId: Int) :
         card.setText(R.id.threadCookie, item.userid)
         card.setText(R.id.threadTime, item.now)
         card.setText(R.id.threadReplyCount, "Replays: " + item.replyCount)
-        // TODO: forumname
-
-        card.setText(R.id.threadForum, "forum")
+        // TODO: id --> forumname
+        card.setText(R.id.threadForum, item.fid)
 //        card.setText(R.id.id, "No. "+ item.id)
         // sage
         if (item.sage == "0") {

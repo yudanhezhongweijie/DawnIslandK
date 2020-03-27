@@ -42,7 +42,6 @@ class ThreadFragment : Fragment() {
         binding.threadsView.layoutManager = LinearLayoutManager(context)
         binding.threadsView.adapter = mAdapter
 
-        Log.i(TAG, "sharedVM instance: ${sharedVM.toString()}")
         // item click
         mAdapter.setOnItemClickListener {
             // TODO: needs jump

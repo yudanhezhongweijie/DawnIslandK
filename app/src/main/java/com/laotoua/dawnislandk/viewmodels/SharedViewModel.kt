@@ -16,6 +16,8 @@ class SharedViewModel : ViewModel() {
     val selectedThreadList: LiveData<ThreadList> get() = _selectedThreadList
     private var db: DawnDatabase? = null
 
+    private var forumMapping = mapOf<String, String>()
+
 
     fun setForum(f: Forum) {
         _selectedForum.postValue(f)
@@ -29,6 +31,18 @@ class SharedViewModel : ViewModel() {
 
     fun setDb(db: DawnDatabase) {
         this.db = db
+    }
+
+    fun getDb(): DawnDatabase? {
+        return db
+    }
+
+    fun setForumMapping(map: Map<String, String>) {
+        this.forumMapping = map
+    }
+
+    fun getForumDisplayName(id: String): String {
+        return forumMapping[id] ?: ""
     }
 
 }

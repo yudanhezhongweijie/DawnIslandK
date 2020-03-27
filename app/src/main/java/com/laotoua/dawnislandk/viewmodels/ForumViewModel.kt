@@ -54,6 +54,14 @@ class ForumViewModel : ViewModel() {
         }
     }
 
+    fun getForumNameMapping(): Map<String, String> {
+        forumList.value?.let { list ->
+            return list.associateBy(
+                keySelector = { it.id },
+                valueTransform = { it.name })
+        }
+        return mapOf()
+    }
 
     fun setDb(dao: ForumDao) {
         this.dao = dao

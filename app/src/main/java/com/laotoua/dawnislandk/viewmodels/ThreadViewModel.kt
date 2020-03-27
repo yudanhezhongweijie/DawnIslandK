@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.util.API
 import com.laotoua.dawnislandk.util.Forum
+import com.laotoua.dawnislandk.util.ForumDao
 import com.laotoua.dawnislandk.util.ThreadList
 import kotlinx.coroutines.launch
 
@@ -22,6 +23,7 @@ class ThreadViewModel : ViewModel() {
     private var currentForum: Forum? = null
     private var pageCount = 1
 
+    private var forumDao: ForumDao? = null
 
     init {
         getThreads()
@@ -52,6 +54,10 @@ class ThreadViewModel : ViewModel() {
         currentForum = f
         pageCount = 1
         getThreads()
+    }
+
+    fun setForumDao(dao: ForumDao?) {
+        this.forumDao = dao
     }
 
 }

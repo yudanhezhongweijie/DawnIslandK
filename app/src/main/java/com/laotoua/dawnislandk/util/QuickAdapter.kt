@@ -3,6 +3,7 @@ package com.laotoua.dawnislandk.util
 import android.os.Build
 import android.text.Html
 import android.text.SpannableString
+import android.text.Spanned
 import android.util.Log
 import androidx.core.text.HtmlCompat
 import com.bumptech.glide.Glide
@@ -10,16 +11,22 @@ import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.module.LoadMoreModule
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.laotoua.dawnislandk.R
+import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 
 class QuickAdapter(private val layoutResId: Int) :
     BaseQuickAdapter<Any, BaseViewHolder>(layoutResId, ArrayList()),
     LoadMoreModule {
     private val TAG = "QuickAdapter"
     private val thumbCDN = "https://nmbimg.fastmirror.org/thumb/"
+    private lateinit var sharedViewModel: SharedViewModel
 
     init {
         // 所有数据加载完成后，是否允许点击（默认为false）
         this.loadMoreModule!!.enableLoadMoreEndClick = true
+    }
+
+    fun setSharedVM(vm: SharedViewModel) {
+        this.sharedViewModel = vm
     }
 
     override fun convert(helper: BaseViewHolder, item: Any) {
@@ -39,7 +46,15 @@ class QuickAdapter(private val layoutResId: Int) :
             context.packageName
         )
         card.setImageResource(R.id.forumIcon, resourceId)
-        card.setText(R.id.forumName, item.name)
+
+        val forumName = item.getDisplayName()
+        val displayName: Spanned = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            Html.fromHtml(forumName)
+        } else {
+            Html.fromHtml(forumName, Html.FROM_HTML_MODE_COMPACT)
+        }
+        card.setText(R.id.forumName, displayName)
+
     }
 
     private fun convertThread(card: BaseViewHolder, item: ThreadList) {
@@ -47,9 +62,9 @@ class QuickAdapter(private val layoutResId: Int) :
         card.setText(R.id.threadCookie, item.userid)
         card.setText(R.id.threadTime, item.now)
         card.setText(R.id.threadReplyCount, "Replays: " + item.replyCount)
-        // TODO: id --> forumname
-        card.setText(R.id.threadForum, item.fid)
-//        card.setText(R.id.id, "No. "+ item.id)
+
+        card.setText(R.id.threadForum, sharedViewModel.getForumDisplayName(item.fid))
+
         // sage
         if (item.sage == "0") {
             card.setVisible(R.id.sage, false)

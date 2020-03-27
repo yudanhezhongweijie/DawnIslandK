@@ -46,6 +46,7 @@ class MainActivity : AppCompatActivity() {
 
         forumVM.loadFromDB()
         forumVM.getForums()
+
     }
 
 
@@ -65,6 +66,7 @@ class MainActivity : AppCompatActivity() {
         forumVM.forumList.observe(this, Observer {
             mAdapter.replaceData(it)
             Log.i(TAG, "Loaded ${mAdapter.data.size} forums")
+            sharedVM.setForumMapping(forumVM.getForumNameMapping())
         })
 
         // TODO refresh click

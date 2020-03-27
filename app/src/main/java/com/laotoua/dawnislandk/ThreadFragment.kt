@@ -38,9 +38,17 @@ class ThreadFragment : Fragment() {
         _binding = ThreadFragmentBinding.inflate(inflater, container, false)
         Log.i(TAG, "sharedVM instance: ${sharedVM.toString()}")
         viewModel = ViewModelProvider(this).get(ThreadViewModel::class.java)
+        viewModel.setForumDao(sharedVM.getDb()?.forumDao())
+
+
         val mAdapter = QuickAdapter(R.layout.thread_list_item)
         binding.threadsView.layoutManager = LinearLayoutManager(context)
         binding.threadsView.adapter = mAdapter
+
+        /*** connect SharedVm and adapter
+         *  may have better way of getting runtime data
+         */
+        mAdapter.setSharedVM(sharedVM)
 
         // item click
         mAdapter.setOnItemClickListener {

@@ -5,7 +5,7 @@ import androidx.room.*
 import com.google.gson.annotations.SerializedName
 
 
-@Database(entities = arrayOf(Forum::class), version = 2)
+@Database(entities = arrayOf(Forum::class), version = 1)
 abstract class DawnDatabase : RoomDatabase() {
     abstract fun forumDao(): ForumDao
 
@@ -24,7 +24,7 @@ abstract class DawnDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     DawnDatabase::class.java,
-                    "word_database"
+                    "dawn_database"
                 ).build()
                 INSTANCE = instance
                 return instance
@@ -95,7 +95,7 @@ data class Forum(
 ) {
 
     fun getDisplayName(): String {
-        return if (showName!! != "") showName else name
+        return if (showName != null && showName != "") showName else name
     }
 }
 
@@ -117,6 +117,10 @@ class ThreadList(
     val id: String, //	该串的id
     @SerializedName("fid")
     var fid: String, //	该串的fid, 非时间线的串会被设置
+
+    @Ignore
+    var forumName: String? = "",// only used for displaying name
+
     @SerializedName("img")
     val img: String, //	该串的图片相对地址
     @SerializedName("ext")

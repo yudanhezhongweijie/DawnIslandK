@@ -2,7 +2,6 @@ package com.laotoua.dawnislandk.util
 
 import android.util.Log
 import com.google.gson.Gson
-import com.google.gson.annotations.SerializedName
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -22,6 +21,7 @@ class API {
     private val suffix_replyList = "thread?"
     private val cdn = " https://nmbimg.fastmirror.org/"
     private val client = OkHttpClient()
+
 
     private fun getRawResponse(data: String, params: String = ""): Response {
         val url = when (data) {
@@ -47,6 +47,7 @@ class API {
         if (l.isEmpty()) {
             Log.e(TAG, "Didn't get forums from API")
         }
+
         return l.flatMap { c -> c.forums }
     }
 
@@ -141,95 +142,3 @@ class API {
         }
     }
 }
-
-
-data class Forum(
-    @SerializedName("id")
-    val id: String,
-    @SerializedName("fgroup")
-    val fgroup: String,
-    @SerializedName("sort")
-    val sort: String,
-    @SerializedName("name")
-    val name: String,
-    @SerializedName("showName")
-    val showName: String,
-    @SerializedName("msg")
-    val msg: String,
-    @SerializedName("interval")
-    val interval: String,
-    @SerializedName("createdAt")
-    val createdAt: String,
-    @SerializedName("updateAt")
-    val updateAt: String,
-    @SerializedName("status")
-    val status: String
-)
-
-class Community(
-    @SerializedName("id")
-    val id: String,
-    @SerializedName("sort")
-    val sort: String,
-    @SerializedName("name")
-    val name: String,
-    @SerializedName("status")
-    val status: String,
-    @SerializedName("forums")
-    val forums: List<Forum>
-)
-
-class ThreadList(
-    @SerializedName("id")
-    val id: String, //	该串的id
-    @SerializedName("fid")
-    var fid: String, //	该串的fid, 非时间线的串会被设置
-    @SerializedName("img")
-    val img: String, //	该串的图片相对地址
-    @SerializedName("ext")
-    val ext: String, // 	该串图片的后缀
-    @SerializedName("now")
-    val now: String, // 	该串的可视化发言时间
-    @SerializedName("userid")
-    val userid: String, //userid 	该串的饼干
-    @SerializedName("name")
-    val name: String, //name 	你懂得
-    @SerializedName("email")
-    val email: String, //email 	你懂得
-    @SerializedName("title")
-    val title: String, //title 	你还是懂的(:з」∠)
-    @SerializedName("content")
-    val content: String, //content 	....这个你也懂
-    @SerializedName("sage")
-    val sage: String, // sage
-    @SerializedName("admin")
-    val admin: String, //admin 	是否是酷炫红名，如果是酷炫红名则userid为红名id
-    @SerializedName("status")
-    val status: String, //?
-    @SerializedName("replys")
-    val replys: List<Reply>?, //replys 	主页展示回复的帖子
-    @SerializedName("replyCount")
-    val replyCount: String //replyCount 	总共有多少个回复
-)
-
-class Reply(
-    @SerializedName("id")
-    val id: String,
-    @SerializedName("userid")
-    val userid: String,
-    @SerializedName("admin")
-    val admin: String,
-    @SerializedName("title")
-    val title: String,
-    @SerializedName("email")
-    val email: String,
-    @SerializedName("now")
-    val now: String,
-    @SerializedName("content")
-    val content: String,
-    @SerializedName("img")
-    val img: String,
-    @SerializedName("ext")
-    val ext: String
-)
-

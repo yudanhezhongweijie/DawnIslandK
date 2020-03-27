@@ -7,7 +7,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.room.Room
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
+import com.laotoua.dawnislandk.util.DawnDatabase
 import com.laotoua.dawnislandk.util.Forum
 import com.laotoua.dawnislandk.util.QuickAdapter
 import com.laotoua.dawnislandk.viewmodels.ForumViewModel
@@ -22,7 +24,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.i(TAG, "sharedVM instance: ${sharedVM.toString()}")
+        Log.i(TAG, "sharedVM instance: $sharedVM")
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
@@ -31,6 +33,19 @@ class MainActivity : AppCompatActivity() {
 
         supportFragmentManager.beginTransaction().add(R.id.fragmentContainer, ThreadFragment())
             .commit()
+
+        val db = Room.databaseBuilder(
+            applicationContext,
+            DawnDatabase::class.java, "dawnDB"
+        )
+            .fallbackToDestructiveMigration()
+            .build()
+
+        sharedVM.setDb(db)
+        forumVM.setDb(db.forumDao())
+
+        forumVM.loadFromDB()
+        forumVM.getForums()
     }
 
 

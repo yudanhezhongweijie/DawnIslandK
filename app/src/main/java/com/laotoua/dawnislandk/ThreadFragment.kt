@@ -70,6 +70,8 @@ class ThreadFragment : Fragment() {
             viewModel.setForum(it)
         })
 
+
+
         return binding.root
     }
 

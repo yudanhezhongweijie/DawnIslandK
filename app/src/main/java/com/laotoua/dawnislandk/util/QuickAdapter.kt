@@ -5,9 +5,12 @@ import android.text.Html
 import android.text.SpannableString
 import android.text.Spanned
 import android.util.Log
+import android.view.View
+import android.view.ViewGroup
 import androidx.core.text.HtmlCompat
 import com.bumptech.glide.Glide
 import com.chad.library.adapter.base.BaseQuickAdapter
+import com.chad.library.adapter.base.loadmore.BaseLoadMoreView
 import com.chad.library.adapter.base.module.LoadMoreModule
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.laotoua.dawnislandk.R
@@ -137,4 +140,34 @@ class QuickAdapter(private val layoutResId: Int) :
         }
         card.setText(R.id.replyContent, s)
     }
+}
+
+// TODO
+class DawnLoadMoreView : BaseLoadMoreView() {
+    override fun getLoadComplete(holder: BaseViewHolder): View {
+        TODO("Not yet implemented")
+//        return holder.findView(R.id.load_more_load_complete_view);
+    }
+
+    override fun getLoadEndView(holder: BaseViewHolder): View {
+        TODO("Not yet implemented")
+//        return holder.findView(R.id.load_more_load_end_view);
+    }
+
+    override fun getLoadFailView(holder: BaseViewHolder): View {
+        TODO("Not yet implemented")
+//        return holder.findView(R.id.load_more_load_fail_view);
+    }
+
+    override fun getLoadingView(holder: BaseViewHolder): View {
+        TODO("Not yet implemented")
+//        return holder.findView(R.id.load_more_loading_view);
+    }
+
+    override fun getRootView(parent: ViewGroup): View {
+        TODO("Not yet implemented")
+        // 布局中 “加载失败”的View
+//        return LayoutInflater.from(parent.getContext()).inflate(R.layout.view_load_more, parent, false);
+    }
+
 }

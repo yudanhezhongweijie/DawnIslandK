@@ -39,6 +39,11 @@ class ReplyFragment : Fragment() {
         binding.replysView.layoutManager = LinearLayoutManager(context)
         binding.replysView.adapter = mAdapter
 
+        /*** connect SharedVm and adapter
+         *  may have better way of getting runtime data
+         */
+        mAdapter.setSharedVM(sharedVM)
+
         // item click
         mAdapter.setOnItemClickListener {
             // TODO: needs reply popup
@@ -83,4 +88,8 @@ class ReplyFragment : Fragment() {
         return binding.root
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }

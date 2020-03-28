@@ -12,6 +12,7 @@ import com.laotoua.dawnislandk.databinding.ActivityMainBinding
 import com.laotoua.dawnislandk.util.DawnDatabase
 import com.laotoua.dawnislandk.util.Forum
 import com.laotoua.dawnislandk.util.QuickAdapter
+import com.laotoua.dawnislandk.util.ReadableTime
 import com.laotoua.dawnislandk.viewmodels.ForumViewModel
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 
@@ -26,29 +27,39 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         Log.i(TAG, "sharedVM instance: $sharedVM")
         binding = ActivityMainBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+        setContentView(binding.root)
+
         forumVM = ViewModelProvider(this).get(ForumViewModel::class.java)
-        setUpForumDrawer()
 
         supportFragmentManager.beginTransaction().add(R.id.fragmentContainer, ThreadFragment())
             .commit()
 
+
+
+        initResources()
+        setUpForumDrawer()
+
+    }
+
+    private fun initResources() {
+        /**
+         * 初始化
+         */
         val db = Room.databaseBuilder(
             applicationContext,
             DawnDatabase::class.java, "dawnDB"
         )
             .fallbackToDestructiveMigration()
             .build()
-
         sharedVM.setDb(db)
         forumVM.setDb(db.forumDao())
 
+        // Time
+        ReadableTime.initialize(this)
+
         forumVM.loadFromDB()
         forumVM.getForums()
-
     }
-
 
     // left forum drawer
     private fun setUpForumDrawer() {

@@ -175,7 +175,7 @@ class Reply(
     @SerializedName("sage")
     val sage: String? = "",
     @SerializedName("admin")
-    val admin: String,
+    val admin: String? = "1",
     @SerializedName("status")
     val status: String? = "n", //?
     @SerializedName("title")

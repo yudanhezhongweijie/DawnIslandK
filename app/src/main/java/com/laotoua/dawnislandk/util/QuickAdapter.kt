@@ -42,9 +42,9 @@ class QuickAdapter(private val layoutResId: Int) :
         if (layoutResId == R.layout.forum_list_item && item is Forum) {
             convertForum(helper, item)
         } else if (layoutResId == R.layout.thread_list_item && item is ThreadList) {
-            convertThread(helper, item)
+            convertThread(helper, item, sharedViewModel.getForumDisplayName(item.fid!!))
         } else if (layoutResId == R.layout.reply_list_item && item is Reply) {
-            convertReply(helper, item)
+            convertReply(helper, item, sharedViewModel.getPo())
         }
     }
 
@@ -67,15 +67,13 @@ class QuickAdapter(private val layoutResId: Int) :
 
     }
 
-    private fun convertThread(card: BaseViewHolder, item: ThreadList) {
+    private fun convertThread(card: BaseViewHolder, item: ThreadList, forumDisplayName: String) {
         // add fix to spannable
-        // TODO: add admin check
-        card.setText(R.id.threadCookie, item.userid)
-        card.setText(R.id.threadTime, item.now)
+        card.setText(R.id.threadCookie, formatCookie(item.userid, item.admin))
+        card.setText(R.id.threadTime, formatTime(item.now))
 
         card.setText(
-            R.id.threadForumAndReplyCount,
-            sharedViewModel.getForumDisplayName(item.fid!!) + " • " + item.replyCount
+            R.id.threadForumAndReplyCount, forumDisplayName + " • " + item.replyCount
         )
 
         // TODO: add sage formatting
@@ -107,10 +105,11 @@ class QuickAdapter(private val layoutResId: Int) :
         card.setText(R.id.threadContent, s)
     }
 
-    fun convertReply(card: BaseViewHolder, item: Reply) {
-        //TODO: add admin check
-        card.setText(R.id.replyCookie, item.userid)
-        card.setText(R.id.replyTime, item.now)
+    fun convertReply(card: BaseViewHolder, item: Reply, po: String) {
+
+        card.setText(R.id.replyCookie, formatCookie(item.userid, item.admin!!, po))
+
+        card.setText(R.id.replyTime, formatTime(item.now))
         // TODO: handle ads
         card.setText(R.id.replyId, item.id)
 

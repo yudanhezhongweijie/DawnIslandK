@@ -59,6 +59,8 @@ class ReplyViewModel : ViewModel() {
             }
 
             val noDuplicates = list.filterNot { replyIds.contains(it.id) && it.id != "99999999" }
+//            Log.i(TAG, "ads ${noDuplicates[1].content}")
+
             if (noDuplicates.isNotEmpty()) {
                 replyIds.addAll(noDuplicates.map { it.id })
                 Log.i(

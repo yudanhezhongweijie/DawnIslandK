@@ -45,4 +45,9 @@ class SharedViewModel : ViewModel() {
         return forumMapping[id] ?: ""
     }
 
+    // TODO: support multiple Po
+    fun getPo(): String {
+        return selectedThreadList.value!!.userid
+    }
+
 }

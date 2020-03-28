@@ -89,6 +89,7 @@ class API {
         }
     }
 
+    // TODO: handle case where thread is deleted
     suspend fun getThreads(
         params: String,
         timeline: Boolean = false,
@@ -119,6 +120,7 @@ class API {
         }
     }
 
+    // TODO: handle case where thread is deleted
     suspend fun getReplys(params: String): List<Reply> {
         try {
             val rawResponse =

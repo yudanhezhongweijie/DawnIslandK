@@ -23,9 +23,14 @@ class ReplyViewModel : ViewModel() {
     val newPage: LiveData<List<Reply>>
         get() = _newPage
     private var pageCount = 1
+
+    // flags to indicate status of loading reply
     private var _loadFail = MutableLiveData(false)
     val loadFail: LiveData<Boolean>
         get() = _loadFail
+    private var _loadEnd = MutableLiveData(false)
+    val loadEnd: LiveData<Boolean>
+        get() = _loadEnd
 
     fun setThread(f: ThreadList) {
         currentThread = f
@@ -44,10 +49,16 @@ class ReplyViewModel : ViewModel() {
             if (pageCount == 1) {
                 list.add(currentThread!!.toReply())
             }
-            // add replys
-            list.addAll(api.getReplys("id=${currentThread!!.id}&page=$pageCount"))
+            // TODO: handle case where thread is deleted
+            try {
+                list.addAll(api.getReplys("id=${currentThread!!.id}&page=$pageCount"))
+            } catch (e: Exception) {
+                Log.e(TAG, "reply api error", e)
+                _loadFail.postValue(true)
+                return@launch
+            }
 
-            val noDuplicates = list.filterNot { replyIds.contains(it.id) }
+            val noDuplicates = list.filterNot { replyIds.contains(it.id) && it.id != "99999999" }
             if (noDuplicates.isNotEmpty()) {
                 replyIds.addAll(noDuplicates.map { it.id })
                 Log.i(
@@ -57,11 +68,11 @@ class ReplyViewModel : ViewModel() {
 
                 replyList.addAll(noDuplicates)
                 _newPage.postValue(noDuplicates)
-                _loadFail.postValue(false)
-                pageCount += 1
+                // TODO: updates differently with cookie
+                if (replyList.size % 20 == 1) pageCount += 1
             } else {
                 Log.i(TAG, "Thread ${currentThread!!.id} has no new replys.")
-                _loadFail.postValue(true)
+                _loadEnd.postValue(true)
             }
         }
     }

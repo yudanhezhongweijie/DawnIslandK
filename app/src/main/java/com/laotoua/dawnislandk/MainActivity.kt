@@ -70,7 +70,6 @@ class MainActivity : AppCompatActivity() {
         })
 
         forumVM.loadFail.observe(this, Observer {
-            // TODO: can be either out of new Data or api error
             if (it == true) {
                 mAdapter.loadMoreModule!!.loadMoreFail()
             }

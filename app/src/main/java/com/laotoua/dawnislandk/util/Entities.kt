@@ -179,7 +179,7 @@ class Reply(
     @SerializedName("status")
     val status: String? = "n", //?
     @SerializedName("title")
-    val title: String,
+    val title: String? = "",
     @SerializedName("email")
     val email: String,
     @SerializedName("now")

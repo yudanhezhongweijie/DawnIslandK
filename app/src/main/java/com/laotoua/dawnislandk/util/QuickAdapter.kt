@@ -3,7 +3,6 @@ package com.laotoua.dawnislandk.util
 import android.os.Build
 import android.text.Html
 import android.text.SpannableString
-import android.text.Spanned
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -37,8 +36,10 @@ class QuickAdapter(private val layoutResId: Int) :
         this.sharedViewModel = vm
     }
 
+    /** default handler for recyclerview item
+     *
+     */
     override fun convert(helper: BaseViewHolder, item: Any) {
-
         if (layoutResId == R.layout.forum_list_item && item is Forum) {
             convertForum(helper, item)
         } else if (layoutResId == R.layout.thread_list_item && item is ThreadList) {
@@ -47,6 +48,7 @@ class QuickAdapter(private val layoutResId: Int) :
             convertReply(helper, item, sharedViewModel.getPo())
         }
     }
+
 
     private fun convertForum(card: BaseViewHolder, item: Forum) {
         // special handling for drawable resource ID, which cannot have -
@@ -57,18 +59,13 @@ class QuickAdapter(private val layoutResId: Int) :
         )
         card.setImageResource(R.id.forumIcon, resourceId)
 
-        val forumName = item.getDisplayName()
-        val displayName: Spanned = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            Html.fromHtml(forumName)
-        } else {
-            Html.fromHtml(forumName, Html.FROM_HTML_MODE_COMPACT)
-        }
-        card.setText(R.id.forumName, displayName)
+        card.setText(R.id.forumName, formatForumName(item.getDisplayName()))
 
     }
 
+
     private fun convertThread(card: BaseViewHolder, item: ThreadList, forumDisplayName: String) {
-        // add fix to spannable
+
         card.setText(R.id.threadCookie, formatCookie(item.userid, item.admin))
         card.setText(R.id.threadTime, formatTime(item.now))
 
@@ -78,7 +75,7 @@ class QuickAdapter(private val layoutResId: Int) :
 
         // TODO: add sage formatting
         // sage
-        if (item.sage == "0") {
+        if (item.sage == "1") {
             card.setVisible(R.id.sage, false)
         }
 
@@ -113,10 +110,17 @@ class QuickAdapter(private val layoutResId: Int) :
         // TODO: handle ads
         card.setText(R.id.replyId, item.id)
 
-        // TODO: add sage display
-//        if (item.sage == "0") {
-//            card.setVisible(R.id.sage, false)
-//        }
+        // TODO: add sage formatting
+        if (item.sage == "1") {
+            card.setVisible(R.id.sage, true)
+        }
+
+        val titleAndName = formatTitleAndName(item.title, item.name)
+        if (titleAndName != "") {
+            card.setText(R.id.replyTitleAndName, titleAndName)
+        } else {
+            card.setGone(R.id.replyTitleAndName, true)
+        }
 
         // load image
         if (item.img != "") {
@@ -129,6 +133,11 @@ class QuickAdapter(private val layoutResId: Int) :
         } else {
             card.setGone(R.id.replyImage, true)
         }
+        Log.i(TAG, "content: ${item.content}")
+        // TODO: use extracted Quote
+        extractQuote(content = item.content)
+        // TODO: use content without Quote -- BELOW
+        removeQuote(content = item.content)
 
         // TODO: handle quotation
         // spannable content

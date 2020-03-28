@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity() {
         forumVM.forumList.observe(this, Observer {
             mAdapter.replaceData(it)
             Log.i(TAG, "Loaded ${mAdapter.data.size} forums")
-            sharedVM.setForumMapping(forumVM.getForumNameMapping())
+            sharedVM.setForumNameMapping(forumVM.getForumNameMapping())
         })
 
         forumVM.loadFail.observe(this, Observer {

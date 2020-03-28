@@ -16,7 +16,7 @@ class SharedViewModel : ViewModel() {
     val selectedThreadList: LiveData<ThreadList> get() = _selectedThreadList
     private var db: DawnDatabase? = null
 
-    private var forumMapping = mapOf<String, String>()
+    private var forumNameMapping = mapOf<String, String>()
 
 
     fun setForum(f: Forum) {
@@ -37,12 +37,12 @@ class SharedViewModel : ViewModel() {
         return db
     }
 
-    fun setForumMapping(map: Map<String, String>) {
-        this.forumMapping = map
+    fun setForumNameMapping(map: Map<String, String>) {
+        this.forumNameMapping = map
     }
 
     fun getForumDisplayName(id: String): String {
-        return forumMapping[id] ?: ""
+        return forumNameMapping[id] ?: ""
     }
 
     // TODO: support multiple Po

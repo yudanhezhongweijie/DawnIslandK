@@ -53,10 +53,8 @@ class ThreadFragment : Fragment() {
 
         // item click
         mAdapter.setOnItemClickListener {
-            // TODO: needs jump
                 adapter, view, position ->
             sharedVM.setThreadList(adapter.getItem(position) as ThreadList)
-
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer, ReplyFragment())
                 .addToBackStack(null)
@@ -68,7 +66,13 @@ class ThreadFragment : Fragment() {
         mAdapter.loadMoreModule!!.setOnLoadMoreListener {
             viewModel.getThreads()
         }
-//
+
+        viewModel.loadFail.observe(viewLifecycleOwner, Observer {
+            // TODO: can be either out of new Data or api error
+            if (it == true) {
+                mAdapter.loadMoreModule!!.loadMoreFail()
+            }
+        })
         viewModel.newPage.observe(viewLifecycleOwner, Observer {
             mAdapter.addData(it)
             mAdapter.loadMoreModule!!.loadMoreComplete()

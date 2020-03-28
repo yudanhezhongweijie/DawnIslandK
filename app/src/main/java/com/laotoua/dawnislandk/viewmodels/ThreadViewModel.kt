@@ -22,6 +22,9 @@ class ThreadViewModel : ViewModel() {
         get() = _newPage
     private var currentForum: Forum? = null
     private var pageCount = 1
+    private var _loadFail = MutableLiveData(false)
+    val loadFail: LiveData<Boolean>
+        get() = _loadFail
 
     private var forumDao: ForumDao? = null
 
@@ -31,18 +34,29 @@ class ThreadViewModel : ViewModel() {
 
     fun getThreads() {
         viewModelScope.launch {
-            val fid = currentForum?.id ?: "4"
-            Log.i(TAG, "getting threads from $fid ${currentForum?.name ?: "综合版1(default)"}")
-            val list = api.getThreads("id=" + fid + "&page=${pageCount}", fid.equals("-1"), fid)
-            val noDuplicates = list.filterNot { threadIds.contains(it.id) }
-            threadIds.addAll(noDuplicates.map { it.id })
-            Log.i(
-                TAG,
-                "no duplicate thread size ${noDuplicates.size}, threadIds size ${threadIds.size}"
-            )
-            threadList.addAll(noDuplicates)
-            _newPage.postValue(noDuplicates)
-            pageCount += 1
+            try {
+                val fid = currentForum?.id ?: "4"
+                Log.i(TAG, "getting threads from $fid ${currentForum?.name ?: "综合版1(default)"}")
+                val list = api.getThreads("id=" + fid + "&page=${pageCount}", fid.equals("-1"), fid)
+                val noDuplicates = list.filterNot { threadIds.contains(it.id) }
+                if (noDuplicates.isNotEmpty()) {
+                    threadIds.addAll(noDuplicates.map { it.id })
+                    Log.i(
+                        TAG,
+                        "no duplicate thread size ${noDuplicates.size}, threadIds size ${threadIds.size}"
+                    )
+                    threadList.addAll(noDuplicates)
+                    _newPage.postValue(noDuplicates)
+                    _loadFail.postValue(false)
+                    pageCount += 1
+                } else {
+                    Log.i(TAG, "Forum ${currentForum!!.id} has no new threads.")
+                    _loadFail.postValue(true)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "failed to get threads", e)
+                _loadFail.postValue(true)
+            }
         }
     }
 

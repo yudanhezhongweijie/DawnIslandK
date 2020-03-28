@@ -69,6 +69,12 @@ class MainActivity : AppCompatActivity() {
             sharedVM.setForumMapping(forumVM.getForumNameMapping())
         })
 
+        forumVM.loadFail.observe(this, Observer {
+            // TODO: can be either out of new Data or api error
+            if (it == true) {
+                mAdapter.loadMoreModule!!.loadMoreFail()
+            }
+        })
         // TODO refresh click
     }
 }

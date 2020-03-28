@@ -23,6 +23,9 @@ class ReplyViewModel : ViewModel() {
     val newPage: LiveData<List<Reply>>
         get() = _newPage
     private var pageCount = 1
+    private var _loadFail = MutableLiveData(false)
+    val loadFail: LiveData<Boolean>
+        get() = _loadFail
 
     fun setThread(f: ThreadList) {
         currentThread = f
@@ -54,9 +57,11 @@ class ReplyViewModel : ViewModel() {
 
                 replyList.addAll(noDuplicates)
                 _newPage.postValue(noDuplicates)
+                _loadFail.postValue(false)
                 pageCount += 1
             } else {
                 Log.i(TAG, "Thread ${currentThread!!.id} has no new replys.")
+                _loadFail.postValue(true)
             }
         }
     }

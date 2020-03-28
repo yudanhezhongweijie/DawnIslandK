@@ -20,21 +20,31 @@ class ForumViewModel : ViewModel() {
     private var _forumList = MutableLiveData<List<Forum>>()
     val forumList: LiveData<List<Forum>>
         get() = _forumList
+    private var _loadFail = MutableLiveData(false)
+    val loadFail: LiveData<Boolean>
+        get() = _loadFail
 
 
     fun getForums() {
         viewModelScope.launch {
-            val list = api.getForums()
-            Log.i(TAG, "Downloaded forums size ${list.size}")
-            if (list != forumList.value) {
-                Log.i(TAG, "Forum list has changed. updating...")
-                _forumList.postValue(list)
-                // save to local db
-                withContext(Dispatchers.IO) {
-                    dao?.insertAll(list)
+            try {
+                val list = api.getForums()
+                Log.i(TAG, "Downloaded forums size ${list.size}")
+                if (list != forumList.value) {
+                    Log.i(TAG, "Forum list is the same as Db. Reusing...")
+                    Log.i(TAG, "Forum list has changed. updating...")
+                    _forumList.postValue(list)
+                    _loadFail.postValue(false)
+                    // save to local db
+                    withContext(Dispatchers.IO) {
+                        dao?.insertAll(list)
+                    }
+                } else {
+                    Log.i(TAG, "Forum list is the same as Db. Reusing...")
                 }
-            } else {
-                Log.i(TAG, "Forum list is the same as Db. Reusing...")
+            } catch (e: Exception) {
+                Log.e(TAG, "failed to get forums", e)
+                _loadFail.postValue(true)
             }
         }
     }

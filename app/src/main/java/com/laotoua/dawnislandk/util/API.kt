@@ -85,7 +85,7 @@ class API {
             return forumsList
         } catch (e: Exception) {
             Log.e(TAG, "Failed to get forums", e)
-            return emptyList()
+            throw e
         }
     }
 
@@ -115,7 +115,7 @@ class API {
             return threadsList
         } catch (e: Exception) {
             Log.e(TAG, "Failed to get threads", e)
-            return emptyList()
+            throw e
         }
     }
 
@@ -136,7 +136,7 @@ class API {
             return replysList
         } catch (e: Exception) {
             Log.e(TAG, "Failed to get replys", e)
-            return emptyList()
+            throw e
         }
     }
 }

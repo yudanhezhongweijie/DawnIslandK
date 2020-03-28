@@ -69,9 +69,11 @@ class QuickAdapter(private val layoutResId: Int) :
         // TODO: add admin check
         card.setText(R.id.threadCookie, item.userid)
         card.setText(R.id.threadTime, item.now)
-        card.setText(R.id.threadReplyCount, "Replays: " + item.replyCount)
 
-        card.setText(R.id.threadForum, sharedViewModel.getForumDisplayName(item.fid))
+        card.setText(
+            R.id.threadForumAndReplyCount,
+            sharedViewModel.getForumDisplayName(item.fid) + " • " + item.replyCount
+        )
 
         // TODO: add sage formatting
         // sage

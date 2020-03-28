@@ -75,7 +75,7 @@ class QuickAdapter(private val layoutResId: Int) :
 
         card.setText(
             R.id.threadForumAndReplyCount,
-            sharedViewModel.getForumDisplayName(item.fid) + " • " + item.replyCount
+            sharedViewModel.getForumDisplayName(item.fid!!) + " • " + item.replyCount
         )
 
         // TODO: add sage formatting

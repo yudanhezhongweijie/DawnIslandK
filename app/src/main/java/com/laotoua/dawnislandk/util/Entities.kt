@@ -116,7 +116,7 @@ class ThreadList(
     @SerializedName("id")
     val id: String, //	该串的id
     @SerializedName("fid")
-    var fid: String, //	该串的fid, 非时间线的串会被设置
+    var fid: String? = "", //	该串的fid, 非时间线的串会被设置
 
     @Ignore
     var forumName: String? = "",// only used for displaying name
@@ -142,20 +142,42 @@ class ThreadList(
     @SerializedName("admin")
     val admin: String, //admin 	是否是酷炫红名，如果是酷炫红名则userid为红名id
     @SerializedName("status")
-    val status: String, //?
+    val status: String? = "n", //?
     @SerializedName("replys")
     val replys: List<Reply>?, //replys 	主页展示回复的帖子
     @SerializedName("replyCount")
     val replyCount: String //replyCount 	总共有多少个回复
-)
+) {
+    // convert threadList to Reply
+    fun toReply() = Reply(
+        id = id,
+        userid = userid,
+        name = name,
+        sage = sage,
+        admin = admin,
+        status = status,
+        title = title,
+        email = email,
+        now = now,
+        content = content,
+        img = img,
+        ext = ext
+    )
+}
 
 class Reply(
     @SerializedName("id")
     val id: String,
     @SerializedName("userid")
     val userid: String,
+    @SerializedName("name")
+    val name: String? = "",
+    @SerializedName("sage")
+    val sage: String? = "",
     @SerializedName("admin")
     val admin: String,
+    @SerializedName("status")
+    val status: String? = "n", //?
     @SerializedName("title")
     val title: String,
     @SerializedName("email")

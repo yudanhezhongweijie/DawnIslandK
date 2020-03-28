@@ -36,14 +36,22 @@ class ReplyViewModel : ViewModel() {
             return
         }
         viewModelScope.launch {
-            val list = api.getReplys("id=${currentThread!!.id}&page=$pageCount")
+            val list = mutableListOf<Reply>()
+            // add thread to as first reply for page 1
+            if (pageCount == 1) {
+                list.add(currentThread!!.toReply())
+            }
+            // add replys
+            list.addAll(api.getReplys("id=${currentThread!!.id}&page=$pageCount"))
+
             val noDuplicates = list.filterNot { replyIds.contains(it.id) }
             if (noDuplicates.isNotEmpty()) {
                 replyIds.addAll(noDuplicates.map { it.id })
                 Log.i(
                     TAG,
-                    "no duplicate thread size ${noDuplicates.size}, threadIds size ${replyIds.size}"
+                    "no duplicate reply size ${noDuplicates.size}, replyIds size ${replyIds.size}"
                 )
+
                 replyList.addAll(noDuplicates)
                 _newPage.postValue(noDuplicates)
                 pageCount += 1

@@ -84,8 +84,7 @@ class API {
                 }
             return forumsList
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to get forums")
-            println(e.stackTrace)
+            Log.e(TAG, "Failed to get forums", e)
             return emptyList()
         }
     }
@@ -115,8 +114,7 @@ class API {
 
             return threadsList
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to get threads")
-            println(e.stackTrace)
+            Log.e(TAG, "Failed to get threads", e)
             return emptyList()
         }
     }
@@ -137,7 +135,7 @@ class API {
 
             return replysList
         } catch (e: Exception) {
-            Log.e(TAG, e.stackTrace.toString())
+            Log.e(TAG, "Failed to get replys", e)
             return emptyList()
         }
     }

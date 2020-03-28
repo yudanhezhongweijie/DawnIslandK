@@ -64,7 +64,7 @@ class ReplyFragment : Fragment() {
             Log.i(TAG, "Cleaning old adapter data...")
             mAdapter.replaceData(ArrayList())
             viewModel.setThread(it)
-            // TODO: add thread head at the top of the reply list
+
         })
 
 

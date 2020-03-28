@@ -8,4 +8,9 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="ContentBarText">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">#B0B0B0</item>
+    </style>
+
 </resources>

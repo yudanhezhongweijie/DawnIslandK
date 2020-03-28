@@ -126,7 +126,7 @@ class API {
             val rawResponse =
                 withContext(Dispatchers.IO) {
                     Log.i(TAG, "downloading replys...")
-                    getRawResponse("threads", params)
+                    getRawResponse("replys", params)
                 }
 
             val replysList =

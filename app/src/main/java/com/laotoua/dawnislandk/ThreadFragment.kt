@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.laotoua.dawnislandk.databinding.ThreadFragmentBinding
 import com.laotoua.dawnislandk.util.QuickAdapter
+import com.laotoua.dawnislandk.util.ThreadList
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import com.laotoua.dawnislandk.viewmodels.ThreadViewModel
 
@@ -54,8 +55,12 @@ class ThreadFragment : Fragment() {
         mAdapter.setOnItemClickListener {
             // TODO: needs jump
                 adapter, view, position ->
-            Log.d(TAG, "onItemClick $position")
-//            Log.d(TAG, "Click Thread" + (adapter.getItem(position) as ThreadHead).id)
+            sharedVM.setThreadList(adapter.getItem(position) as ThreadList)
+
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, ReplyFragment())
+                .addToBackStack(null)
+                .commit()
 
         }
 

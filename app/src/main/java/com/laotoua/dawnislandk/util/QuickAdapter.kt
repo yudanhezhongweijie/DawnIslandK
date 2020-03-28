@@ -13,6 +13,7 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 
+// TODO: handle no new data exception
 class QuickAdapter(private val layoutResId: Int) :
     BaseQuickAdapter<Any, BaseViewHolder>(layoutResId, ArrayList()),
     LoadMoreModule {
@@ -23,6 +24,10 @@ class QuickAdapter(private val layoutResId: Int) :
     init {
         // 所有数据加载完成后，是否允许点击（默认为false）
         this.loadMoreModule!!.enableLoadMoreEndClick = true
+
+        // 当数据不满一页时，是否继续自动加载（默认为true）
+        this.loadMoreModule!!.isEnableLoadMoreIfNotFullPage = false;
+
     }
 
     fun setSharedVM(vm: SharedViewModel) {
@@ -35,6 +40,8 @@ class QuickAdapter(private val layoutResId: Int) :
             convertForum(helper, item)
         } else if (layoutResId == R.layout.thread_list_item && item is ThreadList) {
             convertThread(helper, item)
+        } else if (layoutResId == R.layout.reply_list_item && item is Reply) {
+            convertReply(helper, item)
         }
     }
 
@@ -59,17 +66,20 @@ class QuickAdapter(private val layoutResId: Int) :
 
     private fun convertThread(card: BaseViewHolder, item: ThreadList) {
         // add fix to spannable
+        // TODO: add admin check
         card.setText(R.id.threadCookie, item.userid)
         card.setText(R.id.threadTime, item.now)
         card.setText(R.id.threadReplyCount, "Replays: " + item.replyCount)
 
         card.setText(R.id.threadForum, sharedViewModel.getForumDisplayName(item.fid))
 
+        // TODO: add sage formatting
         // sage
         if (item.sage == "0") {
             card.setVisible(R.id.sage, false)
         }
 
+        // TODO: check why images are not displaying sometime
         // load image
         if (item.img != "") {
             Glide.with(context)
@@ -82,6 +92,7 @@ class QuickAdapter(private val layoutResId: Int) :
             card.setGone(R.id.threadImage, true)
         }
 
+        // TODO: handle quotation
         // spannable content
         val s = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             SpannableString(Html.fromHtml(item.content, HtmlCompat.FROM_HTML_MODE_COMPACT))
@@ -89,5 +100,39 @@ class QuickAdapter(private val layoutResId: Int) :
             SpannableString(Html.fromHtml(item.content))
         }
         card.setText(R.id.threadContent, s)
+    }
+
+    fun convertReply(card: BaseViewHolder, item: Reply) {
+        //TODO: add admin check
+        card.setText(R.id.replyCookie, item.userid)
+        card.setText(R.id.replyTime, item.now)
+        // TODO: handle ads
+        card.setText(R.id.replyId, item.id)
+
+        // TODO: add sage display
+//        if (item.sage == "0") {
+//            card.setVisible(R.id.sage, false)
+//        }
+
+        // load image
+        if (item.img != "") {
+            Glide.with(context)
+                .load(thumbCDN + item.img + item.ext)
+                .override(100, 100)
+                .fitCenter()
+                .into(card.getView(R.id.replyImage))
+            Log.i(TAG, "added Thumbnail from URL: ${thumbCDN + item.img + item.ext}")
+        } else {
+            card.setGone(R.id.replyImage, true)
+        }
+
+        // TODO: handle quotation
+        // spannable content
+        val s = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            SpannableString(Html.fromHtml(item.content, HtmlCompat.FROM_HTML_MODE_COMPACT))
+        } else {
+            SpannableString(Html.fromHtml(item.content))
+        }
+        card.setText(R.id.replyContent, s)
     }
 }

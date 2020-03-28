@@ -5,7 +5,8 @@ import androidx.room.*
 import com.google.gson.annotations.SerializedName
 
 
-@Database(entities = arrayOf(Forum::class), version = 1)
+// TODO: export Schema
+@Database(entities = arrayOf(Forum::class), version = 1, exportSchema = false)
 abstract class DawnDatabase : RoomDatabase() {
     abstract fun forumDao(): ForumDao
 

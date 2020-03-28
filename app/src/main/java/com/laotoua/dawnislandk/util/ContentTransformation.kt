@@ -3,21 +3,18 @@ package com.laotoua.dawnislandk.util
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Build
-import android.text.Html
-import android.text.Spannable
-import android.text.SpannableStringBuilder
-import android.text.Spanned
+import android.text.*
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
+import androidx.core.text.HtmlCompat
 
 
 fun formatForumName(forumName: String): Spanned {
-    val displayName: Spanned = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+    return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
         Html.fromHtml(forumName)
     } else {
         Html.fromHtml(forumName, Html.FROM_HTML_MODE_COMPACT)
     }
-    return displayName
 }
 
 fun formatCookie(userid: String, admin: String, po: String = ""): Spannable {
@@ -77,12 +74,14 @@ fun removeQuote(content: String): String {
     /** api response
     <font color=\"#789922\">&gt;&gt;No.23527403</font>
      */
-    val regex = """<font color=\\"#789922\\">.*<\/font>""".toRegex()
-//    val s = """>>21763921|∀ﾟ >>No.23527403|-` )主播版，还有一点点问题，应该是板块的id没对上||"<font color=\"#789922\">&gt;&gt;No.25155030</font><br />\n(`ヮ´ ) x = x + (x &amp; 1)? (x &amp; 1): (x ^ 1)"""
+    val regex = """<font color=\"#789922\">.*<\/font>""".toRegex()
     return regex.replace(content, "")
-//    Log.i("regex remove", matchResult)
 }
 
-fun formatContent(content: String) {
-
+fun formatContent(content: String): SpannableString {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        SpannableString(Html.fromHtml(content, HtmlCompat.FROM_HTML_MODE_COMPACT))
+    } else {
+        SpannableString(Html.fromHtml(content))
+    }
 }

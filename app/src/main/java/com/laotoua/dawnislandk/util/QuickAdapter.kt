@@ -1,14 +1,11 @@
 package com.laotoua.dawnislandk.util
 
-import android.os.Build
-import android.text.Html
-import android.text.SpannableString
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.core.text.HtmlCompat
+import android.widget.LinearLayout
 import com.bumptech.glide.Glide
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.loadmore.BaseLoadMoreView
@@ -17,6 +14,7 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import kotlinx.android.synthetic.main.quote_list_item.view.*
+
 
 // TODO: handle no new data exception
 class QuickAdapter(private val layoutResId: Int) :
@@ -31,7 +29,7 @@ class QuickAdapter(private val layoutResId: Int) :
         this.loadMoreModule!!.enableLoadMoreEndClick = true
 
         // 当数据不满一页时，是否继续自动加载（默认为true）
-        this.loadMoreModule!!.isEnableLoadMoreIfNotFullPage = false;
+        this.loadMoreModule!!.isEnableLoadMoreIfNotFullPage = false
 
     }
 
@@ -80,9 +78,10 @@ class QuickAdapter(private val layoutResId: Int) :
         // sage
         if (item.sage == "1") {
             card.setVisible(R.id.sage, false)
+        } else {
+            card.setGone(R.id.sage, true)
         }
 
-        // TODO: check why images are not displaying sometime
         // load image
         if (item.img != "") {
             Glide.with(context)
@@ -91,21 +90,27 @@ class QuickAdapter(private val layoutResId: Int) :
                 .fitCenter()
                 .into(card.getView(R.id.threadImage) as ImageView)
             Log.i(TAG, "added Thumbnail from URL: ${thumbCDN + item.img + item.ext}")
+            card.setVisible(R.id.threadImage, true)
         } else {
             card.setGone(R.id.threadImage, true)
         }
 
         // TODO: handle quotation
-        // spannable content
-        val s = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            SpannableString(Html.fromHtml(item.content, HtmlCompat.FROM_HTML_MODE_COMPACT))
-        } else {
-            SpannableString(Html.fromHtml(item.content))
+        val quotes = extractQuote(item.content)
+        val quotesContainer: LinearLayout = card.getView(R.id.threadQuotes)
+        quotesContainer.removeAllViews()
+        quotes.map {
+            val q = LayoutInflater.from(context)
+                .inflate(R.layout.quote_list_item, quotesContainer, false)
+            q.quoteId.text = "No. $it"
+            quotesContainer.addView(q)
         }
-        card.setText(R.id.threadContent, s)
+
+        card.setText(R.id.threadContent, formatContent(removeQuote(item.content)))
+
     }
 
-    fun convertReply(card: BaseViewHolder, item: Reply, po: String) {
+    private fun convertReply(card: BaseViewHolder, item: Reply, po: String) {
 
         card.setText(R.id.replyCookie, formatCookie(item.userid, item.admin!!, po))
 
@@ -116,11 +121,14 @@ class QuickAdapter(private val layoutResId: Int) :
         // TODO: add sage formatting
         if (item.sage == "1") {
             card.setVisible(R.id.sage, true)
+        } else {
+            card.setGone(R.id.sage, true)
         }
 
         val titleAndName = formatTitleAndName(item.title, item.name)
         if (titleAndName != "") {
             card.setText(R.id.replyTitleAndName, titleAndName)
+            card.setVisible(R.id.replyTitleAndName, true)
         } else {
             card.setGone(R.id.replyTitleAndName, true)
         }
@@ -132,28 +140,26 @@ class QuickAdapter(private val layoutResId: Int) :
                 .override(250, 250)
                 .fitCenter()
                 .into(card.getView(R.id.replyImage) as ImageView)
-
+            card.setVisible(R.id.replyImage, true)
             Log.i(TAG, "added Thumbnail from URL: ${thumbCDN + item.img + item.ext}")
         } else {
             card.setGone(R.id.replyImage, true)
         }
 
+        // TODO: need quotation handler, should be done in view however
+        val quotesContainer: LinearLayout = card.getView(R.id.replyQuotes)
         val quotes = extractQuote(item.content)
-        Log.i(TAG, "threadId: ${item.id} quotes: $quotes")
-        val quotesContainer: ViewGroup = card.getView(R.id.replyQuotes)
-//        card.itemView.replyQuotes
-
-        // TODO ERROR: 引用有时候会加到错误的地方，怀疑getview可能有问题，读取图片可能也是这个问题
-        quotes.map {
-            Log.i(
-                TAG,
-                "item pos ${card.adapterPosition} quote container id ${R.id.replyQuotes} childcounts ${quotesContainer.childCount}"
-            )
-            val q = LayoutInflater.from(context)
-                .inflate(R.layout.quote_list_item, quotesContainer, false)
-            // TODO: fill quote content, this can be done in View's listener
-            q.quoteId.text = "No. $it"
-            quotesContainer.addView(q)
+        if (quotes.size > 0) {
+            quotesContainer.removeAllViews()
+            quotes.map {
+                val q = LayoutInflater.from(context)
+                    .inflate(R.layout.quote_list_item, quotesContainer, false)
+                q.quoteId.text = "No. $it"
+                quotesContainer.addView(q)
+            }
+            card.setVisible(R.id.replyQuotes, true)
+        } else {
+            card.setGone(R.id.replyQuotes, true)
         }
 
         card.setText(R.id.replyContent, formatContent(removeQuote(item.content)))

@@ -18,7 +18,7 @@
         android:textSize="10sp"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/replyCookie" />
+        app:layout_constraintTop_toBottomOf="@id/replyCookie" />
 
     <TextView
         android:id="@+id/replyId"
@@ -47,7 +47,7 @@
         android:layout_marginTop="6dp"
         android:orientation="vertical"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/barrier" />
+        app:layout_constraintTop_toBottomOf="@+id/barrier" />
 
     <TextView
         android:id="@+id/replyContent"
@@ -70,7 +70,7 @@
         android:text="2/7 23:23:12"
         android:textAppearance="@style/ContentBarText"
         android:textSize="13sp"
-        app:layout_constraintStart_toEndOf="@+id/replyCookie"
+        app:layout_constraintStart_toEndOf="@id/replyCookie"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -81,7 +81,7 @@
         android:textSize="10sp"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sage" />
+        app:layout_constraintTop_toBottomOf="@id/sage" />
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/barrier"
@@ -99,7 +99,7 @@
         android:text="No."
         android:textAppearance="@style/ContentBarText"
         android:textSize="13sp"
-        app:layout_constraintEnd_toStartOf="@+id/replyId"
+        app:layout_constraintEnd_toStartOf="@id/replyId"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
@@ -109,16 +109,16 @@
         android:layout_marginTop="3dp"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/replyContent"
+        app:layout_constraintTop_toBottomOf="@id/replyContent"
         app:srcCompat="@mipmap/ic_launcher" />
 
     <View
         android:id="@+id/bottomBorder"
         android:layout_width="match_parent"
-        android:layout_height="1.2px"
+        android:layout_height="1.2dp"
         android:layout_marginTop="8dp"
         android:background="#E0E0E0"
-        app:layout_constraintTop_toBottomOf="@+id/replyImage"
+        app:layout_constraintTop_toBottomOf="@id/replyImage"
         tools:layout_editor_absoluteX="12dp" />
 
 

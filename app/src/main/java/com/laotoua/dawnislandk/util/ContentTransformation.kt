@@ -46,10 +46,10 @@ fun formatTime(now: String, style: String = "default"): String {
 
 fun formatTitleAndName(title: String? = "", name: String? = ""): String {
     var titleAndName = ""
-    if (title != "无标题") {
+    if (title != null && title != "" && title != "无标题") {
         titleAndName += "标题：$title"
     }
-    if (name != "无名氏") {
+    if (name != null && name != "" && name != "无名氏") {
         if (titleAndName.isNotEmpty()) {
             titleAndName += "\n"
         }
@@ -74,7 +74,7 @@ fun removeQuote(content: String): String {
     /** api response
     <font color=\"#789922\">&gt;&gt;No.23527403</font>
      */
-    val regex = """<font color=\"#789922\">.*<\/font>""".toRegex()
+    val regex = """<font color="#789922">.*</font>""".toRegex()
     return regex.replace(content, "")
 }
 

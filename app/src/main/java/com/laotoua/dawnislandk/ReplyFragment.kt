@@ -11,6 +11,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.laotoua.dawnislandk.databinding.ReplyFragmentBinding
+//import com.laotoua.dawnislandk.util.DiffCallback
 import com.laotoua.dawnislandk.util.QuickAdapter
 import com.laotoua.dawnislandk.viewmodels.ReplyViewModel
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
@@ -79,7 +80,7 @@ class ReplyFragment : Fragment() {
         sharedVM.selectedThreadList.observe(viewLifecycleOwner, Observer {
             Log.i(TAG, "shared VM change observed in Reply Fragment")
             Log.i(TAG, "Cleaning old adapter data...")
-            mAdapter.replaceData(ArrayList())
+            mAdapter.setList(ArrayList())
             viewModel.setThread(it)
 
         })

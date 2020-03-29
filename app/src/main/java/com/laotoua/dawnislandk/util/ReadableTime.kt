@@ -48,8 +48,8 @@ object ReadableTime {
         sResources = context.applicationContext.resources
     }
 
-    fun string2Time(s: String): Long {
-        var s = s
+    fun string2Time(str: String): Long {
+        var s = str
         if (s.contains("(")) {
             s = s.substring(0, 10) + " " + s.substring(13)
         }

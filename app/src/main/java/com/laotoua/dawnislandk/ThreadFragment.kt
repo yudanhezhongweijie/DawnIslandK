@@ -83,7 +83,7 @@ class ThreadFragment : Fragment() {
         sharedVM.selectedForum.observe(viewLifecycleOwner, Observer {
             Log.i(TAG, "shared VM change observed in Thread Fragment")
             Log.i(TAG, "Cleaning old adapter data...")
-            mAdapter.replaceData(ArrayList())
+            mAdapter.setList(ArrayList())
             viewModel.setForum(it)
         })
 

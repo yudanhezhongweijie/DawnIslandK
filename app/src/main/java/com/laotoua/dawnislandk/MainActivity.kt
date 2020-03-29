@@ -66,7 +66,6 @@ class MainActivity : AppCompatActivity() {
         val mAdapter = QuickAdapter(R.layout.forum_list_item)
         binding.forumContainer.layoutManager = LinearLayoutManager(this)
         binding.forumContainer.adapter = mAdapter
-
         mAdapter.loadMoreModule!!.isEnableLoadMore = false
         // item click
         mAdapter.setOnItemClickListener { adapter, _, position ->
@@ -75,7 +74,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         forumVM.forumList.observe(this, Observer {
-            mAdapter.replaceData(it)
+            mAdapter.setList(it)
             Log.i(TAG, "Loaded ${mAdapter.data.size} forums")
             sharedVM.setForumNameMapping(forumVM.getForumNameMapping())
         })

@@ -60,7 +60,9 @@ class ReplyViewModel : ViewModel() {
 
             val noDuplicates = list.filterNot { replyIds.contains(it.id) && it.id != "9999999" }
 
-            if (noDuplicates.isNotEmpty()) {
+            if (noDuplicates.isNotEmpty() &&
+                (noDuplicates.size > 1 || noDuplicates.first().id != "9999999")
+            ) {
                 replyIds.addAll(noDuplicates.map { it.id })
                 Log.i(
                     TAG,

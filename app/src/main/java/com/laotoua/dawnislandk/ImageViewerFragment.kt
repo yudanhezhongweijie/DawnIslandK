@@ -17,7 +17,6 @@ import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 
 
 class ImageViewerFragment : Fragment() {
-    private val TAG = "ImageViewerView"
     var toolbar: Toolbar? = null
     private var _binding: ImageViewerFragmentBinding? = null
     val binding: ImageViewerFragmentBinding get() = _binding!!

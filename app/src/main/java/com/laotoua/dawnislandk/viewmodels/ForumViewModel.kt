@@ -1,6 +1,5 @@
 package com.laotoua.dawnislandk.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,9 +10,9 @@ import com.laotoua.dawnislandk.util.ForumDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 class ForumViewModel : ViewModel() {
-    private val TAG = "ForumVM"
     private val api = API()
     private var dao: ForumDao? = null
 
@@ -29,10 +28,10 @@ class ForumViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val list = api.getForums()
-                Log.i(TAG, "Downloaded forums size ${list.size}")
+                Timber.i("Downloaded forums size ${list.size}")
                 if (list != forumList.value) {
-                    Log.i(TAG, "Forum list is the same as Db. Reusing...")
-                    Log.i(TAG, "Forum list has changed. updating...")
+                    Timber.i("Forum list is the same as Db. Reusing...")
+                    Timber.i("Forum list has changed. updating...")
                     _forumList.postValue(list)
                     _loadFail.postValue(false)
                     // save to local db
@@ -40,10 +39,10 @@ class ForumViewModel : ViewModel() {
                         dao?.insertAll(list)
                     }
                 } else {
-                    Log.i(TAG, "Forum list is the same as Db. Reusing...")
+                    Timber.i("Forum list is the same as Db. Reusing...")
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "failed to get forums", e)
+                Timber.e(e, "failed to get forums")
                 _loadFail.postValue(true)
             }
         }
@@ -54,10 +53,10 @@ class ForumViewModel : ViewModel() {
             withContext(Dispatchers.IO) {
                 dao?.getAll().let {
                     if (it?.size ?: 0 > 0) {
-                        Log.i(TAG, "Loaded ${it?.size} forums from db")
+                        Timber.i("Loaded ${it?.size} forums from db")
                         _forumList.postValue(it)
                     } else {
-                        Log.i(TAG, "Db has no data about forums")
+                        Timber.i("Db has no data about forums")
                     }
                 }
             }
@@ -75,6 +74,6 @@ class ForumViewModel : ViewModel() {
 
     fun setDb(dao: ForumDao) {
         this.dao = dao
-        Log.i(TAG, "Forum DAO set!!!")
+        Timber.i("Forum DAO set!!!")
     }
 }

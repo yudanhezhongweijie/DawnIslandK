@@ -1,6 +1,5 @@
 package com.laotoua.dawnislandk.util
 
-import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
@@ -8,12 +7,12 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import timber.log.Timber
 import java.io.IOException
 import java.lang.reflect.Type
 
 
 class API {
-    private val TAG: String = "API calls"
     private val baseApi = "https://adnmb2.com/api/"
     private val suffix_forumList = "getForumList"
     private val suffix_threadList = "showf?"
@@ -32,7 +31,7 @@ class API {
             else -> throw IOException("Unhandled api call $data")
         }
 
-        Log.i(TAG, "Sending HTTP request at $url")
+        Timber.i("Sending HTTP request at $url")
         val request = Request.Builder()
             .url(url)
             .build()
@@ -45,7 +44,7 @@ class API {
         val newType: Type = object : TypeToken<List<Community>>() {}.type
         val l: List<Community> = Gson().fromJson(response.body!!.string(), newType)
         if (l.isEmpty()) {
-            Log.e(TAG, "Didn't get forums from API")
+            Timber.e("Didn't get forums from API")
         }
 
         return l.flatMap { c -> c.forums }
@@ -55,7 +54,7 @@ class API {
         val newType: Type = object : TypeToken<List<ThreadList>>() {}.type
         val l: List<ThreadList> = Gson().fromJson(response.body!!.string(), newType)
         if (l.isEmpty()) {
-            Log.e(TAG, "Didn't get threads from API")
+            Timber.e("Didn't get threads from API")
         }
         return l
     }
@@ -65,7 +64,7 @@ class API {
         val replys: List<Reply> =
             (Gson().fromJson(response.body!!.string(), newType) as ThreadList).replys!!
         if (replys.isEmpty()) {
-            Log.e(TAG, "Didn't get thread reply from API")
+            Timber.e("Didn't get thread reply from API")
         }
         return replys
     }
@@ -74,17 +73,17 @@ class API {
         try {
             val rawResponse =
                 withContext(Dispatchers.IO) {
-                    Log.i(TAG, "downloading forums...")
+                    Timber.i("downloading forums...")
                     getRawResponse("forums")
                 }
             val forumsList =
                 withContext(Dispatchers.Default) {
-                    Log.i(TAG, "parsing forums...")
+                    Timber.i("parsing forums...")
                     parseForums(rawResponse)
                 }
             return forumsList
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to get forums", e)
+            Timber.e(e, "Failed to get forums")
             throw e
         }
     }
@@ -98,7 +97,7 @@ class API {
         try {
             val rawResponse =
                 withContext(Dispatchers.IO) {
-                    Log.i(TAG, "downloading threads...")
+                    Timber.i("downloading threads...")
                     if (!timeline) getRawResponse("threads", params) else getRawResponse(
                         "timeline",
                         params
@@ -107,7 +106,7 @@ class API {
 
             val threadsList =
                 withContext(Dispatchers.Default) {
-                    Log.i(TAG, "parsing threads...")
+                    Timber.i("parsing threads...")
                     parseThreads(rawResponse)
                 }
             // assign fid if not timeline
@@ -115,7 +114,7 @@ class API {
 
             return threadsList
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to get threads", e)
+            Timber.e(e, "Failed to get threads")
             throw e
         }
     }
@@ -125,19 +124,19 @@ class API {
         try {
             val rawResponse =
                 withContext(Dispatchers.IO) {
-                    Log.i(TAG, "downloading replys...")
+                    Timber.i("downloading replys...")
                     getRawResponse("replys", params)
                 }
 
             val replysList =
                 withContext(Dispatchers.Default) {
-                    Log.i(TAG, "parsing replys...")
+                    Timber.i("parsing replys...")
                     parseReplys(rawResponse)
                 }
 
             return replysList
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to get replys", e)
+            Timber.e(e, "Failed to get replys")
             throw e
         }
     }

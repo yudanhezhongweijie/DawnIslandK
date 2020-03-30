@@ -6,7 +6,6 @@ import android.graphics.Bitmap
 import android.graphics.Bitmap.CompressFormat
 import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -17,11 +16,11 @@ import com.github.chrisbanes.photoview.PhotoView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.io.File
 import java.io.IOException
 
 class ImageViewerViewModel : ViewModel() {
-    private val TAG: String = "ImageViewerViewModel"
 
     // TODO: move cdn path to right place
     private val cdn = "https://nmbimg.fastmirror.org/image/"
@@ -33,7 +32,7 @@ class ImageViewerViewModel : ViewModel() {
      *
      */
     fun loadImage(caller: Fragment, photoView: PhotoView, imgUrl: String) {
-        Log.i(TAG, "Downloading image at ${cdn + imgUrl}")
+        Timber.i("Downloading image at ${cdn + imgUrl}")
         Glide.with(caller).load(cdn + imgUrl).into(photoView)
     }
 
@@ -43,7 +42,7 @@ class ImageViewerViewModel : ViewModel() {
     fun addPicToGallery(caller: Fragment, imgUrl: String) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                Log.i(TAG, "Saving image to Gallery... ")
+                Timber.i("Saving image to Gallery... ")
                 val relativeLocation =
                     Environment.DIRECTORY_PICTURES + File.separator + "Dawn"
                 val name =
@@ -65,10 +64,10 @@ class ImageViewerViewModel : ViewModel() {
                     val stream = resolver.openOutputStream(uri)
                         ?: throw IOException("Failed to get output stream.")
                     image.compress(format, 100, stream)
-                    Log.i(TAG, "Image saved")
+                    Timber.i("Image saved")
                     _status.postValue(true)
                 } catch (e: Exception) {
-                    Log.e(TAG, "failed to save img from $imgUrl", e)
+                    Timber.e(e, "failed to save img from $imgUrl")
                     _status.postValue(false)
                 }
             }

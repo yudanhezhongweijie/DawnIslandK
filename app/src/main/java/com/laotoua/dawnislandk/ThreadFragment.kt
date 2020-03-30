@@ -1,7 +1,6 @@
 package com.laotoua.dawnislandk
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +14,7 @@ import com.laotoua.dawnislandk.util.QuickAdapter
 import com.laotoua.dawnislandk.util.ThreadList
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import com.laotoua.dawnislandk.viewmodels.ThreadViewModel
+import timber.log.Timber
 
 
 class ThreadFragment : Fragment() {
@@ -26,14 +26,13 @@ class ThreadFragment : Fragment() {
     private val sharedVM: SharedViewModel by activityViewModels()
     private val mAdapter = QuickAdapter(R.layout.thread_list_item)
 
-    private val TAG: String = "ThreadFragment"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         _binding = ThreadFragmentBinding.inflate(inflater, container, false)
-        Log.i(TAG, "connected sharedVM instance: $sharedVM viewLifeCycleOwner $viewLifecycleOwner")
+        Timber.i("connected sharedVM instance: $sharedVM viewLifeCycleOwner $viewLifecycleOwner")
         viewModel.setForumDao(sharedVM.getDb()?.forumDao())
 
         binding.threadsView.layoutManager = LinearLayoutManager(context)
@@ -58,7 +57,7 @@ class ThreadFragment : Fragment() {
         mAdapter.addChildClickViewIds(R.id.threadImage)
         mAdapter.setOnItemChildClickListener { adapter, view, position ->
             if (view.id == R.id.threadImage) {
-                Log.i(TAG, "clicked on image at $position")
+                Timber.i("clicked on image at $position")
                 val dest = ImageViewerFragment()
                 val bundle = Bundle()
                 bundle.putString("imgUrl", (adapter.getItem(position) as ThreadList).getImgUrl())
@@ -72,7 +71,7 @@ class ThreadFragment : Fragment() {
 
         // load more
         mAdapter.loadMoreModule.setOnLoadMoreListener {
-            Log.i(TAG, "Fetching new data...")
+            Timber.i("Fetching new data...")
             viewModel.getThreads()
         }
 
@@ -82,23 +81,22 @@ class ThreadFragment : Fragment() {
             // TODO: can be either out of new Data or api error
             if (it == true) {
                 mAdapter.loadMoreModule.loadMoreFail()
-                Log.i(TAG, "Failed to load new data...")
+                Timber.i("Failed to load new data...")
             }
         })
         viewModel.newPage.observe(viewLifecycleOwner, Observer {
             mAdapter.addData(it)
             mAdapter.loadMoreModule.loadMoreComplete()
-            Log.i(TAG, "New data found. Adapter now have ${mAdapter.data.size} threads")
+            Timber.i("New data found. Adapter now have ${mAdapter.data.size} threads")
 
         })
 
         sharedVM.selectedForum.observe(viewLifecycleOwner, Observer {
-            Log.i(
-                TAG,
+            Timber.i(
                 "shared VM change observed in Thread Fragment $viewLifecycleOwner with data $it"
             )
             if (viewModel.currentForum == null || viewModel.currentForum!!.id != it.id) {
-                Log.i(TAG, "Forum has changed. Cleaning old adapter data...")
+                Timber.i("Forum has changed. Cleaning old adapter data...")
                 mAdapter.setList(ArrayList())
                 viewModel.setForum(it)
             }
@@ -114,7 +112,7 @@ class ThreadFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.i(TAG, "Thread Fragment destroyed!!!")
+        Timber.i("Thread Fragment destroyed!!!")
     }
 
 }

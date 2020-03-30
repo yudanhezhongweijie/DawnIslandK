@@ -1,7 +1,6 @@
 package com.laotoua.dawnislandk
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -14,19 +13,19 @@ import com.laotoua.dawnislandk.util.QuickAdapter
 import com.laotoua.dawnislandk.util.ReadableTime
 import com.laotoua.dawnislandk.viewmodels.ForumViewModel
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
+import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val forumVM: ForumViewModel by viewModels()
     private val sharedVM: SharedViewModel by viewModels()
-    private val TAG = "MainAct"
 
     private val mAdapter = QuickAdapter(R.layout.forum_list_item)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.i(TAG, "sharedVM instance: $sharedVM")
+        Timber.i("sharedVM instance: $sharedVM")
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -69,20 +68,20 @@ class MainActivity : AppCompatActivity() {
         mAdapter.loadMoreModule.isEnableLoadMore = false
         // item click
         mAdapter.setOnItemClickListener { adapter, _, position ->
-            Log.i(TAG, "Selected Forum at pos $position")
+            Timber.i("Selected Forum at pos $position")
             sharedVM.setForum(adapter.getItem(position) as Forum)
             binding.drawerLayout.closeDrawers()
         }
 
         forumVM.forumList.observe(this, Observer {
-            Log.i(TAG, "Loaded ${mAdapter.data.size} forums")
+            Timber.i("Loaded ${mAdapter.data.size} forums")
             mAdapter.setList(it)
             sharedVM.setForumNameMapping(forumVM.getForumNameMapping())
         })
 
         forumVM.loadFail.observe(this, Observer {
             if (it == true) {
-                Log.i(TAG, "Failed to load data...")
+                Timber.i("Failed to load data...")
                 mAdapter.loadMoreModule.loadMoreFail()
             }
         })

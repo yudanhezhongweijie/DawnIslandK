@@ -53,6 +53,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0-beta01"
     api 'com.google.android.material:material:1.1.0-alpha06'
 
+    implementation 'com.jakewharton.timber:timber:4.7.1'
     implementation "com.squareup.okhttp3:okhttp:4.4.0"
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.2'

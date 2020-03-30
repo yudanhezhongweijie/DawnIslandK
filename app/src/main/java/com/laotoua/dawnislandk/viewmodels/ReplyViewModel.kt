@@ -1,6 +1,5 @@
 package com.laotoua.dawnislandk.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,9 +8,9 @@ import com.laotoua.dawnislandk.util.API
 import com.laotoua.dawnislandk.util.Reply
 import com.laotoua.dawnislandk.util.ThreadList
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class ReplyViewModel : ViewModel() {
-    private val TAG = "ForumVM"
     private val api = API()
 //    private var dao: ReplyDao? = null
 
@@ -41,7 +40,7 @@ class ReplyViewModel : ViewModel() {
 
     fun getReplys() {
         if (_currentThread == null) {
-            Log.e(TAG, "Trying to read replys without selected forum")
+            Timber.e("Trying to read replys without selected forum")
             return
         }
         viewModelScope.launch {
@@ -54,7 +53,7 @@ class ReplyViewModel : ViewModel() {
             try {
                 list.addAll(api.getReplys("id=${_currentThread!!.id}&page=$pageCount"))
             } catch (e: Exception) {
-                Log.e(TAG, "reply api error", e)
+                Timber.e(e, "reply api error")
                 _loadFail.postValue(true)
                 return@launch
             }
@@ -65,8 +64,7 @@ class ReplyViewModel : ViewModel() {
                 (noDuplicates.size > 1 || noDuplicates.first().id != "9999999")
             ) {
                 replyIds.addAll(noDuplicates.map { it.id })
-                Log.i(
-                    TAG,
+                Timber.i(
                     "no duplicate reply size ${noDuplicates.size}, replyIds size ${replyIds.size}"
                 )
 
@@ -75,7 +73,7 @@ class ReplyViewModel : ViewModel() {
                 // TODO: updates differently with cookie
                 if (replyList.size % 20 == 1) pageCount += 1
             } else {
-                Log.i(TAG, "Thread ${_currentThread!!.id} has no new replys.")
+                Timber.i("Thread ${_currentThread!!.id} has no new replys.")
                 _loadEnd.postValue(true)
             }
         }
@@ -87,10 +85,10 @@ class ReplyViewModel : ViewModel() {
 //            withContext(Dispatchers.IO) {
 //                dao?.getAll().let {
 //                    if (it?.size ?: 0 > 0) {
-//                        Log.i(TAG, "Loaded ${it?.size} replys from db")
+//                        Timber.i("Loaded ${it?.size} replys from db")
 //                        _replyList.postValue(it)
 //                    } else {
-//                        Log.i(TAG, "Db has no data about replys")
+//                        Timber.i("Db has no data about replys")
 //                    }
 //                }
 //            }
@@ -100,6 +98,6 @@ class ReplyViewModel : ViewModel() {
     // TODO
 //    fun setDb(dao: ForumDao) {
 //        this.dao = dao
-//        Log.i(TAG, "Forum DAO set!!!")
+//        Timber.i("Forum DAO set!!!")
 //    }
 }

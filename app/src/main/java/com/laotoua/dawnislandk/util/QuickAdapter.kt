@@ -18,7 +18,6 @@ import kotlinx.android.synthetic.main.quote_list_item.view.*
 class QuickAdapter(private val layoutResId: Int) :
     BaseQuickAdapter<Any, BaseViewHolder>(layoutResId, ArrayList()),
     LoadMoreModule {
-    private val TAG = "QuickAdapter"
     private val thumbCDN = "https://nmbimg.fastmirror.org/thumb/"
     private lateinit var sharedViewModel: SharedViewModel
 

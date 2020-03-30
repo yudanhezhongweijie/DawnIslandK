@@ -20,7 +20,8 @@ class ThreadViewModel : ViewModel() {
     private var _newPage = MutableLiveData<List<ThreadList>>()
     val newPage: LiveData<List<ThreadList>>
         get() = _newPage
-    private var currentForum: Forum? = null
+    private var _currentForum: Forum? = null
+    val currentForum: Forum? get() = _currentForum
     private var pageCount = 1
     private var _loadFail = MutableLiveData(false)
     val loadFail: LiveData<Boolean>
@@ -35,8 +36,8 @@ class ThreadViewModel : ViewModel() {
     fun getThreads() {
         viewModelScope.launch {
             try {
-                val fid = currentForum?.id ?: "4"
-                Log.i(TAG, "getting threads from $fid ${currentForum?.name ?: "综合版1(default)"}")
+                val fid = _currentForum?.id ?: "-1"
+                Log.i(TAG, "getting threads from $fid ${_currentForum?.name ?: "综合版1(default)"}")
                 val list = api.getThreads("id=" + fid + "&page=${pageCount}", fid.equals("-1"), fid)
                 val noDuplicates = list.filterNot { threadIds.contains(it.id) }
                 if (noDuplicates.isNotEmpty()) {
@@ -50,7 +51,7 @@ class ThreadViewModel : ViewModel() {
                     _loadFail.postValue(false)
                     pageCount += 1
                 } else {
-                    Log.i(TAG, "Forum ${currentForum!!.id} has no new threads.")
+                    Log.i(TAG, "Forum ${_currentForum!!.id} has no new threads.")
                     _loadFail.postValue(true)
                 }
             } catch (e: Exception) {
@@ -65,7 +66,7 @@ class ThreadViewModel : ViewModel() {
         threadList.clear()
         threadIds.clear()
         Log.i(TAG, "Setting new forum: ${f.id}")
-        currentForum = f
+        _currentForum = f
         pageCount = 1
         getThreads()
     }

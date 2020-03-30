@@ -16,7 +16,8 @@ class ReplyViewModel : ViewModel() {
 //    private var dao: ReplyDao? = null
 
 
-    private var currentThread: ThreadList? = null
+    private var _currentThread: ThreadList? = null
+    val currentThread: ThreadList? get() = _currentThread
     private val replyList = mutableListOf<Reply>()
     private val replyIds = mutableSetOf<String>()
     private var _newPage = MutableLiveData<List<Reply>>()
@@ -33,13 +34,13 @@ class ReplyViewModel : ViewModel() {
         get() = _loadEnd
 
     fun setThread(f: ThreadList) {
-        currentThread = f
+        _currentThread = f
         pageCount = 1
         getReplys()
     }
 
     fun getReplys() {
-        if (currentThread == null) {
+        if (_currentThread == null) {
             Log.e(TAG, "Trying to read replys without selected forum")
             return
         }
@@ -47,11 +48,11 @@ class ReplyViewModel : ViewModel() {
             val list = mutableListOf<Reply>()
             // add thread to as first reply for page 1
             if (pageCount == 1) {
-                list.add(currentThread!!.toReply())
+                list.add(_currentThread!!.toReply())
             }
             // TODO: handle case where thread is deleted
             try {
-                list.addAll(api.getReplys("id=${currentThread!!.id}&page=$pageCount"))
+                list.addAll(api.getReplys("id=${_currentThread!!.id}&page=$pageCount"))
             } catch (e: Exception) {
                 Log.e(TAG, "reply api error", e)
                 _loadFail.postValue(true)
@@ -74,7 +75,7 @@ class ReplyViewModel : ViewModel() {
                 // TODO: updates differently with cookie
                 if (replyList.size % 20 == 1) pageCount += 1
             } else {
-                Log.i(TAG, "Thread ${currentThread!!.id} has no new replys.")
+                Log.i(TAG, "Thread ${_currentThread!!.id} has no new replys.")
                 _loadEnd.postValue(true)
             }
         }

@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
@@ -19,9 +18,11 @@ import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var forumVM: ForumViewModel
+    private val forumVM: ForumViewModel by viewModels()
     private val sharedVM: SharedViewModel by viewModels()
     private val TAG = "MainAct"
+
+    private val mAdapter = QuickAdapter(R.layout.forum_list_item)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        forumVM = ViewModelProvider(this).get(ForumViewModel::class.java)
+//        forumVM = ViewModelProvider(this).get(ForumViewModel::class.java)
 
         supportFragmentManager.beginTransaction().add(R.id.fragmentContainer, ThreadFragment())
             .commit()
@@ -63,25 +64,26 @@ class MainActivity : AppCompatActivity() {
 
     // left forum drawer
     private fun setUpForumDrawer() {
-        val mAdapter = QuickAdapter(R.layout.forum_list_item)
         binding.forumContainer.layoutManager = LinearLayoutManager(this)
         binding.forumContainer.adapter = mAdapter
-        mAdapter.loadMoreModule!!.isEnableLoadMore = false
+        mAdapter.loadMoreModule.isEnableLoadMore = false
         // item click
         mAdapter.setOnItemClickListener { adapter, _, position ->
+            Log.i(TAG, "Selected Forum at pos $position")
             sharedVM.setForum(adapter.getItem(position) as Forum)
             binding.drawerLayout.closeDrawers()
         }
 
         forumVM.forumList.observe(this, Observer {
-            mAdapter.setList(it)
             Log.i(TAG, "Loaded ${mAdapter.data.size} forums")
+            mAdapter.setList(it)
             sharedVM.setForumNameMapping(forumVM.getForumNameMapping())
         })
 
         forumVM.loadFail.observe(this, Observer {
             if (it == true) {
-                mAdapter.loadMoreModule!!.loadMoreFail()
+                Log.i(TAG, "Failed to load data...")
+                mAdapter.loadMoreModule.loadMoreFail()
             }
         })
         // TODO refresh click

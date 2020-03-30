@@ -13,4 +13,8 @@
         <item name="android:textColor">#B0B0B0</item>
     </style>
 
+    <style name="CollSubTitle" parent="TextAppearance.AppCompat.Headline">
+        <item name="android:textSize">10sp</item>
+    </style>
+
 </resources>

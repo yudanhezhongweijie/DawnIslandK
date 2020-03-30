@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ImageViewerFragment">
+
+    <!--    <androidx.appcompat.widget.Toolbar-->
+    <!--        android:id="@+id/contentToolbar"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:background="@color/colorPrimary"-->
+    <!--        android:minHeight="?attr/actionBarSize"-->
+    <!--        android:theme="@style/ThemeOverlay.MaterialComponents.Dark"-->
+    <!--        app:contentInsetStartWithNavigation="0dp"-->
+    <!--        app:subtitle=""-->
+    <!--        app:subtitleTextAppearance="@style/CollSubTitle"-->
+    <!--        app:subtitleTextColor="#D2FFFFFF"-->
+    <!--        app:title="大图模式"-->
+    <!--        app:titleTextColor="#FFFFFF">-->
+
+    <!--        <ImageButton-->
+    <!--            android:id="@+id/saveButton"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_gravity="end"-->
+    <!--            android:layout_marginEnd="10dp"-->
+    <!--            android:background="@color/colorPrimary"-->
+    <!--            android:src="@drawable/ic_save_black"-->
+    <!--            android:text="Save"-->
+    <!--            android:textColor="#D2FFFFFF"-->
+    <!--            android:tint="#FFFFFF" />-->
+
+    <!--    </androidx.appcompat.widget.Toolbar>-->
+
+
+    <com.github.chrisbanes.photoview.PhotoView
+        android:id="@+id/photoView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:srcCompat="@drawable/drawer_head" />
+
+</FrameLayout>

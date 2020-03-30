@@ -78,6 +78,7 @@ fun removeQuote(content: String): String {
     return regex.replace(content, "")
 }
 
+// TODO: [h][/h]
 fun formatContent(content: String): SpannableString {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         SpannableString(Html.fromHtml(content, HtmlCompat.FROM_HTML_MODE_COMPACT))

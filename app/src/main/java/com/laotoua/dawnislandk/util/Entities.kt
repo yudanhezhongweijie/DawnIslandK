@@ -164,6 +164,10 @@ class ThreadList(
         img = img,
         ext = ext
     )
+
+    fun getImgUrl(): String {
+        return img + ext
+    }
 }
 
 class Reply(
@@ -191,4 +195,8 @@ class Reply(
     val img: String,
     @SerializedName("ext")
     val ext: String
-)
+) {
+    fun getImgUrl(): String {
+        return img + ext
+    }
+}

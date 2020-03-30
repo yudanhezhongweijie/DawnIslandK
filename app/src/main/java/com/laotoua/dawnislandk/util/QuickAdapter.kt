@@ -1,10 +1,8 @@
 package com.laotoua.dawnislandk.util
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.LinearLayout
 import com.bumptech.glide.Glide
 import com.chad.library.adapter.base.BaseQuickAdapter
@@ -26,10 +24,10 @@ class QuickAdapter(private val layoutResId: Int) :
 
     init {
         // 所有数据加载完成后，是否允许点击（默认为false）
-        this.loadMoreModule!!.enableLoadMoreEndClick = true
+        this.loadMoreModule.enableLoadMoreEndClick = true
 
         // 当数据不满一页时，是否继续自动加载（默认为true）
-        this.loadMoreModule!!.isEnableLoadMoreIfNotFullPage = false
+        this.loadMoreModule.isEnableLoadMoreIfNotFullPage = false
 
     }
 
@@ -54,7 +52,7 @@ class QuickAdapter(private val layoutResId: Int) :
     private fun convertForum(card: BaseViewHolder, item: Forum) {
         // special handling for drawable resource ID, which cannot have -
         val biId = if (item.id.toInt() > 0) item.id.toInt() else 1
-        val resourceId: Int = context.getResources().getIdentifier(
+        val resourceId: Int = context.resources.getIdentifier(
             "bi_$biId", "drawable",
             context.packageName
         )
@@ -88,8 +86,7 @@ class QuickAdapter(private val layoutResId: Int) :
                 .load(thumbCDN + item.img + item.ext)
                 .override(100, 100)
                 .fitCenter()
-                .into(card.getView(R.id.threadImage) as ImageView)
-            Log.i(TAG, "added Thumbnail from URL: ${thumbCDN + item.img + item.ext}")
+                .into(card.getView(R.id.threadImage))
             card.setVisible(R.id.threadImage, true)
         } else {
             card.setGone(R.id.threadImage, true)
@@ -139,9 +136,8 @@ class QuickAdapter(private val layoutResId: Int) :
                 .load(thumbCDN + item.img + item.ext)
                 .override(250, 250)
                 .fitCenter()
-                .into(card.getView(R.id.replyImage) as ImageView)
+                .into(card.getView(R.id.replyImage))
             card.setVisible(R.id.replyImage, true)
-            Log.i(TAG, "added Thumbnail from URL: ${thumbCDN + item.img + item.ext}")
         } else {
             card.setGone(R.id.replyImage, true)
         }

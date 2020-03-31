@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.navArgs
 import com.github.chrisbanes.photoview.PhotoView
 import com.laotoua.dawnislandk.databinding.ImageViewerFragmentBinding
 import com.laotoua.dawnislandk.viewmodels.ImageViewerViewModel
@@ -22,6 +23,8 @@ class ImageViewerFragment : Fragment() {
     val binding: ImageViewerFragmentBinding get() = _binding!!
     private val sharedVM: SharedViewModel by activityViewModels()
     private val viewModel: ImageViewerViewModel by viewModels()
+    private val args: ImageViewerFragmentArgs by navArgs()
+
 
     companion object {
         fun newInstance() = ImageViewerFragment()
@@ -34,7 +37,7 @@ class ImageViewerFragment : Fragment() {
     ): View? {
         _binding = ImageViewerFragmentBinding.inflate(inflater, container, false)
 
-        val imgUrl: String = this.requireArguments().getString("imgUrl", "")
+        val imgUrl: String = args.imgUrl
 //       TODO save in tool bar
 //        setupToolbar(imgUrl)
 

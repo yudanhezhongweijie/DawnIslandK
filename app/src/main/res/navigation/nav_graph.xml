@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/threadFragment">
+    <fragment
+        android:id="@+id/threadFragment"
+        android:name="com.laotoua.dawnislandk.ThreadFragment"
+        android:label="thread_fragment"
+        tools:layout="@layout/thread_fragment">
+        <action
+            android:id="@+id/action_threadFragment_to_replyFragment"
+            app:destination="@id/replyFragment" />
+        <action
+            android:id="@+id/action_threadFragment_to_imageViewerFragment"
+            app:destination="@id/imageViewerFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/replyFragment"
+        android:name="com.laotoua.dawnislandk.ReplyFragment"
+        android:label="reply_fragment"
+        tools:layout="@layout/reply_fragment">
+        <action
+            android:id="@+id/action_replyFragment_to_imageViewerFragment"
+            app:destination="@id/imageViewerFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/imageViewerFragment"
+        android:name="com.laotoua.dawnislandk.ImageViewerFragment"
+        android:label="image_viewer_fragment"
+        tools:layout="@layout/image_viewer_fragment">
+        <argument
+            android:name="imgUrl"
+            app:argType="string" />
+    </fragment>
+</navigation>

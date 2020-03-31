@@ -8,9 +8,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.laotoua.dawnislandk.databinding.ThreadFragmentBinding
-import com.laotoua.dawnislandk.util.GoToFragment
 import com.laotoua.dawnislandk.util.QuickAdapter
 import com.laotoua.dawnislandk.util.ThreadList
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
@@ -47,11 +47,9 @@ class ThreadFragment : Fragment() {
         // item click
         mAdapter.setOnItemClickListener { adapter, _, position ->
             sharedVM.setThreadList(adapter.getItem(position) as ThreadList)
-
-            GoToFragment(
-                parentFragmentManager, "Reply",
-                R.id.fragmentContainer
-            )
+            val action =
+                ThreadFragmentDirections.actionThreadFragmentToReplyFragment()
+            findNavController().navigate(action)
 
         }
 
@@ -60,15 +58,10 @@ class ThreadFragment : Fragment() {
         mAdapter.setOnItemChildClickListener { adapter, view, position ->
             if (view.id == R.id.threadImage) {
                 Timber.i("clicked on image at $position")
-
-                val bundle = Bundle()
-                bundle.putString("imgUrl", (adapter.getItem(position) as ThreadList).getImgUrl())
-                GoToFragment(
-                    parentFragmentManager, "ImageViewer",
-                    R.id.fragmentContainer, bundle
-                )
-
-
+                val action =
+                    ThreadFragmentDirections.actionThreadFragmentToImageViewerFragment()
+                action.imgUrl = (adapter.getItem(position) as ThreadList).getImgUrl()
+                findNavController().navigate(action)
             }
         }
 

@@ -9,9 +9,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.laotoua.dawnislandk.databinding.ReplyFragmentBinding
-import com.laotoua.dawnislandk.util.GoToFragment
 import com.laotoua.dawnislandk.util.QuickAdapter
 import com.laotoua.dawnislandk.util.Reply
 import com.laotoua.dawnislandk.viewmodels.ReplyViewModel
@@ -61,14 +61,13 @@ class ReplyFragment : Fragment() {
             if (view.id == R.id.replyImage) {
                 Timber.i("clicked on image at $position")
 
-                val bundle = Bundle()
-                bundle.putString("imgUrl", (adapter.getItem(position) as Reply).getImgUrl())
-                GoToFragment(
-                    parentFragmentManager, "ImageViewer",
-                    R.id.fragmentContainer, bundle
-                )
+                val action =
+                    ReplyFragmentDirections.actionReplyFragmentToImageViewerFragment()
+                action.imgUrl = (adapter.getItem(position) as Reply).getImgUrl()
+                view.findNavController().navigate(action)
             }
         }
+
 
         // load more
         mAdapter.loadMoreModule.setOnLoadMoreListener {

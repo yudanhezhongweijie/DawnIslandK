@@ -7,9 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.util.API
 import com.laotoua.dawnislandk.util.Forum
 import com.laotoua.dawnislandk.util.ForumDao
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 class ForumViewModel : ViewModel() {
@@ -35,9 +33,7 @@ class ForumViewModel : ViewModel() {
                     _forumList.postValue(list)
                     _loadFail.postValue(false)
                     // save to local db
-                    withContext(Dispatchers.IO) {
-                        dao?.insertAll(list)
-                    }
+                    dao?.insertAll(list)
                 } else {
                     Timber.i("Forum list is the same as Db. Reusing...")
                 }
@@ -50,14 +46,12 @@ class ForumViewModel : ViewModel() {
 
     fun loadFromDB() {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                dao?.getAll().let {
-                    if (it?.size ?: 0 > 0) {
-                        Timber.i("Loaded ${it?.size} forums from db")
-                        _forumList.postValue(it)
-                    } else {
-                        Timber.i("Db has no data about forums")
-                    }
+            dao?.getAll().let {
+                if (it?.size ?: 0 > 0) {
+                    Timber.i("Loaded ${it?.size} forums from db")
+                    _forumList.postValue(it)
+                } else {
+                    Timber.i("Db has no data about forums")
                 }
             }
         }

@@ -8,8 +8,8 @@ import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.github.chrisbanes.photoview.PhotoView
 import com.laotoua.dawnislandk.databinding.ImageViewerFragmentBinding
 import com.laotoua.dawnislandk.viewmodels.ImageViewerViewModel
@@ -21,12 +21,12 @@ class ImageViewerFragment : Fragment() {
     private var _binding: ImageViewerFragmentBinding? = null
     val binding: ImageViewerFragmentBinding get() = _binding!!
     private val sharedVM: SharedViewModel by activityViewModels()
+    private val viewModel: ImageViewerViewModel by viewModels()
 
     companion object {
         fun newInstance() = ImageViewerFragment()
     }
 
-    private lateinit var viewModel: ImageViewerViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,11 +34,9 @@ class ImageViewerFragment : Fragment() {
     ): View? {
         _binding = ImageViewerFragmentBinding.inflate(inflater, container, false)
 
-        viewModel = ViewModelProvider(this).get(ImageViewerViewModel::class.java)
         val imgUrl: String = this.requireArguments().getString("imgUrl", "")
 //       TODO save in tool bar
 //        setupToolbar(imgUrl)
-
 
         // load image in Full Screen
         val photoView: PhotoView = binding.photoView

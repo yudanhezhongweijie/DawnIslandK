@@ -7,10 +7,7 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
-import com.laotoua.dawnislandk.util.DawnDatabase
-import com.laotoua.dawnislandk.util.Forum
-import com.laotoua.dawnislandk.util.QuickAdapter
-import com.laotoua.dawnislandk.util.ReadableTime
+import com.laotoua.dawnislandk.util.*
 import com.laotoua.dawnislandk.viewmodels.ForumViewModel
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import timber.log.Timber
@@ -29,12 +26,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-//        forumVM = ViewModelProvider(this).get(ForumViewModel::class.java)
-
-        supportFragmentManager.beginTransaction().add(R.id.fragmentContainer, ThreadFragment())
-            .commit()
-
-
+        GoToFragment(supportFragmentManager, "Thread", R.id.fragmentContainer)
 
         initResources()
         setUpForumDrawer()

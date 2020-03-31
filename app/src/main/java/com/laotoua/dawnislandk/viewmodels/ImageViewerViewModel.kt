@@ -43,6 +43,7 @@ class ImageViewerViewModel : ViewModel() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 Timber.i("Saving image to Gallery... ")
+
                 val relativeLocation =
                     Environment.DIRECTORY_PICTURES + File.separator + "Dawn"
                 val name =

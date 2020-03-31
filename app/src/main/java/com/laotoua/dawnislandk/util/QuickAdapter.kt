@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.recyclerview.widget.DiffUtil
 import com.bumptech.glide.Glide
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.loadmore.BaseLoadMoreView
@@ -12,6 +13,7 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import kotlinx.android.synthetic.main.quote_list_item.view.*
+import timber.log.Timber
 
 
 // TODO: handle no new data exception
@@ -28,6 +30,7 @@ class QuickAdapter(private val layoutResId: Int) :
         // 当数据不满一页时，是否继续自动加载（默认为true）
         this.loadMoreModule.isEnableLoadMoreIfNotFullPage = false
 
+        this.setDiffCallback(DiffCallback())
     }
 
     fun setSharedVM(vm: SharedViewModel) {
@@ -158,6 +161,80 @@ class QuickAdapter(private val layoutResId: Int) :
         }
 
         card.setText(R.id.replyContent, formatContent(removeQuote(item.content)))
+    }
+}
+
+class DiffCallback : DiffUtil.ItemCallback<Any>() {
+    /**
+     * 判断是否是同一个item
+     *
+     * @param oldItem New data
+     * @param newItem old Data
+     * @return
+     */
+    override fun areItemsTheSame(
+        oldItem: Any,
+        newItem: Any
+    ): Boolean {
+        return when {
+            (oldItem is Forum && newItem is Forum) -> oldItem.id === newItem.id
+            (oldItem is ThreadList && newItem is ThreadList) -> oldItem.id === newItem.id && oldItem.fid === newItem.fid
+            (oldItem is Reply && newItem is Reply) -> oldItem.id === newItem.id
+            else -> {
+                Timber.e("Unhandled type comparison")
+                throw Exception("Unhandled type comparison")
+            }
+        }
+
+    }
+
+    /**
+     * 当是同一个item时，再判断内容是否发生改变
+     *
+     * @param oldItem New data
+     * @param newItem old Data
+     * @return
+     */
+    override fun areContentsTheSame(
+        oldItem: Any,
+        newItem: Any
+    ): Boolean {
+        return when {
+            (oldItem is Forum && newItem is Forum) -> {
+                oldItem.name == newItem.name
+                    && oldItem.showName == newItem.showName
+                    && oldItem.msg == newItem.msg
+            }
+            (oldItem is ThreadList && newItem is ThreadList) -> {
+                oldItem.sage == newItem.sage
+                    && oldItem.replyCount == newItem.replyCount
+                    && oldItem.content == newItem.content
+            }
+            (oldItem is Reply && newItem is Reply) -> {
+                oldItem.sage == newItem.sage
+                    && oldItem.content == newItem.content
+            }
+            else -> {
+                Timber.e("Unhandled type comparison")
+                throw Exception("Unhandled type comparison")
+            }
+        }
+    }
+
+    /**
+     * 可选实现
+     * 如果需要精确修改某一个view中的内容，请实现此方法。
+     * 如果不实现此方法，或者返回null，将会直接刷新整个item。
+     *
+     * @param oldItem Old data
+     * @param newItem New data
+     * @return Payload info. if return null, the entire item will be refreshed.
+     */
+    override fun getChangePayload(
+        oldItem: Any,
+        newItem: Any
+    ): Any? {
+        return null
     }
 }
 

@@ -16,9 +16,9 @@ class ThreadViewModel : ViewModel() {
 
     private val threadList = mutableListOf<ThreadList>()
     private val threadIds = mutableSetOf<String>()
-    private var _newPage = MutableLiveData<List<ThreadList>>()
-    val newPage: LiveData<List<ThreadList>>
-        get() = _newPage
+    private var _thread = MutableLiveData<List<ThreadList>>()
+    val thread: LiveData<List<ThreadList>>
+        get() = _thread
     private var _currentForum: Forum? = null
     val currentForum: Forum? get() = _currentForum
     private var pageCount = 1
@@ -36,20 +36,23 @@ class ThreadViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val fid = _currentForum?.id ?: "-1"
-                Timber.i("getting threads from $fid ${_currentForum?.name ?: "综合版1(default)"}")
+                Timber.i("Getting threads from $fid ${_currentForum?.name ?: "时间线(default)"}")
                 val list = api.getThreads("id=" + fid + "&page=${pageCount}", fid.equals("-1"), fid)
                 val noDuplicates = list.filterNot { threadIds.contains(it.id) }
                 if (noDuplicates.isNotEmpty()) {
                     threadIds.addAll(noDuplicates.map { it.id })
                     Timber.i(
-                        "no duplicate thread size ${noDuplicates.size}, threadIds size ${threadIds.size}"
+                        "New thread + ads has size of ${noDuplicates.size}, threadIds size ${threadIds.size}"
                     )
                     threadList.addAll(noDuplicates)
-                    _newPage.postValue(noDuplicates)
+                    Timber.i(
+                        "Forum ${currentForum?.getDisplayName()} now have ${threadList.size} threads"
+                    )
+                    _thread.postValue(threadList)
                     _loadFail.postValue(false)
                     pageCount += 1
                 } else {
-                    Timber.i("Forum ${_currentForum!!.id} has no new threads.")
+                    Timber.i("Forum ${currentForum?.getDisplayName()} has no new threads.")
                     _loadFail.postValue(true)
                 }
             } catch (e: Exception) {
@@ -60,7 +63,8 @@ class ThreadViewModel : ViewModel() {
     }
 
     fun setForum(f: Forum) {
-        Timber.i("Cleaning old threads...")
+        if (f == currentForum) return
+        Timber.i("Forum has changed. Cleaning old threads...")
         threadList.clear()
         threadIds.clear()
         Timber.i("Setting new forum: ${f.id}")

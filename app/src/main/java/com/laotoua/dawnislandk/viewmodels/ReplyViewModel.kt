@@ -19,9 +19,9 @@ class ReplyViewModel : ViewModel() {
     val currentThread: ThreadList? get() = _currentThread
     private val replyList = mutableListOf<Reply>()
     private val replyIds = mutableSetOf<String>()
-    private var _newPage = MutableLiveData<List<Reply>>()
-    val newPage: LiveData<List<Reply>>
-        get() = _newPage
+    private var _reply = MutableLiveData<List<Reply>>()
+    val reply: LiveData<List<Reply>>
+        get() = _reply
     private var pageCount = 1
 
     // flags to indicate status of loading reply
@@ -33,6 +33,11 @@ class ReplyViewModel : ViewModel() {
         get() = _loadEnd
 
     fun setThread(f: ThreadList) {
+        if (f.id == currentThread?.id ?: "") return
+        Timber.i("$f vs $currentThread Thread has changed... Clearing old data")
+        replyList.clear()
+        replyIds.clear()
+        Timber.i("Setting new Thread: ${f.id}")
         _currentThread = f
         pageCount = 1
         getReplys()
@@ -69,7 +74,7 @@ class ReplyViewModel : ViewModel() {
                 )
 
                 replyList.addAll(noDuplicates)
-                _newPage.postValue(noDuplicates)
+                _reply.postValue(replyList)
                 // TODO: updates differently with cookie
                 if (replyList.size % 20 == 1) pageCount += 1
             } else {
@@ -100,4 +105,6 @@ class ReplyViewModel : ViewModel() {
 //        this.dao = dao
 //        Timber.i("Forum DAO set!!!")
 //    }
+
+
 }

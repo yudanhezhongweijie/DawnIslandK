@@ -11,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.laotoua.dawnislandk.databinding.ReplyFragmentBinding
+import com.laotoua.dawnislandk.util.GoToFragment
 import com.laotoua.dawnislandk.util.QuickAdapter
 import com.laotoua.dawnislandk.util.Reply
 import com.laotoua.dawnislandk.viewmodels.ReplyViewModel
@@ -24,6 +25,7 @@ class ReplyFragment : Fragment() {
         fun newInstance() = ReplyFragment()
     }
 
+    //TODO: maintain reply fragment when pressing back, such that progress can be remembered
     private var _binding: ReplyFragmentBinding? = null
     private val binding get() = _binding!!
     private val viewModel: ReplyViewModel by viewModels()
@@ -35,7 +37,7 @@ class ReplyFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = ReplyFragmentBinding.inflate(inflater, container, false)
-        Timber.i("connected sharedVM instance: $sharedVM viewLifeCycleOwner $viewLifecycleOwner")
+        Timber.i("connected sharedVM instance: $sharedVM viewModel: $viewModel viewLifeCycleOwner $viewLifecycleOwner")
 
         binding.replysView.layoutManager = LinearLayoutManager(context)
         binding.replysView.adapter = mAdapter
@@ -58,18 +60,16 @@ class ReplyFragment : Fragment() {
         mAdapter.setOnItemChildClickListener { adapter, view, position ->
             if (view.id == R.id.replyImage) {
                 Timber.i("clicked on image at $position")
-                val dest = ImageViewerFragment()
+
                 val bundle = Bundle()
                 bundle.putString("imgUrl", (adapter.getItem(position) as Reply).getImgUrl())
-                dest.arguments = bundle
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.fragmentContainer, dest)
-                    .addToBackStack(null)
-                    .commit()
+                GoToFragment(
+                    parentFragmentManager, "ImageViewer",
+                    R.id.fragmentContainer, bundle
+                )
             }
         }
 
-        // TODO: fragment trasactions forces new viewlifecycleowner created, hence will trigger observe actions
         // load more
         mAdapter.loadMoreModule.setOnLoadMoreListener {
             Timber.i("Fetching new data...")
@@ -90,8 +90,8 @@ class ReplyFragment : Fragment() {
             }
         })
 
-        viewModel.newPage.observe(viewLifecycleOwner, Observer {
-            mAdapter.addData(it)
+        viewModel.reply.observe(viewLifecycleOwner, Observer { it ->
+            mAdapter.setDiffNewData(it as MutableList<Any>)
             mAdapter.loadMoreModule.loadMoreComplete()
             Timber.i("New data found. Adapter now have ${mAdapter.data.size} threads")
 
@@ -99,11 +99,10 @@ class ReplyFragment : Fragment() {
 
         sharedVM.selectedThreadList.observe(viewLifecycleOwner, Observer {
             Timber.i(
-                "shared VM change observed in Reply Fragment $viewLifecycleOwner with data $it"
+                "shared VM change observed in Reply Fragment $viewModel with owner $viewLifecycleOwner with data $it"
             )
-//            Timber.i( "viewLifecycleOwner $viewLifecycleOwner, Observer $it")
             if (viewModel.currentThread == null || viewModel.currentThread!!.id != it.id) {
-                Timber.i("Thread has changed.Cleaning old adapter data...")
+                Timber.i("Thread has changed or new observer added...")
                 mAdapter.setList(ArrayList())
                 viewModel.setThread(it)
             }

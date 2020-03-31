@@ -19,13 +19,13 @@ class SharedViewModel : ViewModel() {
 
 
     fun setForum(f: Forum) {
-        _selectedForum.postValue(f)
         Timber.i("set forum to id: ${f.id}")
+        _selectedForum.postValue(f)
     }
 
     fun setThreadList(t: ThreadList) {
-        _selectedThreadList.postValue(t)
         Timber.i("set thread to id: ${t.id}")
+        _selectedThreadList.postValue(t)
     }
 
     fun setDb(db: DawnDatabase) {

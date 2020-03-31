@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.laotoua.dawnislandk.databinding.ThreadFragmentBinding
+import com.laotoua.dawnislandk.util.GoToFragment
 import com.laotoua.dawnislandk.util.QuickAdapter
 import com.laotoua.dawnislandk.util.ThreadList
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
@@ -32,7 +33,7 @@ class ThreadFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = ThreadFragmentBinding.inflate(inflater, container, false)
-        Timber.i("connected sharedVM instance: $sharedVM viewLifeCycleOwner $viewLifecycleOwner")
+        Timber.i("connected sharedVM instance: $sharedVM viewModel: $viewModel viewLifeCycleOwner $viewLifecycleOwner")
         viewModel.setForumDao(sharedVM.getDb()?.forumDao())
 
         binding.threadsView.layoutManager = LinearLayoutManager(context)
@@ -46,10 +47,11 @@ class ThreadFragment : Fragment() {
         // item click
         mAdapter.setOnItemClickListener { adapter, _, position ->
             sharedVM.setThreadList(adapter.getItem(position) as ThreadList)
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragmentContainer, ReplyFragment())
-                .addToBackStack(null)
-                .commit()
+
+            GoToFragment(
+                parentFragmentManager, "Reply",
+                R.id.fragmentContainer
+            )
 
         }
 
@@ -58,14 +60,15 @@ class ThreadFragment : Fragment() {
         mAdapter.setOnItemChildClickListener { adapter, view, position ->
             if (view.id == R.id.threadImage) {
                 Timber.i("clicked on image at $position")
-                val dest = ImageViewerFragment()
+
                 val bundle = Bundle()
                 bundle.putString("imgUrl", (adapter.getItem(position) as ThreadList).getImgUrl())
-                dest.arguments = bundle
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.fragmentContainer, dest)
-                    .addToBackStack(null)
-                    .commit()
+                GoToFragment(
+                    parentFragmentManager, "ImageViewer",
+                    R.id.fragmentContainer, bundle
+                )
+
+
             }
         }
 
@@ -84,10 +87,10 @@ class ThreadFragment : Fragment() {
                 Timber.i("Failed to load new data...")
             }
         })
-        viewModel.newPage.observe(viewLifecycleOwner, Observer {
-            mAdapter.addData(it)
+        viewModel.thread.observe(viewLifecycleOwner, Observer {
+            mAdapter.setDiffNewData(it as MutableList<Any>)
             mAdapter.loadMoreModule.loadMoreComplete()
-            Timber.i("New data found. Adapter now have ${mAdapter.data.size} threads")
+            Timber.i("New data found or new observer added. Adapter now have ${mAdapter.data.size} threads")
 
         })
 

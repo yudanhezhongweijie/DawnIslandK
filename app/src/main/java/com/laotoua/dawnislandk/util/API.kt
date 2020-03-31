@@ -37,6 +37,7 @@ class API {
             .build()
         val res = client.newCall(request).execute()
         if (!res.isSuccessful) throw IOException("Unexpected code $res")
+        Timber.i("Response for $url has come back")
         return res
     }
 

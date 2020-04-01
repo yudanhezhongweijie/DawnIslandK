@@ -37,7 +37,10 @@ class ThreadViewModel : ViewModel() {
             try {
                 val fid = _currentForum?.id ?: "-1"
                 Timber.i("Getting threads from $fid ${_currentForum?.name ?: "时间线(default)"}")
-                val list = api.getThreads("id=" + fid + "&page=${pageCount}", fid.equals("-1"), fid)
+                val timeline = fid == "-1"
+                val params =
+                    if (timeline) "page=${pageCount}" else "id=" + fid + "&page=${pageCount}"
+                val list = api.getThreads(params, timeline, fid)
                 val noDuplicates = list.filterNot { threadIds.contains(it.id) }
                 if (noDuplicates.isNotEmpty()) {
                     threadIds.addAll(noDuplicates.map { it.id })

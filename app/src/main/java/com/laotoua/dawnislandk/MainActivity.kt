@@ -1,8 +1,12 @@
 package com.laotoua.dawnislandk
 
+import android.graphics.Color
 import android.os.Bundle
+import android.view.Menu
+import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
@@ -23,15 +27,52 @@ class MainActivity : AppCompatActivity() {
 
     private val mAdapter = QuickAdapter(R.layout.forum_list_item)
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_toolbar_menu, menu)
+        return true
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Timber.i("sharedVM instance: $sharedVM")
         binding = ActivityMainBinding.inflate(layoutInflater)
+        initToolbar()
         setContentView(binding.root)
 
         initResources()
         setUpForumDrawer()
 
+
+    }
+
+    private fun initToolbar() {
+        /**
+         * 标题栏组件初始化
+         */
+        setSupportActionBar(binding.toolbar)
+        binding.toolbar.setNavigationOnClickListener {
+            binding.drawerLayout.openDrawer(
+                GravityCompat.START
+            )
+        }
+        val actionBar = supportActionBar
+        actionBar?.setDisplayHomeAsUpEnabled(true)
+        actionBar?.setHomeAsUpIndicator(R.drawable.toolbar_home_as_up)
+
+        /**
+         * 新的状态栏透明方案
+         */
+        //这一步最好要做，因为如果这两个flag没有清除的话下面没有生效
+        window.clearFlags(
+            WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
+                or WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION
+        )
+        //设置布局能够延伸到状态栏(StatusBar)和导航栏(NavigationBar)里面
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        //设置状态栏(StatusBar)颜色透明
+        window.statusBarColor = Color.TRANSPARENT
+        //设置导航栏(NavigationBar)颜色透明
+        //window.setNavigationBarColor(Color.TRANSPARENT);
     }
 
     private fun initResources() {
@@ -61,9 +102,12 @@ class MainActivity : AppCompatActivity() {
         mAdapter.loadMoreModule.isEnableLoadMore = false
         // item click
         mAdapter.setOnItemClickListener { adapter, _, position ->
+            val target = adapter.getItem(position) as Forum
             Timber.i("Selected Forum at pos $position")
-            sharedVM.setForum(adapter.getItem(position) as Forum)
+            sharedVM.setForum(target)
             binding.drawerLayout.closeDrawers()
+
+            binding.collapsingToolbar.title = target.name
         }
 
         forumVM.forumList.observe(this, Observer {

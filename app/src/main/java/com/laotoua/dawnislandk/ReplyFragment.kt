@@ -62,8 +62,11 @@ class ReplyFragment : Fragment() {
                 Timber.i("clicked on image at $position")
 
                 val action =
-                    ReplyFragmentDirections.actionReplyFragmentToImageViewerFragment()
-                action.imgUrl = (adapter.getItem(position) as Reply).getImgUrl()
+                    ReplyFragmentDirections.actionReplyFragmentToImageViewerFragment(
+                        (adapter.getItem(
+                            position
+                        ) as Reply).getImgUrl()
+                    )
                 view.findNavController().navigate(action)
             }
         }
@@ -115,5 +118,10 @@ class ReplyFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Timber.d("Reply Fragment destroyed!")
     }
 }

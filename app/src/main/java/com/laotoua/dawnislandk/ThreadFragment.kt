@@ -59,8 +59,11 @@ class ThreadFragment : Fragment() {
             if (view.id == R.id.threadImage) {
                 Timber.i("clicked on image at $position")
                 val action =
-                    ThreadFragmentDirections.actionThreadFragmentToImageViewerFragment()
-                action.imgUrl = (adapter.getItem(position) as ThreadList).getImgUrl()
+                    ThreadFragmentDirections.actionThreadFragmentToImageViewerFragment(
+                        (adapter.getItem(
+                            position
+                        ) as ThreadList).getImgUrl()
+                    )
                 findNavController().navigate(action)
             }
         }

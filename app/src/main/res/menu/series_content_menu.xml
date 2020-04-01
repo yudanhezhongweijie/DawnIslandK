@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/reply"
+        android:title="回复"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/jump_page"
+        android:title="跳页"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/copy_series_id"
+        android:title="复制串号"></item>
+    <item
+        android:id="@+id/only_po_switch"
+
+        android:title="只看po" />
+    <!--
+    <item android:title="订阅">
+        <menu>
+            <item android:title="加入订阅" />
+            <item android:title="取消订阅" />
+            <item
+                android:id="@+id/new_reply_count"
+                android:title="更新层数提醒" />
+            <item
+                android:id="@+id/new_word_number"
+                android:title="更新字数提醒" />
+            <item
+                android:id="@+id/po_new_reply_count"
+                android:title="PO更新层数" />
+            <item
+                android:id="@+id/delete_all_note"
+                android:title="取消所有提醒" />
+        </menu>
+    </item>
+    -->
+</menu>

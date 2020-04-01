@@ -42,6 +42,7 @@ class ReplyFragment : Fragment() {
         binding.replysView.layoutManager = LinearLayoutManager(context)
         binding.replysView.adapter = mAdapter
 
+
         /*** connect SharedVm and adapter
          *  may have better way of getting runtime data
          */

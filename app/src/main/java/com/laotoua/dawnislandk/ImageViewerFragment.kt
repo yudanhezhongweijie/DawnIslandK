@@ -12,6 +12,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.navArgs
 import com.github.chrisbanes.photoview.PhotoView
+import com.google.android.material.appbar.AppBarLayout
 import com.laotoua.dawnislandk.databinding.ImageViewerFragmentBinding
 import com.laotoua.dawnislandk.viewmodels.ImageViewerViewModel
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
@@ -35,8 +36,14 @@ class ImageViewerFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = ImageViewerFragmentBinding.inflate(inflater, container, false)
 
+        activity?.findViewById<AppBarLayout>(R.id.dawn_appbar)?.let {
+            it.setExpanded(false)
+//            visibility = View.GONE
+        }
+
+
+        _binding = ImageViewerFragmentBinding.inflate(inflater, container, false)
         val imgUrl: String = args.imgUrl
 //       TODO save in tool bar
 //        setupToolbar(imgUrl)
@@ -55,9 +62,14 @@ class ImageViewerFragment : Fragment() {
         return binding.root
     }
 
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+
+        activity?.findViewById<AppBarLayout>(R.id.dawn_appbar)?.let {
+            it.visibility = View.VISIBLE
+        }
     }
 
 //    fun onSupportNavigateUp(): Boolean {

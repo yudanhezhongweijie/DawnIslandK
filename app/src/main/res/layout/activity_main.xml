@@ -4,49 +4,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
-
+    android:layout_height="match_parent">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".MainActivity">
-
-        <androidx.core.widget.NestedScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
-        <fragment
-            android:id="@+id/nav_host_fragment"
-            android:name="androidx.navigation.fragment.NavHostFragment"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:defaultNavHost="true"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/dawn_appbar"
-            app:navGraph="@navigation/nav_graph" />
-        </androidx.core.widget.NestedScrollView>
+        tools:context=".MainActivity"
+        android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/dawn_appbar"
             android:layout_width="match_parent"
             android:layout_height="180dp"
             android:fitsSystemWindows="true"
-            app:menu="@menu/main_toolbar_menu"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:menu="@menu/main_toolbar_menu">
 
             <com.google.android.material.appbar.SubtitleCollapsingToolbarLayout
                 android:id="@+id/collapsing_toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fitsSystemWindows="true"
-                android:theme="@style/ThemeOverlay.MaterialComponents.Dark"
+                android:theme="@style/Theme.MaterialComponents.DayNight.DarkActionBar"
                 app:collapsedSubtitleTextAppearance="@style/CollSubTitle"
                 app:contentScrim="#B319A8A8"
                 app:expandedSubtitleTextAppearance="@style/ExpandSubTitle"
@@ -71,6 +49,7 @@
                     android:id="@+id/toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="?android:actionBarSize"
+                    android:theme="@style/Theme.MaterialComponents.DayNight.DarkActionBar"
                     app:contentInsetStartWithNavigation="0dp"
                     app:layout_collapseMode="pin" />
 
@@ -78,6 +57,20 @@
             </com.google.android.material.appbar.SubtitleCollapsingToolbarLayout>
 
         </com.google.android.material.appbar.AppBarLayout>
+
+        <fragment
+            android:id="@+id/nav_host_fragment"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#F8F8F9"
+            app:defaultNavHost="true"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/dawn_appbar"
+            app:navGraph="@navigation/nav_graph" />
 
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
@@ -100,10 +93,10 @@
             android:layout_width="match_parent"
             android:layout_height="160dp"
             android:clickable="true"
-            android:scaleType="centerCrop"
-            app:srcCompat="@drawable/drawer_head"
             android:contentDescription="drawer_head"
-            android:focusable="true" />
+            android:focusable="true"
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/drawer_head" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/forumContainer"

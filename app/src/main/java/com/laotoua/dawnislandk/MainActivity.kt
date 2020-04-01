@@ -62,7 +62,6 @@ class MainActivity : AppCompatActivity() {
         /**
          * 新的状态栏透明方案
          */
-        //这一步最好要做，因为如果这两个flag没有清除的话下面没有生效
         window.clearFlags(
             WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
                 or WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION
@@ -71,8 +70,6 @@ class MainActivity : AppCompatActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         //设置状态栏(StatusBar)颜色透明
         window.statusBarColor = Color.TRANSPARENT
-        //设置导航栏(NavigationBar)颜色透明
-        //window.setNavigationBarColor(Color.TRANSPARENT);
     }
 
     private fun initResources() {

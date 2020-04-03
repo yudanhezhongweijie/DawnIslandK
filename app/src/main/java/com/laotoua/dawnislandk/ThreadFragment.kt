@@ -47,8 +47,7 @@ class ThreadFragment : Fragment() {
         // item click
         mAdapter.setOnItemClickListener { adapter, _, position ->
             sharedVM.setThreadList(adapter.getItem(position) as ThreadList)
-            val action =
-                ThreadFragmentDirections.actionThreadFragmentToReplyFragment()
+            val action = PagerFragmentDirections.actionPagerFragmentToReplyFragment()
             findNavController().navigate(action)
 
         }
@@ -58,12 +57,12 @@ class ThreadFragment : Fragment() {
         mAdapter.setOnItemChildClickListener { adapter, view, position ->
             if (view.id == R.id.threadImage) {
                 Timber.i("clicked on image at $position")
-                val action =
-                    ThreadFragmentDirections.actionThreadFragmentToImageViewerFragment(
-                        (adapter.getItem(
-                            position
-                        ) as ThreadList).getImgUrl()
-                    )
+
+                val action = PagerFragmentDirections.actionPagerFragmentToImageViewerFragment(
+                    (adapter.getItem(
+                        position
+                    ) as ThreadList).getImgUrl()
+                )
                 findNavController().navigate(action)
             }
         }

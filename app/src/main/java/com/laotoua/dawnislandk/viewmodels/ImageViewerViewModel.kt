@@ -32,8 +32,10 @@ class ImageViewerViewModel : ViewModel() {
      *
      */
     fun loadImage(caller: Fragment, photoView: PhotoView, imgUrl: String) {
-        Timber.i("Downloading image at ${cdn + imgUrl}")
-        Glide.with(caller).load(cdn + imgUrl).into(photoView)
+        var url = imgUrl
+        if (!imgUrl.startsWith("https://")) url = cdn + imgUrl
+        Timber.i("Downloading image at $url")
+        Glide.with(caller).load(url).into(photoView)
     }
 
     /** REQUIRE caller to provide context

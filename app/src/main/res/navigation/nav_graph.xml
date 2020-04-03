@@ -3,19 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/threadFragment">
-    <fragment
-        android:id="@+id/threadFragment"
-        android:name="com.laotoua.dawnislandk.ThreadFragment"
-        android:label="thread_fragment"
-        tools:layout="@layout/thread_fragment">
-        <action
-            android:id="@+id/action_threadFragment_to_replyFragment"
-            app:destination="@id/replyFragment" />
-        <action
-            android:id="@+id/action_threadFragment_to_imageViewerFragment"
-            app:destination="@id/imageViewerFragment" />
-    </fragment>
+    app:startDestination="@id/pagerFragment">
     <fragment
         android:id="@+id/replyFragment"
         android:name="com.laotoua.dawnislandk.ReplyFragment"
@@ -33,5 +21,17 @@
         <argument
             android:name="imgUrl"
             app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/pagerFragment"
+        android:name="com.laotoua.dawnislandk.PagerFragment"
+        android:label="pager_fragment"
+        tools:layout="@layout/pager_fragment">
+        <action
+            android:id="@+id/action_pagerFragment_to_replyFragment"
+            app:destination="@id/replyFragment" />
+        <action
+            android:id="@+id/action_pagerFragment_to_imageViewerFragment"
+            app:destination="@id/imageViewerFragment" />
     </fragment>
 </navigation>

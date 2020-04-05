@@ -2,7 +2,6 @@ package com.laotoua.dawnislandk
 
 import android.graphics.Color
 import android.os.Bundle
-import android.view.Menu
 import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -19,6 +18,7 @@ import com.laotoua.dawnislandk.viewmodels.ForumViewModel
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import timber.log.Timber
 
+
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
@@ -27,41 +27,45 @@ class MainActivity : AppCompatActivity() {
 
     private val mAdapter = QuickAdapter(R.layout.forum_list_item)
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.main_toolbar_menu, menu)
-        return true
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Timber.i("sharedVM instance: $sharedVM")
         binding = ActivityMainBinding.inflate(layoutInflater)
-        initToolbar()
         setContentView(binding.root)
 
+        setSupportActionBar(binding.toolbar)
+
+        initToolbar()
         initResources()
         setUpForumDrawer()
-
-
     }
+
 
     private fun initToolbar() {
         /**
          * 标题栏组件初始化
          */
-        setSupportActionBar(binding.toolbar)
+//        set
+
         binding.toolbar.setNavigationOnClickListener {
             binding.drawerLayout.openDrawer(
                 GravityCompat.START
             )
         }
+
+        binding.toolbar.setOnClickListener {
+
+            // TODO refresh click
+            Timber.d("Handle toolbar click")
+        }
         val actionBar = supportActionBar
         actionBar?.setDisplayHomeAsUpEnabled(true)
-        actionBar?.setHomeAsUpIndicator(R.drawable.toolbar_home_as_up)
+        actionBar?.setHomeAsUpIndicator(R.drawable.ic_menu)
 
         /**
          * 新的状态栏透明方案
          */
+
         window.clearFlags(
             WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
                 or WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION
@@ -70,6 +74,20 @@ class MainActivity : AppCompatActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         //设置状态栏(StatusBar)颜色透明
         window.statusBarColor = Color.TRANSPARENT
+
+        binding.toolbar.setNavigationOnClickListener {
+            when (sharedVM.currentFragment.value) {
+                "ThreadFragment" -> binding.drawerLayout.openDrawer(GravityCompat.START)
+                "ReplyFragment" -> supportFragmentManager.popBackStack()
+                "ImageViewerFragment" -> supportFragmentManager.popBackStack()
+                else -> Timber.e("Unhandled navigation action")
+            }
+
+        }
+
+        sharedVM.currentFragment.observe(this, Observer {
+            updateToolBar(it)
+        })
     }
 
     private fun initResources() {
@@ -104,7 +122,6 @@ class MainActivity : AppCompatActivity() {
             sharedVM.setForum(target)
             binding.drawerLayout.closeDrawers()
 
-            binding.collapsingToolbar.title = target.name
         }
 
         forumVM.forumList.observe(this, Observer {

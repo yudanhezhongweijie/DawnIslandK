@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/dialogContainer"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom|center_horizontal"
+    android:paddingStart="15dp"
+    android:paddingEnd="15dp">
+
+    <EditText
+        android:id="@+id/editContent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:autofillHints="在这里输入文字"
+        android:background="#EAEAEA"
+        android:ems="10"
+        android:gravity="clip_horizontal"
+        android:hint="在这里输入文字"
+        android:inputType="none"
+        android:minLines="6"
+        android:padding="6dp"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/attachImage" />
+
+    <ImageButton
+        android:id="@+id/doodle"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="30dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_doodle"
+        app:layout_constraintStart_toEndOf="@+id/expandMore"
+        app:layout_constraintTop_toTopOf="@+id/expandMore" />
+
+    <ImageButton
+        android:id="@+id/expandMore"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_expand_vertical"
+        app:layout_constraintStart_toStartOf="@id/editContent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/attachImage"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="30dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_image"
+        app:layout_constraintStart_toEndOf="@+id/doodle"
+        app:layout_constraintTop_toTopOf="@+id/doodle" />
+
+    <ImageButton
+        android:id="@+id/send"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="@android:color/transparent"
+        android:clickable="true"
+        android:src="@drawable/ic_send"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:focusable="true" />
+
+    <TextView
+        android:id="@+id/cookie"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:text="cookie"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toStartOf="@+id/send"
+        app:layout_constraintTop_toTopOf="@+id/send" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

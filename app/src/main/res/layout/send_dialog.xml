@@ -5,8 +5,20 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="bottom|center_horizontal"
+    android:background="@drawable/corner_background"
+    android:elevation="5dp"
     android:paddingStart="15dp"
-    android:paddingEnd="15dp">
+    android:paddingEnd="15dp"
+    android:paddingBottom="15dp">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="回复 No.12345678"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/editContent"
@@ -18,8 +30,8 @@
         android:ems="10"
         android:gravity="clip_horizontal"
         android:hint="在这里输入文字"
-        android:inputType="none"
-        android:minLines="6"
+        android:inputType="textMultiLine"
+        android:minLines="15"
         android:padding="6dp"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -40,10 +52,11 @@
         android:id="@+id/expandMore"
         android:layout_width="36dp"
         android:layout_height="36dp"
+        android:layout_marginTop="20dp"
         android:background="@android:color/transparent"
         android:src="@drawable/ic_expand_vertical"
         app:layout_constraintStart_toStartOf="@id/editContent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/title" />
 
     <ImageButton
         android:id="@+id/attachImage"
@@ -59,12 +72,13 @@
         android:id="@+id/send"
         android:layout_width="36dp"
         android:layout_height="36dp"
+        android:layout_marginTop="20dp"
         android:background="@android:color/transparent"
         android:clickable="true"
+        android:focusable="true"
         android:src="@drawable/ic_send"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:focusable="true" />
+        app:layout_constraintTop_toBottomOf="@id/title" />
 
     <TextView
         android:id="@+id/cookie"

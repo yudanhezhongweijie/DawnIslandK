@@ -3,7 +3,6 @@ package com.laotoua.dawnislandk
 
 import android.Manifest
 import android.content.Context
-import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.view.View
@@ -33,10 +32,17 @@ class SendDialog : Fragment() {
 
     private val EXTERNAL_STORAGE = 1
 
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (!hidden) {
+            XPopup.Builder(context)
+                .asCustom(dialog)
+                .show()
+        }
+    }
 
     override fun onResume() {
         super.onResume()
-
         XPopup.setAnimationDuration(200)
         XPopup.Builder(context)
             .asCustom(dialog)
@@ -120,10 +126,10 @@ class SendDialog : Fragment() {
             super.onDismiss()
 
             (caller.requireActivity()
-                .getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager)
+                .getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
                 .hideSoftInputFromWindow(windowToken, 0)
 
-            caller.parentFragmentManager.beginTransaction().remove(caller).commit()
+            caller.parentFragmentManager.beginTransaction().hide(caller).commit()
         }
     }
 }

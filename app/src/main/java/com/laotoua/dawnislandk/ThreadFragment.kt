@@ -2,6 +2,7 @@ package com.laotoua.dawnislandk
 
 import android.os.Bundle
 import android.view.*
+import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -9,10 +10,13 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.laotoua.dawnislandk.databinding.ThreadFragmentBinding
+import com.laotoua.dawnislandk.util.ImageViewerPopup
+import com.laotoua.dawnislandk.util.ImageViewerPopup.ImageLoader
 import com.laotoua.dawnislandk.util.QuickAdapter
 import com.laotoua.dawnislandk.util.ThreadList
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import com.laotoua.dawnislandk.viewmodels.ThreadViewModel
+import com.lxj.xpopup.XPopup
 import timber.log.Timber
 
 
@@ -24,6 +28,10 @@ class ThreadFragment : Fragment() {
     private val viewModel: ThreadViewModel by viewModels()
     private val sharedVM: SharedViewModel by activityViewModels()
     private val mAdapter = QuickAdapter(R.layout.thread_list_item)
+
+    private val imageLoader: ImageLoader by lazy {
+        ImageLoader(requireContext())
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,7 +93,7 @@ class ThreadFragment : Fragment() {
         mAdapter.setOnItemClickListener { adapter, _, position ->
             sharedVM.setThreadList(adapter.getItem(position) as ThreadList)
             val action = PagerFragmentDirections.actionPagerFragmentToReplyFragment()
-            findNavController().navigate(action)
+            requireParentFragment().findNavController().navigate(action)
 
         }
 
@@ -94,13 +102,29 @@ class ThreadFragment : Fragment() {
         mAdapter.setOnItemChildClickListener { adapter, view, position ->
             if (view.id == R.id.threadImage) {
                 Timber.i("clicked on image at $position")
+                val url = (adapter.getItem(
+                    position
+                ) as ThreadList).getImgUrl()
 
-                val action = PagerFragmentDirections.actionPagerFragmentToImageViewerFragment(
-                    (adapter.getItem(
-                        position
-                    ) as ThreadList).getImgUrl()
-                )
-                findNavController().navigate(action)
+                // TODO support multiple image
+                val viewerPopup = ImageViewerPopup(this, requireContext(), url)
+                viewerPopup.setXPopupImageLoader(imageLoader)
+                viewerPopup.setSingleSrcView(view as ImageView?, url)
+                viewerPopup.setOnClickListener {
+                    Timber.i("on click in thread")
+                }
+                XPopup.Builder(context)
+
+                    .asCustom(viewerPopup)
+
+                    .show()
+
+//                val action = PagerFragmentDirections.actionPagerFragmentToImageViewerFragment(
+//                    (adapter.getItem(
+//                        position
+//                    ) as ThreadList).getImgUrl()
+//                )
+//                requireParentFragment().findNavController().navigate(action)
             }
         }
 
@@ -149,5 +173,6 @@ class ThreadFragment : Fragment() {
         super.onDestroy()
         Timber.i("Thread Fragment destroyed!!!")
     }
+
 
 }

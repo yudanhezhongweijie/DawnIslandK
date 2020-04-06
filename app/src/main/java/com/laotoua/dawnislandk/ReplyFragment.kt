@@ -3,17 +3,19 @@ package com.laotoua.dawnislandk
 //import com.laotoua.dawnislandk.util.DiffCallback
 import android.os.Bundle
 import android.view.*
+import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.laotoua.dawnislandk.databinding.ReplyFragmentBinding
+import com.laotoua.dawnislandk.util.ImageViewerPopup
 import com.laotoua.dawnislandk.util.QuickAdapter
 import com.laotoua.dawnislandk.util.Reply
 import com.laotoua.dawnislandk.viewmodels.ReplyViewModel
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
+import com.lxj.xpopup.XPopup
 import timber.log.Timber
 
 
@@ -59,6 +61,10 @@ class ReplyFragment : Fragment() {
     private val sharedVM: SharedViewModel by activityViewModels()
     private val mAdapter = QuickAdapter(R.layout.reply_list_item)
 
+    private val imageLoader: ImageViewerPopup.ImageLoader by lazy {
+        ImageViewerPopup.ImageLoader(requireContext())
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -91,13 +97,28 @@ class ReplyFragment : Fragment() {
             if (view.id == R.id.replyImage) {
                 Timber.i("clicked on image at $position")
 
-                val action =
-                    ReplyFragmentDirections.actionReplyFragmentToImageViewerFragment(
-                        (adapter.getItem(
+                val url = (adapter.getItem(
                             position
                         ) as Reply).getImgUrl()
-                    )
-                view.findNavController().navigate(action)
+                // TODO support multiple image
+                val viewerPopup = ImageViewerPopup(this, requireContext(), url)
+                viewerPopup.setXPopupImageLoader(imageLoader)
+                viewerPopup.setSingleSrcView(view as ImageView?, url)
+                viewerPopup.setOnClickListener {
+                    Timber.i("on click in thread")
+                }
+                XPopup.Builder(context)
+
+                    .asCustom(viewerPopup)
+
+                    .show()
+//                val action =
+//                    ReplyFragmentDirections.actionReplyFragmentToImageViewerFragment(
+//                        (adapter.getItem(
+//                            position
+//                        ) as Reply).getImgUrl()
+//                    )
+//                view.findNavController().navigate(action)
             }
         }
 

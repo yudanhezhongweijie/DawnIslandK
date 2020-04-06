@@ -5,5 +5,5 @@
         android:id="@+id/save_image"
         android:title="保存图片"
         android:icon="@drawable/ic_save"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom|collapseActionView" />
 </menu>

@@ -29,17 +29,6 @@ class ImageViewerFragment : Fragment() {
         fun newInstance() = ImageViewerFragment()
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_image, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -71,21 +60,8 @@ class ImageViewerFragment : Fragment() {
 
         }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-        // Handle item selection
-        return when (item.itemId) {
-            R.id.save_image -> {
-                viewModel.addPicToGallery(requireParentFragment(), args.imgUrl)
-                true
-            }
 
-            else -> {
-                Timber.e("Unhandled item click")
-                true
-            }
-        }
-    }
 
 
 }

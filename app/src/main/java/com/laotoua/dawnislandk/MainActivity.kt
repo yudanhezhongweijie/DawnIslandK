@@ -89,6 +89,9 @@ class MainActivity : AppCompatActivity() {
         sharedVM.currentFragment.observe(this, Observer {
             updateToolBar(it)
         })
+
+        // TODO setting it always collapsing as it contains many errors
+        binding.dawnAppbar.setExpanded(false)
     }
 
     private fun initResources() {

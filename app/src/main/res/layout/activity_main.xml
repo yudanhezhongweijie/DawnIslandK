@@ -13,14 +13,14 @@
         android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/dawn_appbar"
+            android:id="@+id/dawnAppbar"
             android:layout_width="match_parent"
             android:layout_height="180dp"
             android:fitsSystemWindows="true"
             app:menu="@menu/menu_thread">
 
             <com.google.android.material.appbar.SubtitleCollapsingToolbarLayout
-                android:id="@+id/collapsing_toolbar"
+                android:id="@+id/collapsingToolbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fitsSystemWindows="true"
@@ -69,7 +69,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/dawn_appbar"
+            app:layout_constraintTop_toBottomOf="@+id/dawnAppbar"
             app:navGraph="@navigation/nav_graph" />
 
 

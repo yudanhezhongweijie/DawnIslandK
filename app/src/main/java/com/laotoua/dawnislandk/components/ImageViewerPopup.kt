@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.util
+package com.laotoua.dawnislandk.components
 
 import android.content.ContentResolver
 import android.content.ContentValues

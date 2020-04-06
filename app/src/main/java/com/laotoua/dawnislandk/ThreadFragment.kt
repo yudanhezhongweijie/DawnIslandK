@@ -9,9 +9,10 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.laotoua.dawnislandk.components.ImageViewerPopup
+import com.laotoua.dawnislandk.components.ImageViewerPopup.ImageLoader
+import com.laotoua.dawnislandk.components.SendDialog
 import com.laotoua.dawnislandk.databinding.ThreadFragmentBinding
-import com.laotoua.dawnislandk.util.ImageViewerPopup
-import com.laotoua.dawnislandk.util.ImageViewerPopup.ImageLoader
 import com.laotoua.dawnislandk.util.QuickAdapter
 import com.laotoua.dawnislandk.util.ThreadList
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
@@ -107,7 +108,12 @@ class ThreadFragment : Fragment() {
                 ) as ThreadList).getImgUrl()
 
                 // TODO support multiple image
-                val viewerPopup = ImageViewerPopup(this, requireContext(), url)
+                val viewerPopup =
+                    ImageViewerPopup(
+                        this,
+                        requireContext(),
+                        url
+                    )
                 viewerPopup.setXPopupImageLoader(imageLoader)
                 viewerPopup.setSingleSrcView(view as ImageView?, url)
                 viewerPopup.setOnClickListener {

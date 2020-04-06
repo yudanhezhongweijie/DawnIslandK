@@ -9,13 +9,14 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.laotoua.dawnislandk.components.ImageViewerPopup
 import com.laotoua.dawnislandk.databinding.ReplyFragmentBinding
-import com.laotoua.dawnislandk.util.ImageViewerPopup
 import com.laotoua.dawnislandk.util.QuickAdapter
 import com.laotoua.dawnislandk.util.Reply
 import com.laotoua.dawnislandk.viewmodels.ReplyViewModel
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import com.lxj.xpopup.XPopup
+import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
 
 
@@ -69,6 +70,10 @@ class ReplyFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        requireActivity().dawnAppbar.bringChildToFront(toolbar)
+        requireActivity().toolbar.z = 1000f
+
         sharedVM.setFragment(this.javaClass.simpleName)
 
         _binding = ReplyFragmentBinding.inflate(inflater, container, false)
@@ -101,7 +106,12 @@ class ReplyFragment : Fragment() {
                             position
                         ) as Reply).getImgUrl()
                 // TODO support multiple image
-                val viewerPopup = ImageViewerPopup(this, requireContext(), url)
+                val viewerPopup =
+                    ImageViewerPopup(
+                        this,
+                        requireContext(),
+                        url
+                    )
                 viewerPopup.setXPopupImageLoader(imageLoader)
                 viewerPopup.setSingleSrcView(view as ImageView?, url)
                 viewerPopup.setOnClickListener {

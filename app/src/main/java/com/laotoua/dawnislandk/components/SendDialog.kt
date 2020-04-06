@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk
+package com.laotoua.dawnislandk.components
 
 
 import android.Manifest
@@ -14,6 +14,7 @@ import androidx.activity.invoke
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.laotoua.dawnislandk.R
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BasePopupView
 import com.lxj.xpopup.core.BottomPopupView

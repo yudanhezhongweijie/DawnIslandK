@@ -15,7 +15,7 @@
     </fragment>
     <fragment
         android:id="@+id/imageViewerFragment"
-        android:name="com.laotoua.dawnislandk.ImageViewerFragment"
+        android:name="com.laotoua.dawnislandk.unused.ImageViewerFragment"
         android:label="image_viewer_fragment"
         tools:layout="@layout/image_viewer_fragment">
         <argument

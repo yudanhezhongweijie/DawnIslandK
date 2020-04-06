@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity() {
         })
 
         // TODO setting it always collapsing as it contains many errors
-        binding.dawnAppbar.setExpanded(false)
+//        binding.dawnAppbar.setExpanded(false)
     }
 
     private fun initResources() {

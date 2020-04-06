@@ -144,27 +144,31 @@ class MainActivity : AppCompatActivity() {
     private fun updateToolBar(currentFrag: String) {
         when (currentFrag) {
             "ImageViewerFragment" -> {
-                binding.toolbar.title = "大图模式"
-                binding.toolbar.subtitle = ""
+                binding.collapsingToolbar.title = "大图模式"
+                binding.collapsingToolbar.subtitle = ""
+//                binding.toolbar.setNavigationIcon(R.drawable.ic_arrow_back)
 
                 binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-                supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_arrow_back)
+//                supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_arrow_back)
             }
             "ReplyFragment" -> {
                 val forumName =
                     sharedVM.getForumDisplayName(sharedVM.selectedThreadList.value!!.fid ?: "")
-                binding.toolbar.title = "A岛  • $forumName"
-                binding.toolbar.subtitle = ">>No. " + sharedVM.selectedThreadList.value?.id
-
+                binding.collapsingToolbar.title = "A岛  • $forumName"
+                binding.collapsingToolbar.subtitle =
+                    ">>No. " + sharedVM.selectedThreadList.value?.id
+//                binding.toolbar.setNavigationIcon(R.drawable.ic_arrow_back)
                 binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-                supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_arrow_back)
+//                supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_arrow_back)
             }
             "ThreadFragment" -> {
 
-                binding.toolbar.title = sharedVM.selectedForum.value?.name ?: "时间线"
-                binding.toolbar.subtitle = "adnmb.com"
+                binding.collapsingToolbar.title = sharedVM.selectedForum.value?.name ?: "时间线"
+                binding.collapsingToolbar.subtitle = "adnmb.com"
 
-                supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu)
+//                binding.toolbar.setNavigationIcon(R.drawable.ic_menu)
+
+//                supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu)
                 binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
             }
 

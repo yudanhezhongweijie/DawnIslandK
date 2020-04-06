@@ -6,8 +6,10 @@ import android.content.Context
 import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.invoke
 import androidx.activity.result.contract.ActivityResultContracts
@@ -93,11 +95,20 @@ class SendDialog : Fragment() {
             }
 
             findViewById<ImageButton>(R.id.doodle).setOnClickListener {
+                // TODO
                 Timber.i("Clicked on doodle")
             }
 
             findViewById<ImageButton>(R.id.expandMore).setOnClickListener {
                 Timber.i("Clicked on expandMore")
+
+                findViewById<LinearLayout>(R.id.expansion).let {
+                    if (it.visibility == View.VISIBLE) {
+                        it.visibility = View.GONE
+                    } else {
+                        it.visibility = View.VISIBLE
+                    }
+                }
             }
 
             findViewById<TextView>(R.id.cookie).setOnClickListener {
@@ -107,12 +118,12 @@ class SendDialog : Fragment() {
 
         override fun onDismiss() {
             super.onDismiss()
+
             (caller.requireActivity()
                 .getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager)
                 .hideSoftInputFromWindow(windowToken, 0)
 
             caller.parentFragmentManager.beginTransaction().remove(caller).commit()
-            Timber.i("should be poped?")
         }
     }
 }

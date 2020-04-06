@@ -17,6 +17,13 @@ class SharedViewModel : ViewModel() {
 
     private var forumNameMapping = mapOf<String, String>()
 
+    private var _currentFragment = MutableLiveData<String>()
+    val currentFragment: MutableLiveData<String> get() = _currentFragment
+
+    fun setFragment(fragName: String) {
+        _currentFragment.postValue(fragName)
+    }
+
 
     fun setForum(f: Forum) {
         Timber.i("set forum to id: ${f.id}")

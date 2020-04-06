@@ -4,7 +4,7 @@
 
     <group>
         <item
-            android:id="@+id/crash"
+            android:id="@+id/send"
             android:title="发串"
             app:showAsAction="always|collapseActionView" />
         <item

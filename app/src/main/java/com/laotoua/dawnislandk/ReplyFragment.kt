@@ -2,9 +2,7 @@ package com.laotoua.dawnislandk
 
 //import com.laotoua.dawnislandk.util.DiffCallback
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -21,6 +19,35 @@ import timber.log.Timber
 
 class ReplyFragment : Fragment() {
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        menu.clear()
+        inflater.inflate(R.menu.menu_reply, menu);
+
+        super.onCreateOptionsMenu(menu, inflater)
+
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return super.onOptionsItemSelected(item)
+//        return when (item.itemId) {
+//            R.id.save_image -> {
+//                viewModel.addPicToGallery(requireParentFragment(), args.imgUrl)
+//                true
+//            }
+//
+//            else -> {
+//                Timber.e("Unhandled item click")
+//                true
+//            }
+//        }
+    }
+
     companion object {
         fun newInstance() = ReplyFragment()
     }
@@ -36,6 +63,8 @@ class ReplyFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        sharedVM.setFragment(this.javaClass.simpleName)
+
         _binding = ReplyFragmentBinding.inflate(inflater, container, false)
         Timber.i("connected sharedVM instance: $sharedVM viewModel: $viewModel viewLifeCycleOwner $viewLifecycleOwner")
 

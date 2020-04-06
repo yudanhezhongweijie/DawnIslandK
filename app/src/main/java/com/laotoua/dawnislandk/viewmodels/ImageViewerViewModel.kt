@@ -25,7 +25,7 @@ class ImageViewerViewModel : ViewModel() {
     // TODO: move cdn path to right place
     private val cdn = "https://nmbimg.fastmirror.org/image/"
 
-    private val _status = MutableLiveData(false)
+    private val _status = MutableLiveData<Boolean>()
     val status: LiveData<Boolean> get() = _status
 
     /** REQUIRE caller to provide context

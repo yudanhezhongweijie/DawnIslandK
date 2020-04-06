@@ -1,9 +1,7 @@
 package com.laotoua.dawnislandk
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -27,11 +25,50 @@ class ThreadFragment : Fragment() {
     private val sharedVM: SharedViewModel by activityViewModels()
     private val mAdapter = QuickAdapter(R.layout.thread_list_item)
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+
+        inflater.inflate(R.menu.menu_thread, menu);
+
+        super.onCreateOptionsMenu(menu, inflater)
+
+    }
+
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        return when (item.itemId) {
+            R.id.send -> {
+
+                val dialog = childFragmentManager.findFragmentByTag("dialog")
+                Timber.i("frags: ${childFragmentManager.fragments}")
+                if (dialog == null) {
+                    Timber.i("making dialog")
+                    childFragmentManager.beginTransaction().add(SendDialog(), "dialog").commit()
+                } else {
+                    Timber.i("showing dialog")
+                    childFragmentManager.beginTransaction().show(dialog).commit()
+                }
+                true
+            }
+
+            else -> {
+                Timber.e("Unhandled item click")
+                true
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        sharedVM.setFragment(this.javaClass.simpleName)
+
         _binding = ThreadFragmentBinding.inflate(inflater, container, false)
         Timber.i("connected sharedVM instance: $sharedVM viewModel: $viewModel viewLifeCycleOwner $viewLifecycleOwner")
         viewModel.setForumDao(sharedVM.getDb()?.forumDao())

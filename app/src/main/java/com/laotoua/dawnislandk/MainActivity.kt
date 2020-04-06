@@ -6,6 +6,7 @@ import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
@@ -120,6 +121,7 @@ class MainActivity : AppCompatActivity() {
             val target = adapter.getItem(position) as Forum
             Timber.i("Selected Forum at pos $position")
             sharedVM.setForum(target)
+            sharedVM.setFragment("ThreadFragment")
             binding.drawerLayout.closeDrawers()
 
         }
@@ -136,6 +138,40 @@ class MainActivity : AppCompatActivity() {
                 mAdapter.loadMoreModule.loadMoreFail()
             }
         })
-        // TODO refresh click
+    }
+
+
+    private fun updateToolBar(currentFrag: String) {
+        when (currentFrag) {
+            "ImageViewerFragment" -> {
+                binding.toolbar.title = "大图模式"
+                binding.toolbar.subtitle = ""
+
+                binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_arrow_back)
+            }
+            "ReplyFragment" -> {
+                val forumName =
+                    sharedVM.getForumDisplayName(sharedVM.selectedThreadList.value!!.fid ?: "")
+                binding.toolbar.title = "A岛  • $forumName"
+                binding.toolbar.subtitle = ">>No. " + sharedVM.selectedThreadList.value?.id
+
+                binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_arrow_back)
+            }
+            "ThreadFragment" -> {
+
+                binding.toolbar.title = sharedVM.selectedForum.value?.name ?: "时间线"
+                binding.toolbar.subtitle = "adnmb.com"
+
+                supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu)
+                binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+            }
+
+            else -> {
+//                    binding.toolbar.visibility = View.VISIBLE
+            }
+        }
+
     }
 }

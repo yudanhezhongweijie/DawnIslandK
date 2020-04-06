@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="180dp"
             android:fitsSystemWindows="true"
-            app:menu="@menu/main_toolbar_menu">
+            app:menu="@menu/menu_thread">
 
             <com.google.android.material.appbar.SubtitleCollapsingToolbarLayout
                 android:id="@+id/collapsing_toolbar"

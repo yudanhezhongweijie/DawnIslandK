@@ -23,14 +23,24 @@ class PagerFragment : Fragment() {
 
         _binding = PagerFragmentBinding.inflate(inflater, container, false)
 
-        binding.viewPager.adapter = object : FragmentStateAdapter(childFragmentManager) {
+        binding.viewPager.adapter = object : FragmentStateAdapter(this) {
             private val mFragmentList: MutableList<Fragment> = mutableListOf()
-            override fun getItem(position: Int): Fragment {
+
+            fun getItem(position: Int): Fragment {
                 return mFragmentList[position]
             }
 
             override fun getItemCount(): Int {
                 return mFragmentList.size
+            }
+
+            override fun createFragment(position: Int): Fragment {
+
+                return when (position) {
+                    0 -> ThreadFragment()
+                    1 -> SubscriptionFragment()
+                    else -> throw Exception("unhandled pager fragment creation")
+                }
             }
 
             fun getItemByTag(tag: String): Fragment {

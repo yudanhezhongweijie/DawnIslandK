@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.viewmodels
+package com.laotoua.dawnislandk.unused
 
 import android.content.ContentResolver
 import android.content.ContentValues

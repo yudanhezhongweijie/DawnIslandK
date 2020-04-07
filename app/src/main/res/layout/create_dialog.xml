@@ -171,7 +171,7 @@
         android:gravity="clip_horizontal"
         android:hint="在这里输入文字"
         android:inputType="textMultiLine"
-        android:minLines="15"
+        android:minLines="20"
         android:padding="6dp"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"

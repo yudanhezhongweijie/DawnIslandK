@@ -1,7 +1,9 @@
-package com.laotoua.dawnislandk
+package com.laotoua.dawnislandk.unused
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
@@ -11,9 +13,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.navArgs
 import com.github.chrisbanes.photoview.PhotoView
 import com.laotoua.dawnislandk.databinding.ImageViewerFragmentBinding
-import com.laotoua.dawnislandk.viewmodels.ImageViewerViewModel
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
-import timber.log.Timber
 
 
 class ImageViewerFragment : Fragment() {
@@ -27,17 +27,6 @@ class ImageViewerFragment : Fragment() {
 
     companion object {
         fun newInstance() = ImageViewerFragment()
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_image, menu)
-        super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onCreateView(
@@ -71,21 +60,8 @@ class ImageViewerFragment : Fragment() {
 
         }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-        // Handle item selection
-        return when (item.itemId) {
-            R.id.save_image -> {
-                viewModel.addPicToGallery(requireParentFragment(), args.imgUrl)
-                true
-            }
 
-            else -> {
-                Timber.e("Unhandled item click")
-                true
-            }
-        }
-    }
 
 
 }

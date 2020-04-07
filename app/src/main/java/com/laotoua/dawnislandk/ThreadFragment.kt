@@ -66,6 +66,7 @@ class ThreadFragment : Fragment() {
 
         }
 
+
         // image
         mAdapter.addChildClickViewIds(R.id.threadImage)
         mAdapter.setOnItemChildClickListener { adapter, view, position ->
@@ -133,6 +134,14 @@ class ThreadFragment : Fragment() {
             }
         })
 
+
+        binding.threadsView.setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
+            if (scrollY < oldScrollY) {
+                binding.fabMenu.show()
+            } else {
+                binding.fabMenu.hide()
+            }
+        }
 
         binding.fabMenu.setOnClickListener {
             toggleMenu()

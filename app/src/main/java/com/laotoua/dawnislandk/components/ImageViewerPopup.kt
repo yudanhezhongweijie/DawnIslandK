@@ -1,10 +1,12 @@
 package com.laotoua.dawnislandk.components
 
+import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.os.Environment
 import android.provider.MediaStore
+import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -19,6 +21,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.laotoua.dawnislandk.R
 import com.lxj.xpopup.core.ImageViewerPopupView
 import com.lxj.xpopup.interfaces.XPopupImageLoader
+import com.lxj.xpopup.photoview.PhotoView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -27,24 +30,35 @@ import java.io.File
 import java.io.IOException
 
 
-class ImageViewerPopup(private val caller: Fragment, context: Context, private val imgUrl: String) :
+@SuppressLint("ViewConstructor")
+class ImageViewerPopup(
+    private val caller: Fragment,
+    context: Context,
+    private val imgUrl: String
+) :
     ImageViewerPopupView(context) {
 
     private val _status = MutableLiveData<Boolean>()
-    val status: LiveData<Boolean> get() = _status
+    private val status: LiveData<Boolean> get() = _status
+    private var saveShown = true
+    private val saveButton by lazy { findViewById<FloatingActionButton>(R.id.save) }
 
     override fun getImplLayoutId(): Int {
         return R.layout.image_viewer_popup
     }
 
+    override fun initPopupContent() {
+        super.initPopupContent()
+        pager.adapter = PopupPVA()
+    }
+
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        findViewById<FloatingActionButton>(R.id.fabMenu).setOnClickListener {
+        this.isShowSaveBtn = false
+        saveButton.setOnClickListener {
             Timber.i("fab clicked")
-
             addPicToGallery(context, imgUrl)
         }
-
 
         status.observe(caller, Observer {
             when (it) {
@@ -88,7 +102,6 @@ class ImageViewerPopup(private val caller: Fragment, context: Context, private v
         }
     }
 
-
     class ImageLoader(val context: Context) : XPopupImageLoader {
         private val cdn = "https://nmbimg.fastmirror.org/image/"
 
@@ -105,6 +118,31 @@ class ImageViewerPopup(private val caller: Fragment, context: Context, private v
             Glide.with(context).load(cdn + uri)
                 .apply(RequestOptions().override(SIZE_ORIGINAL, SIZE_ORIGINAL))
                 .into(imageView)
+        }
+    }
+
+    inner class PopupPVA : PhotoViewAdapter() {
+        override fun instantiateItem(container: ViewGroup, position: Int): Any {
+            val photoView =
+                PhotoView(container.context)
+            // call LoadImageListener
+            if (imageLoader != null) imageLoader.loadImage(
+                position,
+                urls.get(if (isInfinite) position % urls.size else position),
+                photoView
+            )
+            container.addView(photoView)
+            photoView.setOnClickListener {
+                saveShown = if (saveShown) {
+                    saveButton.hide()
+                    false
+                } else {
+                    saveButton.show()
+                    true
+                }
+
+            }
+            return photoView
         }
     }
 }

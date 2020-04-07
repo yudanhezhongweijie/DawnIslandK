@@ -137,6 +137,14 @@ class ReplyFragment : Fragment() {
 
         })
 
+        binding.replysView.setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
+            if (scrollY < oldScrollY) {
+                binding.fabMenu.show()
+            } else {
+                binding.fabMenu.hide()
+            }
+        }
+
         binding.fabMenu.setOnClickListener {
             toggleMenu()
         }

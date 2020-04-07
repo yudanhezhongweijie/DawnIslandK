@@ -1,7 +1,10 @@
 package com.laotoua.dawnislandk
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.animation.AnimationUtils.loadAnimation
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -9,15 +12,16 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.laotoua.dawnislandk.components.CreatePopup
 import com.laotoua.dawnislandk.components.ImageViewerPopup
 import com.laotoua.dawnislandk.components.ImageViewerPopup.ImageLoader
-import com.laotoua.dawnislandk.components.SendDialog
 import com.laotoua.dawnislandk.databinding.ThreadFragmentBinding
 import com.laotoua.dawnislandk.util.QuickAdapter
 import com.laotoua.dawnislandk.util.ThreadList
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import com.laotoua.dawnislandk.viewmodels.ThreadViewModel
 import com.lxj.xpopup.XPopup
+import com.lxj.xpopup.core.BasePopupView
 import timber.log.Timber
 
 
@@ -30,47 +34,11 @@ class ThreadFragment : Fragment() {
     private val sharedVM: SharedViewModel by activityViewModels()
     private val mAdapter = QuickAdapter(R.layout.thread_list_item)
 
-    private val imageLoader: ImageLoader by lazy {
-        ImageLoader(requireContext())
-    }
+    private val dialog: BasePopupView by lazy { CreatePopup(this, requireContext()) }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
+    private var isFabOpen = false
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-
-        inflater.inflate(R.menu.menu_thread, menu);
-
-        super.onCreateOptionsMenu(menu, inflater)
-
-    }
-
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
-        return when (item.itemId) {
-            R.id.send -> {
-
-                val dialog = childFragmentManager.findFragmentByTag("dialog")
-                Timber.i("frags: ${childFragmentManager.fragments}")
-                if (dialog == null) {
-                    Timber.i("making dialog")
-                    childFragmentManager.beginTransaction().add(SendDialog(), "dialog").commit()
-                } else {
-                    Timber.i("showing dialog")
-                    childFragmentManager.beginTransaction().show(dialog).commit()
-                }
-                true
-            }
-
-            else -> {
-                Timber.e("Unhandled item click")
-                true
-            }
-        }
-    }
+    private val imageLoader: ImageLoader by lazy { ImageLoader(requireContext()) }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -120,9 +88,7 @@ class ThreadFragment : Fragment() {
                     Timber.i("on click in thread")
                 }
                 XPopup.Builder(context)
-
                     .asCustom(viewerPopup)
-
                     .show()
 
 //                val action = PagerFragmentDirections.actionPagerFragmentToImageViewerFragment(
@@ -167,6 +133,29 @@ class ThreadFragment : Fragment() {
             }
         })
 
+
+        binding.fabMenu.setOnClickListener {
+            toggleMenu()
+        }
+
+        binding.setting.setOnClickListener {
+            Timber.i("clicked on setting")
+            toggleMenu()
+        }
+
+        binding.cookie.setOnClickListener {
+            Timber.i("Clicked on cookie")
+            toggleMenu()
+        }
+
+        binding.create.setOnClickListener {
+            Timber.i("Clicked on create")
+            toggleMenu()
+
+            XPopup.Builder(context)
+                .asCustom(dialog)
+                .show()
+        }
         return binding.root
     }
 
@@ -180,5 +169,26 @@ class ThreadFragment : Fragment() {
         Timber.i("Thread Fragment destroyed!!!")
     }
 
+
+    private fun toggleMenu() {
+        val rotateForward = loadAnimation(requireContext(), R.anim.rotate_forward);
+        val rotateBackward = loadAnimation(requireContext(), R.anim.rotate_backward);
+        if (isFabOpen) {
+            binding.fabMenu.startAnimation(rotateBackward)
+
+            binding.setting.hide()
+            binding.create.hide()
+            binding.cookie.hide()
+
+            isFabOpen = false
+        } else {
+            binding.fabMenu.startAnimation(rotateForward)
+
+            binding.setting.show()
+            binding.create.show()
+            binding.cookie.show()
+            isFabOpen = true
+        }
+    }
 
 }

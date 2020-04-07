@@ -39,8 +39,9 @@ class MainActivity : AppCompatActivity() {
         initToolbar()
         initResources()
         setUpForumDrawer()
-    }
 
+
+    }
 
     private fun initToolbar() {
         /**

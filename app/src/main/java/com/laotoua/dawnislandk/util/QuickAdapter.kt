@@ -11,18 +11,21 @@ import com.chad.library.adapter.base.loadmore.BaseLoadMoreView
 import com.chad.library.adapter.base.module.LoadMoreModule
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.laotoua.dawnislandk.R
+import com.laotoua.dawnislandk.components.ThreadCardFactory
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import kotlinx.android.synthetic.main.quote_list_item.view.*
 import timber.log.Timber
+
 
 
 // TODO: handle no new data exception
 class QuickAdapter(private val layoutResId: Int) :
     BaseQuickAdapter<Any, BaseViewHolder>(layoutResId, ArrayList()),
     LoadMoreModule {
+
     private val thumbCDN = "https://nmbimg.fastmirror.org/thumb/"
     private lateinit var sharedViewModel: SharedViewModel
-
+    private val factory: ThreadCardFactory by lazy { ThreadCardFactory(context) }
     init {
         // 所有数据加载完成后，是否允许点击（默认为false）
         this.loadMoreModule.enableLoadMoreEndClick = true
@@ -37,6 +40,7 @@ class QuickAdapter(private val layoutResId: Int) :
         this.sharedViewModel = vm
     }
 
+
     /** default handler for recyclerview item
      *
      */
@@ -50,6 +54,14 @@ class QuickAdapter(private val layoutResId: Int) :
         }
     }
 
+    override fun onCreateDefViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
+        // TODO: view created by code differs from view in layout xml
+        return if (layoutResId == R.layout.thread_list_item) {
+            createBaseViewHolder(factory.getCardView(context))
+        } else {
+            super.onCreateDefViewHolder(parent, layoutResId)
+        }
+    }
 
     private fun convertForum(card: BaseViewHolder, item: Forum) {
         // special handling for drawable resource ID, which cannot have -

@@ -6,9 +6,11 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.util.DisplayMetrics
 import android.util.TypedValue
+import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.Dimension
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -79,12 +81,12 @@ class ThreadCardFactory(context: Context) {
         segGap = sharedPreferences.getInt(SEG_GAP, 0)
     }
 
-    fun getSeriesCardView(context: Context): ThreadListCard {
+    fun getCardView(context: Context): ThreadListCard {
         /**
          * 创建CardView
          */
         val cardView = ThreadListCard(context)
-//            cardView.setId(R.id.threadContainer)
+
         /**
          * 设置CardView layout属性
          */
@@ -96,6 +98,7 @@ class ThreadCardFactory(context: Context) {
         marginLayoutParams.marginEnd = cardMarginRight
         marginLayoutParams.topMargin = cardMarginTop
         cardView.layoutParams = marginLayoutParams
+
         /**
          * 获取点击效果资源
          */
@@ -107,6 +110,7 @@ class ThreadCardFactory(context: Context) {
             context.theme.obtainStyledAttributes(typedValue.resourceId, attribute)
         val drawable = typedArray.getDrawable(0)
         typedArray.recycle()
+
         /**
          * 设置点击效果
          */
@@ -118,9 +122,9 @@ class ThreadCardFactory(context: Context) {
         cardView.setCardBackgroundColor(Color.parseColor("#Ffffff"))
         cardView.radius = cardRadius.toFloat()
         cardView.elevation = cardElevaion.toFloat()
-        val constraintLayout = ConstraintLayout(context)
-        constraintLayout.id = R.id.threadContainer
-        constraintLayout.setPadding(
+        val threadContainer = ConstraintLayout(context)
+        threadContainer.id = R.id.threadContainer
+        threadContainer.setPadding(
             contentMarginLeft,
             headBarMarginTop,
             contentMarginRight,
@@ -129,32 +133,33 @@ class ThreadCardFactory(context: Context) {
         /**
          * cookie TextView
          */
-        val cookieView = TextView(context)
-        cookieView.id = R.id.threadCookie
-        cookieView.typeface = Typeface.defaultFromStyle(Typeface.BOLD)
+        val threadCookie = TextView(context)
+        threadCookie.id = R.id.threadCookie
+        threadCookie.typeface = Typeface.defaultFromStyle(Typeface.BOLD)
         val cookieLayoutParams = ConstraintLayout.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
         )
         cookieLayoutParams.topToTop = R.id.threadContainer
         cookieLayoutParams.startToStart = R.id.threadContainer
-        cookieView.layoutParams = cookieLayoutParams
+        threadCookie.layoutParams = cookieLayoutParams
+
         /**
          * time TextView
          */
-        val timeView = TextView(context)
-        timeView.id = R.id.threadTime
+        val threadTime = TextView(context)
+        threadTime.id = R.id.threadTime
         val timeLayoutParams = ConstraintLayout.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
         )
         timeLayoutParams.startToEnd = R.id.threadCookie
         timeLayoutParams.marginStart = dip2px(8f)
         timeLayoutParams.topToTop = R.id.threadContainer
-        timeView.layoutParams = timeLayoutParams
+        threadTime.layoutParams = timeLayoutParams
         /**
          * forum TextView
          */
-        val forumAndRelpycount = TextView(context)
-        forumAndRelpycount.id = R.id.threadForumAndReplyCount
+        val threadForumAndReplyCount = TextView(context)
+        threadForumAndReplyCount.id = R.id.threadForumAndReplyCount
         val forumLayoutParams = ConstraintLayout.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
         )
@@ -164,13 +169,14 @@ class ThreadCardFactory(context: Context) {
          * xml中使用padding代替了margin，因为要绘制标签背景，这里暂时空着8，因为考虑使用Span进行绘制,所以size，color之类的属性都暂时不写
          * 省略的属性有padding、textColor、textSize、background
          */
-        forumAndRelpycount.layoutParams = forumLayoutParams
-        forumAndRelpycount.setTextSize(Dimension.SP, 12f)
+        threadForumAndReplyCount.layoutParams = forumLayoutParams
+        threadForumAndReplyCount.setTextSize(Dimension.SP, 12f)
+
         /**
          * content TextView
          */
-        val contentView = TextView(context)
-        contentView.id = R.id.threadContent
+        val threadContent = TextView(context)
+        threadContent.id = R.id.threadContent
         val contentLayoutParam =
             ConstraintLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT)
         contentLayoutParam.topToBottom = R.id.threadCookie
@@ -178,32 +184,70 @@ class ThreadCardFactory(context: Context) {
         contentLayoutParam.endToStart = R.id.threadImage
         contentLayoutParam.marginEnd = dip2px(2f)
         contentLayoutParam.startToStart = R.id.threadContainer
-        contentView.layoutParams = contentLayoutParam
-        contentView.setTextColor(Color.BLACK)
-        contentView.textSize = mainTextSize.toFloat()
-        contentView.maxLines = 10
+        threadContent.layoutParams = contentLayoutParam
+        threadContent.setTextColor(Color.BLACK)
+        threadContent.textSize = mainTextSize.toFloat()
+        threadContent.maxLines = 10
         var trueLetterSpace = letterSpace * 1.0f
         trueLetterSpace /= 50f
-        contentView.letterSpacing = trueLetterSpace
-        val imageContent = ImageView(context)
-        imageContent.id = R.id.threadImage
+        threadContent.letterSpacing = trueLetterSpace
+        val threadImage = ImageView(context)
+        threadImage.id = R.id.threadImage
         val imageLayoutParam =
             ConstraintLayout.LayoutParams(250, 250)
         imageLayoutParam.topToTop = R.id.threadContent
         imageLayoutParam.endToEnd = R.id.threadContainer
-        imageContent.layoutParams = imageLayoutParam
-        cardView.addView(constraintLayout)
-        constraintLayout.addView(cookieView)
-        constraintLayout.addView(timeView)
-        constraintLayout.addView(forumAndRelpycount)
-        constraintLayout.addView(contentView)
-        constraintLayout.addView(imageContent)
-        cardView.constraintLayout = constraintLayout
-        cardView.cookieView = cookieView
-        cardView.timeView = timeView
-        cardView.forumAndRelpycount = forumAndRelpycount
-        cardView.contentView = contentView
-        cardView.imageContent = imageContent
+        threadImage.layoutParams = imageLayoutParam
+
+        /**
+         *  sage
+         */
+        val sage = TextView(context)
+        sage.id = R.id.sage
+        val sageLayoutParam = ConstraintLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
+        )
+        sageLayoutParam.verticalWeight = 1F
+        sage.layoutParams = sageLayoutParam
+        sage.background = context.getDrawable(R.drawable.sage_background)
+        sage.setPaddingRelative(15, 15, 15, 15)
+        sage.text = "本串已被sage"
+        sage.typeface = Typeface.DEFAULT_BOLD
+        sage.visibility = View.INVISIBLE
+
+
+        /**
+         * quotes
+         */
+        val threadQuotes = LinearLayout(context)
+        threadQuotes.id = R.id.threadQuotes
+        val threadQuotesLayoutParam = ConstraintLayout.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        threadQuotesLayoutParam.topMargin = 6
+        threadQuotesLayoutParam.orientation = LinearLayout.VERTICAL
+        threadQuotesLayoutParam.startToStart = R.id.threadContainer
+        threadQuotesLayoutParam.topToBottom = R.id.threadCookie
+        threadQuotes.layoutParams = threadQuotesLayoutParam
+
+
+
+        cardView.addView(threadContainer)
+        threadContainer.addView(threadCookie)
+        threadContainer.addView(threadTime)
+        threadContainer.addView(threadForumAndReplyCount)
+        threadContainer.addView(threadContent)
+        threadContainer.addView(threadImage)
+        threadContainer.addView(sage)
+        threadContainer.addView(threadQuotes)
+        cardView.threadContainer = threadContainer
+        cardView.threadCookie = threadCookie
+        cardView.threadTime = threadTime
+        cardView.threadForumAndReplyCount = threadForumAndReplyCount
+        cardView.threadContent = threadContent
+        cardView.threadImage = threadImage
+        cardView.sage = sage
+        cardView.threadQuotes = threadQuotes
         return cardView
     }
 
@@ -217,14 +261,16 @@ class ThreadCardFactory(context: Context) {
 
     inner class ThreadListCard(context: Context?) :
         MaterialCardView(context) {
-        var id: String? = null
-        var forum: String? = null
-        var constraintLayout: ConstraintLayout? = null
-        var cookieView: TextView? = null
-        var timeView: TextView? = null
-        var forumAndRelpycount: TextView? = null
-        var contentView: TextView? = null
-        var imageContent: ImageView? = null
+        //        var id: String? = null
+//        var forum: String? = null
+        var threadContainer: ConstraintLayout? = null
+        var threadCookie: TextView? = null
+        var threadTime: TextView? = null
+        var threadForumAndReplyCount: TextView? = null
+        var threadContent: TextView? = null
+        var threadImage: ImageView? = null
+        var sage: TextView? = null
+        var threadQuotes: LinearLayout? = null
 
     }
 
@@ -245,15 +291,6 @@ class ThreadCardFactory(context: Context) {
         const val LINE_HEIGHT = "line_height"
         const val SEG_GAP = "seg_gap"
         const val MAIN_TEXT_MIN_SIZE = 10
-//            fun getInstance(context: Context): ThreadCardFactory? {
-//                if (cardViewFactory != null) {
-//                    cardViewFactory!!.readSetting()
-//                    return cardViewFactory
-//                }
-//                cardViewFactory = ThreadCardFactory(context)
-//                cardViewFactory!!.readSetting()
-//                return cardViewFactory
-//            }
     }
 
     init {

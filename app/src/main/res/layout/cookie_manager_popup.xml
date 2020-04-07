@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/all_corner_background">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="20dp"
+        android:text="管理饼干"
+        android:textColor="#232222"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toTopOf="@+id/listView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/addCookie"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="20dp"
+        android:background="@android:color/transparent"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="@id/title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/title"
+        app:srcCompat="@drawable/ic_add_black" />
+
+    <LinearLayout
+        android:id="@+id/listView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/title">
+
+        <include
+            android:id="@+id/cookie1"
+            layout="@layout/cookie_list_item"
+            android:background="@drawable/all_corner_background" />
+
+        <include
+            android:id="@+id/cookie2"
+            layout="@layout/cookie_list_item" />
+
+        <include
+            android:id="@+id/cookie3"
+            layout="@layout/cookie_list_item" />
+
+        <include
+            android:id="@+id/cookie4"
+            layout="@layout/cookie_list_item" />
+
+        <include
+            android:id="@+id/cookie5"
+            layout="@layout/cookie_list_item" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

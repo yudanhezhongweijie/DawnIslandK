@@ -15,6 +15,10 @@
             app:title="设置时间显示格式"
             app:useSimpleSummaryProvider="true" />
 
+        <Preference
+            app:key="cookie"
+            app:title="饼干" />
+
     </PreferenceCategory>
 
     <PreferenceCategory app:title="显示">

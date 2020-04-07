@@ -62,7 +62,7 @@ class ThreadFragment : Fragment() {
         mAdapter.setOnItemClickListener { adapter, _, position ->
             sharedVM.setThreadList(adapter.getItem(position) as ThreadList)
             val action = PagerFragmentDirections.actionPagerFragmentToReplyFragment()
-            requireParentFragment().findNavController().navigate(action)
+            findNavController().navigate(action)
 
         }
 

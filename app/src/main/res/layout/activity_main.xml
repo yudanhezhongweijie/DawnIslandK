@@ -16,8 +16,7 @@
             android:id="@+id/dawnAppbar"
             android:layout_width="match_parent"
             android:layout_height="180dp"
-            android:fitsSystemWindows="true"
-            app:menu="@menu/menu_thread">
+            android:fitsSystemWindows="true">
 
             <com.google.android.material.appbar.SubtitleCollapsingToolbarLayout
                 android:id="@+id/collapsingToolbar"

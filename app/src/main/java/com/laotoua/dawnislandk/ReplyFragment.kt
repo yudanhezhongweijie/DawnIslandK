@@ -2,13 +2,17 @@ package com.laotoua.dawnislandk
 
 //import com.laotoua.dawnislandk.util.DiffCallback
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.laotoua.dawnislandk.components.CreatePopup
 import com.laotoua.dawnislandk.components.ImageViewerPopup
 import com.laotoua.dawnislandk.databinding.ReplyFragmentBinding
 import com.laotoua.dawnislandk.util.QuickAdapter
@@ -16,44 +20,11 @@ import com.laotoua.dawnislandk.util.Reply
 import com.laotoua.dawnislandk.viewmodels.ReplyViewModel
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import com.lxj.xpopup.XPopup
-import kotlinx.android.synthetic.main.activity_main.*
+import com.lxj.xpopup.core.BasePopupView
 import timber.log.Timber
 
 
 class ReplyFragment : Fragment() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        menu.clear()
-        inflater.inflate(R.menu.menu_reply, menu);
-
-        super.onCreateOptionsMenu(menu, inflater)
-
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return super.onOptionsItemSelected(item)
-//        return when (item.itemId) {
-//            R.id.save_image -> {
-//                viewModel.addPicToGallery(requireParentFragment(), args.imgUrl)
-//                true
-//            }
-//
-//            else -> {
-//                Timber.e("Unhandled item click")
-//                true
-//            }
-//        }
-    }
-
-    companion object {
-        fun newInstance() = ReplyFragment()
-    }
 
     //TODO: maintain reply fragment when pressing back, such that progress can be remembered
     private var _binding: ReplyFragmentBinding? = null
@@ -66,13 +37,14 @@ class ReplyFragment : Fragment() {
         ImageViewerPopup.ImageLoader(requireContext())
     }
 
+    private val dialog: BasePopupView by lazy { CreatePopup(this, requireContext()) }
+
+    private var isFabOpen = false
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
-        requireActivity().dawnAppbar.bringChildToFront(toolbar)
-        requireActivity().toolbar.z = 1000f
 
         sharedVM.setFragment(this.javaClass.simpleName)
 
@@ -122,13 +94,6 @@ class ReplyFragment : Fragment() {
                     .asCustom(viewerPopup)
 
                     .show()
-//                val action =
-//                    ReplyFragmentDirections.actionReplyFragmentToImageViewerFragment(
-//                        (adapter.getItem(
-//                            position
-//                        ) as Reply).getImgUrl()
-//                    )
-//                view.findNavController().navigate(action)
             }
         }
 
@@ -172,6 +137,33 @@ class ReplyFragment : Fragment() {
 
         })
 
+        binding.fabMenu.setOnClickListener {
+            toggleMenu()
+        }
+
+        binding.copyId.setOnClickListener {
+            Timber.i("Clicked on copy Id")
+            toggleMenu()
+        }
+
+        binding.create.setOnClickListener {
+            toggleMenu()
+
+            XPopup.Builder(context)
+                .asCustom(dialog)
+                .show()
+        }
+
+        binding.jump.setOnClickListener {
+            Timber.i("Clicked on jump")
+            toggleMenu()
+        }
+
+        binding.onlyPo.setOnClickListener {
+            Timber.i("Clicked on onlyPo")
+            toggleMenu()
+        }
+
 
         return binding.root
     }
@@ -184,5 +176,28 @@ class ReplyFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         Timber.d("Reply Fragment destroyed!")
+    }
+
+    private fun toggleMenu() {
+        val rotateForward = AnimationUtils.loadAnimation(requireContext(), R.anim.rotate_forward);
+        val rotateBackward = AnimationUtils.loadAnimation(requireContext(), R.anim.rotate_backward);
+        if (isFabOpen) {
+            binding.fabMenu.startAnimation(rotateBackward)
+
+            binding.create.hide()
+            binding.jump.hide()
+            binding.copyId.hide()
+            binding.onlyPo.hide()
+
+            isFabOpen = false
+        } else {
+            binding.fabMenu.startAnimation(rotateForward)
+
+            binding.create.show()
+            binding.jump.show()
+            binding.copyId.show()
+            binding.onlyPo.show()
+            isFabOpen = true
+        }
     }
 }

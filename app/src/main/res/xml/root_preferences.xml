@@ -1,0 +1,32 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory app:title="常规">
+
+        <EditTextPreference
+            app:key="subscriber_id"
+            app:title="订阅"
+            app:useSimpleSummaryProvider="true" />
+
+        <ListPreference
+            app:defaultValue="原始"
+            app:entries="@array/time_format_entries"
+            app:entryValues="@array/time_format_values"
+            app:key="time_format"
+            app:title="设置时间显示格式"
+            app:useSimpleSummaryProvider="true" />
+
+        <Preference
+            app:key="cookie"
+            app:title="饼干" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="显示">
+        <Preference
+            app:title="设置串卡片布局"
+            android:key="sizes_customization" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

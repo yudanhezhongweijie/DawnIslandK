@@ -150,6 +150,8 @@ class ThreadFragment : Fragment() {
         binding.setting.setOnClickListener {
             Timber.i("clicked on setting")
             toggleMenu()
+            val action = PagerFragmentDirections.actionPagerFragmentToSettingsFragment()
+            findNavController().navigate(action)
         }
 
         binding.cookie.setOnClickListener {

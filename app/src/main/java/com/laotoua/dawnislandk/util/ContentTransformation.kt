@@ -1,15 +1,23 @@
 package com.laotoua.dawnislandk.util
 
+import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Build
 import android.text.*
+import android.text.style.BackgroundColorSpan
+import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
+import android.util.DisplayMetrics
+import android.util.Log
+import android.util.TypedValue
+import android.view.View
+import android.widget.TextView
 import androidx.core.text.HtmlCompat
 
 
-fun formatForumName(forumName: String): Spanned {
+fun transformForumName(forumName: String): Spanned {
     return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
         Html.fromHtml(forumName)
     } else {
@@ -17,7 +25,7 @@ fun formatForumName(forumName: String): Spanned {
     }
 }
 
-fun formatCookie(userid: String, admin: String, po: String = ""): Spannable {
+fun transformCookie(userid: String, admin: String, po: String = ""): Spannable {
     /*
       处理饼干
       PO需要加粗
@@ -39,12 +47,12 @@ fun formatCookie(userid: String, admin: String, po: String = ""): Spannable {
     return cookie
 }
 
-fun formatTime(now: String, style: String = "default"): String {
-    // TODO: format time based on style, which could be in preference
+fun transformTime(now: String, style: String = "default"): String {
+    // TODO: transform time based on style, which could be in preference
     return ReadableTime.getDisplayTime(now)
 }
 
-fun formatTitleAndName(title: String? = "", name: String? = ""): String {
+fun transformTitleAndName(title: String? = "", name: String? = ""): String {
     var titleAndName = ""
     if (title != null && title != "" && title != "无标题") {
         titleAndName += "标题：$title"
@@ -78,11 +86,74 @@ fun removeQuote(content: String): String {
     return regex.replace(content, "")
 }
 
-// TODO: [h][/h]
-fun formatContent(content: String): SpannableString {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        SpannableString(Html.fromHtml(content, HtmlCompat.FROM_HTML_MODE_COMPACT))
+// TODO: support [h][/h]
+fun transformContent(content: String): SpannableStringBuilder {
+
+    val nonHide = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        SpannableStringBuilder(Html.fromHtml(content, HtmlCompat.FROM_HTML_MODE_LEGACY))
     } else {
-        SpannableString(Html.fromHtml(content))
+        SpannableStringBuilder(Html.fromHtml(content))
     }
+
+//    return transformHideContent(nonHide)
+    return nonHide
+
+}
+
+fun transformHideContent(content: SpannableStringBuilder): SpannableStringBuilder {
+    var index = -1
+    var hideStart: Int
+    var hideEnd: Int
+    hideStart = content.indexOf("[h]")
+    hideEnd = content.indexOf("[/h]")
+    while (hideStart != -1 && hideEnd != -1 && hideStart < hideEnd) {
+        content.delete(hideStart, hideStart + 3)
+        content.delete(hideEnd - 3, hideEnd + 1)
+        val foregroundColorSpan = ForegroundColorSpan(Color.TRANSPARENT)
+        val backgroundColorSpan = BackgroundColorSpan(Color.parseColor("#555555"))
+        content.setSpan(
+            backgroundColorSpan,
+            hideStart,
+            hideEnd - 3,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        content.setSpan(
+            foregroundColorSpan,
+            hideStart,
+            hideEnd - 3,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        val clickableSpan: ClickableSpan = object : ClickableSpan() {
+            override fun onClick(widget: View) {
+                if (widget is TextView) {
+                    val charSequence = widget.text
+                    if (charSequence is Spannable) {
+                        Log.d("SPAN TEST", "CLICKEDDDD")
+                        charSequence.removeSpan(backgroundColorSpan)
+                        charSequence.removeSpan(foregroundColorSpan)
+                        widget.highlightColor = Color.TRANSPARENT
+                    }
+                }
+            }
+
+            // overrides, DO NOT CREATE PAINT
+            override fun updateDrawState(ds: TextPaint) {
+            }
+        }
+        content.setSpan(clickableSpan, hideStart, hideEnd - 3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        index = hideEnd - 3
+        hideStart = content.indexOf("[h]", index)
+        hideEnd = content.indexOf("[/h]", index)
+    }
+    return content
+}
+
+fun dip2px(context: Context, dipValue: Float): Int {
+    val displayMetrics: DisplayMetrics = context.resources.displayMetrics
+    return TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP,
+        dipValue,
+        displayMetrics
+    ).toInt()
 }

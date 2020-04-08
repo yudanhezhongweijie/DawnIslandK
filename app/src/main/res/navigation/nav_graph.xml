@@ -33,5 +33,20 @@
         <action
             android:id="@+id/action_pagerFragment_to_imageViewerFragment"
             app:destination="@id/imageViewerFragment" />
+        <action
+            android:id="@+id/action_pagerFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.laotoua.dawnislandk.settings.SettingsFragment"
+        android:label="SettingsFragment">
+        <action
+            android:id="@+id/action_settingsFragment_to_sizeCustomizationFragment"
+            app:destination="@id/sizeCustomizationFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/sizeCustomizationFragment"
+        android:name="com.laotoua.dawnislandk.settings.SizeCustomizationFragment"
+        android:label="SizeCustomizationFragment" />
 </navigation>

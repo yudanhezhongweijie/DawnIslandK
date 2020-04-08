@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="bottom|center_horizontal"
-    android:background="@drawable/corner_background"
+    android:background="@drawable/top_corner_background"
     android:elevation="5dp"
     android:paddingStart="15dp"
     android:paddingEnd="15dp"

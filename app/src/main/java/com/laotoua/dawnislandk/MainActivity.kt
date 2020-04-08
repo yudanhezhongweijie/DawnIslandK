@@ -40,15 +40,12 @@ class MainActivity : AppCompatActivity() {
         initResources()
         setUpForumDrawer()
 
-
     }
 
     private fun initToolbar() {
         /**
          * 标题栏组件初始化
          */
-//        set
-
         binding.toolbar.setNavigationOnClickListener {
             binding.drawerLayout.openDrawer(
                 GravityCompat.START

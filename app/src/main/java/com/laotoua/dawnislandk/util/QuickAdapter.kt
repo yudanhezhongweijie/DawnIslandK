@@ -1,9 +1,13 @@
 package com.laotoua.dawnislandk.util
 
+import android.graphics.Color
+import android.text.SpannableString
+import android.text.Spanned
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import com.bumptech.glide.Glide
 import com.chad.library.adapter.base.BaseQuickAdapter
@@ -11,6 +15,8 @@ import com.chad.library.adapter.base.loadmore.BaseLoadMoreView
 import com.chad.library.adapter.base.module.LoadMoreModule
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.laotoua.dawnislandk.R
+import com.laotoua.dawnislandk.components.ThreadCardFactory
+import com.laotoua.dawnislandk.components.span.RoundBackgroundColorSpan
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import kotlinx.android.synthetic.main.quote_list_item.view.*
 import timber.log.Timber
@@ -20,8 +26,11 @@ import timber.log.Timber
 class QuickAdapter(private val layoutResId: Int) :
     BaseQuickAdapter<Any, BaseViewHolder>(layoutResId, ArrayList()),
     LoadMoreModule {
+
     private val thumbCDN = "https://nmbimg.fastmirror.org/thumb/"
     private lateinit var sharedViewModel: SharedViewModel
+
+    private val factory: ThreadCardFactory by lazy { AppState.getThreadCardFactory(context) }
 
     init {
         // 所有数据加载完成后，是否允许点击（默认为false）
@@ -50,6 +59,14 @@ class QuickAdapter(private val layoutResId: Int) :
         }
     }
 
+    override fun onCreateDefViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
+        // TODO: view created by code differs from view in layout xml
+        return if (layoutResId == R.layout.thread_list_item) {
+            createBaseViewHolder(factory.getCardView(context))
+        } else {
+            super.onCreateDefViewHolder(parent, layoutResId)
+        }
+    }
 
     private fun convertForum(card: BaseViewHolder, item: Forum) {
         // special handling for drawable resource ID, which cannot have -
@@ -60,21 +77,28 @@ class QuickAdapter(private val layoutResId: Int) :
         )
         card.setImageResource(R.id.forumIcon, resourceId)
 
-        card.setText(R.id.forumName, formatForumName(item.getDisplayName()))
+        card.setText(R.id.forumName, transformForumName(item.getDisplayName()))
 
     }
 
 
     private fun convertThread(card: BaseViewHolder, item: ThreadList, forumDisplayName: String) {
 
-        card.setText(R.id.threadCookie, formatCookie(item.userid, item.admin))
-        card.setText(R.id.threadTime, formatTime(item.now))
+        card.setText(R.id.threadCookie, transformCookie(item.userid, item.admin))
+        card.setText(R.id.threadTime, transformTime(item.now))
 
-        card.setText(
-            R.id.threadForumAndReplyCount, forumDisplayName + " • " + item.replyCount
+        val spannableString = SpannableString(forumDisplayName + " • " + item.replyCount)
+        spannableString.setSpan(
+            RoundBackgroundColorSpan(
+                Color.parseColor("#12DBD1"),
+                Color.parseColor("#FFFFFF")
+            ), 0, spannableString.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE
         )
 
-        // TODO: add sage formatting
+        card.getView<TextView>(R.id.threadForumAndReplyCount)
+            .setText(spannableString, TextView.BufferType.SPANNABLE)
+
+        // TODO: add sage transformting
         // sage
         if (item.sage == "1") {
             card.setVisible(R.id.sage, false)
@@ -105,26 +129,26 @@ class QuickAdapter(private val layoutResId: Int) :
             quotesContainer.addView(q)
         }
 
-        card.setText(R.id.threadContent, formatContent(removeQuote(item.content)))
+        card.setText(R.id.threadContent, transformContent(removeQuote(item.content)))
 
     }
 
     private fun convertReply(card: BaseViewHolder, item: Reply, po: String) {
 
-        card.setText(R.id.replyCookie, formatCookie(item.userid, item.admin!!, po))
+        card.setText(R.id.replyCookie, transformCookie(item.userid, item.admin!!, po))
 
-        card.setText(R.id.replyTime, formatTime(item.now))
+        card.setText(R.id.replyTime, transformTime(item.now))
         // TODO: handle ads
         card.setText(R.id.replyId, item.id)
 
-        // TODO: add sage formatting
+        // TODO: add sage transformting
         if (item.sage == "1") {
             card.setVisible(R.id.sage, true)
         } else {
             card.setGone(R.id.sage, true)
         }
 
-        val titleAndName = formatTitleAndName(item.title, item.name)
+        val titleAndName = transformTitleAndName(item.title, item.name)
         if (titleAndName != "") {
             card.setText(R.id.replyTitleAndName, titleAndName)
             card.setVisible(R.id.replyTitleAndName, true)
@@ -147,7 +171,7 @@ class QuickAdapter(private val layoutResId: Int) :
         // TODO: need quotation handler, should be done in view however
         val quotesContainer: LinearLayout = card.getView(R.id.replyQuotes)
         val quotes = extractQuote(item.content)
-        if (quotes.size > 0) {
+        if (quotes.isNotEmpty()) {
             quotesContainer.removeAllViews()
             quotes.map {
                 val q = LayoutInflater.from(context)
@@ -160,8 +184,9 @@ class QuickAdapter(private val layoutResId: Int) :
             card.setGone(R.id.replyQuotes, true)
         }
 
-        card.setText(R.id.replyContent, formatContent(removeQuote(item.content)))
+        card.setText(R.id.replyContent, transformContent(removeQuote(item.content)))
     }
+
 }
 
 class DiffCallback : DiffUtil.ItemCallback<Any>() {
@@ -177,9 +202,9 @@ class DiffCallback : DiffUtil.ItemCallback<Any>() {
         newItem: Any
     ): Boolean {
         return when {
-            (oldItem is Forum && newItem is Forum) -> oldItem.id === newItem.id
-            (oldItem is ThreadList && newItem is ThreadList) -> oldItem.id === newItem.id && oldItem.fid === newItem.fid
-            (oldItem is Reply && newItem is Reply) -> oldItem.id === newItem.id
+            (oldItem is Forum && newItem is Forum) -> oldItem.id == newItem.id
+            (oldItem is ThreadList && newItem is ThreadList) -> oldItem.id == newItem.id && oldItem.fid == newItem.fid
+            (oldItem is Reply && newItem is Reply) -> oldItem.id == newItem.id
             else -> {
                 Timber.e("Unhandled type comparison")
                 throw Exception("Unhandled type comparison")
@@ -202,17 +227,17 @@ class DiffCallback : DiffUtil.ItemCallback<Any>() {
         return when {
             (oldItem is Forum && newItem is Forum) -> {
                 oldItem.name == newItem.name
-                    && oldItem.showName == newItem.showName
-                    && oldItem.msg == newItem.msg
+                        && oldItem.showName == newItem.showName
+                        && oldItem.msg == newItem.msg
             }
             (oldItem is ThreadList && newItem is ThreadList) -> {
                 oldItem.sage == newItem.sage
-                    && oldItem.replyCount == newItem.replyCount
-                    && oldItem.content == newItem.content
+                        && oldItem.replyCount == newItem.replyCount
+                        && oldItem.content == newItem.content
             }
             (oldItem is Reply && newItem is Reply) -> {
                 oldItem.sage == newItem.sage
-                    && oldItem.content == newItem.content
+                        && oldItem.content == newItem.content
             }
             else -> {
                 Timber.e("Unhandled type comparison")

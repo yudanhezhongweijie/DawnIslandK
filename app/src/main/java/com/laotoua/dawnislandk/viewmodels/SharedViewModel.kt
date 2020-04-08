@@ -3,9 +3,9 @@ package com.laotoua.dawnislandk.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.laotoua.dawnislandk.util.DawnDatabase
-import com.laotoua.dawnislandk.util.Forum
-import com.laotoua.dawnislandk.util.ThreadList
+import com.laotoua.dawnislandk.entities.DawnDatabase
+import com.laotoua.dawnislandk.entities.Forum
+import com.laotoua.dawnislandk.entities.ThreadList
 import timber.log.Timber
 
 class SharedViewModel : ViewModel() {

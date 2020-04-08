@@ -11,8 +11,8 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
-import com.laotoua.dawnislandk.util.DawnDatabase
-import com.laotoua.dawnislandk.util.Forum
+import com.laotoua.dawnislandk.entities.DawnDatabase
+import com.laotoua.dawnislandk.entities.Forum
 import com.laotoua.dawnislandk.util.QuickAdapter
 import com.laotoua.dawnislandk.util.ReadableTime
 import com.laotoua.dawnislandk.viewmodels.ForumViewModel

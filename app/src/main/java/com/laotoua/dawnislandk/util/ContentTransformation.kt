@@ -1,11 +1,14 @@
 package com.laotoua.dawnislandk.util
 
+import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Build
 import android.text.*
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
+import android.util.DisplayMetrics
+import android.util.TypedValue
 import androidx.core.text.HtmlCompat
 
 
@@ -85,4 +88,13 @@ fun formatContent(content: String): SpannableString {
     } else {
         SpannableString(Html.fromHtml(content))
     }
+}
+
+fun dip2px(context: Context, dipValue: Float): Int {
+    val displayMetrics: DisplayMetrics = context.resources.displayMetrics
+    return TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP,
+        dipValue,
+        displayMetrics
+    ).toInt()
 }

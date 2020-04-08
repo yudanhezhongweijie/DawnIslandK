@@ -1,4 +1,5 @@
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory app:title="常规">
 
@@ -22,7 +23,9 @@
     </PreferenceCategory>
 
     <PreferenceCategory app:title="显示">
-        <Preference app:title="设置串卡片布局"></Preference>
+        <Preference
+            app:title="设置串卡片布局"
+            android:key="sizes_customization" />
 
     </PreferenceCategory>
 

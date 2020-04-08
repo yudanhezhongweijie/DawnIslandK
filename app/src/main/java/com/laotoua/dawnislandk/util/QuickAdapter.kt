@@ -77,15 +77,15 @@ class QuickAdapter(private val layoutResId: Int) :
         )
         card.setImageResource(R.id.forumIcon, resourceId)
 
-        card.setText(R.id.forumName, formatForumName(item.getDisplayName()))
+        card.setText(R.id.forumName, transformForumName(item.getDisplayName()))
 
     }
 
 
     private fun convertThread(card: BaseViewHolder, item: ThreadList, forumDisplayName: String) {
 
-        card.setText(R.id.threadCookie, formatCookie(item.userid, item.admin))
-        card.setText(R.id.threadTime, formatTime(item.now))
+        card.setText(R.id.threadCookie, transformCookie(item.userid, item.admin))
+        card.setText(R.id.threadTime, transformTime(item.now))
 
         val spannableString = SpannableString(forumDisplayName + " • " + item.replyCount)
         spannableString.setSpan(
@@ -98,7 +98,7 @@ class QuickAdapter(private val layoutResId: Int) :
         card.getView<TextView>(R.id.threadForumAndReplyCount)
             .setText(spannableString, TextView.BufferType.SPANNABLE)
 
-        // TODO: add sage formatting
+        // TODO: add sage transformting
         // sage
         if (item.sage == "1") {
             card.setVisible(R.id.sage, false)
@@ -129,26 +129,26 @@ class QuickAdapter(private val layoutResId: Int) :
             quotesContainer.addView(q)
         }
 
-        card.setText(R.id.threadContent, formatContent(removeQuote(item.content)))
+        card.setText(R.id.threadContent, transformContent(removeQuote(item.content)))
 
     }
 
     private fun convertReply(card: BaseViewHolder, item: Reply, po: String) {
 
-        card.setText(R.id.replyCookie, formatCookie(item.userid, item.admin!!, po))
+        card.setText(R.id.replyCookie, transformCookie(item.userid, item.admin!!, po))
 
-        card.setText(R.id.replyTime, formatTime(item.now))
+        card.setText(R.id.replyTime, transformTime(item.now))
         // TODO: handle ads
         card.setText(R.id.replyId, item.id)
 
-        // TODO: add sage formatting
+        // TODO: add sage transformting
         if (item.sage == "1") {
             card.setVisible(R.id.sage, true)
         } else {
             card.setGone(R.id.sage, true)
         }
 
-        val titleAndName = formatTitleAndName(item.title, item.name)
+        val titleAndName = transformTitleAndName(item.title, item.name)
         if (titleAndName != "") {
             card.setText(R.id.replyTitleAndName, titleAndName)
             card.setVisible(R.id.replyTitleAndName, true)
@@ -184,7 +184,7 @@ class QuickAdapter(private val layoutResId: Int) :
             card.setGone(R.id.replyQuotes, true)
         }
 
-        card.setText(R.id.replyContent, formatContent(removeQuote(item.content)))
+        card.setText(R.id.replyContent, transformContent(removeQuote(item.content)))
     }
 
 }

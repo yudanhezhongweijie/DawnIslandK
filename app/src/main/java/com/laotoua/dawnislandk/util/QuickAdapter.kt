@@ -30,7 +30,7 @@ class QuickAdapter(private val layoutResId: Int) :
     private val thumbCDN = "https://nmbimg.fastmirror.org/thumb/"
     private lateinit var sharedViewModel: SharedViewModel
 
-    private val factory: ThreadCardFactory by lazy { ThreadCardFactory(context) }
+    private val factory: ThreadCardFactory by lazy { AppState.getThreadCardFactory(context) }
 
     init {
         // 所有数据加载完成后，是否允许点击（默认为false）

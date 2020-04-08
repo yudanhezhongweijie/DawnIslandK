@@ -20,6 +20,7 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.components.ThreadCardFactory
 import com.laotoua.dawnislandk.components.span.RoundBackgroundColorSpan
 import com.laotoua.dawnislandk.components.span.SegmentSpacingSpan
+import com.laotoua.dawnislandk.util.AppState
 import com.laotoua.dawnislandk.util.CONST
 
 class SizeCustomizationFragment : Fragment() {
@@ -43,7 +44,11 @@ class SizeCustomizationFragment : Fragment() {
         PreferenceManager.getDefaultSharedPreferences(context)
     }
 
-    private val cardFactory: ThreadCardFactory by lazy { ThreadCardFactory(requireContext()) }
+    private val cardFactory: ThreadCardFactory by lazy {
+        AppState.getThreadCardFactory(
+            requireContext()
+        )
+    }
     private val demoCard by lazy { cardFactory.getCardView(requireContext()) }
     private val demoCardContainer: ConstraintLayout? by lazy { demoCard.threadContainer }
     private var charSequence: CharSequence? = null
@@ -162,8 +167,8 @@ class SizeCustomizationFragment : Fragment() {
 
 
         val scrollView = ScrollView(context)
+        progressContainer.setPadding(0, 50, 0, 0)
         scrollView.addView(progressContainer)
-        scrollView.setPadding(0, 10, 0, 0)
 
         rootView.addView(scrollView)
 
@@ -194,11 +199,11 @@ class SizeCustomizationFragment : Fragment() {
         linearLayout.addView(textView)
         linearLayout.addView(number)
         linearLayout.addView(seekBar, layoutParams)
-        seekBar.setOnSeekBarChangeListener(CardSettingSeekBar(linearLayout))
+        seekBar.setOnSeekBarChangeListener(CardSettingSeekBar())
         return linearLayout
     }
 
-    inner class CardSettingSeekBar(private val viewGroup: LinearLayout) :
+    inner class CardSettingSeekBar :
         SeekBar.OnSeekBarChangeListener {
         override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
             var res = progress
@@ -323,8 +328,10 @@ class SizeCustomizationFragment : Fragment() {
                 else -> {
                 }
             }
-            val textView = viewGroup.findViewWithTag<TextView>("ProgressText")
-            textView.text = res.toString()
+
+            (seekBar.parent as LinearLayout)
+                .findViewWithTag<TextView>("ProgressText").text = res.toString()
+
         }
 
         override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -334,5 +341,10 @@ class SizeCustomizationFragment : Fragment() {
         override fun onStopTrackingTouch(seekBar: SeekBar?) {
 
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        cardFactory.loadSettings()
     }
 }

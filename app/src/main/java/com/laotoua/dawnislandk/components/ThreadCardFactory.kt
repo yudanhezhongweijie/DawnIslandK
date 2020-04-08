@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.Typeface
+import android.text.TextUtils
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
@@ -44,7 +45,7 @@ class ThreadCardFactory(val context: Context) {
     var letterSpace = 0
     var segGap = 0
 
-    private fun readSetting() {
+    fun loadSettings() {
         mainTextSize = sharedPreferences.getInt(CONST.MAIN_TEXT_SIZE, 15)
         cardRadius = sharedPreferences.getInt(CONST.CARD_RADIUS, dip2px(context, 5f))
         cardElevaion =
@@ -192,6 +193,7 @@ class ThreadCardFactory(val context: Context) {
         threadContent.setTextColor(Color.BLACK)
         threadContent.textSize = mainTextSize.toFloat()
         threadContent.maxLines = 10
+        threadContent.ellipsize = TextUtils.TruncateAt.END
         var trueLetterSpace = letterSpace * 1.0f
         trueLetterSpace /= 50f
         threadContent.letterSpacing = trueLetterSpace
@@ -282,6 +284,6 @@ class ThreadCardFactory(val context: Context) {
         /**
          * 获取存储
          */
-        readSetting()
+        loadSettings()
     }
 }

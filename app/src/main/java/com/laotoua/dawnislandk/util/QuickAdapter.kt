@@ -1,9 +1,13 @@
 package com.laotoua.dawnislandk.util
 
+import android.graphics.Color
+import android.text.SpannableString
+import android.text.Spanned
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import com.bumptech.glide.Glide
 import com.chad.library.adapter.base.BaseQuickAdapter
@@ -12,10 +16,10 @@ import com.chad.library.adapter.base.module.LoadMoreModule
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.components.ThreadCardFactory
+import com.laotoua.dawnislandk.components.span.RoundBackgroundColorSpan
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import kotlinx.android.synthetic.main.quote_list_item.view.*
 import timber.log.Timber
-
 
 
 // TODO: handle no new data exception
@@ -83,9 +87,16 @@ class QuickAdapter(private val layoutResId: Int) :
         card.setText(R.id.threadCookie, formatCookie(item.userid, item.admin))
         card.setText(R.id.threadTime, formatTime(item.now))
 
-        card.setText(
-            R.id.threadForumAndReplyCount, forumDisplayName + " • " + item.replyCount
+        val spannableString = SpannableString(forumDisplayName + " • " + item.replyCount)
+        spannableString.setSpan(
+            RoundBackgroundColorSpan(
+                Color.parseColor("#12DBD1"),
+                Color.parseColor("#FFFFFF")
+            ), 0, spannableString.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE
         )
+
+        card.getView<TextView>(R.id.threadForumAndReplyCount)
+            .setText(spannableString, TextView.BufferType.SPANNABLE)
 
         // TODO: add sage formatting
         // sage
@@ -160,7 +171,7 @@ class QuickAdapter(private val layoutResId: Int) :
         // TODO: need quotation handler, should be done in view however
         val quotesContainer: LinearLayout = card.getView(R.id.replyQuotes)
         val quotes = extractQuote(item.content)
-        if (quotes.size > 0) {
+        if (quotes.isNotEmpty()) {
             quotesContainer.removeAllViews()
             quotes.map {
                 val q = LayoutInflater.from(context)
@@ -175,6 +186,7 @@ class QuickAdapter(private val layoutResId: Int) :
 
         card.setText(R.id.replyContent, formatContent(removeQuote(item.content)))
     }
+
 }
 
 class DiffCallback : DiffUtil.ItemCallback<Any>() {
@@ -190,9 +202,9 @@ class DiffCallback : DiffUtil.ItemCallback<Any>() {
         newItem: Any
     ): Boolean {
         return when {
-            (oldItem is Forum && newItem is Forum) -> oldItem.id === newItem.id
-            (oldItem is ThreadList && newItem is ThreadList) -> oldItem.id === newItem.id && oldItem.fid === newItem.fid
-            (oldItem is Reply && newItem is Reply) -> oldItem.id === newItem.id
+            (oldItem is Forum && newItem is Forum) -> oldItem.id == newItem.id
+            (oldItem is ThreadList && newItem is ThreadList) -> oldItem.id == newItem.id && oldItem.fid == newItem.fid
+            (oldItem is Reply && newItem is Reply) -> oldItem.id == newItem.id
             else -> {
                 Timber.e("Unhandled type comparison")
                 throw Exception("Unhandled type comparison")
@@ -215,17 +227,17 @@ class DiffCallback : DiffUtil.ItemCallback<Any>() {
         return when {
             (oldItem is Forum && newItem is Forum) -> {
                 oldItem.name == newItem.name
-                    && oldItem.showName == newItem.showName
-                    && oldItem.msg == newItem.msg
+                        && oldItem.showName == newItem.showName
+                        && oldItem.msg == newItem.msg
             }
             (oldItem is ThreadList && newItem is ThreadList) -> {
                 oldItem.sage == newItem.sage
-                    && oldItem.replyCount == newItem.replyCount
-                    && oldItem.content == newItem.content
+                        && oldItem.replyCount == newItem.replyCount
+                        && oldItem.content == newItem.content
             }
             (oldItem is Reply && newItem is Reply) -> {
                 oldItem.sage == newItem.sage
-                    && oldItem.content == newItem.content
+                        && oldItem.content == newItem.content
             }
             else -> {
                 Timber.e("Unhandled type comparison")

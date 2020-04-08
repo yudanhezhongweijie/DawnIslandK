@@ -168,6 +168,7 @@ class ThreadCardFactory(val context: Context) {
         )
         forumLayoutParams.topToTop = R.id.threadContainer
         forumLayoutParams.endToEnd = R.id.threadContainer
+
         /***
          * xml中使用padding代替了margin，因为要绘制标签背景，这里暂时空着8，因为考虑使用Span进行绘制,所以size，color之类的属性都暂时不写
          * 省略的属性有padding、textColor、textSize、background

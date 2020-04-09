@@ -17,6 +17,9 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.components.ThreadCardFactory
 import com.laotoua.dawnislandk.components.span.RoundBackgroundColorSpan
+import com.laotoua.dawnislandk.entities.Forum
+import com.laotoua.dawnislandk.entities.Reply
+import com.laotoua.dawnislandk.entities.ThreadList
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import kotlinx.android.synthetic.main.quote_list_item.view.*
 import timber.log.Timber

@@ -16,8 +16,8 @@ import com.laotoua.dawnislandk.components.CreatePopup
 import com.laotoua.dawnislandk.components.ImageViewerPopup
 import com.laotoua.dawnislandk.components.ImageViewerPopup.ImageLoader
 import com.laotoua.dawnislandk.databinding.ThreadFragmentBinding
+import com.laotoua.dawnislandk.entities.ThreadList
 import com.laotoua.dawnislandk.util.QuickAdapter
-import com.laotoua.dawnislandk.util.ThreadList
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import com.laotoua.dawnislandk.viewmodels.ThreadViewModel
 import com.lxj.xpopup.XPopup
@@ -48,7 +48,6 @@ class ThreadFragment : Fragment() {
 
         _binding = ThreadFragmentBinding.inflate(inflater, container, false)
         Timber.i("connected sharedVM instance: $sharedVM viewModel: $viewModel viewLifeCycleOwner $viewLifecycleOwner")
-        viewModel.setForumDao(sharedVM.getDb()?.forumDao())
 
         binding.threadsView.layoutManager = LinearLayoutManager(context)
         binding.threadsView.adapter = mAdapter

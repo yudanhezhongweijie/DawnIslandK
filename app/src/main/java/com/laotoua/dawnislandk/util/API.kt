@@ -2,6 +2,10 @@ package com.laotoua.dawnislandk.util
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.laotoua.dawnislandk.entities.Community
+import com.laotoua.dawnislandk.entities.Forum
+import com.laotoua.dawnislandk.entities.Reply
+import com.laotoua.dawnislandk.entities.ThreadList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient

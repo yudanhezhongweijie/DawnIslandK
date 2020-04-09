@@ -3,9 +3,8 @@ package com.laotoua.dawnislandk.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.laotoua.dawnislandk.util.DawnDatabase
-import com.laotoua.dawnislandk.util.Forum
-import com.laotoua.dawnislandk.util.ThreadList
+import com.laotoua.dawnislandk.entities.Forum
+import com.laotoua.dawnislandk.entities.ThreadList
 import timber.log.Timber
 
 class SharedViewModel : ViewModel() {
@@ -13,7 +12,6 @@ class SharedViewModel : ViewModel() {
     val selectedForum: LiveData<Forum> get() = _selectedForum
     private var _selectedThreadList = MutableLiveData<ThreadList>()
     val selectedThreadList: LiveData<ThreadList> get() = _selectedThreadList
-    private var db: DawnDatabase? = null
 
     private var forumNameMapping = mapOf<String, String>()
 
@@ -33,14 +31,6 @@ class SharedViewModel : ViewModel() {
     fun setThreadList(t: ThreadList) {
         Timber.i("set thread to id: ${t.id}")
         _selectedThreadList.postValue(t)
-    }
-
-    fun setDb(db: DawnDatabase) {
-        this.db = db
-    }
-
-    fun getDb(): DawnDatabase? {
-        return db
     }
 
     fun setForumNameMapping(map: Map<String, String>) {

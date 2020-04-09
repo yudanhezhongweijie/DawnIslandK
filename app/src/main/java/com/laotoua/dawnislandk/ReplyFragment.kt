@@ -15,8 +15,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.laotoua.dawnislandk.components.CreatePopup
 import com.laotoua.dawnislandk.components.ImageViewerPopup
 import com.laotoua.dawnislandk.databinding.ReplyFragmentBinding
+import com.laotoua.dawnislandk.entities.Reply
 import com.laotoua.dawnislandk.util.QuickAdapter
-import com.laotoua.dawnislandk.util.Reply
 import com.laotoua.dawnislandk.viewmodels.ReplyViewModel
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import com.lxj.xpopup.XPopup

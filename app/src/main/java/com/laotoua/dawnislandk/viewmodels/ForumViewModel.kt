@@ -4,15 +4,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.laotoua.dawnislandk.entities.Forum
+import com.laotoua.dawnislandk.entities.ForumDao
 import com.laotoua.dawnislandk.util.API
-import com.laotoua.dawnislandk.util.Forum
-import com.laotoua.dawnislandk.util.ForumDao
+import com.laotoua.dawnislandk.util.AppState
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class ForumViewModel : ViewModel() {
     private val api = API()
-    private var dao: ForumDao? = null
+    private val dao: ForumDao = AppState.DB.forumDao()
 
     private var _forumList = MutableLiveData<List<Forum>>()
     val forumList: LiveData<List<Forum>>
@@ -32,8 +33,9 @@ class ForumViewModel : ViewModel() {
                     Timber.i("Forum list has changed. updating...")
                     _forumList.postValue(list)
                     _loadFail.postValue(false)
+
                     // save to local db
-                    dao?.insertAll(list)
+                    saveToDB(list)
                 } else {
                     Timber.i("Forum list is the same as Db. Reusing...")
                 }
@@ -46,15 +48,19 @@ class ForumViewModel : ViewModel() {
 
     fun loadFromDB() {
         viewModelScope.launch {
-            dao?.getAll().let {
-                if (it?.size ?: 0 > 0) {
-                    Timber.i("Loaded ${it?.size} forums from db")
+            dao.getAll().let {
+                if (it.size ?: 0 > 0) {
+                    Timber.i("Loaded ${it.size} forums from db")
                     _forumList.postValue(it)
                 } else {
                     Timber.i("Db has no data about forums")
                 }
             }
         }
+    }
+
+    private suspend fun saveToDB(list: List<Forum>) {
+        dao.insertAll(list)
     }
 
     fun getForumNameMapping(): Map<String, String> {
@@ -66,8 +72,4 @@ class ForumViewModel : ViewModel() {
         return mapOf()
     }
 
-    fun setDb(dao: ForumDao) {
-        this.dao = dao
-        Timber.i("Forum DAO set!!!")
-    }
 }

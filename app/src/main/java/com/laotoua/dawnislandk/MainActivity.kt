@@ -9,12 +9,9 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.room.Room
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
-import com.laotoua.dawnislandk.util.DawnDatabase
-import com.laotoua.dawnislandk.util.Forum
+import com.laotoua.dawnislandk.entities.Forum
 import com.laotoua.dawnislandk.util.QuickAdapter
-import com.laotoua.dawnislandk.util.ReadableTime
 import com.laotoua.dawnislandk.viewmodels.ForumViewModel
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import timber.log.Timber
@@ -37,9 +34,8 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
 
         initToolbar()
-        initResources()
-        setUpForumDrawer()
 
+        setUpForumDrawer()
     }
 
     private fun initToolbar() {
@@ -92,28 +88,13 @@ class MainActivity : AppCompatActivity() {
 //        binding.dawnAppbar.setExpanded(false)
     }
 
-    private fun initResources() {
-        /**
-         * 初始化
-         */
-        val db = Room.databaseBuilder(
-            applicationContext,
-            DawnDatabase::class.java, "dawnDB"
-        )
-            .fallbackToDestructiveMigration()
-            .build()
-        sharedVM.setDb(db)
-        forumVM.setDb(db.forumDao())
-
-        // Time
-        ReadableTime.initialize(this)
-
-        forumVM.loadFromDB()
-        forumVM.getForums()
-    }
-
     // left forum drawer
     private fun setUpForumDrawer() {
+
+        // TODO added repository
+        forumVM.loadFromDB()
+        forumVM.getForums()
+
         binding.forumContainer.layoutManager = LinearLayoutManager(this)
         binding.forumContainer.adapter = mAdapter
         mAdapter.loadMoreModule.isEnableLoadMore = false

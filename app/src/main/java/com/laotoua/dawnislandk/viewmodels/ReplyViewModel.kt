@@ -4,9 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.laotoua.dawnislandk.entities.Reply
+import com.laotoua.dawnislandk.entities.ThreadList
 import com.laotoua.dawnislandk.util.API
-import com.laotoua.dawnislandk.util.Reply
-import com.laotoua.dawnislandk.util.ThreadList
 import kotlinx.coroutines.launch
 import timber.log.Timber
 

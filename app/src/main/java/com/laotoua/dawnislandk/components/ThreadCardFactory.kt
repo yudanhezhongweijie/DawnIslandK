@@ -184,7 +184,7 @@ class ThreadCardFactory(val context: Context) {
         threadContent.id = R.id.threadContent
         val contentLayoutParam =
             ConstraintLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT)
-        contentLayoutParam.topToBottom = R.id.threadCookie
+        contentLayoutParam.topToBottom = R.id.threadQuotes
         contentLayoutParam.topMargin = contentMarginTop
         contentLayoutParam.endToStart = R.id.threadImage
         contentLayoutParam.marginEnd = dip2px(context, 2f)

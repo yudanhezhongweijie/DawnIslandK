@@ -128,8 +128,8 @@ class MainActivity : AppCompatActivity() {
         when (currentFrag) {
             "ImageViewerFragment" -> {
                 binding.collapsingToolbar.title = "大图模式"
-                binding.collapsingToolbar.subtitle = ""
-//                binding.toolbar.setNavigationIcon(R.drawable.ic_arrow_back)
+//                binding.collapsingToolbar.subtitle = ""
+                binding.toolbar.setNavigationIcon(R.drawable.ic_arrow_back)
 
                 binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
 //                supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_arrow_back)
@@ -138,16 +138,16 @@ class MainActivity : AppCompatActivity() {
                 val forumName =
                     sharedVM.getForumDisplayName(sharedVM.selectedThreadList.value!!.fid ?: "")
                 binding.collapsingToolbar.title = "A岛  • $forumName"
-                binding.collapsingToolbar.subtitle =
-                    ">>No. " + sharedVM.selectedThreadList.value?.id
-//                binding.toolbar.setNavigationIcon(R.drawable.ic_arrow_back)
+//                binding.collapsingToolbar.subtitle =
+//                    ">>No. " + sharedVM.selectedThreadList.value?.id
+                binding.toolbar.setNavigationIcon(R.drawable.ic_arrow_back)
                 binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
 //                supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_arrow_back)
             }
             "ThreadFragment" -> {
 
                 binding.collapsingToolbar.title = sharedVM.selectedForum.value?.name ?: "时间线"
-                binding.collapsingToolbar.subtitle = "adnmb.com"
+//                binding.collapsingToolbar.subtitle = "adnmb.com"
 
 //                binding.toolbar.setNavigationIcon(R.drawable.ic_menu)
 

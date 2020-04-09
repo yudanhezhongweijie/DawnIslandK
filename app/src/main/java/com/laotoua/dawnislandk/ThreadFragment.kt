@@ -60,6 +60,8 @@ class ThreadFragment : Fragment() {
 
         // item click
         mAdapter.setOnItemClickListener { adapter, _, position ->
+            hideMenu()
+
             sharedVM.setThreadList(adapter.getItem(position) as ThreadList)
             val action = PagerFragmentDirections.actionPagerFragmentToReplyFragment()
             findNavController().navigate(action)
@@ -71,6 +73,9 @@ class ThreadFragment : Fragment() {
         mAdapter.addChildClickViewIds(R.id.threadImage)
         mAdapter.setOnItemChildClickListener { adapter, view, position ->
             if (view.id == R.id.threadImage) {
+
+                hideMenu()
+
                 Timber.i("clicked on image at $position")
                 val url = (adapter.getItem(
                     position
@@ -131,6 +136,8 @@ class ThreadFragment : Fragment() {
                 Timber.i("Forum has changed. Cleaning old adapter data...")
                 mAdapter.setList(ArrayList())
                 viewModel.setForum(it)
+
+                hideMenu()
             }
         })
 
@@ -140,6 +147,7 @@ class ThreadFragment : Fragment() {
                 binding.fabMenu.show()
             } else {
                 binding.fabMenu.hide()
+                hideMenu()
             }
         }
 
@@ -149,19 +157,19 @@ class ThreadFragment : Fragment() {
 
         binding.setting.setOnClickListener {
             Timber.i("clicked on setting")
-            toggleMenu()
+            hideMenu()
             val action = PagerFragmentDirections.actionPagerFragmentToSettingsFragment()
             findNavController().navigate(action)
         }
 
         binding.cookie.setOnClickListener {
             Timber.i("Clicked on cookie")
-            toggleMenu()
+            hideMenu()
         }
 
         binding.create.setOnClickListener {
             Timber.i("Clicked on create")
-            toggleMenu()
+            hideMenu()
 
             XPopup.Builder(context)
                 .asCustom(dialog)
@@ -181,24 +189,30 @@ class ThreadFragment : Fragment() {
     }
 
 
+    private fun hideMenu() {
+        val rotateBackward = loadAnimation(requireContext(), R.anim.rotate_backward)
+        binding.fabMenu.startAnimation(rotateBackward)
+        binding.setting.hide()
+        binding.create.hide()
+        binding.cookie.hide()
+        isFabOpen = false
+    }
+
+    private fun showMenu() {
+        val rotateForward = loadAnimation(requireContext(), R.anim.rotate_forward)
+        binding.fabMenu.startAnimation(rotateForward)
+
+        binding.setting.show()
+        binding.create.show()
+        binding.cookie.show()
+        isFabOpen = true
+    }
+
     private fun toggleMenu() {
-        val rotateForward = loadAnimation(requireContext(), R.anim.rotate_forward);
-        val rotateBackward = loadAnimation(requireContext(), R.anim.rotate_backward);
         if (isFabOpen) {
-            binding.fabMenu.startAnimation(rotateBackward)
-
-            binding.setting.hide()
-            binding.create.hide()
-            binding.cookie.hide()
-
-            isFabOpen = false
+            hideMenu()
         } else {
-            binding.fabMenu.startAnimation(rotateForward)
-
-            binding.setting.show()
-            binding.create.show()
-            binding.cookie.show()
-            isFabOpen = true
+            showMenu()
         }
     }
 

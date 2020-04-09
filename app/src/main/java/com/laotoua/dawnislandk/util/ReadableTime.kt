@@ -49,7 +49,8 @@ object ReadableTime {
     fun initialize(context: Context) {
         sResources = context.applicationContext.resources
         timeFormat =
-            PreferenceManager.getDefaultSharedPreferences(context).getString("time_format", null)
+            PreferenceManager.getDefaultSharedPreferences(context)
+                .getString("time_format", "simplified")
     }
 
     fun string2Time(str: String): Long {

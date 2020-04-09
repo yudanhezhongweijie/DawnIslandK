@@ -2,6 +2,7 @@ package com.laotoua.dawnislandk.util
 
 import android.content.Context
 import android.content.res.Resources
+import androidx.preference.PreferenceManager
 import com.laotoua.dawnislandk.R
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -9,6 +10,7 @@ import java.util.*
 
 object ReadableTime {
     private var sResources: Resources? = null
+    private var timeFormat: String? = null
     const val SECOND_MILLIS: Long = 1000
     const val MINUTE_MILLIS = 60 * SECOND_MILLIS
     const val HOUR_MILLIS = 60 * MINUTE_MILLIS
@@ -46,6 +48,8 @@ object ReadableTime {
 
     fun initialize(context: Context) {
         sResources = context.applicationContext.resources
+        timeFormat =
+            PreferenceManager.getDefaultSharedPreferences(context).getString("time_format", null)
     }
 
     fun string2Time(str: String): Long {
@@ -64,17 +68,13 @@ object ReadableTime {
         return date!!.time
     }
 
-    // TODO: 这里要检测用户设置，目前在model里不能获取，重构后再增加此功能，暂时先使用默认时间
+    // TODO: 目前需要重启
     fun getDisplayTime(time: String): String {
-        return getDisplayTime(string2Time(time))
-    }
-
-    fun getDisplayTime(time: Long): String {
-        //if (Settings.getPrettyTime()) {
-        return getTimeAgo(time)
-        //} else {
-//            return getPlainTime(time);
-        //}
+        return when (timeFormat) {
+            "simplified" -> getTimeAgo(string2Time(time))
+            "original" -> getPlainTime(string2Time(time))
+            else -> throw Exception("Unhandled time format")
+        }
     }
 
     fun getPlainTime(time: Long): String {

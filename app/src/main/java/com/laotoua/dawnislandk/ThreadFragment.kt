@@ -48,7 +48,6 @@ class ThreadFragment : Fragment() {
 
         _binding = ThreadFragmentBinding.inflate(inflater, container, false)
         Timber.i("connected sharedVM instance: $sharedVM viewModel: $viewModel viewLifeCycleOwner $viewLifecycleOwner")
-        viewModel.setForumDao(sharedVM.getDb()?.forumDao())
 
         binding.threadsView.layoutManager = LinearLayoutManager(context)
         binding.threadsView.adapter = mAdapter

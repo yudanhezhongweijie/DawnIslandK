@@ -12,13 +12,10 @@ object AppState {
         return threadCardFactory!!
     }
 
-    private var db: DawnDatabase? = null
+    private var _DB: DawnDatabase? = null
+    val DB: DawnDatabase get() = _DB!!
 
     fun setDB(db: DawnDatabase) {
-        this.db = db
-    }
-
-    fun getDB(): DawnDatabase {
-        return this.db!!
+        this._DB = db
     }
 }

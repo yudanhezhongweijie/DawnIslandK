@@ -1,7 +1,6 @@
 package com.laotoua.dawnislandk.entities
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
+import androidx.room.*
 import com.google.gson.annotations.SerializedName
 
 
@@ -51,4 +50,23 @@ data class Forum(
     fun getDisplayName(): String {
         return if (showName != null && showName != "") showName else name
     }
+}
+
+
+@Dao
+interface ForumDao {
+    @Query("SELECT * FROM forum")
+    suspend fun getAll(): List<Forum>
+
+    @Query("SELECT * FROM forum WHERE id==:fid")
+    suspend fun getForumById(fid: String): Forum
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(forumList: List<Forum>)
+
+    @Delete
+    suspend fun delete(forum: Forum)
+
+    @Query("DELETE FROM forum")
+    fun nukeTable()
 }

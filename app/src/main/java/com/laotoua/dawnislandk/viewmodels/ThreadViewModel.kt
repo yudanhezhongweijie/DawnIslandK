@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.entities.Forum
-import com.laotoua.dawnislandk.entities.ForumDao
 import com.laotoua.dawnislandk.entities.ThreadList
 import com.laotoua.dawnislandk.util.API
 import kotlinx.coroutines.launch
@@ -25,8 +24,6 @@ class ThreadViewModel : ViewModel() {
     private var _loadFail = MutableLiveData(false)
     val loadFail: LiveData<Boolean>
         get() = _loadFail
-
-    private var forumDao: ForumDao? = null
 
     init {
         getThreads()
@@ -74,10 +71,6 @@ class ThreadViewModel : ViewModel() {
         _currentForum = f
         pageCount = 1
         getThreads()
-    }
-
-    fun setForumDao(dao: ForumDao?) {
-        this.forumDao = dao
     }
 
 }

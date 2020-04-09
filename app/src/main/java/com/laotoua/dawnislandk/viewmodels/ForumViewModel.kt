@@ -13,7 +13,7 @@ import timber.log.Timber
 
 class ForumViewModel : ViewModel() {
     private val api = API()
-    private val dao: ForumDao = AppState.getDB().forumDao()
+    private val dao: ForumDao = AppState.DB.forumDao()
 
     private var _forumList = MutableLiveData<List<Forum>>()
     val forumList: LiveData<List<Forum>>
@@ -33,8 +33,9 @@ class ForumViewModel : ViewModel() {
                     Timber.i("Forum list has changed. updating...")
                     _forumList.postValue(list)
                     _loadFail.postValue(false)
+
                     // save to local db
-                    dao.insertAll(list)
+                    saveToDB(list)
                 } else {
                     Timber.i("Forum list is the same as Db. Reusing...")
                 }
@@ -56,6 +57,10 @@ class ForumViewModel : ViewModel() {
                 }
             }
         }
+    }
+
+    private suspend fun saveToDB(list: List<Forum>) {
+        dao.insertAll(list)
     }
 
     fun getForumNameMapping(): Map<String, String> {

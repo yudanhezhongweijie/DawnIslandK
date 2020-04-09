@@ -29,7 +29,6 @@ class ForumViewModel : ViewModel() {
                 val list = api.getForums()
                 Timber.i("Downloaded forums size ${list.size}")
                 if (list != forumList.value) {
-                    Timber.i("Forum list is the same as Db. Reusing...")
                     Timber.i("Forum list has changed. updating...")
                     _forumList.postValue(list)
                     _loadFail.postValue(false)

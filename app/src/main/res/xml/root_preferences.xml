@@ -9,7 +9,6 @@
             app:useSimpleSummaryProvider="true" />
 
         <ListPreference
-            app:defaultValue="原始"
             app:entries="@array/time_format_entries"
             app:entryValues="@array/time_format_values"
             app:key="time_format"

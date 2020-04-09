@@ -47,7 +47,7 @@ fun transformCookie(userid: String, admin: String, po: String = ""): Spannable {
     return cookie
 }
 
-fun transformTime(now: String, style: String = "default"): String {
+fun transformTime(now: String): String {
     return ReadableTime.getDisplayTime(now)
 }
 

@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils.loadAnimation
 import android.widget.ImageView
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -22,6 +24,7 @@ import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import com.laotoua.dawnislandk.viewmodels.ThreadViewModel
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BasePopupView
+import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
 
 
@@ -174,6 +177,9 @@ class ThreadFragment : Fragment() {
                 .asCustom(dialog)
                 .show()
         }
+
+        updateAppBar()
+
         return binding.root
     }
 
@@ -214,5 +220,21 @@ class ThreadFragment : Fragment() {
             showMenu()
         }
     }
+
+    // TODO refresh click
+    private fun updateAppBar() {
+        requireActivity().let { activity ->
+            activity.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+            activity.collapsingToolbar.title = "A岛 • ${sharedVM.selectedForum.value?.name}"
+            activity.toolbar.setNavigationIcon(R.drawable.ic_menu)
+            activity.toolbar.setNavigationOnClickListener(null)
+            activity.toolbar.setNavigationOnClickListener {
+                Timber.i("navigation")
+                activity.drawerLayout.openDrawer(GravityCompat.START)
+
+            }
+        }
+    }
+
 
 }

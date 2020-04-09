@@ -5,8 +5,6 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
@@ -33,30 +31,12 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
 
-        initToolbar()
+        initStatusBar()
 
         setUpForumDrawer()
     }
 
-    private fun initToolbar() {
-        /**
-         * 标题栏组件初始化
-         */
-        binding.toolbar.setNavigationOnClickListener {
-            binding.drawerLayout.openDrawer(
-                GravityCompat.START
-            )
-        }
-
-        binding.toolbar.setOnClickListener {
-
-            // TODO refresh click
-            Timber.d("Handle toolbar click")
-        }
-        val actionBar = supportActionBar
-        actionBar?.setDisplayHomeAsUpEnabled(true)
-        actionBar?.setHomeAsUpIndicator(R.drawable.ic_menu)
-
+    private fun initStatusBar() {
         /**
          * 新的状态栏透明方案
          */
@@ -69,23 +49,6 @@ class MainActivity : AppCompatActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         //设置状态栏(StatusBar)颜色透明
         window.statusBarColor = Color.TRANSPARENT
-
-        binding.toolbar.setNavigationOnClickListener {
-            when (sharedVM.currentFragment.value) {
-                "ThreadFragment" -> binding.drawerLayout.openDrawer(GravityCompat.START)
-                "ReplyFragment" -> supportFragmentManager.popBackStack()
-                "ImageViewerFragment" -> supportFragmentManager.popBackStack()
-                else -> Timber.e("Unhandled navigation action")
-            }
-
-        }
-
-        sharedVM.currentFragment.observe(this, Observer {
-            updateToolBar(it)
-        })
-
-        // TODO setting it always collapsing as it contains many errors
-//        binding.dawnAppbar.setExpanded(false)
     }
 
     // left forum drawer
@@ -123,42 +86,4 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-
-    private fun updateToolBar(currentFrag: String) {
-        when (currentFrag) {
-            "ImageViewerFragment" -> {
-                binding.collapsingToolbar.title = "大图模式"
-//                binding.collapsingToolbar.subtitle = ""
-                binding.toolbar.setNavigationIcon(R.drawable.ic_arrow_back)
-
-                binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-//                supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_arrow_back)
-            }
-            "ReplyFragment" -> {
-                val forumName =
-                    sharedVM.getForumDisplayName(sharedVM.selectedThreadList.value!!.fid ?: "")
-                binding.collapsingToolbar.title = "A岛  • $forumName"
-//                binding.collapsingToolbar.subtitle =
-//                    ">>No. " + sharedVM.selectedThreadList.value?.id
-                binding.toolbar.setNavigationIcon(R.drawable.ic_arrow_back)
-                binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-//                supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_arrow_back)
-            }
-            "ThreadFragment" -> {
-
-                binding.collapsingToolbar.title = sharedVM.selectedForum.value?.name ?: "时间线"
-//                binding.collapsingToolbar.subtitle = "adnmb.com"
-
-//                binding.toolbar.setNavigationIcon(R.drawable.ic_menu)
-
-//                supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu)
-                binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-            }
-
-            else -> {
-//                    binding.toolbar.visibility = View.VISIBLE
-            }
-        }
-
-    }
 }

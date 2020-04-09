@@ -1,16 +1,17 @@
 package com.laotoua.dawnislandk
 
-//import com.laotoua.dawnislandk.util.DiffCallback
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.laotoua.dawnislandk.components.CreatePopup
 import com.laotoua.dawnislandk.components.ImageViewerPopup
@@ -21,6 +22,7 @@ import com.laotoua.dawnislandk.viewmodels.ReplyViewModel
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BasePopupView
+import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
 
 
@@ -175,6 +177,7 @@ class ReplyFragment : Fragment() {
             hideMenu()
         }
 
+        updateAppBar()
         return binding.root
     }
 
@@ -214,6 +217,21 @@ class ReplyFragment : Fragment() {
             hideMenu()
         } else {
             showMenu()
+        }
+    }
+
+    // TODO refresh click
+    private fun updateAppBar() {
+
+        requireActivity().let { activity ->
+            activity.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+            activity.collapsingToolbar.title =
+                "A岛 • ${sharedVM.selectedForum.value!!.name} • ${sharedVM.selectedThreadList.value?.id}"
+            activity.toolbar.setNavigationIcon(R.drawable.ic_arrow_back)
+            activity.toolbar.setNavigationOnClickListener(null)
+            activity.toolbar.setNavigationOnClickListener {
+                findNavController().popBackStack()
+            }
         }
     }
 }

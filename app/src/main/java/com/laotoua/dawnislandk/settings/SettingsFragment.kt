@@ -28,7 +28,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private suspend fun loadCookies() {
         withContext(Dispatchers.IO) {
-            cookies = AppState.DB.cookieDao().getAll()
+            AppState.loadCookies()
+            cookies = AppState.cookies!!
             Timber.i("Loaded cookies: $cookies")
         }
     }

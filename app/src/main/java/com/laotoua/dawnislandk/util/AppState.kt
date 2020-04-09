@@ -2,6 +2,7 @@ package com.laotoua.dawnislandk.util
 
 import android.content.Context
 import com.laotoua.dawnislandk.components.ThreadCardFactory
+import com.laotoua.dawnislandk.entities.Cookie
 import com.laotoua.dawnislandk.entities.DawnDatabase
 
 object AppState {
@@ -17,5 +18,12 @@ object AppState {
 
     fun setDB(db: DawnDatabase) {
         this._DB = db
+    }
+
+    private var _cookies: List<Cookie>? = null
+    val cookies get() = _cookies
+
+    suspend fun loadCookies() {
+        _cookies = DB.cookieDao().getAll()
     }
 }

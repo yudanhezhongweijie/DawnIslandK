@@ -64,6 +64,7 @@ class ReplyFragment : Fragment() {
         mAdapter.setOnItemClickListener {
             // TODO: needs reply popup
                 adapter, view, position ->
+            hideMenu()
             Timber.d("onItemClick $position")
 
         }
@@ -72,6 +73,7 @@ class ReplyFragment : Fragment() {
         mAdapter.addChildClickViewIds(R.id.replyImage)
         mAdapter.setOnItemChildClickListener { adapter, view, position ->
             if (view.id == R.id.replyImage) {
+                hideMenu()
                 Timber.i("clicked on image at $position")
 
                 val url = (adapter.getItem(
@@ -142,6 +144,7 @@ class ReplyFragment : Fragment() {
                 binding.fabMenu.show()
             } else {
                 binding.fabMenu.hide()
+                hideMenu()
             }
         }
 
@@ -151,11 +154,11 @@ class ReplyFragment : Fragment() {
 
         binding.copyId.setOnClickListener {
             Timber.i("Clicked on copy Id")
-            toggleMenu()
+            hideMenu()
         }
 
         binding.create.setOnClickListener {
-            toggleMenu()
+            hideMenu()
 
             XPopup.Builder(context)
                 .asCustom(dialog)
@@ -164,14 +167,13 @@ class ReplyFragment : Fragment() {
 
         binding.jump.setOnClickListener {
             Timber.i("Clicked on jump")
-            toggleMenu()
+            hideMenu()
         }
 
         binding.onlyPo.setOnClickListener {
             Timber.i("Clicked on onlyPo")
-            toggleMenu()
+            hideMenu()
         }
-
 
         return binding.root
     }
@@ -186,26 +188,32 @@ class ReplyFragment : Fragment() {
         Timber.d("Reply Fragment destroyed!")
     }
 
-    private fun toggleMenu() {
-        val rotateForward = AnimationUtils.loadAnimation(requireContext(), R.anim.rotate_forward);
+
+    private fun hideMenu() {
         val rotateBackward = AnimationUtils.loadAnimation(requireContext(), R.anim.rotate_backward);
+        binding.fabMenu.startAnimation(rotateBackward)
+        binding.create.hide()
+        binding.jump.hide()
+        binding.copyId.hide()
+        binding.onlyPo.hide()
+        isFabOpen = false
+    }
+
+    private fun showMenu() {
+        val rotateForward = AnimationUtils.loadAnimation(requireContext(), R.anim.rotate_forward);
+        binding.fabMenu.startAnimation(rotateForward)
+        binding.create.show()
+        binding.jump.show()
+        binding.copyId.show()
+        binding.onlyPo.show()
+        isFabOpen = true
+    }
+
+    private fun toggleMenu() {
         if (isFabOpen) {
-            binding.fabMenu.startAnimation(rotateBackward)
-
-            binding.create.hide()
-            binding.jump.hide()
-            binding.copyId.hide()
-            binding.onlyPo.hide()
-
-            isFabOpen = false
+            hideMenu()
         } else {
-            binding.fabMenu.startAnimation(rotateForward)
-
-            binding.create.show()
-            binding.jump.show()
-            binding.copyId.show()
-            binding.onlyPo.show()
-            isFabOpen = true
+            showMenu()
         }
     }
 }

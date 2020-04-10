@@ -25,7 +25,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Timber.i("sharedVM instance: $sharedVM")
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

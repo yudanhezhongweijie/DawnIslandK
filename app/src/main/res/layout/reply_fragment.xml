@@ -25,9 +25,7 @@
         android:visibility="gone"
         app:icon="@drawable/ic_filter"
         app:layout_constraintBottom_toTopOf="@id/copyId"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:layout_conversion_absoluteHeight="0dp"
-        tools:layout_conversion_absoluteWidth="0dp" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/copyId"
@@ -40,9 +38,7 @@
         android:visibility="gone"
         app:icon="@drawable/ic_label"
         app:layout_constraintBottom_toTopOf="@id/jump"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:layout_conversion_absoluteHeight="0dp"
-        tools:layout_conversion_absoluteWidth="0dp" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/jump"
@@ -55,9 +51,7 @@
         android:visibility="gone"
         app:icon="@drawable/ic_bookmarks"
         app:layout_constraintBottom_toTopOf="@+id/create"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:layout_conversion_absoluteHeight="0dp"
-        tools:layout_conversion_absoluteWidth="0dp" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/create"
@@ -70,13 +64,11 @@
         android:visibility="gone"
         app:icon="@drawable/ic_create"
         app:layout_constraintBottom_toTopOf="@+id/fabMenu"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:layout_conversion_absoluteHeight="0dp"
-        tools:layout_conversion_absoluteWidth="0dp" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabMenu"
-        style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
+        style="@style/Widget.MaterialComponents.FloatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
@@ -84,8 +76,6 @@
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_add"
-        tools:layout_conversion_absoluteHeight="56dp"
-        tools:layout_conversion_absoluteWidth="56dp" />
+        app:srcCompat="@drawable/ic_add" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

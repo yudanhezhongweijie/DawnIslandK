@@ -106,7 +106,7 @@ class ThreadFragment : Fragment() {
         }
 
 
-        // TODO: fragment trasactions forces new viewlifecycleowner created, hence will trigger observe actions
+        // TODO: fragment transactions forces new view lifecycle owner created, hence will trigger observe actions
         viewModel.loadFail.observe(viewLifecycleOwner, Observer {
             // TODO: can be either out of new Data or api error
             if (it == true) {
@@ -122,9 +122,6 @@ class ThreadFragment : Fragment() {
         })
 
         sharedVM.selectedForum.observe(viewLifecycleOwner, Observer {
-            Timber.i(
-                "shared VM change observed in Thread Fragment with data ${it.name}"
-            )
             if (viewModel.currentForum == null || viewModel.currentForum!!.id != it.id) {
                 Timber.i("Forum has changed. Cleaning old adapter data...")
                 mAdapter.setList(ArrayList())

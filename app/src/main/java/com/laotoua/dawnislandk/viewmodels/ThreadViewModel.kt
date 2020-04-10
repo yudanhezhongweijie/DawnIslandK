@@ -25,10 +25,6 @@ class ThreadViewModel : ViewModel() {
     val loadFail: LiveData<Boolean>
         get() = _loadFail
 
-    init {
-        getThreads()
-    }
-
     fun getThreads() {
         viewModelScope.launch {
             try {

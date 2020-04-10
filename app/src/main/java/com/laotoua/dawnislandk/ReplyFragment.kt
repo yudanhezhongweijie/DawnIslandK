@@ -133,7 +133,7 @@ class ReplyFragment : Fragment() {
                 "shared VM change observed in Reply Fragment with data ${it.id}"
             )
             if (viewModel.currentThread == null || viewModel.currentThread!!.id != it.id) {
-                Timber.i("Thread has changed to ${it.id}or new observer added...")
+                Timber.i("Thread has changed to ${it.id} or new observer added...")
                 mAdapter.setList(ArrayList())
                 viewModel.setThread(it)
             }

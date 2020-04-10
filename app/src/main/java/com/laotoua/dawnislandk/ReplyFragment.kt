@@ -51,7 +51,6 @@ class ReplyFragment : Fragment() {
         sharedVM.setFragment(this.javaClass.simpleName)
 
         _binding = ReplyFragmentBinding.inflate(inflater, container, false)
-        Timber.i("connected sharedVM instance: $sharedVM viewModel: $viewModel viewLifeCycleOwner $viewLifecycleOwner")
 
         binding.replysView.layoutManager = LinearLayoutManager(context)
         binding.replysView.adapter = mAdapter
@@ -131,10 +130,10 @@ class ReplyFragment : Fragment() {
 
         sharedVM.selectedThreadList.observe(viewLifecycleOwner, Observer {
             Timber.i(
-                "shared VM change observed in Reply Fragment $viewModel with owner $viewLifecycleOwner with data $it"
+                "shared VM change observed in Reply Fragment with data ${it.id}"
             )
             if (viewModel.currentThread == null || viewModel.currentThread!!.id != it.id) {
-                Timber.i("Thread has changed or new observer added...")
+                Timber.i("Thread has changed to ${it.id}or new observer added...")
                 mAdapter.setList(ArrayList())
                 viewModel.setThread(it)
             }

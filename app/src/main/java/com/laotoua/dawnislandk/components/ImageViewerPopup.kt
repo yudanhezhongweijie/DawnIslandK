@@ -19,6 +19,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target.SIZE_ORIGINAL
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.laotoua.dawnislandk.R
+import com.laotoua.dawnislandk.util.GlideApp
 import com.lxj.xpopup.core.ImageViewerPopupView
 import com.lxj.xpopup.interfaces.XPopupImageLoader
 import com.lxj.xpopup.photoview.PhotoView
@@ -115,7 +116,7 @@ class ImageViewerPopup(
         }
 
         override fun loadImage(position: Int, uri: Any, imageView: ImageView) {
-            Glide.with(context).load(cdn + uri)
+            GlideApp.with(context).load(cdn + uri)
                 .apply(RequestOptions().override(SIZE_ORIGINAL, SIZE_ORIGINAL))
                 .into(imageView)
         }

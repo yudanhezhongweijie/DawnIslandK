@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
-import com.bumptech.glide.Glide
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.loadmore.BaseLoadMoreView
 import com.chad.library.adapter.base.module.LoadMoreModule
@@ -111,7 +110,7 @@ class QuickAdapter(private val layoutResId: Int) :
 
         // load image
         if (item.img != "") {
-            Glide.with(context)
+            GlideApp.with(context)
                 .load(thumbCDN + item.img + item.ext)
                 .override(100, 100)
                 .fitCenter()
@@ -161,7 +160,7 @@ class QuickAdapter(private val layoutResId: Int) :
 
         // load image
         if (item.img != "") {
-            Glide.with(context)
+            GlideApp.with(context)
                 .load(thumbCDN + item.img + item.ext)
                 .override(250, 250)
                 .fitCenter()

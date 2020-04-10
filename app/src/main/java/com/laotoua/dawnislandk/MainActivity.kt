@@ -74,6 +74,7 @@ class MainActivity : AppCompatActivity() {
         forumVM.forumList.observe(this, Observer {
             Timber.i("Loaded ${mAdapter.data.size} forums")
             mAdapter.setList(it)
+            // TODO: set default forum
             sharedVM.setForum(it[0])
             sharedVM.setForumNameMapping(forumVM.getForumNameMapping())
         })

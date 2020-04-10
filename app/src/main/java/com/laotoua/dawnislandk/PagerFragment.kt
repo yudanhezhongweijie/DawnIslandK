@@ -19,7 +19,6 @@ class PagerFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-//        sharedVM.setFragment(this.javaClass.simpleName)
 
         _binding = PagerFragmentBinding.inflate(inflater, container, false)
 

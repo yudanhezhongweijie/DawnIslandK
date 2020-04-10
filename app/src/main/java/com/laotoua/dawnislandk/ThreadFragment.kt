@@ -50,7 +50,6 @@ class ThreadFragment : Fragment() {
         sharedVM.setFragment(this.javaClass.simpleName)
 
         _binding = ThreadFragmentBinding.inflate(inflater, container, false)
-        Timber.i("connected sharedVM instance: $sharedVM viewModel: $viewModel viewLifeCycleOwner $viewLifecycleOwner")
 
         binding.threadsView.layoutManager = LinearLayoutManager(context)
         binding.threadsView.adapter = mAdapter
@@ -63,7 +62,6 @@ class ThreadFragment : Fragment() {
         // item click
         mAdapter.setOnItemClickListener { adapter, _, position ->
             hideMenu()
-
             sharedVM.setThreadList(adapter.getItem(position) as ThreadList)
             val action = PagerFragmentDirections.actionPagerFragmentToReplyFragment()
             findNavController().navigate(action)
@@ -98,13 +96,6 @@ class ThreadFragment : Fragment() {
                 XPopup.Builder(context)
                     .asCustom(viewerPopup)
                     .show()
-
-//                val action = PagerFragmentDirections.actionPagerFragmentToImageViewerFragment(
-//                    (adapter.getItem(
-//                        position
-//                    ) as ThreadList).getImgUrl()
-//                )
-//                requireParentFragment().findNavController().navigate(action)
             }
         }
 
@@ -132,13 +123,13 @@ class ThreadFragment : Fragment() {
 
         sharedVM.selectedForum.observe(viewLifecycleOwner, Observer {
             Timber.i(
-                "shared VM change observed in Thread Fragment $viewLifecycleOwner with data $it"
+                "shared VM change observed in Thread Fragment with data ${it.name}"
             )
             if (viewModel.currentForum == null || viewModel.currentForum!!.id != it.id) {
                 Timber.i("Forum has changed. Cleaning old adapter data...")
                 mAdapter.setList(ArrayList())
                 viewModel.setForum(it)
-
+                updateAppBar()
                 hideMenu()
             }
         })
@@ -177,7 +168,6 @@ class ThreadFragment : Fragment() {
                 .asCustom(dialog)
                 .show()
         }
-
         updateAppBar()
 
         return binding.root

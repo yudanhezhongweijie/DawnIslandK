@@ -65,12 +65,13 @@ object NMBServiceClient {
         return replys
     }
 
+    private fun parseQuote(response: ResponseBody): Reply {
+        return Gson().fromJson(response.string(), Reply::class.java)
+    }
+
 
     // TODO: handle case where thread is deleted
-    suspend fun getThreads(
-        fid: String,
-        page: Int
-    ): List<ThreadList> {
+    suspend fun getThreads(fid: String, page: Int): List<ThreadList> {
         try {
             val rawResponse =
                 withContext(Dispatchers.IO) {
@@ -108,6 +109,22 @@ object NMBServiceClient {
             }
         } catch (e: Exception) {
             Timber.e(e, "Failed to get replys")
+            throw e
+        }
+    }
+
+    suspend fun getQuote(id: String): Reply {
+        try {
+            val rawResponse = withContext(Dispatchers.IO) {
+                Timber.i("Downloading quote...")
+                service.getNMBQuote(id).execute().body()!!
+            }
+            return withContext(Dispatchers.Default) {
+                Timber.i("Parsing quote")
+                parseQuote(rawResponse)
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to get quote")
             throw e
         }
     }

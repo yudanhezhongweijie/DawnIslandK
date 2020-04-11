@@ -17,5 +17,8 @@ interface NMBService {
 
     @GET("/api/thread")
     fun getNMBReplys(@Query("id") id: String, @Query("page") page: Int): Call<ResponseBody>
+
+    @GET("/api/ref")
+    fun getNMBQuote(@Query("id") id: String): Call<ResponseBody>
 }
 

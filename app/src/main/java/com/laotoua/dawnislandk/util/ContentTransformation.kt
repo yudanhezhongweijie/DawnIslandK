@@ -156,3 +156,8 @@ fun dip2px(context: Context, dipValue: Float): Int {
         displayMetrics
     ).toInt()
 }
+
+fun extractQuoteId(string: String): String {
+    val regex = """\D""".toRegex()
+    return string.replace(regex, "")
+}

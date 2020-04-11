@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -13,6 +14,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.chad.library.adapter.base.listener.OnItemChildClickListener
 import com.laotoua.dawnislandk.components.CreatePopup
 import com.laotoua.dawnislandk.components.ImageViewerPopup
 import com.laotoua.dawnislandk.databinding.ReplyFragmentBinding
@@ -77,9 +79,7 @@ class ReplyFragment : Fragment() {
                 hideMenu()
                 Timber.i("clicked on image at $position")
 
-                val url = (adapter.getItem(
-                            position
-                        ) as Reply).getImgUrl()
+                val url = (adapter.getItem(position) as Reply).getImgUrl()
                 // TODO support multiple image
                 val viewerPopup =
                     ImageViewerPopup(
@@ -98,8 +98,15 @@ class ReplyFragment : Fragment() {
 
                     .show()
             }
+
         }
 
+
+        mAdapter.addCustomChildIds(R.id.quoteId)
+        mAdapter.setCustomQuoteClickListener(
+            OnItemChildClickListener { adapter, view, position ->
+                Timber.i("id: ${view.findViewById<TextView>(R.id.quoteId).text}")
+            })
 
         // load more
         mAdapter.loadMoreModule.setOnLoadMoreListener {

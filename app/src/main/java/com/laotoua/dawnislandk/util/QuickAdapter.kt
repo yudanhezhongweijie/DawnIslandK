@@ -8,8 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.view.forEach
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter.base.BaseQuickAdapter
+import com.chad.library.adapter.base.listener.OnItemChildClickListener
 import com.chad.library.adapter.base.loadmore.BaseLoadMoreView
 import com.chad.library.adapter.base.module.LoadMoreModule
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
@@ -52,6 +55,7 @@ class QuickAdapter(private val layoutResId: Int) :
      *
      */
     override fun convert(helper: BaseViewHolder, item: Any) {
+
         if (layoutResId == R.layout.forum_list_item && item is Forum) {
             convertForum(helper, item)
         } else if (layoutResId == R.layout.thread_list_item && item is ThreadList) {
@@ -175,12 +179,16 @@ class QuickAdapter(private val layoutResId: Int) :
         val quotes = extractQuote(item.content)
         if (quotes.isNotEmpty()) {
             quotesContainer.removeAllViews()
+
             quotes.map {
                 val q = LayoutInflater.from(context)
                     .inflate(R.layout.quote_list_item, quotesContainer, false)
                 q.quoteId.text = "No. $it"
                 quotesContainer.addView(q)
             }
+            // special binding for quotes
+            bindCustomQuoteClickListener(card, R.id.quoteId, R.id.replyQuotes)
+
             card.setVisible(R.id.replyQuotes, true)
         } else {
             card.setGone(R.id.replyQuotes, true)
@@ -189,6 +197,45 @@ class QuickAdapter(private val layoutResId: Int) :
         card.setText(R.id.replyContent, transformContent(removeQuote(item.content)))
     }
 
+
+    private var mCustomQuoteClickListener: OnItemChildClickListener? = null
+    private var mCustomChildIds = mutableListOf<Int>()
+
+    fun setCustomQuoteClickListener(listener: OnItemChildClickListener) {
+        mCustomQuoteClickListener = listener
+    }
+
+    fun addCustomChildIds(id: Int) {
+        mCustomChildIds.add(id)
+    }
+
+    /*** Based on super.bindViewClickListener
+     *
+     */
+    private fun bindCustomQuoteClickListener(
+        viewHolder: BaseViewHolder,
+        viewType: Int,
+        parent: Int
+    ) {
+        if (mCustomQuoteClickListener != null) {
+            for (id in mCustomChildIds) {
+                viewHolder.itemView.findViewById<ViewGroup>(parent)
+                    .forEach { childView ->
+                        if (!childView.isClickable) {
+                            childView.isClickable = true
+                        }
+                        childView.setOnClickListener { v ->
+                            var position = viewHolder.adapterPosition
+                            if (position == RecyclerView.NO_POSITION) {
+                                return@setOnClickListener
+                            }
+                            position -= headerLayoutCount
+                            mCustomQuoteClickListener?.onItemChildClick(this, v, position)
+                        }
+                    }
+            }
+        }
+    }
 }
 
 class DiffCallback : DiffUtil.ItemCallback<Any>() {
@@ -263,6 +310,8 @@ class DiffCallback : DiffUtil.ItemCallback<Any>() {
     ): Any? {
         return null
     }
+
+
 }
 
 // TODO

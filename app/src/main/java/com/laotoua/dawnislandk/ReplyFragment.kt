@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.chad.library.adapter.base.listener.OnItemChildClickListener
 import com.laotoua.dawnislandk.components.CreatePopup
 import com.laotoua.dawnislandk.components.ImageViewerPopup
+import com.laotoua.dawnislandk.components.QuotePopup
 import com.laotoua.dawnislandk.databinding.ReplyFragmentBinding
 import com.laotoua.dawnislandk.entities.Reply
 import com.laotoua.dawnislandk.network.ImageLoader
@@ -107,6 +108,9 @@ class ReplyFragment : Fragment() {
         mAdapter.setCustomQuoteClickListener(
             OnItemChildClickListener { adapter, view, position ->
                 Timber.i("id: ${view.findViewById<TextView>(R.id.quoteId).text}")
+                XPopup.Builder(context)
+                    .asCustom(QuotePopup(requireContext()))
+                    .show()
             })
 
         // load more

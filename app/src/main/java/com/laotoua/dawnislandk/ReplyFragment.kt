@@ -19,6 +19,7 @@ import com.laotoua.dawnislandk.components.CreatePopup
 import com.laotoua.dawnislandk.components.ImageViewerPopup
 import com.laotoua.dawnislandk.databinding.ReplyFragmentBinding
 import com.laotoua.dawnislandk.entities.Reply
+import com.laotoua.dawnislandk.network.ImageLoader
 import com.laotoua.dawnislandk.util.QuickAdapter
 import com.laotoua.dawnislandk.viewmodels.ReplyViewModel
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
@@ -37,8 +38,8 @@ class ReplyFragment : Fragment() {
     private val sharedVM: SharedViewModel by activityViewModels()
     private val mAdapter = QuickAdapter(R.layout.reply_list_item)
 
-    private val imageLoader: ImageViewerPopup.ImageLoader by lazy {
-        ImageViewerPopup.ImageLoader(requireContext())
+    private val imageLoader: ImageLoader by lazy {
+        ImageLoader(requireContext())
     }
 
     private val dialog: BasePopupView by lazy { CreatePopup(this, requireContext()) }

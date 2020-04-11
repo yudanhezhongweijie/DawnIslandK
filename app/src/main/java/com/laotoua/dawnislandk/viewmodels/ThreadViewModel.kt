@@ -6,12 +6,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.entities.Forum
 import com.laotoua.dawnislandk.entities.ThreadList
-import com.laotoua.dawnislandk.util.API
+import com.laotoua.dawnislandk.network.NMBServiceClient
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class ThreadViewModel : ViewModel() {
-    private val api = API()
 
     private val threadList = mutableListOf<ThreadList>()
     private val threadIds = mutableSetOf<String>()
@@ -30,10 +29,7 @@ class ThreadViewModel : ViewModel() {
             try {
                 val fid = _currentForum?.id ?: "-1"
                 Timber.i("Getting threads from $fid ${_currentForum?.name ?: "时间线(default)"}")
-                val timeline = fid == "-1"
-                val params =
-                    if (timeline) "page=${pageCount}" else "id=" + fid + "&page=${pageCount}"
-                val list = api.getThreads(params, timeline, fid)
+                val list = NMBServiceClient.getThreads(fid, pageCount)
                 val noDuplicates = list.filterNot { threadIds.contains(it.id) }
                 if (noDuplicates.isNotEmpty()) {
                     threadIds.addAll(noDuplicates.map { it.id })

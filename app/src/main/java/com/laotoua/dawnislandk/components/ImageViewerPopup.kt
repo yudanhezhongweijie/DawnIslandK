@@ -7,21 +7,15 @@ import android.content.Context
 import android.os.Environment
 import android.provider.MediaStore
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.target.Target.SIZE_ORIGINAL
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.util.GlideApp
 import com.lxj.xpopup.core.ImageViewerPopupView
-import com.lxj.xpopup.interfaces.XPopupImageLoader
 import com.lxj.xpopup.photoview.PhotoView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -103,25 +97,6 @@ class ImageViewerPopup(
         }
     }
 
-    class ImageLoader(val context: Context) : XPopupImageLoader {
-        private val cdn = "https://nmbimg.fastmirror.org/image/"
-
-        override fun getImageFile(context: Context, uri: Any): File? {
-            try {
-                return Glide.with(context).downloadOnly().load(cdn + uri).submit().get()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-            return null
-        }
-
-        override fun loadImage(position: Int, uri: Any, imageView: ImageView) {
-            GlideApp.with(context).load(cdn + uri)
-                .apply(RequestOptions().override(SIZE_ORIGINAL, SIZE_ORIGINAL))
-                .into(imageView)
-        }
-    }
-
     inner class PopupPVA : PhotoViewAdapter() {
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
             val photoView =
@@ -129,7 +104,7 @@ class ImageViewerPopup(
             // call LoadImageListener
             if (imageLoader != null) imageLoader.loadImage(
                 position,
-                urls.get(if (isInfinite) position % urls.size else position),
+                urls[if (isInfinite) position % urls.size else position],
                 photoView
             )
             container.addView(photoView)

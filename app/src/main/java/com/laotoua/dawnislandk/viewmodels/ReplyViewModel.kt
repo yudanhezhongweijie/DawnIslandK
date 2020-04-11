@@ -6,12 +6,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.entities.Reply
 import com.laotoua.dawnislandk.entities.ThreadList
-import com.laotoua.dawnislandk.util.API
+import com.laotoua.dawnislandk.network.NMBServiceClient
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class ReplyViewModel : ViewModel() {
-    private val api = API()
 //    private var dao: ReplyDao? = null
 
 
@@ -56,7 +55,7 @@ class ReplyViewModel : ViewModel() {
             }
             // TODO: handle case where thread is deleted
             try {
-                list.addAll(api.getReplys("id=${_currentThread!!.id}&page=$pageCount"))
+                list.addAll(NMBServiceClient.getReplys(_currentThread!!.id, pageCount))
             } catch (e: Exception) {
                 Timber.e(e, "reply api error")
                 _loadFail.postValue(true)

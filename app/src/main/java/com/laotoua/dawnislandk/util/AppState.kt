@@ -26,4 +26,5 @@ object AppState {
     suspend fun loadCookies() {
         _cookies = DB.cookieDao().getAll()
     }
+
 }

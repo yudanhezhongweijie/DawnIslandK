@@ -69,7 +69,7 @@ fun extractQuote(content: String): List<String> {
     /** api response
     <font color=\"#789922\">&gt;&gt;No.23527403</font>
      */
-    val regex = """&gt;&gt;No.\d\d\d\d\d\d\d\d""".toRegex()
+    val regex = """&gt;&gt;No.\d+""".toRegex()
 
     return regex.findAll(content).toList().map {
         it.value.substring(11)
@@ -155,4 +155,9 @@ fun dip2px(context: Context, dipValue: Float): Int {
         dipValue,
         displayMetrics
     ).toInt()
+}
+
+fun extractQuoteId(string: String): String {
+    val regex = """\D""".toRegex()
+    return string.replace(regex, "")
 }

@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -13,11 +14,15 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.chad.library.adapter.base.listener.OnItemChildClickListener
 import com.laotoua.dawnislandk.components.CreatePopup
 import com.laotoua.dawnislandk.components.ImageViewerPopup
+import com.laotoua.dawnislandk.components.QuotePopup
 import com.laotoua.dawnislandk.databinding.ReplyFragmentBinding
 import com.laotoua.dawnislandk.entities.Reply
+import com.laotoua.dawnislandk.network.ImageLoader
 import com.laotoua.dawnislandk.util.QuickAdapter
+import com.laotoua.dawnislandk.util.extractQuoteId
 import com.laotoua.dawnislandk.viewmodels.ReplyViewModel
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import com.lxj.xpopup.XPopup
@@ -35,11 +40,13 @@ class ReplyFragment : Fragment() {
     private val sharedVM: SharedViewModel by activityViewModels()
     private val mAdapter = QuickAdapter(R.layout.reply_list_item)
 
-    private val imageLoader: ImageViewerPopup.ImageLoader by lazy {
-        ImageViewerPopup.ImageLoader(requireContext())
+    private val imageLoader: ImageLoader by lazy {
+        ImageLoader(requireContext())
     }
 
     private val dialog: BasePopupView by lazy { CreatePopup(this, requireContext()) }
+
+    private val quotePopup: QuotePopup by lazy { QuotePopup(this, requireContext()) }
 
     private var isFabOpen = false
 
@@ -77,29 +84,30 @@ class ReplyFragment : Fragment() {
                 hideMenu()
                 Timber.i("clicked on image at $position")
 
-                val url = (adapter.getItem(
-                            position
-                        ) as Reply).getImgUrl()
+                val url = (adapter.getItem(position) as Reply).getImgUrl()
                 // TODO support multiple image
-                val viewerPopup =
-                    ImageViewerPopup(
-                        this,
-                        requireContext(),
-                        url
-                    )
+                val viewerPopup = ImageViewerPopup(this, requireContext(), url)
                 viewerPopup.setXPopupImageLoader(imageLoader)
                 viewerPopup.setSingleSrcView(view as ImageView?, url)
                 viewerPopup.setOnClickListener {
                     Timber.i("on click in thread")
                 }
                 XPopup.Builder(context)
-
                     .asCustom(viewerPopup)
-
                     .show()
             }
+
         }
 
+
+        mAdapter.addCustomChildIds(R.id.quoteId)
+        mAdapter.setCustomQuoteClickListener(
+            OnItemChildClickListener { _, view, _ ->
+                // TODO Loading animation
+                val id = extractQuoteId(view.findViewById<TextView>(R.id.quoteId).text as String)
+                // TODO: get Po based on Thread
+                QuotePopup.showQuote(this, requireContext(), quotePopup, id, sharedVM.getPo())
+            })
 
         // load more
         mAdapter.loadMoreModule.setOnLoadMoreListener {

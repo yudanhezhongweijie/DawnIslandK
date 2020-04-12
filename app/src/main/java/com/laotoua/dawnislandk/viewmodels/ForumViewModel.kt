@@ -6,13 +6,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.entities.Forum
 import com.laotoua.dawnislandk.entities.ForumDao
-import com.laotoua.dawnislandk.util.API
+import com.laotoua.dawnislandk.network.NMBServiceClient
 import com.laotoua.dawnislandk.util.AppState
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class ForumViewModel : ViewModel() {
-    private val api = API()
     private val dao: ForumDao = AppState.DB.forumDao()
 
     private var _forumList = MutableLiveData<List<Forum>>()
@@ -26,7 +25,7 @@ class ForumViewModel : ViewModel() {
     fun getForums() {
         viewModelScope.launch {
             try {
-                val list = api.getForums()
+                val list = NMBServiceClient.getForums()
                 Timber.i("Downloaded forums size ${list.size}")
                 if (list != forumList.value) {
                     Timber.i("Forum list has changed. updating...")

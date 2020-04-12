@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.laotoua.dawnislandk.R
@@ -132,17 +133,21 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
             po: String
         ) {
             caller.lifecycleScope.launch {
-                val reply = NMBServiceClient.getQuote(id)
-                XPopup.Builder(context)
-                    .setPopupCallback(object : SimpleCallback() {
-                        override fun beforeShow() {
-                            super.beforeShow()
-                            Timber.i("before show called")
-                            quotePopup.convertReply(reply, po)
-                        }
-                    })
-                    .asCustom(quotePopup)
-                    .show()
+                try {
+                    val reply = NMBServiceClient.getQuote(id)
+                    XPopup.Builder(context)
+                        .setPopupCallback(object : SimpleCallback() {
+                            override fun beforeShow() {
+                                super.beforeShow()
+                                quotePopup.convertReply(reply, po)
+                            }
+                        })
+                        .asCustom(quotePopup)
+                        .show()
+                } catch (e: Exception) {
+                    Timber.e(e, "Failed to get quote..")
+                    Toast.makeText(context, "无法读取引用...", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }

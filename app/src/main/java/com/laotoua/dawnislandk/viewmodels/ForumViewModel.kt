@@ -27,6 +27,11 @@ class ForumViewModel : ViewModel() {
             try {
                 val list = NMBServiceClient.getForums()
                 Timber.i("Downloaded forums size ${list.size}")
+                if (list.isEmpty()) {
+                    Timber.d("Didn't get forums from API")
+                    return@launch
+                }
+
                 if (list != forumList.value) {
                     Timber.i("Forum list has changed. updating...")
                     _forumList.postValue(list)

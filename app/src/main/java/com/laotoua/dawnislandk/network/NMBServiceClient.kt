@@ -11,13 +11,14 @@ import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
 import retrofit2.Retrofit
 import timber.log.Timber
-import java.lang.reflect.Type
 
 object NMBServiceClient {
     private val service: NMBService = Retrofit.Builder()
         .baseUrl("https://nmb.fastmirror.org/")
         .build()
         .create(NMBService::class.java)
+
+    private val parser = Gson()
 
     suspend fun getForums(): List<Forum> {
         try {
@@ -37,36 +38,24 @@ object NMBServiceClient {
     }
 
     private fun parseForums(response: ResponseBody): List<Forum> {
-        val newType: Type = object : TypeToken<List<Community>>() {}.type
-        val l: List<Community> = Gson().fromJson(response.string(), newType)
-        if (l.isEmpty()) {
-            Timber.e("Didn't get forums from API")
-        }
-
-        return l.flatMap { c -> c.forums }
+        return (parser.fromJson(
+            response.string(), object : TypeToken<List<Community>>() {}.type
+        ) as List<Community>).flatMap { c -> c.forums }
     }
 
     private fun parseThreads(response: ResponseBody): List<ThreadList> {
-        val newType: Type = object : TypeToken<List<ThreadList>>() {}.type
-        val l: List<ThreadList> = Gson().fromJson(response.string(), newType)
-        if (l.isEmpty()) {
-            Timber.e("Didn't get threads from API")
-        }
-        return l
+        return parser.fromJson(response.string(), object : TypeToken<List<ThreadList>>() {}.type)
     }
 
     private fun parseReplys(response: ResponseBody): List<Reply> {
-        val newType: Type = object : TypeToken<ThreadList>() {}.type
-        val replys: List<Reply> =
-            (Gson().fromJson(response.string(), newType) as ThreadList).replys!!
-        if (replys.isEmpty()) {
-            Timber.e("Didn't get thread reply from API")
-        }
-        return replys
+        return (parser.fromJson(
+            response.string(),
+            object : TypeToken<ThreadList>() {}.type
+        ) as ThreadList).replys!!
     }
 
     private fun parseQuote(response: ResponseBody): Reply {
-        return Gson().fromJson(response.string(), Reply::class.java)
+        return parser.fromJson(response.string(), Reply::class.java)
     }
 
 

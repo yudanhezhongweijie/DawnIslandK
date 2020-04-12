@@ -22,6 +22,7 @@ import com.laotoua.dawnislandk.databinding.ReplyFragmentBinding
 import com.laotoua.dawnislandk.entities.Reply
 import com.laotoua.dawnislandk.network.ImageLoader
 import com.laotoua.dawnislandk.util.QuickAdapter
+import com.laotoua.dawnislandk.util.extractQuoteId
 import com.laotoua.dawnislandk.viewmodels.ReplyViewModel
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import com.lxj.xpopup.XPopup
@@ -44,6 +45,8 @@ class ReplyFragment : Fragment() {
     }
 
     private val dialog: BasePopupView by lazy { CreatePopup(this, requireContext()) }
+
+    private val quotePopup: QuotePopup by lazy { QuotePopup(this, requireContext()) }
 
     private var isFabOpen = false
 
@@ -83,21 +86,14 @@ class ReplyFragment : Fragment() {
 
                 val url = (adapter.getItem(position) as Reply).getImgUrl()
                 // TODO support multiple image
-                val viewerPopup =
-                    ImageViewerPopup(
-                        this,
-                        requireContext(),
-                        url
-                    )
+                val viewerPopup = ImageViewerPopup(this, requireContext(), url)
                 viewerPopup.setXPopupImageLoader(imageLoader)
                 viewerPopup.setSingleSrcView(view as ImageView?, url)
                 viewerPopup.setOnClickListener {
                     Timber.i("on click in thread")
                 }
                 XPopup.Builder(context)
-
                     .asCustom(viewerPopup)
-
                     .show()
             }
 
@@ -106,11 +102,11 @@ class ReplyFragment : Fragment() {
 
         mAdapter.addCustomChildIds(R.id.quoteId)
         mAdapter.setCustomQuoteClickListener(
-            OnItemChildClickListener { adapter, view, position ->
-                Timber.i("id: ${view.findViewById<TextView>(R.id.quoteId).text}")
-                XPopup.Builder(context)
-                    .asCustom(QuotePopup(requireContext()))
-                    .show()
+            OnItemChildClickListener { _, view, _ ->
+                // TODO Loading animation
+                val id = extractQuoteId(view.findViewById<TextView>(R.id.quoteId).text as String)
+                // TODO: get Po based on Thread
+                QuotePopup.showQuote(this, requireContext(), quotePopup, id, sharedVM.getPo())
             })
 
         // load more

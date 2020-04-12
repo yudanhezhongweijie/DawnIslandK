@@ -104,7 +104,7 @@ class QuickAdapter(private val layoutResId: Int) :
         card.getView<TextView>(R.id.threadForumAndReplyCount)
             .setText(spannableString, TextView.BufferType.SPANNABLE)
 
-        // TODO: add sage transformting
+        // TODO: add sage transformation
         // sage
         if (item.sage == "1") {
             card.setVisible(R.id.sage, false)
@@ -147,7 +147,7 @@ class QuickAdapter(private val layoutResId: Int) :
         // TODO: handle ads
         card.setText(R.id.replyId, item.id)
 
-        // TODO: add sage transformting
+        // TODO: add sage transformation
         if (item.sage == "1") {
             card.setVisible(R.id.sage, true)
         } else {

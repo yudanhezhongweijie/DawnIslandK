@@ -41,11 +41,7 @@ class ThreadFragment : Fragment() {
 
     private var isFabOpen = false
 
-    private val imageLoader: ImageLoader by lazy {
-        ImageLoader(
-            requireContext()
-        )
-    }
+    private val imageLoader: ImageLoader by lazy { ImageLoader(requireContext()) }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

@@ -26,7 +26,9 @@ class Reply(
     @SerializedName("img")
     val img: String,
     @SerializedName("ext")
-    val ext: String
+    val ext: String,
+    @Transient
+    var page: Int? = 1
 ) {
     fun getImgUrl(): String {
         return img + ext

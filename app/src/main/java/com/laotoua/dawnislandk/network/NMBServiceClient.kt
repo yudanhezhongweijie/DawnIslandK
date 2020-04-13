@@ -44,11 +44,8 @@ object NMBServiceClient {
         return parser.fromJson(response.string(), object : TypeToken<List<Thread>>() {}.type)
     }
 
-    private fun parseReplys(response: ResponseBody): List<Reply> {
-        return (parser.fromJson(
-            response.string(),
-            object : TypeToken<Thread>() {}.type
-        ) as Thread).replys!!
+    private fun parseReplys(response: ResponseBody): Thread {
+        return parser.fromJson(response.string(), Thread::class.java)
     }
 
     private fun parseQuote(response: ResponseBody): Reply {
@@ -81,7 +78,7 @@ object NMBServiceClient {
     }
 
     // TODO: handle case where thread is deleted
-    suspend fun getReplys(id: String, page: Int): List<Reply> {
+    suspend fun getReplys(id: String, page: Int): Thread {
         try {
             val rawResponse =
                 withContext(Dispatchers.IO) {

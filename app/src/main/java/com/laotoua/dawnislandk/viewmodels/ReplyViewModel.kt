@@ -21,7 +21,14 @@ class ReplyViewModel : ViewModel() {
     private var _reply = MutableLiveData<List<Reply>>()
     val reply: LiveData<List<Reply>>
         get() = _reply
-    private var pageCount = 1
+    private var _nextPage = 1
+    val nextPage get() = _nextPage
+
+    private var _maxPage = 1
+    val maxPage get() = _maxPage
+
+    private var _maxReply = 0
+    val maxReply get() = _maxReply
 
     // flags to indicate status of loading reply
     private var _loadFail = MutableLiveData(false)
@@ -38,7 +45,7 @@ class ReplyViewModel : ViewModel() {
         replyIds.clear()
         Timber.i("Setting new Thread: ${f.id}")
         _currentThread = f
-        pageCount = 1
+        _nextPage = 1
         getReplys()
     }
 
@@ -50,12 +57,16 @@ class ReplyViewModel : ViewModel() {
         viewModelScope.launch {
             val list = mutableListOf<Reply>()
             // add thread to as first reply for page 1
-            if (pageCount == 1) {
+            if (_nextPage == 1) {
                 list.add(_currentThread!!.toReply())
             }
             // TODO: handle case where thread is deleted
             try {
-                list.addAll(NMBServiceClient.getReplys(_currentThread!!.id, pageCount))
+                val thread = NMBServiceClient.getReplys(_currentThread!!.id, _nextPage)
+                _maxReply = thread.replyCount.toInt()
+                _maxPage = (maxReply / 20)
+
+                list.addAll(thread.replys!!)
             } catch (e: Exception) {
                 Timber.e(e, "reply api error")
                 _loadFail.postValue(true)
@@ -72,10 +83,12 @@ class ReplyViewModel : ViewModel() {
                     "no duplicate reply size ${noDuplicates.size}, replyIds size ${replyIds.size}"
                 )
 
-                replyList.addAll(noDuplicates)
+                // add page to Reply
+                replyList.addAll(noDuplicates.apply { map { it.page = _nextPage } })
                 _reply.postValue(replyList)
                 // TODO: updates differently with cookie
-                if (replyList.size % 20 == 1) pageCount += 1
+                if (replyList.size % 20 == 1) _nextPage += 1
+                Timber.i("NextPage: $nextPage Downloaded Replys: ${replyIds.size} replyCount(inclu. ad): $maxReply")
             } else {
                 Timber.i("Thread ${_currentThread!!.id} has no new replys.")
                 _loadEnd.postValue(true)

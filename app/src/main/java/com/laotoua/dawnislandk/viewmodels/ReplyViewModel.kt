@@ -88,7 +88,8 @@ class ReplyViewModel : ViewModel() {
                 _reply.postValue(replyList)
                 // TODO: updates differently with cookie
                 if (replyList.size % 20 == 1) _nextPage += 1
-                Timber.i("NextPage: $nextPage Downloaded Replys: ${replyIds.size} replyCount(inclu. ad): $maxReply")
+                // replyids = replysList - page(ad per page) - 1(head)
+                Timber.i("NextPage: $nextPage Downloaded Replys(exclu. ad, head): ${replyIds.size - 2} replyList: ${replyList.size} replyCount(exclu. ad): $maxReply")
             } else {
                 Timber.i("Thread ${_currentThread!!.id} has no new replys.")
                 _loadEnd.postValue(true)

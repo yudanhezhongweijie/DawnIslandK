@@ -30,7 +30,7 @@ import timber.log.Timber
 
 
 @SuppressLint("ViewConstructor")
-class CreatePopup(private val caller: Fragment, context: Context) :
+class PostPopup(private val caller: Fragment, context: Context) :
     BottomPopupView(context) {
 
     private val PERMISSIONS_STORAGE = arrayOf(
@@ -85,7 +85,7 @@ class CreatePopup(private val caller: Fragment, context: Context) :
     }
 
     override fun getImplLayoutId(): Int {
-        return R.layout.create_dialog
+        return R.layout.post_dialog
     }
 
     override fun getMaxHeight(): Int {

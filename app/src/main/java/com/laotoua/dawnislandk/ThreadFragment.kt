@@ -14,8 +14,8 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.laotoua.dawnislandk.components.CreatePopup
 import com.laotoua.dawnislandk.components.ImageViewerPopup
+import com.laotoua.dawnislandk.components.PostPopup
 import com.laotoua.dawnislandk.databinding.ThreadFragmentBinding
 import com.laotoua.dawnislandk.entities.Thread
 import com.laotoua.dawnislandk.network.ImageLoader
@@ -37,7 +37,7 @@ class ThreadFragment : Fragment() {
     private val sharedVM: SharedViewModel by activityViewModels()
     private val mAdapter = QuickAdapter(R.layout.thread_list_item)
 
-    private val dialog: BasePopupView by lazy { CreatePopup(this, requireContext()) }
+    private val dialog: BasePopupView by lazy { PostPopup(this, requireContext()) }
 
     private var isFabOpen = false
 

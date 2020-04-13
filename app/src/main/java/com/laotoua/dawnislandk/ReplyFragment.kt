@@ -15,8 +15,8 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.chad.library.adapter.base.listener.OnItemChildClickListener
-import com.laotoua.dawnislandk.components.CreatePopup
 import com.laotoua.dawnislandk.components.ImageViewerPopup
+import com.laotoua.dawnislandk.components.PostPopup
 import com.laotoua.dawnislandk.components.QuotePopup
 import com.laotoua.dawnislandk.databinding.ReplyFragmentBinding
 import com.laotoua.dawnislandk.entities.Reply
@@ -40,11 +40,9 @@ class ReplyFragment : Fragment() {
     private val sharedVM: SharedViewModel by activityViewModels()
     private val mAdapter = QuickAdapter(R.layout.reply_list_item)
 
-    private val imageLoader: ImageLoader by lazy {
-        ImageLoader(requireContext())
-    }
+    private val imageLoader: ImageLoader by lazy { ImageLoader(requireContext()) }
 
-    private val dialog: BasePopupView by lazy { CreatePopup(this, requireContext()) }
+    private val dialog: BasePopupView by lazy { PostPopup(this, requireContext()) }
 
     private val quotePopup: QuotePopup by lazy { QuotePopup(this, requireContext()) }
 

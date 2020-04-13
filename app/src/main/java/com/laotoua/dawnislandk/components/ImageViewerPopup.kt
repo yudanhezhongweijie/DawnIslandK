@@ -101,7 +101,6 @@ class ImageViewerPopup(
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
             val photoView =
                 PhotoView(container.context)
-            // call LoadImageListener
             if (imageLoader != null) imageLoader.loadImage(
                 position,
                 urls[if (isInfinite) position % urls.size else position],

@@ -51,9 +51,7 @@ class CreatePopup(private val caller: Fragment, context: Context) :
     private var selectedCookie: String? = null
 
     override fun show(): BasePopupView {
-        caller.lifecycleScope.launch {
-            loadCookies()
-        }
+        caller.lifecycleScope.launch { loadCookies() }
         return super.show()
     }
 
@@ -63,8 +61,8 @@ class CreatePopup(private val caller: Fragment, context: Context) :
             cookies = AppState.cookies!!
         }
         if (selectedCookie == null || cookies.isNullOrEmpty()) {
-            findViewById<TextView>(R.id.cookie)?.let {
-                it.text = if (cookies.isNullOrEmpty()) {
+            findViewById<TextView>(R.id.cookie)?.run {
+                text = if (cookies.isNullOrEmpty()) {
                     "没有饼干"
                 } else {
                     cookies[0].userHash
@@ -115,11 +113,11 @@ class CreatePopup(private val caller: Fragment, context: Context) :
         }
 
         findViewById<ImageButton>(R.id.expandMore).setOnClickListener {
-            findViewById<LinearLayout>(R.id.expansion).let {
-                if (it.visibility == View.VISIBLE) {
-                    it.visibility = View.GONE
+            findViewById<LinearLayout>(R.id.expansion).run {
+                visibility = if (visibility == View.VISIBLE) {
+                    View.GONE
                 } else {
-                    it.visibility = View.VISIBLE
+                    View.VISIBLE
                 }
             }
         }

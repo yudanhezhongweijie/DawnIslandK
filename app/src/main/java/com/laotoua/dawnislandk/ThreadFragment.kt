@@ -210,14 +210,14 @@ class ThreadFragment : Fragment() {
 
     // TODO refresh click
     private fun updateAppBar() {
-        requireActivity().let { activity ->
-            activity.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-            activity.collapsingToolbar.title = "A岛 • ${sharedVM.selectedForum.value?.name}"
-            activity.toolbar.setNavigationIcon(R.drawable.ic_menu)
-            activity.toolbar.setNavigationOnClickListener(null)
-            activity.toolbar.setNavigationOnClickListener {
+        requireActivity().run {
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+            collapsingToolbar.title = "A岛 • ${sharedVM.selectedForum.value?.name}"
+            toolbar.setNavigationIcon(R.drawable.ic_menu)
+            toolbar.setNavigationOnClickListener(null)
+            toolbar.setNavigationOnClickListener {
                 Timber.i("navigation")
-                activity.drawerLayout.openDrawer(GravityCompat.START)
+                drawerLayout.openDrawer(GravityCompat.START)
 
             }
         }

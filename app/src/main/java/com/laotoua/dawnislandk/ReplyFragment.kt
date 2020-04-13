@@ -231,13 +231,13 @@ class ReplyFragment : Fragment() {
     // TODO refresh click
     private fun updateAppBar() {
 
-        requireActivity().let { activity ->
-            activity.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-            activity.collapsingToolbar.title =
+        requireActivity().run {
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+            collapsingToolbar.title =
                 "A岛 • ${sharedVM.selectedForum.value!!.name} • ${sharedVM.selectedThread.value?.id}"
-            activity.toolbar.setNavigationIcon(R.drawable.ic_arrow_back)
-            activity.toolbar.setNavigationOnClickListener(null)
-            activity.toolbar.setNavigationOnClickListener {
+            toolbar.setNavigationIcon(R.drawable.ic_arrow_back)
+            toolbar.setNavigationOnClickListener(null)
+            toolbar.setNavigationOnClickListener {
                 findNavController().popBackStack()
             }
         }

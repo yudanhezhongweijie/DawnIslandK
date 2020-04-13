@@ -10,7 +10,6 @@ import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import android.util.DisplayMetrics
-import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.widget.TextView
@@ -85,7 +84,7 @@ fun removeQuote(content: String): String {
     return regex.replace(content, "")
 }
 
-// TODO: support [h][/h]
+
 fun transformContent(content: String): SpannableStringBuilder {
 
     val nonHide = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -94,9 +93,7 @@ fun transformContent(content: String): SpannableStringBuilder {
         SpannableStringBuilder(Html.fromHtml(content))
     }
 
-//    return transformHideContent(nonHide)
-    return nonHide
-
+    return transformHideContent(nonHide)
 }
 
 fun transformHideContent(content: SpannableStringBuilder): SpannableStringBuilder {
@@ -128,7 +125,6 @@ fun transformHideContent(content: SpannableStringBuilder): SpannableStringBuilde
                 if (widget is TextView) {
                     val charSequence = widget.text
                     if (charSequence is Spannable) {
-                        Log.d("SPAN TEST", "CLICKEDDDD")
                         charSequence.removeSpan(backgroundColorSpan)
                         charSequence.removeSpan(foregroundColorSpan)
                         widget.highlightColor = Color.TRANSPARENT

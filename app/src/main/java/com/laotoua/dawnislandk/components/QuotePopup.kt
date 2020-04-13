@@ -1,5 +1,6 @@
 package com.laotoua.dawnislandk.components
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -22,6 +23,7 @@ import kotlinx.android.synthetic.main.quote_list_item.view.*
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
+@SuppressLint("ViewConstructor")
 class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupView(context) {
 
     private val imageLoader: ImageLoader by lazy { ImageLoader(context) }

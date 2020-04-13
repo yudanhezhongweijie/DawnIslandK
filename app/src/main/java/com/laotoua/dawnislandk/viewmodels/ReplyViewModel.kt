@@ -21,8 +21,14 @@ class ReplyViewModel : ViewModel() {
     private var _reply = MutableLiveData<List<Reply>>()
     val reply: LiveData<List<Reply>>
         get() = _reply
+
+    // page for new download
     private var _nextPage = 1
     val nextPage get() = _nextPage
+
+    // page to record current browser location
+    private var _currentPage = 1
+    val currentPage get() = _currentPage
 
     private var _maxPage = 1
     val maxPage get() = _maxPage
@@ -64,7 +70,7 @@ class ReplyViewModel : ViewModel() {
             try {
                 val thread = NMBServiceClient.getReplys(_currentThread!!.id, _nextPage)
                 _maxReply = thread.replyCount.toInt()
-                _maxPage = (maxReply / 20)
+                _maxPage = 1.coerceAtLeast(kotlin.math.ceil(maxReply.toDouble() / 20).toInt())
 
                 list.addAll(thread.replys!!)
             } catch (e: Exception) {
@@ -88,8 +94,8 @@ class ReplyViewModel : ViewModel() {
                 _reply.postValue(replyList)
                 // TODO: updates differently with cookie
                 if (replyList.size % 20 == 1) _nextPage += 1
-                // replyids = replysList - page(ad per page) - 1(head)
-                Timber.i("NextPage: $nextPage Downloaded Replys(exclu. ad, head): ${replyIds.size - 2} replyList: ${replyList.size} replyCount(exclu. ad): $maxReply")
+                // replyIds = replysList - page(ad per page) - 1(head)
+                Timber.i("NextPage: $nextPage Downloaded Replys(w/o. ad, head): ${replyIds.size - 2} replyList: ${replyList.size} replyCount(w/o. ad): $maxReply")
             } else {
                 Timber.i("Thread ${_currentThread!!.id} has no new replys.")
                 _loadEnd.postValue(true)

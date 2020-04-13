@@ -16,6 +16,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.chad.library.adapter.base.listener.OnItemChildClickListener
 import com.laotoua.dawnislandk.components.ImageViewerPopup
+import com.laotoua.dawnislandk.components.JumpPopup
 import com.laotoua.dawnislandk.components.PostPopup
 import com.laotoua.dawnislandk.components.QuotePopup
 import com.laotoua.dawnislandk.databinding.ReplyFragmentBinding
@@ -26,7 +27,6 @@ import com.laotoua.dawnislandk.util.extractQuoteId
 import com.laotoua.dawnislandk.viewmodels.ReplyViewModel
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import com.lxj.xpopup.XPopup
-import com.lxj.xpopup.core.BasePopupView
 import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
 
@@ -42,9 +42,11 @@ class ReplyFragment : Fragment() {
 
     private val imageLoader: ImageLoader by lazy { ImageLoader(requireContext()) }
 
-    private val dialog: BasePopupView by lazy { PostPopup(this, requireContext()) }
+    private val postPopup: PostPopup by lazy { PostPopup(this, requireContext()) }
 
     private val quotePopup: QuotePopup by lazy { QuotePopup(this, requireContext()) }
+
+    private val jumpPopup: JumpPopup by lazy { JumpPopup(this, requireContext()) }
 
     private var isFabOpen = false
 
@@ -169,13 +171,23 @@ class ReplyFragment : Fragment() {
             hideMenu()
 
             XPopup.Builder(context)
-                .asCustom(dialog)
+                .asCustom(postPopup)
                 .show()
         }
 
         binding.jump.setOnClickListener {
             Timber.i("Clicked on jump")
             hideMenu()
+            jumpPopup.currentPage = viewModel.currentPage
+            jumpPopup.maxPage = viewModel.maxPage
+            XPopup.Builder(context)
+                .asCustom(jumpPopup)
+                .show()
+                .dismissWith {
+                    if (jumpPopup.submit) {
+                        Timber.i("jump dest: ${jumpPopup.targetPage}")
+                    }
+                }
         }
 
         binding.onlyPo.setOnClickListener {

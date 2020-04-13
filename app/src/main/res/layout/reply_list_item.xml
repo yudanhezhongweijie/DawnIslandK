@@ -56,7 +56,7 @@
         android:layout_marginTop="6dp"
         android:text="测试测试测试"
         android:textColor="@color/mainContentTextColor"
-        android:textIsSelectable="false"
+        android:textIsSelectable="true"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

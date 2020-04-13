@@ -74,11 +74,10 @@ class ReplyFragment : Fragment() {
                 adapter, view, position ->
             hideMenu()
             Timber.d("onItemClick $position")
-
         }
 
         // image
-        mAdapter.addChildClickViewIds(R.id.replyImage)
+        mAdapter.addChildClickViewIds(R.id.replyImage, R.id.replyId)
         mAdapter.setOnItemChildClickListener { adapter, view, position ->
             if (view.id == R.id.replyImage) {
                 hideMenu()
@@ -95,10 +94,12 @@ class ReplyFragment : Fragment() {
                 XPopup.Builder(context)
                     .asCustom(viewerPopup)
                     .show()
+            } else if (view.id == R.id.replyId) {
+                // TODO
+                val replyId = (view as TextView).text
+                Timber.i("replyid: $replyId")
             }
-
         }
-
 
         mAdapter.addCustomChildIds(R.id.quoteId)
         mAdapter.setCustomQuoteClickListener(

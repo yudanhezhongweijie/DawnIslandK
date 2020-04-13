@@ -3,6 +3,7 @@ package com.laotoua.dawnislandk.util
 import android.graphics.Color
 import android.text.SpannableString
 import android.text.Spanned
+import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -124,7 +125,7 @@ class QuickAdapter(private val layoutResId: Int) :
             card.setGone(R.id.threadImage, true)
         }
 
-        // TODO: handle quotation
+
         val quotes = extractQuote(item.content)
         val quotesContainer: LinearLayout = card.getView(R.id.threadQuotes)
         quotesContainer.removeAllViews()
@@ -195,6 +196,10 @@ class QuickAdapter(private val layoutResId: Int) :
         }
 
         card.setText(R.id.replyContent, transformContent(removeQuote(item.content)))
+        /**
+         *  special handler for clickable spans
+         */
+        card.getView<TextView>(R.id.replyContent).movementMethod = LinkMovementMethod.getInstance()
     }
 
 

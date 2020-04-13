@@ -4,7 +4,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.laotoua.dawnislandk.entities.Community
 import com.laotoua.dawnislandk.entities.Reply
-import com.laotoua.dawnislandk.entities.ThreadList
+import com.laotoua.dawnislandk.entities.Thread
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
@@ -40,15 +40,15 @@ object NMBServiceClient {
         return parser.fromJson(response.string(), object : TypeToken<List<Community>>() {}.type)
     }
 
-    private fun parseThreads(response: ResponseBody): List<ThreadList> {
-        return parser.fromJson(response.string(), object : TypeToken<List<ThreadList>>() {}.type)
+    private fun parseThreads(response: ResponseBody): List<Thread> {
+        return parser.fromJson(response.string(), object : TypeToken<List<Thread>>() {}.type)
     }
 
     private fun parseReplys(response: ResponseBody): List<Reply> {
         return (parser.fromJson(
             response.string(),
-            object : TypeToken<ThreadList>() {}.type
-        ) as ThreadList).replys!!
+            object : TypeToken<Thread>() {}.type
+        ) as Thread).replys!!
     }
 
     private fun parseQuote(response: ResponseBody): Reply {
@@ -57,7 +57,7 @@ object NMBServiceClient {
 
 
     // TODO: handle case where thread is deleted
-    suspend fun getThreads(fid: String, page: Int): List<ThreadList> {
+    suspend fun getThreads(fid: String, page: Int): List<Thread> {
         try {
             val rawResponse =
                 withContext(Dispatchers.IO) {

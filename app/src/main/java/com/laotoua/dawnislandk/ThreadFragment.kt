@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.laotoua.dawnislandk.components.CreatePopup
 import com.laotoua.dawnislandk.components.ImageViewerPopup
 import com.laotoua.dawnislandk.databinding.ThreadFragmentBinding
-import com.laotoua.dawnislandk.entities.ThreadList
+import com.laotoua.dawnislandk.entities.Thread
 import com.laotoua.dawnislandk.network.ImageLoader
 import com.laotoua.dawnislandk.util.QuickAdapter
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
@@ -62,7 +62,7 @@ class ThreadFragment : Fragment() {
         // item click
         mAdapter.setOnItemClickListener { adapter, _, position ->
             hideMenu()
-            sharedVM.setThreadList(adapter.getItem(position) as ThreadList)
+            sharedVM.setThreadList(adapter.getItem(position) as Thread)
             val action = PagerFragmentDirections.actionPagerFragmentToReplyFragment()
             findNavController().navigate(action)
 
@@ -79,7 +79,7 @@ class ThreadFragment : Fragment() {
                 Timber.i("clicked on image at $position")
                 val url = (adapter.getItem(
                     position
-                ) as ThreadList).getImgUrl()
+                ) as Thread).getImgUrl()
 
                 // TODO support multiple image
                 val viewerPopup =

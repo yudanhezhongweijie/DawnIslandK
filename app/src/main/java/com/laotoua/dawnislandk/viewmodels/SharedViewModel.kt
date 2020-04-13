@@ -4,14 +4,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.laotoua.dawnislandk.entities.Forum
-import com.laotoua.dawnislandk.entities.ThreadList
+import com.laotoua.dawnislandk.entities.Thread
 import timber.log.Timber
 
 class SharedViewModel : ViewModel() {
     private var _selectedForum = MutableLiveData<Forum>()
     val selectedForum: LiveData<Forum> get() = _selectedForum
-    private var _selectedThreadList = MutableLiveData<ThreadList>()
-    val selectedThreadList: LiveData<ThreadList> get() = _selectedThreadList
+    private var _selectedThreadList = MutableLiveData<Thread>()
+    val selectedThread: LiveData<Thread> get() = _selectedThreadList
 
     private var forumNameMapping = mapOf<String, String>()
 
@@ -28,7 +28,7 @@ class SharedViewModel : ViewModel() {
         _selectedForum.postValue(f)
     }
 
-    fun setThreadList(t: ThreadList) {
+    fun setThreadList(t: Thread) {
         Timber.i("set thread to id: ${t.id}")
         _selectedThreadList.postValue(t)
     }
@@ -43,7 +43,7 @@ class SharedViewModel : ViewModel() {
 
     // TODO: support multiple Po
     fun getPo(): String {
-        return selectedThreadList.value!!.userid
+        return selectedThread.value!!.userid
     }
 
 }

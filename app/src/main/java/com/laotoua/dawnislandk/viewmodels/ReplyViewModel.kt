@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.entities.Reply
-import com.laotoua.dawnislandk.entities.ThreadList
+import com.laotoua.dawnislandk.entities.Thread
 import com.laotoua.dawnislandk.network.NMBServiceClient
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -14,8 +14,8 @@ class ReplyViewModel : ViewModel() {
 //    private var dao: ReplyDao? = null
 
 
-    private var _currentThread: ThreadList? = null
-    val currentThread: ThreadList? get() = _currentThread
+    private var _currentThread: Thread? = null
+    val currentThread: Thread? get() = _currentThread
     private val replyList = mutableListOf<Reply>()
     private val replyIds = mutableSetOf<String>()
     private var _reply = MutableLiveData<List<Reply>>()
@@ -31,7 +31,7 @@ class ReplyViewModel : ViewModel() {
     val loadEnd: LiveData<Boolean>
         get() = _loadEnd
 
-    fun setThread(f: ThreadList) {
+    fun setThread(f: Thread) {
         if (f.id == currentThread?.id ?: "") return
         Timber.i("$f vs $currentThread Thread has changed... Clearing old data")
         replyList.clear()

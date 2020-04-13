@@ -137,7 +137,7 @@ class ReplyFragment : Fragment() {
 
         })
 
-        sharedVM.selectedThreadList.observe(viewLifecycleOwner, Observer {
+        sharedVM.selectedThread.observe(viewLifecycleOwner, Observer {
             Timber.i(
                 "shared VM change observed in Reply Fragment with data ${it.id}"
             )
@@ -234,7 +234,7 @@ class ReplyFragment : Fragment() {
         requireActivity().let { activity ->
             activity.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             activity.collapsingToolbar.title =
-                "A岛 • ${sharedVM.selectedForum.value!!.name} • ${sharedVM.selectedThreadList.value?.id}"
+                "A岛 • ${sharedVM.selectedForum.value!!.name} • ${sharedVM.selectedThread.value?.id}"
             activity.toolbar.setNavigationIcon(R.drawable.ic_arrow_back)
             activity.toolbar.setNavigationOnClickListener(null)
             activity.toolbar.setNavigationOnClickListener {

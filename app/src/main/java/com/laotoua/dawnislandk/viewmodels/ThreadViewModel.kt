@@ -5,17 +5,17 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.entities.Forum
-import com.laotoua.dawnislandk.entities.ThreadList
+import com.laotoua.dawnislandk.entities.Thread
 import com.laotoua.dawnislandk.network.NMBServiceClient
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class ThreadViewModel : ViewModel() {
 
-    private val threadList = mutableListOf<ThreadList>()
+    private val threadList = mutableListOf<Thread>()
     private val threadIds = mutableSetOf<String>()
-    private var _thread = MutableLiveData<List<ThreadList>>()
-    val thread: LiveData<List<ThreadList>>
+    private var _thread = MutableLiveData<List<Thread>>()
+    val thread: LiveData<List<Thread>>
         get() = _thread
     private var _currentForum: Forum? = null
     val currentForum: Forum? get() = _currentForum

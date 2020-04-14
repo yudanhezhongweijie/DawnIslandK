@@ -13,7 +13,6 @@ import timber.log.Timber
 class ReplyViewModel : ViewModel() {
 //    private var dao: ReplyDao? = null
 
-
     private var _currentThread: Thread? = null
     val currentThread: Thread? get() = _currentThread
     private val replyList = mutableListOf<Reply>()
@@ -22,19 +21,11 @@ class ReplyViewModel : ViewModel() {
     val reply: LiveData<List<Reply>>
         get() = _reply
 
-    // page for new download
-    private var _nextPage = 1
-    val nextPage get() = _nextPage
+    var fullPage = false
 
-    // page to record current browser location
-    private var _currentPage = 1
-    val currentPage get() = _currentPage
+    private var maxReply = 0
 
-    private var _maxPage = 1
-    val maxPage get() = _maxPage
-
-    private var _maxReply = 0
-    val maxReply get() = _maxReply
+    val maxPage get() = 1.coerceAtLeast(kotlin.math.ceil(maxReply.toDouble() / 19).toInt())
 
     // flags to indicate status of loading reply
     private var _loadFail = MutableLiveData(false)
@@ -44,6 +35,11 @@ class ReplyViewModel : ViewModel() {
     val loadEnd: LiveData<Boolean>
         get() = _loadEnd
 
+    enum class DIRECTION {
+        NEXT,
+        PREVIOUS
+    }
+
     fun setThread(f: Thread) {
         if (f.id == currentThread?.id ?: "") return
         Timber.i("Thread has changed... Clearing old data")
@@ -51,27 +47,54 @@ class ReplyViewModel : ViewModel() {
         replyIds.clear()
         Timber.i("Setting new Thread: ${f.id}")
         _currentThread = f
-        _nextPage = 1
-        getReplys()
+        getNextPage()
     }
 
-    fun getReplys() {
+    fun getNextPage() {
+        var page = 1
+        if (replyList.isNotEmpty()) page = replyList.last().page!!
+        if (fullPage) page += 1
+        getReplys(page, DIRECTION.NEXT)
+    }
+
+    fun getPreviousPage() {
+        if (replyList.isEmpty()) {
+            Timber.i("Refreshing without data?")
+            return
+        }
+        val page = replyList.first().page!!.toInt()
+        if (page == 1) {
+            Timber.i("Already first page")
+            return
+        }
+
+        getReplys(page - 1, DIRECTION.PREVIOUS)
+    }
+
+    fun jumpTo(page: Int) {
+        Timber.i("Jumping to page $page... Clearing old data")
+        replyList.clear()
+        replyIds.clear()
+        getReplys(page, DIRECTION.NEXT)
+    }
+
+    private fun getReplys(page: Int, direction: DIRECTION) {
         if (_currentThread == null) {
             Timber.e("Trying to read replys without selected forum")
             return
         }
+
         viewModelScope.launch {
             val list = mutableListOf<Reply>()
             // add thread to as first reply for page 1
-            if (_nextPage == 1) {
-                list.add(_currentThread!!.toReply())
+            if (page == 1) {
+                replyList.add(0, _currentThread!!.toReply())
             }
             // TODO: handle case where thread is deleted
 
             try {
-                val thread = NMBServiceClient.getReplys(_currentThread!!.id, _nextPage)
-                _maxReply = thread.replyCount.toInt()
-                _maxPage = 1.coerceAtLeast(kotlin.math.ceil(maxReply.toDouble() / 20).toInt())
+                val thread = NMBServiceClient.getReplys(_currentThread!!.id, page)
+                maxReply = thread.replyCount.toInt()
 
                 list.addAll(thread.replys!!)
             } catch (e: Exception) {
@@ -79,7 +102,6 @@ class ReplyViewModel : ViewModel() {
                 _loadFail.postValue(true)
                 return@launch
             }
-
             val noDuplicates = list.filterNot { replyIds.contains(it.id) && it.id != "9999999" }
 
             if (noDuplicates.isNotEmpty() &&
@@ -91,15 +113,25 @@ class ReplyViewModel : ViewModel() {
                 )
 
                 // add page to Reply
-                replyList.addAll(noDuplicates.apply { map { it.page = _nextPage } })
+                noDuplicates.apply { map { it.page = page } }.let {
+                    if (direction == DIRECTION.NEXT) {
+                        replyList.addAll(it)
+                    } else {
+                        val insertInd = if (page == 1) 1 else 0
+                        replyList.addAll(insertInd, it)
+                    }
+                }
+
                 _reply.postValue(replyList)
 
                 /**
                  *  w. cookie, responses have 20 reply w. ad, or 19 reply w/o ad
                  *  w/o cookie, always have 20 reply w. ad
+                 *  MARK full page for next page load
                  */
-                if (list.size == 20 || (list.size == 19 && list.first().id != "9999999")) _nextPage += 1
-                Timber.i("NextPage: $nextPage ReplyIds(w. ad, head): ${replyIds.size} replyList: ${replyList.size} replyCount: $maxReply")
+                fullPage = (list.size == 20 || (list.size == 19 && list.first().id != "9999999"))
+
+                Timber.i("CurrentPage: ${replyList.last().page!!} ReplyIds(w. ad, head): ${replyIds.size} replyList: ${replyList.size} replyCount: $maxReply")
             } else {
                 Timber.i("Thread ${_currentThread!!.id} has no new replys.")
                 _loadEnd.postValue(true)

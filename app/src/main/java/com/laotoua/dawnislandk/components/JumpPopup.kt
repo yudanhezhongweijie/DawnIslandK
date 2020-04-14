@@ -10,7 +10,6 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import com.laotoua.dawnislandk.R
 import com.lxj.xpopup.core.CenterPopupView
-import timber.log.Timber
 
 class JumpPopup(private val caller: Fragment, context: Context) : CenterPopupView(context) {
     var currentPage = 1
@@ -27,7 +26,6 @@ class JumpPopup(private val caller: Fragment, context: Context) : CenterPopupVie
 
     override fun onCreate() {
         super.onCreate()
-        Timber.i("current $currentPage max $maxPage")
         findViewById<ConstraintLayout>(R.id.pageCountContainer).let {
             findViewById<TextView>(R.id.currentPage).text = currentPage.toString()
             findViewById<TextView>(R.id.maxPage).text = maxPage.toString()
@@ -65,5 +63,14 @@ class JumpPopup(private val caller: Fragment, context: Context) : CenterPopupVie
 
     private fun updateInput() {
         pageInput.setText(targetPage.toString(), TextView.BufferType.EDITABLE);
+    }
+
+    fun updatePages(current: Int, max: Int) {
+        currentPage = current
+        maxPage = max
+        findViewById<ConstraintLayout>(R.id.pageCountContainer)?.let {
+            findViewById<TextView>(R.id.currentPage).text = currentPage.toString()
+            findViewById<TextView>(R.id.maxPage).text = maxPage.toString()
+        }
     }
 }

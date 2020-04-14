@@ -118,7 +118,7 @@ class ReplyFragment : Fragment() {
         // load more
         mAdapter.loadMoreModule.setOnLoadMoreListener {
             Timber.i("Fetching new data...")
-            viewModel.getReplys()
+            viewModel.getNextPage()
         }
 
         viewModel.loadEnd.observe(viewLifecycleOwner, Observer {
@@ -136,10 +136,16 @@ class ReplyFragment : Fragment() {
         })
 
         viewModel.reply.observe(viewLifecycleOwner, Observer { it ->
+
             mAdapter.setDiffNewData(it as MutableList<Any>)
             mAdapter.loadMoreModule.loadMoreComplete()
             Timber.i("New data found. Adapter now have ${mAdapter.data.size} threads")
-
+            if (binding.refreshLayout.isRefreshing) {
+//                Timber.i("adapter data:")
+//                mAdapter.data.map { Timber.i("id ${(it as Reply).id}") }
+//                mAdapter.notifyItemRangeInserted(0,20)
+                binding.refreshLayout.refreshComplete()
+            }
         })
 
         sharedVM.selectedThread.observe(viewLifecycleOwner, Observer {
@@ -153,7 +159,6 @@ class ReplyFragment : Fragment() {
             }
 
         })
-
         binding.replysView.setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
             if (scrollY < oldScrollY) {
                 binding.fabMenu.show()
@@ -181,16 +186,20 @@ class ReplyFragment : Fragment() {
         }
 
         binding.jump.setOnClickListener {
-            Timber.i("Clicked on jump")
             hideMenu()
-            jumpPopup.currentPage = viewModel.currentPage
-            jumpPopup.maxPage = viewModel.maxPage
+            val pos = 1.coerceAtLeast(
+                (binding.replysView.layoutManager as LinearLayoutManager)
+                    .findLastCompletelyVisibleItemPosition()
+            )
+            val page = (mAdapter.getItem(pos) as Reply).page!!
+            jumpPopup.updatePages(page, viewModel.maxPage)
             XPopup.Builder(context)
                 .asCustom(jumpPopup)
                 .show()
                 .dismissWith {
                     if (jumpPopup.submit) {
-                        Timber.i("jump dest: ${jumpPopup.targetPage}")
+                        mAdapter.setDiffNewData(ArrayList())
+                        viewModel.jumpTo(jumpPopup.targetPage)
                     }
                 }
         }
@@ -204,7 +213,9 @@ class ReplyFragment : Fragment() {
         binding.refreshLayout.setHeaderView(ClassicHeader<IIndicator>(context))
         binding.refreshLayout.setOnRefreshListener(object : RefreshingListenerAdapter() {
             override fun onRefreshing() {
+                // TODO: added refresh timeout
                 Timber.i("refreshing~")
+                viewModel.getPreviousPage()
             }
         })
 

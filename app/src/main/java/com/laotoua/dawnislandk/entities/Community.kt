@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName
 import com.google.gson.reflect.TypeToken
 
 @Entity(tableName = "community")
-class Community(
+data class Community(
 
     @PrimaryKey
     @SerializedName("id")

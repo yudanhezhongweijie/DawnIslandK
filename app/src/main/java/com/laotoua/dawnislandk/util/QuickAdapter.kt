@@ -20,7 +20,6 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.components.ThreadCardFactory
 import com.laotoua.dawnislandk.components.span.RoundBackgroundColorSpan
-import com.laotoua.dawnislandk.entities.Forum
 import com.laotoua.dawnislandk.entities.Reply
 import com.laotoua.dawnislandk.entities.ThreadList
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
@@ -57,9 +56,7 @@ class QuickAdapter(private val layoutResId: Int) :
      */
     override fun convert(helper: BaseViewHolder, item: Any) {
 
-        if (layoutResId == R.layout.forum_list_item && item is Forum) {
-            convertForum(helper, item)
-        } else if (layoutResId == R.layout.thread_list_item && item is ThreadList) {
+        if (layoutResId == R.layout.thread_list_item && item is ThreadList) {
             convertThread(helper, item, sharedViewModel.getForumDisplayName(item.fid!!))
         } else if (layoutResId == R.layout.reply_list_item && item is Reply) {
             convertReply(helper, item, sharedViewModel.getPo())
@@ -74,20 +71,6 @@ class QuickAdapter(private val layoutResId: Int) :
             super.onCreateDefViewHolder(parent, layoutResId)
         }
     }
-
-    private fun convertForum(card: BaseViewHolder, item: Forum) {
-        // special handling for drawable resource ID, which cannot have -
-        val biId = if (item.id.toInt() > 0) item.id.toInt() else 1
-        val resourceId: Int = context.resources.getIdentifier(
-            "bi_$biId", "drawable",
-            context.packageName
-        )
-        card.setImageResource(R.id.forumIcon, resourceId)
-
-        card.setText(R.id.forumName, transformForumName(item.getDisplayName()))
-
-    }
-
 
     private fun convertThread(card: BaseViewHolder, item: ThreadList, forumDisplayName: String) {
 
@@ -256,7 +239,6 @@ class DiffCallback : DiffUtil.ItemCallback<Any>() {
         newItem: Any
     ): Boolean {
         return when {
-            (oldItem is Forum && newItem is Forum) -> oldItem.id == newItem.id
             (oldItem is ThreadList && newItem is ThreadList) -> oldItem.id == newItem.id && oldItem.fid == newItem.fid
             (oldItem is Reply && newItem is Reply) -> oldItem.id == newItem.id
             else -> {
@@ -279,11 +261,6 @@ class DiffCallback : DiffUtil.ItemCallback<Any>() {
         newItem: Any
     ): Boolean {
         return when {
-            (oldItem is Forum && newItem is Forum) -> {
-                oldItem.name == newItem.name
-                        && oldItem.showName == newItem.showName
-                        && oldItem.msg == newItem.msg
-            }
             (oldItem is ThreadList && newItem is ThreadList) -> {
                 oldItem.sage == newItem.sage
                         && oldItem.replyCount == newItem.replyCount

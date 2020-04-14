@@ -23,15 +23,15 @@ object NMBServiceClient {
         try {
             val rawResponse =
                 withContext(Dispatchers.IO) {
-                    Timber.i("downloading forums...")
+                    Timber.i("downloading communities...")
                     service.getNMBForumList().execute().body()!!
                 }
             return withContext(Dispatchers.Default) {
-                Timber.i("parsing forums...")
+                Timber.i("parsing communities...")
                 parseCommunities(rawResponse)
             }
         } catch (e: Exception) {
-            Timber.e(e, "Failed to get forums")
+            Timber.e(e, "Failed to get communities")
             throw e
         }
     }

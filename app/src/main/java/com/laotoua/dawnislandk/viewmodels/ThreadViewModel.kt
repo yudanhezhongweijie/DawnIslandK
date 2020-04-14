@@ -38,7 +38,7 @@ class ThreadViewModel : ViewModel() {
                     )
                     threadList.addAll(noDuplicates)
                     Timber.i(
-                        "Forum ${currentForum?.getDisplayName()} now have ${threadList.size} threads"
+                        "Forum ${currentForum?.name} now have ${threadList.size} threads"
                     )
                     _thread.postValue(threadList)
                     _loadFail.postValue(false)

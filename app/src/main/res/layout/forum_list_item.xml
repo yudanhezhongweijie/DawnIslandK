@@ -14,10 +14,10 @@
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_gravity="center"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="30dp"
+        android:contentDescription="forumIcon"
         android:padding="4dp"
-        android:tint="#828282"
-        android:contentDescription="forumIcon" />
+        android:tint="#828282" />
 
     <TextView
         android:id="@+id/forumName"

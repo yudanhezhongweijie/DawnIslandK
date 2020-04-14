@@ -67,11 +67,10 @@ class CommunityViewModel : ViewModel() {
     }
 
     fun getForumNameMapping(): Map<String, String> {
-        communityList.value!!.flatMap { it -> it.forums }.let { list ->
-            return list.associateBy(
-                keySelector = { it.id },
-                valueTransform = { it.name })
-        }
+        return communityList.value?.flatMap { it.forums }?.associateBy(
+            keySelector = { it.id },
+            valueTransform = { it.name }) ?: mapOf()
+
     }
 
 }

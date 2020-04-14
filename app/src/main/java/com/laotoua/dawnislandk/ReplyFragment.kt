@@ -1,5 +1,6 @@
 package com.laotoua.dawnislandk
 
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -23,11 +24,15 @@ import com.laotoua.dawnislandk.databinding.ReplyFragmentBinding
 import com.laotoua.dawnislandk.entities.Reply
 import com.laotoua.dawnislandk.network.ImageLoader
 import com.laotoua.dawnislandk.util.QuickAdapter
+import com.laotoua.dawnislandk.util.ToolbarUtil
 import com.laotoua.dawnislandk.util.extractQuoteId
 import com.laotoua.dawnislandk.viewmodels.ReplyViewModel
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import com.lxj.xpopup.XPopup
 import kotlinx.android.synthetic.main.activity_main.*
+import me.dkzwm.widget.srl.RefreshingListenerAdapter
+import me.dkzwm.widget.srl.extra.header.ClassicHeader
+import me.dkzwm.widget.srl.indicator.IIndicator
 import timber.log.Timber
 
 
@@ -195,6 +200,14 @@ class ReplyFragment : Fragment() {
             hideMenu()
         }
 
+
+        binding.refreshLayout.setHeaderView(ClassicHeader<IIndicator>(context))
+        binding.refreshLayout.setOnRefreshListener(object : RefreshingListenerAdapter() {
+            override fun onRefreshing() {
+                Timber.i("refreshing~")
+            }
+        })
+
         updateAppBar()
         return binding.root
     }
@@ -207,6 +220,7 @@ class ReplyFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         Timber.d("Reply Fragment destroyed!")
+        ToolbarUtil.enableCollapse(requireActivity(), "")
     }
 
 
@@ -243,8 +257,9 @@ class ReplyFragment : Fragment() {
 
         requireActivity().run {
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-            collapsingToolbar.title =
+            val title =
                 "A岛 • ${sharedVM.selectedForum.value!!.name} • ${sharedVM.selectedThread.value?.id}"
+            ToolbarUtil.disableCollapse(this, title)
             toolbar.setNavigationIcon(R.drawable.ic_arrow_back)
             toolbar.setNavigationOnClickListener(null)
             toolbar.setNavigationOnClickListener {

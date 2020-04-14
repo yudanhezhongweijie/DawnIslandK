@@ -15,7 +15,7 @@
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/dawnAppbar"
             android:layout_width="match_parent"
-            android:layout_height="180dp"
+            android:layout_height="@dimen/toolbar_expanded_height"
             android:fitsSystemWindows="true">
 
             <com.google.android.material.appbar.CollapsingToolbarLayout

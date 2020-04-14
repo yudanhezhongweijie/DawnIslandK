@@ -29,8 +29,6 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setSupportActionBar(binding.toolbar)
-
         initStatusBar()
 
         setUpForumDrawer()

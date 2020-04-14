@@ -4,46 +4,46 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.laotoua.dawnislandk.entities.Forum
-import com.laotoua.dawnislandk.entities.ForumDao
+import com.laotoua.dawnislandk.entities.Community
+import com.laotoua.dawnislandk.entities.CommunityDao
 import com.laotoua.dawnislandk.network.NMBServiceClient
 import com.laotoua.dawnislandk.util.AppState
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-class ForumViewModel : ViewModel() {
-    private val dao: ForumDao = AppState.DB.forumDao()
+class CommunityViewModel : ViewModel() {
+    private val dao: CommunityDao = AppState.DB.communityDao()
 
-    private var _forumList = MutableLiveData<List<Forum>>()
-    val forumList: LiveData<List<Forum>>
-        get() = _forumList
+    private var _communityList = MutableLiveData<List<Community>>()
+    val communityList: LiveData<List<Community>>
+        get() = _communityList
     private var _loadFail = MutableLiveData(false)
     val loadFail: LiveData<Boolean>
         get() = _loadFail
 
 
-    fun getForums() {
+    fun getCommunities() {
         viewModelScope.launch {
             try {
-                val list = NMBServiceClient.getForums()
-                Timber.i("Downloaded forums size ${list.size}")
+                val list = NMBServiceClient.getCommunities()
+                Timber.i("Downloaded communities size ${list.size}")
                 if (list.isEmpty()) {
-                    Timber.d("Didn't get forums from API")
+                    Timber.d("Didn't get communities from API")
                     return@launch
                 }
 
-                if (list != forumList.value) {
-                    Timber.i("Forum list has changed. updating...")
-                    _forumList.postValue(list)
+                if (list != communityList.value) {
+                    Timber.i("Community list has changed. updating...")
+                    _communityList.postValue(list)
                     _loadFail.postValue(false)
 
                     // save to local db
                     saveToDB(list)
                 } else {
-                    Timber.i("Forum list is the same as Db. Reusing...")
+                    Timber.i("Community list is the same as Db. Reusing...")
                 }
             } catch (e: Exception) {
-                Timber.e(e, "failed to get forums")
+                Timber.e(e, "failed to get communities")
                 _loadFail.postValue(true)
             }
         }
@@ -52,27 +52,26 @@ class ForumViewModel : ViewModel() {
     fun loadFromDB() {
         viewModelScope.launch {
             dao.getAll().let {
-                if (it.size ?: 0 > 0) {
-                    Timber.i("Loaded ${it.size} forums from db")
-                    _forumList.postValue(it)
+                if (it.isNotEmpty()) {
+                    Timber.i("Loaded ${it.size} communities from db")
+                    _communityList.postValue(it)
                 } else {
-                    Timber.i("Db has no data about forums")
+                    Timber.i("Db has no data about communities")
                 }
             }
         }
     }
 
-    private suspend fun saveToDB(list: List<Forum>) {
+    private suspend fun saveToDB(list: List<Community>) {
         dao.insertAll(list)
     }
 
     fun getForumNameMapping(): Map<String, String> {
-        forumList.value?.let { list ->
+        communityList.value!!.flatMap { it -> it.forums }.let { list ->
             return list.associateBy(
                 keySelector = { it.id },
                 valueTransform = { it.name })
         }
-        return mapOf()
     }
 
 }

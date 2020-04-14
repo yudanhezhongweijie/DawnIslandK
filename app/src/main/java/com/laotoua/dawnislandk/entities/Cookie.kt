@@ -6,10 +6,8 @@ import androidx.room.*
 data class Cookie(
 
     @PrimaryKey
-    @ColumnInfo(name = "userhash")
     val userHash: String,
 
-    @ColumnInfo(name = "cookiename")
     val cookieName: String
 )
 

@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
 import com.laotoua.dawnislandk.entities.Forum
 import com.laotoua.dawnislandk.util.QuickAdapter
-import com.laotoua.dawnislandk.viewmodels.ForumViewModel
+import com.laotoua.dawnislandk.viewmodels.CommunityViewModel
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import timber.log.Timber
 
@@ -18,7 +18,7 @@ import timber.log.Timber
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private val forumVM: ForumViewModel by viewModels()
+    private val communityVM: CommunityViewModel by viewModels()
     private val sharedVM: SharedViewModel by viewModels()
 
     private val mAdapter = QuickAdapter(R.layout.forum_list_item)
@@ -54,8 +54,8 @@ class MainActivity : AppCompatActivity() {
     private fun setUpForumDrawer() {
 
         // TODO added repository
-        forumVM.loadFromDB()
-        forumVM.getForums()
+        communityVM.loadFromDB()
+        communityVM.getCommunities()
 
         binding.forumContainer.layoutManager = LinearLayoutManager(this)
         binding.forumContainer.adapter = mAdapter
@@ -70,15 +70,15 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        forumVM.forumList.observe(this, Observer {
-            Timber.i("Loaded ${mAdapter.data.size} forums")
+        communityVM.communityList.observe(this, Observer {
+            Timber.i("Loaded ${mAdapter.data.size} communities")
             mAdapter.setList(it)
             // TODO: set default forum
-            sharedVM.setForum(it[0])
-            sharedVM.setForumNameMapping(forumVM.getForumNameMapping())
+            sharedVM.setForum(it[0].forums[0])
+            sharedVM.setForumNameMapping(communityVM.getForumNameMapping())
         })
 
-        forumVM.loadFail.observe(this, Observer {
+        communityVM.loadFail.observe(this, Observer {
             if (it == true) {
                 Timber.i("Failed to load data...")
                 mAdapter.loadMoreModule.loadMoreFail()

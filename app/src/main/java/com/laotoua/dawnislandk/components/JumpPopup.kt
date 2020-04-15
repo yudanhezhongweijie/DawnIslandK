@@ -26,11 +26,6 @@ class JumpPopup(private val caller: Fragment, context: Context) : CenterPopupVie
 
     override fun onCreate() {
         super.onCreate()
-        findViewById<ConstraintLayout>(R.id.pageCountContainer).let {
-            findViewById<TextView>(R.id.currentPage).text = currentPage.toString()
-            findViewById<TextView>(R.id.maxPage).text = maxPage.toString()
-        }
-
 
         findViewById<EditText>(R.id.pageInput).doOnTextChanged { text, start, count, after ->
             submitButton.isEnabled =
@@ -44,7 +39,7 @@ class JumpPopup(private val caller: Fragment, context: Context) : CenterPopupVie
             updateInput()
         }
 
-        findViewById<ImageButton>(R.id.firstPage).setOnClickListener {
+        findViewById<ImageButton>(R.id.lastPage).setOnClickListener {
             targetPage = maxPage
             updateInput()
         }
@@ -67,10 +62,12 @@ class JumpPopup(private val caller: Fragment, context: Context) : CenterPopupVie
 
     fun updatePages(current: Int, max: Int) {
         currentPage = current
+        targetPage = currentPage
         maxPage = max
-        findViewById<ConstraintLayout>(R.id.pageCountContainer)?.let {
+        findViewById<ConstraintLayout>(R.id.pageCountContainer).let {
             findViewById<TextView>(R.id.currentPage).text = currentPage.toString()
             findViewById<TextView>(R.id.maxPage).text = maxPage.toString()
         }
+        updateInput()
     }
 }

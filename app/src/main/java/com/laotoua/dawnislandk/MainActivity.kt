@@ -60,8 +60,8 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
         binding.forumContainer.adapter = mAdapter
 
         communityVM.communityList.observe(this, Observer {
-            Timber.i("Loaded ${it.size} communities to Adapter")
             mAdapter.setData(it)
+            Timber.i("Loaded ${it.size} communities to Adapter")
             // TODO: set default forum
             sharedVM.setForum(it[0].forums[0])
             sharedVM.setForumNameMapping(communityVM.getForumNameMapping())
@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
 
         communityVM.loadFail.observe(this, Observer {
             if (it == true) {
-                Toast.makeText(this, "无法读取板块列表...", Toast.LENGTH_LONG)
+                Toast.makeText(this, "无法读取板块列表...", Toast.LENGTH_LONG).show()
             }
         })
     }

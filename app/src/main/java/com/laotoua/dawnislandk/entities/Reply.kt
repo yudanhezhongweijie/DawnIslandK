@@ -2,7 +2,7 @@ package com.laotoua.dawnislandk.entities
 
 import com.google.gson.annotations.SerializedName
 
-class Reply(
+data class Reply(
     @SerializedName("id")
     val id: String,
     @SerializedName("userid")

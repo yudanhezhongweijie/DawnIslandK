@@ -48,7 +48,6 @@ class ThreadFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         sharedVM.setFragment(this.javaClass.simpleName)
-
         _binding = ThreadFragmentBinding.inflate(inflater, container, false)
 
         binding.threadsView.layoutManager = LinearLayoutManager(context)
@@ -115,15 +114,17 @@ class ThreadFragment : Fragment() {
             }
         })
         viewModel.thread.observe(viewLifecycleOwner, Observer {
-            mAdapter.setDiffNewData(it as MutableList<Any>)
+            mAdapter.setDiffNewData(it.toMutableList())
             mAdapter.loadMoreModule.loadMoreComplete()
             Timber.i("New data found or new observer added. Adapter now have ${mAdapter.data.size} threads")
 
         })
 
         sharedVM.selectedForum.observe(viewLifecycleOwner, Observer {
-            if (viewModel.currentForum == null || viewModel.currentForum!!.id != it.id) {
-                Timber.i("Forum has changed. Cleaning old adapter data...")
+            if (viewModel.currentForum == null) {
+                viewModel.setForum(it)
+            } else if (viewModel.currentForum != null && viewModel.currentForum!!.id != it.id) {
+                Timber.i("Forum has changed to ${it.name}. Cleaning old adapter data...")
                 mAdapter.setList(ArrayList())
                 viewModel.setForum(it)
                 updateAppBar()
@@ -165,6 +166,7 @@ class ThreadFragment : Fragment() {
                 .asCustom(dialog)
                 .show()
         }
+
         updateAppBar()
 
         return binding.root
@@ -212,13 +214,12 @@ class ThreadFragment : Fragment() {
     private fun updateAppBar() {
         requireActivity().run {
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-            collapsingToolbar.title = "A岛 • ${sharedVM.selectedForum.value?.name}"
+            // TODO: default forumName
+            collapsingToolbar.title = "A岛 • ${sharedVM.selectedForum.value?.name ?: "时间线"}"
             toolbar.setNavigationIcon(R.drawable.ic_menu)
             toolbar.setNavigationOnClickListener(null)
             toolbar.setNavigationOnClickListener {
-                Timber.i("navigation")
                 drawerLayout.openDrawer(GravityCompat.START)
-
             }
         }
     }

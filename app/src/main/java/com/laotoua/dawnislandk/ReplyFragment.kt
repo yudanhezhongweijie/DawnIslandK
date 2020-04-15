@@ -29,6 +29,7 @@ import com.laotoua.dawnislandk.util.extractQuoteId
 import com.laotoua.dawnislandk.viewmodels.ReplyViewModel
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import com.lxj.xpopup.XPopup
+import com.lxj.xpopup.interfaces.SimpleCallback
 import kotlinx.android.synthetic.main.activity_main.*
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import me.dkzwm.widget.srl.extra.header.ClassicHeader
@@ -117,45 +118,58 @@ class ReplyFragment : Fragment() {
 
         // load more
         mAdapter.loadMoreModule.setOnLoadMoreListener {
-            Timber.i("Fetching new data...")
+            Timber.i("Fetching next page...")
             viewModel.getNextPage()
         }
 
         viewModel.loadEnd.observe(viewLifecycleOwner, Observer {
             if (it == true) {
-                mAdapter.loadMoreModule.loadMoreEnd()
+                if (binding.refreshLayout.isRefreshing) {
+                    binding.refreshLayout.refreshComplete(true)
+                } else {
+                    mAdapter.loadMoreModule.loadMoreEnd()
+                }
                 Timber.i("Finished loading data...")
             }
         })
 
         viewModel.loadFail.observe(viewLifecycleOwner, Observer {
             if (it == true) {
-                mAdapter.loadMoreModule.loadMoreFail()
+                if (binding.refreshLayout.isRefreshing) {
+                    binding.refreshLayout.refreshComplete(false)
+                } else {
+                    mAdapter.loadMoreModule.loadMoreFail()
+                }
                 Timber.i("Failed to load new data...")
             }
         })
 
-        viewModel.reply.observe(viewLifecycleOwner, Observer { it ->
-
-            mAdapter.setDiffNewData(it as MutableList<Any>)
-            mAdapter.loadMoreModule.loadMoreComplete()
-            Timber.i("New data found. Adapter now have ${mAdapter.data.size} threads")
+        viewModel.reply.observe(viewLifecycleOwner, Observer {
             if (binding.refreshLayout.isRefreshing) {
-//                Timber.i("adapter data:")
-//                mAdapter.data.map { Timber.i("id ${(it as Reply).id}") }
-//                mAdapter.notifyItemRangeInserted(0,20)
+                // TODO notify might not be needed, cause inconsistency
+                Timber.i("Inserting items to the top")
+//                    val diffResult = DiffUtil.calculateDiff(DiffCallback(mAdapter.data, it), false)
+//                    mAdapter.setDiffNewData(diffResult, it.toMutableList())
+                // TODO: previous page & next page should be handled the same
+                mAdapter.addData(0, viewModel.previousPage)
                 binding.refreshLayout.refreshComplete()
+            } else {
+                Timber.i("Inserting items to the end")
+                mAdapter.setDiffNewData(it.toMutableList())
+                mAdapter.loadMoreModule.loadMoreComplete()
             }
+            Timber.i("New data found. Adapter now have ${mAdapter.data.size} threads")
         })
 
         sharedVM.selectedThread.observe(viewLifecycleOwner, Observer {
-            Timber.i(
-                "shared VM change observed in Reply Fragment with data ${it.id}"
-            )
-            if (viewModel.currentThread == null || viewModel.currentThread!!.id != it.id) {
-                Timber.i("Thread has changed to ${it.id} or new observer added...")
+            if (viewModel.currentThread == null) {
+                viewModel.setThread(it)
+                updateAppBar()
+            } else if (viewModel.currentThread != null && viewModel.currentThread!!.id != it.id) {
+                Timber.i("Thread has changed to ${it.id}. Clearing old data...")
                 mAdapter.setList(ArrayList())
                 viewModel.setThread(it)
+                updateAppBar()
             }
 
         })
@@ -192,13 +206,18 @@ class ReplyFragment : Fragment() {
                     .findLastCompletelyVisibleItemPosition()
             )
             val page = (mAdapter.getItem(pos) as Reply).page!!
-            jumpPopup.updatePages(page, viewModel.maxPage)
             XPopup.Builder(context)
+                .setPopupCallback(object : SimpleCallback() {
+                    override fun beforeShow() {
+                        super.beforeShow()
+                        jumpPopup.updatePages(page, viewModel.maxPage)
+                    }
+                })
                 .asCustom(jumpPopup)
                 .show()
                 .dismissWith {
                     if (jumpPopup.submit) {
-                        mAdapter.setDiffNewData(ArrayList())
+                        Timber.i("Jumping to ${jumpPopup.targetPage}...")
                         viewModel.jumpTo(jumpPopup.targetPage)
                     }
                 }
@@ -213,8 +232,6 @@ class ReplyFragment : Fragment() {
         binding.refreshLayout.setHeaderView(ClassicHeader<IIndicator>(context))
         binding.refreshLayout.setOnRefreshListener(object : RefreshingListenerAdapter() {
             override fun onRefreshing() {
-                // TODO: added refresh timeout
-                Timber.i("refreshing~")
                 viewModel.getPreviousPage()
             }
         })

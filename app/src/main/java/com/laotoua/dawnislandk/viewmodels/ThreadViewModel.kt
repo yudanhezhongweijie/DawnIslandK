@@ -15,8 +15,7 @@ class ThreadViewModel : ViewModel() {
     private val threadList = mutableListOf<Thread>()
     private val threadIds = mutableSetOf<String>()
     private var _thread = MutableLiveData<List<Thread>>()
-    val thread: LiveData<List<Thread>>
-        get() = _thread
+    val thread: LiveData<List<Thread>> get() = _thread
     private var _currentForum: Forum? = null
     val currentForum: Forum? get() = _currentForum
     private var pageCount = 1

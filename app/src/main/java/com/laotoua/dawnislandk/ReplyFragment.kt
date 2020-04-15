@@ -146,7 +146,6 @@ class ReplyFragment : Fragment() {
 
         viewModel.reply.observe(viewLifecycleOwner, Observer {
             if (binding.refreshLayout.isRefreshing) {
-                // TODO notify might not be needed, cause inconsistency
                 Timber.i("Inserting items to the top")
 //                    val diffResult = DiffUtil.calculateDiff(DiffCallback(mAdapter.data, it), false)
 //                    mAdapter.setDiffNewData(diffResult, it.toMutableList())

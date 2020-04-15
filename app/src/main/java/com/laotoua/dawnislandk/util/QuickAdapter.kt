@@ -341,7 +341,6 @@ class DiffItemCallback : DiffUtil.ItemCallback<Any>() {
         oldItem: Any,
         newItem: Any
     ): Any? {
-        Timber.i("getChangePayload")
         return null
     }
 

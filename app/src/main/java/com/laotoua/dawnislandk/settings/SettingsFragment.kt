@@ -46,6 +46,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 .show()
                 .dismissWith {
                     lifecycleScope.launch(Dispatchers.IO) {
+                        // TODO: make transaction for below
+                        // TODO: add context for saving
                         Timber.i("Clearing old entries...")
                         AppState.DB.cookieDao().nukeTable()
                         Timber.i("Saving cookies ${cookiePopup.cookies}")

@@ -1,5 +1,6 @@
 package com.laotoua.dawnislandk
 
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,19 +16,24 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.chad.library.adapter.base.listener.OnItemChildClickListener
-import com.laotoua.dawnislandk.components.CreatePopup
 import com.laotoua.dawnislandk.components.ImageViewerPopup
+import com.laotoua.dawnislandk.components.JumpPopup
+import com.laotoua.dawnislandk.components.PostPopup
 import com.laotoua.dawnislandk.components.QuotePopup
 import com.laotoua.dawnislandk.databinding.ReplyFragmentBinding
 import com.laotoua.dawnislandk.entities.Reply
 import com.laotoua.dawnislandk.network.ImageLoader
 import com.laotoua.dawnislandk.util.QuickAdapter
+import com.laotoua.dawnislandk.util.ToolbarUtil
 import com.laotoua.dawnislandk.util.extractQuoteId
 import com.laotoua.dawnislandk.viewmodels.ReplyViewModel
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import com.lxj.xpopup.XPopup
-import com.lxj.xpopup.core.BasePopupView
+import com.lxj.xpopup.interfaces.SimpleCallback
 import kotlinx.android.synthetic.main.activity_main.*
+import me.dkzwm.widget.srl.RefreshingListenerAdapter
+import me.dkzwm.widget.srl.extra.header.ClassicHeader
+import me.dkzwm.widget.srl.indicator.IIndicator
 import timber.log.Timber
 
 
@@ -40,13 +46,13 @@ class ReplyFragment : Fragment() {
     private val sharedVM: SharedViewModel by activityViewModels()
     private val mAdapter = QuickAdapter(R.layout.reply_list_item)
 
-    private val imageLoader: ImageLoader by lazy {
-        ImageLoader(requireContext())
-    }
+    private val imageLoader: ImageLoader by lazy { ImageLoader(requireContext()) }
 
-    private val dialog: BasePopupView by lazy { CreatePopup(this, requireContext()) }
+    private val postPopup: PostPopup by lazy { PostPopup(this, requireContext()) }
 
     private val quotePopup: QuotePopup by lazy { QuotePopup(this, requireContext()) }
+
+    private val jumpPopup: JumpPopup by lazy { JumpPopup(this, requireContext()) }
 
     private var isFabOpen = false
 
@@ -112,43 +118,60 @@ class ReplyFragment : Fragment() {
 
         // load more
         mAdapter.loadMoreModule.setOnLoadMoreListener {
-            Timber.i("Fetching new data...")
-            viewModel.getReplys()
+            Timber.i("Fetching next page...")
+            viewModel.getNextPage()
         }
 
         viewModel.loadEnd.observe(viewLifecycleOwner, Observer {
             if (it == true) {
-                mAdapter.loadMoreModule.loadMoreEnd()
+                if (binding.refreshLayout.isRefreshing) {
+                    binding.refreshLayout.refreshComplete(true)
+                } else {
+                    mAdapter.loadMoreModule.loadMoreEnd()
+                }
                 Timber.i("Finished loading data...")
             }
         })
 
         viewModel.loadFail.observe(viewLifecycleOwner, Observer {
             if (it == true) {
-                mAdapter.loadMoreModule.loadMoreFail()
+                if (binding.refreshLayout.isRefreshing) {
+                    binding.refreshLayout.refreshComplete(false)
+                } else {
+                    mAdapter.loadMoreModule.loadMoreFail()
+                }
                 Timber.i("Failed to load new data...")
             }
         })
 
-        viewModel.reply.observe(viewLifecycleOwner, Observer { it ->
-            mAdapter.setDiffNewData(it as MutableList<Any>)
-            mAdapter.loadMoreModule.loadMoreComplete()
+        viewModel.reply.observe(viewLifecycleOwner, Observer {
+            if (binding.refreshLayout.isRefreshing) {
+                Timber.i("Inserting items to the top")
+//                    val diffResult = DiffUtil.calculateDiff(DiffCallback(mAdapter.data, it), false)
+//                    mAdapter.setDiffNewData(diffResult, it.toMutableList())
+                // TODO: previous page & next page should be handled the same
+                mAdapter.addData(0, viewModel.previousPage)
+                binding.refreshLayout.refreshComplete()
+            } else {
+                Timber.i("Inserting items to the end")
+                mAdapter.setDiffNewData(it.toMutableList())
+                mAdapter.loadMoreModule.loadMoreComplete()
+            }
             Timber.i("New data found. Adapter now have ${mAdapter.data.size} threads")
-
         })
 
-        sharedVM.selectedThreadList.observe(viewLifecycleOwner, Observer {
-            Timber.i(
-                "shared VM change observed in Reply Fragment with data ${it.id}"
-            )
-            if (viewModel.currentThread == null || viewModel.currentThread!!.id != it.id) {
-                Timber.i("Thread has changed to ${it.id} or new observer added...")
+        sharedVM.selectedThread.observe(viewLifecycleOwner, Observer {
+            if (viewModel.currentThread == null) {
+                viewModel.setThread(it)
+                updateAppBar()
+            } else if (viewModel.currentThread != null && viewModel.currentThread!!.id != it.id) {
+                Timber.i("Thread has changed to ${it.id}. Clearing old data...")
                 mAdapter.setList(ArrayList())
                 viewModel.setThread(it)
+                updateAppBar()
             }
 
         })
-
         binding.replysView.setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
             if (scrollY < oldScrollY) {
                 binding.fabMenu.show()
@@ -171,19 +194,46 @@ class ReplyFragment : Fragment() {
             hideMenu()
 
             XPopup.Builder(context)
-                .asCustom(dialog)
+                .asCustom(postPopup)
                 .show()
         }
 
         binding.jump.setOnClickListener {
-            Timber.i("Clicked on jump")
             hideMenu()
+            val pos = 1.coerceAtLeast(
+                (binding.replysView.layoutManager as LinearLayoutManager)
+                    .findLastCompletelyVisibleItemPosition()
+            )
+            val page = (mAdapter.getItem(pos) as Reply).page!!
+            XPopup.Builder(context)
+                .setPopupCallback(object : SimpleCallback() {
+                    override fun beforeShow() {
+                        super.beforeShow()
+                        jumpPopup.updatePages(page, viewModel.maxPage)
+                    }
+                })
+                .asCustom(jumpPopup)
+                .show()
+                .dismissWith {
+                    if (jumpPopup.submit) {
+                        Timber.i("Jumping to ${jumpPopup.targetPage}...")
+                        viewModel.jumpTo(jumpPopup.targetPage)
+                    }
+                }
         }
 
         binding.onlyPo.setOnClickListener {
             Timber.i("Clicked on onlyPo")
             hideMenu()
         }
+
+
+        binding.refreshLayout.setHeaderView(ClassicHeader<IIndicator>(context))
+        binding.refreshLayout.setOnRefreshListener(object : RefreshingListenerAdapter() {
+            override fun onRefreshing() {
+                viewModel.getPreviousPage()
+            }
+        })
 
         updateAppBar()
         return binding.root
@@ -197,6 +247,7 @@ class ReplyFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         Timber.d("Reply Fragment destroyed!")
+        ToolbarUtil.enableCollapse(requireActivity(), "")
     }
 
 
@@ -231,13 +282,14 @@ class ReplyFragment : Fragment() {
     // TODO refresh click
     private fun updateAppBar() {
 
-        requireActivity().let { activity ->
-            activity.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-            activity.collapsingToolbar.title =
-                "A岛 • ${sharedVM.selectedForum.value!!.name} • ${sharedVM.selectedThreadList.value?.id}"
-            activity.toolbar.setNavigationIcon(R.drawable.ic_arrow_back)
-            activity.toolbar.setNavigationOnClickListener(null)
-            activity.toolbar.setNavigationOnClickListener {
+        requireActivity().run {
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+            val title =
+                "A岛 • ${sharedVM.selectedForum.value!!.name} • ${sharedVM.selectedThread.value?.id}"
+            ToolbarUtil.disableCollapse(this, title)
+            toolbar.setNavigationIcon(R.drawable.ic_arrow_back)
+            toolbar.setNavigationOnClickListener(null)
+            toolbar.setNavigationOnClickListener {
                 findNavController().popBackStack()
             }
         }

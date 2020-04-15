@@ -3,7 +3,7 @@ package com.laotoua.dawnislandk.entities
 import androidx.room.Ignore
 import com.google.gson.annotations.SerializedName
 
-class ThreadList(
+data class Thread(
     @SerializedName("id")
     val id: String, //	该串的id
     @SerializedName("fid")

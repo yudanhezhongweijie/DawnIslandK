@@ -21,7 +21,7 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.components.ThreadCardFactory
 import com.laotoua.dawnislandk.components.span.RoundBackgroundColorSpan
 import com.laotoua.dawnislandk.entities.Reply
-import com.laotoua.dawnislandk.entities.ThreadList
+import com.laotoua.dawnislandk.entities.Thread
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import kotlinx.android.synthetic.main.quote_list_item.view.*
 import timber.log.Timber
@@ -39,12 +39,12 @@ class QuickAdapter(private val layoutResId: Int) :
 
     init {
         // 所有数据加载完成后，是否允许点击（默认为false）
-        this.loadMoreModule.enableLoadMoreEndClick = true
+        loadMoreModule.enableLoadMoreEndClick = true
 
         // 当数据不满一页时，是否继续自动加载（默认为true）
-        this.loadMoreModule.isEnableLoadMoreIfNotFullPage = false
+        loadMoreModule.isEnableLoadMoreIfNotFullPage = false
 
-        this.setDiffCallback(DiffCallback())
+        setDiffCallback(DiffItemCallback())
     }
 
     fun setSharedVM(vm: SharedViewModel) {
@@ -56,7 +56,7 @@ class QuickAdapter(private val layoutResId: Int) :
      */
     override fun convert(helper: BaseViewHolder, item: Any) {
 
-        if (layoutResId == R.layout.thread_list_item && item is ThreadList) {
+        if (layoutResId == R.layout.thread_list_item && item is Thread) {
             convertThread(helper, item, sharedViewModel.getForumDisplayName(item.fid!!))
         } else if (layoutResId == R.layout.reply_list_item && item is Reply) {
             convertReply(helper, item, sharedViewModel.getPo())
@@ -72,7 +72,7 @@ class QuickAdapter(private val layoutResId: Int) :
         }
     }
 
-    private fun convertThread(card: BaseViewHolder, item: ThreadList, forumDisplayName: String) {
+    private fun convertThread(card: BaseViewHolder, item: Thread, forumDisplayName: String) {
 
         card.setText(R.id.threadCookie, transformCookie(item.userid, item.admin))
         card.setText(R.id.threadTime, transformTime(item.now))
@@ -224,9 +224,59 @@ class QuickAdapter(private val layoutResId: Int) :
             }
         }
     }
+
+
 }
 
-class DiffCallback : DiffUtil.ItemCallback<Any>() {
+class DiffCallback(private val oldList: List<Any>, private val newList: List<Any>) :
+    DiffUtil.Callback() {
+    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        val oldItem = oldList[oldItemPosition]
+        val newItem = newList[newItemPosition]
+        return when {
+            (oldItem is Thread && newItem is Thread) -> oldItem.id == newItem.id && oldItem.fid == newItem.fid
+
+            (oldItem is Reply && newItem is Reply) -> oldItem.id == newItem.id
+
+            else -> {
+                Timber.e("Unhandled type comparison")
+                false
+            }
+        }
+    }
+
+    override fun getOldListSize(): Int {
+        return oldList.size
+    }
+
+    override fun getNewListSize(): Int {
+        return newList.size
+    }
+
+    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        val oldItem = oldList[oldItemPosition]
+        val newItem = newList[newItemPosition]
+        return when {
+            (oldItem is Thread && newItem is Thread) -> {
+                oldItem.sage == newItem.sage
+                        && oldItem.replyCount == newItem.replyCount
+                        && oldItem.content == newItem.content
+            }
+            (oldItem is Reply && newItem is Reply) -> {
+                oldItem.sage == newItem.sage
+                        && oldItem.content == newItem.content
+            }
+            else -> {
+                Timber.e("Unhandled type comparison")
+                false
+            }
+        }
+    }
+
+}
+
+class DiffItemCallback : DiffUtil.ItemCallback<Any>() {
+
     /**
      * 判断是否是同一个item
      *
@@ -239,14 +289,15 @@ class DiffCallback : DiffUtil.ItemCallback<Any>() {
         newItem: Any
     ): Boolean {
         return when {
-            (oldItem is ThreadList && newItem is ThreadList) -> oldItem.id == newItem.id && oldItem.fid == newItem.fid
+            (oldItem is Thread && newItem is Thread) -> oldItem.id == newItem.id && oldItem.fid == newItem.fid
+
             (oldItem is Reply && newItem is Reply) -> oldItem.id == newItem.id
+
             else -> {
                 Timber.e("Unhandled type comparison")
                 throw Exception("Unhandled type comparison")
             }
         }
-
     }
 
     /**
@@ -261,7 +312,7 @@ class DiffCallback : DiffUtil.ItemCallback<Any>() {
         newItem: Any
     ): Boolean {
         return when {
-            (oldItem is ThreadList && newItem is ThreadList) -> {
+            (oldItem is Thread && newItem is Thread) -> {
                 oldItem.sage == newItem.sage
                         && oldItem.replyCount == newItem.replyCount
                         && oldItem.content == newItem.content

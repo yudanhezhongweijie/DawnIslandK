@@ -14,10 +14,10 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.laotoua.dawnislandk.components.CreatePopup
 import com.laotoua.dawnislandk.components.ImageViewerPopup
+import com.laotoua.dawnislandk.components.PostPopup
 import com.laotoua.dawnislandk.databinding.ThreadFragmentBinding
-import com.laotoua.dawnislandk.entities.ThreadList
+import com.laotoua.dawnislandk.entities.Thread
 import com.laotoua.dawnislandk.network.ImageLoader
 import com.laotoua.dawnislandk.util.QuickAdapter
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
@@ -37,7 +37,7 @@ class ThreadFragment : Fragment() {
     private val sharedVM: SharedViewModel by activityViewModels()
     private val mAdapter = QuickAdapter(R.layout.thread_list_item)
 
-    private val dialog: BasePopupView by lazy { CreatePopup(this, requireContext()) }
+    private val dialog: BasePopupView by lazy { PostPopup(this, requireContext()) }
 
     private var isFabOpen = false
 
@@ -48,7 +48,6 @@ class ThreadFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         sharedVM.setFragment(this.javaClass.simpleName)
-
         _binding = ThreadFragmentBinding.inflate(inflater, container, false)
 
         binding.threadsView.layoutManager = LinearLayoutManager(context)
@@ -62,7 +61,7 @@ class ThreadFragment : Fragment() {
         // item click
         mAdapter.setOnItemClickListener { adapter, _, position ->
             hideMenu()
-            sharedVM.setThreadList(adapter.getItem(position) as ThreadList)
+            sharedVM.setThreadList(adapter.getItem(position) as Thread)
             val action = PagerFragmentDirections.actionPagerFragmentToReplyFragment()
             findNavController().navigate(action)
 
@@ -79,7 +78,7 @@ class ThreadFragment : Fragment() {
                 Timber.i("clicked on image at $position")
                 val url = (adapter.getItem(
                     position
-                ) as ThreadList).getImgUrl()
+                ) as Thread).getImgUrl()
 
                 // TODO support multiple image
                 val viewerPopup =
@@ -115,15 +114,17 @@ class ThreadFragment : Fragment() {
             }
         })
         viewModel.thread.observe(viewLifecycleOwner, Observer {
-            mAdapter.setDiffNewData(it as MutableList<Any>)
+            mAdapter.setDiffNewData(it.toMutableList())
             mAdapter.loadMoreModule.loadMoreComplete()
             Timber.i("New data found or new observer added. Adapter now have ${mAdapter.data.size} threads")
 
         })
 
         sharedVM.selectedForum.observe(viewLifecycleOwner, Observer {
-            if (viewModel.currentForum == null || viewModel.currentForum!!.id != it.id) {
-                Timber.i("Forum has changed. Cleaning old adapter data...")
+            if (viewModel.currentForum == null) {
+                viewModel.setForum(it)
+            } else if (viewModel.currentForum != null && viewModel.currentForum!!.id != it.id) {
+                Timber.i("Forum has changed to ${it.name}. Cleaning old adapter data...")
                 mAdapter.setList(ArrayList())
                 viewModel.setForum(it)
                 updateAppBar()
@@ -165,6 +166,7 @@ class ThreadFragment : Fragment() {
                 .asCustom(dialog)
                 .show()
         }
+
         updateAppBar()
 
         return binding.root
@@ -210,15 +212,14 @@ class ThreadFragment : Fragment() {
 
     // TODO refresh click
     private fun updateAppBar() {
-        requireActivity().let { activity ->
-            activity.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-            activity.collapsingToolbar.title = "A岛 • ${sharedVM.selectedForum.value?.name}"
-            activity.toolbar.setNavigationIcon(R.drawable.ic_menu)
-            activity.toolbar.setNavigationOnClickListener(null)
-            activity.toolbar.setNavigationOnClickListener {
-                Timber.i("navigation")
-                activity.drawerLayout.openDrawer(GravityCompat.START)
-
+        requireActivity().run {
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+            // TODO: default forumName
+            collapsingToolbar.title = "A岛 • ${sharedVM.selectedForum.value?.name ?: "时间线"}"
+            toolbar.setNavigationIcon(R.drawable.ic_menu)
+            toolbar.setNavigationOnClickListener(null)
+            toolbar.setNavigationOnClickListener {
+                drawerLayout.openDrawer(GravityCompat.START)
             }
         }
     }

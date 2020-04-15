@@ -21,10 +21,21 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
     buildTypes {
         release {
-            minifyEnabled false
+            // Enables code shrinking, obfuscation, and optimization for only
+            // your project's release build type.
+            minifyEnabled true
+
+            // Enables resource shrinking, which is performed by the
+            // Android Gradle plugin.
+            shrinkResources true
+
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -67,7 +78,14 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.2'
 
-    implementation 'com.lxj:xpopup:1.8.13'
+    implementation 'com.lxj:xpopup:1.8.17'
+
+    implementation 'me.dkzwm.widget.srl:core:1.7.1.1.androidx'
+    implementation 'me.dkzwm.widget.srl:ext-util:1.7.1.1.androidx'
+    implementation 'me.dkzwm.widget.srl:ext-material:1.7.1.1.androidx'
+    implementation 'me.dkzwm.widget.srl:ext-horizontal:1.7.1.1.androidx'
+    implementation 'me.dkzwm.widget.srl:ext-classics:1.7.1.1.androidx'
+    implementation 'me.dkzwm.widget.srl:ext-two-level:1.7.1.1.androidx'
 
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
 

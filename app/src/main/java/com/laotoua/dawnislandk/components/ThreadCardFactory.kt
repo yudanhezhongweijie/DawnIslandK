@@ -261,8 +261,6 @@ class ThreadCardFactory(val context: Context) {
 
     inner class ThreadListCard(context: Context?) :
         MaterialCardView(context) {
-        //        var id: String? = null
-//        var forum: String? = null
         var threadContainer: ConstraintLayout? = null
         var threadCookie: TextView? = null
         var threadTime: TextView? = null

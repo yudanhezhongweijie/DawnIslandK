@@ -3,25 +3,26 @@ package com.laotoua.dawnislandk
 import android.graphics.Color
 import android.os.Bundle
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
 import com.laotoua.dawnislandk.entities.Forum
-import com.laotoua.dawnislandk.util.QuickAdapter
-import com.laotoua.dawnislandk.viewmodels.ForumViewModel
+import com.laotoua.dawnislandk.util.QuickNodeAdapter
+import com.laotoua.dawnislandk.viewmodels.CommunityViewModel
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import timber.log.Timber
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
 
     private lateinit var binding: ActivityMainBinding
-    private val forumVM: ForumViewModel by viewModels()
+    private val communityVM: CommunityViewModel by viewModels()
     private val sharedVM: SharedViewModel by viewModels()
 
-    private val mAdapter = QuickAdapter(R.layout.forum_list_item)
+    private val mAdapter = QuickNodeAdapter(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +43,7 @@ class MainActivity : AppCompatActivity() {
 
         window.clearFlags(
             WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
-                or WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION
+                    or WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION
         )
         //设置布局能够延伸到状态栏(StatusBar)和导航栏(NavigationBar)里面
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
@@ -54,36 +55,34 @@ class MainActivity : AppCompatActivity() {
     private fun setUpForumDrawer() {
 
         // TODO added repository
-        forumVM.loadFromDB()
-        forumVM.getForums()
+        communityVM.loadFromDB()
+        communityVM.getCommunities()
 
         binding.forumContainer.layoutManager = LinearLayoutManager(this)
         binding.forumContainer.adapter = mAdapter
-        mAdapter.loadMoreModule.isEnableLoadMore = false
-        // item click
-        mAdapter.setOnItemClickListener { adapter, _, position ->
-            val target = adapter.getItem(position) as Forum
-            Timber.i("Selected Forum at pos $position")
-            sharedVM.setForum(target)
-            sharedVM.setFragment("ThreadFragment")
-            binding.drawerLayout.closeDrawers()
 
-        }
-
-        forumVM.forumList.observe(this, Observer {
-            Timber.i("Loaded ${mAdapter.data.size} forums")
-            mAdapter.setList(it)
+        communityVM.communityList.observe(this, Observer {
+            Timber.i("Loaded ${it.size} communities to Adapter")
+            mAdapter.setData(it)
             // TODO: set default forum
-            sharedVM.setForum(it[0])
-            sharedVM.setForumNameMapping(forumVM.getForumNameMapping())
+            sharedVM.setForum(it[0].forums[0])
+            sharedVM.setForumNameMapping(communityVM.getForumNameMapping())
         })
 
-        forumVM.loadFail.observe(this, Observer {
+        communityVM.loadFail.observe(this, Observer {
             if (it == true) {
-                Timber.i("Failed to load data...")
-                mAdapter.loadMoreModule.loadMoreFail()
+                Toast.makeText(this, "无法读取板块列表...", Toast.LENGTH_LONG)
             }
         })
     }
+
+    // Forum Click
+    override fun onForumClick(forum: Forum) {
+        Timber.i("Clicked on Forum ${forum.name}")
+        sharedVM.setForum(forum)
+        sharedVM.setFragment("ThreadFragment")
+        binding.drawerLayout.closeDrawers()
+    }
+
 
 }

@@ -3,7 +3,6 @@ package com.laotoua.dawnislandk.network
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.laotoua.dawnislandk.entities.Community
-import com.laotoua.dawnislandk.entities.Forum
 import com.laotoua.dawnislandk.entities.Reply
 import com.laotoua.dawnislandk.entities.ThreadList
 import kotlinx.coroutines.Dispatchers
@@ -20,27 +19,25 @@ object NMBServiceClient {
 
     private val parser = Gson()
 
-    suspend fun getForums(): List<Forum> {
+    suspend fun getCommunities(): List<Community> {
         try {
             val rawResponse =
                 withContext(Dispatchers.IO) {
-                    Timber.i("downloading forums...")
+                    Timber.i("downloading communities...")
                     service.getNMBForumList().execute().body()!!
                 }
             return withContext(Dispatchers.Default) {
-                Timber.i("parsing forums...")
-                parseForums(rawResponse)
+                Timber.i("parsing communities...")
+                parseCommunities(rawResponse)
             }
         } catch (e: Exception) {
-            Timber.e(e, "Failed to get forums")
+            Timber.e(e, "Failed to get communities")
             throw e
         }
     }
 
-    private fun parseForums(response: ResponseBody): List<Forum> {
-        return (parser.fromJson(
-            response.string(), object : TypeToken<List<Community>>() {}.type
-        ) as List<Community>).flatMap { c -> c.forums }
+    private fun parseCommunities(response: ResponseBody): List<Community> {
+        return parser.fromJson(response.string(), object : TypeToken<List<Community>>() {}.type)
     }
 
     private fun parseThreads(response: ResponseBody): List<ThreadList> {

@@ -4,13 +4,15 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 
 
 // TODO: export Schema
-@Database(entities = [Forum::class, Cookie::class], version = 1, exportSchema = false)
+@Database(entities = [Community::class, Cookie::class], version = 1, exportSchema = false)
+@TypeConverters(ForumListConverter::class)
 abstract class DawnDatabase : RoomDatabase() {
-    abstract fun forumDao(): ForumDao
     abstract fun cookieDao(): CookieDao
+    abstract fun communityDao(): CommunityDao
 
     companion object {
         // Singleton prevents multiple instances of database opening at the

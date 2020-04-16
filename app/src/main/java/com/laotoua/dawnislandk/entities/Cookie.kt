@@ -6,7 +6,7 @@ import androidx.room.*
 data class Cookie(
 
     @PrimaryKey
-    val userHash: String,
+    val cookieHash: String,
 
     val cookieName: String
 )
@@ -17,8 +17,8 @@ interface CookieDao {
     @Query("SELECT * FROM cookie")
     suspend fun getAll(): List<Cookie>
 
-    @Query("SELECT * FROM cookie WHERE userhash==:userhash")
-    suspend fun getCookieByUserHash(userhash: String): Cookie
+    @Query("SELECT * FROM cookie WHERE cookieHash==:cookieHash")
+    suspend fun getCookieByUserHash(cookieHash: String): Cookie
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(cookie: Cookie)

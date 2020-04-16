@@ -119,8 +119,18 @@ class QuickAdapter(private val layoutResId: Int) :
             quotesContainer.addView(q)
         }
 
-        card.setText(R.id.threadContent, transformContent(removeQuote(item.content)))
-
+        transformContent(removeQuote(item.content)).run {
+            if (this.isEmpty()) card.setGone(R.id.threadContent, true)
+            else {
+                card.setText(R.id.threadContent, this)
+                card.setVisible(R.id.threadContent, true)
+                /**
+                 *  special handler for clickable spans
+                 */
+                card.getView<TextView>(R.id.threadContent).movementMethod =
+                    LinkMovementMethod.getInstance()
+            }
+        }
     }
 
     private fun convertReply(card: BaseViewHolder, item: Reply, po: String) {
@@ -178,11 +188,18 @@ class QuickAdapter(private val layoutResId: Int) :
             card.setGone(R.id.replyQuotes, true)
         }
 
-        card.setText(R.id.replyContent, transformContent(removeQuote(item.content)))
-        /**
-         *  special handler for clickable spans
-         */
-        card.getView<TextView>(R.id.replyContent).movementMethod = LinkMovementMethod.getInstance()
+        transformContent(removeQuote(item.content)).run {
+            if (this.isEmpty()) card.setGone(R.id.replyContent, true)
+            else {
+                card.setText(R.id.replyContent, this)
+                card.setVisible(R.id.replyContent, true)
+                /**
+                 *  special handler for clickable spans
+                 */
+                card.getView<TextView>(R.id.replyContent).movementMethod =
+                    LinkMovementMethod.getInstance()
+            }
+        }
     }
 
 

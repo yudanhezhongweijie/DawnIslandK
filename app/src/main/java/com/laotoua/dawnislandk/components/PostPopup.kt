@@ -76,7 +76,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
     private var cookies = listOf<Cookie>()
 
-    private var selectedCookie: String? = null
+    private var selectedCookie: Cookie? = null
 
     private fun updateTitle(targetId: String, newPost: Boolean) {
         findViewById<TextView>(R.id.postTitle).text = if (newPost) "发布新串" else "回复 >No. $targetId"
@@ -91,8 +91,8 @@ class PostPopup(private val caller: Fragment, context: Context) :
                 text = if (cookies.isNullOrEmpty()) {
                     "没有饼干"
                 } else {
-                    selectedCookie = cookies[0].userHash
-                    cookies[0].userHash
+                    selectedCookie = cookies[0]
+                    selectedCookie!!.cookieName
                 }
             }
         }
@@ -158,14 +158,14 @@ class PostPopup(private val caller: Fragment, context: Context) :
                 XPopup.Builder(context)
                     .atView(it) // 依附于所点击的View，内部会自动判断在上方或者下方显示
                     .asAttachList(
-                        cookies.map { c -> c.userHash }.toTypedArray(),
+                        cookies.map { c -> c.cookieName }.toTypedArray(),
                         intArrayOf(
                             R.mipmap.ic_launcher, R.mipmap.ic_launcher, R.mipmap.ic_launcher,
                             R.mipmap.ic_launcher, R.mipmap.ic_launcher
                         )
-                    ) { _, text ->
-                        selectedCookie = text
-                        findViewById<TextView>(R.id.postCookie).text = selectedCookie
+                    ) { ind, _ ->
+                        selectedCookie = cookies[ind]
+                        findViewById<TextView>(R.id.postCookie).text = selectedCookie!!.cookieName
                     }
                     .show()
             } else {
@@ -186,10 +186,10 @@ class PostPopup(private val caller: Fragment, context: Context) :
         title = findViewById<TextView>(R.id.formEmail).text.toString()
         content = findViewById<TextView>(R.id.postContent).text.toString()
 
-        hash = selectedCookie ?: ""
+        hash = selectedCookie?.cookieHash ?: ""
 
-        // test
-//        resto = "17735544"
+        // TODO: test
+        resto = "17735544"
         // TODO: if (water): add body
         // TODO: loading...
         caller.lifecycleScope.launch {

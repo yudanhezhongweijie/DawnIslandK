@@ -8,6 +8,7 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.entities.Cookie
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.CenterPopupView
+import com.lxj.xpopup.interfaces.SimpleCallback
 import kotlinx.android.synthetic.main.cookie_list_item.view.*
 
 
@@ -18,6 +19,7 @@ class CookieManagerPopup(context: Context) : CenterPopupView(context) {
     private val cookiesView: MutableList<ConstraintLayout> = mutableListOf()
 
     private val addCookie: ImageButton by lazy { findViewById<ImageButton>(R.id.addCookie) }
+    private val cookieAdditionPopup: CookieAdditionPopup by lazy { CookieAdditionPopup(context) }
 
     override fun getImplLayoutId(): Int {
         return R.layout.cookie_manager_popup
@@ -31,15 +33,27 @@ class CookieManagerPopup(context: Context) : CenterPopupView(context) {
     override fun onCreate() {
         super.onCreate()
 
+        // TODO: hash validation
         addCookie.setOnClickListener {
             XPopup.Builder(context)
-                .asInputConfirm("添加饼干", "", "请输入内容") { cookie ->
-                    // TODO: modified cookie name
-                    cookies.add(Cookie(cookie, cookie))
-                }
+                .setPopupCallback(object : SimpleCallback() {
+                    override fun beforeShow() {
+                        cookieAdditionPopup.clearEntries()
+                        super.beforeShow()
+                    }
+                })
+                .asCustom(cookieAdditionPopup)
                 .show()
                 .dismissWith {
-                    updateCookiesView()
+                    if (cookieAdditionPopup.cookieHash != "") {
+                        cookies.add(
+                            Cookie(
+                                cookieAdditionPopup.cookieHash,
+                                cookieAdditionPopup.cookieName
+                            )
+                        )
+                        updateCookiesView()
+                    }
                 }
         }
 

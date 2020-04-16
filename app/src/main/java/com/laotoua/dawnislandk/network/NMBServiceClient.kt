@@ -7,13 +7,21 @@ import com.laotoua.dawnislandk.entities.Reply
 import com.laotoua.dawnislandk.entities.Thread
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import timber.log.Timber
+import java.io.File
+
 
 object NMBServiceClient {
     private val service: NMBService = Retrofit.Builder()
         .baseUrl("https://nmb.fastmirror.org/")
+        .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(NMBService::class.java)
 
@@ -108,6 +116,38 @@ object NMBServiceClient {
             }
         } catch (e: Exception) {
             Timber.e(e, "Failed to get quote")
+            throw e
+        }
+    }
+
+    suspend fun sendReply(
+        resto: String, name: String?,
+        email: String?, title: String?,
+        content: String?, water: String?,
+        image: File?, userhash: String
+    ): String {
+        try {
+            val rawResponse = withContext(Dispatchers.IO) {
+                Timber.i("Sending Reply...")
+
+                var imagePart: MultipartBody.Part? = null
+                image?.run {
+                    asRequestBody(("image/${image.extension}").toMediaTypeOrNull()).run {
+                        imagePart = MultipartBody.Part.createFormData("image", image.name, this)
+                    }
+                }
+                service.sendReply(
+                    resto.toRequestBody(), name?.toRequestBody(),
+                    email?.toRequestBody(), title?.toRequestBody(),
+                    content?.toRequestBody(), water?.toRequestBody(),
+                    imagePart,
+                    "userhash=$userhash"
+                ).execute().body()!!.string()
+            }
+            // TODO: parse response message
+            return rawResponse
+        } catch (e: Exception) {
+            Timber.e(e, "Reply did not succeeded...")
             throw e
         }
     }

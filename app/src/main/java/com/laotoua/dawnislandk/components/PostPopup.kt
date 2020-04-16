@@ -2,9 +2,11 @@ package com.laotoua.dawnislandk.components
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.ContentResolver
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.provider.OpenableColumns
 import android.view.View
 import android.widget.ImageButton
 import android.widget.LinearLayout
@@ -18,6 +20,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.entities.Cookie
+import com.laotoua.dawnislandk.network.NMBServiceClient
 import com.laotoua.dawnislandk.util.AppState
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BasePopupView
@@ -27,24 +30,32 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 
 
 @SuppressLint("ViewConstructor")
+// TODO: SEND
 class PostPopup(private val caller: Fragment, context: Context) :
     BottomPopupView(context) {
 
-    private val PERMISSIONS_STORAGE = arrayOf(
-        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        Manifest.permission.READ_EXTERNAL_STORAGE
-    )
+    var resto = ""
+    var name = ""
+    var email = ""
+    var title = ""
+    var content = ""
 
-    private val EXTERNAL_STORAGE = 1
+    // TODO
+    var water = false
+    var imageFile: File? = null
+    var hash = ""
+
+    // requestCode for permissions callback
+    private val requestCode = 1
 
     private val getImage = caller.prepareCall(ActivityResultContracts.GetContent())
-    { uri: Uri? ->
-        // TODO Handle the returned Uri
-        Timber.i("selected uri: $uri")
-    }
+    { uri: Uri? -> if (uri != null) imageFile = getImagePathFromUri(uri) }
 
     private var cookies = listOf<Cookie>()
 
@@ -61,31 +72,35 @@ class PostPopup(private val caller: Fragment, context: Context) :
             cookies = AppState.cookies!!
         }
         if (selectedCookie == null || cookies.isNullOrEmpty()) {
-            findViewById<TextView>(R.id.cookie)?.run {
+            findViewById<TextView>(R.id.postCookie)?.run {
                 text = if (cookies.isNullOrEmpty()) {
                     "没有饼干"
                 } else {
+                    selectedCookie = cookies[0].userHash
                     cookies[0].userHash
                 }
             }
         }
     }
 
-    private fun checkPermission(context: Context) {
+    private fun checkStoragePermissions(context: Context) {
         if (ContextCompat.checkSelfPermission(
                 context, Manifest.permission.READ_EXTERNAL_STORAGE
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             requestPermissions(
                 caller.requireActivity(),
-                PERMISSIONS_STORAGE,
-                EXTERNAL_STORAGE
+                arrayOf(
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ),
+                requestCode
             )
         }
     }
 
     override fun getImplLayoutId(): Int {
-        return R.layout.post_dialog
+        return R.layout.post_popup
     }
 
     override fun getMaxHeight(): Int {
@@ -95,24 +110,25 @@ class PostPopup(private val caller: Fragment, context: Context) :
     override fun onCreate() {
         super.onCreate()
 
-        findViewById<ImageButton>(R.id.send).setOnClickListener {
+        findViewById<ImageButton>(R.id.postSend).setOnClickListener {
             // TODO
             Timber.i("Clicked on send")
+            reply()
         }
 
-        findViewById<ImageButton>(R.id.attachImage).setOnClickListener {
+        findViewById<ImageButton>(R.id.postImage).setOnClickListener {
             Timber.i("Clicked on attachImage")
-            checkPermission(context)
+            checkStoragePermissions(context)
 
             getImage("image/*")
         }
 
-        findViewById<ImageButton>(R.id.doodle).setOnClickListener {
+        findViewById<ImageButton>(R.id.postDoodle).setOnClickListener {
             // TODO
             Toast.makeText(caller.context, "还没做。。。", Toast.LENGTH_SHORT).show()
         }
 
-        findViewById<ImageButton>(R.id.expandMore).setOnClickListener {
+        findViewById<ImageButton>(R.id.postExpand).setOnClickListener {
             findViewById<LinearLayout>(R.id.expansion).run {
                 visibility = if (visibility == View.VISIBLE) {
                     View.GONE
@@ -122,7 +138,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
             }
         }
 
-        findViewById<TextView>(R.id.cookie).setOnClickListener {
+        findViewById<TextView>(R.id.postCookie).setOnClickListener {
 
             if (!cookies.isNullOrEmpty()) {
                 XPopup.Builder(context)
@@ -135,13 +151,74 @@ class PostPopup(private val caller: Fragment, context: Context) :
                         )
                     ) { _, text ->
                         selectedCookie = text
-                        findViewById<TextView>(R.id.cookie).text = selectedCookie
+                        findViewById<TextView>(R.id.postCookie).text = selectedCookie
                     }
                     .show()
             } else {
                 Toast.makeText(caller.context, "没有饼干", Toast.LENGTH_SHORT).show()
             }
         }
+
+    }
+
+    // TODO: post new thread
+    private fun reply() {
+        if (selectedCookie == null) {
+            Toast.makeText(caller.context, "没有饼干不能发串哦。。", Toast.LENGTH_SHORT).show()
+            return
+        }
+        name = findViewById<TextView>(R.id.formName).text.toString()
+        email = findViewById<TextView>(R.id.formEmail).text.toString()
+        title = findViewById<TextView>(R.id.formEmail).text.toString()
+        content = findViewById<TextView>(R.id.postContent).text.toString()
+
+        hash = selectedCookie ?: ""
+
+        // test
+//        resto = "17735544"
+        // TODO: if (water): add body
+        caller.lifecycleScope.launch {
+            val res = NMBServiceClient.sendReply(
+                resto,
+                name,
+                email,
+                title,
+                content,
+                null,
+                imageFile,
+                hash
+            )
+            Timber.d("response: $res")
+        }
+
+        Timber.i("send: $resto, $name, $email, $title, $content, $imageFile, $hash")
+        dismiss()
+    }
+
+
+    private fun getImagePathFromUri(uri: Uri): File? {
+        val parcelFileDescriptor = context.contentResolver.openFileDescriptor(uri, "r", null)
+
+        parcelFileDescriptor?.let {
+            val inputStream = FileInputStream(parcelFileDescriptor.fileDescriptor)
+            val file = File(context.cacheDir, context.contentResolver.getFileName(uri))
+            val outputStream = FileOutputStream(file)
+            inputStream.copyTo(outputStream)
+            return file
+        }
+        return null
+    }
+
+    private fun ContentResolver.getFileName(fileUri: Uri): String {
+        var name = ""
+        val returnCursor = this.query(fileUri, null, null, null, null)
+        if (returnCursor != null) {
+            val nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            returnCursor.moveToFirst()
+            name = returnCursor.getString(nameIndex)
+            returnCursor.close()
+        }
+        return name
     }
 
 }

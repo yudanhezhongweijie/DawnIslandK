@@ -12,7 +12,7 @@
     android:paddingBottom="15dp">
 
     <TextView
-        android:id="@+id/dialogTitle"
+        android:id="@+id/postTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
@@ -21,48 +21,48 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
-        android:id="@+id/expandMore"
+        android:id="@+id/postExpand"
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:layout_marginTop="20dp"
         android:background="@android:color/transparent"
         android:src="@drawable/ic_expand_vertical"
-        app:layout_constraintStart_toStartOf="@id/editContent"
-        app:layout_constraintTop_toBottomOf="@id/dialogTitle" />
+        app:layout_constraintStart_toStartOf="@id/postContent"
+        app:layout_constraintTop_toBottomOf="@id/postTitle" />
 
     <ImageButton
-        android:id="@+id/doodle"
+        android:id="@+id/postDoodle"
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:layout_marginStart="30dp"
         android:background="@android:color/transparent"
         android:src="@drawable/ic_doodle"
-        app:layout_constraintStart_toEndOf="@+id/expandMore"
-        app:layout_constraintTop_toTopOf="@+id/expandMore" />
+        app:layout_constraintStart_toEndOf="@+id/postExpand"
+        app:layout_constraintTop_toTopOf="@+id/postExpand" />
 
     <ImageButton
-        android:id="@+id/attachImage"
+        android:id="@+id/postImage"
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:layout_marginStart="30dp"
         android:background="@android:color/transparent"
         android:src="@drawable/ic_image"
-        app:layout_constraintStart_toEndOf="@+id/doodle"
-        app:layout_constraintTop_toTopOf="@+id/doodle" />
+        app:layout_constraintStart_toEndOf="@+id/postDoodle"
+        app:layout_constraintTop_toTopOf="@+id/postDoodle" />
 
     <TextView
-        android:id="@+id/cookie"
+        android:id="@+id/postCookie"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="24dp"
         android:text="没有饼干"
         android:textSize="18sp"
-        app:layout_constraintEnd_toStartOf="@+id/send"
-        app:layout_constraintTop_toTopOf="@+id/send" />
+        app:layout_constraintEnd_toStartOf="@+id/postSend"
+        app:layout_constraintTop_toTopOf="@+id/postSend" />
 
     <ImageButton
-        android:id="@+id/send"
+        android:id="@+id/postSend"
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:layout_marginTop="20dp"
@@ -71,7 +71,7 @@
         android:focusable="true"
         android:src="@drawable/ic_send"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/dialogTitle" />
+        app:layout_constraintTop_toBottomOf="@id/postTitle" />
 
     <LinearLayout
         android:id="@+id/expansion"
@@ -81,10 +81,10 @@
         android:layout_marginBottom="5dp"
         android:orientation="vertical"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/editContent"
+        app:layout_constraintBottom_toTopOf="@+id/postContent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/expandMore">
+        app:layout_constraintTop_toBottomOf="@id/postExpand">
 
         <View
             android:id="@+id/spart_line_1"
@@ -95,7 +95,7 @@
             android:visibility="visible" />
 
         <EditText
-            android:id="@+id/title"
+            android:id="@+id/formTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -117,7 +117,7 @@
             android:visibility="visible" />
 
         <EditText
-            android:id="@+id/email"
+            android:id="@+id/formEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -138,7 +138,7 @@
             android:visibility="visible" />
 
         <EditText
-            android:id="@+id/name"
+            android:id="@+id/formName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -162,7 +162,7 @@
     </LinearLayout>
 
     <EditText
-        android:id="@+id/editContent"
+        android:id="@+id/postContent"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"

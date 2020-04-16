@@ -192,7 +192,7 @@ class ReplyFragment : Fragment() {
 
         binding.create.setOnClickListener {
             hideMenu()
-
+            postPopup.resto = viewModel.currentThread!!.id
             XPopup.Builder(context)
                 .asCustom(postPopup)
                 .show()

@@ -12,6 +12,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
+import org.jsoup.Jsoup
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import timber.log.Timber
@@ -127,9 +128,8 @@ object NMBServiceClient {
         image: File?, userhash: String
     ): String {
         try {
-            val rawResponse = withContext(Dispatchers.IO) {
+            return withContext(Dispatchers.IO) {
                 Timber.i("Sending Reply...")
-
                 var imagePart: MultipartBody.Part? = null
                 image?.run {
                     asRequestBody(("image/${image.extension}").toMediaTypeOrNull()).run {
@@ -142,10 +142,11 @@ object NMBServiceClient {
                     content?.toRequestBody(), water?.toRequestBody(),
                     imagePart,
                     "userhash=$userhash"
-                ).execute().body()!!.string()
+                ).execute().body()!!.string().run {
+                    Jsoup.parse(this).getElementsByClass("system-message")
+                        .first().children().not(".jump").text()
+                }
             }
-            // TODO: parse response message
-            return rawResponse
         } catch (e: Exception) {
             Timber.e(e, "Reply did not succeeded...")
             throw e

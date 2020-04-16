@@ -26,6 +26,12 @@ interface CookieDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(cookieList: List<Cookie>)
 
+    @Transaction
+    suspend fun resetCookies(cookieList: List<Cookie>) {
+        nukeTable()
+        insertAll(cookieList)
+    }
+
     @Update
     suspend fun updateCookie(cookie: Cookie)
 

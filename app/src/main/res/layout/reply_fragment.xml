@@ -56,11 +56,11 @@
         android:text="跳页"
         android:visibility="gone"
         app:icon="@drawable/ic_bookmarks"
-        app:layout_constraintBottom_toTopOf="@+id/create"
+        app:layout_constraintBottom_toTopOf="@+id/post"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/create"
+        android:id="@+id/post"
         style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -68,7 +68,7 @@
         android:layout_marginBottom="16dp"
         android:text="发布"
         android:visibility="gone"
-        app:icon="@drawable/ic_create"
+        app:icon="@drawable/ic_post"
         app:layout_constraintBottom_toTopOf="@+id/fabMenu"
         app:layout_constraintEnd_toEndOf="parent" />
 

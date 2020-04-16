@@ -23,12 +23,10 @@ import com.laotoua.dawnislandk.entities.Cookie
 import com.laotoua.dawnislandk.network.NMBServiceClient
 import com.laotoua.dawnislandk.util.AppState
 import com.lxj.xpopup.XPopup
-import com.lxj.xpopup.core.BasePopupView
 import com.lxj.xpopup.core.BottomPopupView
+import com.lxj.xpopup.interfaces.SimpleCallback
 import com.lxj.xpopup.util.XPopupUtils
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
 import java.io.FileInputStream
@@ -36,9 +34,28 @@ import java.io.FileOutputStream
 
 
 @SuppressLint("ViewConstructor")
-// TODO: SEND
 class PostPopup(private val caller: Fragment, context: Context) :
     BottomPopupView(context) {
+
+    companion object {
+        fun show(
+            caller: Fragment,
+            postPopup: PostPopup,
+            targetId: String,
+            newPost: Boolean = false
+        ) {
+            XPopup.Builder(caller.context)
+                .setPopupCallback(object : SimpleCallback() {
+                    override fun beforeShow() {
+                        postPopup.updateTitle(targetId, newPost)
+                        postPopup.updateCookies()
+                        super.beforeShow()
+                    }
+                })
+                .asCustom(postPopup)
+                .show()
+        }
+    }
 
     var resto = ""
     var name = ""
@@ -61,16 +78,14 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
     private var selectedCookie: String? = null
 
-    override fun show(): BasePopupView {
-        caller.lifecycleScope.launch { loadCookies() }
-        return super.show()
+    private fun updateTitle(targetId: String, newPost: Boolean) {
+        findViewById<TextView>(R.id.postTitle).text = if (newPost) "发布新串" else "回复 >No. $targetId"
     }
 
-    private suspend fun loadCookies() {
-        withContext(Dispatchers.IO) {
-            AppState.loadCookies()
-            cookies = AppState.cookies!!
-        }
+    private fun updateSelectedForum() {}
+
+    private fun updateCookies() {
+        cookies = AppState.cookies!!
         if (selectedCookie == null || cookies.isNullOrEmpty()) {
             findViewById<TextView>(R.id.postCookie)?.run {
                 text = if (cookies.isNullOrEmpty()) {
@@ -112,12 +127,12 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
         findViewById<ImageButton>(R.id.postSend).setOnClickListener {
             // TODO
-            Timber.i("Clicked on send")
+            Timber.i("Sending...")
             reply()
         }
 
         findViewById<ImageButton>(R.id.postImage).setOnClickListener {
-            Timber.i("Clicked on attachImage")
+            Timber.i("Attaching image...")
             checkStoragePermissions(context)
 
             getImage("image/*")
@@ -139,7 +154,6 @@ class PostPopup(private val caller: Fragment, context: Context) :
         }
 
         findViewById<TextView>(R.id.postCookie).setOnClickListener {
-
             if (!cookies.isNullOrEmpty()) {
                 XPopup.Builder(context)
                     .atView(it) // 依附于所点击的View，内部会自动判断在上方或者下方显示
@@ -177,8 +191,9 @@ class PostPopup(private val caller: Fragment, context: Context) :
         // test
 //        resto = "17735544"
         // TODO: if (water): add body
+        // TODO: loading...
         caller.lifecycleScope.launch {
-            val res = NMBServiceClient.sendReply(
+            NMBServiceClient.sendReply(
                 resto,
                 name,
                 email,
@@ -187,12 +202,12 @@ class PostPopup(private val caller: Fragment, context: Context) :
                 null,
                 imageFile,
                 hash
-            )
-            Timber.d("response: $res")
+            ).run {
+                dismiss()
+                Toast.makeText(caller.context, this, Toast.LENGTH_LONG).show()
+            }
         }
 
-        Timber.i("send: $resto, $name, $email, $title, $content, $imageFile, $hash")
-        dismiss()
     }
 
 

@@ -74,8 +74,10 @@ dependencies {
     implementation 'com.jakewharton.timber:timber:4.7.1'
 
     implementation 'com.squareup.retrofit2:retrofit:2.8.1'
+    implementation 'com.squareup.retrofit2:converter-gson:2.8.1'
     implementation "com.squareup.okhttp3:okhttp:4.4.0"
     implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'org.jsoup:jsoup:1.13.1'
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.2'
 
     implementation 'com.lxj:xpopup:1.8.17'

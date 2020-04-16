@@ -7,12 +7,15 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
 import com.laotoua.dawnislandk.entities.Forum
+import com.laotoua.dawnislandk.util.AppState
 import com.laotoua.dawnislandk.util.QuickNodeAdapter
 import com.laotoua.dawnislandk.viewmodels.CommunityViewModel
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 
@@ -24,6 +27,11 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
 
     private val mAdapter = QuickNodeAdapter(this)
 
+    init {
+        // load Resources
+        lifecycleScope.launch { loadResources() }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -31,6 +39,7 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
 
         initStatusBar()
 
+        // TODO: orientation cause activity recreate, currently will force communities reload
         setUpForumDrawer()
     }
 
@@ -83,4 +92,8 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
     }
 
 
+    // initialize Global resources
+    private suspend fun loadResources() {
+        AppState.loadCookies()
+    }
 }

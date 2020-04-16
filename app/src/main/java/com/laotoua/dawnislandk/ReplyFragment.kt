@@ -190,12 +190,9 @@ class ReplyFragment : Fragment() {
             hideMenu()
         }
 
-        binding.create.setOnClickListener {
+        binding.post.setOnClickListener {
             hideMenu()
-
-            XPopup.Builder(context)
-                .asCustom(postPopup)
-                .show()
+            PostPopup.show(this, postPopup, viewModel.currentThread!!.id)
         }
 
         binding.jump.setOnClickListener {
@@ -254,7 +251,7 @@ class ReplyFragment : Fragment() {
     private fun hideMenu() {
         val rotateBackward = AnimationUtils.loadAnimation(requireContext(), R.anim.rotate_backward);
         binding.fabMenu.startAnimation(rotateBackward)
-        binding.create.hide()
+        binding.post.hide()
         binding.jump.hide()
         binding.copyId.hide()
         binding.onlyPo.hide()
@@ -264,7 +261,7 @@ class ReplyFragment : Fragment() {
     private fun showMenu() {
         val rotateForward = AnimationUtils.loadAnimation(requireContext(), R.anim.rotate_forward);
         binding.fabMenu.startAnimation(rotateForward)
-        binding.create.show()
+        binding.post.show()
         binding.jump.show()
         binding.copyId.show()
         binding.onlyPo.show()

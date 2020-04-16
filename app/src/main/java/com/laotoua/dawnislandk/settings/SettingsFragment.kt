@@ -16,14 +16,13 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 
+// TODO: update app bar
 class SettingsFragment : PreferenceFragmentCompat() {
 
     private lateinit var cookies: List<Cookie>
 
     init {
-        lifecycleScope.launchWhenCreated {
-            loadCookies()
-        }
+        lifecycleScope.launchWhenCreated { loadCookies() }
     }
 
     private suspend fun loadCookies() {
@@ -45,15 +44,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 .asCustom(cookiePopup)
                 .show()
                 .dismissWith {
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        // TODO: make transaction for below
-                        // TODO: add context for saving
-                        Timber.i("Clearing old entries...")
-                        AppState.DB.cookieDao().nukeTable()
-                        Timber.i("Saving cookies ${cookiePopup.cookies}")
-                        AppState.DB.cookieDao().insertAll(cookiePopup.cookies)
-
-                        loadCookies()
+                    if (cookies != cookiePopup.cookies) {
+                        lifecycleScope.launch(Dispatchers.IO) {
+                            Timber.i("Updating cookie entries...")
+                            Timber.i("Cookies: ${cookiePopup.cookies}")
+                            AppState.DB.cookieDao().resetCookies(cookiePopup.cookies)
+                            loadCookies()
+                        }
                     }
                 }
 

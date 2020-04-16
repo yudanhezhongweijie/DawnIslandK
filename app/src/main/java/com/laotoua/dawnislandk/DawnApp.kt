@@ -23,7 +23,6 @@ class DawnApp : Application() {
             .build()
 
         AppState.setDB(db)
+
     }
-
-
 }

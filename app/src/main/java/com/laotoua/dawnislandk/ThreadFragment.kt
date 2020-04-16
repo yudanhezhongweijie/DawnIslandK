@@ -23,7 +23,6 @@ import com.laotoua.dawnislandk.util.QuickAdapter
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import com.laotoua.dawnislandk.viewmodels.ThreadViewModel
 import com.lxj.xpopup.XPopup
-import com.lxj.xpopup.core.BasePopupView
 import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
 
@@ -37,7 +36,7 @@ class ThreadFragment : Fragment() {
     private val sharedVM: SharedViewModel by activityViewModels()
     private val mAdapter = QuickAdapter(R.layout.thread_list_item)
 
-    private val dialog: BasePopupView by lazy { PostPopup(this, requireContext()) }
+    private val postPopup: PostPopup by lazy { PostPopup(this, requireContext()) }
 
     private var isFabOpen = false
 
@@ -105,7 +104,7 @@ class ThreadFragment : Fragment() {
         }
 
 
-        // TODO: fragment transactions forces new view lifecycle owner created, hence will trigger observe actions
+        // TODO: fragment transactions forces new view lifecycle owner postd, hence will trigger observe actions
         viewModel.loadFail.observe(viewLifecycleOwner, Observer {
             // TODO: can be either out of new Data or api error
             if (it == true) {
@@ -158,13 +157,10 @@ class ThreadFragment : Fragment() {
             hideMenu()
         }
 
-        binding.create.setOnClickListener {
-            Timber.i("Clicked on create")
+        binding.post.setOnClickListener {
+            Timber.i("Clicked on post")
             hideMenu()
-
-            XPopup.Builder(context)
-                .asCustom(dialog)
-                .show()
+            PostPopup.show(this, postPopup, sharedVM.selectedForum.value!!.id, true)
         }
 
         updateAppBar()
@@ -187,7 +183,7 @@ class ThreadFragment : Fragment() {
         val rotateBackward = loadAnimation(requireContext(), R.anim.rotate_backward)
         binding.fabMenu.startAnimation(rotateBackward)
         binding.setting.hide()
-        binding.create.hide()
+        binding.post.hide()
         binding.cookie.hide()
         isFabOpen = false
     }
@@ -197,7 +193,7 @@ class ThreadFragment : Fragment() {
         binding.fabMenu.startAnimation(rotateForward)
 
         binding.setting.show()
-        binding.create.show()
+        binding.post.show()
         binding.cookie.show()
         isFabOpen = true
     }

@@ -27,9 +27,9 @@
     <!--            android:layout_gravity="end"-->
     <!--            android:layout_marginEnd="10dp"-->
     <!--            android:background="@color/colorPrimary"-->
-    <!--            android:src="@drawable/ic_save"-->
+    <!--            android:src="@drawable/ic_save_black_24dp"-->
     <!--            android:text="Save"-->
-    <!--            android:textColor="#D2FFFFFF"-->
+    <!--            android:textColor="#FFFFFF"-->
     <!--            android:tint="#FFFFFF" />-->
 
     <!--    </androidx.appcompat.widget.Toolbar>-->

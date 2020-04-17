@@ -160,7 +160,13 @@ class ThreadFragment : Fragment() {
         binding.post.setOnClickListener {
             Timber.i("Clicked on post")
             hideMenu()
-            PostPopup.show(this, postPopup, sharedVM.selectedForum.value!!.id, true)
+            PostPopup.show(
+                this,
+                postPopup,
+                sharedVM.selectedForum.value!!.id,
+                true,
+                sharedVM.getForumNameMapping()
+            )
         }
 
         updateAppBar()
@@ -212,7 +218,7 @@ class ThreadFragment : Fragment() {
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
             // TODO: default forumName
             collapsingToolbar.title = "A岛 • ${sharedVM.selectedForum.value?.name ?: "时间线"}"
-            toolbar.setNavigationIcon(R.drawable.ic_menu)
+            toolbar.setNavigationIcon(R.drawable.ic_menu_white_24dp)
             toolbar.setNavigationOnClickListener(null)
             toolbar.setNavigationOnClickListener {
                 drawerLayout.openDrawer(GravityCompat.START)

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/all_corner_background">
+    android:background="@drawable/full_round_corner_background">
 
     <TextView
         android:id="@+id/title"
@@ -29,7 +29,7 @@
         android:scaleType="fitCenter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_add_black" />
+        app:srcCompat="@drawable/ic_add_black_48dp" />
 
     <LinearLayout
         android:id="@+id/listView"
@@ -45,7 +45,7 @@
         <include
             android:id="@+id/cookie1"
             layout="@layout/cookie_list_item"
-            android:background="@drawable/all_corner_background" />
+            android:background="@drawable/full_round_corner_background" />
 
         <include
             android:id="@+id/cookie2"

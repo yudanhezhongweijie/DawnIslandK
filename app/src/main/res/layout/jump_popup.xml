@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/all_corner_background">
+    android:background="@drawable/full_round_corner_background">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/pageCountContainer"
@@ -97,7 +97,7 @@
         app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_first_page" />
+        app:srcCompat="@drawable/ic_first_page_black_48dp" />
 
     <EditText
         android:id="@+id/pageInput"
@@ -120,7 +120,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/pageInput"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_last_page"
+        app:srcCompat="@drawable/ic_last_page_black_48dp"
         tools:layout_constraintHorizontal_weight="1" />
 
     <Button

@@ -121,7 +121,7 @@ object NMBServiceClient {
         }
     }
 
-    suspend fun sendReply(
+    suspend fun postReply(
         resto: String, name: String?,
         email: String?, title: String?,
         content: String?, water: String?,
@@ -136,7 +136,7 @@ object NMBServiceClient {
                         imagePart = MultipartBody.Part.createFormData("image", image.name, this)
                     }
                 }
-                service.sendReply(
+                service.postReply(
                     resto.toRequestBody(), name?.toRequestBody(),
                     email?.toRequestBody(), title?.toRequestBody(),
                     content?.toRequestBody(), water?.toRequestBody(),
@@ -149,6 +149,38 @@ object NMBServiceClient {
             }
         } catch (e: Exception) {
             Timber.e(e, "Reply did not succeeded...")
+            throw e
+        }
+    }
+
+    suspend fun postThread(
+        fid: String, name: String?,
+        email: String?, title: String?,
+        content: String?, water: String?,
+        image: File?, userhash: String
+    ): String {
+        try {
+            return withContext(Dispatchers.IO) {
+                Timber.i("Sending New Post...")
+                var imagePart: MultipartBody.Part? = null
+                image?.run {
+                    asRequestBody(("image/${image.extension}").toMediaTypeOrNull()).run {
+                        imagePart = MultipartBody.Part.createFormData("image", image.name, this)
+                    }
+                }
+                service.postThread(
+                    fid.toRequestBody(), name?.toRequestBody(),
+                    email?.toRequestBody(), title?.toRequestBody(),
+                    content?.toRequestBody(), water?.toRequestBody(),
+                    imagePart,
+                    "userhash=$userhash"
+                ).execute().body()!!.string().run {
+                    Jsoup.parse(this).getElementsByClass("system-message")
+                        .first().children().not(".jump").text()
+                }
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Post did not succeeded...")
             throw e
         }
     }

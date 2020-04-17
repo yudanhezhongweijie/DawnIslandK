@@ -124,11 +124,6 @@ class QuickAdapter(private val layoutResId: Int) :
             else {
                 card.setText(R.id.threadContent, this)
                 card.setVisible(R.id.threadContent, true)
-                /**
-                 *  special handler for clickable spans
-                 */
-                card.getView<TextView>(R.id.threadContent).movementMethod =
-                    LinkMovementMethod.getInstance()
             }
         }
     }

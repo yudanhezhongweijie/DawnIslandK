@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="bottom|center_horizontal"
-    android:background="@drawable/top_corner_background"
+    android:background="@drawable/top_round_corner_background"
     android:elevation="5dp"
     android:paddingStart="15dp"
     android:paddingEnd="15dp"
@@ -17,61 +17,89 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:text="回复 No.12345678"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageButton
-        android:id="@+id/postExpand"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_marginTop="20dp"
-        android:background="@android:color/transparent"
-        android:src="@drawable/ic_expand_vertical"
-        app:layout_constraintStart_toStartOf="@id/postContent"
-        app:layout_constraintTop_toBottomOf="@id/postTitle" />
-
-    <ImageButton
-        android:id="@+id/postDoodle"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_marginStart="30dp"
-        android:background="@android:color/transparent"
-        android:src="@drawable/ic_doodle"
-        app:layout_constraintStart_toEndOf="@+id/postExpand"
-        app:layout_constraintTop_toTopOf="@+id/postExpand" />
-
-    <ImageButton
-        android:id="@+id/postImage"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_marginStart="30dp"
-        android:background="@android:color/transparent"
-        android:src="@drawable/ic_image"
-        app:layout_constraintStart_toEndOf="@+id/postDoodle"
-        app:layout_constraintTop_toTopOf="@+id/postDoodle" />
-
-    <TextView
-        android:id="@+id/postCookie"
+    <Button
+        android:id="@+id/postForum"
+        style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="8dp"
+        android:text="选择板块"
+        android:textAppearance="@style/CollSubTitle"
+        android:textSize="18sp"
+        app:icon="@drawable/ic_arrow_drop_down_black_24dp"
+        app:iconGravity="textEnd"
+        app:layout_constraintBottom_toBottomOf="@+id/postTitle"
+        app:layout_constraintStart_toEndOf="@id/postTitle"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/postExpand"
+        style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+        android:layout_width="wrap_content"
+
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:icon="@drawable/ic_unfold_more_black_24dp"
+        app:layout_constraintStart_toStartOf="@id/postContent"
+        app:layout_constraintTop_toBottomOf="@id/postTitle"
+        app:strokeWidth="0dp" />
+
+    <Button
+        android:id="@+id/postImage"
+        style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        app:icon="@drawable/ic_image_black_24dp"
+        app:layout_constraintStart_toEndOf="@+id/postExpand"
+        app:layout_constraintTop_toTopOf="@+id/postExpand"
+        app:strokeWidth="0dp" />
+
+    <Button
+        android:id="@+id/postFace"
+        style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        app:icon="@drawable/ic_emoji_emotions_black_24dp"
+        app:layout_constraintStart_toEndOf="@+id/postImage"
+        app:layout_constraintTop_toTopOf="@+id/postImage"
+        app:strokeWidth="0dp" />
+
+    <Button
+        android:id="@+id/postCookie"
+        style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="24dp"
         android:text="没有饼干"
+        android:textAppearance="@style/CollSubTitle"
         android:textSize="18sp"
+        app:strokeWidth="0dp"
+        app:icon="@drawable/ic_arrow_drop_down_black_24dp"
+        app:iconGravity="textEnd"
+        app:layout_constraintBottom_toBottomOf="@+id/postSend"
         app:layout_constraintEnd_toStartOf="@+id/postSend"
         app:layout_constraintTop_toTopOf="@+id/postSend" />
 
-    <ImageButton
+    <Button
         android:id="@+id/postSend"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_marginTop="20dp"
-        android:background="@android:color/transparent"
+        style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:clickable="true"
         android:focusable="true"
-        android:src="@drawable/ic_send"
+        app:icon="@drawable/ic_send_black_24dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/postTitle" />
+        app:layout_constraintTop_toBottomOf="@id/postTitle"
+        app:strokeWidth="0dp" />
 
     <LinearLayout
         android:id="@+id/expansion"
@@ -80,11 +108,11 @@
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
         android:orientation="vertical"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintBottom_toTopOf="@+id/postContent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/postExpand">
+        app:layout_constraintTop_toBottomOf="@id/postCookie">
 
         <View
             android:id="@+id/spart_line_1"
@@ -165,7 +193,7 @@
         android:id="@+id/postContent"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="8dp"
         android:autofillHints="在这里输入文字"
         android:background="#EAEAEA"
         android:ems="10"

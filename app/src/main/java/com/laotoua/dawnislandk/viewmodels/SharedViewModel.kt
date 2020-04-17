@@ -37,6 +37,10 @@ class SharedViewModel : ViewModel() {
         this.forumNameMapping = map
     }
 
+    fun getForumNameMapping(): Map<String, String> {
+        return forumNameMapping
+    }
+
     fun getForumDisplayName(id: String): String {
         return forumNameMapping[id] ?: ""
     }

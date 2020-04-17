@@ -68,8 +68,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
     var content = ""
     var forumNameMap: Map<String, String>? = null
 
-    // TODO
-    var water = false
+    var water: Boolean? = null
     var imageFile: File? = null
     var hash = ""
 
@@ -129,9 +128,10 @@ class PostPopup(private val caller: Fragment, context: Context) :
         super.onCreate()
         findViewById<LinearLayout>(R.id.toggleContainer).run {
             expansionContainer = findViewById(R.id.expansionContainer)
-            // TODO: use
+
             attachmentContainer = findViewById(R.id.attachmentContainer)
 
+            // TODO: faces do not display properly in button
             // add faces
             facesContainer = findViewById<FlexboxLayout>(R.id.facesContainer).also { ll ->
                 resources.getStringArray(R.array.NMBFaces).map {
@@ -217,10 +217,24 @@ class PostPopup(private val caller: Fragment, context: Context) :
         }
 
         // TODO: camera
+        findViewById<Button>(R.id.postCamera).setOnClickListener {
+            Toast.makeText(context, "postCamera TODO....", Toast.LENGTH_LONG).show()
+        }
 
         // TODO: luweiniang
 
+        findViewById<Button>(R.id.postLuwei).setOnClickListener {
+            Toast.makeText(context, "postLuwei TODO....", Toast.LENGTH_LONG).show()
+        }
+        // TODO: doodle
+        findViewById<Button>(R.id.postDoodle).setOnClickListener {
+            Toast.makeText(context, "postDoodle TODO....", Toast.LENGTH_LONG).show()
+        }
+
         // TODO: watermark
+        findViewById<CheckBox>(R.id.postWater).setOnClickListener {
+            Toast.makeText(context, "postWater TODO....", Toast.LENGTH_LONG).show()
+        }
     }
 
     // TODO: post new thread
@@ -242,35 +256,21 @@ class PostPopup(private val caller: Fragment, context: Context) :
         // TODO: loading...
         // TODO: 值班室需要举报理由才能发送
         caller.lifecycleScope.launch {
-            if (newPost) {
-                NMBServiceClient.postThread(
-                    targetId,
-                    name,
-                    email,
-                    title,
-                    content,
-                    null,
-                    imageFile,
-                    hash
-                ).run {
-                    dismiss()
-                    Toast.makeText(caller.context, this, Toast.LENGTH_LONG).show()
-                }
-            } else {
-                NMBServiceClient.postReply(
-                    targetId,
-                    name,
-                    email,
-                    title,
-                    content,
-                    null,
-                    imageFile,
-                    hash
-                ).run {
-                    dismiss()
-                    Toast.makeText(caller.context, this, Toast.LENGTH_LONG).show()
-                }
+            NMBServiceClient.sendPost(
+                newPost,
+                targetId,
+                name,
+                email,
+                title,
+                content,
+                null,
+                imageFile,
+                hash
+            ).run {
+                dismiss()
+                Toast.makeText(caller.context, this, Toast.LENGTH_LONG).show()
             }
+
         }
 
     }

@@ -5,19 +5,18 @@ import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.view.View
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.activity.invoke
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.google.android.flexbox.FlexboxLayout
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.entities.Cookie
 import com.laotoua.dawnislandk.network.NMBServiceClient
@@ -83,6 +82,11 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
     private var selectedCookie: Cookie? = null
 
+    private var expansionContainer: LinearLayout? = null
+    private var attachmentContainer: FlexboxLayout? = null
+    private var facesContainer: FlexboxLayout? = null
+    private var postContent: EditText? = null
+
     private fun updateTitle(targetId: String, newPost: Boolean) {
         findViewById<TextView>(R.id.postTitle).text = if (newPost) "发布新串" else "回复 >No. $targetId"
     }
@@ -111,6 +115,31 @@ class PostPopup(private val caller: Fragment, context: Context) :
         updateForumButton()
     }
 
+    private fun updateSelector(buttonId: Int) {
+        when (buttonId) {
+            R.id.postExpand -> {
+                expansionContainer!!.visibility = View.VISIBLE
+                facesContainer!!.visibility = View.GONE
+                attachmentContainer!!.visibility = View.GONE
+            }
+
+            R.id.postFace -> {
+                expansionContainer!!.visibility = View.GONE
+                facesContainer!!.visibility = View.VISIBLE
+                attachmentContainer!!.visibility = View.GONE
+            }
+            R.id.postAttachment -> {
+                expansionContainer!!.visibility = View.GONE
+                facesContainer!!.visibility = View.GONE
+                attachmentContainer!!.visibility = View.VISIBLE
+            }
+            else -> {
+                Timber.e("Unhandled selector in post popup")
+            }
+
+        }
+    }
+
     override fun getImplLayoutId(): Int {
         return R.layout.post_popup
     }
@@ -122,6 +151,27 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
     override fun onCreate() {
         super.onCreate()
+
+        expansionContainer = findViewById(R.id.expansionContainer)
+        // TODO: use
+        attachmentContainer = findViewById(R.id.attachmentContainer)
+
+        // add faces
+        findViewById<FlexboxLayout>(R.id.facesContainer).let { ll ->
+            facesContainer = ll
+            resources.getStringArray(R.array.NMBFaces).map {
+                Button(context).run {
+                    text = it
+                    setBackgroundColor(Color.TRANSPARENT)
+                    setOnClickListener {
+                        postContent!!.append(text)
+                    }
+                    ll.addView(this)
+                }
+            }
+        }
+
+        postContent = findViewById<EditText>(R.id.postContent)
 
         findViewById<Button>(R.id.postForum).run {
             setOnClickListener {
@@ -143,7 +193,8 @@ class PostPopup(private val caller: Fragment, context: Context) :
             send()
         }
 
-        findViewById<Button>(R.id.postImage).setOnClickListener {
+        findViewById<Button>(R.id.postAttachment).setOnClickListener {
+            updateSelector(it.id)
             // TODO
             Timber.i("Attaching image...")
             checkStoragePermissions(context)
@@ -152,17 +203,12 @@ class PostPopup(private val caller: Fragment, context: Context) :
         }
 
         findViewById<Button>(R.id.postFace).setOnClickListener {
-            Toast.makeText(caller.context, "还没做。。。", Toast.LENGTH_SHORT).show()
+            updateSelector(it.id)
         }
 
         findViewById<Button>(R.id.postExpand).setOnClickListener {
-            findViewById<LinearLayout>(R.id.expansion).run {
-                visibility = if (visibility == View.VISIBLE) {
-                    View.GONE
-                } else {
-                    View.VISIBLE
-                }
-            }
+            updateSelector(it.id)
+
         }
 
         findViewById<Button>(R.id.postCookie).setOnClickListener {
@@ -196,8 +242,8 @@ class PostPopup(private val caller: Fragment, context: Context) :
         }
         name = findViewById<TextView>(R.id.formName).text.toString()
         email = findViewById<TextView>(R.id.formEmail).text.toString()
-        title = findViewById<TextView>(R.id.formEmail).text.toString()
-        content = findViewById<TextView>(R.id.postContent).text.toString()
+        title = findViewById<TextView>(R.id.formTitle).text.toString()
+        content = postContent!!.text.toString()
 
         hash = selectedCookie?.cookieHash ?: ""
 
@@ -205,6 +251,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
         targetId = "17735544"
         // TODO: if (water): add body
         // TODO: loading...
+        // TODO: 值班室需要举报理由才能发送
         caller.lifecycleScope.launch {
             if (newPost) {
                 NMBServiceClient.postThread(

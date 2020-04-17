@@ -81,6 +81,7 @@ dependencies {
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.2'
 
     implementation 'com.lxj:xpopup:1.8.17'
+    implementation 'com.google.android:flexbox:2.0.1'
 
     implementation 'me.dkzwm.widget.srl:core:1.7.1.1.androidx'
     implementation 'me.dkzwm.widget.srl:ext-util:1.7.1.1.androidx'

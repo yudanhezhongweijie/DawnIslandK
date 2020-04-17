@@ -51,7 +51,7 @@
         app:strokeWidth="0dp" />
 
     <Button
-        android:id="@+id/postImage"
+        android:id="@+id/postAttachment"
         style="@style/Widget.App.Button.OutlinedButton.IconOnly"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -68,8 +68,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         app:icon="@drawable/ic_emoji_emotions_black_24dp"
-        app:layout_constraintStart_toEndOf="@+id/postImage"
-        app:layout_constraintTop_toTopOf="@+id/postImage"
+        app:layout_constraintStart_toEndOf="@+id/postAttachment"
+        app:layout_constraintTop_toTopOf="@+id/postAttachment"
         app:strokeWidth="0dp" />
 
     <Button
@@ -102,17 +102,17 @@
         app:strokeWidth="0dp" />
 
     <LinearLayout
-        android:id="@+id/expansion"
+        android:id="@+id/expansionContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
         android:orientation="vertical"
-        android:visibility="visible"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/postContent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/postCookie">
+        app:layout_constraintTop_toBottomOf="@id/facesWrapper">
 
         <View
             android:id="@+id/spart_line_1"
@@ -205,6 +205,37 @@
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/expansion" />
+        app:layout_constraintTop_toBottomOf="@id/expansionContainer" />
+
+    <ScrollView
+        android:id="@+id/facesWrapper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="@id/postContent"
+        app:layout_constraintStart_toStartOf="@id/postContent"
+        app:layout_constraintTop_toBottomOf="@id/postCookie">
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:id="@+id/facesContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/Theme.MaterialComponents"
+            android:visibility="gone"
+            app:alignContent="stretch"
+            app:alignItems="stretch"
+            app:flexDirection="row"
+            app:flexWrap="wrap"
+            app:justifyContent="space_evenly" />
+    </ScrollView>
+
+    <com.google.android.flexbox.FlexboxLayout
+        android:id="@+id/attachmentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@id/postContent"
+        app:layout_constraintStart_toStartOf="@id/postContent"
+        app:layout_constraintTop_toBottomOf="@id/postCookie" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

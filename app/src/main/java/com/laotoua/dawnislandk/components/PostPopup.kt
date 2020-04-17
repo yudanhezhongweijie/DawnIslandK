@@ -5,18 +5,19 @@ import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.view.View
 import android.widget.*
 import androidx.activity.invoke
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.flexbox.FlexboxLayout
+import com.google.android.material.button.MaterialButtonToggleGroup
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.entities.Cookie
 import com.laotoua.dawnislandk.network.NMBServiceClient
@@ -83,7 +84,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
     private var selectedCookie: Cookie? = null
 
     private var expansionContainer: LinearLayout? = null
-    private var attachmentContainer: FlexboxLayout? = null
+    private var attachmentContainer: ConstraintLayout? = null
     private var facesContainer: FlexboxLayout? = null
     private var postContent: EditText? = null
 
@@ -115,31 +116,6 @@ class PostPopup(private val caller: Fragment, context: Context) :
         updateForumButton()
     }
 
-    private fun updateSelector(buttonId: Int) {
-        when (buttonId) {
-            R.id.postExpand -> {
-                expansionContainer!!.visibility = View.VISIBLE
-                facesContainer!!.visibility = View.GONE
-                attachmentContainer!!.visibility = View.GONE
-            }
-
-            R.id.postFace -> {
-                expansionContainer!!.visibility = View.GONE
-                facesContainer!!.visibility = View.VISIBLE
-                attachmentContainer!!.visibility = View.GONE
-            }
-            R.id.postAttachment -> {
-                expansionContainer!!.visibility = View.GONE
-                facesContainer!!.visibility = View.GONE
-                attachmentContainer!!.visibility = View.VISIBLE
-            }
-            else -> {
-                Timber.e("Unhandled selector in post popup")
-            }
-
-        }
-    }
-
     override fun getImplLayoutId(): Int {
         return R.layout.post_popup
     }
@@ -151,24 +127,24 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
     override fun onCreate() {
         super.onCreate()
+        findViewById<LinearLayout>(R.id.toggleContainer).run {
+            expansionContainer = findViewById(R.id.expansionContainer)
+            // TODO: use
+            attachmentContainer = findViewById(R.id.attachmentContainer)
 
-        expansionContainer = findViewById(R.id.expansionContainer)
-        // TODO: use
-        attachmentContainer = findViewById(R.id.attachmentContainer)
-
-        // add faces
-        findViewById<FlexboxLayout>(R.id.facesContainer).let { ll ->
-            facesContainer = ll
-            resources.getStringArray(R.array.NMBFaces).map {
-                Button(context).run {
-                    text = it
-                    setBackgroundColor(Color.TRANSPARENT)
-                    setOnClickListener {
-                        postContent!!.append(text)
+            // add faces
+            facesContainer = findViewById<FlexboxLayout>(R.id.facesContainer).also { ll ->
+                resources.getStringArray(R.array.NMBFaces).map {
+                    Button(context).run {
+                        text = it
+                        setOnClickListener {
+                            postContent!!.append(text)
+                        }
+                        ll.addView(this)
                     }
-                    ll.addView(this)
                 }
             }
+
         }
 
         postContent = findViewById<EditText>(R.id.postContent)
@@ -193,23 +169,26 @@ class PostPopup(private val caller: Fragment, context: Context) :
             send()
         }
 
-        findViewById<Button>(R.id.postAttachment).setOnClickListener {
-            updateSelector(it.id)
-            // TODO
-            Timber.i("Attaching image...")
-            checkStoragePermissions(context)
+        findViewById<MaterialButtonToggleGroup>(R.id.toggleButton)
+            .addOnButtonCheckedListener { _, checkedId, isChecked ->
+                when (checkedId) {
+                    R.id.postExpand -> {
+                        expansionContainer!!.visibility = if (isChecked) View.VISIBLE else View.GONE
+                    }
 
-            getImage("image/*")
-        }
+                    R.id.postFace -> {
+                        facesContainer!!.visibility = if (isChecked) View.VISIBLE else View.GONE
+                    }
+                    R.id.postAttachment -> {
+                        attachmentContainer!!.visibility =
+                            if (isChecked) View.VISIBLE else View.GONE
+                    }
+                    else -> {
+                        Timber.e("Unhandled selector in post popup")
+                    }
 
-        findViewById<Button>(R.id.postFace).setOnClickListener {
-            updateSelector(it.id)
-        }
-
-        findViewById<Button>(R.id.postExpand).setOnClickListener {
-            updateSelector(it.id)
-
-        }
+                }
+            }
 
         findViewById<Button>(R.id.postCookie).setOnClickListener {
             if (!cookies.isNullOrEmpty()) {
@@ -232,6 +211,16 @@ class PostPopup(private val caller: Fragment, context: Context) :
         }
 
 
+        findViewById<Button>(R.id.postImage).setOnClickListener {
+            checkStoragePermissions(context)
+            getImage("image/*")
+        }
+
+        // TODO: camera
+
+        // TODO: luweiniang
+
+        // TODO: watermark
     }
 
     // TODO: post new thread

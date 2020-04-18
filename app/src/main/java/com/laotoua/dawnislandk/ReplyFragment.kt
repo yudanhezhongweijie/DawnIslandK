@@ -284,7 +284,7 @@ class ReplyFragment : Fragment() {
             val title =
                 "A岛 • ${sharedVM.selectedForum.value!!.name} • ${sharedVM.selectedThread.value?.id}"
             ToolbarUtil.disableCollapse(this, title)
-            toolbar.setNavigationIcon(R.drawable.ic_arrow_back)
+            toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
             toolbar.setNavigationOnClickListener(null)
             toolbar.setNavigationOnClickListener {
                 findNavController().popBackStack()

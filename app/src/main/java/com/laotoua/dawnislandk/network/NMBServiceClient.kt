@@ -49,18 +49,6 @@ object NMBServiceClient {
         return parser.fromJson(response.string(), object : TypeToken<List<Community>>() {}.type)
     }
 
-    private fun parseThreads(response: ResponseBody): List<Thread> {
-        return parser.fromJson(response.string(), object : TypeToken<List<Thread>>() {}.type)
-    }
-
-    private fun parseReplys(response: ResponseBody): Thread {
-        return parser.fromJson(response.string(), Thread::class.java)
-    }
-
-    private fun parseQuote(response: ResponseBody): Reply {
-        return parser.fromJson(response.string(), Reply::class.java)
-    }
-
 
     // TODO: handle case where thread is deleted
     suspend fun getThreads(fid: String, page: Int): List<Thread> {
@@ -86,6 +74,10 @@ object NMBServiceClient {
         }
     }
 
+    private fun parseThreads(response: ResponseBody): List<Thread> {
+        return parser.fromJson(response.string(), object : TypeToken<List<Thread>>() {}.type)
+    }
+
     // TODO: handle case where thread is deleted
     suspend fun getReplys(id: String, page: Int): Thread {
         try {
@@ -105,6 +97,10 @@ object NMBServiceClient {
         }
     }
 
+    private fun parseReplys(response: ResponseBody): Thread {
+        return parser.fromJson(response.string(), Thread::class.java)
+    }
+
     suspend fun getQuote(id: String): Reply {
         try {
             val rawResponse = withContext(Dispatchers.IO) {
@@ -121,28 +117,48 @@ object NMBServiceClient {
         }
     }
 
-    suspend fun sendReply(
-        resto: String, name: String?,
+    private fun parseQuote(response: ResponseBody): Reply {
+        return parser.fromJson(response.string(), Reply::class.java)
+    }
+
+
+    suspend fun sendPost(
+        newPost: Boolean,
+        targetId: String, name: String?,
         email: String?, title: String?,
         content: String?, water: String?,
         image: File?, userhash: String
     ): String {
         try {
             return withContext(Dispatchers.IO) {
-                Timber.i("Sending Reply...")
+                if (newPost) {
+                    Timber.i("Posting New Thread to $targetId...")
+                } else {
+                    Timber.i("Positing Reply to $targetId...")
+                }
                 var imagePart: MultipartBody.Part? = null
                 image?.run {
                     asRequestBody(("image/${image.extension}").toMediaTypeOrNull()).run {
                         imagePart = MultipartBody.Part.createFormData("image", image.name, this)
                     }
                 }
-                service.sendReply(
-                    resto.toRequestBody(), name?.toRequestBody(),
-                    email?.toRequestBody(), title?.toRequestBody(),
-                    content?.toRequestBody(), water?.toRequestBody(),
-                    imagePart,
-                    "userhash=$userhash"
-                ).execute().body()!!.string().run {
+                if (newPost) {
+                    service.postThread(
+                        targetId.toRequestBody(), name?.toRequestBody(),
+                        email?.toRequestBody(), title?.toRequestBody(),
+                        content?.toRequestBody(), water?.toRequestBody(),
+                        imagePart,
+                        "userhash=$userhash"
+                    )
+                } else {
+                    service.postReply(
+                        targetId.toRequestBody(), name?.toRequestBody(),
+                        email?.toRequestBody(), title?.toRequestBody(),
+                        content?.toRequestBody(), water?.toRequestBody(),
+                        imagePart,
+                        "userhash=$userhash"
+                    )
+                }.execute().body()!!.string().run {
                     Jsoup.parse(this).getElementsByClass("system-message")
                         .first().children().not(".jump").text()
                 }

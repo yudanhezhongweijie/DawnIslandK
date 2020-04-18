@@ -7,29 +7,37 @@ import retrofit2.Call
 import retrofit2.http.*
 
 interface NMBService {
-    @GET("api/getForumList")
+    @GET("Api/getForumList")
     fun getNMBForumList(): Call<ResponseBody>
 
-    @GET("api/showf")
+    @GET("Api/showf")
     fun getNMBThreads(@Query("id") fid: String, @Query("page") page: Int): Call<ResponseBody>
 
-    @GET("api/timeline")
+    @GET("Api/timeline")
     fun getNMBTimeLine(@Query("page") page: Int): Call<ResponseBody>
 
-    @GET("api/thread")
+    @GET("Api/thread")
     fun getNMBReplys(@Query("id") id: String, @Query("page") page: Int): Call<ResponseBody>
 
-    @GET("api/ref")
+    @GET("Api/ref")
     fun getNMBQuote(@Query("id") id: String): Call<ResponseBody>
 
     @Multipart
     @POST("Home/Forum/doReplyThread.html")
-    fun sendReply(
+    fun postReply(
         @Part("resto") resto: RequestBody, @Part("name") name: RequestBody?,
         @Part("email") email: RequestBody?, @Part("title") title: RequestBody?,
         @Part("content") content: RequestBody?, @Part("water") water: RequestBody?,
         @Part image: MultipartBody.Part?, @Header("Cookie") hash: String
     ): Call<ResponseBody>
 
+    @Multipart
+    @POST("Home/Forum/doPostThread.html")
+    fun postThread(
+        @Part("fid") fid: RequestBody, @Part("name") name: RequestBody?,
+        @Part("email") email: RequestBody?, @Part("title") title: RequestBody?,
+        @Part("content") content: RequestBody?, @Part("water") water: RequestBody?,
+        @Part image: MultipartBody.Part?, @Header("Cookie") hash: String
+    ): Call<ResponseBody>
 }
 

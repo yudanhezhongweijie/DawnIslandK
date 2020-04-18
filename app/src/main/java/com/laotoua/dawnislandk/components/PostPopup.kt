@@ -8,16 +8,16 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.view.View
-import android.widget.ImageButton
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.activity.invoke
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.google.android.flexbox.FlexboxLayout
+import com.google.android.material.button.MaterialButtonToggleGroup
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.entities.Cookie
 import com.laotoua.dawnislandk.network.NMBServiceClient
@@ -42,13 +42,16 @@ class PostPopup(private val caller: Fragment, context: Context) :
             caller: Fragment,
             postPopup: PostPopup,
             targetId: String,
-            newPost: Boolean = false
+            newPost: Boolean = false,
+            forumNameMap: Map<String, String>? = null
         ) {
             XPopup.Builder(caller.context)
                 .setPopupCallback(object : SimpleCallback() {
                     override fun beforeShow() {
-                        postPopup.updateTitle(targetId, newPost)
-                        postPopup.updateCookies()
+                        postPopup.targetId = targetId
+                        postPopup.newPost = newPost
+                        postPopup.forumNameMap = forumNameMap
+                        postPopup.updateView()
                         super.beforeShow()
                     }
                 })
@@ -57,14 +60,15 @@ class PostPopup(private val caller: Fragment, context: Context) :
         }
     }
 
-    var resto = ""
+    var newPost = false
+    var targetId = ""
     var name = ""
     var email = ""
     var title = ""
     var content = ""
+    var forumNameMap: Map<String, String>? = null
 
-    // TODO
-    var water = false
+    var water: Boolean? = null
     var imageFile: File? = null
     var hash = ""
 
@@ -78,11 +82,18 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
     private var selectedCookie: Cookie? = null
 
+    private var expansionContainer: LinearLayout? = null
+    private var attachmentContainer: ConstraintLayout? = null
+    private var facesContainer: FlexboxLayout? = null
+    private var postContent: EditText? = null
+
     private fun updateTitle(targetId: String, newPost: Boolean) {
         findViewById<TextView>(R.id.postTitle).text = if (newPost) "发布新串" else "回复 >No. $targetId"
     }
 
-    private fun updateSelectedForum() {}
+    private fun updateForumButton() {
+        findViewById<Button>(R.id.postForum).visibility = if (!newPost) View.GONE else View.VISIBLE
+    }
 
     private fun updateCookies() {
         cookies = AppState.cookies!!
@@ -98,20 +109,10 @@ class PostPopup(private val caller: Fragment, context: Context) :
         }
     }
 
-    private fun checkStoragePermissions(context: Context) {
-        if (ContextCompat.checkSelfPermission(
-                context, Manifest.permission.READ_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissions(
-                caller.requireActivity(),
-                arrayOf(
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-                ),
-                requestCode
-            )
-        }
+    fun updateView() {
+        updateTitle(targetId, newPost)
+        updateCookies()
+        updateForumButton()
     }
 
     override fun getImplLayoutId(): Int {
@@ -122,38 +123,74 @@ class PostPopup(private val caller: Fragment, context: Context) :
         return (XPopupUtils.getWindowHeight(context) * .7f).toInt()
     }
 
+
     override fun onCreate() {
         super.onCreate()
+        findViewById<LinearLayout>(R.id.toggleContainer).run {
+            expansionContainer = findViewById(R.id.expansionContainer)
 
-        findViewById<ImageButton>(R.id.postSend).setOnClickListener {
-            // TODO
-            Timber.i("Sending...")
-            reply()
-        }
+            attachmentContainer = findViewById(R.id.attachmentContainer)
 
-        findViewById<ImageButton>(R.id.postImage).setOnClickListener {
-            Timber.i("Attaching image...")
-            checkStoragePermissions(context)
-
-            getImage("image/*")
-        }
-
-        findViewById<ImageButton>(R.id.postDoodle).setOnClickListener {
-            // TODO
-            Toast.makeText(caller.context, "还没做。。。", Toast.LENGTH_SHORT).show()
-        }
-
-        findViewById<ImageButton>(R.id.postExpand).setOnClickListener {
-            findViewById<LinearLayout>(R.id.expansion).run {
-                visibility = if (visibility == View.VISIBLE) {
-                    View.GONE
-                } else {
-                    View.VISIBLE
+            // TODO: faces do not display properly in button
+            // add faces
+            facesContainer = findViewById<FlexboxLayout>(R.id.facesContainer).also { ll ->
+                resources.getStringArray(R.array.NMBFaces).map {
+                    Button(context).run {
+                        text = it
+                        setOnClickListener {
+                            postContent!!.append(text)
+                        }
+                        ll.addView(this)
+                    }
                 }
+            }
+
+        }
+
+        postContent = findViewById<EditText>(R.id.postContent)
+
+        findViewById<Button>(R.id.postForum).run {
+            setOnClickListener {
+                XPopup.Builder(context)
+                    .atView(it) // 依附于所点击的View，内部会自动判断在上方或者下方显示
+                    .asAttachList(
+                        forumNameMap!!.values.drop(1).toTypedArray(),//去除时间线
+                        intArrayOf()
+                    ) { ind, forumName ->
+                        targetId = forumNameMap!!.keys.drop(1).toList()[ind]
+                        this.text = forumName
+                    }
+                    .show()
             }
         }
 
-        findViewById<TextView>(R.id.postCookie).setOnClickListener {
+        findViewById<Button>(R.id.postSend).setOnClickListener {
+            Timber.i("Sending...")
+            send()
+        }
+
+        findViewById<MaterialButtonToggleGroup>(R.id.toggleButton)
+            .addOnButtonCheckedListener { _, checkedId, isChecked ->
+                when (checkedId) {
+                    R.id.postExpand -> {
+                        expansionContainer!!.visibility = if (isChecked) View.VISIBLE else View.GONE
+                    }
+
+                    R.id.postFace -> {
+                        facesContainer!!.visibility = if (isChecked) View.VISIBLE else View.GONE
+                    }
+                    R.id.postAttachment -> {
+                        attachmentContainer!!.visibility =
+                            if (isChecked) View.VISIBLE else View.GONE
+                    }
+                    else -> {
+                        Timber.e("Unhandled selector in post popup")
+                    }
+
+                }
+            }
+
+        findViewById<Button>(R.id.postCookie).setOnClickListener {
             if (!cookies.isNullOrEmpty()) {
                 XPopup.Builder(context)
                     .atView(it) // 依附于所点击的View，内部会自动判断在上方或者下方显示
@@ -173,28 +210,55 @@ class PostPopup(private val caller: Fragment, context: Context) :
             }
         }
 
+
+        findViewById<Button>(R.id.postImage).setOnClickListener {
+            checkStoragePermissions(context)
+            getImage("image/*")
+        }
+
+        // TODO: camera
+        findViewById<Button>(R.id.postCamera).setOnClickListener {
+            Toast.makeText(context, "postCamera TODO....", Toast.LENGTH_LONG).show()
+        }
+
+        // TODO: luweiniang
+
+        findViewById<Button>(R.id.postLuwei).setOnClickListener {
+            Toast.makeText(context, "postLuwei TODO....", Toast.LENGTH_LONG).show()
+        }
+        // TODO: doodle
+        findViewById<Button>(R.id.postDoodle).setOnClickListener {
+            Toast.makeText(context, "postDoodle TODO....", Toast.LENGTH_LONG).show()
+        }
+
+        // TODO: watermark
+        findViewById<CheckBox>(R.id.postWater).setOnClickListener {
+            Toast.makeText(context, "postWater TODO....", Toast.LENGTH_LONG).show()
+        }
     }
 
     // TODO: post new thread
-    private fun reply() {
+    private fun send() {
         if (selectedCookie == null) {
             Toast.makeText(caller.context, "没有饼干不能发串哦。。", Toast.LENGTH_SHORT).show()
             return
         }
         name = findViewById<TextView>(R.id.formName).text.toString()
         email = findViewById<TextView>(R.id.formEmail).text.toString()
-        title = findViewById<TextView>(R.id.formEmail).text.toString()
-        content = findViewById<TextView>(R.id.postContent).text.toString()
+        title = findViewById<TextView>(R.id.formTitle).text.toString()
+        content = postContent!!.text.toString()
 
         hash = selectedCookie?.cookieHash ?: ""
 
         // TODO: test
-        resto = "17735544"
+        targetId = "17735544"
         // TODO: if (water): add body
         // TODO: loading...
+        // TODO: 值班室需要举报理由才能发送
         caller.lifecycleScope.launch {
-            NMBServiceClient.sendReply(
-                resto,
+            NMBServiceClient.sendPost(
+                newPost,
+                targetId,
                 name,
                 email,
                 title,
@@ -206,10 +270,27 @@ class PostPopup(private val caller: Fragment, context: Context) :
                 dismiss()
                 Toast.makeText(caller.context, this, Toast.LENGTH_LONG).show()
             }
+
         }
 
     }
 
+
+    private fun checkStoragePermissions(context: Context) {
+        if (ContextCompat.checkSelfPermission(
+                context, Manifest.permission.READ_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(
+                caller.requireActivity(),
+                arrayOf(
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ),
+                requestCode
+            )
+        }
+    }
 
     private fun getImagePathFromUri(uri: Uri): File? {
         val parcelFileDescriptor = context.contentResolver.openFileDescriptor(uri, "r", null)

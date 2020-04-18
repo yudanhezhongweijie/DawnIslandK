@@ -1,20 +1,13 @@
 package com.laotoua.dawnislandk.components
 
 import android.annotation.SuppressLint
-import android.content.ContentResolver
-import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Environment
-import android.provider.MediaStore
-import android.provider.OpenableColumns
-import android.util.Size
 import android.view.View
 import android.widget.*
-import androidx.activity.invoke
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -25,6 +18,8 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.entities.Cookie
 import com.laotoua.dawnislandk.network.NMBServiceClient
 import com.laotoua.dawnislandk.util.AppState
+import com.laotoua.dawnislandk.util.FragmentIntentUtil
+import com.laotoua.dawnislandk.util.ImageUtil
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BottomPopupView
 import com.lxj.xpopup.interfaces.SimpleCallback
@@ -32,8 +27,6 @@ import com.lxj.xpopup.util.XPopupUtils
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -77,46 +70,8 @@ class PostPopup(private val caller: Fragment, context: Context) :
     var imageFile: File? = null
     var hash = ""
 
-    // requestCode for permissions callback
-//    enum class REQUESTS{
-//        CHECK_PERMISSIONS,
-//        IAMGE_CAPTURE
-//    }
-//    private val requestCode = 1
-//    private val requestCodeImage = 2
-
-    private val getImageFromGallery = caller.prepareCall(ActivityResultContracts.GetContent())
-    { uri: Uri? ->
-        if (uri != null) {
-            imageFile = getImagePathFromUri(uri)
-            try {
-                caller.requireActivity().contentResolver
-                    .loadThumbnail(uri, Size(150, 150), null)
-                    .run { postPhotoPreview!!.setImageBitmap(this) }
-            } catch (e: Exception) {
-                Timber.e(e, "Cannot load thumbnail from image...")
-            }
-        }
-    }
-
     // TODO: temp solution for TakePicture error
     private var previewUri: Uri? = null
-    private val getImageFromCamera =
-        caller.prepareCall(ActivityResultContracts.TakePicture()) { bitmap: Bitmap? ->
-//            bitmap?.run {
-//                postPhotoPreview!!.setImageBitmap(this)
-//            }
-//            if (bitmap == null){
-//                Timber.i("didn't get thumbnail")
-//            }
-            caller.requireActivity().contentResolver
-                .loadThumbnail(previewUri!!, Size(150, 150), null)
-                .run {
-                    postPhotoPreview!!.setImageBitmap(this)
-                }
-
-        }
-
 
     private var cookies = listOf<Cookie>()
 
@@ -255,37 +210,65 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
 
         findViewById<Button>(R.id.postImage).setOnClickListener {
-//            checkStoragePermissions(context)
-            getImageFromGallery("image/*")
+            if (FragmentIntentUtil.checkPermissions(caller)) {
+                FragmentIntentUtil.getImageFromGallery(caller, "image/*") { uri: Uri? ->
+                    if (uri != null) {
+                        imageFile = ImageUtil.getImagePathFromUri(caller, uri)
+                        try {
+                            ImageUtil.loadImageThumbnailToImageView(
+                                caller,
+                                uri,
+                                150,
+                                150,
+                                postPhotoPreview!!
+                            )
+                        } catch (e: Exception) {
+                            Timber.e(e, "Cannot load thumbnail from image...")
+                        }
+                    }
+                }
+            }
         }
 
         // TODO: camera
         findViewById<Button>(R.id.postCamera).setOnClickListener {
-            if (caller.requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
-//                Toast.makeText(context, "postCamera TODO....", Toast.LENGTH_LONG).show()
+            if (!caller.requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
+                Toast.makeText(context, "你没有相机？？？", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+            if (FragmentIntentUtil.checkPermissions(caller)) {
                 val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-
                 val relativeLocation =
                     Environment.DIRECTORY_PICTURES + File.separator + "Dawn"
                 val name = "DawnIsland_$timeStamp"
                 val ext = "jpg"
                 try {
-                    val newImageDetails = ContentValues()
-                    newImageDetails.put(MediaStore.MediaColumns.DISPLAY_NAME, "$name.$ext")
-                    newImageDetails.put(MediaStore.MediaColumns.MIME_TYPE, "image/$ext")
-                    newImageDetails.put(MediaStore.MediaColumns.RELATIVE_PATH, relativeLocation)
-                    val contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                    val uri =
-                        caller.requireActivity().contentResolver.insert(contentUri, newImageDetails)
-                    // TODO: previewUri is temporary
-                    previewUri = uri
-                    getImageFromCamera(uri)
+                    ImageUtil.addPlaceholderImageUriToGallery(caller, name, ext, relativeLocation)
+                        ?.run {
+                            // TODO: previewUri is temporary because intent return null thumbnail
+                            previewUri = this
+                            FragmentIntentUtil.getImageFromCamera(caller, this)
+                            { bitmap: Bitmap? ->
+//                            bitmap?.run {
+//                                postPhotoPreview!!.setImageBitmap(this)
+//                            }
+//                            if (bitmap == null) {
+//                                Timber.i("didn't get thumbnail")
+//                            }
+                                ImageUtil.loadImageThumbnailToImageView(
+                                    caller,
+                                    previewUri!!,
+                                    150,
+                                    150,
+                                    postPhotoPreview!!
+                                )
+                            }
+                        }
                 } catch (e: Exception) {
                     Timber.e(e, "Failed to take a picture...")
                 }
-            } else {
-                Toast.makeText(context, "你没有相机？？？", Toast.LENGTH_LONG).show()
             }
+
         }
 
         // TODO: luweiniang
@@ -342,46 +325,5 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
     }
 
-//
-//    private fun checkStoragePermissions(context: Context) {
-//        if (ContextCompat.checkSelfPermission(
-//                context, Manifest.permission.READ_EXTERNAL_STORAGE
-//            ) != PackageManager.PERMISSION_GRANTED
-//        ) {
-//            requestPermissions(
-//                caller.requireActivity(),
-//                arrayOf(
-//                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-//                    Manifest.permission.READ_EXTERNAL_STORAGE
-//                ),
-//                requestCode
-//            )
-//        }
-//    }
-
-    private fun getImagePathFromUri(uri: Uri): File? {
-        val parcelFileDescriptor = context.contentResolver.openFileDescriptor(uri, "r", null)
-
-        parcelFileDescriptor?.let {
-            val inputStream = FileInputStream(parcelFileDescriptor.fileDescriptor)
-            val file = File(context.cacheDir, context.contentResolver.getFileName(uri))
-            val outputStream = FileOutputStream(file)
-            inputStream.copyTo(outputStream)
-            return file
-        }
-        return null
-    }
-
-    private fun ContentResolver.getFileName(fileUri: Uri): String {
-        var name = ""
-        val returnCursor = this.query(fileUri, null, null, null, null)
-        if (returnCursor != null) {
-            val nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            returnCursor.moveToFirst()
-            name = returnCursor.getString(nameIndex)
-            returnCursor.close()
-        }
-        return name
-    }
 
 }

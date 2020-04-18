@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
+import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.view.ViewGroup
@@ -74,14 +75,19 @@ class ImageViewerPopup(
                     imgUrl.substring(imgUrl.lastIndexOf("/") + 1, imgUrl.lastIndexOf("."))
                 val ext = imgUrl.substring(imgUrl.lastIndexOf(".") + 1)
                 try {
+                    val contentValues = ContentValues().apply {
+                        put(MediaStore.Images.ImageColumns.DISPLAY_NAME, "$name.$ext")
+                        put(MediaStore.MediaColumns.MIME_TYPE, "image/$ext")
+
+                        // without this part causes "Failed to create new MediaStore record" exception to be invoked (uri is null below)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            put(MediaStore.Images.ImageColumns.RELATIVE_PATH, relativeLocation)
+                        }
+                    }
                     val resolver: ContentResolver =
                         caller.requireActivity().contentResolver
-                    val newImageDetails = ContentValues()
-                    newImageDetails.put(MediaStore.MediaColumns.DISPLAY_NAME, "$name.$ext")
-                    newImageDetails.put(MediaStore.MediaColumns.MIME_TYPE, "image/$ext")
-                    newImageDetails.put(MediaStore.MediaColumns.RELATIVE_PATH, relativeLocation)
                     val contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                    val uri = resolver.insert(contentUri, newImageDetails)
+                    val uri = resolver.insert(contentUri, contentValues)
                         ?: throw IOException("Failed to create new MediaStore record.")
                     val stream = resolver.openOutputStream(uri)
                         ?: throw IOException("Failed to get output stream.")

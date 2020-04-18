@@ -66,7 +66,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
     var content = ""
     var forumNameMap: Map<String, String>? = null
 
-    var water: Boolean? = null
+    var waterMark: String? = null
     var imageFile: File? = null
     var hash = ""
 
@@ -281,9 +281,8 @@ class PostPopup(private val caller: Fragment, context: Context) :
             Toast.makeText(context, "postDoodle TODO....", Toast.LENGTH_LONG).show()
         }
 
-        // TODO: watermark
         findViewById<CheckBox>(R.id.postWater).setOnClickListener {
-            Toast.makeText(context, "postWater TODO....", Toast.LENGTH_LONG).show()
+            waterMark = if ((it as CheckBox).isChecked) "true" else null
         }
     }
 
@@ -302,7 +301,6 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
         // TODO: test
         targetId = "17735544"
-        // TODO: if (water): add body
         // TODO: loading...
         // TODO: 值班室需要举报理由才能发送
         caller.lifecycleScope.launch {
@@ -313,7 +311,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
                 email,
                 title,
                 content,
-                null,
+                waterMark,
                 imageFile,
                 hash
             ).run {

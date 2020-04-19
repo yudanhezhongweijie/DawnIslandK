@@ -58,7 +58,10 @@ class SharedViewModel : ViewModel() {
             "ReplyFragment" -> "A岛 • ${selectedThread.value?.fid?.let { getForumDisplayName(it) }} • ${selectedThread.value?.id}"
             "SettingsFragment" -> "设置"
             "SizeCustomizationFragment" -> "设置串卡片布局"
-            else -> "Need to set title in $currentFragment"
+            else -> {
+                Timber.e("Need to set title in $currentFragment")
+                "Need to set title in $currentFragment"
+            }
         }
 
     }

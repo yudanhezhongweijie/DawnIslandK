@@ -22,7 +22,6 @@ import com.laotoua.dawnislandk.databinding.ReplyFragmentBinding
 import com.laotoua.dawnislandk.entities.Reply
 import com.laotoua.dawnislandk.network.ImageLoader
 import com.laotoua.dawnislandk.util.QuickAdapter
-import com.laotoua.dawnislandk.util.ToolbarUtil
 import com.laotoua.dawnislandk.util.extractQuoteId
 import com.laotoua.dawnislandk.viewmodels.ReplyViewModel
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
@@ -238,7 +237,6 @@ class ReplyFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         Timber.d("Reply Fragment destroyed!")
-        ToolbarUtil.enableCollapse(requireActivity(), "")
     }
 
 

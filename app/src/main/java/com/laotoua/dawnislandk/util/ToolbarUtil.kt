@@ -12,7 +12,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 
 object ToolbarUtil {
-    fun disableCollapse(activity: Activity, title: String) {
+    private fun disableCollapse(activity: Activity, title: String) {
         val dawnAppbar = activity.dawnAppbar
         val collapsingToolbar = activity.collapsingToolbar
         val toolbar = activity.toolbar
@@ -40,7 +40,7 @@ object ToolbarUtil {
         toolbar.title = title
     }
 
-    fun enableCollapse(activity: Activity, title: String) {
+    private fun enableCollapse(activity: Activity, title: String) {
         val dawnAppbar = activity.dawnAppbar
         val collapsingToolbar = activity.collapsingToolbar
         val toolbar = activity.toolbar
@@ -82,7 +82,7 @@ object ToolbarUtil {
             when (callerFragment.javaClass.simpleName) {
                 "ThreadFragment" -> {
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-                    collapsingToolbar.title = title
+                    enableCollapse(this, title)
                     toolbar.setNavigationIcon(R.drawable.ic_menu_white_24dp)
                     toolbar.setNavigationOnClickListener(null)
                     toolbar.setNavigationOnClickListener {

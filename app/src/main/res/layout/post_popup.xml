@@ -201,7 +201,7 @@
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/postContent"
-        app:layout_constraintHeight_max="400dp"
+        app:layout_constraintHeight_max="200dp"
         app:layout_constraintStart_toStartOf="@+id/postContent"
         app:layout_constraintTop_toBottomOf="@+id/toggleButton"
         tools:layout_constraintBottom_toBottomOf="parent">
@@ -296,15 +296,14 @@
 
             <com.google.android.flexbox.FlexboxLayout
                 android:id="@+id/facesContainer"
-                style="@style/Theme.MaterialComponents"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
-                app:alignContent="stretch"
-                app:alignItems="stretch"
+                app:alignContent="space_around"
+                app:alignItems="flex_start"
                 app:flexDirection="row"
                 app:flexWrap="wrap"
-                app:justifyContent="space_evenly" />
+                app:justifyContent="space_around" />
         </ScrollView>
 
         <androidx.constraintlayout.widget.ConstraintLayout

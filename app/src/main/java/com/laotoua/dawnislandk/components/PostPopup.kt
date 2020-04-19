@@ -1,12 +1,14 @@
 package com.laotoua.dawnislandk.components
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Environment
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
@@ -23,7 +25,6 @@ import com.laotoua.dawnislandk.util.ImageUtil
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BottomPopupView
 import com.lxj.xpopup.interfaces.SimpleCallback
-import com.lxj.xpopup.util.XPopupUtils
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
@@ -84,7 +85,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
     private var postPhotoPreview: PhotoView? = null
 
     private fun updateTitle(targetId: String, newPost: Boolean) {
-        findViewById<TextView>(R.id.postTitle).text = if (newPost) "发布新串" else "回复 >No. $targetId"
+        findViewById<TextView>(R.id.postTitle).text = if (newPost) "发布新串" else "回复 >> No. $targetId"
     }
 
     private fun updateForumButton() {
@@ -115,14 +116,10 @@ class PostPopup(private val caller: Fragment, context: Context) :
         return R.layout.post_popup
     }
 
-    override fun getMaxHeight(): Int {
-        return (XPopupUtils.getWindowHeight(context) * .7f).toInt()
-    }
-
-
     override fun onCreate() {
         super.onCreate()
-        findViewById<LinearLayout>(R.id.toggleContainer).run {
+
+        findViewById<LinearLayout>(R.id.toggleContainers).run {
             expansionContainer = findViewById(R.id.expansionContainer)
 
             attachmentContainer = findViewById<ConstraintLayout>(R.id.attachmentContainer).also {
@@ -131,14 +128,14 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
             // TODO: faces do not display properly in button
             // add faces
-            facesContainer = findViewById<FlexboxLayout>(R.id.facesContainer).also { ll ->
+            facesContainer = findViewById<FlexboxLayout>(R.id.facesContainer).also { flexBox ->
                 resources.getStringArray(R.array.NMBFaces).map {
                     Button(context).run {
                         text = it
                         setOnClickListener {
                             postContent!!.append(text)
                         }
-                        ll.addView(this)
+                        flexBox.addView(this)
                     }
                 }
             }
@@ -175,11 +172,26 @@ class PostPopup(private val caller: Fragment, context: Context) :
                     }
 
                     R.id.postFace -> {
+                        hideKeyboardFrom(context, this)
                         facesContainer!!.visibility = if (isChecked) View.VISIBLE else View.GONE
                     }
                     R.id.postAttachment -> {
+                        hideKeyboardFrom(context, this)
                         attachmentContainer!!.visibility =
                             if (isChecked) View.VISIBLE else View.GONE
+                    }
+                    // TODO: luweiniang
+                    R.id.postLuwei -> {
+                        hideKeyboardFrom(context, this)
+                        Toast.makeText(context, "postLuwei TODO....", Toast.LENGTH_LONG).show()
+                    }
+                    // TODO: doodle
+                    R.id.postDoodle -> {
+                        Toast.makeText(context, "postDoodle TODO....", Toast.LENGTH_LONG).show()
+                    }
+                    // TODO: save
+                    R.id.postSave -> {
+                        Toast.makeText(context, "postSave TODO....", Toast.LENGTH_LONG).show()
                     }
                     else -> {
                         Timber.e("Unhandled selector in post popup")
@@ -230,6 +242,11 @@ class PostPopup(private val caller: Fragment, context: Context) :
             }
         }
 
+        findViewById<Button>(R.id.postImageRemove).setOnClickListener {
+            imageFile = null
+            postPhotoPreview!!.setImageResource(android.R.color.transparent)
+        }
+
         // TODO: camera
         findViewById<Button>(R.id.postCamera).setOnClickListener {
             if (!caller.requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
@@ -271,15 +288,6 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
         }
 
-        // TODO: luweiniang
-
-        findViewById<Button>(R.id.postLuwei).setOnClickListener {
-            Toast.makeText(context, "postLuwei TODO....", Toast.LENGTH_LONG).show()
-        }
-        // TODO: doodle
-        findViewById<Button>(R.id.postDoodle).setOnClickListener {
-            Toast.makeText(context, "postDoodle TODO....", Toast.LENGTH_LONG).show()
-        }
 
         findViewById<CheckBox>(R.id.postWater).setOnClickListener {
             waterMark = if ((it as CheckBox).isChecked) "true" else null
@@ -324,4 +332,11 @@ class PostPopup(private val caller: Fragment, context: Context) :
     }
 
 
+    private fun hideKeyboardFrom(
+        context: Context,
+        view: View
+    ) {
+        (context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager)
+            .hideSoftInputFromWindow(view.windowToken, 0)
+    }
 }

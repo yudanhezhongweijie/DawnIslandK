@@ -10,17 +10,20 @@
     android:elevation="5dp"
     android:paddingStart="15dp"
     android:paddingEnd="15dp"
-    android:paddingBottom="15dp">
+    android:paddingBottom="5dp"
+    tools:layout_editor_absoluteY="285dp">
 
     <TextView
         android:id="@+id/postTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="回复 No.12345678"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        android:text="回复 >>No.12345678"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         android:textSize="18sp"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/postContent"
+        app:layout_constraintStart_toStartOf="@+id/postContent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
@@ -28,59 +31,15 @@
         style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="8dp"
         android:text="选择板块"
         android:textAppearance="@style/CollSubTitle"
         android:textSize="18sp"
         app:icon="@drawable/ic_arrow_drop_down_black_24dp"
         app:iconGravity="textEnd"
-        app:layout_constraintBottom_toBottomOf="@+id/postTitle"
-        app:layout_constraintStart_toEndOf="@id/postTitle"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <com.google.android.material.button.MaterialButtonToggleGroup
-        android:id="@+id/toggleButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        app:layout_constraintStart_toStartOf="@id/postContent"
-        app:layout_constraintTop_toBottomOf="@id/postTitle"
-        app:singleSelection="true">
-
-        <Button
-            android:id="@+id/postExpand"
-            style="@style/Widget.App.Button.OutlinedButton.IconOnly"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:icon="@drawable/ic_unfold_more_black_24dp"
-            app:layout_constraintStart_toStartOf="@id/postContent"
-            app:layout_constraintTop_toBottomOf="@id/postTitle"
-            app:strokeWidth="0dp" />
-
-        <Button
-            android:id="@+id/postAttachment"
-            style="@style/Widget.App.Button.OutlinedButton.IconOnly"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            app:icon="@drawable/ic_attachment_black_24dp"
-            app:layout_constraintStart_toEndOf="@+id/postExpand"
-            app:layout_constraintTop_toTopOf="@+id/postExpand"
-            app:strokeWidth="0dp" />
-
-        <Button
-            android:id="@+id/postFace"
-            style="@style/Widget.App.Button.OutlinedButton.IconOnly"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            app:icon="@drawable/ic_emoji_emotions_black_24dp"
-            app:layout_constraintStart_toEndOf="@+id/postAttachment"
-            app:layout_constraintTop_toTopOf="@+id/postAttachment"
-            app:strokeWidth="0dp" />
-
-    </com.google.android.material.button.MaterialButtonToggleGroup>
+        app:layout_constraintBottom_toBottomOf="@id/postTitle"
+        app:layout_constraintStart_toEndOf="@+id/postTitle"
+        app:layout_constraintTop_toTopOf="@id/postTitle" />
 
     <!--    <Button-->
     <!--        android:id="@+id/postExpand"-->
@@ -121,29 +80,25 @@
         style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="24dp"
         android:text="没有饼干"
         android:textAppearance="@style/CollSubTitle"
         android:textSize="18sp"
-        app:strokeWidth="0dp"
-        app:icon="@drawable/ic_arrow_drop_down_black_24dp"
-        app:iconGravity="textEnd"
-        app:layout_constraintBottom_toBottomOf="@+id/postSend"
-        app:layout_constraintEnd_toStartOf="@+id/postSend"
-        app:layout_constraintTop_toTopOf="@+id/postSend" />
+        app:icon="@drawable/ic_cookie_black_24dp"
+        app:iconGravity="start"
+        app:layout_constraintBottom_toTopOf="@+id/toggleButton"
+        app:layout_constraintEnd_toEndOf="@+id/postContent"
+        app:layout_constraintStart_toStartOf="@+id/postContent"
+        app:layout_constraintTop_toBottomOf="@+id/postContent"
+        app:strokeWidth="0dp" />
 
-    <Button
-        android:id="@+id/postSend"
-        style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+    <CheckBox
+        android:id="@+id/postWater"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:clickable="true"
-        android:focusable="true"
-        app:icon="@drawable/ic_send_black_24dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/postTitle"
-        app:strokeWidth="0dp" />
+        android:text="水印"
+        app:layout_constraintBottom_toBottomOf="@+id/postCookie"
+        app:layout_constraintEnd_toEndOf="@+id/postContent"
+        app:layout_constraintTop_toTopOf="@+id/postCookie" />
 
     <EditText
         android:id="@+id/postContent"
@@ -156,23 +111,100 @@
         android:gravity="clip_horizontal"
         android:hint="在这里输入文字"
         android:inputType="textMultiLine"
-        android:minLines="20"
+        android:maxLines="20"
+        android:minLines="4"
         android:padding="6dp"
         android:textSize="15sp"
+        app:layout_constraintBottom_toTopOf="@+id/postCookie"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_max="400dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toggleContainer" />
+        app:layout_constraintTop_toBottomOf="@id/postTitle" />
+
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/toggleButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/toggleContainers"
+        app:layout_constraintEnd_toEndOf="@+id/postContent"
+        app:layout_constraintStart_toStartOf="@+id/postContent"
+        app:layout_constraintTop_toBottomOf="@+id/postCookie"
+        app:singleSelection="true">
+
+        <Button
+            android:id="@+id/postExpand"
+            style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/ic_unfold_more_black_24dp"
+            app:layout_constraintStart_toStartOf="@id/postContent"
+            app:layout_constraintTop_toBottomOf="@id/postTitle"
+            app:strokeWidth="0dp" />
+
+        <Button
+            android:id="@+id/postFace"
+            style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/ic_emoji_emotions_black_24dp"
+            app:layout_constraintStart_toEndOf="@+id/postAttachment"
+            app:layout_constraintTop_toTopOf="@+id/postAttachment"
+            app:strokeWidth="0dp" />
+
+        <Button
+            android:id="@+id/postLuwei"
+            style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/ic_speaker_black_24dp"
+            app:strokeWidth="0dp" />
+
+        <Button
+            android:id="@+id/postAttachment"
+            style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/ic_attachment_black_24dp"
+            app:strokeWidth="0dp" />
+
+        <Button
+            android:id="@+id/postDoodle"
+            style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/ic_brush_black_24px"
+            app:strokeWidth="0dp" />
+
+        <Button
+            android:id="@+id/postSave"
+            style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/ic_save_black_24dp"
+            app:strokeWidth="0dp" />
+
+        <Button
+            android:id="@+id/postSend"
+            style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/ic_send_black_24dp"
+            app:strokeWidth="0dp" />
+
+    </com.google.android.material.button.MaterialButtonToggleGroup>
 
     <LinearLayout
-        android:id="@+id/toggleContainer"
-        android:layout_width="match_parent"
+        android:id="@+id/toggleContainers"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="4dp"
         android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@id/postContent"
-        app:layout_constraintEnd_toEndOf="@id/postContent"
-        app:layout_constraintStart_toStartOf="@id/postContent"
-        app:layout_constraintTop_toBottomOf="@id/postCookie">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/postContent"
+        app:layout_constraintHeight_max="400dp"
+        app:layout_constraintStart_toStartOf="@+id/postContent"
+        app:layout_constraintTop_toBottomOf="@+id/toggleButton"
+        tools:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
             android:id="@+id/expansionContainer"
@@ -281,18 +313,29 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:paddingTop="10dp"
-            android:visibility="gone"
-            tools:visibility="visible">
+            android:visibility="gone">
+
+            <com.github.chrisbanes.photoview.PhotoView
+                android:id="@+id/postPhotoPreview"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginBottom="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/drawer_head" />
 
             <Button
                 android:id="@+id/postCamera"
-                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                style="@style/Widget.App.Button.OutlinedButton.IconOnly"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
                 android:text="拍照"
                 app:icon="@drawable/ic_photo_camera_black_24dp"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:strokeWidth="0dp" />
 
@@ -301,58 +344,26 @@
                 style="@style/Widget.App.Button.OutlinedButton.IconOnly"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="照片"
+                android:layout_marginTop="16dp"
+                android:text="图库"
                 app:icon="@drawable/ic_image_black_24dp"
-                app:layout_constraintStart_toEndOf="@id/postCamera"
-                app:layout_constraintTop_toTopOf="@id/postCamera"
+                app:layout_constraintEnd_toEndOf="@+id/postCamera"
+                app:layout_constraintTop_toBottomOf="@+id/postCamera"
                 app:strokeWidth="0dp" />
 
             <Button
-                android:id="@+id/postDoodle"
+                android:id="@+id/postImageRemove"
                 style="@style/Widget.App.Button.OutlinedButton.IconOnly"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="涂鸦"
-                app:icon="@drawable/ic_brush_black_24px"
-                app:layout_constraintStart_toEndOf="@id/postImage"
-                app:layout_constraintTop_toTopOf="@id/postCamera"
+                android:layout_marginEnd="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:text="删除"
+                app:icon="@drawable/ic_send_black_24dp"
+                app:layout_constraintEnd_toStartOf="@+id/postCamera"
+                app:layout_constraintTop_toTopOf="@+id/postCamera"
                 app:strokeWidth="0dp" />
-
-            <Button
-                android:id="@+id/postLuwei"
-                style="@style/Widget.App.Button.OutlinedButton.IconOnly"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="芦苇娘"
-                app:icon="@drawable/ic_speaker_black_24dp"
-                app:layout_constraintStart_toEndOf="@id/postDoodle"
-                app:layout_constraintTop_toTopOf="@id/postCamera"
-                app:strokeWidth="0dp" />
-
-            <CheckBox
-                android:id="@+id/postWater"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:layout_marginEnd="32dp"
-                android:text="水印"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/postLuwei" />
-
-            <com.github.chrisbanes.photoview.PhotoView
-                android:id="@+id/postPhotoPreview"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="16dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/postCamera"
-                app:srcCompat="@drawable/drawer_head" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

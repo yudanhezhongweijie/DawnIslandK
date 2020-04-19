@@ -21,8 +21,13 @@ class CommunityViewModel : ViewModel() {
     val loadFail: LiveData<Boolean>
         get() = _loadFail
 
+    init {
+        // TODO added repository
+        loadCommunitiesFromDB()
+        getCommunitiesFromServer()
+    }
 
-    fun getCommunities() {
+    private fun getCommunitiesFromServer() {
         viewModelScope.launch {
             try {
                 val list = NMBServiceClient.getCommunities()
@@ -38,7 +43,7 @@ class CommunityViewModel : ViewModel() {
                     _loadFail.postValue(false)
 
                     // save to local db
-                    saveToDB(list)
+                    saveCommunitiesToDB(list)
                 } else {
                     Timber.i("Community list is the same as Db. Reusing...")
                 }
@@ -49,7 +54,7 @@ class CommunityViewModel : ViewModel() {
         }
     }
 
-    fun loadFromDB() {
+    private fun loadCommunitiesFromDB() {
         viewModelScope.launch {
             dao.getAll().let {
                 if (it.isNotEmpty()) {
@@ -62,7 +67,7 @@ class CommunityViewModel : ViewModel() {
         }
     }
 
-    private suspend fun saveToDB(list: List<Community>) {
+    private suspend fun saveCommunitiesToDB(list: List<Community>) {
         dao.insertAll(list)
     }
 
@@ -71,6 +76,10 @@ class CommunityViewModel : ViewModel() {
             keySelector = { it.id },
             valueTransform = { it.name }) ?: mapOf()
 
+    }
+
+    fun refresh() {
+        getCommunitiesFromServer()
     }
 
 }

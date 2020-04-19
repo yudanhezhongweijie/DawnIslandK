@@ -55,7 +55,7 @@ object NMBServiceClient {
         try {
             val rawResponse =
                 withContext(Dispatchers.IO) {
-                    Timber.i("Downloading threads...")
+                    Timber.i("Downloading threads on Forum $fid...")
                     if (fid == "-1") service.getNMBTimeLine(page).execute().body()!!
                     else service.getNMBThreads(fid, page).execute().body()!!
                 }
@@ -83,7 +83,7 @@ object NMBServiceClient {
         try {
             val rawResponse =
                 withContext(Dispatchers.IO) {
-                    Timber.i("Downloading replys...")
+                    Timber.i("Downloading replys on Thread $id...")
                     service.getNMBReplys(id, page).execute().body()!!
                 }
 
@@ -104,7 +104,7 @@ object NMBServiceClient {
     suspend fun getQuote(id: String): Reply {
         try {
             val rawResponse = withContext(Dispatchers.IO) {
-                Timber.i("Downloading quote...")
+                Timber.i("Downloading quote $id...")
                 service.getNMBQuote(id).execute().body()!!
             }
             return withContext(Dispatchers.Default) {

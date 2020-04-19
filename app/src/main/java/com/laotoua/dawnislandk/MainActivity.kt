@@ -63,9 +63,9 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
     // left forum drawer
     private fun setUpForumDrawer() {
 
-        // TODO added repository
-        communityVM.loadFromDB()
-        communityVM.getCommunities()
+        binding.forumRefresh.setOnClickListener {
+            communityVM.refresh()
+        }
 
         binding.forumContainer.layoutManager = LinearLayoutManager(this)
         binding.forumContainer.adapter = mAdapter

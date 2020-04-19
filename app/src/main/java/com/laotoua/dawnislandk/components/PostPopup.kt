@@ -126,16 +126,19 @@ class PostPopup(private val caller: Fragment, context: Context) :
                 postPhotoPreview = findViewById(R.id.postPhotoPreview)
             }
 
-            // TODO: faces do not display properly in button
             // add faces
             facesContainer = findViewById<FlexboxLayout>(R.id.facesContainer).also { flexBox ->
                 resources.getStringArray(R.array.NMBFaces).map {
-                    Button(context).run {
+                    Button(context, null, R.style.Widget_MaterialComponents_Button_TextButton).run {
                         text = it
                         setOnClickListener {
                             postContent!!.append(text)
                         }
                         flexBox.addView(this)
+                        val lp = layoutParams as FlexboxLayout.LayoutParams
+                        lp.flexBasisPercent = 0.2f
+                        lp.setMargins(0, 2, 0, 2)
+                        layoutParams = lp
                     }
                 }
             }

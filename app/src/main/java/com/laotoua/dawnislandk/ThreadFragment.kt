@@ -6,8 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils.loadAnimation
 import android.widget.ImageView
-import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -23,7 +21,6 @@ import com.laotoua.dawnislandk.util.QuickAdapter
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import com.laotoua.dawnislandk.viewmodels.ThreadViewModel
 import com.lxj.xpopup.XPopup
-import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
 
 
@@ -46,7 +43,7 @@ class ThreadFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        sharedVM.setFragment(this.javaClass.simpleName)
+        sharedVM.setFragment(this)
         _binding = ThreadFragmentBinding.inflate(inflater, container, false)
 
         binding.threadsView.layoutManager = LinearLayoutManager(context)
@@ -126,7 +123,6 @@ class ThreadFragment : Fragment() {
                 Timber.i("Forum has changed to ${it.name}. Cleaning old adapter data...")
                 mAdapter.setList(ArrayList())
                 viewModel.setForum(it)
-                updateAppBar()
                 hideMenu()
             }
         })
@@ -169,8 +165,6 @@ class ThreadFragment : Fragment() {
             )
         }
 
-        updateAppBar()
-
         return binding.root
     }
 
@@ -209,20 +203,6 @@ class ThreadFragment : Fragment() {
             hideMenu()
         } else {
             showMenu()
-        }
-    }
-
-    // TODO refresh click
-    private fun updateAppBar() {
-        requireActivity().run {
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-            // TODO: default forumName
-            collapsingToolbar.title = "A岛 • ${sharedVM.selectedForum.value?.name ?: "时间线"}"
-            toolbar.setNavigationIcon(R.drawable.ic_menu_white_24dp)
-            toolbar.setNavigationOnClickListener(null)
-            toolbar.setNavigationOnClickListener {
-                drawerLayout.openDrawer(GravityCompat.START)
-            }
         }
     }
 

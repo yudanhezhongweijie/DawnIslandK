@@ -13,6 +13,8 @@ import com.laotoua.dawnislandk.databinding.ActivityMainBinding
 import com.laotoua.dawnislandk.entities.Forum
 import com.laotoua.dawnislandk.util.AppState
 import com.laotoua.dawnislandk.util.QuickNodeAdapter
+import com.laotoua.dawnislandk.util.ToolbarUtil.updateAppBarByFragment
+import com.laotoua.dawnislandk.util.ToolbarUtil.updateAppBarTitleWithinFragment
 import com.laotoua.dawnislandk.viewmodels.CommunityViewModel
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import kotlinx.coroutines.launch
@@ -81,13 +83,22 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
                 Toast.makeText(this, "无法读取板块列表...", Toast.LENGTH_LONG).show()
             }
         })
+
+        // update app bar for each fragment
+        sharedVM.currentFragment.observe(this, Observer {
+            updateAppBarByFragment(it, sharedVM.generateAppbarTitle())
+        })
+
+        // special handler for forum change, without fragment change
+        sharedVM.selectedForum.observe(this, Observer {
+            updateAppBarTitleWithinFragment(sharedVM.generateAppbarTitle())
+        })
     }
 
     // Forum Click
     override fun onForumClick(forum: Forum) {
         Timber.i("Clicked on Forum ${forum.name}")
         sharedVM.setForum(forum)
-        sharedVM.setFragment("ThreadFragment")
         binding.drawerLayout.closeDrawers()
     }
 

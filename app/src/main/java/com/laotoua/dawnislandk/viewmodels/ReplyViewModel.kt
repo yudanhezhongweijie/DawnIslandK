@@ -121,8 +121,9 @@ class ReplyViewModel : ViewModel() {
 
             val noDuplicates = list.filterNot { replyIds.contains(it.id) && it.id != "9999999" }
 
-            if (noDuplicates.isNotEmpty() &&
-                (noDuplicates.size > 1 || noDuplicates.first().id != "9999999")
+            if ((noDuplicates.isNotEmpty() &&
+                        (noDuplicates.size > 1 || noDuplicates.first().id != "9999999"))
+                || page == 1
             ) {
                 replyIds.addAll(noDuplicates.map { it.id })
                 Timber.i(
@@ -132,15 +133,15 @@ class ReplyViewModel : ViewModel() {
                 // add page to Reply
                 noDuplicates.apply { map { it.page = page } }
                     .let {
-                    if (direction == DIRECTION.NEXT) {
-                        replyList.addAll(it)
-                    } else {
-                        val insertInd = if (page == 1) 1 else 0
-                        replyList.addAll(insertInd, it)
-                        // TODO: previous page & next page should be handled the same
-                        previousPage.addAll(it)
+                        if (direction == DIRECTION.NEXT) {
+                            replyList.addAll(it)
+                        } else {
+                            val insertInd = if (page == 1) 1 else 0
+                            replyList.addAll(insertInd, it)
+                            // TODO: previous page & next page should be handled the same
+                            previousPage.addAll(it)
+                        }
                     }
-                }
 
                 _reply.postValue(replyList)
 

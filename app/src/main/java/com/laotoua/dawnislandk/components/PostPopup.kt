@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Environment
+import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
@@ -15,6 +16,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.github.chrisbanes.photoview.PhotoView
 import com.google.android.flexbox.FlexboxLayout
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.entities.Cookie
@@ -119,7 +121,12 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
     override fun onCreate() {
         super.onCreate()
+        val outValue = TypedValue().apply {
+            context.theme
+                .resolveAttribute(android.R.attr.selectableItemBackground, this, true)
+        }
 
+        val btnBackground = outValue.resourceId
         findViewById<LinearLayout>(R.id.toggleContainers).run {
             expansionContainer = findViewById(R.id.expansionContainer)
 
@@ -130,7 +137,13 @@ class PostPopup(private val caller: Fragment, context: Context) :
             // add faces
             facesContainer = findViewById<FlexboxLayout>(R.id.facesContainer).also { flexBox ->
                 resources.getStringArray(R.array.NMBFaces).map {
-                    Button(context, null, R.style.Widget_MaterialComponents_Button_TextButton).run {
+                    MaterialButton(
+                        context,
+                        null,
+                        R.style.Widget_MaterialComponents_Button_TextButton
+                    ).run {
+                        setBackgroundResource(btnBackground)
+                        textAlignment = View.TEXT_ALIGNMENT_CENTER
                         text = it
                         setOnClickListener {
                             postContent!!.append(text)
@@ -153,6 +166,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
                     )
                     ImageView(context).run {
                         setImageResource(resourceId)
+                        setBackgroundResource(btnBackground)
                         layoutParams = LayoutParams(150, 150)
                         setOnClickListener {
                             try {
@@ -172,6 +186,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
                 }
             }
         }
+
 
         postContent = findViewById<EditText>(R.id.postContent)
 

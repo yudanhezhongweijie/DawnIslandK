@@ -2,6 +2,10 @@ package com.laotoua.dawnislandk.util
 
 import android.app.Activity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.appbar.AppBarLayout
 import com.laotoua.dawnislandk.R
 import kotlinx.android.synthetic.main.activity_main.*
@@ -71,5 +75,53 @@ object ToolbarUtil {
             result = activity.resources.getDimensionPixelSize(resourceId)
         }
         return result
+    }
+
+    fun Activity.updateAppBarByFragment(callerFragment: Fragment, title: String) {
+        run {
+            when (callerFragment.javaClass.simpleName) {
+                "ThreadFragment" -> {
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+                    collapsingToolbar.title = title
+                    toolbar.setNavigationIcon(R.drawable.ic_menu_white_24dp)
+                    toolbar.setNavigationOnClickListener(null)
+                    toolbar.setNavigationOnClickListener {
+                        drawerLayout.openDrawer(GravityCompat.START)
+                    }
+                }
+                "ReplyFragment" -> {
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                    disableCollapse(this, title)
+                    toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
+                    toolbar.setNavigationOnClickListener(null)
+                    toolbar.setNavigationOnClickListener {
+                        callerFragment.findNavController().popBackStack()
+                    }
+                }
+                "SettingsFragment" -> {
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                    disableCollapse(this, title)
+                    toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
+                    toolbar.setNavigationOnClickListener(null)
+                    toolbar.setNavigationOnClickListener {
+                        callerFragment.findNavController().popBackStack()
+                    }
+                }
+                "SizeCustomizationFragment" -> {
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                    disableCollapse(this, title)
+                    toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
+                    toolbar.setNavigationOnClickListener(null)
+                    toolbar.setNavigationOnClickListener {
+                        callerFragment.findNavController().popBackStack()
+                    }
+                }
+            }
+        }
+    }
+
+    // special handler for forum change
+    fun Activity.updateAppBarTitleWithinFragment(title: String) {
+        collapsingToolbar.title = title
     }
 }

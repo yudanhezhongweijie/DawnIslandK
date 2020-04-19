@@ -15,6 +15,7 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.preference.PreferenceManager
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.components.ThreadCardFactory
@@ -22,8 +23,11 @@ import com.laotoua.dawnislandk.components.span.RoundBackgroundColorSpan
 import com.laotoua.dawnislandk.components.span.SegmentSpacingSpan
 import com.laotoua.dawnislandk.util.AppState
 import com.laotoua.dawnislandk.util.CONST
+import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 
 class SizeCustomizationFragment : Fragment() {
+
+    private val sharedVM: SharedViewModel by activityViewModels()
 
     private val MAIN_TEXT_SIZE = 0
     private val RADIUS = 1
@@ -59,6 +63,9 @@ class SizeCustomizationFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        sharedVM.setFragment(this)
+
         val rootView = LinearLayout(context)
         rootView.setPaddingRelative(10, 10, 10, 10)
         rootView.orientation = LinearLayout.VERTICAL

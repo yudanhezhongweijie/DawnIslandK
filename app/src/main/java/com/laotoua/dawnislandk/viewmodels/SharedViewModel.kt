@@ -1,5 +1,6 @@
 package com.laotoua.dawnislandk.viewmodels
 
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -15,11 +16,11 @@ class SharedViewModel : ViewModel() {
 
     private var forumNameMapping = mapOf<String, String>()
 
-    private var _currentFragment = MutableLiveData<String>()
-    val currentFragment: MutableLiveData<String> get() = _currentFragment
+    private var _currentFragment = MutableLiveData<Fragment>()
+    val currentFragment: MutableLiveData<Fragment> get() = _currentFragment
 
-    fun setFragment(fragName: String) {
-        _currentFragment.postValue(fragName)
+    fun setFragment(fragment: Fragment) {
+        _currentFragment.postValue(fragment)
     }
 
 
@@ -48,6 +49,18 @@ class SharedViewModel : ViewModel() {
     // TODO: support multiple Po
     fun getPo(): String {
         return selectedThread.value!!.userid
+    }
+
+    fun generateAppbarTitle(): String {
+        return when (currentFragment.value?.javaClass?.simpleName) {
+            // TODO: default forumName
+            "ThreadFragment" -> "A岛 • ${selectedForum.value?.name ?: "时间线"}"
+            "ReplyFragment" -> "A岛 • ${selectedThread.value?.fid?.let { getForumDisplayName(it) }} • ${selectedThread.value?.id}"
+            "SettingsFragment" -> "设置"
+            "SizeCustomizationFragment" -> "设置串卡片布局"
+            else -> "Need to set title in $currentFragment"
+        }
+
     }
 
 }

@@ -8,12 +8,10 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.chad.library.adapter.base.listener.OnItemChildClickListener
 import com.laotoua.dawnislandk.components.ImageViewerPopup
@@ -30,7 +28,6 @@ import com.laotoua.dawnislandk.viewmodels.ReplyViewModel
 import com.laotoua.dawnislandk.viewmodels.SharedViewModel
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.interfaces.SimpleCallback
-import kotlinx.android.synthetic.main.activity_main.*
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import me.dkzwm.widget.srl.extra.header.ClassicHeader
 import me.dkzwm.widget.srl.indicator.IIndicator
@@ -61,7 +58,7 @@ class ReplyFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        sharedVM.setFragment(this.javaClass.simpleName)
+        sharedVM.setFragment(this)
 
         _binding = ReplyFragmentBinding.inflate(inflater, container, false)
 
@@ -163,12 +160,10 @@ class ReplyFragment : Fragment() {
         sharedVM.selectedThread.observe(viewLifecycleOwner, Observer {
             if (viewModel.currentThread == null) {
                 viewModel.setThread(it)
-                updateAppBar()
             } else if (viewModel.currentThread != null && viewModel.currentThread!!.id != it.id) {
                 Timber.i("Thread has changed to ${it.id}. Clearing old data...")
                 mAdapter.setList(ArrayList())
                 viewModel.setThread(it)
-                updateAppBar()
             }
 
         })
@@ -232,7 +227,6 @@ class ReplyFragment : Fragment() {
             }
         })
 
-        updateAppBar()
         return binding.root
     }
 
@@ -273,22 +267,6 @@ class ReplyFragment : Fragment() {
             hideMenu()
         } else {
             showMenu()
-        }
-    }
-
-    // TODO refresh click
-    private fun updateAppBar() {
-
-        requireActivity().run {
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-            val title =
-                "A岛 • ${sharedVM.selectedForum.value!!.name} • ${sharedVM.selectedThread.value?.id}"
-            ToolbarUtil.disableCollapse(this, title)
-            toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
-            toolbar.setNavigationOnClickListener(null)
-            toolbar.setNavigationOnClickListener {
-                findNavController().popBackStack()
-            }
         }
     }
 }

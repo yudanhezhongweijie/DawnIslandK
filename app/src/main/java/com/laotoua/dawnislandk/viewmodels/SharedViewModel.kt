@@ -55,15 +55,22 @@ class SharedViewModel : ViewModel() {
         return when (currentFragment.value?.javaClass?.simpleName) {
             // TODO: default forumName
             "ThreadFragment" -> "A岛 • ${selectedForum.value?.name ?: "时间线"}"
-            "ReplyFragment" -> "A岛 • ${selectedThread.value?.fid?.let { getForumDisplayName(it) }} • ${selectedThread.value?.id}"
+            "ReplyFragment" -> "A岛 • ${selectedThread.value?.fid?.let { getForumDisplayName(it) }}"
             "SettingsFragment" -> "设置"
             "SizeCustomizationFragment" -> "设置串卡片布局"
             else -> {
-                Timber.e("Need to set title in $currentFragment")
-                "Need to set title in $currentFragment"
+                Timber.e("Need to set title in Frag ${currentFragment.value}, currently using default...")
+                "A岛 • ${selectedForum.value?.name ?: "时间线"}"
             }
         }
 
+    }
+
+    fun generateAppBarSubtitle(): String? {
+        return when (currentFragment.value?.javaClass?.simpleName) {
+            "ReplyFragment" -> ">> No.${selectedThread.value?.id} • adnmb.com"
+            else -> null
+        }
     }
 
 }

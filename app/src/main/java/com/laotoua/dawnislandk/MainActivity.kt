@@ -86,7 +86,11 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
 
         // update app bar for each fragment
         sharedVM.currentFragment.observe(this, Observer {
-            updateAppBarByFragment(it, sharedVM.generateAppbarTitle())
+            updateAppBarByFragment(
+                it,
+                sharedVM.generateAppbarTitle(),
+                sharedVM.generateAppBarSubtitle()
+            )
         })
 
         // special handler for forum change, without fragment change

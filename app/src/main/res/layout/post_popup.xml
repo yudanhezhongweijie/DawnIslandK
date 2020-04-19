@@ -306,6 +306,22 @@
                 app:justifyContent="space_around" />
         </ScrollView>
 
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/luweiContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:alignContent="space_around"
+                app:alignItems="flex_start"
+                app:flexDirection="row"
+                app:flexWrap="wrap"
+                app:justifyContent="space_around" />
+        </ScrollView>
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/attachmentContainer"
             android:layout_width="match_parent"

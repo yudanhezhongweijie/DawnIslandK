@@ -9,10 +9,9 @@ import android.provider.OpenableColumns
 import android.util.Size
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.IOException
+import timber.log.Timber
+import java.io.*
+
 
 object ImageUtil {
     fun addPlaceholderImageUriToGallery(
@@ -63,11 +62,33 @@ object ImageUtil {
                 caller.requireContext().cacheDir,
                 caller.requireContext().contentResolver.getFileName(uri)
             )
+            if (file.exists()) {
+                Timber.i("File exists..Reusing the old file")
+                return file
+            }
+            Timber.i("File not found. Making a new one...")
             val outputStream = FileOutputStream(file)
             inputStream.copyTo(outputStream)
             return file
         }
         return null
+    }
+
+    fun getFileFromDrawable(caller: Fragment, fileName: String, resId: Int): File {
+        val file = File(
+            caller.requireContext().cacheDir,
+            "$fileName.png"
+        )
+        if (file.exists()) {
+            Timber.i("File exists..Reusing the old file")
+            return file
+        }
+        Timber.i("File not found. Making a new one...")
+        val inputStream: InputStream = caller.requireContext().resources.openRawResource(resId)
+
+        val outputStream = FileOutputStream(file)
+        inputStream.copyTo(outputStream)
+        return file
     }
 
     private fun ContentResolver.getFileName(fileUri: Uri): String {

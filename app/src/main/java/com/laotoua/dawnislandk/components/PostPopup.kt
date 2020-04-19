@@ -81,6 +81,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
     private var expansionContainer: LinearLayout? = null
     private var attachmentContainer: ConstraintLayout? = null
     private var facesContainer: FlexboxLayout? = null
+    private var luweiContainer: FlexboxLayout? = null
     private var postContent: EditText? = null
     private var postPhotoPreview: PhotoView? = null
 
@@ -143,6 +144,33 @@ class PostPopup(private val caller: Fragment, context: Context) :
                 }
             }
 
+            // add luwei
+            luweiContainer = findViewById<FlexboxLayout>(R.id.luweiContainer).also { flexBox ->
+                resources.getStringArray(R.array.LuweiEmojis).map { emojiId ->
+                    val resourceId: Int = context.resources.getIdentifier(
+                        emojiId, "drawable",
+                        context.packageName
+                    )
+                    ImageView(context).run {
+                        setImageResource(resourceId)
+                        layoutParams = LayoutParams(150, 150)
+                        setOnClickListener {
+                            try {
+                                imageFile =
+                                    ImageUtil.getFileFromDrawable(caller, emojiId, resourceId)
+                                postPhotoPreview!!.setImageResource(resourceId)
+                            } catch (e: Exception) {
+                                Timber.e(e)
+                            }
+                        }
+                        flexBox.addView(this)
+                        val lp = layoutParams as FlexboxLayout.LayoutParams
+                        lp.flexBasisPercent = 0.2f
+                        lp.setMargins(0, 2, 0, 2)
+                        layoutParams = lp
+                    }
+                }
+            }
         }
 
         postContent = findViewById<EditText>(R.id.postContent)
@@ -186,7 +214,8 @@ class PostPopup(private val caller: Fragment, context: Context) :
                     // TODO: luweiniang
                     R.id.postLuwei -> {
                         hideKeyboardFrom(context, this)
-                        Toast.makeText(context, "postLuwei TODO....", Toast.LENGTH_LONG).show()
+                        luweiContainer!!.visibility =
+                            if (isChecked) View.VISIBLE else View.GONE
                     }
                     // TODO: doodle
                     R.id.postDoodle -> {

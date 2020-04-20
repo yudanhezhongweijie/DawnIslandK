@@ -86,11 +86,12 @@ fun removeQuote(content: String): String {
 
 fun transformContent(content: String): SpannableStringBuilder {
 
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+    val nonHide = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         SpannableStringBuilder(Html.fromHtml(content, HtmlCompat.FROM_HTML_MODE_COMPACT))
     } else {
         SpannableStringBuilder(Html.fromHtml(content))
     }
+    return transformHideContent(nonHide)
 }
 
 fun transformHideContent(content: SpannableStringBuilder): SpannableStringBuilder {

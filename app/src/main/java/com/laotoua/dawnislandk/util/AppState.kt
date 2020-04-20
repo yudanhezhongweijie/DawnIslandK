@@ -36,10 +36,10 @@ object AppState {
     fun loadFeedsId(context: Context): String {
         if (mFeedsId == null) {
             PreferenceManager.getDefaultSharedPreferences(context).run {
-                mFeedsId = getString("subscriptionId", null)
+                mFeedsId = getString("feedId", null)
                 if (mFeedsId == null) {
                     mFeedsId = UUID.randomUUID().toString()
-                    edit().putString("subscriptionId", mFeedsId).apply()
+                    edit().putString("feedId", mFeedsId).apply()
                 }
 
             }

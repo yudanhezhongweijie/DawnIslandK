@@ -16,6 +16,12 @@ interface NMBService {
     @GET("Api/feed")
     fun getNMBFeeds(@Query("uuid") fid: String, @Query("page") page: Int): Call<ResponseBody>
 
+    @GET("Api/addFeed")
+    fun addNMBFeed(@Query("uuid") fid: String, @Query("tid") id: String): Call<ResponseBody>
+
+    @GET("Api/delFeed")
+    fun delNMBFeed(@Query("uuid") fid: String, @Query("tid") id: String): Call<ResponseBody>
+
     @GET("Api/timeline")
     fun getNMBTimeLine(@Query("page") page: Int): Call<ResponseBody>
 

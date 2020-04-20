@@ -97,6 +97,34 @@ object NMBServiceClient {
         }
     }
 
+    suspend fun addFeed(uuid: String, tid: String): String {
+        try {
+            val rawResponse =
+                withContext(Dispatchers.IO) {
+                    Timber.i("Adding Feed $tid...")
+                    service.addNMBFeed(uuid, tid).execute().body()!!.string()
+                }
+            return Jsoup.parse(rawResponse).text()
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to add feed")
+            throw e
+        }
+    }
+
+    suspend fun delFeed(uuid: String, tid: String): String {
+        try {
+            val rawResponse =
+                withContext(Dispatchers.IO) {
+                    Timber.i("Adding Feed $tid...")
+                    service.delNMBFeed(uuid, tid).execute().body()!!.string()
+                }
+            return Jsoup.parse(rawResponse).text()
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to add feed")
+            throw e
+        }
+    }
+
     // TODO: handle case where thread is deleted
     suspend fun getReplys(id: String, page: Int): Thread {
         try {

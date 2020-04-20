@@ -11,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.afollestad.materialdialogs.MaterialDialog
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.FeedFragmentBinding
 import com.laotoua.dawnislandk.entity.Thread
@@ -58,6 +59,21 @@ class FeedFragment : Fragment() {
 
         }
 
+        // long click to delete
+        mAdapter.setOnItemLongClickListener { _, _, position ->
+            val id = (mAdapter.getItem(position) as Thread).id
+            MaterialDialog(requireContext()).show {
+                title(text = "删除订阅 $id?")
+                positiveButton(text = "删除") {
+                    viewModel.deleteFeed(id)
+                    mAdapter.remove(position)
+                }
+                negativeButton(text = "取消")
+            }
+
+            true
+        }
+
         mAdapter.addChildClickViewIds(R.id.threadImage)
         mAdapter.setOnItemChildClickListener { adapter, view, position ->
             if (view.id == R.id.threadImage) {
@@ -82,6 +98,7 @@ class FeedFragment : Fragment() {
                     .show()
             }
         }
+
 
         // load more
         mAdapter.loadMoreModule.setOnLoadMoreListener {

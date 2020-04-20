@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.entity.Thread
 import com.laotoua.dawnislandk.network.NMBServiceClient
 import com.laotoua.dawnislandk.util.AppState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -20,6 +21,7 @@ class FeedViewModel : ViewModel() {
     private var _loadFail = MutableLiveData(false)
     val loadFail: LiveData<Boolean>
         get() = _loadFail
+
 
     init {
         getFeeds()
@@ -47,6 +49,15 @@ class FeedViewModel : ViewModel() {
             } catch (e: Exception) {
                 Timber.e(e, "failed to get feeds")
                 _loadFail.postValue(true)
+            }
+        }
+    }
+
+    fun deleteFeed(id: String) {
+        Timber.i("Deleting Feed $id")
+        viewModelScope.launch(Dispatchers.IO) {
+            NMBServiceClient.delFeed(AppState.feedsId, id).run {
+                Timber.i("res $this")
             }
         }
     }

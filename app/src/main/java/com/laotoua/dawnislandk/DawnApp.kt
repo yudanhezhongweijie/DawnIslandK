@@ -2,7 +2,7 @@ package com.laotoua.dawnislandk
 
 import android.app.Application
 import androidx.room.Room
-import com.laotoua.dawnislandk.entities.DawnDatabase
+import com.laotoua.dawnislandk.entity.DawnDatabase
 import com.laotoua.dawnislandk.util.AppState
 import com.laotoua.dawnislandk.util.ReadableTime
 import timber.log.Timber

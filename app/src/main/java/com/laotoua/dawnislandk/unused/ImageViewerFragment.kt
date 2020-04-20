@@ -13,7 +13,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.navArgs
 import com.github.chrisbanes.photoview.PhotoView
 import com.laotoua.dawnislandk.databinding.ImageViewerFragmentBinding
-import com.laotoua.dawnislandk.viewmodels.SharedViewModel
+import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 
 
 class ImageViewerFragment : Fragment() {

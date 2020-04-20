@@ -1,15 +1,16 @@
 package com.laotoua.dawnislandk.util
 
 import android.content.Context
-import com.laotoua.dawnislandk.components.ThreadCardFactory
-import com.laotoua.dawnislandk.entities.Cookie
-import com.laotoua.dawnislandk.entities.DawnDatabase
+import com.laotoua.dawnislandk.entity.Cookie
+import com.laotoua.dawnislandk.entity.DawnDatabase
+import com.laotoua.dawnislandk.ui.viewfactory.ThreadCardFactory
 
 object AppState {
     private var threadCardFactory: ThreadCardFactory? = null
 
     fun getThreadCardFactory(context: Context): ThreadCardFactory {
-        if (threadCardFactory == null) threadCardFactory = ThreadCardFactory(context)
+        if (threadCardFactory == null) threadCardFactory =
+            ThreadCardFactory(context)
         return threadCardFactory!!
     }
 

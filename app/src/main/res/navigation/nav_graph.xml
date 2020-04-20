@@ -6,7 +6,7 @@
     app:startDestination="@id/pagerFragment">
     <fragment
         android:id="@+id/replyFragment"
-        android:name="com.laotoua.dawnislandk.ReplyFragment"
+        android:name="com.laotoua.dawnislandk.ui.fragment.ReplyFragment"
         android:label="reply_fragment"
         tools:layout="@layout/reply_fragment">
         <action
@@ -24,7 +24,7 @@
     </fragment>
     <fragment
         android:id="@+id/pagerFragment"
-        android:name="com.laotoua.dawnislandk.PagerFragment"
+        android:name="com.laotoua.dawnislandk.ui.fragment.PagerFragment"
         android:label="pager_fragment"
         tools:layout="@layout/pager_fragment">
         <action
@@ -39,7 +39,7 @@
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.laotoua.dawnislandk.settings.SettingsFragment"
+        android:name="com.laotoua.dawnislandk.ui.fragment.SettingsFragment"
         android:label="SettingsFragment">
         <action
             android:id="@+id/action_settingsFragment_to_sizeCustomizationFragment"
@@ -47,6 +47,6 @@
     </fragment>
     <fragment
         android:id="@+id/sizeCustomizationFragment"
-        android:name="com.laotoua.dawnislandk.settings.SizeCustomizationFragment"
+        android:name="com.laotoua.dawnislandk.ui.fragment.SizeCustomizationFragment"
         android:label="SizeCustomizationFragment" />
 </navigation>

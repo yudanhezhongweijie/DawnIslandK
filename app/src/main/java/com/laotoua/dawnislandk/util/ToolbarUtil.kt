@@ -87,7 +87,10 @@ object ToolbarUtil {
             when (callerFragment.javaClass.simpleName) {
                 "ThreadFragment" -> {
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-                    enableCollapse(this, title)
+                    enableCollapse(
+                        this,
+                        title
+                    )
                     toolbar.setNavigationIcon(R.drawable.ic_menu_white_24dp)
                     toolbar.setNavigationOnClickListener(null)
                     toolbar.setNavigationOnClickListener {
@@ -96,7 +99,11 @@ object ToolbarUtil {
                 }
                 "ReplyFragment" -> {
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-                    disableCollapse(this, title, subtitle)
+                    disableCollapse(
+                        this,
+                        title,
+                        subtitle
+                    )
                     toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
                     toolbar.setNavigationOnClickListener(null)
                     toolbar.setNavigationOnClickListener {
@@ -105,7 +112,10 @@ object ToolbarUtil {
                 }
                 "SettingsFragment" -> {
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-                    disableCollapse(this, title)
+                    disableCollapse(
+                        this,
+                        title
+                    )
                     toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
                     toolbar.setNavigationOnClickListener(null)
                     toolbar.setNavigationOnClickListener {
@@ -114,7 +124,10 @@ object ToolbarUtil {
                 }
                 "SizeCustomizationFragment" -> {
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-                    disableCollapse(this, title)
+                    disableCollapse(
+                        this,
+                        title
+                    )
                     toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
                     toolbar.setNavigationOnClickListener(null)
                     toolbar.setNavigationOnClickListener {

@@ -10,13 +10,13 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
-import com.laotoua.dawnislandk.entities.Forum
+import com.laotoua.dawnislandk.entity.Forum
+import com.laotoua.dawnislandk.ui.adapter.QuickNodeAdapter
 import com.laotoua.dawnislandk.util.AppState
-import com.laotoua.dawnislandk.util.QuickNodeAdapter
 import com.laotoua.dawnislandk.util.ToolbarUtil.updateAppBarByFragment
 import com.laotoua.dawnislandk.util.ToolbarUtil.updateAppBarTitleWithinFragment
-import com.laotoua.dawnislandk.viewmodels.CommunityViewModel
-import com.laotoua.dawnislandk.viewmodels.SharedViewModel
+import com.laotoua.dawnislandk.viewmodel.CommunityViewModel
+import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -27,7 +27,8 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
     private val communityVM: CommunityViewModel by viewModels()
     private val sharedVM: SharedViewModel by viewModels()
 
-    private val mAdapter = QuickNodeAdapter(this)
+    private val mAdapter =
+        QuickNodeAdapter(this)
 
     init {
         // load Resources

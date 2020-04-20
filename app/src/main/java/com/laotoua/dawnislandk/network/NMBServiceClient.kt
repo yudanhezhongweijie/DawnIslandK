@@ -2,9 +2,9 @@ package com.laotoua.dawnislandk.network
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.laotoua.dawnislandk.entities.Community
-import com.laotoua.dawnislandk.entities.Reply
-import com.laotoua.dawnislandk.entities.Thread
+import com.laotoua.dawnislandk.entity.Community
+import com.laotoua.dawnislandk.entity.Reply
+import com.laotoua.dawnislandk.entity.Thread
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull

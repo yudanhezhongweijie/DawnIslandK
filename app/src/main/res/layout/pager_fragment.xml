@@ -4,6 +4,6 @@
     android:id="@+id/viewPager"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PagerFragment">
+    tools:context=".ui.fragment.PagerFragment">
 
 </androidx.viewpager2.widget.ViewPager2>

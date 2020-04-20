@@ -22,8 +22,7 @@ import com.laotoua.dawnislandk.entity.Reply
 import com.laotoua.dawnislandk.entity.Thread
 import com.laotoua.dawnislandk.ui.span.RoundBackgroundColorSpan
 import com.laotoua.dawnislandk.ui.viewfactory.ThreadCardFactory
-import com.laotoua.dawnislandk.util.AppState
-import com.laotoua.dawnislandk.util.GlideApp
+import com.laotoua.dawnislandk.util.*
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 import kotlinx.android.synthetic.main.quote_list_item.view.*
 import timber.log.Timber

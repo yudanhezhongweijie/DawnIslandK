@@ -12,6 +12,7 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.entity.Community
 import com.laotoua.dawnislandk.entity.Forum
+import com.laotoua.dawnislandk.util.transformForumName
 
 
 class QuickNodeAdapter(val clickListener: ForumClickListener) : BaseNodeAdapter() {

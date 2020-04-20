@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.ui.adapter
+package com.laotoua.dawnislandk.util
 
 import android.content.Context
 import android.graphics.Color
@@ -14,8 +14,6 @@ import android.util.TypedValue
 import android.view.View
 import android.widget.TextView
 import androidx.core.text.HtmlCompat
-import com.laotoua.dawnislandk.util.ReadableTime
-
 
 fun transformForumName(forumName: String): Spanned {
     return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
@@ -27,10 +25,10 @@ fun transformForumName(forumName: String): Spanned {
 
 fun transformCookie(userid: String, admin: String, po: String = ""): Spannable {
     /*
-      处理饼干
-      PO需要加粗
-      普通饼干是灰色，po是黑色，红名是红色
-     */
+  处理饼干
+  PO需要加粗
+  普通饼干是灰色，po是黑色，红名是红色
+ */
     val cookie = SpannableStringBuilder(userid)
     if (admin == "1") {
         val adminColor = ForegroundColorSpan(Color.parseColor("#FF0F0F"))
@@ -88,13 +86,11 @@ fun removeQuote(content: String): String {
 
 fun transformContent(content: String): SpannableStringBuilder {
 
-    val nonHide = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         SpannableStringBuilder(Html.fromHtml(content, HtmlCompat.FROM_HTML_MODE_COMPACT))
     } else {
         SpannableStringBuilder(Html.fromHtml(content))
     }
-
-    return transformHideContent(nonHide)
 }
 
 fun transformHideContent(content: SpannableStringBuilder): SpannableStringBuilder {

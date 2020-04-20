@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -21,6 +22,9 @@ import com.laotoua.dawnislandk.ui.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.viewmodel.FeedViewModel
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 import com.lxj.xpopup.XPopup
+import me.dkzwm.widget.srl.RefreshingListenerAdapter
+import me.dkzwm.widget.srl.extra.header.ClassicHeader
+import me.dkzwm.widget.srl.indicator.IIndicator
 import timber.log.Timber
 
 
@@ -49,6 +53,14 @@ class FeedFragment : Fragment() {
          */
         mAdapter.setSharedVM(sharedVM)
 
+        binding.refreshLayout.setHeaderView(ClassicHeader<IIndicator>(context))
+        binding.refreshLayout.setOnRefreshListener(object : RefreshingListenerAdapter() {
+            override fun onRefreshing() {
+                mAdapter.setNewData(mutableListOf())
+                viewModel.refresh()
+            }
+        })
+
         // item click
         mAdapter.setOnItemClickListener { adapter, _, position ->
             sharedVM.setThread(adapter.getItem(position) as Thread)
@@ -65,8 +77,7 @@ class FeedFragment : Fragment() {
             MaterialDialog(requireContext()).show {
                 title(text = "删除订阅 $id?")
                 positiveButton(text = "删除") {
-                    viewModel.deleteFeed(id)
-                    mAdapter.remove(position)
+                    viewModel.deleteFeed(id, position)
                 }
                 negativeButton(text = "取消")
             }
@@ -74,6 +85,12 @@ class FeedFragment : Fragment() {
             true
         }
 
+        viewModel.deleteResponse.observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let { (msg, pos) ->
+                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                mAdapter.remove(pos)
+            }
+        })
         mAdapter.addChildClickViewIds(R.id.threadImage)
         mAdapter.setOnItemChildClickListener { adapter, view, position ->
             if (view.id == R.id.threadImage) {
@@ -117,6 +134,7 @@ class FeedFragment : Fragment() {
         viewModel.feeds.observe(viewLifecycleOwner, Observer {
             mAdapter.setDiffNewData(it.toMutableList())
             mAdapter.loadMoreModule.loadMoreComplete()
+            binding.refreshLayout.refreshComplete()
             Timber.i("New data found. Adapter now have ${mAdapter.data.size} threads")
 
         })

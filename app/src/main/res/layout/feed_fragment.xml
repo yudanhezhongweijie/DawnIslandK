@@ -6,14 +6,20 @@
     android:layout_height="match_parent"
     tools:context=".ui.fragment.FeedFragment">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/feedsView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:scrollbars="vertical"
+    <me.dkzwm.widget.srl.SmoothRefreshLayout
+        android:id="@+id/refreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/feedsView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical" />
+    </me.dkzwm.widget.srl.SmoothRefreshLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

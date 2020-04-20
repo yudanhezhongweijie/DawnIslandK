@@ -7,8 +7,10 @@ import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.entity.Thread
 import com.laotoua.dawnislandk.network.NMBServiceClient
 import com.laotoua.dawnislandk.util.AppState
+import com.laotoua.dawnislandk.util.SingleLiveEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.apache.commons.text.StringEscapeUtils
 import timber.log.Timber
 
 class FeedViewModel : ViewModel() {
@@ -22,6 +24,8 @@ class FeedViewModel : ViewModel() {
     val loadFail: LiveData<Boolean>
         get() = _loadFail
 
+    private val _deleteResponse = MutableLiveData<SingleLiveEvent<Pair<String, Int>>>()
+    val deleteResponse: LiveData<SingleLiveEvent<Pair<String, Int>>> get() = _deleteResponse
 
     init {
         getFeeds()
@@ -53,12 +57,27 @@ class FeedViewModel : ViewModel() {
         }
     }
 
-    fun deleteFeed(id: String) {
+    fun deleteFeed(id: String, position: Int) {
         Timber.i("Deleting Feed $id")
         viewModelScope.launch(Dispatchers.IO) {
             NMBServiceClient.delFeed(AppState.feedsId, id).run {
-                Timber.i("res $this")
+                // TODO: check failure response
+                /** res:
+                 *  "\u53d6\u6d88\u8ba2\u9605\u6210\u529f!"
+                 */
+                val msg = StringEscapeUtils.unescapeJava(this.replace("\"", ""))
+                SingleLiveEvent(Pair(msg, position)).run {
+                    _deleteResponse.postValue(this)
+                }
+
             }
         }
+    }
+
+    fun refresh() {
+        feedsList.clear()
+        feedsIds.clear()
+        pageCount = 1
+        getFeeds()
     }
 }

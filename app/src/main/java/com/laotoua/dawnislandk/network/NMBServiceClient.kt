@@ -78,7 +78,6 @@ object NMBServiceClient {
         return parser.fromJson(response.string(), object : TypeToken<List<Thread>>() {}.type)
     }
 
-
     // TODO: handle case where thread is deleted
     suspend fun getFeeds(uuid: String, page: Int): List<Thread> {
         try {
@@ -99,12 +98,10 @@ object NMBServiceClient {
 
     suspend fun addFeed(uuid: String, tid: String): String {
         try {
-            val rawResponse =
-                withContext(Dispatchers.IO) {
-                    Timber.i("Adding Feed $tid...")
-                    service.addNMBFeed(uuid, tid).execute().body()!!.string()
-                }
-            return Jsoup.parse(rawResponse).text()
+            return withContext(Dispatchers.IO) {
+                Timber.i("Adding Feed $tid...")
+                service.addNMBFeed(uuid, tid).execute().body()!!.string()
+            }
         } catch (e: Exception) {
             Timber.e(e, "Failed to add feed")
             throw e
@@ -113,14 +110,12 @@ object NMBServiceClient {
 
     suspend fun delFeed(uuid: String, tid: String): String {
         try {
-            val rawResponse =
-                withContext(Dispatchers.IO) {
-                    Timber.i("Adding Feed $tid...")
-                    service.delNMBFeed(uuid, tid).execute().body()!!.string()
-                }
-            return Jsoup.parse(rawResponse).text()
+            return withContext(Dispatchers.IO) {
+                Timber.i("Deleting Feed $tid...")
+                service.delNMBFeed(uuid, tid).execute().body()!!.string()
+            }
         } catch (e: Exception) {
-            Timber.e(e, "Failed to add feed")
+            Timber.e(e, "Failed to delete feed")
             throw e
         }
     }

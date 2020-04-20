@@ -97,7 +97,7 @@ class ReplyViewModel : ViewModel() {
 
             try {
                 val thread = NMBServiceClient.getReplys(_currentThread!!.id, page)
-                maxReply = thread.replyCount.toInt()
+                maxReply = thread.replyCount?.toInt() ?: 0
 
                 list.addAll(thread.replys!!)
                 /**

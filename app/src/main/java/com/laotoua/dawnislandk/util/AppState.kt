@@ -16,34 +16,35 @@ object AppState {
         return threadCardFactory!!
     }
 
-    private var _DB: DawnDatabase? = null
-    val DB: DawnDatabase get() = _DB!!
+    private var mDb: DawnDatabase? = null
+    val DB: DawnDatabase get() = mDb!!
 
     fun setDB(db: DawnDatabase) {
-        this._DB = db
+        this.mDb = db
     }
 
-    private var _cookies: List<Cookie>? = null
-    val cookies get() = _cookies
+    private var mCookies: List<Cookie>? = null
+    val cookies get() = mCookies
 
     suspend fun loadCookies() {
-        _cookies = DB.cookieDao().getAll()
+        mCookies = DB.cookieDao().getAll()
     }
 
-    private var subscriptionId: String? = null
+    private var mFeedsId: String? = null
+    val feedsId get() = mFeedsId!!
 
-    fun getSubscriptionId(context: Context): String {
-        if (subscriptionId == null) {
+    fun loadFeedsId(context: Context): String {
+        if (mFeedsId == null) {
             PreferenceManager.getDefaultSharedPreferences(context).run {
-                subscriptionId = getString("subscriptionId", null)
-                if (subscriptionId == null) {
-                    subscriptionId = UUID.randomUUID().toString()
-                    edit().putString("subscriptionId", subscriptionId).apply()
+                mFeedsId = getString("subscriptionId", null)
+                if (mFeedsId == null) {
+                    mFeedsId = UUID.randomUUID().toString()
+                    edit().putString("subscriptionId", mFeedsId).apply()
                 }
 
             }
         }
-        return subscriptionId!!
+        return mFeedsId!!
     }
 
 }

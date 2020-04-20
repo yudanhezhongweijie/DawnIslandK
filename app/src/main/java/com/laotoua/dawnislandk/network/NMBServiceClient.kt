@@ -78,6 +78,25 @@ object NMBServiceClient {
         return parser.fromJson(response.string(), object : TypeToken<List<Thread>>() {}.type)
     }
 
+
+    // TODO: handle case where thread is deleted
+    suspend fun getFeeds(uuid: String, page: Int): List<Thread> {
+        try {
+            val rawResponse =
+                withContext(Dispatchers.IO) {
+                    Timber.i("Downloading Feeds on page $page...")
+                    service.getNMBFeeds(uuid, page).execute().body()!!
+                }
+            return withContext(Dispatchers.Default) {
+                Timber.i("Parsing Feeds...")
+                parseThreads(rawResponse)
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to get Feeds")
+            throw e
+        }
+    }
+
     // TODO: handle case where thread is deleted
     suspend fun getReplys(id: String, page: Int): Thread {
         try {

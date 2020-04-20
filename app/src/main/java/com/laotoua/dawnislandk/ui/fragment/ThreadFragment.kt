@@ -60,7 +60,7 @@ class ThreadFragment : Fragment() {
         // item click
         mAdapter.setOnItemClickListener { adapter, _, position ->
             hideMenu()
-            sharedVM.setThreadList(adapter.getItem(position) as Thread)
+            sharedVM.setThread(adapter.getItem(position) as Thread)
             val action =
                 PagerFragmentDirections.actionPagerFragmentToReplyFragment()
             findNavController().navigate(action)
@@ -89,9 +89,7 @@ class ThreadFragment : Fragment() {
                     )
                 viewerPopup.setXPopupImageLoader(imageLoader)
                 viewerPopup.setSingleSrcView(view as ImageView?, url)
-                viewerPopup.setOnClickListener {
-                    Timber.i("on click in thread")
-                }
+
                 XPopup.Builder(context)
                     .asCustom(viewerPopup)
                     .show()

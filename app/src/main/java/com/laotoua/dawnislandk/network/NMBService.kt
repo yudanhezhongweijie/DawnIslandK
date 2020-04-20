@@ -13,6 +13,9 @@ interface NMBService {
     @GET("Api/showf")
     fun getNMBThreads(@Query("id") fid: String, @Query("page") page: Int): Call<ResponseBody>
 
+    @GET("Api/feed")
+    fun getNMBFeeds(@Query("uuid") fid: String, @Query("page") page: Int): Call<ResponseBody>
+
     @GET("Api/timeline")
     fun getNMBTimeLine(@Query("page") page: Int): Call<ResponseBody>
 

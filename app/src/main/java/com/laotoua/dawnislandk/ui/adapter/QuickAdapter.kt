@@ -61,7 +61,6 @@ class QuickAdapter(private val layoutResId: Int) :
      *
      */
     override fun convert(helper: BaseViewHolder, item: Any) {
-
         if (layoutResId == R.layout.thread_list_item && item is Thread) {
             convertThread(helper, item, sharedViewModel.getForumDisplayName(item.fid!!))
         } else if (layoutResId == R.layout.reply_list_item && item is Reply) {
@@ -91,8 +90,8 @@ class QuickAdapter(private val layoutResId: Int) :
             R.id.threadTime,
             transformTime(item.now)
         )
-
-        val spannableString = SpannableString(forumDisplayName + " • " + item.replyCount)
+        val suffix = if (item.replyCount != null) " • " + item.replyCount else ""
+        val spannableString = SpannableString(forumDisplayName + suffix)
         spannableString.setSpan(
             RoundBackgroundColorSpan(
                 Color.parseColor("#12DBD1"),

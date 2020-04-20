@@ -112,6 +112,6 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
         AppState.loadCookies()
 
         // set default subscriptionID
-        AppState.getSubscriptionId(this)
+        AppState.loadFeedsId(this)
     }
 }

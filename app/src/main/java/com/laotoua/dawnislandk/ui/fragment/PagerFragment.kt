@@ -37,7 +37,7 @@ class PagerFragment : Fragment() {
 
                 return when (position) {
                     0 -> ThreadFragment()
-                    1 -> SubscriptionFragment()
+                    1 -> FeedFragment()
                     else -> throw Exception("unhandled pager fragment creation")
                 }
             }
@@ -45,7 +45,7 @@ class PagerFragment : Fragment() {
             fun getItemByTag(tag: String): Fragment {
                 return when (tag) {
                     "Thread" -> getItem(0)
-                    "Subscription" -> getItem(1)
+                    "Feed" -> getItem(1)
                     else -> {
                         Timber.e("Unhandled get fragment by tag")
                         throw Exception("Unhandled get fragment by tag")
@@ -55,7 +55,7 @@ class PagerFragment : Fragment() {
 
             init {
                 mFragmentList.add(ThreadFragment())
-                mFragmentList.add(SubscriptionFragment())
+                mFragmentList.add(FeedFragment())
                 Timber.i("Pager init~")
             }
         }

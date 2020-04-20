@@ -67,6 +67,7 @@ object ToolbarUtil {
 
         //you also have to setTitle for toolbar
         toolbar.title = title // or getSupportActionBar().setTitle(title);
+        collapsingToolbar.title = title
     }
 
     private fun getStatusBarHeight(activity: Activity): Int {

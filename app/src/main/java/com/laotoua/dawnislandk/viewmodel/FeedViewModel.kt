@@ -24,8 +24,8 @@ class FeedViewModel : ViewModel() {
     val loadFail: LiveData<Boolean>
         get() = _loadFail
 
-    private val _deleteResponse = MutableLiveData<SingleLiveEvent<Pair<String, Int>>>()
-    val deleteResponse: LiveData<SingleLiveEvent<Pair<String, Int>>> get() = _deleteResponse
+    private val _delFeedResponse = MutableLiveData<SingleLiveEvent<Pair<String, Int>>>()
+    val delFeedResponse: LiveData<SingleLiveEvent<Pair<String, Int>>> get() = _delFeedResponse
 
     init {
         getFeeds()
@@ -45,7 +45,7 @@ class FeedViewModel : ViewModel() {
                     )
                     _feeds.postValue(feedsList)
                     _loadFail.postValue(false)
-                    pageCount += 1
+                    if (feedsList.size % 10 == 0) pageCount += 1
                 } else {
                     Timber.i("feedsList has no new feeds.")
                     _loadFail.postValue(true)
@@ -67,7 +67,7 @@ class FeedViewModel : ViewModel() {
                  */
                 val msg = StringEscapeUtils.unescapeJava(this.replace("\"", ""))
                 SingleLiveEvent(Pair(msg, position)).run {
-                    _deleteResponse.postValue(this)
+                    _delFeedResponse.postValue(this)
                 }
 
             }

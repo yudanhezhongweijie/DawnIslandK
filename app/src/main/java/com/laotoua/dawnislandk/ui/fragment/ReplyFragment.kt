@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -24,6 +25,7 @@ import com.laotoua.dawnislandk.ui.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.ui.popup.JumpPopup
 import com.laotoua.dawnislandk.ui.popup.PostPopup
 import com.laotoua.dawnislandk.ui.popup.QuotePopup
+import com.laotoua.dawnislandk.util.AppState
 import com.laotoua.dawnislandk.util.extractQuoteId
 import com.laotoua.dawnislandk.viewmodel.ReplyViewModel
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
@@ -227,6 +229,18 @@ class ReplyFragment : Fragment() {
             hideMenu()
         }
 
+        binding.addFeed.setOnClickListener {
+            Timber.i("Clicked on onlyPo")
+            hideMenu()
+            viewModel.addFeed(AppState.feedsId, viewModel.currentThread!!.id)
+        }
+
+        viewModel.addFeedResponse.observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let { msg ->
+                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+            }
+        })
+
 
         binding.refreshLayout.setHeaderView(ClassicHeader<IIndicator>(context))
         binding.refreshLayout.setOnRefreshListener(object : RefreshingListenerAdapter() {
@@ -259,6 +273,7 @@ class ReplyFragment : Fragment() {
         binding.jump.hide()
         binding.copyId.hide()
         binding.onlyPo.hide()
+        binding.addFeed.hide()
         isFabOpen = false
     }
 
@@ -272,6 +287,7 @@ class ReplyFragment : Fragment() {
         binding.jump.show()
         binding.copyId.show()
         binding.onlyPo.show()
+        binding.addFeed.show()
         isFabOpen = true
     }
 

@@ -85,7 +85,7 @@ class FeedFragment : Fragment() {
             true
         }
 
-        viewModel.deleteResponse.observe(viewLifecycleOwner, Observer {
+        viewModel.delFeedResponse.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let { (msg, pos) ->
                 Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
                 mAdapter.remove(pos)

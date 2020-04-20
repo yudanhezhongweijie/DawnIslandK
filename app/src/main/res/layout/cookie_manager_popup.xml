@@ -12,8 +12,8 @@
         android:layout_marginTop="10dp"
         android:layout_marginBottom="20dp"
         android:text="管理饼干"
+        android:textAppearance="@style/ExpandSubTitle"
         android:textColor="#232222"
-        android:textSize="30sp"
         app:layout_constraintBottom_toTopOf="@+id/listView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,12 +23,12 @@
         android:id="@+id/addCookie"
         android:layout_width="30dp"
         android:layout_height="30dp"
-        android:layout_marginTop="15dp"
         android:layout_marginEnd="20dp"
         android:background="@android:color/transparent"
         android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="@+id/title"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/title"
         app:srcCompat="@drawable/ic_add_black_48dp" />
 
     <LinearLayout

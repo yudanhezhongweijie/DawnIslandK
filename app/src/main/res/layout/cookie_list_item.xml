@@ -16,7 +16,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="4dp"
         android:text="cookie"
-        android:textSize="18sp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

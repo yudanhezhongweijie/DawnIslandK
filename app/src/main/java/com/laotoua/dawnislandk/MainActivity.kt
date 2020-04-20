@@ -42,7 +42,6 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
 
         initStatusBar()
 
-        // TODO: orientation cause activity recreate, currently will force communities reload
         setUpForumDrawer()
     }
 
@@ -111,5 +110,8 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
     // initialize Global resources
     private suspend fun loadResources() {
         AppState.loadCookies()
+
+        // set default subscriptionID
+        AppState.loadFeedsId(this)
     }
 }

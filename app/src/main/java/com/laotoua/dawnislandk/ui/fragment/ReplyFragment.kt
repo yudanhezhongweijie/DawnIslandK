@@ -8,22 +8,25 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter.base.listener.OnItemChildClickListener
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.ReplyFragmentBinding
 import com.laotoua.dawnislandk.entity.Reply
 import com.laotoua.dawnislandk.network.ImageLoader
 import com.laotoua.dawnislandk.ui.adapter.QuickAdapter
-import com.laotoua.dawnislandk.ui.adapter.extractQuoteId
 import com.laotoua.dawnislandk.ui.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.ui.popup.JumpPopup
 import com.laotoua.dawnislandk.ui.popup.PostPopup
 import com.laotoua.dawnislandk.ui.popup.QuotePopup
+import com.laotoua.dawnislandk.util.AppState
+import com.laotoua.dawnislandk.util.extractQuoteId
 import com.laotoua.dawnislandk.viewmodel.ReplyViewModel
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 import com.lxj.xpopup.XPopup
@@ -173,14 +176,15 @@ class ReplyFragment : Fragment() {
             }
 
         })
-        binding.replysView.setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
-            if (scrollY < oldScrollY) {
-                binding.fabMenu.show()
-            } else {
-                binding.fabMenu.hide()
-                hideMenu()
+
+        binding.replysView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (dy > 0) {
+                    binding.fabMenu.hide()
+                    hideMenu()
+                } else if (dy < 0) binding.fabMenu.show()
             }
-        }
+        })
 
         binding.fabMenu.setOnClickListener {
             toggleMenu()
@@ -225,6 +229,18 @@ class ReplyFragment : Fragment() {
             hideMenu()
         }
 
+        binding.addFeed.setOnClickListener {
+            Timber.i("Clicked on onlyPo")
+            hideMenu()
+            viewModel.addFeed(AppState.feedsId, viewModel.currentThread!!.id)
+        }
+
+        viewModel.addFeedResponse.observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.let { msg ->
+                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+            }
+        })
+
 
         binding.refreshLayout.setHeaderView(ClassicHeader<IIndicator>(context))
         binding.refreshLayout.setOnRefreshListener(object : RefreshingListenerAdapter() {
@@ -257,6 +273,7 @@ class ReplyFragment : Fragment() {
         binding.jump.hide()
         binding.copyId.hide()
         binding.onlyPo.hide()
+        binding.addFeed.hide()
         isFabOpen = false
     }
 
@@ -270,6 +287,7 @@ class ReplyFragment : Fragment() {
         binding.jump.show()
         binding.copyId.show()
         binding.onlyPo.show()
+        binding.addFeed.show()
         isFabOpen = true
     }
 

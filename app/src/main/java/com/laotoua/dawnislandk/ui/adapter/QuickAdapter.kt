@@ -22,8 +22,7 @@ import com.laotoua.dawnislandk.entity.Reply
 import com.laotoua.dawnislandk.entity.Thread
 import com.laotoua.dawnislandk.ui.span.RoundBackgroundColorSpan
 import com.laotoua.dawnislandk.ui.viewfactory.ThreadCardFactory
-import com.laotoua.dawnislandk.util.AppState
-import com.laotoua.dawnislandk.util.GlideApp
+import com.laotoua.dawnislandk.util.*
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 import kotlinx.android.synthetic.main.quote_list_item.view.*
 import timber.log.Timber
@@ -61,7 +60,6 @@ class QuickAdapter(private val layoutResId: Int) :
      *
      */
     override fun convert(helper: BaseViewHolder, item: Any) {
-
         if (layoutResId == R.layout.thread_list_item && item is Thread) {
             convertThread(helper, item, sharedViewModel.getForumDisplayName(item.fid!!))
         } else if (layoutResId == R.layout.reply_list_item && item is Reply) {
@@ -91,8 +89,8 @@ class QuickAdapter(private val layoutResId: Int) :
             R.id.threadTime,
             transformTime(item.now)
         )
-
-        val spannableString = SpannableString(forumDisplayName + " • " + item.replyCount)
+        val suffix = if (item.replyCount != null) " • " + item.replyCount else ""
+        val spannableString = SpannableString(forumDisplayName + suffix)
         spannableString.setSpan(
             RoundBackgroundColorSpan(
                 Color.parseColor("#12DBD1"),

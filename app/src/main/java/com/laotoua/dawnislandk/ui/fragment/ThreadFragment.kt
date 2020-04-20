@@ -12,6 +12,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.ThreadFragmentBinding
 import com.laotoua.dawnislandk.entity.Thread
@@ -59,7 +60,7 @@ class ThreadFragment : Fragment() {
         // item click
         mAdapter.setOnItemClickListener { adapter, _, position ->
             hideMenu()
-            sharedVM.setThreadList(adapter.getItem(position) as Thread)
+            sharedVM.setThread(adapter.getItem(position) as Thread)
             val action =
                 PagerFragmentDirections.actionPagerFragmentToReplyFragment()
             findNavController().navigate(action)
@@ -88,9 +89,7 @@ class ThreadFragment : Fragment() {
                     )
                 viewerPopup.setXPopupImageLoader(imageLoader)
                 viewerPopup.setSingleSrcView(view as ImageView?, url)
-                viewerPopup.setOnClickListener {
-                    Timber.i("on click in thread")
-                }
+
                 XPopup.Builder(context)
                     .asCustom(viewerPopup)
                     .show()
@@ -131,14 +130,14 @@ class ThreadFragment : Fragment() {
         })
 
 
-        binding.threadsView.setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
-            if (scrollY < oldScrollY) {
-                binding.fabMenu.show()
-            } else {
-                binding.fabMenu.hide()
-                hideMenu()
+        binding.threadsView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (dy > 0) {
+                    hideMenu()
+                    binding.fabMenu.hide()
+                } else if (dy < 0) binding.fabMenu.show()
             }
-        }
+        })
 
         binding.fabMenu.setOnClickListener {
             toggleMenu()

@@ -17,8 +17,8 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.preference.PreferenceManager
 import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.ui.adapter.dip2px
 import com.laotoua.dawnislandk.util.CONST
+import com.laotoua.dawnislandk.util.dip2px
 
 class ThreadCardFactory(val context: Context) {
 

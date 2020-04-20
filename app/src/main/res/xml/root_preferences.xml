@@ -4,7 +4,7 @@
     <PreferenceCategory app:title="常规">
 
         <EditTextPreference
-            app:key="subscriber_id"
+            app:key="feedId"
             app:title="订阅"
             app:useSimpleSummaryProvider="true" />
 

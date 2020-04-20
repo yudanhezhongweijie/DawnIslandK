@@ -67,6 +67,7 @@ object ToolbarUtil {
 
         //you also have to setTitle for toolbar
         toolbar.title = title // or getSupportActionBar().setTitle(title);
+        collapsingToolbar.title = title
     }
 
     private fun getStatusBarHeight(activity: Activity): Int {
@@ -85,7 +86,7 @@ object ToolbarUtil {
     ) {
         run {
             when (callerFragment.javaClass.simpleName) {
-                "ThreadFragment" -> {
+                "ThreadFragment", "FeedFragment" -> {
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
                     enableCollapse(
                         this,

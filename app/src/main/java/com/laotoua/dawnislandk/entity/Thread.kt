@@ -12,6 +12,9 @@ data class Thread(
     @Ignore
     var forumName: String? = "",// only used for displaying name
 
+    @SerializedName("category")
+    var category: String? = "",
+
     @SerializedName("img")
     val img: String, //	该串的图片相对地址
     @SerializedName("ext")
@@ -29,15 +32,15 @@ data class Thread(
     @SerializedName("content")
     val content: String, //content 	....这个你也懂
     @SerializedName("sage")
-    val sage: String, // sage
+    val sage: String? = null, // sage
     @SerializedName("admin")
     val admin: String, //admin 	是否是酷炫红名，如果是酷炫红名则userid为红名id
     @SerializedName("status")
     val status: String? = "n", //?
     @SerializedName("replys")
-    val replys: List<Reply>?, //replys 	主页展示回复的帖子
+    val replys: List<Reply>? = null, //replys 	主页展示回复的帖子
     @SerializedName("replyCount")
-    val replyCount: String //replyCount 	总共有多少个回复
+    val replyCount: String? = null //replyCount 	总共有多少个回复
 ) {
     // convert threadList to Reply
     fun toReply() = Reply(

@@ -79,6 +79,48 @@ object NMBServiceClient {
     }
 
     // TODO: handle case where thread is deleted
+    suspend fun getFeeds(uuid: String, page: Int): List<Thread> {
+        try {
+            val rawResponse =
+                withContext(Dispatchers.IO) {
+                    Timber.i("Downloading Feeds on page $page...")
+                    service.getNMBFeeds(uuid, page).execute().body()!!
+                }
+            return withContext(Dispatchers.Default) {
+                Timber.i("Parsing Feeds...")
+                parseThreads(rawResponse)
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to get Feeds")
+            throw e
+        }
+    }
+
+    suspend fun addFeed(uuid: String, tid: String): String {
+        try {
+            return withContext(Dispatchers.IO) {
+                Timber.i("Adding Feed $tid...")
+                service.addNMBFeed(uuid, tid).execute().body()!!.string()
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to add feed")
+            throw e
+        }
+    }
+
+    suspend fun delFeed(uuid: String, tid: String): String {
+        try {
+            return withContext(Dispatchers.IO) {
+                Timber.i("Deleting Feed $tid...")
+                service.delNMBFeed(uuid, tid).execute().body()!!.string()
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to delete feed")
+            throw e
+        }
+    }
+
+    // TODO: handle case where thread is deleted
     suspend fun getReplys(id: String, page: Int): Thread {
         try {
             val rawResponse =

@@ -11,8 +11,8 @@ import timber.log.Timber
 class SharedViewModel : ViewModel() {
     private var _selectedForum = MutableLiveData<Forum>()
     val selectedForum: LiveData<Forum> get() = _selectedForum
-    private var _selectedThreadList = MutableLiveData<Thread>()
-    val selectedThread: LiveData<Thread> get() = _selectedThreadList
+    private var _selectedThread = MutableLiveData<Thread>()
+    val selectedThread: LiveData<Thread> get() = _selectedThread
 
     private var forumNameMapping = mapOf<String, String>()
 
@@ -29,9 +29,9 @@ class SharedViewModel : ViewModel() {
         _selectedForum.postValue(f)
     }
 
-    fun setThreadList(t: Thread) {
+    fun setThread(t: Thread) {
         Timber.i("set thread to id: ${t.id}")
-        _selectedThreadList.postValue(t)
+        _selectedThread.postValue(t)
     }
 
     fun setForumNameMapping(map: Map<String, String>) {
@@ -56,6 +56,7 @@ class SharedViewModel : ViewModel() {
             // TODO: default forumName
             "ThreadFragment" -> "A岛 • ${selectedForum.value?.name ?: "时间线"}"
             "ReplyFragment" -> "A岛 • ${selectedThread.value?.fid?.let { getForumDisplayName(it) }}"
+            "FeedFragment" -> "我的订阅"
             "SettingsFragment" -> "设置"
             "SizeCustomizationFragment" -> "设置串卡片布局"
             else -> {

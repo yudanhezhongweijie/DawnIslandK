@@ -7,7 +7,11 @@ import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.entity.Reply
 import com.laotoua.dawnislandk.entity.Thread
 import com.laotoua.dawnislandk.network.NMBServiceClient
+import com.laotoua.dawnislandk.util.AppState
+import com.laotoua.dawnislandk.util.SingleLiveEvent
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.apache.commons.text.StringEscapeUtils
 import timber.log.Timber
 
 class ReplyViewModel : ViewModel() {
@@ -36,6 +40,9 @@ class ReplyViewModel : ViewModel() {
     private var _loadEnd = MutableLiveData(false)
     val loadEnd: LiveData<Boolean>
         get() = _loadEnd
+
+    private val _addFeedResponse = MutableLiveData<SingleLiveEvent<String>>()
+    val addFeedResponse: LiveData<SingleLiveEvent<String>> get() = _addFeedResponse
 
     enum class DIRECTION {
         NEXT,
@@ -97,7 +104,7 @@ class ReplyViewModel : ViewModel() {
 
             try {
                 val thread = NMBServiceClient.getReplys(_currentThread!!.id, page)
-                maxReply = thread.replyCount.toInt()
+                maxReply = thread.replyCount?.toInt() ?: 0
 
                 list.addAll(thread.replys!!)
                 /**
@@ -153,6 +160,22 @@ class ReplyViewModel : ViewModel() {
         }
     }
 
+    fun addFeed(uuid: String, id: String) {
+        Timber.i("Adding Feed $id")
+        viewModelScope.launch(Dispatchers.IO) {
+            NMBServiceClient.addFeed(AppState.feedsId, id).run {
+                // TODO: check failure response
+                /** res:
+                 *  "\u53d6\u6d88\u8ba2\u9605\u6210\u529f!"
+                 */
+                val msg = StringEscapeUtils.unescapeJava(this.replace("\"", ""))
+                SingleLiveEvent(msg).run {
+                    _addFeedResponse.postValue(this)
+                }
+
+            }
+        }
+    }
     // TODO
 //    fun loadFromDB() {
 //        viewModelScope.launch {

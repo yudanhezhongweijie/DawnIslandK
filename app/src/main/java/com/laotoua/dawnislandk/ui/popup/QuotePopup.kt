@@ -15,8 +15,7 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.entity.Reply
 import com.laotoua.dawnislandk.network.ImageLoader
 import com.laotoua.dawnislandk.network.NMBServiceClient
-import com.laotoua.dawnislandk.ui.adapter.*
-import com.laotoua.dawnislandk.util.GlideApp
+import com.laotoua.dawnislandk.util.*
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.CenterPopupView
 import com.lxj.xpopup.interfaces.SimpleCallback

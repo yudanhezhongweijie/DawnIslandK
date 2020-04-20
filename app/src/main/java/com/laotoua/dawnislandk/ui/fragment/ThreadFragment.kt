@@ -12,6 +12,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.ThreadFragmentBinding
 import com.laotoua.dawnislandk.entity.Thread
@@ -131,14 +132,14 @@ class ThreadFragment : Fragment() {
         })
 
 
-        binding.threadsView.setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
-            if (scrollY < oldScrollY) {
-                binding.fabMenu.show()
-            } else {
-                binding.fabMenu.hide()
-                hideMenu()
+        binding.threadsView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (dy > 0) {
+                    hideMenu()
+                    binding.fabMenu.hide()
+                } else if (dy < 0) binding.fabMenu.show()
             }
-        }
+        })
 
         binding.fabMenu.setOnClickListener {
             toggleMenu()

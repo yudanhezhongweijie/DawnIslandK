@@ -13,6 +13,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter.base.listener.OnItemChildClickListener
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.ReplyFragmentBinding
@@ -173,14 +174,15 @@ class ReplyFragment : Fragment() {
             }
 
         })
-        binding.replysView.setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
-            if (scrollY < oldScrollY) {
-                binding.fabMenu.show()
-            } else {
-                binding.fabMenu.hide()
-                hideMenu()
+
+        binding.replysView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (dy > 0) {
+                    binding.fabMenu.hide()
+                    hideMenu()
+                } else if (dy < 0) binding.fabMenu.show()
             }
-        }
+        })
 
         binding.fabMenu.setOnClickListener {
             toggleMenu()

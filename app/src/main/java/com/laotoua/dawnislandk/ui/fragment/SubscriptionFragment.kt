@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.laotoua.dawnislandk.PagerFragmentDirections
 import com.laotoua.dawnislandk.databinding.SubscriptionFragmentBinding
 import com.laotoua.dawnislandk.viewmodel.SubscriptionViewModel
 import timber.log.Timber

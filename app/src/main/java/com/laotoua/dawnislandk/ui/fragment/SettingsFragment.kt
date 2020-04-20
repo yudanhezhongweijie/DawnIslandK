@@ -11,7 +11,6 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.entity.Cookie
-import com.laotoua.dawnislandk.settings.SettingsFragmentDirections
 import com.laotoua.dawnislandk.ui.popup.CookieManagerPopup
 import com.laotoua.dawnislandk.util.AppState
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel

@@ -110,5 +110,8 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
     // initialize Global resources
     private suspend fun loadResources() {
         AppState.loadCookies()
+
+        // set default subscriptionID
+        AppState.getSubscriptionId(this)
     }
 }

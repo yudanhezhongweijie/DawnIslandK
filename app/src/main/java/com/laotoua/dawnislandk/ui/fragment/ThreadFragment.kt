@@ -166,6 +166,7 @@ class ThreadFragment : Fragment() {
                 true,
                 sharedVM.getForumNameMapping()
             )
+
         }
 
         return binding.root

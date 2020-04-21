@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Environment
 import android.util.TypedValue
@@ -35,6 +34,7 @@ import java.util.*
 
 
 @SuppressLint("ViewConstructor")
+// TODO:adjust view differently with keyboard when in fullscreen or in half
 class PostPopup(private val caller: Fragment, context: Context) :
     BottomPopupView(context) {
 
@@ -312,7 +312,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
                             // TODO: previewUri is temporary because intent return null thumbnail
                             previewUri = this
                             FragmentIntentUtil.getImageFromCamera(caller, this)
-                            { bitmap: Bitmap? ->
+                            {
 //                            bitmap?.run {
 //                                postPhotoPreview!!.setImageBitmap(this)
 //                            }

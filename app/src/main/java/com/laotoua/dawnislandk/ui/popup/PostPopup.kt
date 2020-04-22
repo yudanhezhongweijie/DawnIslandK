@@ -479,7 +479,8 @@ class PostPopup(private val caller: Fragment, context: Context) :
                 imageFile,
                 hash
             ).run {
-                clearEntries()
+                // TODO
+//                clearEntries()
                 dismiss()
                 Toast.makeText(caller.context, this, Toast.LENGTH_LONG).show()
             }

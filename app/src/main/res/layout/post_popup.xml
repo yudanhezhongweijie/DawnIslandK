@@ -51,7 +51,7 @@
             android:text="选择板块"
             android:textAppearance="@style/CollSubTitle"
             android:textSize="18sp"
-            app:icon="@drawable/ic_arrow_drop_down_black_24dp"
+            app:icon="@drawable/ic_arrow_drop_down_black_24px"
             app:iconGravity="textEnd"
             app:layout_constraintBottom_toBottomOf="@id/postTitle"
             app:layout_constraintStart_toEndOf="@+id/postTitle"
@@ -64,7 +64,7 @@
 
         <!--        android:layout_height="wrap_content"-->
         <!--        android:layout_marginTop="16dp"-->
-        <!--        app:icon="@drawable/ic_unfold_more_black_24dp"-->
+        <!--        app:icon="@drawable/ic_unfold_more_black_24px"-->
         <!--        app:layout_constraintStart_toStartOf="@id/postContent"-->
         <!--        app:layout_constraintTop_toBottomOf="@id/postTitle"-->
         <!--        app:strokeWidth="0dp" />-->
@@ -75,7 +75,7 @@
         <!--        android:layout_width="wrap_content"-->
         <!--        android:layout_height="wrap_content"-->
         <!--        android:layout_marginStart="16dp"-->
-        <!--        app:icon="@drawable/ic_image_black_24dp"-->
+        <!--        app:icon="@drawable/ic_image_black_24px"-->
         <!--        app:layout_constraintStart_toEndOf="@+id/postExpand"-->
         <!--        app:layout_constraintTop_toTopOf="@+id/postExpand"-->
         <!--        app:strokeWidth="0dp" />-->
@@ -86,7 +86,7 @@
         <!--        android:layout_width="wrap_content"-->
         <!--        android:layout_height="wrap_content"-->
         <!--        android:layout_marginStart="16dp"-->
-        <!--        app:icon="@drawable/ic_emoji_emotions_black_24dp"-->
+        <!--        app:icon="@drawable/ic_emoji_emotions_black_24px"-->
         <!--        app:layout_constraintStart_toEndOf="@+id/postAttachment"-->
         <!--        app:layout_constraintTop_toTopOf="@+id/postAttachment"-->
         <!--        app:strokeWidth="0dp" />-->
@@ -138,7 +138,7 @@
                 style="@style/Widget.App.Button.OutlinedButton.IconOnly"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:icon="@drawable/ic_remove_circle_black_24dp"
+                app:icon="@drawable/ic_remove_circle_black_24px"
                 app:iconTint="#E40C0C"
                 app:layout_constraintStart_toEndOf="@id/postImagePreview"
                 app:layout_constraintTop_toTopOf="@id/postImagePreview"
@@ -176,7 +176,7 @@
             android:text="没有饼干"
             android:textAppearance="@style/CollSubTitle"
             android:textSize="18sp"
-            app:icon="@drawable/ic_cookie_black_24dp"
+            app:icon="@drawable/ic_cookie_black_24px"
             app:iconGravity="start"
             app:layout_constraintBottom_toTopOf="@+id/toggleButtonGroup"
             app:layout_constraintEnd_toEndOf="@+id/postContent"
@@ -198,7 +198,7 @@
                 style="@style/Widget.App.Button.OutlinedButton.IconOnly"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:icon="@drawable/ic_unfold_more_black_24dp"
+                app:icon="@drawable/ic_unfold_more_black_24px"
                 app:layout_constraintStart_toStartOf="@id/postContent"
                 app:layout_constraintTop_toBottomOf="@id/postTitle"
                 app:strokeWidth="0dp" />
@@ -209,7 +209,7 @@
                 style="@style/Widget.App.Button.OutlinedButton.IconOnly"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:icon="@drawable/ic_emoji_emotions_black_24dp"
+                app:icon="@drawable/ic_emoji_emotions_black_24px"
                 app:layout_constraintStart_toEndOf="@+id/postAttachment"
                 app:layout_constraintTop_toTopOf="@+id/postAttachment"
                 app:strokeWidth="0dp" />
@@ -219,7 +219,7 @@
                 style="@style/Widget.App.Button.OutlinedButton.IconOnly"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:icon="@drawable/ic_speaker_black_24dp"
+                app:icon="@drawable/ic_speaker_black_24px"
                 app:strokeWidth="0dp" />
 
             <Button
@@ -227,7 +227,7 @@
                 style="@style/Widget.App.Button.OutlinedButton.IconOnly"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:icon="@drawable/ic_photo_camera_black_24dp"
+                app:icon="@drawable/ic_photo_camera_black_24px"
                 app:strokeWidth="0dp" />
 
             <Button
@@ -235,7 +235,7 @@
                 style="@style/Widget.App.Button.OutlinedButton.IconOnly"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:icon="@drawable/ic_image_black_24dp"
+                app:icon="@drawable/ic_image_black_24px"
                 app:strokeWidth="0dp" />
 
             <Button
@@ -251,7 +251,7 @@
                 style="@style/Widget.App.Button.OutlinedButton.IconOnly"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:icon="@drawable/ic_save_black_24dp"
+                app:icon="@drawable/ic_save_black_24px"
                 app:strokeWidth="0dp" />
 
             <Button
@@ -259,7 +259,7 @@
                 style="@style/Widget.App.Button.OutlinedButton.IconOnly"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:icon="@drawable/ic_send_black_24dp"
+                app:icon="@drawable/ic_send_black_24px"
                 app:strokeWidth="0dp" />
 
         </com.google.android.material.button.MaterialButtonToggleGroup>

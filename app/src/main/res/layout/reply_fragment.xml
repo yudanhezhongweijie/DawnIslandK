@@ -42,7 +42,7 @@
         android:layout_marginBottom="16dp"
         android:text="只看Po"
         android:visibility="gone"
-        app:icon="@drawable/ic_filter_list_black_48dp"
+        app:icon="@drawable/ic_filter_list_black_48px"
         app:layout_constraintBottom_toTopOf="@id/copyId"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -55,7 +55,7 @@
         android:layout_marginBottom="16dp"
         android:text="复制串号"
         android:visibility="gone"
-        app:icon="@drawable/ic_label_black_48dp"
+        app:icon="@drawable/ic_label_black_48px"
         app:layout_constraintBottom_toTopOf="@id/jump"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -68,7 +68,7 @@
         android:layout_marginBottom="16dp"
         android:text="跳页"
         android:visibility="gone"
-        app:icon="@drawable/ic_bookmarks_black_48dp"
+        app:icon="@drawable/ic_bookmarks_black_48px"
         app:layout_constraintBottom_toTopOf="@+id/post"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -81,7 +81,7 @@
         android:layout_marginBottom="16dp"
         android:text="发布"
         android:visibility="gone"
-        app:icon="@drawable/ic_post_black_48dp"
+        app:icon="@drawable/ic_post_black_48px"
         app:layout_constraintBottom_toTopOf="@+id/fabMenu"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -95,6 +95,6 @@
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_add_black_48dp" />
+        app:srcCompat="@drawable/ic_add_black_48px" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

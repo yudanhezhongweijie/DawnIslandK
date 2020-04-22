@@ -29,7 +29,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/title"
-        app:srcCompat="@drawable/ic_add_black_48dp" />
+        app:srcCompat="@drawable/ic_add_black_48px" />
 
     <LinearLayout
         android:id="@+id/listView"

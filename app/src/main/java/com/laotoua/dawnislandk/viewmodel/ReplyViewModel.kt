@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.entity.Reply
 import com.laotoua.dawnislandk.entity.Thread
 import com.laotoua.dawnislandk.network.NMBServiceClient
+import com.laotoua.dawnislandk.util.AppState
 import com.laotoua.dawnislandk.util.SingleLiveEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -162,7 +163,7 @@ class ReplyViewModel : ViewModel() {
     fun addFeed(uuid: String, id: String) {
         Timber.i("Adding Feed $id")
         viewModelScope.launch(Dispatchers.IO) {
-            NMBServiceClient.addFeed(uuid, id).run {
+            NMBServiceClient.addFeed(AppState.feedsId, id).run {
                 // TODO: check failure response
                 /** res:
                  *  "\u53d6\u6d88\u8ba2\u9605\u6210\u529f!"

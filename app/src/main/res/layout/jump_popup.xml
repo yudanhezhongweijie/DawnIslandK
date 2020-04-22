@@ -97,7 +97,7 @@
         app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_first_page_black_48dp" />
+        app:srcCompat="@drawable/ic_first_page_black_48px" />
 
     <EditText
         android:id="@+id/pageInput"
@@ -120,7 +120,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/pageInput"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_last_page_black_48dp"
+        app:srcCompat="@drawable/ic_last_page_black_48px"
         tools:layout_constraintHorizontal_weight="1" />
 
     <Button

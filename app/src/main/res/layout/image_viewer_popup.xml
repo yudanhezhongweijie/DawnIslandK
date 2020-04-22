@@ -12,6 +12,6 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:visibility="visible"
-        app:srcCompat="@drawable/ic_save_black_24dp" />
+        app:srcCompat="@drawable/ic_save_black_24px" />
 
 </FrameLayout>

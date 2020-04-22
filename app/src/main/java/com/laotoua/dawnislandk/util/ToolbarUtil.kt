@@ -92,7 +92,7 @@ object ToolbarUtil {
                         this,
                         title
                     )
-                    toolbar.setNavigationIcon(R.drawable.ic_menu_white_24dp)
+                    toolbar.setNavigationIcon(R.drawable.ic_menu_white_24px)
                     toolbar.setNavigationOnClickListener(null)
                     toolbar.setNavigationOnClickListener {
                         drawerLayout.openDrawer(GravityCompat.START)
@@ -105,7 +105,7 @@ object ToolbarUtil {
                         title,
                         subtitle
                     )
-                    toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
+                    toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24px)
                     toolbar.setNavigationOnClickListener(null)
                     toolbar.setNavigationOnClickListener {
                         callerFragment.findNavController().popBackStack()
@@ -117,7 +117,7 @@ object ToolbarUtil {
                         this,
                         title
                     )
-                    toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
+                    toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24px)
                     toolbar.setNavigationOnClickListener(null)
                     toolbar.setNavigationOnClickListener {
                         callerFragment.findNavController().popBackStack()
@@ -129,7 +129,7 @@ object ToolbarUtil {
                         this,
                         title
                     )
-                    toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
+                    toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24px)
                     toolbar.setNavigationOnClickListener(null)
                     toolbar.setNavigationOnClickListener {
                         callerFragment.findNavController().popBackStack()

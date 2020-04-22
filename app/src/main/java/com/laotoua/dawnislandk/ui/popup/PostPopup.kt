@@ -89,8 +89,6 @@ class PostPopup(private val caller: Fragment, context: Context) :
     private var luweiContainer: ScrollView? = null
     private var postContent: EditText? = null
     private var postImagePreview: ImageView? = null
-    private var fullScreen = false
-    private var constraintLayout: ConstraintLayout? = null
 
     // keyboard height listener
     private var keyboardHeight = -1
@@ -169,7 +167,6 @@ class PostPopup(private val caller: Fragment, context: Context) :
     override fun onCreate() {
         super.onCreate()
 
-        constraintLayout = findViewById(R.id.baseContainer)
         val outValue = TypedValue().apply {
             context.theme
                 .resolveAttribute(android.R.attr.selectableItemBackground, this, true)
@@ -408,6 +405,8 @@ class PostPopup(private val caller: Fragment, context: Context) :
         /**
          * 取消缩放功能
          */
+
+//        constraintLayout = findViewById(R.id.baseContainer)
 //        findViewById<Button>(R.id.postFullScreen).setOnClickListener {
 //            TransitionManager.beginDelayedTransition(constraintLayout!!)
 //            fullScreen = if (fullScreen) {

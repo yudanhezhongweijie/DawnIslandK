@@ -27,7 +27,7 @@ class JumpPopup(private val caller: Fragment, context: Context) : CenterPopupVie
     override fun onCreate() {
         super.onCreate()
 
-        findViewById<EditText>(R.id.pageInput).doOnTextChanged { text, start, count, after ->
+        findViewById<EditText>(R.id.pageInput).doOnTextChanged { text, _, _, _ ->
             submitButton.isEnabled =
                 !(text.isNullOrBlank()
                         || text.length > maxPage.toString().length

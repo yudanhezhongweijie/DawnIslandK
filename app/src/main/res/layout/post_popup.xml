@@ -23,17 +23,13 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/dialogContainer"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
         android:background="@drawable/top_round_corner_background"
         android:elevation="5dp"
-        android:paddingStart="15dp"
-        android:paddingEnd="15dp"
-        android:paddingBottom="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/guideline_half">
+        app:layout_constraintStart_toStartOf="parent">
 
         <TextView
             android:id="@+id/postTitle"
@@ -95,28 +91,30 @@
         <!--        app:layout_constraintTop_toTopOf="@+id/postAttachment"-->
         <!--        app:strokeWidth="0dp" />-->
 
-        <Button
-            android:id="@+id/postFullScreen"
-            style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+        <ImageView
+            android:id="@+id/postClose"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:icon="@drawable/ic_unfold_more_black_24dp"
+            android:tint="@color/colorAccent"
             app:layout_constraintBottom_toBottomOf="@id/postTitle"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/postContent"
             app:layout_constraintTop_toTopOf="@id/postTitle"
-            app:strokeWidth="0dp" />
+            app:srcCompat="@drawable/ic_close_24px" />
 
         <EditText
             android:id="@+id/postContent"
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
             android:layout_marginTop="8dp"
+            android:layout_marginEnd="15dp"
             android:autofillHints="在这里输入文字"
             android:background="#EAEAEA"
             android:ems="10"
             android:gravity="clip_horizontal"
             android:hint="在这里输入文字"
             android:inputType="textMultiLine"
+            android:maxLines="15"
             android:minLines="4"
             android:padding="6dp"
             android:textSize="15sp"
@@ -180,19 +178,20 @@
             android:textSize="18sp"
             app:icon="@drawable/ic_cookie_black_24dp"
             app:iconGravity="start"
-            app:layout_constraintBottom_toTopOf="@+id/toggleButton"
+            app:layout_constraintBottom_toTopOf="@+id/toggleButtonGroup"
             app:layout_constraintEnd_toEndOf="@+id/postContent"
             app:layout_constraintStart_toStartOf="@+id/postContent"
             app:strokeWidth="0dp" />
 
         <com.google.android.material.button.MaterialButtonToggleGroup
-            android:id="@+id/toggleButton"
+            android:id="@+id/toggleButtonGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toTopOf="@id/toggleContainers"
             app:layout_constraintEnd_toEndOf="@+id/postContent"
             app:layout_constraintStart_toStartOf="@+id/postContent"
             app:singleSelection="true">
+
 
             <Button
                 android:id="@+id/postExpand"
@@ -203,6 +202,7 @@
                 app:layout_constraintStart_toStartOf="@id/postContent"
                 app:layout_constraintTop_toBottomOf="@id/postTitle"
                 app:strokeWidth="0dp" />
+
 
             <Button
                 android:id="@+id/postFace"
@@ -264,25 +264,25 @@
 
         </com.google.android.material.button.MaterialButtonToggleGroup>
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/toggleContainers"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:paddingTop="5dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/postContent"
-            app:layout_constraintHeight_max="200dp"
             app:layout_constraintStart_toStartOf="@+id/postContent"
             tools:layout_constraintBottom_toBottomOf="parent">
 
             <LinearLayout
                 android:id="@+id/expansionContainer"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
                 android:orientation="vertical"
-                android:visibility="gone">
+                android:visibility="gone"
+                app:layout_constraintBottom_toTopOf="@id/keyboardHolder"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
 
                 <View
                     android:id="@+id/spart_line_1"
@@ -360,14 +360,17 @@
             </LinearLayout>
 
             <ScrollView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:id="@+id/facesContainer"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
 
                 <com.google.android.flexbox.FlexboxLayout
-                    android:id="@+id/facesContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:visibility="gone"
                     app:alignContent="space_around"
                     app:alignItems="flex_start"
                     app:flexDirection="row"
@@ -376,14 +379,17 @@
             </ScrollView>
 
             <ScrollView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:id="@+id/luweiContainer"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
 
                 <com.google.android.flexbox.FlexboxLayout
-                    android:id="@+id/luweiContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:visibility="gone"
                     app:alignContent="space_around"
                     app:alignItems="flex_start"
                     app:flexDirection="row"
@@ -391,7 +397,17 @@
                     app:justifyContent="space_around" />
             </ScrollView>
 
-        </LinearLayout>
+            <LinearLayout
+                android:id="@+id/keyboardHolder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

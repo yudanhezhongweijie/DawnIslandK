@@ -9,13 +9,12 @@ import android.net.Uri
 import android.os.Environment
 import android.util.TypedValue
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.transition.TransitionManager
 import com.google.android.flexbox.FlexboxLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
@@ -28,6 +27,7 @@ import com.laotoua.dawnislandk.util.ImageUtil
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BottomPopupView
 import com.lxj.xpopup.interfaces.SimpleCallback
+import com.lxj.xpopup.util.KeyboardUtils
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
@@ -56,6 +56,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
                         postPopup.updateView()
                         super.beforeShow()
                     }
+
                 })
                 .asCustom(postPopup)
                 .show()
@@ -81,14 +82,19 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
     private var selectedCookie: Cookie? = null
 
+    private var toggleContainers: ConstraintLayout? = null
     private var expansionContainer: LinearLayout? = null
     private var attachmentContainer: ConstraintLayout? = null
-    private var facesContainer: FlexboxLayout? = null
-    private var luweiContainer: FlexboxLayout? = null
+    private var facesContainer: ScrollView? = null
+    private var luweiContainer: ScrollView? = null
     private var postContent: EditText? = null
     private var postImagePreview: ImageView? = null
     private var fullScreen = false
     private var constraintLayout: ConstraintLayout? = null
+
+    // keyboard height listener
+    private var keyboardHeight = -1
+    private var keyboardHolder: LinearLayout? = null
 
     private fun updateTitle(targetId: String, newPost: Boolean) {
         findViewById<TextView>(R.id.postTitle).text = if (newPost) "发布新串" else "回复 >> No. $targetId"
@@ -122,8 +128,47 @@ class PostPopup(private val caller: Fragment, context: Context) :
         return R.layout.post_popup
     }
 
+    override fun show(): BottomPopupView {
+        if (parent != null) return this
+        val activity = context as Activity
+        popupInfo.decorView = activity.window.decorView as ViewGroup
+        KeyboardUtils.registerSoftInputChangedListener(
+            activity,
+            this
+        ) { height ->
+            if (keyboardHeight < 0) {
+                keyboardHeight = height
+                listOf(facesContainer!!, luweiContainer!!).map {
+                    val lp = it.layoutParams
+                    lp.height = keyboardHeight
+                    it.layoutParams = lp
+                }
+            }
+            val lp = keyboardHolder!!.layoutParams
+            lp.height = height
+            keyboardHolder!!.layoutParams = lp
+        }
+        // 1. add PopupView to its decorView after measured.
+        popupInfo.decorView.post {
+            if (parent != null) {
+                (parent as ViewGroup).removeView(this)
+            }
+            popupInfo.decorView.addView(
+                this, LayoutParams(
+                    LayoutParams.MATCH_PARENT,
+                    LayoutParams.MATCH_PARENT
+                )
+            )
+
+            //2. do init，game start.
+            init()
+        }
+        return this
+    }
+
     override fun onCreate() {
         super.onCreate()
+
         constraintLayout = findViewById(R.id.baseContainer)
         val outValue = TypedValue().apply {
             context.theme
@@ -131,17 +176,22 @@ class PostPopup(private val caller: Fragment, context: Context) :
         }
 
         val btnBackground = outValue.resourceId
-        findViewById<LinearLayout>(R.id.toggleContainers).run {
+
+        postContent = findViewById(R.id.postContent)
+
+        toggleContainers = findViewById<ConstraintLayout>(R.id.toggleContainers).also {
             expansionContainer = findViewById(R.id.expansionContainer)
 
             // add faces
-            facesContainer = findViewById<FlexboxLayout>(R.id.facesContainer).also { flexBox ->
+            facesContainer = findViewById(R.id.facesContainer)
+            (facesContainer!!.getChildAt(0) as FlexboxLayout).let { flexBox ->
                 resources.getStringArray(R.array.NMBFaces).map {
                     MaterialButton(
                         context,
                         null,
                         R.style.Widget_MaterialComponents_Button_TextButton
                     ).run {
+                        // clear color filled background
                         setBackgroundResource(btnBackground)
                         textAlignment = View.TEXT_ALIGNMENT_CENTER
                         text = it
@@ -158,7 +208,8 @@ class PostPopup(private val caller: Fragment, context: Context) :
             }
 
             // add luwei
-            luweiContainer = findViewById<FlexboxLayout>(R.id.luweiContainer).also { flexBox ->
+            luweiContainer = findViewById(R.id.luweiContainer)
+            (luweiContainer!!.getChildAt(0) as FlexboxLayout).let { flexBox ->
                 resources.getStringArray(R.array.LuweiEmojis).map { emojiId ->
                     val resourceId: Int = context.resources.getIdentifier(
                         emojiId, "drawable",
@@ -186,10 +237,9 @@ class PostPopup(private val caller: Fragment, context: Context) :
                     }
                 }
             }
+
+            keyboardHolder = findViewById(R.id.keyboardHolder)
         }
-
-
-        postContent = findViewById<EditText>(R.id.postContent)
 
         attachmentContainer = findViewById<ConstraintLayout>(R.id.attachmentContainer).also {
             postImagePreview = findViewById(R.id.postImagePreview)
@@ -215,7 +265,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
             send()
         }
 
-        findViewById<MaterialButtonToggleGroup>(R.id.toggleButton)
+        findViewById<MaterialButtonToggleGroup>(R.id.toggleButtonGroup)
             .addOnButtonCheckedListener { _, checkedId, isChecked ->
                 when (checkedId) {
                     R.id.postExpand -> {
@@ -348,38 +398,56 @@ class PostPopup(private val caller: Fragment, context: Context) :
             waterMark = if ((it as CheckBox).isChecked) "true" else null
         }
 
-        findViewById<Button>(R.id.postFullScreen).setOnClickListener {
-            TransitionManager.beginDelayedTransition(constraintLayout!!)
-            fullScreen = if (fullScreen) {
-                val constraintSet = ConstraintSet()
-                constraintSet.clone(constraintLayout)
-                constraintSet.clear(R.id.dialogContainer, ConstraintSet.TOP)
-                constraintSet.connect(
-                    R.id.dialogContainer,
-                    ConstraintSet.TOP,
-                    R.id.guideline_half,
-                    ConstraintSet.TOP,
-                    0
-                )
-                constraintSet.applyTo(constraintLayout)
-                false
-            } else {
-                val constraintSet = ConstraintSet()
-                constraintSet.clone(constraintLayout)
-                constraintSet.clear(R.id.dialogContainer, ConstraintSet.TOP)
-                constraintSet.connect(
-                    R.id.dialogContainer,
-                    ConstraintSet.TOP,
-                    R.id.guideline_full,
-                    ConstraintSet.TOP,
-                    0
-                )
-                constraintSet.applyTo(constraintLayout)
-                true
+        findViewById<ImageView>(R.id.postClose).setOnClickListener {
+            dismissWith {
+                val lp = keyboardHolder!!.layoutParams
+                lp.height = 0
+                keyboardHolder!!.layoutParams = lp
             }
-
-            Timber.i("should be updated")
         }
+        /**
+         * 取消缩放功能
+         */
+//        findViewById<Button>(R.id.postFullScreen).setOnClickListener {
+//            TransitionManager.beginDelayedTransition(constraintLayout!!)
+//            fullScreen = if (fullScreen) {
+//                val constraintSet = ConstraintSet()
+//                constraintSet.clone(constraintLayout)
+//                constraintSet.clear(R.id.dialogContainer, ConstraintSet.TOP)
+//                constraintSet.connect(
+//                    R.id.dialogContainer,
+//                    ConstraintSet.TOP,
+//                    R.id.guideline_half,
+//                    ConstraintSet.TOP,
+//                    0
+//                )
+//                constraintSet.applyTo(constraintLayout)
+//                false
+//            } else {
+//                val constraintSet = ConstraintSet()
+//                constraintSet.clone(constraintLayout)
+//                constraintSet.clear(R.id.dialogContainer, ConstraintSet.TOP)
+//                constraintSet.connect(
+//                    R.id.dialogContainer,
+//                    ConstraintSet.TOP,
+//                    R.id.guideline_full,
+//                    ConstraintSet.TOP,
+//                    0
+//                )
+//                constraintSet.applyTo(constraintLayout)
+//                true
+//            }
+//        }
+    }
+
+    private fun clearEntries() {
+        postContent!!.text.clear()
+        findViewById<TextView>(R.id.formName).text = ""
+        findViewById<TextView>(R.id.formEmail).text = ""
+        findViewById<TextView>(R.id.formTitle).text = ""
+        imageFile = null
+        postImagePreview!!.setImageResource(0)
+        findViewById<MaterialButtonToggleGroup>(R.id.toggleButtonGroup).clearChecked()
     }
 
     // TODO: post new thread
@@ -411,6 +479,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
                 imageFile,
                 hash
             ).run {
+                clearEntries()
                 dismiss()
                 Toast.makeText(caller.context, this, Toast.LENGTH_LONG).show()
             }
@@ -418,7 +487,6 @@ class PostPopup(private val caller: Fragment, context: Context) :
         }
 
     }
-
 
     private fun hideKeyboardFrom(
         context: Context,

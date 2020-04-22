@@ -20,7 +20,7 @@ class FeedViewModel : ViewModel() {
     private var _feeds = MutableLiveData<List<Thread>>()
     val feeds: LiveData<List<Thread>> get() = _feeds
     private var pageCount = 1
-    private var _loadFail = MutableLiveData(false)
+    private var _loadFail = MutableLiveData<Boolean>()
     val loadFail: LiveData<Boolean>
         get() = _loadFail
 

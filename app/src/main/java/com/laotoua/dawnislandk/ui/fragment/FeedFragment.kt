@@ -124,7 +124,6 @@ class FeedFragment : Fragment() {
         }
 
         viewModel.loadFail.observe(viewLifecycleOwner, Observer {
-            // TODO: can be either out of new Data or api error
             if (it == true) {
                 mAdapter.loadMoreModule.loadMoreFail()
                 Timber.i("Failed to load new data...")

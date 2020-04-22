@@ -91,7 +91,7 @@ class SizeCustomizationFragment : Fragment() {
         )
         demoCard.threadContent!!.setText(exampleText, TextView.BufferType.SPANNABLE)
         demoCard.threadImage!!
-            .setImageResource(R.mipmap.ic_launcher)
+            .setImageDrawable(resources.getDrawable(R.mipmap.ic_launcher))
 
         rootView.addView(demoCard)
 
@@ -216,6 +216,9 @@ class SizeCustomizationFragment : Fragment() {
             var res = progress
             val cardLayoutParams = demoCard.layoutParams as MarginLayoutParams
 
+            val cookie: TextView = demoCard.findViewById(R.id.threadCookie)
+            val cookieLayoutParams =
+                cookie.layoutParams as ConstraintLayout.LayoutParams
             val contentView: View = demoCard.findViewById(R.id.threadContent)
             when (seekBar.id) {
                 MAIN_TEXT_SIZE -> {

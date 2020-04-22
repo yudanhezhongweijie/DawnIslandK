@@ -78,7 +78,7 @@ class ReplyFragment : Fragment() {
         // item click
         mAdapter.setOnItemClickListener {
             // TODO: needs reply popup
-                _, _, position ->
+                adapter, view, position ->
             hideMenu()
             Timber.d("onItemClick $position")
         }

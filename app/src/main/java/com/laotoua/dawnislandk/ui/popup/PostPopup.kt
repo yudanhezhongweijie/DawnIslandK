@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Environment
 import android.util.TypedValue
@@ -11,9 +12,10 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.github.chrisbanes.photoview.PhotoView
+import androidx.transition.TransitionManager
 import com.google.android.flexbox.FlexboxLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
@@ -34,7 +36,6 @@ import java.util.*
 
 
 @SuppressLint("ViewConstructor")
-// TODO:adjust view differently with keyboard when in fullscreen or in half
 class PostPopup(private val caller: Fragment, context: Context) :
     BottomPopupView(context) {
 
@@ -85,7 +86,9 @@ class PostPopup(private val caller: Fragment, context: Context) :
     private var facesContainer: FlexboxLayout? = null
     private var luweiContainer: FlexboxLayout? = null
     private var postContent: EditText? = null
-    private var postPhotoPreview: PhotoView? = null
+    private var postImagePreview: ImageView? = null
+    private var fullScreen = false
+    private var constraintLayout: ConstraintLayout? = null
 
     private fun updateTitle(targetId: String, newPost: Boolean) {
         findViewById<TextView>(R.id.postTitle).text = if (newPost) "发布新串" else "回复 >> No. $targetId"
@@ -121,6 +124,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
     override fun onCreate() {
         super.onCreate()
+        constraintLayout = findViewById(R.id.baseContainer)
         val outValue = TypedValue().apply {
             context.theme
                 .resolveAttribute(android.R.attr.selectableItemBackground, this, true)
@@ -129,10 +133,6 @@ class PostPopup(private val caller: Fragment, context: Context) :
         val btnBackground = outValue.resourceId
         findViewById<LinearLayout>(R.id.toggleContainers).run {
             expansionContainer = findViewById(R.id.expansionContainer)
-
-            attachmentContainer = findViewById<ConstraintLayout>(R.id.attachmentContainer).also {
-                postPhotoPreview = findViewById(R.id.postPhotoPreview)
-            }
 
             // add faces
             facesContainer = findViewById<FlexboxLayout>(R.id.facesContainer).also { flexBox ->
@@ -172,7 +172,8 @@ class PostPopup(private val caller: Fragment, context: Context) :
                             try {
                                 imageFile =
                                     ImageUtil.getFileFromDrawable(caller, emojiId, resourceId)
-                                postPhotoPreview!!.setImageResource(resourceId)
+                                postImagePreview!!.setImageResource(resourceId)
+                                attachmentContainer!!.visibility = View.VISIBLE
                             } catch (e: Exception) {
                                 Timber.e(e)
                             }
@@ -189,6 +190,10 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
 
         postContent = findViewById<EditText>(R.id.postContent)
+
+        attachmentContainer = findViewById<ConstraintLayout>(R.id.attachmentContainer).also {
+            postImagePreview = findViewById(R.id.postImagePreview)
+        }
 
         findViewById<Button>(R.id.postForum).run {
             setOnClickListener {
@@ -226,7 +231,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
                         attachmentContainer!!.visibility =
                             if (isChecked) View.VISIBLE else View.GONE
                     }
-                    // TODO: luweiniang
+
                     R.id.postLuwei -> {
                         hideKeyboardFrom(context, this)
                         luweiContainer!!.visibility =
@@ -279,8 +284,9 @@ class PostPopup(private val caller: Fragment, context: Context) :
                                 uri,
                                 150,
                                 150,
-                                postPhotoPreview!!
+                                postImagePreview!!
                             )
+                            attachmentContainer!!.visibility = View.VISIBLE
                         } catch (e: Exception) {
                             Timber.e(e, "Cannot load thumbnail from image...")
                         }
@@ -289,9 +295,10 @@ class PostPopup(private val caller: Fragment, context: Context) :
             }
         }
 
-        findViewById<Button>(R.id.postImageRemove).setOnClickListener {
+        findViewById<Button>(R.id.postImageDelete).setOnClickListener {
             imageFile = null
-            postPhotoPreview!!.setImageResource(android.R.color.transparent)
+            postImagePreview!!.setImageResource(android.R.color.transparent)
+            attachmentContainer!!.visibility = View.GONE
         }
 
         // TODO: camera
@@ -312,7 +319,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
                             // TODO: previewUri is temporary because intent return null thumbnail
                             previewUri = this
                             FragmentIntentUtil.getImageFromCamera(caller, this)
-                            {
+                            { bitmap: Bitmap? ->
 //                            bitmap?.run {
 //                                postPhotoPreview!!.setImageBitmap(this)
 //                            }
@@ -324,8 +331,9 @@ class PostPopup(private val caller: Fragment, context: Context) :
                                     previewUri!!,
                                     150,
                                     150,
-                                    postPhotoPreview!!
+                                    postImagePreview!!
                                 )
+                                attachmentContainer!!.visibility = View.VISIBLE
                             }
                         }
                 } catch (e: Exception) {
@@ -338,6 +346,39 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
         findViewById<CheckBox>(R.id.postWater).setOnClickListener {
             waterMark = if ((it as CheckBox).isChecked) "true" else null
+        }
+
+        findViewById<Button>(R.id.postFullScreen).setOnClickListener {
+            TransitionManager.beginDelayedTransition(constraintLayout!!)
+            fullScreen = if (fullScreen) {
+                val constraintSet = ConstraintSet()
+                constraintSet.clone(constraintLayout)
+                constraintSet.clear(R.id.dialogContainer, ConstraintSet.TOP)
+                constraintSet.connect(
+                    R.id.dialogContainer,
+                    ConstraintSet.TOP,
+                    R.id.guideline_half,
+                    ConstraintSet.TOP,
+                    0
+                )
+                constraintSet.applyTo(constraintLayout)
+                false
+            } else {
+                val constraintSet = ConstraintSet()
+                constraintSet.clone(constraintLayout)
+                constraintSet.clear(R.id.dialogContainer, ConstraintSet.TOP)
+                constraintSet.connect(
+                    R.id.dialogContainer,
+                    ConstraintSet.TOP,
+                    R.id.guideline_full,
+                    ConstraintSet.TOP,
+                    0
+                )
+                constraintSet.applyTo(constraintLayout)
+                true
+            }
+
+            Timber.i("should be updated")
         }
     }
 

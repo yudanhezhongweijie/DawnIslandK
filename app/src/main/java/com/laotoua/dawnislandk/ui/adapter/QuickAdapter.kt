@@ -59,11 +59,11 @@ class QuickAdapter(private val layoutResId: Int) :
     /** default handler for recyclerview item
      *
      */
-    override fun convert(holder: BaseViewHolder, item: Any) {
+    override fun convert(helper: BaseViewHolder, item: Any) {
         if (layoutResId == R.layout.thread_list_item && item is Thread) {
-            convertThread(holder, item, sharedViewModel.getForumDisplayName(item.fid!!))
+            convertThread(helper, item, sharedViewModel.getForumDisplayName(item.fid!!))
         } else if (layoutResId == R.layout.reply_list_item && item is Reply) {
-            convertReply(holder, item, sharedViewModel.getPo())
+            convertReply(helper, item, sharedViewModel.getPo())
         }
     }
 
@@ -209,7 +209,7 @@ class QuickAdapter(private val layoutResId: Int) :
                 quotesContainer.addView(q)
             }
             // special binding for quotes
-            bindCustomQuoteClickListener(card, R.id.replyQuotes)
+            bindCustomQuoteClickListener(card, R.id.quoteId, R.id.replyQuotes)
 
             card.setVisible(R.id.replyQuotes, true)
         } else {
@@ -251,6 +251,7 @@ class QuickAdapter(private val layoutResId: Int) :
      */
     private fun bindCustomQuoteClickListener(
         viewHolder: BaseViewHolder,
+        viewType: Int,
         parent: Int
     ) {
         if (mCustomQuoteClickListener != null) {

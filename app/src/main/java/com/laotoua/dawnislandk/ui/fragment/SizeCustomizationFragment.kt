@@ -18,11 +18,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.preference.PreferenceManager
 import com.laotoua.dawnislandk.R
+import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.ui.span.RoundBackgroundColorSpan
 import com.laotoua.dawnislandk.ui.span.SegmentSpacingSpan
 import com.laotoua.dawnislandk.ui.viewfactory.ThreadCardFactory
-import com.laotoua.dawnislandk.util.AppState
-import com.laotoua.dawnislandk.util.CONST
+import com.laotoua.dawnislandk.util.Constants
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 
 class SizeCustomizationFragment : Fragment() {
@@ -85,8 +85,8 @@ class SizeCustomizationFragment : Fragment() {
             SpannableString("北分则易红在保，干品政两报米术，料询容保美。\n该府术没也例空解，法露作长心录。 六深事会部青目传向市始，西法医很呀体近数片。\n活林变须阶候业精六只团起已市，下头却广局正支。")
         exampleText.setSpan(
             SegmentSpacingSpan(
-                sharedPreferences.getInt(CONST.LINE_HEIGHT, 0),
-                sharedPreferences.getInt(CONST.SEG_GAP, 0)
+                sharedPreferences.getInt(Constants.LINE_HEIGHT, 0),
+                sharedPreferences.getInt(Constants.SEG_GAP, 0)
             ), 0, exampleText.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE
         )
         demoCard.threadContent!!.setText(exampleText, TextView.BufferType.SPANNABLE)
@@ -219,33 +219,33 @@ class SizeCustomizationFragment : Fragment() {
             val contentView: View = demoCard.findViewById(R.id.threadContent)
             when (seekBar.id) {
                 MAIN_TEXT_SIZE -> {
-                    res += CONST.MAIN_TEXT_MIN_SIZE
+                    res += Constants.MAIN_TEXT_MIN_SIZE
                     (contentView as TextView).textSize = res.toFloat()
-                    sharedPreferences.edit().putInt(CONST.MAIN_TEXT_SIZE, res).apply()
+                    sharedPreferences.edit().putInt(Constants.MAIN_TEXT_SIZE, res).apply()
                 }
                 RADIUS -> {
                     demoCard.radius = res.toFloat()
-                    sharedPreferences.edit().putInt(CONST.CARD_RADIUS, res).apply()
+                    sharedPreferences.edit().putInt(Constants.CARD_RADIUS, res).apply()
                 }
                 ELEVATION -> {
                     demoCard.elevation = res.toFloat()
-                    sharedPreferences.edit().putInt(CONST.CARD_ELEVATION, res).apply()
+                    sharedPreferences.edit().putInt(Constants.CARD_ELEVATION, res).apply()
                 }
                 CARD_MARGIN_TOP -> {
                     cardLayoutParams.topMargin = res
                     demoCard.layoutParams = cardLayoutParams
-                    sharedPreferences.edit().putInt(CONST.CARD_MARGIN_TOP, res).apply()
+                    sharedPreferences.edit().putInt(Constants.CARD_MARGIN_TOP, res).apply()
                 }
                 CARD_MARGIN_LEFT -> {
                     cardLayoutParams.marginStart = res
                     demoCard.layoutParams = cardLayoutParams
-                    sharedPreferences.edit().putInt(CONST.CARD_MARGIN_LEFT, res)
+                    sharedPreferences.edit().putInt(Constants.CARD_MARGIN_LEFT, res)
                         .apply()
                 }
                 CARD_MARGIN_RIGHT -> {
                     cardLayoutParams.marginEnd = res
                     demoCard.layoutParams = cardLayoutParams
-                    sharedPreferences.edit().putInt(CONST.CARD_MARGIN_RIGHT, res)
+                    sharedPreferences.edit().putInt(Constants.CARD_MARGIN_RIGHT, res)
                         .apply()
                 }
                 HEAD_BAR_MARGIN_TOP -> {
@@ -255,7 +255,7 @@ class SizeCustomizationFragment : Fragment() {
                         demoCardContainer!!.paddingRight,
                         demoCardContainer!!.paddingBottom
                     )
-                    sharedPreferences.edit().putInt(CONST.HEAD_BAR_MARGIN_TOP, res)
+                    sharedPreferences.edit().putInt(Constants.HEAD_BAR_MARGIN_TOP, res)
                         .apply()
                 }
                 CONTENT_MARGIN_TOP -> {
@@ -263,7 +263,7 @@ class SizeCustomizationFragment : Fragment() {
                         contentView.layoutParams as ConstraintLayout.LayoutParams
                     contentLayoutParams.topMargin = res
                     contentView.layoutParams = contentLayoutParams
-                    sharedPreferences.edit().putInt(CONST.CONTENT_MARGIN_TOP, res)
+                    sharedPreferences.edit().putInt(Constants.CONTENT_MARGIN_TOP, res)
                         .apply()
                 }
                 CONTENT_MARGIN_LEFT -> {
@@ -273,7 +273,7 @@ class SizeCustomizationFragment : Fragment() {
                         demoCardContainer!!.paddingRight,
                         demoCardContainer!!.paddingBottom
                     )
-                    sharedPreferences.edit().putInt(CONST.CONTENT_MARGIN_LEFT, res)
+                    sharedPreferences.edit().putInt(Constants.CONTENT_MARGIN_LEFT, res)
                         .apply()
                 }
                 CONTENT_MARGIN_RIGHT -> {
@@ -283,7 +283,7 @@ class SizeCustomizationFragment : Fragment() {
                         res,
                         demoCardContainer!!.paddingBottom
                     )
-                    sharedPreferences.edit().putInt(CONST.CONTENT_MARGIN_RIGHT, res)
+                    sharedPreferences.edit().putInt(Constants.CONTENT_MARGIN_RIGHT, res)
                         .apply()
                 }
                 CONTENT_MARGIN_BOTTOM -> {
@@ -293,14 +293,14 @@ class SizeCustomizationFragment : Fragment() {
                         demoCardContainer!!.paddingRight,
                         res
                     )
-                    sharedPreferences.edit().putInt(CONST.CONTENT_MARGIN_BOTTOM, res)
+                    sharedPreferences.edit().putInt(Constants.CONTENT_MARGIN_BOTTOM, res)
                         .apply()
                 }
                 TEXT_SCALEX -> {
                     var i = res * 1.0f
                     i /= 50f
                     (contentView as TextView).letterSpacing = i
-                    sharedPreferences.edit().putInt(CONST.LETTER_SPACE, res).apply()
+                    sharedPreferences.edit().putInt(Constants.LETTER_SPACE, res).apply()
                 }
                 LINE_SPACE_EXTRA -> {
                     charSequence = (contentView as TextView).text
@@ -314,7 +314,7 @@ class SizeCustomizationFragment : Fragment() {
                         segmentSpacingSpans[0].setmHeight(res)
                     }
                     contentView.requestLayout()
-                    sharedPreferences.edit().putInt(CONST.LINE_HEIGHT, res).apply()
+                    sharedPreferences.edit().putInt(Constants.LINE_HEIGHT, res).apply()
                 }
                 SEGMENT_GAP -> {
                     charSequence = (contentView as TextView).text
@@ -327,7 +327,7 @@ class SizeCustomizationFragment : Fragment() {
                         segmentSpacingSpans[0].setSegmentGap(res)
                     }
                     contentView.requestLayout()
-                    sharedPreferences.edit().putInt(CONST.SEG_GAP, res).apply()
+                    sharedPreferences.edit().putInt(Constants.SEG_GAP, res).apply()
                 }
                 else -> {
                 }

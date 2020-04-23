@@ -4,9 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.laotoua.dawnislandk.entity.Forum
-import com.laotoua.dawnislandk.entity.Thread
-import com.laotoua.dawnislandk.network.NMBServiceClient
+import com.laotoua.dawnislandk.data.entity.Forum
+import com.laotoua.dawnislandk.data.entity.Thread
+import com.laotoua.dawnislandk.data.network.NMBServiceClient
 import kotlinx.coroutines.launch
 import timber.log.Timber
 

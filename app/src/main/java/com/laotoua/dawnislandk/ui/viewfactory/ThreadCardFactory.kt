@@ -17,8 +17,8 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.preference.PreferenceManager
 import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.util.CONST
-import com.laotoua.dawnislandk.util.dip2px
+import com.laotoua.dawnislandk.ui.util.dip2px
+import com.laotoua.dawnislandk.util.Constants
 
 class ThreadCardFactory(val context: Context) {
 
@@ -46,52 +46,52 @@ class ThreadCardFactory(val context: Context) {
     var segGap = 0
 
     fun loadSettings() {
-        mainTextSize = sharedPreferences.getInt(CONST.MAIN_TEXT_SIZE, 15)
+        mainTextSize = sharedPreferences.getInt(Constants.MAIN_TEXT_SIZE, 15)
         cardRadius = sharedPreferences.getInt(
-            CONST.CARD_RADIUS,
+            Constants.CARD_RADIUS,
             dip2px(context, 5f)
         )
         cardElevaion =
             sharedPreferences.getInt(
-                CONST.CARD_ELEVATION,
+                Constants.CARD_ELEVATION,
                 dip2px(context, 2f)
             )
         cardMarginTop = sharedPreferences.getInt(
-            CONST.CARD_MARGIN_TOP,
+            Constants.CARD_MARGIN_TOP,
             DEFAULT_CARDVIEW_MARGINTOP
         )
         cardMarginLeft = sharedPreferences.getInt(
-            CONST.CARD_MARGIN_LEFT,
+            Constants.CARD_MARGIN_LEFT,
             DEFAULT_CARDVIEW_MARGINSTART
         )
         cardMarginRight = sharedPreferences.getInt(
-            CONST.CARD_MARGIN_RIGHT,
+            Constants.CARD_MARGIN_RIGHT,
             DEFAULT_CARDVIEW_MARGINEND
         )
         headBarMarginTop = sharedPreferences.getInt(
-            CONST.HEAD_BAR_MARGIN_TOP,
+            Constants.HEAD_BAR_MARGIN_TOP,
             DEFAULT_CARDVIEW_PADDING
         )
         contentMarginTop =
             sharedPreferences.getInt(
-                CONST.CONTENT_MARGIN_TOP,
+                Constants.CONTENT_MARGIN_TOP,
                 dip2px(context, 8f)
             )
         contentMarginLeft = sharedPreferences.getInt(
-            CONST.CONTENT_MARGIN_LEFT,
+            Constants.CONTENT_MARGIN_LEFT,
             DEFAULT_CARDVIEW_PADDING
         )
         contentMarginRight = sharedPreferences.getInt(
-            CONST.CONTENT_MARGIN_RIGHT,
+            Constants.CONTENT_MARGIN_RIGHT,
             DEFAULT_CARDVIEW_PADDING
         )
         contentMarginBottom = sharedPreferences.getInt(
-            CONST.CONTENT_MARGIN_BOTTOM,
+            Constants.CONTENT_MARGIN_BOTTOM,
             DEFAULT_CARDVIEW_PADDING
         )
-        letterSpace = sharedPreferences.getInt(CONST.LETTER_SPACE, 0)
-        lineHeight = sharedPreferences.getInt(CONST.LINE_HEIGHT, 0)
-        segGap = sharedPreferences.getInt(CONST.SEG_GAP, 0)
+        letterSpace = sharedPreferences.getInt(Constants.LETTER_SPACE, 0)
+        lineHeight = sharedPreferences.getInt(Constants.LINE_HEIGHT, 0)
+        segGap = sharedPreferences.getInt(Constants.SEG_GAP, 0)
     }
 
     fun getCardView(context: Context): ThreadListCard {

@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.network
+package com.laotoua.dawnislandk.data.network
 
 import okhttp3.MultipartBody
 import okhttp3.RequestBody

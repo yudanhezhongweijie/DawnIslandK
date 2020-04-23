@@ -10,9 +10,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.entity.Cookie
+import com.laotoua.dawnislandk.data.entity.Cookie
+import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.ui.popup.CookieManagerPopup
-import com.laotoua.dawnislandk.util.AppState
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 import com.lxj.xpopup.XPopup
 import kotlinx.coroutines.Dispatchers

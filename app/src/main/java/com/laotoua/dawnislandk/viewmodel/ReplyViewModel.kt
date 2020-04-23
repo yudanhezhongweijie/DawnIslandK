@@ -4,10 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.laotoua.dawnislandk.entity.Reply
-import com.laotoua.dawnislandk.entity.Thread
-import com.laotoua.dawnislandk.network.NMBServiceClient
-import com.laotoua.dawnislandk.util.SingleLiveEvent
+import com.laotoua.dawnislandk.data.entity.Reply
+import com.laotoua.dawnislandk.data.entity.Thread
+import com.laotoua.dawnislandk.data.network.NMBServiceClient
+import com.laotoua.dawnislandk.data.util.SingleLiveEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.apache.commons.text.StringEscapeUtils

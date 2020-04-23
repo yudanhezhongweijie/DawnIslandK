@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.entity
+package com.laotoua.dawnislandk.data.entity
 
 import com.google.gson.annotations.SerializedName
 

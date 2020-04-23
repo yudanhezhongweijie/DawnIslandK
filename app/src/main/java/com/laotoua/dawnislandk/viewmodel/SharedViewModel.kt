@@ -4,8 +4,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.laotoua.dawnislandk.entity.Forum
-import com.laotoua.dawnislandk.entity.Thread
+import com.laotoua.dawnislandk.data.entity.Forum
+import com.laotoua.dawnislandk.data.entity.Thread
 import timber.log.Timber
 
 class SharedViewModel : ViewModel() {

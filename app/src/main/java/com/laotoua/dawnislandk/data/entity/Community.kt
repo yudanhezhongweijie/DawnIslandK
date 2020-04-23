@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.entity
+package com.laotoua.dawnislandk.data.entity
 
 import androidx.room.*
 import com.google.gson.Gson

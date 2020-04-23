@@ -9,12 +9,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.laotoua.dawnislandk.data.entity.Forum
+import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
-import com.laotoua.dawnislandk.entity.Forum
 import com.laotoua.dawnislandk.ui.adapter.QuickNodeAdapter
-import com.laotoua.dawnislandk.util.AppState
-import com.laotoua.dawnislandk.util.ToolbarUtil.updateAppBarByFragment
-import com.laotoua.dawnislandk.util.ToolbarUtil.updateAppBarTitleWithinFragment
+import com.laotoua.dawnislandk.ui.util.ToolbarUtil.updateAppBarByFragment
+import com.laotoua.dawnislandk.ui.util.ToolbarUtil.updateAppBarTitleWithinFragment
 import com.laotoua.dawnislandk.viewmodel.CommunityViewModel
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 import kotlinx.coroutines.launch

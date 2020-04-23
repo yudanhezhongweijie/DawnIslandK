@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.util
+package com.laotoua.dawnislandk.ui.util
 
 import android.content.Context
 import android.graphics.Color

@@ -12,7 +12,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.util.ImageUtil
+import com.laotoua.dawnislandk.io.ImageUtil
 import com.lxj.xpopup.core.ImageViewerPopupView
 import com.lxj.xpopup.photoview.PhotoView
 import kotlinx.coroutines.Dispatchers

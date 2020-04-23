@@ -5,7 +5,7 @@ import android.view.View
 import android.widget.ImageButton
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.entity.Cookie
+import com.laotoua.dawnislandk.data.entity.Cookie
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.CenterPopupView
 import com.lxj.xpopup.interfaces.SimpleCallback

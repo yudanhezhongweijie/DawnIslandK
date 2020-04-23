@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.util
+package com.laotoua.dawnislandk.data.util
 
 class SingleLiveEvent<out T>(private val content: T) {
 

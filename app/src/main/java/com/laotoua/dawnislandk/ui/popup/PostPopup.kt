@@ -19,11 +19,11 @@ import com.google.android.flexbox.FlexboxLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.entity.Cookie
-import com.laotoua.dawnislandk.network.NMBServiceClient
-import com.laotoua.dawnislandk.util.AppState
-import com.laotoua.dawnislandk.util.FragmentIntentUtil
-import com.laotoua.dawnislandk.util.ImageUtil
+import com.laotoua.dawnislandk.data.entity.Cookie
+import com.laotoua.dawnislandk.data.network.NMBServiceClient
+import com.laotoua.dawnislandk.data.state.AppState
+import com.laotoua.dawnislandk.io.FragmentIntentUtil
+import com.laotoua.dawnislandk.io.ImageUtil
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BottomPopupView
 import com.lxj.xpopup.interfaces.SimpleCallback

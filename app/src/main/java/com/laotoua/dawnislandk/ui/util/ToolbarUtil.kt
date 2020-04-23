@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.util
+package com.laotoua.dawnislandk.ui.util
 
 import android.app.Activity
 import androidx.coordinatorlayout.widget.CoordinatorLayout

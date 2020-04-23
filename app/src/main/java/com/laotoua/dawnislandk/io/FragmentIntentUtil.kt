@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.util
+package com.laotoua.dawnislandk.io
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -23,21 +23,30 @@ object FragmentIntentUtil {
                 .checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
         ) {
             Toast.makeText(caller.requireContext(), "需要读取外部存储权限", Toast.LENGTH_SHORT).show()
-            requestPermission(caller, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            requestPermission(
+                caller,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
             return false
         }
         if (caller.requireContext()
                 .checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
         ) {
             Toast.makeText(caller.requireContext(), "需要写入外部存储权限", Toast.LENGTH_SHORT).show()
-            requestPermission(caller, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            requestPermission(
+                caller,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
             return false
         }
         if (caller.requireContext()
                 .checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
         ) {
             Toast.makeText(caller.requireContext(), "需要照相权限", Toast.LENGTH_SHORT).show()
-            requestPermission(caller, Manifest.permission.CAMERA)
+            requestPermission(
+                caller,
+                Manifest.permission.CAMERA
+            )
             return false
         }
         return true

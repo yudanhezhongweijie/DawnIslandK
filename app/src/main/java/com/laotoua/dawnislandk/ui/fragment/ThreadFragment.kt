@@ -14,9 +14,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.laotoua.dawnislandk.R
+import com.laotoua.dawnislandk.data.entity.Thread
+import com.laotoua.dawnislandk.data.network.ImageLoader
 import com.laotoua.dawnislandk.databinding.ThreadFragmentBinding
-import com.laotoua.dawnislandk.entity.Thread
-import com.laotoua.dawnislandk.network.ImageLoader
 import com.laotoua.dawnislandk.ui.adapter.QuickAdapter
 import com.laotoua.dawnislandk.ui.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.ui.popup.PostPopup

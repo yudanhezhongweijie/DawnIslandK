@@ -1,10 +1,11 @@
-package com.laotoua.dawnislandk.network
+package com.laotoua.dawnislandk.data.network
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.laotoua.dawnislandk.entity.Community
-import com.laotoua.dawnislandk.entity.Reply
-import com.laotoua.dawnislandk.entity.Thread
+import com.laotoua.dawnislandk.data.entity.Community
+import com.laotoua.dawnislandk.data.entity.Reply
+import com.laotoua.dawnislandk.data.entity.Thread
+import com.laotoua.dawnislandk.util.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -14,15 +15,14 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
 import org.jsoup.Jsoup
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import timber.log.Timber
 import java.io.File
 
 
 object NMBServiceClient {
     private val service: NMBService = Retrofit.Builder()
-        .baseUrl("https://nmb.fastmirror.org/")
-        .addConverterFactory(GsonConverterFactory.create())
+        .baseUrl(Constants.baseCDN)
+//        .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(NMBService::class.java)
 
@@ -43,6 +43,7 @@ object NMBServiceClient {
             Timber.e(e, "Failed to get communities")
             throw e
         }
+
     }
 
     private fun parseCommunities(response: ResponseBody): List<Community> {
@@ -78,7 +79,7 @@ object NMBServiceClient {
         return parser.fromJson(response.string(), object : TypeToken<List<Thread>>() {}.type)
     }
 
-    // TODO: handle case where thread is deleted
+    //     TODO: handle case where thread is deleted
     suspend fun getFeeds(uuid: String, page: Int): List<Thread> {
         try {
             val rawResponse =

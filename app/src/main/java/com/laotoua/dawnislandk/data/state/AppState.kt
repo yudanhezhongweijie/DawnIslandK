@@ -1,18 +1,18 @@
-package com.laotoua.dawnislandk.util
+package com.laotoua.dawnislandk.data.state
 
 import android.content.Context
 import androidx.preference.PreferenceManager
-import com.laotoua.dawnislandk.entity.Cookie
-import com.laotoua.dawnislandk.entity.DawnDatabase
+import com.laotoua.dawnislandk.data.entity.Cookie
+import com.laotoua.dawnislandk.data.entity.DawnDatabase
 import com.laotoua.dawnislandk.ui.viewfactory.ThreadCardFactory
 import java.util.*
 
 object AppState {
+
     private var threadCardFactory: ThreadCardFactory? = null
 
     fun getThreadCardFactory(context: Context): ThreadCardFactory {
-        if (threadCardFactory == null) threadCardFactory =
-            ThreadCardFactory(context)
+        if (threadCardFactory == null) threadCardFactory = ThreadCardFactory(context)
         return threadCardFactory!!
     }
 
@@ -20,7 +20,7 @@ object AppState {
     val DB: DawnDatabase get() = mDb!!
 
     fun setDB(db: DawnDatabase) {
-        this.mDb = db
+        mDb = db
     }
 
     private var mCookies: List<Cookie>? = null
@@ -39,7 +39,10 @@ object AppState {
                 mFeedsId = getString("feedId", null)
                 if (mFeedsId == null) {
                     mFeedsId = UUID.randomUUID().toString()
-                    edit().putString("feedId", mFeedsId).apply()
+                    edit().putString(
+                        "feedId",
+                        mFeedsId
+                    ).apply()
                 }
 
             }

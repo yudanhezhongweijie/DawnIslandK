@@ -1,17 +1,18 @@
-package com.laotoua.dawnislandk.network
+package com.laotoua.dawnislandk.data.network
 
 import android.content.Context
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
-import com.laotoua.dawnislandk.util.GlideApp
+import com.laotoua.dawnislandk.ui.util.GlideApp
+import com.laotoua.dawnislandk.util.Constants
 import com.lxj.xpopup.interfaces.XPopupImageLoader
 import java.io.File
 
 class ImageLoader(val context: Context) :
     XPopupImageLoader {
-    private val cdn = "https://nmbimg.fastmirror.org/image/"
+    private val cdn = Constants.imageCDN
 
     override fun getImageFile(context: Context, uri: Any): File? {
         try {

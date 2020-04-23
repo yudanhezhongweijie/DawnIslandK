@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.util
+package com.laotoua.dawnislandk.io
 
 import android.content.ContentResolver
 import android.content.ContentValues
@@ -9,6 +9,7 @@ import android.provider.OpenableColumns
 import android.util.Size
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
+import com.laotoua.dawnislandk.ui.util.GlideApp
 import timber.log.Timber
 import java.io.*
 
@@ -48,7 +49,8 @@ object ImageUtil {
                 .loadThumbnail(uri, Size(width, height), null)
                 .run { imageView.setImageBitmap(this) }
         } else {
-            GlideApp.with(caller).load(uri).override(width, height).into(imageView)
+            GlideApp.with(caller)
+                .load(uri).override(width, height).into(imageView)
         }
     }
 

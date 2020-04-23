@@ -2,9 +2,9 @@ package com.laotoua.dawnislandk
 
 import android.app.Application
 import androidx.room.Room
-import com.laotoua.dawnislandk.entity.DawnDatabase
-import com.laotoua.dawnislandk.util.AppState
-import com.laotoua.dawnislandk.util.ReadableTime
+import com.laotoua.dawnislandk.data.entity.DawnDatabase
+import com.laotoua.dawnislandk.data.state.AppState
+import com.laotoua.dawnislandk.ui.util.ReadableTime
 import timber.log.Timber
 
 class DawnApp : Application() {

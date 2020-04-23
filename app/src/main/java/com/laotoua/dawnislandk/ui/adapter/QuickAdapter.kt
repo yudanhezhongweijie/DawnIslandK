@@ -18,11 +18,13 @@ import com.chad.library.adapter.base.loadmore.BaseLoadMoreView
 import com.chad.library.adapter.base.module.LoadMoreModule
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.entity.Reply
-import com.laotoua.dawnislandk.entity.Thread
+import com.laotoua.dawnislandk.data.entity.Reply
+import com.laotoua.dawnislandk.data.entity.Thread
+import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.ui.span.RoundBackgroundColorSpan
+import com.laotoua.dawnislandk.ui.util.*
 import com.laotoua.dawnislandk.ui.viewfactory.ThreadCardFactory
-import com.laotoua.dawnislandk.util.*
+import com.laotoua.dawnislandk.util.Constants
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 import kotlinx.android.synthetic.main.quote_list_item.view.*
 import timber.log.Timber
@@ -33,7 +35,7 @@ class QuickAdapter(private val layoutResId: Int) :
     BaseQuickAdapter<Any, BaseViewHolder>(layoutResId, ArrayList()),
     LoadMoreModule {
 
-    private val thumbCDN = "https://nmbimg.fastmirror.org/thumb/"
+    private val thumbCDN = Constants.thumbCDN
     private lateinit var sharedViewModel: SharedViewModel
 
     private val factory: ThreadCardFactory by lazy {

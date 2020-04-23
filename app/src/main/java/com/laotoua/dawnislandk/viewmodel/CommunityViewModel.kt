@@ -4,10 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.laotoua.dawnislandk.entity.Community
-import com.laotoua.dawnislandk.entity.CommunityDao
-import com.laotoua.dawnislandk.network.NMBServiceClient
-import com.laotoua.dawnislandk.util.AppState
+import com.laotoua.dawnislandk.data.entity.Community
+import com.laotoua.dawnislandk.data.entity.CommunityDao
+import com.laotoua.dawnislandk.data.network.NMBServiceClient
+import com.laotoua.dawnislandk.data.state.AppState
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -26,7 +26,6 @@ class CommunityViewModel : ViewModel() {
         loadCommunitiesFromDB()
         getCommunitiesFromServer()
     }
-
     private fun getCommunitiesFromServer() {
         viewModelScope.launch {
             try {

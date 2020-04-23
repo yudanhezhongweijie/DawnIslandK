@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.util
+package com.laotoua.dawnislandk.ui.util
 
 import android.content.Context
 import android.content.res.Resources
@@ -72,8 +72,12 @@ object ReadableTime {
     // TODO: 目前需要重启
     fun getDisplayTime(time: String): String {
         return when (timeFormat) {
-            "simplified" -> getTimeAgo(string2Time(time))
-            "original" -> getPlainTime(string2Time(time))
+            "simplified" -> getTimeAgo(
+                string2Time(time)
+            )
+            "original" -> getPlainTime(
+                string2Time(time)
+            )
             else -> throw Exception("Unhandled time format")
         }
     }

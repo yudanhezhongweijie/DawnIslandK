@@ -1,6 +1,6 @@
 package com.laotoua.dawnislandk.util
 
-object CONST {
+object Constants {
     const val MAIN_TEXT_SIZE = "main_text_size"
     const val CARD_RADIUS = "card_radius"
     const val CARD_ELEVATION = "card_elevation"
@@ -16,4 +16,9 @@ object CONST {
     const val LINE_HEIGHT = "line_height"
     const val SEG_GAP = "seg_gap"
     const val MAIN_TEXT_MIN_SIZE = 10
+
+    const val baseCDN = "https://nmb.fastmirror.org/"
+    const val imgCDN = "https://nmbimg.fastmirror.org/"
+    const val thumbCDN = "${imgCDN}thumb/"
+    const val imageCDN = "${imgCDN}image/"
 }

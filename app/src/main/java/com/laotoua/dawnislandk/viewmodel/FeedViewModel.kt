@@ -4,10 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.laotoua.dawnislandk.entity.Thread
-import com.laotoua.dawnislandk.network.NMBServiceClient
-import com.laotoua.dawnislandk.util.AppState
-import com.laotoua.dawnislandk.util.SingleLiveEvent
+import com.laotoua.dawnislandk.data.entity.Thread
+import com.laotoua.dawnislandk.data.network.NMBServiceClient
+import com.laotoua.dawnislandk.data.state.AppState
+import com.laotoua.dawnislandk.data.util.SingleLiveEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.apache.commons.text.StringEscapeUtils
@@ -66,7 +66,13 @@ class FeedViewModel : ViewModel() {
                  *  "\u53d6\u6d88\u8ba2\u9605\u6210\u529f!"
                  */
                 val msg = StringEscapeUtils.unescapeJava(this.replace("\"", ""))
-                SingleLiveEvent(Pair(msg, position)).run {
+                SingleLiveEvent(
+                    Pair(
+                        msg,
+                        position
+                    )
+                )
+                    .run {
                     _delFeedResponse.postValue(this)
                 }
 

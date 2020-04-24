@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.entity.Thread
 import com.laotoua.dawnislandk.data.network.NMBServiceClient
 import com.laotoua.dawnislandk.data.state.AppState
-import com.laotoua.dawnislandk.data.util.SingleLiveEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.apache.commons.text.StringEscapeUtils
@@ -20,9 +19,9 @@ class FeedViewModel : ViewModel() {
     private var _feeds = MutableLiveData<List<Thread>>()
     val feeds: LiveData<List<Thread>> get() = _feeds
     private var page = 1
-    private var _loadFail = MutableLiveData<Boolean>()
-    val loadFail: LiveData<Boolean>
-        get() = _loadFail
+    private var _loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
+    val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>>
+        get() = _loadingStatus
 
     private val _delFeedResponse = MutableLiveData<SingleLiveEvent<Pair<String, Int>>>()
     val delFeedResponse: LiveData<SingleLiveEvent<Pair<String, Int>>> get() = _delFeedResponse
@@ -38,11 +37,16 @@ class FeedViewModel : ViewModel() {
                 when (this) {
                     is DataResource.Error -> {
                         Timber.e(message)
-                        _loadFail.postValue(true)
+                        _loadingStatus.postValue(
+                            SingleLiveEvent.create(
+                                LoadingStatus.FAILED,
+                                message
+                            )
+                        )
+
                     }
                     is DataResource.Success -> {
                         convertFeedData(data!!)
-                        _loadFail.postValue(false)
                     }
                 }
             }
@@ -58,11 +62,17 @@ class FeedViewModel : ViewModel() {
                 "feedsList now have ${feedsList.size} feeds"
             )
             _feeds.postValue(feedsList)
-            _loadFail.postValue(false)
+
             if (feedsList.size % 10 == 0) page += 1
         } else {
             Timber.i("feedsList has no new feeds.")
-            _loadFail.postValue(true)
+            _loadingStatus.postValue(
+                SingleLiveEvent.create(
+                    LoadingStatus.NODATA,
+                    "feedsList has no new feeds."
+                )
+
+            )
         }
     }
 

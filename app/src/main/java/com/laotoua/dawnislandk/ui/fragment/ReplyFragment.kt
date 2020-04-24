@@ -27,6 +27,7 @@ import com.laotoua.dawnislandk.ui.popup.JumpPopup
 import com.laotoua.dawnislandk.ui.popup.PostPopup
 import com.laotoua.dawnislandk.ui.popup.QuotePopup
 import com.laotoua.dawnislandk.ui.util.extractQuoteId
+import com.laotoua.dawnislandk.viewmodel.LoadingStatus
 import com.laotoua.dawnislandk.viewmodel.ReplyViewModel
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 import com.lxj.xpopup.XPopup
@@ -77,7 +78,6 @@ class ReplyFragment : Fragment() {
 
         // item click
         mAdapter.setOnItemClickListener {
-            // TODO: needs reply popup
                 _, _, position ->
             hideMenu()
             Timber.d("onItemClick $position")
@@ -107,7 +107,7 @@ class ReplyFragment : Fragment() {
             } else if (view.id == R.id.replyId) {
                 // TODO
                 val replyId = (view as TextView).text
-                Timber.i("replyid: $replyId")
+                Timber.i("replyId: $replyId")
             }
         }
 
@@ -128,25 +128,36 @@ class ReplyFragment : Fragment() {
             viewModel.getNextPage()
         }
 
-        viewModel.loadEnd.observe(viewLifecycleOwner, Observer {
-            if (it == true) {
-                if (binding.refreshLayout.isRefreshing) {
-                    binding.refreshLayout.refreshComplete(true)
-                } else {
-                    mAdapter.loadMoreModule.loadMoreEnd()
-                }
-                Timber.i("Finished loading data...")
-            }
-        })
+        viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.run {
+                when (this.loadingStatus) {
+                    LoadingStatus.FAILED -> {
+                        if (binding.refreshLayout.isRefreshing) {
+                            binding.refreshLayout.refreshComplete(false)
+                        } else {
+                            mAdapter.loadMoreModule.loadMoreFail()
+                        }
+                        Toast.makeText(
+                            context,
+                            "无法读取串回复...\n${it.peekContent().message}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        Timber.e(message)
+                    }
+                    LoadingStatus.NODATA -> {
+                        if (binding.refreshLayout.isRefreshing) {
+                            binding.refreshLayout.refreshComplete(true)
+                        } else {
+                            mAdapter.loadMoreModule.loadMoreEnd()
+                        }
+                        Timber.i("Finished loading data...")
+                    }
+                    else -> {
+                        // do nothing
+                        Timber.i(this.loadingStatus.name)
+                    }
 
-        viewModel.loadFail.observe(viewLifecycleOwner, Observer {
-            if (it == true) {
-                if (binding.refreshLayout.isRefreshing) {
-                    binding.refreshLayout.refreshComplete(false)
-                } else {
-                    mAdapter.loadMoreModule.loadMoreFail()
                 }
-                Timber.i("Failed to load new data...")
             }
         })
 

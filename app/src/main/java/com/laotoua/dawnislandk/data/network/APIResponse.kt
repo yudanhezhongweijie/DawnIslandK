@@ -16,40 +16,45 @@ sealed class APIResponse<out T> {
             call: Call<ResponseBody>,
             parser: (String) -> T
         ): APIResponse<T> {
-            val response = withContext(Dispatchers.IO) { call.execute() }
+            try {
+                val response = withContext(Dispatchers.IO) { call.execute() }
 
-            if (response.isSuccessful) {
-                val body = response.body()
-                body?.close()
-                if (body == null || response.code() == 204) {
-                    return APIEmptyResponse()
-                }
-                val resBody = withContext(Dispatchers.IO) { body.string() }
-                return withContext(Dispatchers.Default) {
-                    try {
-                        Timber.i("Trying to parse JSON...")
-                        APISuccessResponse("JSON success", parser(resBody))
-                    } catch (e: Exception) {
-                        // server returns non json string
-                        Timber.i("Response is non JSON data...")
-                        APINoDataResponse<Nothing>(
-                            StringEscapeUtils.unescapeJava(
-                                resBody.replace("\"", "")
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    body?.close()
+                    if (body == null || response.code() == 204) {
+                        return APIEmptyResponse()
+                    }
+                    val resBody = withContext(Dispatchers.IO) { body.string() }
+                    return withContext(Dispatchers.Default) {
+                        try {
+                            Timber.i("Trying to parse JSON...")
+                            APISuccessResponse("JSON success", parser(resBody))
+                        } catch (e: Exception) {
+                            // server returns non json string
+                            Timber.i("Response is non JSON data...")
+                            APINoDataResponse<Nothing>(
+                                StringEscapeUtils.unescapeJava(
+                                    resBody.replace("\"", "")
+                                )
                             )
-                        )
+                        }
                     }
                 }
-            }
 
-            return withContext(Dispatchers.IO) {
-                val msg = response.errorBody()?.string()
-                val errorMsg = if (msg.isNullOrEmpty()) {
-                    response.message()
-                } else {
-                    msg
+                return withContext(Dispatchers.IO) {
+                    val msg = response.errorBody()?.string()
+                    val errorMsg = if (msg.isNullOrEmpty()) {
+                        response.message()
+                    } else {
+                        msg
+                    }
+                    Timber.e(errorMsg)
+                    APIErrorResponse<Nothing>(errorMsg ?: "unknown error")
                 }
-                Timber.e(errorMsg)
-                APIErrorResponse<Nothing>(errorMsg ?: "unknown error")
+            } catch (e: Exception) {
+                Timber.e(e)
+                return APIErrorResponse<Nothing>(e.toString())
             }
         }
     }

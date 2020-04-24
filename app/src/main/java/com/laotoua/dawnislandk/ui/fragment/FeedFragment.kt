@@ -20,6 +20,7 @@ import com.laotoua.dawnislandk.databinding.FeedFragmentBinding
 import com.laotoua.dawnislandk.ui.adapter.QuickAdapter
 import com.laotoua.dawnislandk.ui.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.viewmodel.FeedViewModel
+import com.laotoua.dawnislandk.viewmodel.LoadingStatus
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 import com.lxj.xpopup.XPopup
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
@@ -123,10 +124,36 @@ class FeedFragment : Fragment() {
             viewModel.getFeeds()
         }
 
-        viewModel.loadFail.observe(viewLifecycleOwner, Observer {
-            if (it == true) {
-                mAdapter.loadMoreModule.loadMoreFail()
-                Timber.i("Failed to load new data...")
+        viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.run {
+                when (this.loadingStatus) {
+                    LoadingStatus.FAILED -> {
+                        if (binding.refreshLayout.isRefreshing) {
+                            binding.refreshLayout.refreshComplete(false)
+                        } else {
+                            mAdapter.loadMoreModule.loadMoreFail()
+                        }
+                        Toast.makeText(
+                            context,
+                            "无法读取订阅...\n${it.peekContent().message}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        Timber.e(message)
+                    }
+                    LoadingStatus.NODATA -> {
+                        if (binding.refreshLayout.isRefreshing) {
+                            binding.refreshLayout.refreshComplete(true)
+                        } else {
+                            mAdapter.loadMoreModule.loadMoreEnd()
+                        }
+                        Timber.i("Finished loading data...")
+                    }
+                    else -> {
+                        // do nothing
+                        Timber.i(this.loadingStatus.name)
+                    }
+
+                }
             }
         })
 

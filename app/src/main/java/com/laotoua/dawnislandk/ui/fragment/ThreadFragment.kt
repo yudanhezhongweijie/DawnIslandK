@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils.loadAnimation
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -20,6 +21,7 @@ import com.laotoua.dawnislandk.databinding.ThreadFragmentBinding
 import com.laotoua.dawnislandk.ui.adapter.QuickAdapter
 import com.laotoua.dawnislandk.ui.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.ui.popup.PostPopup
+import com.laotoua.dawnislandk.viewmodel.LoadingStatus
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 import com.laotoua.dawnislandk.viewmodel.ThreadViewModel
 import com.lxj.xpopup.XPopup
@@ -102,15 +104,16 @@ class ThreadFragment : Fragment() {
             viewModel.getThreads()
         }
 
-
-        // TODO: fragment transactions forces new view lifecycle owner postd, hence will trigger observe actions
-        viewModel.loadFail.observe(viewLifecycleOwner, Observer {
-            // TODO: can be either out of new Data or api error
-            if (it == true) {
-                mAdapter.loadMoreModule.loadMoreFail()
-                Timber.i("Failed to load new data...")
+        viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
+            if (it.getContentIfNotHandled()?.loadingStatus == LoadingStatus.FAILED) {
+                Toast.makeText(
+                    context,
+                    "无法读取串列表...\n${it.peekContent().message}",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         })
+
         viewModel.thread.observe(viewLifecycleOwner, Observer {
             mAdapter.setDiffNewData(it.toMutableList())
             mAdapter.loadMoreModule.loadMoreComplete()

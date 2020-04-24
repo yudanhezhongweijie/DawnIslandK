@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.entity.Reply
 import com.laotoua.dawnislandk.data.entity.Thread
 import com.laotoua.dawnislandk.data.network.NMBServiceClient
-import com.laotoua.dawnislandk.data.util.SingleLiveEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.apache.commons.text.StringEscapeUtils
@@ -32,13 +31,9 @@ class ReplyViewModel : ViewModel() {
 
     val maxPage get() = 1.coerceAtLeast(kotlin.math.ceil(maxReply.toDouble() / 19).toInt())
 
-    // flags to indicate status of loading reply
-    private var _loadFail = MutableLiveData(false)
-    val loadFail: LiveData<Boolean>
-        get() = _loadFail
-    private var _loadEnd = MutableLiveData(false)
-    val loadEnd: LiveData<Boolean>
-        get() = _loadEnd
+    private var _loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
+    val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>>
+        get() = _loadingStatus
 
     private val _addFeedResponse = MutableLiveData<SingleLiveEvent<String>>()
     val addFeedResponse: LiveData<SingleLiveEvent<String>> get() = _addFeedResponse
@@ -67,14 +62,26 @@ class ReplyViewModel : ViewModel() {
 
     fun getPreviousPage() {
         if (replyList.isEmpty()) {
-            Timber.i("Refreshing without data?")
-            _loadFail.postValue(true)
+            Timber.e("Refreshing without data?")
+            _loadingStatus.postValue(
+                SingleLiveEvent.create(
+                    LoadingStatus.FAILED,
+                    "Refreshing without data?"
+                )
+            )
+
             return
         }
         val page = replyList.first().page!!.toInt()
         if (page == 1) {
             Timber.i("Already first page")
-            _loadFail.postValue(true)
+            _loadingStatus.postValue(
+                SingleLiveEvent.create(
+                    LoadingStatus.NODATA,
+                    "Already first page"
+
+                )
+            )
             return
         }
 
@@ -100,20 +107,23 @@ class ReplyViewModel : ViewModel() {
             DataResource.create(NMBServiceClient.getReplys(_currentThread!!.id, page)).run {
                 when (this) {
                     is DataResource.Success -> {
-                        convertReplyData(data!!, page, direction)
+                        convertServerData(data!!, page, direction)
                     }
                     is DataResource.Error -> {
                         Timber.e(message)
-                        _loadFail.postValue(true)
+                        _loadingStatus.postValue(
+                            SingleLiveEvent.create(
+                                LoadingStatus.FAILED,
+                                message
+                            )
+                        )
                     }
                 }
-
-
             }
         }
     }
 
-    private fun convertReplyData(data: Thread, page: Int, direction: DIRECTION) {
+    private fun convertServerData(data: Thread, page: Int, direction: DIRECTION) {
         val list = mutableListOf<Reply>()
         maxReply = data.replyCount?.toInt() ?: 0
         list.addAll(data.replys!!)
@@ -126,8 +136,11 @@ class ReplyViewModel : ViewModel() {
             (list.size == 20 || (list.size == 19 && list.first().id != "9999999"))
 
         // add thread to as first reply for page 1
-        if (page == 1) {
+        if (page == 1 && !replyIds.contains(_currentThread!!.id)) {
             replyList.add(0, _currentThread!!.toReply())
+            replyIds.add(_currentThread!!.id)
+
+            _reply.postValue(replyList)
             // TODO: previous page & next page should be handled the same
             if (direction == DIRECTION.PREVIOUS) previousPage.add(_currentThread!!.toReply())
         }
@@ -137,7 +150,6 @@ class ReplyViewModel : ViewModel() {
 
         if ((noDuplicates.isNotEmpty() &&
                     (noDuplicates.size > 1 || noDuplicates.first().id != "9999999"))
-            || page == 1
         ) {
             replyIds.addAll(noDuplicates.map { it.id })
             Timber.i(
@@ -162,7 +174,14 @@ class ReplyViewModel : ViewModel() {
             Timber.i("CurrentPage: $page ReplyIds(w. ad, head): ${replyIds.size} replyList: ${replyList.size} replyCount: $maxReply")
         } else {
             Timber.i("Thread ${_currentThread!!.id} has no new replys.")
-            _loadEnd.postValue(true)
+            _loadingStatus.postValue(
+                SingleLiveEvent.create(
+                    LoadingStatus.NODATA,
+                    "No New Replys"
+                )
+
+            )
+
         }
     }
 

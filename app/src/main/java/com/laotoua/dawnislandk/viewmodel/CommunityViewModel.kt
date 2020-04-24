@@ -17,9 +17,10 @@ class CommunityViewModel : ViewModel() {
     private var _communityList = MutableLiveData<List<Community>>()
     val communityList: LiveData<List<Community>>
         get() = _communityList
-    private var _loadFail = MutableLiveData(false)
-    val loadFail: LiveData<Boolean>
-        get() = _loadFail
+
+    private var _loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
+    val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>>
+        get() = _loadingStatus
 
     init {
         // TODO added repository
@@ -33,11 +34,15 @@ class CommunityViewModel : ViewModel() {
                 when (this) {
                     is DataResource.Error -> {
                         Timber.e(message)
-                        _loadFail.postValue(true)
+                        _loadingStatus.postValue(
+                            SingleLiveEvent.create(
+                                LoadingStatus.FAILED,
+                                message
+                            )
+                        )
                     }
                     is DataResource.Success -> {
                         convertServerData(data!!)
-                        _loadFail.postValue(false)
                     }
                 }
             }
@@ -53,7 +58,6 @@ class CommunityViewModel : ViewModel() {
         if (data != communityList.value) {
             Timber.i("Community list has changed. updating...")
             _communityList.postValue(data)
-            _loadFail.postValue(false)
 
             // save to local db
             viewModelScope.launch { saveCommunitiesToDB(data) }
@@ -83,7 +87,6 @@ class CommunityViewModel : ViewModel() {
         return communityList.value?.flatMap { it.forums }?.associateBy(
             keySelector = { it.id },
             valueTransform = { it.name }) ?: mapOf()
-
     }
 
     fun refresh() {

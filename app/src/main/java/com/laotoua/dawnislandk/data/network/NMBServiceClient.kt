@@ -46,36 +46,22 @@ object NMBServiceClient {
 
     }
 
+    private val parseThreads: (String) -> List<Thread> =
+        { parser.fromJson(it, object : TypeToken<List<Thread>>() {}.type) }
+
+    suspend fun getThreads(fid: String, page: Int): APIResponse<List<Thread>> {
+        Timber.i("Downloading threads on Forum $fid...")
+        val call =
+            if (fid == "-1") service.getNMBTimeLine(page)
+            else service.getNMBThreads(fid, page)
+        return APIResponse.create(call, parseThreads)
+    }
+
     private fun parseCommunities(response: ResponseBody): List<Community> {
         return parser.fromJson(response.string(), object : TypeToken<List<Community>>() {}.type)
     }
 
-
-    // TODO: handle case where thread is deleted
-    suspend fun getThreads(fid: String, page: Int): List<Thread> {
-        try {
-            val rawResponse =
-                withContext(Dispatchers.IO) {
-                    Timber.i("Downloading threads on Forum $fid...")
-                    if (fid == "-1") service.getNMBTimeLine(page).execute().body()!!
-                    else service.getNMBThreads(fid, page).execute().body()!!
-                }
-
-            val threadsList =
-                withContext(Dispatchers.Default) {
-                    Timber.i("Parsing threads...")
-                    parseThreads(rawResponse)
-                }
-            // assign fid if not timeline
-            if (fid != "-1") threadsList.map { it.fid = fid }
-            return threadsList
-        } catch (e: Exception) {
-            Timber.e(e, "Failed to get threads")
-            throw e
-        }
-    }
-
-    private fun parseThreads(response: ResponseBody): List<Thread> {
+    private fun parseThreadsDeprecated(response: ResponseBody): List<Thread> {
         return parser.fromJson(response.string(), object : TypeToken<List<Thread>>() {}.type)
     }
 
@@ -89,7 +75,7 @@ object NMBServiceClient {
                 }
             return withContext(Dispatchers.Default) {
                 Timber.i("Parsing Feeds...")
-                parseThreads(rawResponse)
+                parseThreadsDeprecated(rawResponse)
             }
         } catch (e: Exception) {
             Timber.e(e, "Failed to get Feeds")

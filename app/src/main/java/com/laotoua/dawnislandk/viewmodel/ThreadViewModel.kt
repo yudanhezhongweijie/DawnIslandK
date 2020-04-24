@@ -6,6 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.entity.Forum
 import com.laotoua.dawnislandk.data.entity.Thread
+import com.laotoua.dawnislandk.data.network.APIErrorResponse
+import com.laotoua.dawnislandk.data.network.APINoDataResponse
+import com.laotoua.dawnislandk.data.network.APISuccessResponse
 import com.laotoua.dawnislandk.data.network.NMBServiceClient
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -25,31 +28,44 @@ class ThreadViewModel : ViewModel() {
 
     fun getThreads() {
         viewModelScope.launch {
-            try {
-                val fid = _currentForum?.id ?: "-1"
-                Timber.i("Getting threads from $fid ${_currentForum?.name ?: "时间线(default)"}")
-                val list = NMBServiceClient.getThreads(fid, pageCount)
-                val noDuplicates = list.filterNot { threadIds.contains(it.id) }
-                if (noDuplicates.isNotEmpty()) {
-                    threadIds.addAll(noDuplicates.map { it.id })
-                    Timber.i(
-                        "New thread + ads has size of ${noDuplicates.size}, threadIds size ${threadIds.size}"
-                    )
-                    threadList.addAll(noDuplicates)
-                    Timber.i(
-                        "Forum ${currentForum?.name} now have ${threadList.size} threads"
-                    )
-                    _thread.postValue(threadList)
-                    _loadFail.postValue(false)
-                    pageCount += 1
-                } else {
-                    Timber.i("Forum ${currentForum?.getDisplayName()} has no new threads.")
-                    _loadFail.postValue(true)
+            val fid = _currentForum?.id ?: "-1"
+            Timber.i("Getting threads from $fid ${_currentForum?.name} on page $pageCount")
+            when (val response = NMBServiceClient.getThreads(fid, pageCount)) {
+                // TODO thread deleted
+                is APINoDataResponse -> {
+                    Timber.e("APINoDataResponse: ${response.errorMessage}")
                 }
-            } catch (e: Exception) {
-                Timber.e(e, "failed to get threads")
-                _loadFail.postValue(true)
+                // TODO mostly network error
+                is APIErrorResponse -> {
+                    Timber.e("APIErrorResponse: ${response.errorMessage}")
+                }
+                is APISuccessResponse -> {
+                    val list = response.data
+                    // assign fid if not timeline
+                    if (fid != "-1") list.map { it.fid = fid }
+                    val noDuplicates = list.filterNot { threadIds.contains(it.id) }
+                    if (noDuplicates.isNotEmpty()) {
+                        threadIds.addAll(noDuplicates.map { it.id })
+                        Timber.i(
+                            "New thread + ads has size of ${noDuplicates.size}, threadIds size ${threadIds.size}"
+                        )
+                        threadList.addAll(noDuplicates)
+                        Timber.i(
+                            "Forum ${currentForum?.name} now have ${threadList.size} threads"
+                        )
+                        _thread.postValue(threadList)
+                        _loadFail.postValue(false)
+                        pageCount += 1
+                    } else {
+                        Timber.i("Forum ${currentForum?.getDisplayName()} has no new threads.")
+                        _loadFail.postValue(true)
+                    }
+                }
+                else -> {
+                    Timber.e("unhandled API type response $response")
+                }
             }
+
         }
     }
 
@@ -63,5 +79,4 @@ class ThreadViewModel : ViewModel() {
         pageCount = 1
         getThreads()
     }
-
 }

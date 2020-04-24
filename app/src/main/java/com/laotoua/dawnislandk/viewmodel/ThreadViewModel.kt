@@ -35,7 +35,7 @@ class ThreadViewModel : ViewModel() {
                         _loadingStatus.postValue(
                             SingleLiveEvent.create(
                                 LoadingStatus.FAILED,
-                                message
+                                "无法读取串列表...\n$message"
                             )
                         )
                     }

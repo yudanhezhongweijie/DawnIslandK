@@ -5,11 +5,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.entity.Thread
+import com.laotoua.dawnislandk.data.network.APIErrorResponse
+import com.laotoua.dawnislandk.data.network.APINoDataResponse
 import com.laotoua.dawnislandk.data.network.NMBServiceClient
 import com.laotoua.dawnislandk.data.state.AppState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.apache.commons.text.StringEscapeUtils
 import timber.log.Timber
 
 class FeedViewModel : ViewModel() {
@@ -23,8 +24,8 @@ class FeedViewModel : ViewModel() {
     val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>>
         get() = _loadingStatus
 
-    private val _delFeedResponse = MutableLiveData<SingleLiveEvent<Pair<String, Int>>>()
-    val delFeedResponse: LiveData<SingleLiveEvent<Pair<String, Int>>> get() = _delFeedResponse
+    private val _delFeedResponse = MutableLiveData<SingleLiveEvent<EventPayload<Int>>>()
+    val delFeedResponse: LiveData<SingleLiveEvent<EventPayload<Int>>> get() = _delFeedResponse
 
     init {
         getFeeds()
@@ -40,7 +41,7 @@ class FeedViewModel : ViewModel() {
                         _loadingStatus.postValue(
                             SingleLiveEvent.create(
                                 LoadingStatus.FAILED,
-                                message
+                                "无法读取订阅...\n$message"
                             )
                         )
 
@@ -84,17 +85,26 @@ class FeedViewModel : ViewModel() {
                 /** res:
                  *  "\u53d6\u6d88\u8ba2\u9605\u6210\u529f!"
                  */
-                val msg = StringEscapeUtils.unescapeJava(this.replace("\"", ""))
-                SingleLiveEvent(
-                    Pair(
-                        msg,
-                        position
-                    )
-                )
-                    .run {
-                        _delFeedResponse.postValue(this)
+                when (this) {
+                    is APINoDataResponse -> {
+                        _delFeedResponse.postValue(
+                            SingleLiveEvent.create(
+                                LoadingStatus.SUCCESS,
+                                message,
+                                position
+                            )
+                        )
                     }
-
+                    is APIErrorResponse -> {
+                        Timber.e(message)
+                        _delFeedResponse.postValue(
+                            SingleLiveEvent.create(
+                                LoadingStatus.FAILED,
+                                "删除订阅失败"
+                            )
+                        )
+                    }
+                }
             }
         }
     }

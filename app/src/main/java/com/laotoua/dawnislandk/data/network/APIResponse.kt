@@ -14,7 +14,7 @@ sealed class APIResponse<out T> {
     companion object {
         suspend fun <T> create(
             call: Call<ResponseBody>,
-            parser: (String) -> T
+            parser: ((String) -> T)
         ): APIResponse<T> {
             try {
                 val response = withContext(Dispatchers.IO) { call.execute() }
@@ -26,10 +26,11 @@ sealed class APIResponse<out T> {
                         return APIEmptyResponse()
                     }
                     val resBody = withContext(Dispatchers.IO) { body.string() }
+
                     return withContext(Dispatchers.Default) {
                         try {
-                            Timber.i("Trying to parse JSON...")
-                            APISuccessResponse("JSON success", parser(resBody))
+                            Timber.i("Trying to parse response with supplied parser...")
+                            APISuccessResponse("Parse success", parser(resBody))
                         } catch (e: Exception) {
                             // server returns non json string
                             Timber.i("Response is non JSON data...")
@@ -40,6 +41,7 @@ sealed class APIResponse<out T> {
                             )
                         }
                     }
+
                 }
 
                 return withContext(Dispatchers.IO) {

@@ -86,10 +86,10 @@ class FeedFragment : Fragment() {
             true
         }
 
-        viewModel.delFeedResponse.observe(viewLifecycleOwner, Observer {
-            it.getContentIfNotHandled()?.let { (msg, pos) ->
-                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
-                mAdapter.remove(pos)
+        viewModel.delFeedResponse.observe(viewLifecycleOwner, Observer { it ->
+            it.getContentIfNotHandled()?.let { eventPayload ->
+                Toast.makeText(context, eventPayload.message, Toast.LENGTH_SHORT).show()
+                mAdapter.remove(eventPayload.payload!!)
             }
         })
         mAdapter.addChildClickViewIds(R.id.threadImage)
@@ -135,7 +135,7 @@ class FeedFragment : Fragment() {
                         }
                         Toast.makeText(
                             context,
-                            "无法读取订阅...\n${it.peekContent().message}",
+                            "${it.peekContent().message}",
                             Toast.LENGTH_LONG
                         ).show()
                         Timber.e(message)

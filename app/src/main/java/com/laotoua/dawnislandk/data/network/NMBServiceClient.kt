@@ -12,6 +12,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.apache.commons.text.StringEscapeUtils
 import org.jsoup.Jsoup
 import retrofit2.Retrofit
 import timber.log.Timber
@@ -21,7 +22,6 @@ import java.io.File
 object NMBServiceClient {
     private val service: NMBService = Retrofit.Builder()
         .baseUrl(Constants.baseCDN)
-//        .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(NMBService::class.java)
 
@@ -41,6 +41,12 @@ object NMBServiceClient {
 
     private val parseQuote: (String) -> Reply = { response ->
         parser.fromJson(response, Reply::class.java)
+    }
+
+    private val parseStringResponse: (String) -> String = { response ->
+        StringEscapeUtils.unescapeJava(
+            response.replace("\"", "")
+        )
     }
 
     suspend fun getCommunities(): APIResponse<List<Community>> {
@@ -72,31 +78,15 @@ object NMBServiceClient {
         return APIResponse.create(service.getNMBQuote(id), parseQuote)
     }
 
+    suspend fun addFeed(uuid: String, tid: String): APIResponse<String> {
+        Timber.i("Adding Feed $tid...")
 
-    // TODO: use APIResponse
-    suspend fun addFeed(uuid: String, tid: String): String {
-        try {
-            return withContext(Dispatchers.IO) {
-                Timber.i("Adding Feed $tid...")
-                service.addNMBFeed(uuid, tid).execute().body()!!.string()
-            }
-        } catch (e: Exception) {
-            Timber.e(e, "Failed to add feed")
-            throw e
-        }
+        return APIResponse.create(service.addNMBFeed(uuid, tid), parseStringResponse)
     }
 
-    // TODO: use APIResponse
-    suspend fun delFeed(uuid: String, tid: String): String {
-        try {
-            return withContext(Dispatchers.IO) {
-                Timber.i("Deleting Feed $tid...")
-                service.delNMBFeed(uuid, tid).execute().body()!!.string()
-            }
-        } catch (e: Exception) {
-            Timber.e(e, "Failed to delete feed")
-            throw e
-        }
+    suspend fun delFeed(uuid: String, tid: String): APIResponse<String> {
+        Timber.i("Deleting Feed $tid...")
+        return APIResponse.create(service.delNMBFeed(uuid, tid), parseStringResponse)
     }
 
     // TODO: use APIResponse

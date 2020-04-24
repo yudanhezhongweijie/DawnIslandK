@@ -1,7 +1,7 @@
 package com.laotoua.dawnislandk.viewmodel
 
-//private constructor
-class SingleLiveEvent<out T>(private val content: T) {
+
+class SingleLiveEvent<out T> private constructor(private val content: T) {
     var hasBeenHandled = false
         private set // Allow external read but not write
 

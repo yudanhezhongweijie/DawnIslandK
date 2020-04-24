@@ -139,10 +139,16 @@ class ReplyFragment : Fragment() {
                         }
                         Toast.makeText(
                             context,
-                            "无法读取串回复...\n${it.peekContent().message}",
+                            it.peekContent().message,
                             Toast.LENGTH_LONG
                         ).show()
-                        Timber.e(message)
+                    }
+                    LoadingStatus.SUCCESS -> {
+                        Toast.makeText(
+                            context,
+                            it.peekContent().message,
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                     LoadingStatus.NODATA -> {
                         if (binding.refreshLayout.isRefreshing) {
@@ -154,7 +160,7 @@ class ReplyFragment : Fragment() {
                     }
                     else -> {
                         // do nothing
-                        Timber.i(this.loadingStatus.name)
+                        Timber.e(this.loadingStatus.name)
                     }
 
                 }
@@ -247,8 +253,8 @@ class ReplyFragment : Fragment() {
         }
 
         viewModel.addFeedResponse.observe(viewLifecycleOwner, Observer {
-            it.getContentIfNotHandled()?.let { msg ->
-                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+            it.getContentIfNotHandled()?.let { eventPayload ->
+                Toast.makeText(context, eventPayload.message, Toast.LENGTH_SHORT).show()
             }
         })
 

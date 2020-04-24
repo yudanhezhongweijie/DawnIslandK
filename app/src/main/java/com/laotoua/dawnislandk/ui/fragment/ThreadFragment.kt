@@ -108,7 +108,7 @@ class ThreadFragment : Fragment() {
             if (it.getContentIfNotHandled()?.loadingStatus == LoadingStatus.FAILED) {
                 Toast.makeText(
                     context,
-                    "无法读取串列表...\n${it.peekContent().message}",
+                    it.peekContent().message,
                     Toast.LENGTH_LONG
                 ).show()
             }

@@ -33,11 +33,11 @@ class ThreadViewModel : ViewModel() {
             when (val response = NMBServiceClient.getThreads(fid, pageCount)) {
                 // TODO thread deleted
                 is APINoDataResponse -> {
-                    Timber.e("APINoDataResponse: ${response.errorMessage}")
+                    Timber.e("APINoDataResponse: ${response.message}")
                 }
                 // TODO mostly network error
                 is APIErrorResponse -> {
-                    Timber.e("APIErrorResponse: ${response.errorMessage}")
+                    Timber.e("APIErrorResponse: ${response.message}")
                 }
                 is APISuccessResponse -> {
                     val list = response.data

@@ -8,6 +8,9 @@ import retrofit2.Call
 import timber.log.Timber
 
 sealed class APIResponse<out T> {
+    abstract val message: String
+    abstract val data: T?
+
     companion object {
         suspend fun <T> create(
             call: Call<ResponseBody>,
@@ -25,7 +28,7 @@ sealed class APIResponse<out T> {
                 return withContext(Dispatchers.Default) {
                     try {
                         Timber.i("Trying to parse JSON...")
-                        APISuccessResponse(parser(resBody))
+                        APISuccessResponse("JSON success", parser(resBody))
                     } catch (e: Exception) {
                         // server returns non json string
                         Timber.i("Response is non JSON data...")
@@ -55,7 +58,16 @@ sealed class APIResponse<out T> {
 /**
  * separate class for HTTP 204 responses so that we can make ApiSuccessResponse's body non-null.
  */
-class APIEmptyResponse<T> : APIResponse<T>()
-data class APINoDataResponse<T>(val errorMessage: String) : APIResponse<T>()
-data class APIErrorResponse<T>(val errorMessage: String) : APIResponse<T>()
-data class APISuccessResponse<T>(val data: T) : APIResponse<T>()
+class APIEmptyResponse<T>(
+    override val message: String = "EmptyResponse",
+    override val data: Nothing? = null
+) : APIResponse<T>()
+
+data class APINoDataResponse<T>(override val message: String, override val data: Nothing? = null) :
+    APIResponse<T>()
+
+data class APIErrorResponse<T>(override val message: String, override val data: Nothing? = null) :
+    APIResponse<T>()
+
+data class APISuccessResponse<T>(override val message: String, override val data: T) :
+    APIResponse<T>()

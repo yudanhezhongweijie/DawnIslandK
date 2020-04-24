@@ -5,9 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.entity.Thread
-import com.laotoua.dawnislandk.data.network.APIErrorResponse
-import com.laotoua.dawnislandk.data.network.APINoDataResponse
-import com.laotoua.dawnislandk.data.network.APISuccessResponse
 import com.laotoua.dawnislandk.data.network.NMBServiceClient
 import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.data.util.SingleLiveEvent
@@ -22,7 +19,7 @@ class FeedViewModel : ViewModel() {
     private val feedsIds = mutableSetOf<String>()
     private var _feeds = MutableLiveData<List<Thread>>()
     val feeds: LiveData<List<Thread>> get() = _feeds
-    private var pageCount = 1
+    private var page = 1
     private var _loadFail = MutableLiveData<Boolean>()
     val loadFail: LiveData<Boolean>
         get() = _loadFail
@@ -36,41 +33,36 @@ class FeedViewModel : ViewModel() {
 
     fun getFeeds() {
         viewModelScope.launch {
-            when (val response = NMBServiceClient.getFeeds(AppState.feedsId, pageCount)) {
-                // TODO thread deleted
-                is APINoDataResponse -> {
-                    Timber.e("APINoDataResponse: ${response.errorMessage}")
-                    _loadFail.postValue(true)
-                }
-                // TODO mostly network error
-                is APIErrorResponse -> {
-                    Timber.e("APIErrorResponse: ${response.errorMessage}")
-                    _loadFail.postValue(true)
-                }
-                is APISuccessResponse -> {
-                    Timber.i("Getting Feeds...")
-                    val list = response.data
-                    val noDuplicates = list.filterNot { feedsIds.contains(it.id) }
-                    if (noDuplicates.isNotEmpty()) {
-                        feedsIds.addAll(noDuplicates.map { it.id })
-                        feedsList.addAll(noDuplicates)
-                        Timber.i(
-                            "feedsList now have ${feedsList.size} feeds"
-                        )
-                        _feeds.postValue(feedsList)
-                        _loadFail.postValue(false)
-                        if (feedsList.size % 10 == 0) pageCount += 1
-                    } else {
-                        Timber.i("feedsList has no new feeds.")
+            Timber.i("Downloading Feeds on page $page")
+            DataResource.create(NMBServiceClient.getFeeds(AppState.feedsId, page)).run {
+                when (this) {
+                    is DataResource.Error -> {
+                        Timber.e(message)
                         _loadFail.postValue(true)
                     }
-
-                }
-                else -> {
-                    Timber.e("unhandled API type response $response")
-                    _loadFail.postValue(true)
+                    is DataResource.Success -> {
+                        convertFeedData(data!!)
+                        _loadFail.postValue(false)
+                    }
                 }
             }
+        }
+    }
+
+    private fun convertFeedData(data: List<Thread>) {
+        val noDuplicates = data.filterNot { feedsIds.contains(it.id) }
+        if (noDuplicates.isNotEmpty()) {
+            feedsIds.addAll(noDuplicates.map { it.id })
+            feedsList.addAll(noDuplicates)
+            Timber.i(
+                "feedsList now have ${feedsList.size} feeds"
+            )
+            _feeds.postValue(feedsList)
+            _loadFail.postValue(false)
+            if (feedsList.size % 10 == 0) page += 1
+        } else {
+            Timber.i("feedsList has no new feeds.")
+            _loadFail.postValue(true)
         }
     }
 
@@ -90,8 +82,8 @@ class FeedViewModel : ViewModel() {
                     )
                 )
                     .run {
-                    _delFeedResponse.postValue(this)
-                }
+                        _delFeedResponse.postValue(this)
+                    }
 
             }
         }
@@ -100,7 +92,7 @@ class FeedViewModel : ViewModel() {
     fun refresh() {
         feedsList.clear()
         feedsIds.clear()
-        pageCount = 1
+        page = 1
         getFeeds()
     }
 }

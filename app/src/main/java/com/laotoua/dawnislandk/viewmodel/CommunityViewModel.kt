@@ -6,6 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.entity.Community
 import com.laotoua.dawnislandk.data.entity.CommunityDao
+import com.laotoua.dawnislandk.data.network.APIErrorResponse
+import com.laotoua.dawnislandk.data.network.APINoDataResponse
+import com.laotoua.dawnislandk.data.network.APISuccessResponse
 import com.laotoua.dawnislandk.data.network.NMBServiceClient
 import com.laotoua.dawnislandk.data.state.AppState
 import kotlinx.coroutines.launch
@@ -26,29 +29,40 @@ class CommunityViewModel : ViewModel() {
         loadCommunitiesFromDB()
         getCommunitiesFromServer()
     }
+
     private fun getCommunitiesFromServer() {
         viewModelScope.launch {
-            try {
-                val list = NMBServiceClient.getCommunities()
-                Timber.i("Downloaded communities size ${list.size}")
-                if (list.isEmpty()) {
-                    Timber.d("Didn't get communities from API")
-                    return@launch
+            when (val response = NMBServiceClient.getCommunities()) {
+                // TODO thread deleted
+                is APINoDataResponse -> {
+                    Timber.e("APINoDataResponse: ${response.errorMessage}")
+                    _loadFail.postValue(true)
                 }
-
-                if (list != communityList.value) {
-                    Timber.i("Community list has changed. updating...")
-                    _communityList.postValue(list)
-                    _loadFail.postValue(false)
-
-                    // save to local db
-                    saveCommunitiesToDB(list)
-                } else {
-                    Timber.i("Community list is the same as Db. Reusing...")
+                // TODO mostly network error
+                is APIErrorResponse -> {
+                    Timber.e("APIErrorResponse: ${response.errorMessage}")
                 }
-            } catch (e: Exception) {
-                Timber.e(e, "failed to get communities")
-                _loadFail.postValue(true)
+                is APISuccessResponse -> {
+                    val list = response.data
+                    Timber.i("Downloaded communities size ${list.size}")
+                    if (list.isEmpty()) {
+                        Timber.d("Didn't get communities from API")
+                        return@launch
+                    }
+                    if (list != communityList.value) {
+                        Timber.i("Community list has changed. updating...")
+                        _communityList.postValue(list)
+                        _loadFail.postValue(false)
+
+                        // save to local db
+                        saveCommunitiesToDB(list)
+                    } else {
+                        Timber.i("Community list is the same as Db. Reusing...")
+                    }
+                }
+                else -> {
+                    Timber.e("unhandled API type response $response")
+                }
             }
         }
     }

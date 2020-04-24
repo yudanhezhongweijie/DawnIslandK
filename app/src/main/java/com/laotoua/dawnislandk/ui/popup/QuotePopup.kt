@@ -13,8 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.entity.Reply
-import com.laotoua.dawnislandk.data.network.ImageLoader
-import com.laotoua.dawnislandk.data.network.NMBServiceClient
+import com.laotoua.dawnislandk.data.network.*
 import com.laotoua.dawnislandk.ui.util.*
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.CenterPopupView
@@ -147,22 +146,39 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
             po: String
         ) {
             caller.lifecycleScope.launch {
-                try {
-                    val reply = NMBServiceClient.getQuote(id)
-                    XPopup.Builder(context)
-                        .setPopupCallback(object : SimpleCallback() {
-                            override fun beforeShow() {
-                                super.beforeShow()
-                                quotePopup.convertReply(reply, po)
-                            }
-                        })
-                        .asCustom(quotePopup)
-                        .show()
-                } catch (e: Exception) {
-                    Timber.e(e, "Failed to get quote..")
-                    Toast.makeText(context, "无法读取引用...", Toast.LENGTH_SHORT).show()
+
+                when (val response = NMBServiceClient.getQuote(id)) {
+                    // TODO thread deleted
+                    is APINoDataResponse -> {
+                        Timber.e("APINoDataResponse: ${response.errorMessage}")
+                        Toast.makeText(context, "${response.errorMessage}...", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                    // TODO mostly network error
+                    is APIErrorResponse -> {
+                        Timber.e("APIErrorResponse: ${response.errorMessage}")
+                        Toast.makeText(context, "${response.errorMessage}...", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                    is APISuccessResponse -> {
+                        XPopup.Builder(context)
+                            .setPopupCallback(object : SimpleCallback() {
+                                override fun beforeShow() {
+                                    super.beforeShow()
+                                    quotePopup.convertReply(response.data, po)
+                                }
+                            })
+                            .asCustom(quotePopup)
+                            .show()
+                    }
+                    else -> {
+                        Timber.e("unhandled API type response $response")
+                        Toast.makeText(context, "${response}...", Toast.LENGTH_SHORT).show()
+                    }
                 }
+
             }
         }
     }
+
 }

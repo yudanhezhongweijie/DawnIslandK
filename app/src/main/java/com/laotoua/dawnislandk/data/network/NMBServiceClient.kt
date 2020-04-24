@@ -12,7 +12,6 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.ResponseBody
 import org.jsoup.Jsoup
 import retrofit2.Retrofit
 import timber.log.Timber
@@ -28,61 +27,53 @@ object NMBServiceClient {
 
     private val parser = Gson()
 
-    suspend fun getCommunities(): List<Community> {
-        try {
-            val rawResponse =
-                withContext(Dispatchers.IO) {
-                    Timber.i("downloading communities...")
-                    service.getNMBForumList().execute().body()!!
-                }
-            return withContext(Dispatchers.Default) {
-                Timber.i("parsing communities...")
-                parseCommunities(rawResponse)
-            }
-        } catch (e: Exception) {
-            Timber.e(e, "Failed to get communities")
-            throw e
-        }
-
+    private val parseCommunities: (String) -> List<Community> = { response ->
+        parser.fromJson(response, object : TypeToken<List<Community>>() {}.type)
     }
 
-    private val parseThreads: (String) -> List<Thread> =
-        { parser.fromJson(it, object : TypeToken<List<Thread>>() {}.type) }
+    private val parseThreads: (String) -> List<Thread> = { response ->
+        parser.fromJson(response, object : TypeToken<List<Thread>>() {}.type)
+    }
+
+    private val parseReplys: (String) -> Thread = { response ->
+        parser.fromJson(response, Thread::class.java)
+    }
+
+    private val parseQuote: (String) -> Reply = { response ->
+        parser.fromJson(response, Reply::class.java)
+    }
+
+    suspend fun getCommunities(): APIResponse<List<Community>> {
+        Timber.i("Downloading Communities and Forums...")
+        return APIResponse.create(service.getNMBForumList(), parseCommunities)
+    }
 
     suspend fun getThreads(fid: String, page: Int): APIResponse<List<Thread>> {
-        Timber.i("Downloading threads on Forum $fid...")
+        Timber.i("Downloading Threads on Forum $fid...")
         val call =
             if (fid == "-1") service.getNMBTimeLine(page)
             else service.getNMBThreads(fid, page)
         return APIResponse.create(call, parseThreads)
     }
 
-    private fun parseCommunities(response: ResponseBody): List<Community> {
-        return parser.fromJson(response.string(), object : TypeToken<List<Community>>() {}.type)
+    // TODO get with cookie
+    suspend fun getReplys(id: String, page: Int): APIResponse<Thread> {
+        Timber.i("Downloading Replys on Thread $id on Page $page...")
+        return APIResponse.create(service.getNMBReplys(id, page), parseReplys)
     }
 
-    private fun parseThreadsDeprecated(response: ResponseBody): List<Thread> {
-        return parser.fromJson(response.string(), object : TypeToken<List<Thread>>() {}.type)
+    suspend fun getFeeds(uuid: String, page: Int): APIResponse<List<Thread>> {
+        Timber.i("Downloading Feeds on Page $page...")
+        return APIResponse.create(service.getNMBFeeds(uuid, page), parseThreads)
     }
 
-    //     TODO: handle case where thread is deleted
-    suspend fun getFeeds(uuid: String, page: Int): List<Thread> {
-        try {
-            val rawResponse =
-                withContext(Dispatchers.IO) {
-                    Timber.i("Downloading Feeds on page $page...")
-                    service.getNMBFeeds(uuid, page).execute().body()!!
-                }
-            return withContext(Dispatchers.Default) {
-                Timber.i("Parsing Feeds...")
-                parseThreadsDeprecated(rawResponse)
-            }
-        } catch (e: Exception) {
-            Timber.e(e, "Failed to get Feeds")
-            throw e
-        }
+    suspend fun getQuote(id: String): APIResponse<Reply> {
+        Timber.i("Downloading Quote $id...")
+        return APIResponse.create(service.getNMBQuote(id), parseQuote)
     }
 
+
+    // TODO: use APIResponse
     suspend fun addFeed(uuid: String, tid: String): String {
         try {
             return withContext(Dispatchers.IO) {
@@ -95,6 +86,7 @@ object NMBServiceClient {
         }
     }
 
+    // TODO: use APIResponse
     suspend fun delFeed(uuid: String, tid: String): String {
         try {
             return withContext(Dispatchers.IO) {
@@ -107,50 +99,7 @@ object NMBServiceClient {
         }
     }
 
-    // TODO: handle case where thread is deleted
-    suspend fun getReplys(id: String, page: Int): Thread {
-        try {
-            val rawResponse =
-                withContext(Dispatchers.IO) {
-                    Timber.i("Downloading replys on Thread $id...")
-                    service.getNMBReplys(id, page).execute().body()!!
-                }
-
-            return withContext(Dispatchers.Default) {
-                Timber.i("Parsing replys...")
-                parseReplys(rawResponse)
-            }
-        } catch (e: Exception) {
-            Timber.e(e, "Failed to get replys")
-            throw e
-        }
-    }
-
-    private fun parseReplys(response: ResponseBody): Thread {
-        return parser.fromJson(response.string(), Thread::class.java)
-    }
-
-    suspend fun getQuote(id: String): Reply {
-        try {
-            val rawResponse = withContext(Dispatchers.IO) {
-                Timber.i("Downloading quote $id...")
-                service.getNMBQuote(id).execute().body()!!
-            }
-            return withContext(Dispatchers.Default) {
-                Timber.i("Parsing quote")
-                parseQuote(rawResponse)
-            }
-        } catch (e: Exception) {
-            Timber.e(e, "Failed to get quote")
-            throw e
-        }
-    }
-
-    private fun parseQuote(response: ResponseBody): Reply {
-        return parser.fromJson(response.string(), Reply::class.java)
-    }
-
-
+    // TODO: use APIResponse
     suspend fun sendPost(
         newPost: Boolean,
         targetId: String, name: String?,

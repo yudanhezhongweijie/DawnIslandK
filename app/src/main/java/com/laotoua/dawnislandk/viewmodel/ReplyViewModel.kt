@@ -6,6 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.entity.Reply
 import com.laotoua.dawnislandk.data.entity.Thread
+import com.laotoua.dawnislandk.data.network.APIErrorResponse
+import com.laotoua.dawnislandk.data.network.APINoDataResponse
+import com.laotoua.dawnislandk.data.network.APISuccessResponse
 import com.laotoua.dawnislandk.data.network.NMBServiceClient
 import com.laotoua.dawnislandk.data.util.SingleLiveEvent
 import kotlinx.coroutines.Dispatchers
@@ -98,64 +101,73 @@ class ReplyViewModel : ViewModel() {
 
         viewModelScope.launch {
             val list = mutableListOf<Reply>()
+            when (val response = NMBServiceClient.getReplys(_currentThread!!.id, page)) {
+                // TODO thread deleted
+                is APINoDataResponse -> {
+                    Timber.e("APINoDataResponse: ${response.errorMessage}")
+                }
+                // TODO mostly network error
+                is APIErrorResponse -> {
+                    Timber.e("APIErrorResponse: ${response.errorMessage}")
+                }
+                is APISuccessResponse -> {
+                    val thread = response.data
+                    maxReply = thread.replyCount?.toInt() ?: 0
+                    list.addAll(thread.replys!!)
+                    /**
+                     *  w. cookie, responses have 20 reply w. ad, or 19 reply w/o ad
+                     *  w/o cookie, always have 20 reply w. ad
+                     *  MARK full page for next page load
+                     */
+                    fullPage =
+                        (list.size == 20 || (list.size == 19 && list.first().id != "9999999"))
 
-            // TODO: handle case where thread is deleted
-
-            try {
-                val thread = NMBServiceClient.getReplys(_currentThread!!.id, page)
-                maxReply = thread.replyCount?.toInt() ?: 0
-
-                list.addAll(thread.replys!!)
-                /**
-                 *  w. cookie, responses have 20 reply w. ad, or 19 reply w/o ad
-                 *  w/o cookie, always have 20 reply w. ad
-                 *  MARK full page for next page load
-                 */
-                fullPage = (list.size == 20 || (list.size == 19 && list.first().id != "9999999"))
-            } catch (e: Exception) {
-                Timber.e(e, "Reply api error")
-                _loadFail.postValue(true)
-                return@launch
-            }
-
-            // add thread to as first reply for page 1
-            if (page == 1) {
-                replyList.add(0, _currentThread!!.toReply())
-                // TODO: previous page & next page should be handled the same
-                if (direction == DIRECTION.PREVIOUS) previousPage.add(_currentThread!!.toReply())
-            }
-
-            val noDuplicates = list.filterNot { replyIds.contains(it.id) && it.id != "9999999" }
-
-            if ((noDuplicates.isNotEmpty() &&
-                        (noDuplicates.size > 1 || noDuplicates.first().id != "9999999"))
-                || page == 1
-            ) {
-                replyIds.addAll(noDuplicates.map { it.id })
-                Timber.i(
-                    "No duplicate reply size ${noDuplicates.size}, replyIds size ${replyIds.size}"
-                )
-
-                // add page to Reply
-                noDuplicates.apply { map { it.page = page } }
-                    .let {
-                        if (direction == DIRECTION.NEXT) {
-                            replyList.addAll(it)
-                        } else {
-                            val insertInd = if (page == 1) 1 else 0
-                            replyList.addAll(insertInd, it)
-                            // TODO: previous page & next page should be handled the same
-                            previousPage.addAll(it)
-                        }
+                    // add thread to as first reply for page 1
+                    if (page == 1) {
+                        replyList.add(0, _currentThread!!.toReply())
+                        // TODO: previous page & next page should be handled the same
+                        if (direction == DIRECTION.PREVIOUS) previousPage.add(_currentThread!!.toReply())
                     }
 
-                _reply.postValue(replyList)
+                    val noDuplicates =
+                        list.filterNot { replyIds.contains(it.id) && it.id != "9999999" }
 
-                Timber.i("CurrentPage: $page ReplyIds(w. ad, head): ${replyIds.size} replyList: ${replyList.size} replyCount: $maxReply")
-            } else {
-                Timber.i("Thread ${_currentThread!!.id} has no new replys.")
-                _loadEnd.postValue(true)
+                    if ((noDuplicates.isNotEmpty() &&
+                                (noDuplicates.size > 1 || noDuplicates.first().id != "9999999"))
+                        || page == 1
+                    ) {
+                        replyIds.addAll(noDuplicates.map { it.id })
+                        Timber.i(
+                            "No duplicate reply size ${noDuplicates.size}, replyIds size ${replyIds.size}"
+                        )
+
+                        // add page to Reply
+                        noDuplicates.apply { map { it.page = page } }
+                            .let {
+                                if (direction == DIRECTION.NEXT) {
+                                    replyList.addAll(it)
+                                } else {
+                                    val insertInd = if (page == 1) 1 else 0
+                                    replyList.addAll(insertInd, it)
+                                    // TODO: previous page & next page should be handled the same
+                                    previousPage.addAll(it)
+                                }
+                            }
+
+                        _reply.postValue(replyList)
+
+                        Timber.i("CurrentPage: $page ReplyIds(w. ad, head): ${replyIds.size} replyList: ${replyList.size} replyCount: $maxReply")
+                    } else {
+                        Timber.i("Thread ${_currentThread!!.id} has no new replys.")
+                        _loadEnd.postValue(true)
+                    }
+                }
+                else -> {
+                    Timber.e("unhandled API type response $response")
+                }
             }
+
+
         }
     }
 

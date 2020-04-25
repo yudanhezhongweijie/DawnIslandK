@@ -15,7 +15,7 @@ sealed class DataResource<T>(
                     Success(dataResponse.message, dataResponse.data)
                 }
                 else -> {
-                    Timber.e("${dataResponse.javaClass.simpleName}: ${dataResponse.message}")
+                    Timber.e("Unhandled ${dataResponse.javaClass.simpleName}: ${dataResponse.message}")
                     Error(dataResponse.message, dataResponse.data)
                 }
             }

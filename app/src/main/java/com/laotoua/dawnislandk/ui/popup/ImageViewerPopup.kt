@@ -55,9 +55,9 @@ class ImageViewerPopup(
 
         status.observe(caller, Observer {
             when (it) {
-                true -> Toast.makeText(context, "Image saved in Pictures/Dawn", Toast.LENGTH_SHORT)
+                true -> Toast.makeText(context, "图片保存在Pictures/Dawn", Toast.LENGTH_SHORT)
                     .show()
-                else -> Toast.makeText(context, "Error in saving image", Toast.LENGTH_SHORT).show()
+                else -> Toast.makeText(context, "保存图片发生错误", Toast.LENGTH_SHORT).show()
             }
         })
     }

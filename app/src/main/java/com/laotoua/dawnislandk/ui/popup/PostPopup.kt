@@ -303,6 +303,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
         findViewById<Button>(R.id.postCookie).setOnClickListener {
             if (!cookies.isNullOrEmpty()) {
+                hideKeyboardFrom(context, this)
                 XPopup.Builder(context)
                     .atView(it) // 依附于所点击的View，内部会自动判断在上方或者下方显示
                     .asAttachList(

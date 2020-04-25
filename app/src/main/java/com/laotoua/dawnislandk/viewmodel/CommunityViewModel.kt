@@ -37,7 +37,7 @@ class CommunityViewModel : ViewModel() {
                         _loadingStatus.postValue(
                             SingleLiveEvent.create(
                                 LoadingStatus.FAILED,
-                                message
+                                "无法读取板块列表...\n$message"
                             )
                         )
                     }

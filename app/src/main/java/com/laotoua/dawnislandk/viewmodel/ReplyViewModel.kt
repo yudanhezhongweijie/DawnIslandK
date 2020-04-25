@@ -74,11 +74,10 @@ class ReplyViewModel : ViewModel() {
         }
         val page = replyList.first().page!!.toInt()
         if (page == 1) {
-            Timber.i("Already first page")
             _loadingStatus.postValue(
                 SingleLiveEvent.create(
                     LoadingStatus.NODATA,
-                    "Already first page"
+                    "没有上一页了..."
 
                 )
             )
@@ -191,7 +190,7 @@ class ReplyViewModel : ViewModel() {
             NMBServiceClient.addFeed(uuid, id).run {
                 when (this) {
                     is APISuccessMessageResponse -> {
-                        if (this.messageType == MessageType.String) {
+                        if (messageType == MessageType.String) {
                             _addFeedResponse.postValue(
                                 SingleLiveEvent.create(
                                     LoadingStatus.SUCCESS,
@@ -199,13 +198,11 @@ class ReplyViewModel : ViewModel() {
                                 )
                             )
                         } else {
-                            Timber.i("FIXED ME???\nProbably already subscribed...")
                             Timber.e(message)
                         }
                     }
                     else -> {
-                        Timber.e("Response type: ${this.javaClass.simpleName}")
-                        Timber.e(message)
+                        Timber.e("Response type: ${this.javaClass.simpleName}\n $message")
                         _addFeedResponse.postValue(
                             SingleLiveEvent.create(
                                 LoadingStatus.FAILED,

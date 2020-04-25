@@ -13,7 +13,6 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class FeedViewModel : ViewModel() {
-    // TODO: Implement the ViewModel
     private val feedsList = mutableListOf<Thread>()
     private val feedsIds = mutableSetOf<String>()
     private var _feeds = MutableLiveData<List<Thread>>()
@@ -43,7 +42,6 @@ class FeedViewModel : ViewModel() {
                                 "无法读取订阅...\n$message"
                             )
                         )
-
                     }
                     is DataResource.Success -> {
                         convertFeedData(data!!)
@@ -80,10 +78,6 @@ class FeedViewModel : ViewModel() {
         Timber.i("Deleting Feed $id")
         viewModelScope.launch(Dispatchers.IO) {
             NMBServiceClient.delFeed(AppState.feedsId, id).run {
-                // TODO: check failure response
-                /** res:
-                 *  "\u53d6\u6d88\u8ba2\u9605\u6210\u529f!"
-                 */
                 when (this) {
                     is APISuccessMessageResponse -> {
                         _delFeedResponse.postValue(

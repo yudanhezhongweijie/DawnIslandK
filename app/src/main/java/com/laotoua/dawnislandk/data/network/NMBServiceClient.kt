@@ -12,7 +12,6 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import org.jsoup.Jsoup
 import retrofit2.Retrofit
 import timber.log.Timber
 import java.io.File
@@ -81,51 +80,45 @@ object NMBServiceClient {
         return APIMessageResponse.create(service.delNMBFeed(uuid, tid))
     }
 
-    // TODO: use APIResponse
     suspend fun sendPost(
         newPost: Boolean,
         targetId: String, name: String?,
         email: String?, title: String?,
         content: String?, water: String?,
         image: File?, userhash: String
-    ): String {
-        try {
-            return withContext(Dispatchers.IO) {
-                if (newPost) {
-                    Timber.i("Posting New Thread to $targetId...")
-                } else {
-                    Timber.i("Positing Reply to $targetId...")
-                }
-                var imagePart: MultipartBody.Part? = null
-                image?.run {
-                    asRequestBody(("image/${image.extension}").toMediaTypeOrNull()).run {
-                        imagePart = MultipartBody.Part.createFormData("image", image.name, this)
-                    }
-                }
-                if (newPost) {
-                    service.postThread(
-                        targetId.toRequestBody(), name?.toRequestBody(),
-                        email?.toRequestBody(), title?.toRequestBody(),
-                        content?.toRequestBody(), water?.toRequestBody(),
-                        imagePart,
-                        "userhash=$userhash"
-                    )
-                } else {
-                    service.postReply(
-                        targetId.toRequestBody(), name?.toRequestBody(),
-                        email?.toRequestBody(), title?.toRequestBody(),
-                        content?.toRequestBody(), water?.toRequestBody(),
-                        imagePart,
-                        "userhash=$userhash"
-                    )
-                }.execute().body()!!.string().run {
-                    Jsoup.parse(this).getElementsByClass("system-message")
-                        .first().children().not(".jump").text()
+    ): APIMessageResponse {
+        return withContext(Dispatchers.IO) {
+            if (newPost) {
+                Timber.i("Posting New Thread to $targetId...")
+            } else {
+                Timber.i("Positing Reply to $targetId...")
+            }
+            var imagePart: MultipartBody.Part? = null
+            image?.run {
+                asRequestBody(("image/${image.extension}").toMediaTypeOrNull()).run {
+                    imagePart = MultipartBody.Part.createFormData("image", image.name, this)
                 }
             }
-        } catch (e: Exception) {
-            Timber.e(e, "Reply did not succeeded...")
-            throw e
+            val call = if (newPost) {
+                service.postThread(
+                    targetId.toRequestBody(), name?.toRequestBody(),
+                    email?.toRequestBody(), title?.toRequestBody(),
+                    content?.toRequestBody(), water?.toRequestBody(),
+                    imagePart,
+                    "userhash=$userhash"
+                )
+            } else {
+                service.postReply(
+                    targetId.toRequestBody(), name?.toRequestBody(),
+                    email?.toRequestBody(), title?.toRequestBody(),
+                    content?.toRequestBody(), water?.toRequestBody(),
+                    imagePart,
+                    "userhash=$userhash"
+                )
+            }
+            APIMessageResponse.create(call)
         }
     }
+
+
 }

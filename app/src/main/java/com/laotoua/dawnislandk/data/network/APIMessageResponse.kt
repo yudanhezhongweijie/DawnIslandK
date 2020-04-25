@@ -77,15 +77,13 @@ class APIEmptyMessageResponse(
 data class APIErrorMessageResponse(
     override val message: String,
     val dom: Document? = null
-) :
-    APIMessageResponse()
+) : APIMessageResponse()
 
 data class APISuccessMessageResponse(
     val messageType: MessageType,
     override val message: String,
     val dom: Document? = null
-) :
-    APIMessageResponse()
+) : APIMessageResponse()
 
 enum class MessageType {
     HTML,

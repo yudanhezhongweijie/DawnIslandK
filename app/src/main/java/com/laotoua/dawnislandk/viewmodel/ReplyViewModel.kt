@@ -9,7 +9,6 @@ import com.laotoua.dawnislandk.data.entity.Thread
 import com.laotoua.dawnislandk.data.network.APISuccessMessageResponse
 import com.laotoua.dawnislandk.data.network.MessageType
 import com.laotoua.dawnislandk.data.network.NMBServiceClient
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -188,9 +187,8 @@ class ReplyViewModel : ViewModel() {
     // TODO: do not send request if subscribe already
     fun addFeed(uuid: String, id: String) {
         Timber.i("Adding Feed $id")
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             NMBServiceClient.addFeed(uuid, id).run {
-                Timber.i("res $this")
                 when (this) {
                     is APISuccessMessageResponse -> {
                         if (this.messageType == MessageType.String) {
@@ -201,7 +199,6 @@ class ReplyViewModel : ViewModel() {
                                 )
                             )
                         } else {
-                            // Probably already subscribed...
                             Timber.i("FIXED ME???\nProbably already subscribed...")
                             Timber.e(message)
                         }

@@ -1,7 +1,7 @@
 package com.laotoua.dawnislandk.viewmodel
 
-import com.laotoua.dawnislandk.data.network.APIResponse
-import com.laotoua.dawnislandk.data.network.APISuccessResponse
+import com.laotoua.dawnislandk.data.network.APIDataResponse
+import com.laotoua.dawnislandk.data.network.APISuccessDataResponse
 import timber.log.Timber
 
 sealed class DataResource<T>(
@@ -9,14 +9,14 @@ sealed class DataResource<T>(
     val data: T?
 ) {
     companion object {
-        fun <T> create(response: APIResponse<T>): DataResource<T> {
-            return when (response) {
-                is APISuccessResponse -> {
-                    Success(response.message, response.data)
+        fun <T> create(dataResponse: APIDataResponse<T>): DataResource<T> {
+            return when (dataResponse) {
+                is APISuccessDataResponse -> {
+                    Success(dataResponse.message, dataResponse.data)
                 }
                 else -> {
-                    Timber.e("${response.javaClass.simpleName}: ${response.message}")
-                    Error(response.message, response.data)
+                    Timber.e("${dataResponse.javaClass.simpleName}: ${dataResponse.message}")
+                    Error(dataResponse.message, dataResponse.data)
                 }
             }
         }

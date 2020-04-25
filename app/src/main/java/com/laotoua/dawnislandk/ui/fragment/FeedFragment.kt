@@ -89,7 +89,9 @@ class FeedFragment : Fragment() {
         viewModel.delFeedResponse.observe(viewLifecycleOwner, Observer { it ->
             it.getContentIfNotHandled()?.let { eventPayload ->
                 Toast.makeText(context, eventPayload.message, Toast.LENGTH_SHORT).show()
-                mAdapter.remove(eventPayload.payload!!)
+                if (eventPayload.loadingStatus == LoadingStatus.SUCCESS) mAdapter.remove(
+                    eventPayload.payload!!
+                )
             }
         })
         mAdapter.addChildClickViewIds(R.id.threadImage)

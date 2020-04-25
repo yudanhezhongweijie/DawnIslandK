@@ -6,8 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.entity.Reply
 import com.laotoua.dawnislandk.data.entity.Thread
-import com.laotoua.dawnislandk.data.network.APIErrorResponse
-import com.laotoua.dawnislandk.data.network.APISuccessResponse
+import com.laotoua.dawnislandk.data.network.APISuccessMessageResponse
+import com.laotoua.dawnislandk.data.network.MessageType
 import com.laotoua.dawnislandk.data.network.NMBServiceClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -190,21 +190,29 @@ class ReplyViewModel : ViewModel() {
         Timber.i("Adding Feed $id")
         viewModelScope.launch(Dispatchers.IO) {
             NMBServiceClient.addFeed(uuid, id).run {
+                Timber.i("res $this")
                 when (this) {
-                    is APISuccessResponse -> {
-                        _addFeedResponse.postValue(
-                            SingleLiveEvent.create(
-                                LoadingStatus.SUCCESS,
-                                data
+                    is APISuccessMessageResponse -> {
+                        if (this.messageType == MessageType.String) {
+                            _addFeedResponse.postValue(
+                                SingleLiveEvent.create(
+                                    LoadingStatus.SUCCESS,
+                                    message
+                                )
                             )
-                        )
+                        } else {
+                            // Probably already subscribed...
+                            Timber.i("FIXED ME???\nProbably already subscribed...")
+                            Timber.e(message)
+                        }
                     }
-                    is APIErrorResponse -> {
+                    else -> {
+                        Timber.e("Response type: ${this.javaClass.simpleName}")
                         Timber.e(message)
                         _addFeedResponse.postValue(
                             SingleLiveEvent.create(
                                 LoadingStatus.FAILED,
-                                "订阅失败"
+                                "订阅失败...是不是已经订阅了呢?"
                             )
                         )
                     }

@@ -16,6 +16,7 @@ import com.laotoua.dawnislandk.ui.adapter.QuickNodeAdapter
 import com.laotoua.dawnislandk.ui.util.ToolbarUtil.updateAppBarByFragment
 import com.laotoua.dawnislandk.ui.util.ToolbarUtil.updateAppBarTitleWithinFragment
 import com.laotoua.dawnislandk.viewmodel.CommunityViewModel
+import com.laotoua.dawnislandk.viewmodel.LoadingStatus
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -78,9 +79,10 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
             sharedVM.setForumNameMapping(communityVM.getForumNameMapping())
         })
 
-        communityVM.loadFail.observe(this, Observer {
-            if (it == true) {
-                Toast.makeText(this, "无法读取板块列表...", Toast.LENGTH_LONG).show()
+        communityVM.loadingStatus.observe(this, Observer {
+            if (it.getContentIfNotHandled()?.loadingStatus == LoadingStatus.FAILED) {
+                Toast.makeText(this, "无法读取板块列表...\n${it.peekContent().message}", Toast.LENGTH_LONG)
+                    .show()
             }
         })
 

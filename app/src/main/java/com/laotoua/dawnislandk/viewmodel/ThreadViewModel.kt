@@ -19,37 +19,54 @@ class ThreadViewModel : ViewModel() {
     private var _currentForum: Forum? = null
     val currentForum: Forum? get() = _currentForum
     private var pageCount = 1
-    private var _loadFail = MutableLiveData(false)
-    val loadFail: LiveData<Boolean>
-        get() = _loadFail
+
+    private var _loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
+    val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>>
+        get() = _loadingStatus
 
     fun getThreads() {
         viewModelScope.launch {
-            try {
-                val fid = _currentForum?.id ?: "-1"
-                Timber.i("Getting threads from $fid ${_currentForum?.name ?: "时间线(default)"}")
-                val list = NMBServiceClient.getThreads(fid, pageCount)
-                val noDuplicates = list.filterNot { threadIds.contains(it.id) }
-                if (noDuplicates.isNotEmpty()) {
-                    threadIds.addAll(noDuplicates.map { it.id })
-                    Timber.i(
-                        "New thread + ads has size of ${noDuplicates.size}, threadIds size ${threadIds.size}"
-                    )
-                    threadList.addAll(noDuplicates)
-                    Timber.i(
-                        "Forum ${currentForum?.name} now have ${threadList.size} threads"
-                    )
-                    _thread.postValue(threadList)
-                    _loadFail.postValue(false)
-                    pageCount += 1
-                } else {
-                    Timber.i("Forum ${currentForum?.getDisplayName()} has no new threads.")
-                    _loadFail.postValue(true)
+            val fid = _currentForum?.id ?: "-1"
+            Timber.i("Getting threads from $fid ${_currentForum?.name} on page $pageCount")
+            DataResource.create(NMBServiceClient.getThreads(fid, pageCount)).run {
+                when (this) {
+                    is DataResource.Error -> {
+                        Timber.e(message)
+                        _loadingStatus.postValue(
+                            SingleLiveEvent.create(
+                                LoadingStatus.FAILED,
+                                "无法读取串列表...\n$message"
+                            )
+                        )
+                    }
+                    is DataResource.Success -> {
+                        convertServerData(data!!, fid)
+                    }
                 }
-            } catch (e: Exception) {
-                Timber.e(e, "failed to get threads")
-                _loadFail.postValue(true)
             }
+
+        }
+    }
+
+    private fun convertServerData(data: List<Thread>, fid: String) {
+        // assign fid if not timeline
+        if (fid != "-1") data.map { it.fid = fid }
+        val noDuplicates = data.filterNot { threadIds.contains(it.id) }
+        if (noDuplicates.isNotEmpty()) {
+            threadIds.addAll(noDuplicates.map { it.id })
+            Timber.i(
+                "New thread + ads has size of ${noDuplicates.size}, threadIds size ${threadIds.size}"
+            )
+            threadList.addAll(noDuplicates)
+            Timber.i(
+                "Forum ${currentForum?.name} now have ${threadList.size} threads"
+            )
+            _thread.postValue(threadList)
+            pageCount += 1
+        } else {
+            val message = "Forum ${currentForum?.getDisplayName()} has no new threads."
+            Timber.i(message)
+            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.FAILED, message))
         }
     }
 
@@ -63,5 +80,4 @@ class ThreadViewModel : ViewModel() {
         pageCount = 1
         getThreads()
     }
-
 }

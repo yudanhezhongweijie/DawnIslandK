@@ -17,39 +17,52 @@ class CommunityViewModel : ViewModel() {
     private var _communityList = MutableLiveData<List<Community>>()
     val communityList: LiveData<List<Community>>
         get() = _communityList
-    private var _loadFail = MutableLiveData(false)
-    val loadFail: LiveData<Boolean>
-        get() = _loadFail
+
+    private var _loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
+    val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>>
+        get() = _loadingStatus
 
     init {
         // TODO added repository
         loadCommunitiesFromDB()
         getCommunitiesFromServer()
     }
+
     private fun getCommunitiesFromServer() {
         viewModelScope.launch {
-            try {
-                val list = NMBServiceClient.getCommunities()
-                Timber.i("Downloaded communities size ${list.size}")
-                if (list.isEmpty()) {
-                    Timber.d("Didn't get communities from API")
-                    return@launch
+            DataResource.create(NMBServiceClient.getCommunities()).run {
+                when (this) {
+                    is DataResource.Error -> {
+                        Timber.e(message)
+                        _loadingStatus.postValue(
+                            SingleLiveEvent.create(
+                                LoadingStatus.FAILED,
+                                message
+                            )
+                        )
+                    }
+                    is DataResource.Success -> {
+                        convertServerData(data!!)
+                    }
                 }
-
-                if (list != communityList.value) {
-                    Timber.i("Community list has changed. updating...")
-                    _communityList.postValue(list)
-                    _loadFail.postValue(false)
-
-                    // save to local db
-                    saveCommunitiesToDB(list)
-                } else {
-                    Timber.i("Community list is the same as Db. Reusing...")
-                }
-            } catch (e: Exception) {
-                Timber.e(e, "failed to get communities")
-                _loadFail.postValue(true)
             }
+        }
+    }
+
+    private fun convertServerData(data: List<Community>) {
+        Timber.i("Downloaded communities size ${data.size}")
+        if (data.isEmpty()) {
+            Timber.d("API returns empty response")
+            return
+        }
+        if (data != communityList.value) {
+            Timber.i("Community list has changed. updating...")
+            _communityList.postValue(data)
+
+            // save to local db
+            viewModelScope.launch { saveCommunitiesToDB(data) }
+        } else {
+            Timber.i("Community list is the same as Db. Reusing...")
         }
     }
 
@@ -74,7 +87,6 @@ class CommunityViewModel : ViewModel() {
         return communityList.value?.flatMap { it.forums }?.associateBy(
             keySelector = { it.id },
             valueTransform = { it.name }) ?: mapOf()
-
     }
 
     fun refresh() {

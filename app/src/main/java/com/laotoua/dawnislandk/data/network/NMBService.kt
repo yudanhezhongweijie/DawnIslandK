@@ -14,13 +14,13 @@ interface NMBService {
     fun getNMBThreads(@Query("id") fid: String, @Query("page") page: Int): Call<ResponseBody>
 
     @GET("Api/feed")
-    fun getNMBFeeds(@Query("uuid") fid: String, @Query("page") page: Int): Call<ResponseBody>
+    fun getNMBFeeds(@Query("uuid") uuid: String, @Query("page") page: Int): Call<ResponseBody>
 
     @GET("Api/addFeed")
-    fun addNMBFeed(@Query("uuid") fid: String, @Query("tid") id: String): Call<ResponseBody>
+    fun addNMBFeed(@Query("uuid") uuid: String, @Query("tid") tid: String): Call<ResponseBody>
 
     @GET("Api/delFeed")
-    fun delNMBFeed(@Query("uuid") fid: String, @Query("tid") id: String): Call<ResponseBody>
+    fun delNMBFeed(@Query("uuid") uuid: String, @Query("tid") tid: String): Call<ResponseBody>
 
     @GET("Api/timeline")
     fun getNMBTimeLine(@Query("page") page: Int): Call<ResponseBody>

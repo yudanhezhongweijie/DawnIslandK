@@ -16,6 +16,7 @@ import com.laotoua.dawnislandk.data.entity.Reply
 import com.laotoua.dawnislandk.data.network.ImageLoader
 import com.laotoua.dawnislandk.data.network.NMBServiceClient
 import com.laotoua.dawnislandk.ui.util.*
+import com.laotoua.dawnislandk.viewmodel.DataResource
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.CenterPopupView
 import com.lxj.xpopup.interfaces.SimpleCallback
@@ -147,22 +148,32 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
             po: String
         ) {
             caller.lifecycleScope.launch {
-                try {
-                    val reply = NMBServiceClient.getQuote(id)
-                    XPopup.Builder(context)
-                        .setPopupCallback(object : SimpleCallback() {
-                            override fun beforeShow() {
-                                super.beforeShow()
-                                quotePopup.convertReply(reply, po)
-                            }
-                        })
-                        .asCustom(quotePopup)
-                        .show()
-                } catch (e: Exception) {
-                    Timber.e(e, "Failed to get quote..")
-                    Toast.makeText(context, "无法读取引用...", Toast.LENGTH_SHORT).show()
+                DataResource.create(NMBServiceClient.getQuote(id)).run {
+                    when (this) {
+                        is DataResource.Error -> {
+                            Toast.makeText(
+                                context,
+                                "${message}...",
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                        }
+                        is DataResource.Success -> {
+                            XPopup.Builder(context)
+                                .setPopupCallback(object : SimpleCallback() {
+                                    override fun beforeShow() {
+                                        super.beforeShow()
+                                        quotePopup.convertReply(data!!, po)
+                                    }
+                                })
+                                .asCustom(quotePopup)
+                                .show()
+                        }
+                    }
+
                 }
             }
         }
     }
+
 }

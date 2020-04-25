@@ -5,12 +5,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.entity.Thread
+import com.laotoua.dawnislandk.data.network.APIErrorResponse
+import com.laotoua.dawnislandk.data.network.APINoDataResponse
 import com.laotoua.dawnislandk.data.network.NMBServiceClient
 import com.laotoua.dawnislandk.data.state.AppState
-import com.laotoua.dawnislandk.data.util.SingleLiveEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.apache.commons.text.StringEscapeUtils
 import timber.log.Timber
 
 class FeedViewModel : ViewModel() {
@@ -19,13 +19,13 @@ class FeedViewModel : ViewModel() {
     private val feedsIds = mutableSetOf<String>()
     private var _feeds = MutableLiveData<List<Thread>>()
     val feeds: LiveData<List<Thread>> get() = _feeds
-    private var pageCount = 1
-    private var _loadFail = MutableLiveData<Boolean>()
-    val loadFail: LiveData<Boolean>
-        get() = _loadFail
+    private var page = 1
+    private var _loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
+    val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>>
+        get() = _loadingStatus
 
-    private val _delFeedResponse = MutableLiveData<SingleLiveEvent<Pair<String, Int>>>()
-    val delFeedResponse: LiveData<SingleLiveEvent<Pair<String, Int>>> get() = _delFeedResponse
+    private val _delFeedResponse = MutableLiveData<SingleLiveEvent<EventPayload<Int>>>()
+    val delFeedResponse: LiveData<SingleLiveEvent<EventPayload<Int>>> get() = _delFeedResponse
 
     init {
         getFeeds()
@@ -33,27 +33,47 @@ class FeedViewModel : ViewModel() {
 
     fun getFeeds() {
         viewModelScope.launch {
-            try {
-                Timber.i("Getting Feeds...")
-                val list = NMBServiceClient.getFeeds(AppState.feedsId, pageCount)
-                val noDuplicates = list.filterNot { feedsIds.contains(it.id) }
-                if (noDuplicates.isNotEmpty()) {
-                    feedsIds.addAll(noDuplicates.map { it.id })
-                    feedsList.addAll(noDuplicates)
-                    Timber.i(
-                        "feedsList now have ${feedsList.size} feeds"
-                    )
-                    _feeds.postValue(feedsList)
-                    _loadFail.postValue(false)
-                    if (feedsList.size % 10 == 0) pageCount += 1
-                } else {
-                    Timber.i("feedsList has no new feeds.")
-                    _loadFail.postValue(true)
+            Timber.i("Downloading Feeds on page $page")
+            DataResource.create(NMBServiceClient.getFeeds(AppState.feedsId, page)).run {
+                when (this) {
+                    is DataResource.Error -> {
+                        Timber.e(message)
+                        _loadingStatus.postValue(
+                            SingleLiveEvent.create(
+                                LoadingStatus.FAILED,
+                                "无法读取订阅...\n$message"
+                            )
+                        )
+
+                    }
+                    is DataResource.Success -> {
+                        convertFeedData(data!!)
+                    }
                 }
-            } catch (e: Exception) {
-                Timber.e(e, "failed to get feeds")
-                _loadFail.postValue(true)
             }
+        }
+    }
+
+    private fun convertFeedData(data: List<Thread>) {
+        val noDuplicates = data.filterNot { feedsIds.contains(it.id) }
+        if (noDuplicates.isNotEmpty()) {
+            feedsIds.addAll(noDuplicates.map { it.id })
+            feedsList.addAll(noDuplicates)
+            Timber.i(
+                "feedsList now have ${feedsList.size} feeds"
+            )
+            _feeds.postValue(feedsList)
+
+            if (feedsList.size % 10 == 0) page += 1
+        } else {
+            Timber.i("feedsList has no new feeds.")
+            _loadingStatus.postValue(
+                SingleLiveEvent.create(
+                    LoadingStatus.NODATA,
+                    "feedsList has no new feeds."
+                )
+
+            )
         }
     }
 
@@ -65,17 +85,26 @@ class FeedViewModel : ViewModel() {
                 /** res:
                  *  "\u53d6\u6d88\u8ba2\u9605\u6210\u529f!"
                  */
-                val msg = StringEscapeUtils.unescapeJava(this.replace("\"", ""))
-                SingleLiveEvent(
-                    Pair(
-                        msg,
-                        position
-                    )
-                )
-                    .run {
-                    _delFeedResponse.postValue(this)
+                when (this) {
+                    is APINoDataResponse -> {
+                        _delFeedResponse.postValue(
+                            SingleLiveEvent.create(
+                                LoadingStatus.SUCCESS,
+                                message,
+                                position
+                            )
+                        )
+                    }
+                    is APIErrorResponse -> {
+                        Timber.e(message)
+                        _delFeedResponse.postValue(
+                            SingleLiveEvent.create(
+                                LoadingStatus.FAILED,
+                                "删除订阅失败"
+                            )
+                        )
+                    }
                 }
-
             }
         }
     }
@@ -83,7 +112,7 @@ class FeedViewModel : ViewModel() {
     fun refresh() {
         feedsList.clear()
         feedsIds.clear()
-        pageCount = 1
+        page = 1
         getFeeds()
     }
 }

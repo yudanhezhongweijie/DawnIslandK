@@ -143,13 +143,6 @@ class ReplyFragment : Fragment() {
                             Toast.LENGTH_LONG
                         ).show()
                     }
-                    LoadingStatus.SUCCESS -> {
-                        Toast.makeText(
-                            context,
-                            it.peekContent().message,
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
                     LoadingStatus.NODATA -> {
                         if (binding.refreshLayout.isRefreshing) {
                             binding.refreshLayout.refreshComplete(true)
@@ -160,7 +153,7 @@ class ReplyFragment : Fragment() {
                     }
                     else -> {
                         // do nothing
-                        Timber.e(this.loadingStatus.name)
+                        Timber.e("${this.loadingStatus.name} is not handled")
                     }
 
                 }

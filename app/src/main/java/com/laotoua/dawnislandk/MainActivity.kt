@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
 
         communityVM.loadingStatus.observe(this, Observer {
             if (it.getContentIfNotHandled()?.loadingStatus == LoadingStatus.FAILED) {
-                Toast.makeText(this, "无法读取板块列表...\n${it.peekContent().message}", Toast.LENGTH_LONG)
+                Toast.makeText(this, it.peekContent().message, Toast.LENGTH_LONG)
                     .show()
             }
         })

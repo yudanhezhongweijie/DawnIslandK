@@ -20,6 +20,8 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.entity.Cookie
+import com.laotoua.dawnislandk.data.network.APISuccessMessageResponse
+import com.laotoua.dawnislandk.data.network.MessageType
 import com.laotoua.dawnislandk.data.network.NMBServiceClient
 import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.io.FragmentIntentUtil
@@ -301,6 +303,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
         findViewById<Button>(R.id.postCookie).setOnClickListener {
             if (!cookies.isNullOrEmpty()) {
+                hideKeyboardFrom(context, this)
                 XPopup.Builder(context)
                     .atView(it) // 依附于所点击的View，内部会自动判断在上方或者下方显示
                     .asAttachList(
@@ -480,19 +483,31 @@ class PostPopup(private val caller: Fragment, context: Context) :
             ).run {
                 // TODO
 //                clearEntries()
+
+                val message = when (this) {
+                    is APISuccessMessageResponse -> {
+                        if (this.messageType == MessageType.String) {
+                            message
+                        } else {
+                            dom!!.getElementsByClass("system-message")
+                                .first().children().not(".jump").text()
+                        }
+                    }
+                    else -> {
+                        Timber.e("Response type: ${this.javaClass.simpleName}")
+                        Timber.e(message)
+                        message
+                    }
+                }
                 dismiss()
-                Toast.makeText(caller.context, this, Toast.LENGTH_LONG).show()
+                Toast.makeText(caller.context, message, Toast.LENGTH_LONG).show()
             }
-
         }
-
     }
 
-    private fun hideKeyboardFrom(
-        context: Context,
-        view: View
-    ) {
+    private fun hideKeyboardFrom(context: Context, view: View) {
         (context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager)
             .hideSoftInputFromWindow(view.windowToken, 0)
+
     }
 }

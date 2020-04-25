@@ -5,8 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.entity.Thread
-import com.laotoua.dawnislandk.data.network.APIErrorResponse
-import com.laotoua.dawnislandk.data.network.APINoDataResponse
+import com.laotoua.dawnislandk.data.network.APISuccessMessageResponse
 import com.laotoua.dawnislandk.data.network.NMBServiceClient
 import com.laotoua.dawnislandk.data.state.AppState
 import kotlinx.coroutines.Dispatchers
@@ -14,7 +13,6 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class FeedViewModel : ViewModel() {
-    // TODO: Implement the ViewModel
     private val feedsList = mutableListOf<Thread>()
     private val feedsIds = mutableSetOf<String>()
     private var _feeds = MutableLiveData<List<Thread>>()
@@ -44,7 +42,6 @@ class FeedViewModel : ViewModel() {
                                 "无法读取订阅...\n$message"
                             )
                         )
-
                     }
                     is DataResource.Success -> {
                         convertFeedData(data!!)
@@ -81,12 +78,8 @@ class FeedViewModel : ViewModel() {
         Timber.i("Deleting Feed $id")
         viewModelScope.launch(Dispatchers.IO) {
             NMBServiceClient.delFeed(AppState.feedsId, id).run {
-                // TODO: check failure response
-                /** res:
-                 *  "\u53d6\u6d88\u8ba2\u9605\u6210\u529f!"
-                 */
                 when (this) {
-                    is APINoDataResponse -> {
+                    is APISuccessMessageResponse -> {
                         _delFeedResponse.postValue(
                             SingleLiveEvent.create(
                                 LoadingStatus.SUCCESS,
@@ -95,7 +88,8 @@ class FeedViewModel : ViewModel() {
                             )
                         )
                     }
-                    is APIErrorResponse -> {
+                    else -> {
+                        Timber.e("Response type: ${this.javaClass.simpleName}")
                         Timber.e(message)
                         _delFeedResponse.postValue(
                             SingleLiveEvent.create(

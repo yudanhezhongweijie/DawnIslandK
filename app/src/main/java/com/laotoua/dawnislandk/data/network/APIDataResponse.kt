@@ -7,7 +7,7 @@ import org.apache.commons.text.StringEscapeUtils
 import retrofit2.Call
 import timber.log.Timber
 
-sealed class APIResponse<out T> {
+sealed class APIDataResponse<out T> {
     abstract val message: String
     abstract val data: T?
 
@@ -15,7 +15,7 @@ sealed class APIResponse<out T> {
         suspend fun <T> create(
             call: Call<ResponseBody>,
             parser: ((String) -> T)
-        ): APIResponse<T> {
+        ): APIDataResponse<T> {
             try {
                 val response = withContext(Dispatchers.IO) { call.execute() }
 
@@ -23,18 +23,18 @@ sealed class APIResponse<out T> {
                     val body = response.body()
                     body?.close()
                     if (body == null || response.code() == 204) {
-                        return APIEmptyResponse()
+                        return APIEmptyDataResponse()
                     }
                     val resBody = withContext(Dispatchers.IO) { body.string() }
 
                     return withContext(Dispatchers.Default) {
                         try {
                             Timber.i("Trying to parse response with supplied parser...")
-                            APISuccessResponse("Parse success", parser(resBody))
+                            APISuccessDataResponse("Parse success", parser(resBody))
                         } catch (e: Exception) {
                             // server returns non json string
                             Timber.i("Response is non JSON data...")
-                            APINoDataResponse<Nothing>(
+                            APIBlankDataResponse<Nothing>(
                                 StringEscapeUtils.unescapeJava(
                                     resBody.replace("\"", "")
                                 )
@@ -52,11 +52,11 @@ sealed class APIResponse<out T> {
                         msg
                     }
                     Timber.e(errorMsg)
-                    APIErrorResponse<Nothing>(errorMsg ?: "unknown error")
+                    APIErrorDataResponse<Nothing>(errorMsg ?: "unknown error")
                 }
             } catch (e: Exception) {
                 Timber.e(e)
-                return APIErrorResponse<Nothing>(e.toString())
+                return APIErrorDataResponse<Nothing>(e.toString())
             }
         }
     }
@@ -65,16 +65,22 @@ sealed class APIResponse<out T> {
 /**
  * separate class for HTTP 204 responses so that we can make ApiSuccessResponse's body non-null.
  */
-class APIEmptyResponse<T>(
+class APIEmptyDataResponse<T>(
     override val message: String = "EmptyResponse",
     override val data: Nothing? = null
-) : APIResponse<T>()
+) : APIDataResponse<T>()
 
-data class APINoDataResponse<T>(override val message: String, override val data: Nothing? = null) :
-    APIResponse<T>()
+data class APIBlankDataResponse<T>(
+    override val message: String,
+    override val data: Nothing? = null
+) :
+    APIDataResponse<T>()
 
-data class APIErrorResponse<T>(override val message: String, override val data: Nothing? = null) :
-    APIResponse<T>()
+data class APIErrorDataResponse<T>(
+    override val message: String,
+    override val data: Nothing? = null
+) :
+    APIDataResponse<T>()
 
-data class APISuccessResponse<T>(override val message: String, override val data: T) :
-    APIResponse<T>()
+data class APISuccessDataResponse<T>(override val message: String, override val data: T) :
+    APIDataResponse<T>()

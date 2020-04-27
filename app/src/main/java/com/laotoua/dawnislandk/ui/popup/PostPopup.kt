@@ -96,6 +96,21 @@ class PostPopup(private val caller: Fragment, context: Context) :
     private var keyboardHeight = -1
     private var keyboardHolder: LinearLayout? = null
 
+    private val postProgress by lazy {
+        XPopup.Builder(getContext())
+            .asLoading("正在发送中")
+    }
+
+    // default button background
+    private val btnBackground by lazy {
+        TypedValue().apply {
+            context.theme
+                .resolveAttribute(android.R.attr.selectableItemBackground, this, true)
+        }.resourceId
+    }
+
+    private var progressBar: ProgressBar? = null
+
     private fun updateTitle(targetId: String, newPost: Boolean) {
         findViewById<TextView>(R.id.postTitle).text = if (newPost) "发布新串" else "回复 >> No. $targetId"
     }
@@ -168,14 +183,6 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
     override fun onCreate() {
         super.onCreate()
-
-        val outValue = TypedValue().apply {
-            context.theme
-                .resolveAttribute(android.R.attr.selectableItemBackground, this, true)
-        }
-
-        val btnBackground = outValue.resourceId
-
         postContent = findViewById(R.id.postContent)
 
         toggleContainers = findViewById<ConstraintLayout>(R.id.toggleContainers).also {
@@ -183,59 +190,11 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
             // add faces
             facesContainer = findViewById(R.id.facesContainer)
-            (facesContainer!!.getChildAt(0) as FlexboxLayout).let { flexBox ->
-                resources.getStringArray(R.array.NMBFaces).map {
-                    MaterialButton(
-                        context,
-                        null,
-                        R.style.Widget_MaterialComponents_Button_TextButton
-                    ).run {
-                        // clear color filled background
-                        setBackgroundResource(btnBackground)
-                        textAlignment = View.TEXT_ALIGNMENT_CENTER
-                        text = it
-                        setOnClickListener {
-                            postContent!!.append(text)
-                        }
-                        flexBox.addView(this)
-                        val lp = layoutParams as FlexboxLayout.LayoutParams
-                        lp.flexBasisPercent = 0.2f
-                        lp.setMargins(0, 2, 0, 2)
-                        layoutParams = lp
-                    }
-                }
-            }
 
             // add luwei
             luweiContainer = findViewById(R.id.luweiContainer)
-            (luweiContainer!!.getChildAt(0) as FlexboxLayout).let { flexBox ->
-                resources.getStringArray(R.array.LuweiEmojis).map { emojiId ->
-                    val resourceId: Int = context.resources.getIdentifier(
-                        emojiId, "drawable",
-                        context.packageName
-                    )
-                    ImageView(context).run {
-                        setImageResource(resourceId)
-                        setBackgroundResource(btnBackground)
-                        layoutParams = LayoutParams(150, 150)
-                        setOnClickListener {
-                            try {
-                                imageFile =
-                                    ImageUtil.getFileFromDrawable(caller, emojiId, resourceId)
-                                postImagePreview!!.setImageResource(resourceId)
-                                attachmentContainer!!.visibility = View.VISIBLE
-                            } catch (e: Exception) {
-                                Timber.e(e)
-                            }
-                        }
-                        flexBox.addView(this)
-                        val lp = layoutParams as FlexboxLayout.LayoutParams
-                        lp.flexBasisPercent = 0.2f
-                        lp.setMargins(0, 2, 0, 2)
-                        layoutParams = lp
-                    }
-                }
-            }
+
+            progressBar = findViewById(R.id.progressBar)
 
             keyboardHolder = findViewById(R.id.keyboardHolder)
         }
@@ -274,6 +233,15 @@ class PostPopup(private val caller: Fragment, context: Context) :
                     R.id.postFace -> {
                         hideKeyboardFrom(context, this)
                         facesContainer!!.visibility = if (isChecked) View.VISIBLE else View.GONE
+                        (facesContainer!!.getChildAt(0) as FlexboxLayout).let { flexBox ->
+                            if (flexBox.childCount == 0) {
+                                progressBar!!.visibility = View.VISIBLE
+                                caller.lifecycleScope.launch {
+                                    addFacesButtons(flexBox)
+                                    progressBar!!.visibility = View.GONE
+                                }
+                            }
+                        }
                     }
                     R.id.postAttachment -> {
                         hideKeyboardFrom(context, this)
@@ -285,6 +253,15 @@ class PostPopup(private val caller: Fragment, context: Context) :
                         hideKeyboardFrom(context, this)
                         luweiContainer!!.visibility =
                             if (isChecked) View.VISIBLE else View.GONE
+                        (luweiContainer!!.getChildAt(0) as FlexboxLayout).let { flexBox ->
+                            if (flexBox.childCount == 0) {
+                                progressBar!!.visibility = View.VISIBLE
+                                caller.lifecycleScope.launch {
+                                    addLuweiButtons(flexBox)
+                                    progressBar!!.visibility = View.GONE
+                                }
+                            }
+                        }
                     }
                     // TODO: doodle
                     R.id.postDoodle -> {
@@ -452,12 +429,12 @@ class PostPopup(private val caller: Fragment, context: Context) :
         findViewById<MaterialButtonToggleGroup>(R.id.toggleButtonGroup).clearChecked()
     }
 
-    // TODO: post new thread
     private fun send() {
         if (selectedCookie == null) {
             Toast.makeText(caller.context, "没有饼干不能发串哦。。", Toast.LENGTH_SHORT).show()
             return
         }
+        postProgress.show()
         name = findViewById<TextView>(R.id.formName).text.toString()
         email = findViewById<TextView>(R.id.formEmail).text.toString()
         title = findViewById<TextView>(R.id.formTitle).text.toString()
@@ -465,8 +442,6 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
         hash = selectedCookie?.cookieHash ?: ""
 
-        // TODO: test
-        targetId = "17735544"
         // TODO: loading...
         // TODO: 值班室需要举报理由才能发送
         caller.lifecycleScope.launch {
@@ -481,7 +456,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
                 imageFile,
                 hash
             ).run {
-                // TODO
+                // TODO, need to confirm success
 //                clearEntries()
 
                 val message = when (this) {
@@ -499,6 +474,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
                         message
                     }
                 }
+                postProgress.dismiss()
                 dismiss()
                 Toast.makeText(caller.context, message, Toast.LENGTH_LONG).show()
             }
@@ -509,5 +485,57 @@ class PostPopup(private val caller: Fragment, context: Context) :
         (context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager)
             .hideSoftInputFromWindow(view.windowToken, 0)
 
+    }
+
+    private fun addFacesButtons(flexBox: FlexboxLayout) {
+        resources.getStringArray(R.array.NMBFaces).map {
+            MaterialButton(
+                context,
+                null,
+                R.style.Widget_MaterialComponents_Button_TextButton
+            ).run {
+                // clear color filled background
+                setBackgroundResource(btnBackground)
+                textAlignment = View.TEXT_ALIGNMENT_CENTER
+                text = it
+                setOnClickListener {
+                    postContent!!.append(text)
+                }
+                flexBox.addView(this)
+                val lp = layoutParams as FlexboxLayout.LayoutParams
+                lp.flexBasisPercent = 0.2f
+                lp.setMargins(0, 2, 0, 2)
+                layoutParams = lp
+            }
+        }
+    }
+
+    private fun addLuweiButtons(flexBox: FlexboxLayout) {
+        resources.getStringArray(R.array.LuweiEmojis).map { emojiId ->
+            val resourceId: Int = context.resources.getIdentifier(
+                emojiId, "drawable",
+                context.packageName
+            )
+            ImageView(context).run {
+                setImageResource(resourceId)
+                setBackgroundResource(btnBackground)
+                layoutParams = LayoutParams(150, 150)
+                setOnClickListener {
+                    try {
+                        imageFile =
+                            ImageUtil.getFileFromDrawable(caller, emojiId, resourceId)
+                        postImagePreview!!.setImageResource(resourceId)
+                        attachmentContainer!!.visibility = View.VISIBLE
+                    } catch (e: Exception) {
+                        Timber.e(e)
+                    }
+                }
+                flexBox.addView(this)
+                val lp = layoutParams as FlexboxLayout.LayoutParams
+                lp.flexBasisPercent = 0.2f
+                lp.setMargins(0, 2, 0, 2)
+                layoutParams = lp
+            }
+        }
     }
 }

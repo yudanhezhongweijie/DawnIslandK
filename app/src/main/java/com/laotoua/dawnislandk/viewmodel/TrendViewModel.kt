@@ -27,7 +27,11 @@ class TrendViewModel : ViewModel() {
     val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>>
         get() = _loadingStatus
 
-    fun getLatestTrend() {
+    init {
+        getLatestTrend()
+    }
+
+    private fun getLatestTrend() {
         viewModelScope.launch {
             getLatestTrendPage()
         }
@@ -78,6 +82,7 @@ class TrendViewModel : ViewModel() {
 
     private fun convertTrendData(trends: List<String>) {
         _trendList.postValue(trends.map { convertStringToTrend(it) })
+        _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))
     }
 
     /**
@@ -100,4 +105,9 @@ class TrendViewModel : ViewModel() {
         return Trend(rank, hits, forum, id, content)
     }
 
+    fun refresh() {
+        Timber.i("Refreshing Trend...")
+        page = 1
+        getLatestTrend()
+    }
 }

@@ -8,13 +8,14 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.laotoua.dawnislandk.R
+import com.laotoua.dawnislandk.data.entity.Trend
 import com.laotoua.dawnislandk.databinding.TrendFragmentBinding
 import com.laotoua.dawnislandk.ui.adapter.QuickAdapter
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 import com.laotoua.dawnislandk.viewmodel.TrendViewModel
-import timber.log.Timber
 
 class TrendFragment : Fragment() {
 
@@ -36,12 +37,11 @@ class TrendFragment : Fragment() {
         viewModel.getLatestTrend()
         // item click
         mAdapter.setOnItemClickListener { adapter, _, position ->
-            Timber.i("clicked on item $position")
-//            sharedVM.setThread(adapter.getItem(position) as Thread)
-//            val action =
-//                PagerFragmentDirections.actionPagerFragmentToReplyFragment()
-//            findNavController().navigate(action)
-
+            val target = adapter.getItem(position) as Trend
+            sharedVM.setThread(target.toThread(sharedVM.getForumIdByName(target.forum)))
+            val action =
+                PagerFragmentDirections.actionPagerFragmentToReplyFragment()
+            findNavController().navigate(action)
         }
 
         viewModel.trendList.observe(viewLifecycleOwner, Observer { list ->

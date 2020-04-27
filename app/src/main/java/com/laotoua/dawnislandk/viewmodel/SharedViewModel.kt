@@ -23,7 +23,6 @@ class SharedViewModel : ViewModel() {
         _currentFragment.postValue(fragment)
     }
 
-
     fun setForum(f: Forum) {
         Timber.i("set forum to id: ${f.id}")
         _selectedForum.postValue(f)
@@ -46,9 +45,8 @@ class SharedViewModel : ViewModel() {
         return forumNameMapping[id] ?: ""
     }
 
-    // TODO: support multiple Po
-    fun getPo(): String {
-        return selectedThread.value!!.userid
+    fun getForumIdByName(name: String): String {
+        return forumNameMapping.filter { (_, value) -> value == name }.keys.first()
     }
 
     fun generateAppbarTitle(): String {

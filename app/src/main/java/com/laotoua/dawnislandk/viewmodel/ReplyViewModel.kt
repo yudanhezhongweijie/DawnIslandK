@@ -22,9 +22,12 @@ class ReplyViewModel : ViewModel() {
     private var _reply = MutableLiveData<List<Reply>>()
     val reply: LiveData<List<Reply>> get() = _reply
 
-    var fullPage = false
+    private var fullPage = false
 
     private var maxReply = 0
+
+    private var _po: String = ""
+    val po get() = _po
 
     // TODO: previous page & next page should be handled the same
     var previousPage = mutableListOf<Reply>()
@@ -122,6 +125,10 @@ class ReplyViewModel : ViewModel() {
     }
 
     private fun convertServerData(data: Thread, page: Int, direction: DIRECTION) {
+        // update current thread with latest info
+        _currentThread = data
+        _po = data.userid
+
         val list = mutableListOf<Reply>()
         maxReply = data.replyCount?.toInt() ?: 0
         list.addAll(data.replys!!)

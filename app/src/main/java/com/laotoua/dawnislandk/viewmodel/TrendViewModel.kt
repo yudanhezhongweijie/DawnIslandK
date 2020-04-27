@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.entity.Thread
+import com.laotoua.dawnislandk.data.entity.Trend
 import com.laotoua.dawnislandk.data.network.NMBServiceClient
 import com.laotoua.dawnislandk.ui.util.extractQuote
 import kotlinx.coroutines.launch
@@ -16,8 +17,8 @@ class TrendViewModel : ViewModel() {
     private val po = "m9R9kaD"
     private val trendDelimiter = "\n\u2014\u2014\u2014\u2014\u2014<br />\n<br />\n"
 
-    private var _trendList = MutableLiveData<List<Map<String, String>>>()
-    val trendList: LiveData<List<Map<String, String>>> get() = _trendList
+    private var _trendList = MutableLiveData<List<Trend>>()
+    val trendList: LiveData<List<Trend>> get() = _trendList
 
     private val trendLength = 32
     var page = 1
@@ -88,15 +89,15 @@ class TrendViewModel : ViewModel() {
      *    <br />
      *    先说老王吧...<br />
      */
-    private fun convertStringToTrend(string: String): Map<String, String> {
-        val map = mutableMapOf<String, String>()
+    private fun convertStringToTrend(string: String): Trend {
         val rows = string.split("<br />")
         val headers = rows[0].split(" ")
-        map["trendRank"] = headers[0].removeSuffix(".")
-        map["trendHits"] = headers[2]
-        map["trendForum"] = headers[3].removeSurrounding("[", "]")
-        map["trendId"] = extractQuote(rows[1]).first()
-        map["trendContent"] = rows.subList(3, rows.lastIndex).joinToString("<br />")
-        return map
+        val rank = headers[0].removeSuffix(".")
+        val hits = headers[2]
+        val forum = headers[3].removeSurrounding("[", "]")
+        val id = extractQuote(rows[1]).first()
+        val content = rows.subList(3, rows.lastIndex).joinToString("<br />")
+        return Trend(rank, hits, forum, id, content)
     }
+
 }

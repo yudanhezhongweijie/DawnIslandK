@@ -119,7 +119,7 @@ class ReplyFragment : Fragment() {
                     view.findViewById<TextView>(R.id.quoteId).text as String
                 )
                 // TODO: get Po based on Thread
-                QuotePopup.showQuote(this, requireContext(), quotePopup, id, sharedVM.getPo())
+                QuotePopup.showQuote(this, requireContext(), quotePopup, id, viewModel.po)
             })
 
         // load more
@@ -173,6 +173,8 @@ class ReplyFragment : Fragment() {
                 mAdapter.setDiffNewData(it.toMutableList())
                 mAdapter.loadMoreModule.loadMoreComplete()
             }
+
+            mAdapter.setPo(viewModel.po)
             Timber.i("New data found. Adapter now have ${mAdapter.data.size} threads")
         })
 

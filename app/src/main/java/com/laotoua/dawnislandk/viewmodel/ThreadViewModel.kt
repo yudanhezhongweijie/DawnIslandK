@@ -44,7 +44,6 @@ class ThreadViewModel : ViewModel() {
                     }
                 }
             }
-
         }
     }
 

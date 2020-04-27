@@ -59,6 +59,7 @@ class SharedViewModel : ViewModel() {
             "FeedFragment" -> "我的订阅"
             "SettingsFragment" -> "设置"
             "SizeCustomizationFragment" -> "设置串卡片布局"
+            "TrendFragment" -> "A岛热榜"
             else -> {
                 Timber.e("Need to set title in Frag ${currentFragment.value}, currently using default...")
                 "A岛 • ${selectedForum.value?.name ?: "时间线"}"

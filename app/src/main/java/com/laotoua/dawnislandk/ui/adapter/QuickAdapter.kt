@@ -66,11 +66,14 @@ class QuickAdapter(private val layoutResId: Int) :
             convertThread(holder, item, sharedViewModel.getForumDisplayName(item.fid!!))
         } else if (layoutResId == R.layout.reply_list_item && item is Reply) {
             convertReply(holder, item, sharedViewModel.getPo())
+        } else if (layoutResId == R.layout.trend_list_item && item is Map<*, *>) {
+            convertTrend(holder, item as Map<String, String>)
+        } else {
+            throw Exception("Unhandled conversion in adapter")
         }
     }
 
     override fun onCreateDefViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
-        // TODO: view created by code differs from view in layout xml
         return if (layoutResId == R.layout.thread_list_item) {
             createBaseViewHolder(factory.getCardView(context))
         } else {
@@ -236,6 +239,13 @@ class QuickAdapter(private val layoutResId: Int) :
         }
     }
 
+    private fun convertTrend(card: BaseViewHolder, item: Map<String, String>) {
+        card.setText(R.id.trendRank, item["trendRank"])
+        card.setText(R.id.trendId, item["trendId"])
+        card.setText(R.id.trendForum, item["trendForum"])
+        card.setText(R.id.trendHits, item["trendHits"])
+        card.setText(R.id.trendContent, transformContent(item["trendContent"] ?: ""))
+    }
 
     private var mCustomQuoteClickListener: OnItemChildClickListener? = null
     private var mCustomChildIds = mutableListOf<Int>()

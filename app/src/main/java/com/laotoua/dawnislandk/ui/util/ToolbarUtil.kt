@@ -86,7 +86,7 @@ object ToolbarUtil {
     ) {
         run {
             when (callerFragment.javaClass.simpleName) {
-                "ThreadFragment", "FeedFragment" -> {
+                "ThreadFragment", "FeedFragment", "TrendFragment" -> {
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
                     enableCollapse(
                         this,

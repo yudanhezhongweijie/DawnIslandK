@@ -169,6 +169,17 @@ class ThreadFragment : Fragment() {
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        binding.fabMenu.show()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        hideMenu()
+        binding.fabMenu.hide()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

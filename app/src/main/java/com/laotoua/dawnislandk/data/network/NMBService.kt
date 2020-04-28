@@ -26,7 +26,11 @@ interface NMBService {
     fun getNMBTimeLine(@Query("page") page: Int): Call<ResponseBody>
 
     @GET("Api/thread")
-    fun getNMBReplys(@Query("id") id: String, @Query("page") page: Int): Call<ResponseBody>
+    fun getNMBReplys(
+        @Header("Cookie") hash: String?,
+        @Query("id") id: String,
+        @Query("page") page: Int
+    ): Call<ResponseBody>
 
     @GET("Api/ref")
     fun getNMBQuote(@Query("id") id: String): Call<ResponseBody>

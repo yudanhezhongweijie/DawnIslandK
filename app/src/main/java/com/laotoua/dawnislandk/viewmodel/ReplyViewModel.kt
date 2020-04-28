@@ -9,6 +9,7 @@ import com.laotoua.dawnislandk.data.entity.Thread
 import com.laotoua.dawnislandk.data.network.APISuccessMessageResponse
 import com.laotoua.dawnislandk.data.network.MessageType
 import com.laotoua.dawnislandk.data.network.NMBServiceClient
+import com.laotoua.dawnislandk.data.state.AppState
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -106,7 +107,13 @@ class ReplyViewModel : ViewModel() {
         }
 
         viewModelScope.launch {
-            DataResource.create(NMBServiceClient.getReplys(_currentThread!!.id, page)).run {
+            DataResource.create(
+                NMBServiceClient.getReplys(
+                    AppState.cookies?.firstOrNull()?.cookieHash,
+                    _currentThread!!.id,
+                    page
+                )
+            ).run {
                 when (this) {
                     is DataResource.Success -> {
                         convertServerData(data!!, page, direction)

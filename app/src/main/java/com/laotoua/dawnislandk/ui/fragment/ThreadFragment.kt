@@ -154,11 +154,6 @@ class ThreadFragment : Fragment() {
             findNavController().navigate(action)
         }
 
-        binding.cookie.setOnClickListener {
-            Timber.i("Clicked on cookie")
-            hideMenu()
-        }
-
         binding.post.setOnClickListener {
             Timber.i("Clicked on post")
             hideMenu()
@@ -193,7 +188,6 @@ class ThreadFragment : Fragment() {
         binding.fabMenu.startAnimation(rotateBackward)
         binding.setting.hide()
         binding.post.hide()
-        binding.cookie.hide()
         isFabOpen = false
     }
 
@@ -206,7 +200,6 @@ class ThreadFragment : Fragment() {
 
         binding.setting.show()
         binding.post.show()
-        binding.cookie.show()
         isFabOpen = true
     }
 

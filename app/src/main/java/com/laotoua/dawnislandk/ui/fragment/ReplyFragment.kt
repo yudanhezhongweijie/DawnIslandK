@@ -1,6 +1,8 @@
 package com.laotoua.dawnislandk.ui.fragment
 
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +11,7 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -203,7 +206,14 @@ class ReplyFragment : Fragment() {
         }
 
         binding.copyId.setOnClickListener {
-            Timber.i("Clicked on copy Id")
+            val clipboard = getSystemService(
+                requireContext(),
+                ClipboardManager::class.java
+            )
+            val clip: ClipData =
+                ClipData.newPlainText("currentThreadId", viewModel.currentThread!!.id)
+            clipboard?.setPrimaryClip(clip)
+            Toast.makeText(context, "串号已复制", Toast.LENGTH_SHORT).show()
             hideMenu()
         }
 
@@ -238,6 +248,7 @@ class ReplyFragment : Fragment() {
 
         binding.onlyPo.setOnClickListener {
             Timber.i("Clicked on onlyPo")
+            Toast.makeText(context, "还没写嘿嘿嘿。。", Toast.LENGTH_SHORT).show()
             hideMenu()
         }
 

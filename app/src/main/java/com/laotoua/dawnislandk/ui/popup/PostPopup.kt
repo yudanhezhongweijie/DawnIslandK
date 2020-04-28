@@ -15,6 +15,8 @@ import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.google.android.flexbox.FlexboxLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
@@ -203,23 +205,20 @@ class PostPopup(private val caller: Fragment, context: Context) :
             postImagePreview = findViewById(R.id.postImagePreview)
         }
 
-        findViewById<Button>(R.id.postForum).run {
-            setOnClickListener {
-                XPopup.Builder(context)
-                    .atView(it) // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                    .asAttachList(
-                        forumNameMap!!.values.drop(1).toTypedArray(),//去除时间线
-                        intArrayOf()
-                    ) { ind, forumName ->
-                        targetId = forumNameMap!!.keys.drop(1).toList()[ind]
-                        this.text = forumName
-                    }
-                    .show()
+        findViewById<Button>(R.id.postForum).let { button ->
+            button.setOnClickListener {
+                MaterialDialog(context).show {
+                    listItemsSingleChoice(items = forumNameMap!!.values.drop(1)) { _, index, text ->
+                        targetId = forumNameMap!!.keys.drop(1).toList()[index]
+                        button.text = text
+                    }//去除时间线
+                }
             }
         }
 
         findViewById<Button>(R.id.postSend).setOnClickListener {
             Timber.i("Sending...")
+            hideKeyboardFrom(context, this)
             send()
         }
 

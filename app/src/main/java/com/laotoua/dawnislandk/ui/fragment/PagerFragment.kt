@@ -40,13 +40,15 @@ class PagerFragment : Fragment() {
             override fun createFragment(position: Int): Fragment {
                 return when (position) {
                     0 -> ThreadFragment()
-                    1 -> FeedFragment()
+                    1 -> TrendFragment()
+                    2 -> FeedFragment()
                     else -> throw Exception("unhandled pager fragment creation")
                 }
             }
 
             init {
                 mFragmentList.add(ThreadFragment())
+                mFragmentList.add(TrendFragment())
                 mFragmentList.add(FeedFragment())
             }
         }.also { adapter ->

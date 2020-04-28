@@ -22,9 +22,12 @@ class ReplyViewModel : ViewModel() {
     private var _reply = MutableLiveData<List<Reply>>()
     val reply: LiveData<List<Reply>> get() = _reply
 
-    var fullPage = false
+    private var fullPage = false
 
     private var maxReply = 0
+
+    private var _po: String = ""
+    val po get() = _po
 
     // TODO: previous page & next page should be handled the same
     var previousPage = mutableListOf<Reply>()
@@ -122,6 +125,10 @@ class ReplyViewModel : ViewModel() {
     }
 
     private fun convertServerData(data: Thread, page: Int, direction: DIRECTION) {
+        // update current thread with latest info
+        _currentThread = data
+        _po = data.userid
+
         val list = mutableListOf<Reply>()
         maxReply = data.replyCount?.toInt() ?: 0
         list.addAll(data.replys!!)
@@ -134,13 +141,13 @@ class ReplyViewModel : ViewModel() {
             (list.size == 20 || (list.size == 19 && list.first().id != "9999999"))
 
         // add thread to as first reply for page 1
-        if (page == 1 && !replyIds.contains(_currentThread!!.id)) {
-            replyList.add(0, _currentThread!!.toReply())
-            replyIds.add(_currentThread!!.id)
+        if (page == 1 && !replyIds.contains(data.id)) {
+            replyList.add(0, data.toReply())
+            replyIds.add(data.id)
 
             _reply.postValue(replyList)
             // TODO: previous page & next page should be handled the same
-            if (direction == DIRECTION.PREVIOUS) previousPage.add(_currentThread!!.toReply())
+            if (direction == DIRECTION.PREVIOUS) previousPage.add(data.toReply())
         }
 
         val noDuplicates =
@@ -171,7 +178,7 @@ class ReplyViewModel : ViewModel() {
 
             Timber.i("CurrentPage: $page ReplyIds(w. ad, head): ${replyIds.size} replyList: ${replyList.size} replyCount: $maxReply")
         } else {
-            Timber.i("Thread ${_currentThread!!.id} has no new replys.")
+            Timber.i("Thread ${data.id} has no new replys.")
             _loadingStatus.postValue(
                 SingleLiveEvent.create(
                     LoadingStatus.NODATA,

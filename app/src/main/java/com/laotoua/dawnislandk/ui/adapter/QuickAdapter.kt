@@ -20,6 +20,7 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.entity.Reply
 import com.laotoua.dawnislandk.data.entity.Thread
+import com.laotoua.dawnislandk.data.entity.Trend
 import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.ui.span.RoundBackgroundColorSpan
 import com.laotoua.dawnislandk.ui.util.*
@@ -44,6 +45,9 @@ class QuickAdapter(private val layoutResId: Int) :
         )
     }
 
+    // TODO: support multiple Po
+    private var po: String = ""
+
     init {
         // 所有数据加载完成后，是否允许点击（默认为false）
         loadMoreModule.enableLoadMoreEndClick = true
@@ -58,6 +62,10 @@ class QuickAdapter(private val layoutResId: Int) :
         this.sharedViewModel = vm
     }
 
+    fun setPo(po: String) {
+        this.po = po
+    }
+
     /** default handler for recyclerview item
      *
      */
@@ -65,12 +73,15 @@ class QuickAdapter(private val layoutResId: Int) :
         if (layoutResId == R.layout.thread_list_item && item is Thread) {
             convertThread(holder, item, sharedViewModel.getForumDisplayName(item.fid!!))
         } else if (layoutResId == R.layout.reply_list_item && item is Reply) {
-            convertReply(holder, item, sharedViewModel.getPo())
+            convertReply(holder, item, po)
+        } else if (layoutResId == R.layout.trend_list_item && item is Trend) {
+            convertTrend(holder, item)
+        } else {
+            throw Exception("Unhandled conversion in adapter")
         }
     }
 
     override fun onCreateDefViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
-        // TODO: view created by code differs from view in layout xml
         return if (layoutResId == R.layout.thread_list_item) {
             createBaseViewHolder(factory.getCardView(context))
         } else {
@@ -236,6 +247,13 @@ class QuickAdapter(private val layoutResId: Int) :
         }
     }
 
+    private fun convertTrend(card: BaseViewHolder, item: Trend) {
+        card.setText(R.id.trendRank, item.rank)
+        card.setText(R.id.trendId, item.id)
+        card.setText(R.id.trendForum, item.forum)
+        card.setText(R.id.trendHits, item.hits)
+        card.setText(R.id.trendContent, transformContent(item.content))
+    }
 
     private var mCustomQuoteClickListener: OnItemChildClickListener? = null
     private var mCustomChildIds = mutableListOf<Int>()
@@ -343,8 +361,10 @@ class DiffItemCallback : DiffUtil.ItemCallback<Any>() {
 
             (oldItem is Reply && newItem is Reply) -> oldItem.id == newItem.id
 
+            (oldItem is Trend && newItem is Trend) -> oldItem.id == newItem.id
+
             else -> {
-                Timber.e("Unhandled type comparison")
+                Timber.e("Unhandled type comparison $oldItem vs $newItem")
                 throw Exception("Unhandled type comparison")
             }
         }
@@ -370,6 +390,10 @@ class DiffItemCallback : DiffUtil.ItemCallback<Any>() {
             (oldItem is Reply && newItem is Reply) -> {
                 oldItem.sage == newItem.sage
                         && oldItem.content == newItem.content
+            }
+
+            (oldItem is Trend && newItem is Trend) -> {
+                true
             }
             else -> {
                 Timber.e("Unhandled type comparison")

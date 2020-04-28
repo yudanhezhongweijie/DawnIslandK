@@ -31,7 +31,7 @@ class FeedViewModel : ViewModel() {
 
     fun getFeeds() {
         viewModelScope.launch {
-            Timber.i("Downloading Feeds on page $page")
+            Timber.i("Downloading Feeds...")
             DataResource.create(NMBServiceClient.getFeeds(AppState.feedsId, page)).run {
                 when (this) {
                     is DataResource.Error -> {

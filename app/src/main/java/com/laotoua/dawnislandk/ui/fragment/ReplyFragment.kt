@@ -224,6 +224,10 @@ class ReplyFragment : Fragment() {
 
         binding.jump.setOnClickListener {
             hideMenu()
+            if (binding.refreshLayout.isRefreshing) {
+                Toast.makeText(context, "还在刷新中。。请稍后操作", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             val pos = 1.coerceAtLeast(
                 (binding.replysView.layoutManager as LinearLayoutManager)
                     .findLastCompletelyVisibleItemPosition()

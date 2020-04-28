@@ -1,10 +1,11 @@
 package com.laotoua.dawnislandk.data.entity
 
+import androidx.annotation.Keep
 import androidx.room.ColumnInfo
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
-
+@Keep
 data class Forum(
     @PrimaryKey
     @ColumnInfo(name = "id")

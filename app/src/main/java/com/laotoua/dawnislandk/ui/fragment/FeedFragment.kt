@@ -57,7 +57,7 @@ class FeedFragment : Fragment() {
         binding.refreshLayout.setHeaderView(ClassicHeader<IIndicator>(context))
         binding.refreshLayout.setOnRefreshListener(object : RefreshingListenerAdapter() {
             override fun onRefreshing() {
-                mAdapter.setNewData(mutableListOf())
+                mAdapter.setNewInstance(mutableListOf())
                 viewModel.refresh()
             }
         })

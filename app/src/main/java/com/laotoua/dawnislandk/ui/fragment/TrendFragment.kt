@@ -50,6 +50,7 @@ class TrendFragment : Fragment() {
         }
 
         viewModel.trendList.observe(viewLifecycleOwner, Observer { list ->
+            mAdapter.setNewInstance(mutableListOf())
             mAdapter.setDiffNewData(list.toMutableList())
         })
 

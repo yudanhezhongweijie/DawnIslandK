@@ -512,7 +512,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
     private fun addLuweiButtons(flexBox: FlexboxLayout) {
         resources.getStringArray(R.array.LuweiEmojis).map { emojiId ->
             val resourceId: Int = context.resources.getIdentifier(
-                emojiId, "drawable",
+                "le$emojiId", "drawable",
                 context.packageName
             )
             ImageView(context).run {

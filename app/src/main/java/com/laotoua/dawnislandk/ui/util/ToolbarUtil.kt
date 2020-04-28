@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.appbar.AppBarLayout
 import com.laotoua.dawnislandk.R
+import com.laotoua.dawnislandk.ui.fragment.*
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -85,8 +86,8 @@ object ToolbarUtil {
         subtitle: String? = null
     ) {
         run {
-            when (callerFragment.javaClass.simpleName) {
-                "ThreadFragment", "FeedFragment", "TrendFragment" -> {
+            when (callerFragment) {
+                is ThreadFragment, is FeedFragment, is TrendFragment -> {
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
                     enableCollapse(
                         this,
@@ -98,7 +99,7 @@ object ToolbarUtil {
                         drawerLayout.openDrawer(GravityCompat.START)
                     }
                 }
-                "ReplyFragment" -> {
+                is ReplyFragment -> {
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
                     disableCollapse(
                         this,
@@ -111,7 +112,7 @@ object ToolbarUtil {
                         callerFragment.findNavController().popBackStack()
                     }
                 }
-                "SettingsFragment" -> {
+                is SettingsFragment -> {
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
                     disableCollapse(
                         this,
@@ -123,7 +124,7 @@ object ToolbarUtil {
                         callerFragment.findNavController().popBackStack()
                     }
                 }
-                "SizeCustomizationFragment" -> {
+                is SizeCustomizationFragment -> {
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
                     disableCollapse(
                         this,

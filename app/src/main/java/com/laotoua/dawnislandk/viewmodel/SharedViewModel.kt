@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.laotoua.dawnislandk.data.entity.Forum
 import com.laotoua.dawnislandk.data.entity.Thread
+import com.laotoua.dawnislandk.ui.fragment.*
 import timber.log.Timber
 
 class SharedViewModel : ViewModel() {
@@ -50,14 +51,14 @@ class SharedViewModel : ViewModel() {
     }
 
     fun generateAppbarTitle(): String {
-        return when (currentFragment.value?.javaClass?.simpleName) {
+        return when (currentFragment.value) {
             // TODO: default forumName
-            "ThreadFragment" -> "A岛 • ${selectedForum.value?.name ?: "时间线"}"
-            "ReplyFragment" -> "A岛 • ${selectedThread.value?.fid?.let { getForumDisplayName(it) }}"
-            "FeedFragment" -> "我的订阅"
-            "SettingsFragment" -> "设置"
-            "SizeCustomizationFragment" -> "设置串卡片布局"
-            "TrendFragment" -> "A岛热榜"
+            is ThreadFragment -> "A岛 • ${selectedForum.value?.name ?: "时间线"}"
+            is ReplyFragment -> "A岛 • ${selectedThread.value?.fid?.let { getForumDisplayName(it) }}"
+            is FeedFragment -> "我的订阅"
+            is SettingsFragment -> "设置"
+            is SizeCustomizationFragment -> "设置串卡片布局"
+            is TrendFragment -> "A岛热榜"
             else -> {
                 Timber.e("Need to set title in Frag ${currentFragment.value}, currently using default...")
                 "A岛 • ${selectedForum.value?.name ?: "时间线"}"
@@ -67,8 +68,8 @@ class SharedViewModel : ViewModel() {
     }
 
     fun generateAppBarSubtitle(): String? {
-        return when (currentFragment.value?.javaClass?.simpleName) {
-            "ReplyFragment" -> ">> No.${selectedThread.value?.id} • adnmb.com"
+        return when (currentFragment.value) {
+            is ReplyFragment -> ">> No.${selectedThread.value?.id} • adnmb.com"
             else -> null
         }
     }

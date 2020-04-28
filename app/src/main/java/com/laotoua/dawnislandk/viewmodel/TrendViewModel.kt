@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.entity.Thread
 import com.laotoua.dawnislandk.data.entity.Trend
 import com.laotoua.dawnislandk.data.network.NMBServiceClient
+import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.ui.util.extractQuote
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -38,7 +39,14 @@ class TrendViewModel : ViewModel() {
     }
 
     private suspend fun getLatestTrendPage() {
-        DataResource.create(NMBServiceClient.getReplys(trendId, page)).run {
+
+        DataResource.create(
+            NMBServiceClient.getReplys(
+                AppState.cookies?.firstOrNull()?.cookieHash,
+                trendId,
+                page
+            )
+        ).run {
             when (this) {
                 is DataResource.Success -> {
                     val count = data!!.replyCount?.toInt() ?: 0

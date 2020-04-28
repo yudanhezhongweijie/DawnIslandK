@@ -8,7 +8,9 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import com.afollestad.materialdialogs.MaterialDialog
 import com.laotoua.dawnislandk.R
+import com.laotoua.dawnislandk.data.state.AppState
 import com.lxj.xpopup.core.CenterPopupView
 
 class JumpPopup(private val caller: Fragment, context: Context) : CenterPopupView(context) {
@@ -52,7 +54,13 @@ class JumpPopup(private val caller: Fragment, context: Context) : CenterPopupVie
         submitButton.setOnClickListener {
             submit = true
             targetPage = pageInput.text.toString().toInt()
-            dismiss()
+            if (AppState.cookies.isNullOrEmpty() && targetPage > 99) {
+                MaterialDialog(context).show {
+                    message(text = "没有饼干! 不能看99页以后的内容...")
+                }
+            } else {
+                dismiss()
+            }
         }
     }
 

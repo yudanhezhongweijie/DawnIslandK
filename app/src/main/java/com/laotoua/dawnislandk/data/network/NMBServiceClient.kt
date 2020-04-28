@@ -54,10 +54,10 @@ object NMBServiceClient {
         return APIDataResponse.create(call, parseThreads)
     }
 
-    // TODO get with cookie
-    suspend fun getReplys(id: String, page: Int): APIDataResponse<Thread> {
+    suspend fun getReplys(userhash: String?, id: String, page: Int): APIDataResponse<Thread> {
         Timber.i("Downloading Replys on Thread $id on Page $page...")
-        return APIDataResponse.create(service.getNMBReplys(id, page), parseReplys)
+        val hash = userhash?.let { "userhash=$it" }
+        return APIDataResponse.create(service.getNMBReplys(hash, id, page), parseReplys)
     }
 
     suspend fun getFeeds(uuid: String, page: Int): APIDataResponse<List<Thread>> {

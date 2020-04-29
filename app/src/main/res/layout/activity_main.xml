@@ -92,7 +92,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/drawer_head" />
+            app:srcCompat="@drawable/drawer_head"
+            android:clickable="true" />
 
         <Button
             android:id="@+id/forumRefresh"

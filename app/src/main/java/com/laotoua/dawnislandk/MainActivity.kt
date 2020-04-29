@@ -13,8 +13,8 @@ import com.laotoua.dawnislandk.data.entity.Forum
 import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
 import com.laotoua.dawnislandk.ui.adapter.QuickNodeAdapter
-import com.laotoua.dawnislandk.ui.util.ToolbarUtil.updateAppBarByFragment
-import com.laotoua.dawnislandk.ui.util.ToolbarUtil.updateAppBarTitleWithinFragment
+import com.laotoua.dawnislandk.ui.util.UIUtils.updateAppBarByFragment
+import com.laotoua.dawnislandk.ui.util.UIUtils.updateAppBarTitleWithinFragment
 import com.laotoua.dawnislandk.viewmodel.CommunityViewModel
 import com.laotoua.dawnislandk.viewmodel.LoadingStatus
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel

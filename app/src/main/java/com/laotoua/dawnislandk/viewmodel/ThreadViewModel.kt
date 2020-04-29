@@ -26,6 +26,7 @@ class ThreadViewModel : ViewModel() {
 
     fun getThreads() {
         viewModelScope.launch {
+            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.LOADING))
             val fid = _currentForum?.id ?: "-1"
             Timber.i("Getting threads from $fid ${_currentForum?.name} on page $pageCount")
             DataResource.create(NMBServiceClient.getThreads(fid, pageCount)).run {
@@ -53,14 +54,12 @@ class ThreadViewModel : ViewModel() {
         val noDuplicates = data.filterNot { threadIds.contains(it.id) }
         if (noDuplicates.isNotEmpty()) {
             threadIds.addAll(noDuplicates.map { it.id })
-            Timber.i(
-                "New thread + ads has size of ${noDuplicates.size}, threadIds size ${threadIds.size}"
-            )
             threadList.addAll(noDuplicates)
             Timber.i(
-                "Forum ${currentForum?.name} now have ${threadList.size} threads"
+                "New thread + ads has size of ${noDuplicates.size}, threadIds size ${threadIds.size}, Forum ${currentForum?.name} now have ${threadList.size} threads"
             )
             _thread.postValue(threadList)
+            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))
             pageCount += 1
         } else {
             val message = "Forum ${currentForum?.getDisplayName()} has no new threads."
@@ -76,6 +75,14 @@ class ThreadViewModel : ViewModel() {
         threadIds.clear()
         Timber.i("Setting new forum: ${f.id}")
         _currentForum = f
+        pageCount = 1
+        getThreads()
+    }
+
+    fun refresh() {
+        Timber.i("Refreshing forum ${currentForum!!.name}...")
+        threadList.clear()
+        threadIds.clear()
         pageCount = 1
         getThreads()
     }

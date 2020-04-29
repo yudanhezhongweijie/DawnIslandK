@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils.loadAnimation
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -21,10 +20,14 @@ import com.laotoua.dawnislandk.databinding.ThreadFragmentBinding
 import com.laotoua.dawnislandk.ui.adapter.QuickAdapter
 import com.laotoua.dawnislandk.ui.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.ui.popup.PostPopup
-import com.laotoua.dawnislandk.viewmodel.LoadingStatus
+import com.laotoua.dawnislandk.ui.util.UIUtils.updateHeaderAndFooter
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 import com.laotoua.dawnislandk.viewmodel.ThreadViewModel
 import com.lxj.xpopup.XPopup
+import me.dkzwm.widget.srl.RefreshingListenerAdapter
+import me.dkzwm.widget.srl.config.Constants
+import me.dkzwm.widget.srl.extra.header.ClassicHeader
+import me.dkzwm.widget.srl.indicator.IIndicator
 import timber.log.Timber
 
 
@@ -51,74 +54,85 @@ class ThreadFragment : Fragment() {
         sharedVM.setFragment(this)
         _binding = ThreadFragmentBinding.inflate(inflater, container, false)
 
-        binding.threadsView.layoutManager = LinearLayoutManager(context)
-        binding.threadsView.adapter = mAdapter
+        binding.refreshLayout.apply {
+            setHeaderView(ClassicHeader<IIndicator>(context))
+            setOnRefreshListener(object : RefreshingListenerAdapter() {
+                override fun onRefreshing() {
+                    mAdapter.setList(emptyList())
+                    viewModel.refresh()
+                }
+            })
+        }
+
+        binding.threadsView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = mAdapter
+            setHasFixedSize(true)
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    if (dy > 0) {
+                        hideMenu()
+                        binding.fabMenu.hide()
+                    } else if (dy < 0) binding.fabMenu.show()
+                }
+            })
+        }
 
         /*** connect SharedVm and adapter
          *  may have better way of getting runtime data
          */
         mAdapter.setSharedVM(sharedVM)
 
-        // item click
-        mAdapter.setOnItemClickListener { adapter, _, position ->
-            hideMenu()
-            sharedVM.setThread(adapter.getItem(position) as Thread)
-            val action =
-                PagerFragmentDirections.actionPagerFragmentToReplyFragment()
-            findNavController().navigate(action)
-
-        }
-
-
-        // image
-        mAdapter.addChildClickViewIds(R.id.threadImage)
-        mAdapter.setOnItemChildClickListener { adapter, view, position ->
-            if (view.id == R.id.threadImage) {
-
+        mAdapter.apply {
+            setOnItemClickListener { adapter, _, position ->
                 hideMenu()
-
-                Timber.i("clicked on image at $position")
-                val url = (adapter.getItem(
-                    position
-                ) as Thread).getImgUrl()
-
-                // TODO support multiple image
-                val viewerPopup =
-                    ImageViewerPopup(
-                        this,
-                        requireContext(),
-                        url
-                    )
-                viewerPopup.setXPopupImageLoader(imageLoader)
-                viewerPopup.setSingleSrcView(view as ImageView?, url)
-
-                XPopup.Builder(context)
-                    .asCustom(viewerPopup)
-                    .show()
+                sharedVM.setThread(adapter.getItem(position) as Thread)
+                val action =
+                    PagerFragmentDirections.actionPagerFragmentToReplyFragment()
+                findNavController().navigate(action)
             }
-        }
 
-        // load more
-        mAdapter.loadMoreModule.setOnLoadMoreListener {
-            Timber.i("Fetching new data...")
-            viewModel.getThreads()
+            addChildClickViewIds(R.id.threadImage)
+            setOnItemChildClickListener { adapter, view, position ->
+                if (view.id == R.id.threadImage) {
+                    hideMenu()
+                    val url = (adapter.getItem(
+                        position
+                    ) as Thread).getImgUrl()
+
+                    // TODO support multiple image
+                    val viewerPopup =
+                        ImageViewerPopup(
+                            this@ThreadFragment,
+                            requireContext(),
+                            url
+                        )
+                    viewerPopup.setXPopupImageLoader(imageLoader)
+                    viewerPopup.setSingleSrcView(view as ImageView?, url)
+
+                    XPopup.Builder(context)
+                        .asCustom(viewerPopup)
+                        .show()
+                }
+            }
+
+            loadMoreModule.setOnLoadMoreListener {
+                Timber.i("Fetching new data...")
+                viewModel.getThreads()
+            }
+
+            if (data.size == 0) binding.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
         }
 
         viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
-            if (it.getContentIfNotHandled()?.loadingStatus == LoadingStatus.FAILED) {
-                Toast.makeText(
-                    context,
-                    it.peekContent().message,
-                    Toast.LENGTH_LONG
-                ).show()
+            it.getContentIfNotHandled()?.run {
+                updateHeaderAndFooter(binding.refreshLayout, mAdapter, this)
             }
         })
 
         viewModel.thread.observe(viewLifecycleOwner, Observer {
             mAdapter.setDiffNewData(it.toMutableList())
-            mAdapter.loadMoreModule.loadMoreComplete()
-            Timber.i("New data found or new observer added. Adapter now have ${mAdapter.data.size} threads")
-
+            Timber.i("Adapter will have ${it.size} threads")
         })
 
         sharedVM.selectedForum.observe(viewLifecycleOwner, Observer {
@@ -126,19 +140,9 @@ class ThreadFragment : Fragment() {
                 viewModel.setForum(it)
             } else if (viewModel.currentForum != null && viewModel.currentForum!!.id != it.id) {
                 Timber.i("Forum has changed to ${it.name}. Cleaning old adapter data...")
-                mAdapter.setList(ArrayList())
+                mAdapter.setList(emptyList())
                 viewModel.setForum(it)
                 hideMenu()
-            }
-        })
-
-
-        binding.threadsView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                if (dy > 0) {
-                    hideMenu()
-                    binding.fabMenu.hide()
-                } else if (dy < 0) binding.fabMenu.show()
             }
         })
 
@@ -147,7 +151,6 @@ class ThreadFragment : Fragment() {
         }
 
         binding.setting.setOnClickListener {
-            Timber.i("clicked on setting")
             hideMenu()
             val action =
                 PagerFragmentDirections.actionPagerFragmentToSettingsFragment()
@@ -155,7 +158,6 @@ class ThreadFragment : Fragment() {
         }
 
         binding.post.setOnClickListener {
-            Timber.i("Clicked on post")
             hideMenu()
             PostPopup.show(
                 this,
@@ -184,12 +186,6 @@ class ThreadFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Timber.i("Thread Fragment destroyed!!!")
-    }
-
 
     private fun hideMenu() {
         val rotateBackward = loadAnimation(
@@ -221,6 +217,5 @@ class ThreadFragment : Fragment() {
             showMenu()
         }
     }
-
 
 }

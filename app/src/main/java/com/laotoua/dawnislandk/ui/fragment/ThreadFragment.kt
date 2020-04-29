@@ -84,6 +84,9 @@ class ThreadFragment : Fragment() {
         mAdapter.setSharedVM(sharedVM)
 
         mAdapter.apply {
+            // initial load
+            if (data.size == 0) binding.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
+
             setOnItemClickListener { adapter, _, position ->
                 hideMenu()
                 sharedVM.setThread(adapter.getItem(position) as Thread)
@@ -121,7 +124,6 @@ class ThreadFragment : Fragment() {
                 viewModel.getThreads()
             }
 
-            if (data.size == 0) binding.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
         }
 
         viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
@@ -139,6 +141,7 @@ class ThreadFragment : Fragment() {
             if (viewModel.currentForum == null) {
                 viewModel.setForum(it)
             } else if (viewModel.currentForum != null && viewModel.currentForum!!.id != it.id) {
+                binding.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
                 Timber.i("Forum has changed to ${it.name}. Cleaning old adapter data...")
                 mAdapter.setList(emptyList())
                 viewModel.setForum(it)
@@ -185,6 +188,7 @@ class ThreadFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        Timber.d("Fragment View Destroyed")
     }
 
     private fun hideMenu() {

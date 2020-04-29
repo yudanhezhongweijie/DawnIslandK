@@ -257,7 +257,6 @@ class ReplyFragment : Fragment() {
         }
 
         binding.addFeed.setOnClickListener {
-            Timber.i("Clicked on onlyPo")
             hideMenu()
             viewModel.addFeed(AppState.feedsId, viewModel.currentThread!!.id)
         }

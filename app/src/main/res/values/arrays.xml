@@ -1,5 +1,5 @@
 <resources>
-    <string-array name="NMBFaces">
+    <string-array name="emoji">
         <item>|∀ﾟ</item>
         <item>(´ﾟДﾟ`)</item>
         <item>(;´Д`)</item>
@@ -89,7 +89,7 @@
         <item>(´∀((☆ミつ"</item>
     </string-array>
 
-    <string-array name="LuweiEmojis">
+    <string-array name="LuweiStickers">
         <item>_0000_104</item>
         <item>_0013_091</item>
         <item>_0027_022</item>

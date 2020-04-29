@@ -76,6 +76,10 @@ class QuickAdapter(private val layoutResId: Int) :
             convertReply(holder, item, po)
         } else if (layoutResId == R.layout.trend_list_item && item is Trend) {
             convertTrend(holder, item)
+        } else if (layoutResId == R.layout.emoji_grid_item && item is String) {
+            convertEmoji(holder, item)
+        } else if (layoutResId == R.layout.luwei_sticker_grid_item && item is String) {
+            convertLuweiSticker(holder, item)
         } else {
             throw Exception("Unhandled conversion in adapter")
         }
@@ -253,6 +257,18 @@ class QuickAdapter(private val layoutResId: Int) :
         card.setText(R.id.trendForum, item.forum)
         card.setText(R.id.trendHits, item.hits)
         card.setText(R.id.trendContent, transformContent(item.content))
+    }
+
+    private fun convertEmoji(card: BaseViewHolder, item: String) {
+        card.setText(R.id.emoji, item)
+    }
+
+    private fun convertLuweiSticker(card: BaseViewHolder, item: String) {
+        val resourceId: Int = context.resources.getIdentifier(
+            "le$item", "drawable",
+            context.packageName
+        )
+        card.setImageResource(R.id.luweiSticker, resourceId)
     }
 
     private var mCustomQuoteClickListener: OnItemChildClickListener? = null

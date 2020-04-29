@@ -24,6 +24,7 @@ import com.laotoua.dawnislandk.viewmodel.LoadingStatus
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 import com.lxj.xpopup.XPopup
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
+import me.dkzwm.widget.srl.config.Constants
 import me.dkzwm.widget.srl.extra.header.ClassicHeader
 import me.dkzwm.widget.srl.indicator.IIndicator
 import timber.log.Timber
@@ -46,6 +47,7 @@ class FeedFragment : Fragment() {
     ): View? {
         sharedVM.setFragment(this)
         _binding = FeedFragmentBinding.inflate(inflater, container, false)
+        binding.feedsView.setHasFixedSize(true)
         binding.feedsView.layoutManager = LinearLayoutManager(context)
         binding.feedsView.adapter = mAdapter
 
@@ -62,14 +64,19 @@ class FeedFragment : Fragment() {
             }
         })
 
+
+        // initial load
+        if (mAdapter.data.size == 0) binding.refreshLayout.autoRefresh(
+            Constants.ACTION_NOTIFY,
+            false
+        )
+
         // item click
         mAdapter.setOnItemClickListener { adapter, _, position ->
             sharedVM.setThread(adapter.getItem(position) as Thread)
             val action =
                 PagerFragmentDirections.actionPagerFragmentToReplyFragment()
             findNavController().navigate(action)
-            Timber.i("clicked on item")
-
         }
 
         // long click to delete
@@ -97,8 +104,6 @@ class FeedFragment : Fragment() {
         mAdapter.addChildClickViewIds(R.id.threadImage)
         mAdapter.setOnItemChildClickListener { adapter, view, position ->
             if (view.id == R.id.threadImage) {
-
-                Timber.i("clicked on image at $position")
                 val url = (adapter.getItem(
                     position
                 ) as Thread).getImgUrl()
@@ -119,10 +124,8 @@ class FeedFragment : Fragment() {
             }
         }
 
-
         // load more
         mAdapter.loadMoreModule.setOnLoadMoreListener {
-            Timber.i("Fetching new data...")
             viewModel.getFeeds()
         }
 
@@ -130,11 +133,8 @@ class FeedFragment : Fragment() {
             it.getContentIfNotHandled()?.run {
                 when (this.loadingStatus) {
                     LoadingStatus.FAILED -> {
-                        if (binding.refreshLayout.isRefreshing) {
-                            binding.refreshLayout.refreshComplete(false)
-                        } else {
-                            mAdapter.loadMoreModule.loadMoreFail()
-                        }
+                        binding.refreshLayout.refreshComplete(false)
+                        mAdapter.loadMoreModule.loadMoreFail()
                         Toast.makeText(
                             context,
                             "${it.peekContent().message}",
@@ -143,16 +143,17 @@ class FeedFragment : Fragment() {
                         Timber.e(message)
                     }
                     LoadingStatus.NODATA -> {
-                        if (binding.refreshLayout.isRefreshing) {
-                            binding.refreshLayout.refreshComplete(true)
-                        } else {
-                            mAdapter.loadMoreModule.loadMoreEnd()
-                        }
+                        binding.refreshLayout.refreshComplete()
+                        mAdapter.loadMoreModule.loadMoreEnd()
+                        Timber.i("No more data...")
+                    }
+                    LoadingStatus.SUCCESS -> {
+                        binding.refreshLayout.refreshComplete()
+                        mAdapter.loadMoreModule.loadMoreComplete()
                         Timber.i("Finished loading data...")
                     }
-                    else -> {
+                    LoadingStatus.LOADING -> {
                         // do nothing
-                        Timber.i(this.loadingStatus.name)
                     }
 
                 }
@@ -161,10 +162,7 @@ class FeedFragment : Fragment() {
 
         viewModel.feeds.observe(viewLifecycleOwner, Observer {
             mAdapter.setDiffNewData(it.toMutableList())
-            mAdapter.loadMoreModule.loadMoreComplete()
-            binding.refreshLayout.refreshComplete()
-            Timber.i("New data found. Adapter now have ${mAdapter.data.size} threads")
-
+            Timber.i("New data found. Adapter now have ${it.size} threads")
         })
 
         return binding.root

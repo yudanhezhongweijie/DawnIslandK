@@ -137,10 +137,9 @@ class FeedFragment : Fragment() {
                         mAdapter.loadMoreModule.loadMoreFail()
                         Toast.makeText(
                             context,
-                            "${it.peekContent().message}",
+                            it.peekContent().message,
                             Toast.LENGTH_LONG
                         ).show()
-                        Timber.e(message)
                     }
                     LoadingStatus.NODATA -> {
                         binding.refreshLayout.refreshComplete()

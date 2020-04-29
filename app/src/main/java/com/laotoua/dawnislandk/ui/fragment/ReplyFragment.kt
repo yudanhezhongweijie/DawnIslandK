@@ -36,6 +36,7 @@ import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.interfaces.SimpleCallback
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
+import me.dkzwm.widget.srl.config.Constants
 import me.dkzwm.widget.srl.extra.header.ClassicHeader
 import me.dkzwm.widget.srl.indicator.IIndicator
 import timber.log.Timber
@@ -72,6 +73,7 @@ class ReplyFragment : Fragment() {
 
         binding.replysView.layoutManager = LinearLayoutManager(context)
         binding.replysView.adapter = mAdapter
+        binding.replysView.setHasFixedSize(true)
 
 
         /*** connect SharedVm and adapter
@@ -83,7 +85,6 @@ class ReplyFragment : Fragment() {
         mAdapter.setOnItemClickListener {
                 _, _, position ->
             hideMenu()
-            Timber.d("onItemClick $position")
         }
 
         // image
@@ -135,11 +136,8 @@ class ReplyFragment : Fragment() {
             it.getContentIfNotHandled()?.run {
                 when (this.loadingStatus) {
                     LoadingStatus.FAILED -> {
-                        if (binding.refreshLayout.isRefreshing) {
-                            binding.refreshLayout.refreshComplete(false)
-                        } else {
-                            mAdapter.loadMoreModule.loadMoreFail()
-                        }
+                        binding.refreshLayout.refreshComplete(false)
+                        mAdapter.loadMoreModule.loadMoreFail()
                         Toast.makeText(
                             context,
                             it.peekContent().message,
@@ -147,34 +145,40 @@ class ReplyFragment : Fragment() {
                         ).show()
                     }
                     LoadingStatus.NODATA -> {
-                        if (binding.refreshLayout.isRefreshing) {
-                            binding.refreshLayout.refreshComplete(true)
-                        } else {
-                            mAdapter.loadMoreModule.loadMoreEnd()
-                        }
+                        binding.refreshLayout.refreshComplete()
+                        mAdapter.loadMoreModule.loadMoreEnd()
+                        Timber.i("No more data...")
+                    }
+                    LoadingStatus.SUCCESS -> {
+                        binding.refreshLayout.refreshComplete()
+                        mAdapter.loadMoreModule.loadMoreComplete()
                         Timber.i("Finished loading data...")
                     }
-                    else -> {
+                    LoadingStatus.LOADING -> {
                         // do nothing
-                        Timber.e("${this.loadingStatus.name} is not handled")
                     }
 
                 }
             }
         })
 
+        // initial load
+        if (mAdapter.data.size == 0) {
+            viewModel.getNextPage()
+            binding.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
+        }
+
+
         viewModel.reply.observe(viewLifecycleOwner, Observer {
-            if (binding.refreshLayout.isRefreshing) {
+            if (viewModel.direction == ReplyViewModel.DIRECTION.PREVIOUS) {
                 Timber.i("Inserting items to the top")
 //                    val diffResult = DiffUtil.calculateDiff(DiffCallback(mAdapter.data, it), false)
 //                    mAdapter.setDiffNewData(diffResult, it.toMutableList())
                 // TODO: previous page & next page should be handled the same
                 mAdapter.addData(0, viewModel.previousPage)
-                binding.refreshLayout.refreshComplete()
             } else {
                 Timber.i("Inserting items to the end")
                 mAdapter.setDiffNewData(it.toMutableList())
-                mAdapter.loadMoreModule.loadMoreComplete()
             }
 
             mAdapter.setPo(viewModel.po)
@@ -224,10 +228,6 @@ class ReplyFragment : Fragment() {
 
         binding.jump.setOnClickListener {
             hideMenu()
-            if (binding.refreshLayout.isRefreshing) {
-                Toast.makeText(context, "还在刷新中。。请稍后操作", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
             val pos = 1.coerceAtLeast(
                 (binding.replysView.layoutManager as LinearLayoutManager)
                     .findLastCompletelyVisibleItemPosition()
@@ -244,6 +244,7 @@ class ReplyFragment : Fragment() {
                 .show()
                 .dismissWith {
                     if (jumpPopup.submit) {
+                        binding.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
                         Timber.i("Jumping to ${jumpPopup.targetPage}...")
                         viewModel.jumpTo(jumpPopup.targetPage)
                     }
@@ -282,12 +283,6 @@ class ReplyFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Timber.d("Reply Fragment destroyed!")
-    }
-
 
     private fun hideMenu() {
         val rotateBackward = AnimationUtils.loadAnimation(

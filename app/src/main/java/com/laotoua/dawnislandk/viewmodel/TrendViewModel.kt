@@ -30,12 +30,12 @@ class TrendViewModel : ViewModel() {
 
     private fun getLatestTrend() {
         viewModelScope.launch {
+            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.LOADING))
             getLatestTrendPage()
         }
     }
 
     private suspend fun getLatestTrendPage() {
-
         DataResource.create(
             NMBServiceClient.getReplys(
                 AppState.cookies?.firstOrNull()?.cookieHash,

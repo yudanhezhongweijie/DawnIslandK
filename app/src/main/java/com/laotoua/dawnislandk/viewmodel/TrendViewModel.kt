@@ -28,18 +28,14 @@ class TrendViewModel : ViewModel() {
     val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>>
         get() = _loadingStatus
 
-    init {
-        getLatestTrend()
-    }
-
     private fun getLatestTrend() {
         viewModelScope.launch {
+            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.LOADING))
             getLatestTrendPage()
         }
     }
 
     private suspend fun getLatestTrendPage() {
-
         DataResource.create(
             NMBServiceClient.getReplys(
                 AppState.cookies?.firstOrNull()?.cookieHash,

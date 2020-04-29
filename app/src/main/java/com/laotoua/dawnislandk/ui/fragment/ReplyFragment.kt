@@ -29,13 +29,14 @@ import com.laotoua.dawnislandk.ui.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.ui.popup.JumpPopup
 import com.laotoua.dawnislandk.ui.popup.PostPopup
 import com.laotoua.dawnislandk.ui.popup.QuotePopup
+import com.laotoua.dawnislandk.ui.util.UIUtils.updateHeaderAndFooter
 import com.laotoua.dawnislandk.ui.util.extractQuoteId
-import com.laotoua.dawnislandk.viewmodel.LoadingStatus
 import com.laotoua.dawnislandk.viewmodel.ReplyViewModel
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.interfaces.SimpleCallback
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
+import me.dkzwm.widget.srl.config.Constants
 import me.dkzwm.widget.srl.extra.header.ClassicHeader
 import me.dkzwm.widget.srl.indicator.IIndicator
 import timber.log.Timber
@@ -70,9 +71,28 @@ class ReplyFragment : Fragment() {
 
         _binding = ReplyFragmentBinding.inflate(inflater, container, false)
 
-        binding.replysView.layoutManager = LinearLayoutManager(context)
-        binding.replysView.adapter = mAdapter
+        binding.refreshLayout.apply {
+            setHeaderView(ClassicHeader<IIndicator>(context))
+            setOnRefreshListener(object : RefreshingListenerAdapter() {
+                override fun onRefreshing() {
+                    viewModel.getPreviousPage()
+                }
+            })
+        }
 
+        binding.replysView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = mAdapter
+            setHasFixedSize(true)
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    if (dy > 0) {
+                        binding.fabMenu.hide()
+                        hideMenu()
+                    } else if (dy < 0) binding.fabMenu.show()
+                }
+            })
+        }
 
         /*** connect SharedVm and adapter
          *  may have better way of getting runtime data
@@ -80,105 +100,90 @@ class ReplyFragment : Fragment() {
         mAdapter.setSharedVM(sharedVM)
 
         // item click
-        mAdapter.setOnItemClickListener {
-                _, _, position ->
-            hideMenu()
-            Timber.d("onItemClick $position")
-        }
-
-        // image
-        mAdapter.addChildClickViewIds(
-            R.id.replyImage,
-            R.id.replyId
-        )
-        mAdapter.setOnItemChildClickListener { adapter, view, position ->
-            if (view.id == R.id.replyImage) {
-                hideMenu()
-                Timber.i("clicked on image at $position")
-
-                val url = (adapter.getItem(position) as Reply).getImgUrl()
-                // TODO support multiple image
-                val viewerPopup = ImageViewerPopup(this, requireContext(), url)
-                viewerPopup.setXPopupImageLoader(imageLoader)
-                viewerPopup.setSingleSrcView(view as ImageView?, url)
-                viewerPopup.setOnClickListener {
-                    Timber.i("on click in thread")
-                }
-                XPopup.Builder(context)
-                    .asCustom(viewerPopup)
-                    .show()
-            } else if (view.id == R.id.replyId) {
-                // TODO
-                val replyId = (view as TextView).text
-                Timber.i("replyId: $replyId")
+        mAdapter.apply {
+            // initial load
+            if (data.size == 0) {
+                viewModel.getNextPage()
+                binding.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
             }
-        }
 
-        mAdapter.addCustomChildIds(R.id.quoteId)
-        mAdapter.setCustomQuoteClickListener(
-            OnItemChildClickListener { _, view, _ ->
-                // TODO Loading animation
-                val id = extractQuoteId(
-                    view.findViewById<TextView>(R.id.quoteId).text as String
-                )
-                // TODO: get Po based on Thread
-                QuotePopup.showQuote(this, requireContext(), quotePopup, id, viewModel.po)
-            })
+            setOnItemClickListener { _, _, position ->
+                hideMenu()
+            }
 
-        // load more
-        mAdapter.loadMoreModule.setOnLoadMoreListener {
-            Timber.i("Fetching next page...")
-            viewModel.getNextPage()
+            // image
+            addChildClickViewIds(
+                R.id.replyImage,
+                R.id.replyId
+            )
+
+            setOnItemChildClickListener { adapter, view, position ->
+                if (view.id == R.id.replyImage) {
+                    hideMenu()
+                    Timber.i("clicked on image at $position")
+
+                    val url = (adapter.getItem(position) as Reply).getImgUrl()
+                    // TODO support multiple image
+                    val viewerPopup = ImageViewerPopup(this@ReplyFragment, requireContext(), url)
+                    viewerPopup.setXPopupImageLoader(imageLoader)
+                    viewerPopup.setSingleSrcView(view as ImageView?, url)
+                    viewerPopup.setOnClickListener {
+                        Timber.i("on click in thread")
+                    }
+                    XPopup.Builder(context)
+                        .asCustom(viewerPopup)
+                        .show()
+                } else if (view.id == R.id.replyId) {
+                    // TODO
+                    val replyId = (view as TextView).text
+                    Timber.i("replyId: $replyId")
+                }
+            }
+
+            addCustomChildIds(R.id.quoteId)
+            setCustomQuoteClickListener(
+                OnItemChildClickListener { _, view, _ ->
+                    // TODO Loading animation
+                    val id = extractQuoteId(
+                        view.findViewById<TextView>(R.id.quoteId).text as String
+                    )
+                    // TODO: get Po based on Thread
+                    QuotePopup.showQuote(
+                        this@ReplyFragment,
+                        requireContext(),
+                        quotePopup,
+                        id,
+                        viewModel.po
+                    )
+                })
+
+            // load more
+            loadMoreModule.setOnLoadMoreListener {
+                viewModel.getNextPage()
+            }
+
         }
 
         viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.run {
-                when (this.loadingStatus) {
-                    LoadingStatus.FAILED -> {
-                        if (binding.refreshLayout.isRefreshing) {
-                            binding.refreshLayout.refreshComplete(false)
-                        } else {
-                            mAdapter.loadMoreModule.loadMoreFail()
-                        }
-                        Toast.makeText(
-                            context,
-                            it.peekContent().message,
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                    LoadingStatus.NODATA -> {
-                        if (binding.refreshLayout.isRefreshing) {
-                            binding.refreshLayout.refreshComplete(true)
-                        } else {
-                            mAdapter.loadMoreModule.loadMoreEnd()
-                        }
-                        Timber.i("Finished loading data...")
-                    }
-                    else -> {
-                        // do nothing
-                        Timber.e("${this.loadingStatus.name} is not handled")
-                    }
-
-                }
+                updateHeaderAndFooter(binding.refreshLayout, mAdapter, this)
             }
         })
 
         viewModel.reply.observe(viewLifecycleOwner, Observer {
-            if (binding.refreshLayout.isRefreshing) {
+            if (viewModel.direction == ReplyViewModel.DIRECTION.PREVIOUS) {
                 Timber.i("Inserting items to the top")
 //                    val diffResult = DiffUtil.calculateDiff(DiffCallback(mAdapter.data, it), false)
 //                    mAdapter.setDiffNewData(diffResult, it.toMutableList())
                 // TODO: previous page & next page should be handled the same
                 mAdapter.addData(0, viewModel.previousPage)
-                binding.refreshLayout.refreshComplete()
             } else {
                 Timber.i("Inserting items to the end")
                 mAdapter.setDiffNewData(it.toMutableList())
-                mAdapter.loadMoreModule.loadMoreComplete()
             }
 
             mAdapter.setPo(viewModel.po)
-            Timber.i("New data found. Adapter now have ${mAdapter.data.size} threads")
+            Timber.i("Adapter will have ${it.size} threads")
         })
 
         sharedVM.selectedThread.observe(viewLifecycleOwner, Observer {
@@ -190,15 +195,6 @@ class ReplyFragment : Fragment() {
                 viewModel.setThread(it)
             }
 
-        })
-
-        binding.replysView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                if (dy > 0) {
-                    binding.fabMenu.hide()
-                    hideMenu()
-                } else if (dy < 0) binding.fabMenu.show()
-            }
         })
 
         binding.fabMenu.setOnClickListener {
@@ -224,10 +220,6 @@ class ReplyFragment : Fragment() {
 
         binding.jump.setOnClickListener {
             hideMenu()
-            if (binding.refreshLayout.isRefreshing) {
-                Toast.makeText(context, "还在刷新中。。请稍后操作", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
             val pos = 1.coerceAtLeast(
                 (binding.replysView.layoutManager as LinearLayoutManager)
                     .findLastCompletelyVisibleItemPosition()
@@ -244,6 +236,7 @@ class ReplyFragment : Fragment() {
                 .show()
                 .dismissWith {
                     if (jumpPopup.submit) {
+                        binding.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
                         Timber.i("Jumping to ${jumpPopup.targetPage}...")
                         viewModel.jumpTo(jumpPopup.targetPage)
                     }
@@ -267,27 +260,14 @@ class ReplyFragment : Fragment() {
             }
         })
 
-
-        binding.refreshLayout.setHeaderView(ClassicHeader<IIndicator>(context))
-        binding.refreshLayout.setOnRefreshListener(object : RefreshingListenerAdapter() {
-            override fun onRefreshing() {
-                viewModel.getPreviousPage()
-            }
-        })
-
         return binding.root
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        Timber.d("Fragment View Destroyed")
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Timber.d("Reply Fragment destroyed!")
-    }
-
 
     private fun hideMenu() {
         val rotateBackward = AnimationUtils.loadAnimation(

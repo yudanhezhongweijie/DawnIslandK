@@ -47,6 +47,8 @@ class ReplyViewModel : ViewModel() {
         PREVIOUS
     }
 
+    var direction: DIRECTION = DIRECTION.NEXT
+
     fun setThread(f: Thread) {
         if (f.id == currentThread?.id ?: "") return
         Timber.i("Thread has changed... Clearing old data")
@@ -61,6 +63,7 @@ class ReplyViewModel : ViewModel() {
         var page = 1
         if (replyList.isNotEmpty()) page = replyList.last().page!!
         if (fullPage) page += 1
+        direction = DIRECTION.NEXT
         getReplys(page, DIRECTION.NEXT)
     }
 
@@ -89,7 +92,7 @@ class ReplyViewModel : ViewModel() {
         }
 
         previousPage.clear()
-
+        direction = DIRECTION.PREVIOUS
         getReplys(page - 1, DIRECTION.PREVIOUS)
     }
 
@@ -97,6 +100,7 @@ class ReplyViewModel : ViewModel() {
         Timber.i("Jumping to page $page... Clearing old data")
         replyList.clear()
         replyIds.clear()
+        direction = DIRECTION.NEXT
         getReplys(page, DIRECTION.NEXT)
     }
 
@@ -107,6 +111,7 @@ class ReplyViewModel : ViewModel() {
         }
 
         viewModelScope.launch {
+            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.LOADING))
             DataResource.create(
                 NMBServiceClient.getReplys(
                     AppState.cookies?.firstOrNull()?.cookieHash,
@@ -182,17 +187,12 @@ class ReplyViewModel : ViewModel() {
                 }
 
             _reply.postValue(replyList)
+            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))
 
             Timber.i("CurrentPage: $page ReplyIds(w. ad, head): ${replyIds.size} replyList: ${replyList.size} replyCount: $maxReply")
         } else {
             Timber.i("Thread ${data.id} has no new replys.")
-            _loadingStatus.postValue(
-                SingleLiveEvent.create(
-                    LoadingStatus.NODATA,
-                    "No New Replys"
-                )
-
-            )
+            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.NODATA))
 
         }
     }

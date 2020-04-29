@@ -108,7 +108,7 @@ class SizeCustomizationFragment : Fragment() {
         }
 
         generateSeekBar(ELEVATION, "阴影").let {
-            it?.findViewWithTag<SeekBar>("SeekBar")?.progress = cardFactory.cardElevaion
+            it?.findViewWithTag<SeekBar>("SeekBar")?.progress = cardFactory.cardElevation
             progressContainer.addView(it)
         }
 

@@ -17,7 +17,7 @@ class FeedViewModel : ViewModel() {
     private val feedsIds = mutableSetOf<String>()
     private var _feeds = MutableLiveData<List<Thread>>()
     val feeds: LiveData<List<Thread>> get() = _feeds
-    private var page = 1
+    private val page get() = feedsList.size / 10 + 1
     private var _loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
     val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>>
         get() = _loadingStatus
@@ -25,13 +25,10 @@ class FeedViewModel : ViewModel() {
     private val _delFeedResponse = MutableLiveData<SingleLiveEvent<EventPayload<Int>>>()
     val delFeedResponse: LiveData<SingleLiveEvent<EventPayload<Int>>> get() = _delFeedResponse
 
-    init {
-        getFeeds()
-    }
-
     fun getFeeds() {
         viewModelScope.launch {
-            Timber.i("Downloading Feeds...")
+            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.LOADING))
+            Timber.i("Downloading Feeds on page $page...")
             DataResource.create(NMBServiceClient.getFeeds(AppState.feedsId, page)).run {
                 when (this) {
                     is DataResource.Error -> {
@@ -57,20 +54,13 @@ class FeedViewModel : ViewModel() {
             feedsIds.addAll(noDuplicates.map { it.id })
             feedsList.addAll(noDuplicates)
             Timber.i(
-                "feedsList now have ${feedsList.size} feeds"
+                "feedsList now has ${feedsList.size} feeds"
             )
             _feeds.postValue(feedsList)
-
-            if (feedsList.size % 10 == 0) page += 1
+            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))
         } else {
-            Timber.i("feedsList has no new feeds.")
-            _loadingStatus.postValue(
-                SingleLiveEvent.create(
-                    LoadingStatus.NODATA,
-                    "feedsList has no new feeds."
-                )
-
-            )
+            Timber.i("feedsList not updated, still has ${feedsList.size} feeds.")
+            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.NODATA))
         }
     }
 
@@ -80,6 +70,8 @@ class FeedViewModel : ViewModel() {
             NMBServiceClient.delFeed(AppState.feedsId, id).run {
                 when (this) {
                     is APISuccessMessageResponse -> {
+                        feedsList.removeAt(position)
+                        feedsIds.remove(id)
                         _delFeedResponse.postValue(
                             SingleLiveEvent.create(
                                 LoadingStatus.SUCCESS,
@@ -106,7 +98,6 @@ class FeedViewModel : ViewModel() {
     fun refresh() {
         feedsList.clear()
         feedsIds.clear()
-        page = 1
         getFeeds()
     }
 }

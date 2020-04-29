@@ -1,6 +1,7 @@
 package com.laotoua.dawnislandk.ui.util
 
 import android.app.Activity
+import android.widget.Toast
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -8,11 +9,15 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.appbar.AppBarLayout
 import com.laotoua.dawnislandk.R
+import com.laotoua.dawnislandk.ui.adapter.QuickAdapter
 import com.laotoua.dawnislandk.ui.fragment.*
+import com.laotoua.dawnislandk.viewmodel.EventPayload
+import com.laotoua.dawnislandk.viewmodel.LoadingStatus
 import kotlinx.android.synthetic.main.activity_main.*
+import me.dkzwm.widget.srl.SmoothRefreshLayout
 
 
-object ToolbarUtil {
+object UIUtils {
     private fun disableCollapse(activity: Activity, title: String, subtitle: String? = "") {
         val dawnAppbar = activity.dawnAppbar
         val collapsingToolbar = activity.collapsingToolbar
@@ -140,8 +145,39 @@ object ToolbarUtil {
         }
     }
 
-    // special handler for forum change
+    // update forum change when fragment is not changed
     fun Activity.updateAppBarTitleWithinFragment(title: String) {
         collapsingToolbar.title = title
+    }
+
+    fun <T> Fragment.updateHeaderAndFooter(
+        refreshLayout: SmoothRefreshLayout,
+        mAdapter: QuickAdapter,
+        event: EventPayload<T>
+    ) {
+        when (event.loadingStatus) {
+            LoadingStatus.FAILED -> {
+                refreshLayout.refreshComplete(false)
+                mAdapter.loadMoreModule.loadMoreFail()
+                Toast.makeText(
+                    context,
+                    event.message,
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            LoadingStatus.NODATA -> {
+                refreshLayout.refreshComplete()
+                mAdapter.loadMoreModule.loadMoreEnd()
+            }
+            LoadingStatus.SUCCESS -> {
+                refreshLayout.refreshComplete()
+                mAdapter.loadMoreModule.loadMoreComplete()
+            }
+            LoadingStatus.LOADING -> {
+                // do nothing
+            }
+
+        }
+
     }
 }

@@ -26,16 +26,17 @@ class ThreadCardFactory(val context: Context) {
     private var DEFAULT_CARDVIEW_MARGINSTART = 10
     private var DEFAULT_CARDVIEW_MARGINEND = 10
     private var DEFAULT_CARDVIEW_MARGINTOP = 16
-    private var DEFAULT_CARDVIEW_MARGINBOTTOM = 6
+    private var DEFAULT_CARDVIEW_MARGINBOTTOM = 10
     private val sharedPreferences: SharedPreferences by lazy {
         PreferenceManager.getDefaultSharedPreferences(context)
     }
     var mainTextSize = 0
     var cardRadius = 0
-    var cardElevaion = 0
+    var cardElevation = 0
     var cardMarginTop = 0
     var cardMarginLeft = 0
     var cardMarginRight = 0
+    var cardMarginBottom = 0
     var headBarMarginTop = 0
     var contentMarginTop = 0
     var contentMarginLeft = 0
@@ -51,7 +52,7 @@ class ThreadCardFactory(val context: Context) {
             Constants.CARD_RADIUS,
             dip2px(context, 5f)
         )
-        cardElevaion =
+        cardElevation =
             sharedPreferences.getInt(
                 Constants.CARD_ELEVATION,
                 dip2px(context, 2f)
@@ -67,6 +68,10 @@ class ThreadCardFactory(val context: Context) {
         cardMarginRight = sharedPreferences.getInt(
             Constants.CARD_MARGIN_RIGHT,
             DEFAULT_CARDVIEW_MARGINEND
+        )
+        cardMarginBottom = sharedPreferences.getInt(
+            Constants.CARD_MARGIN_BOTTOM,
+            DEFAULT_CARDVIEW_MARGINBOTTOM
         )
         headBarMarginTop = sharedPreferences.getInt(
             Constants.HEAD_BAR_MARGIN_TOP,
@@ -110,6 +115,7 @@ class ThreadCardFactory(val context: Context) {
         marginLayoutParams.marginStart = cardMarginLeft
         marginLayoutParams.marginEnd = cardMarginRight
         marginLayoutParams.topMargin = cardMarginTop
+        marginLayoutParams.bottomMargin = cardMarginBottom
         cardView.layoutParams = marginLayoutParams
 
         /**
@@ -134,7 +140,7 @@ class ThreadCardFactory(val context: Context) {
          */
         cardView.setCardBackgroundColor(Color.parseColor("#Ffffff"))
         cardView.radius = cardRadius.toFloat()
-        cardView.elevation = cardElevaion.toFloat()
+        cardView.elevation = cardElevation.toFloat()
         val threadContainer = ConstraintLayout(context)
         threadContainer.id = R.id.threadContainer
         threadContainer.setPadding(

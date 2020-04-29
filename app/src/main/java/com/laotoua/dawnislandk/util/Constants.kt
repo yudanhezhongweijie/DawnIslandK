@@ -7,6 +7,7 @@ object Constants {
     const val CARD_MARGIN_TOP = "card_margin_top"
     const val CARD_MARGIN_LEFT = "card_margin_left"
     const val CARD_MARGIN_RIGHT = "card_margin_right"
+    const val CARD_MARGIN_BOTTOM = "card_margin_bottom"
     const val HEAD_BAR_MARGIN_TOP = "head_bar_margin_top"
     const val CONTENT_MARGIN_TOP = "content_margin_top"
     const val CONTENT_MARGIN_LEFT = "content_margin_left"

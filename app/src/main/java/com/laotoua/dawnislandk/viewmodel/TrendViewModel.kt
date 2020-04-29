@@ -28,10 +28,6 @@ class TrendViewModel : ViewModel() {
     val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>>
         get() = _loadingStatus
 
-    init {
-        getLatestTrend()
-    }
-
     private fun getLatestTrend() {
         viewModelScope.launch {
             getLatestTrendPage()

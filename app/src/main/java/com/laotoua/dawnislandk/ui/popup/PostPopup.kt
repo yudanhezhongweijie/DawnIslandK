@@ -7,7 +7,6 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Environment
-import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
@@ -65,6 +64,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
                 })
                 .enableDrag(false)
+                .moveUpToKeyboard(false)
                 .asCustom(postPopup)
                 .show()
         }
@@ -106,14 +106,6 @@ class PostPopup(private val caller: Fragment, context: Context) :
     private val postProgress by lazy {
         XPopup.Builder(getContext())
             .asLoading("正在发送中")
-    }
-
-    // default button background
-    private val btnBackground by lazy {
-        TypedValue().apply {
-            context.theme
-                .resolveAttribute(android.R.attr.selectableItemBackground, this, true)
-        }.resourceId
     }
 
     private var progressBar: ProgressBar? = null
@@ -190,7 +182,14 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
     override fun onCreate() {
         super.onCreate()
-        postContent = findViewById(R.id.postContent)
+        postContent = findViewById<EditText>(R.id.postContent)
+            .also {
+                setOnFocusChangeListener { v, hasFocus ->
+                    if (hasFocus) {
+                        showKeyboardFrom(context, v)
+                    }
+                }
+            }
 
         toggleContainers = findViewById<ConstraintLayout>(R.id.toggleContainers).also {
             expansionContainer = findViewById(R.id.expansionContainer)
@@ -506,6 +505,11 @@ class PostPopup(private val caller: Fragment, context: Context) :
         (context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager)
             .hideSoftInputFromWindow(view.windowToken, 0)
 
+    }
+
+    private fun showKeyboardFrom(context: Context, view: View) {
+        (context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager)
+            .showSoftInput(view, 0)
     }
 
 }

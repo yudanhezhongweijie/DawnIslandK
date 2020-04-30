@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.laotoua.dawnislandk.R
@@ -69,6 +70,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 }
 
 
+            true
+        }
+
+        findPreference<EditTextPreference>("feedId")?.setOnPreferenceChangeListener { _, newValue ->
+            AppState.setFeedsId(newValue as String)
             true
         }
 

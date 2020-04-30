@@ -50,4 +50,8 @@ object AppState {
         return mFeedsId!!
     }
 
+    fun setFeedsId(string: String) {
+        mFeedsId = string
+    }
+
 }

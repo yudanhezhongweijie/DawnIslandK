@@ -37,6 +37,17 @@ object ImageUtil {
             ?: throw IOException("Failed to create new MediaStore record.")
     }
 
+    fun removePlaceholderImageUriToGallery(
+        caller: Fragment,
+        uri: Uri
+    ): Int {
+        return caller.requireActivity().contentResolver.delete(
+            uri,
+            null,
+            null
+        )
+    }
+
     fun loadImageThumbnailToImageView(
         caller: Fragment,
         uri: Uri,

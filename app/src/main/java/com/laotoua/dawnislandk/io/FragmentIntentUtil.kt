@@ -1,12 +1,17 @@
 package com.laotoua.dawnislandk.io
 
 import android.Manifest
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.net.Uri
+import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.invoke
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.CallSuper
 import androidx.fragment.app.Fragment
 import timber.log.Timber
 
@@ -56,8 +61,29 @@ object FragmentIntentUtil {
         caller.prepareCall(ActivityResultContracts.GetContent(), callback)(type)
     }
 
-    fun getImageFromCamera(caller: Fragment, uri: Uri, callback: (Bitmap?) -> Unit) {
-        caller.prepareCall(ActivityResultContracts.TakePicture(), callback)(uri)
+    fun getImageFromCamera(caller: Fragment, uri: Uri, callback: (Boolean) -> Unit) {
+        caller.prepareCall(MyTakePicture(), callback)(uri)
     }
+
+    // temp workaround for Default TakePicture, which might not return thumbnail upon success
+    internal class MyTakePicture :
+        ActivityResultContract<Uri, Boolean>() {
+        @CallSuper
+        override fun createIntent(
+            context: Context,
+            input: Uri
+        ): Intent {
+            return Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                .putExtra(MediaStore.EXTRA_OUTPUT, input)
+        }
+
+        override fun parseResult(
+            resultCode: Int,
+            intent: Intent?
+        ): Boolean {
+            return (intent == null || resultCode != Activity.RESULT_OK).not()
+        }
+    }
+
 
 }

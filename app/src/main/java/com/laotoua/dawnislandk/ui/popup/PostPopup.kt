@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Environment
 import android.view.View
@@ -82,7 +81,6 @@ class PostPopup(private val caller: Fragment, context: Context) :
     var imageFile: File? = null
     var userHash = ""
 
-    // TODO: temp solution for TakePicture error
     private var previewUri: Uri? = null
 
     private var cookies = listOf<Cookie>()
@@ -360,24 +358,23 @@ class PostPopup(private val caller: Fragment, context: Context) :
                 try {
                     ImageUtil.addPlaceholderImageUriToGallery(caller, name, ext, relativeLocation)
                         ?.run {
-                            // TODO: previewUri is temporary because intent return null thumbnail
                             previewUri = this
                             FragmentIntentUtil.getImageFromCamera(caller, this)
-                            { bitmap: Bitmap? ->
-//                            bitmap?.run {
-//                                postPhotoPreview!!.setImageBitmap(this)
-//                            }
-//                            if (bitmap == null) {
-//                                Timber.i("didn't get thumbnail")
-//                            }
-                                ImageUtil.loadImageThumbnailToImageView(
-                                    caller,
-                                    previewUri!!,
-                                    150,
-                                    150,
-                                    postImagePreview!!
-                                )
-                                attachmentContainer!!.visibility = View.VISIBLE
+                            { success: Boolean ->
+                                if (success) {
+                                    Timber.d("Took a Picture. Setting preview thumbnail...")
+                                    ImageUtil.loadImageThumbnailToImageView(
+                                        caller,
+                                        previewUri!!,
+                                        150,
+                                        150,
+                                        postImagePreview!!
+                                    )
+                                    attachmentContainer!!.visibility = View.VISIBLE
+                                } else {
+                                    Timber.d("Didn't take a Picture. Removing placeholder Image...")
+                                    ImageUtil.removePlaceholderImageUriToGallery(caller, this)
+                                }
                             }
                         }
                 } catch (e: Exception) {

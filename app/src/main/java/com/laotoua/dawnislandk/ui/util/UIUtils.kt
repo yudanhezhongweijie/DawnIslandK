@@ -15,6 +15,7 @@ import com.laotoua.dawnislandk.viewmodel.EventPayload
 import com.laotoua.dawnislandk.viewmodel.LoadingStatus
 import kotlinx.android.synthetic.main.activity_main.*
 import me.dkzwm.widget.srl.SmoothRefreshLayout
+import me.dkzwm.widget.srl.config.Constants
 
 
 object UIUtils {
@@ -174,7 +175,10 @@ object UIUtils {
                 mAdapter.loadMoreModule.loadMoreComplete()
             }
             LoadingStatus.LOADING -> {
-                // do nothing
+                // show indicator if applicable
+                if (this.isVisible && !mAdapter.loadMoreModule.isLoading && !refreshLayout.isRefreshing) {
+                    refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
+                }
             }
 
         }

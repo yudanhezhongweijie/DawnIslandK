@@ -274,11 +274,6 @@ class PostPopup(private val caller: Fragment, context: Context) :
                         hideKeyboardFrom(context, this)
                         emojiContainer!!.visibility = if (isChecked) View.VISIBLE else View.GONE
                     }
-                    R.id.postAttachment -> {
-                        hideKeyboardFrom(context, this)
-                        attachmentContainer!!.visibility =
-                            if (isChecked) View.VISIBLE else View.GONE
-                    }
 
                     R.id.postLuwei -> {
                         hideKeyboardFrom(context, this)

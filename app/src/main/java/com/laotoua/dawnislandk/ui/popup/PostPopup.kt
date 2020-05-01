@@ -150,7 +150,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
             activity,
             this
         ) { height ->
-            if (keyboardHeight < 0) {
+            if (height > 0 && keyboardHeight != height) {
                 keyboardHeight = height
                 listOf(emojiContainer!!, luweiStickerContainer!!).map {
                     val lp = it.layoutParams

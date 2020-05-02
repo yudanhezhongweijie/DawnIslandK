@@ -7,6 +7,7 @@ import android.text.method.LinkMovementMethod
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DiffUtil
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.loadmore.BaseLoadMoreView
@@ -137,12 +138,18 @@ class QuickAdapter(private val layoutResId: Int) :
         } else {
             card.setGone(R.id.threadImage, true)
         }
-
-        ContentTransformationUtil.transformContent(item.content).run {
+        val lineHeight =
+            PreferenceManager.getDefaultSharedPreferences(context).getInt(Constants.LINE_HEIGHT, 0)
+        val segGap =
+            PreferenceManager.getDefaultSharedPreferences(context).getInt(Constants.SEG_GAP, 0)
+        ContentTransformationUtil.transformContent(item.content, lineHeight, segGap).run {
             if (this.isEmpty()) card.setGone(R.id.threadContent, true)
             else {
                 card.setText(R.id.threadContent, this)
                 card.setVisible(R.id.threadContent, true)
+                card.getView<TextView>(R.id.threadContent).letterSpacing =
+                    PreferenceManager.getDefaultSharedPreferences(context)
+                        .getInt(Constants.LETTER_SPACE, 1) / 50f
             }
         }
     }
@@ -196,7 +203,16 @@ class QuickAdapter(private val layoutResId: Int) :
             card.setGone(R.id.replyImage, true)
         }
 
-        ContentTransformationUtil.transformContent(item.content, referenceClickListener).run {
+        val lineHeight =
+            PreferenceManager.getDefaultSharedPreferences(context).getInt(Constants.LINE_HEIGHT, 0)
+        val segGap =
+            PreferenceManager.getDefaultSharedPreferences(context).getInt(Constants.SEG_GAP, 0)
+        ContentTransformationUtil.transformContent(
+            item.content,
+            lineHeight,
+            segGap,
+            referenceClickListener
+        ).run {
             if (this.isEmpty()) card.setGone(R.id.replyContent, true)
             else {
                 card.setText(R.id.replyContent, this)
@@ -204,8 +220,11 @@ class QuickAdapter(private val layoutResId: Int) :
                 /**
                  *  special handler for clickable spans
                  */
-                card.getView<TextView>(R.id.replyContent).movementMethod =
-                    LinkMovementMethod.getInstance()
+                card.getView<TextView>(R.id.replyContent).apply {
+                    movementMethod = LinkMovementMethod.getInstance()
+                    letterSpacing = PreferenceManager.getDefaultSharedPreferences(context)
+                        .getInt(Constants.LETTER_SPACE, 1) / 50f
+                }
             }
         }
     }
@@ -215,10 +234,17 @@ class QuickAdapter(private val layoutResId: Int) :
         card.setText(R.id.trendId, item.id)
         card.setText(R.id.trendForum, item.forum)
         card.setText(R.id.trendHits, item.hits)
+        val lineHeight =
+            PreferenceManager.getDefaultSharedPreferences(context).getInt(Constants.LINE_HEIGHT, 0)
+        val segGap =
+            PreferenceManager.getDefaultSharedPreferences(context).getInt(Constants.SEG_GAP, 0)
         card.setText(
             R.id.trendContent,
-            ContentTransformationUtil.transformContent(item.content)
+            ContentTransformationUtil.transformContent(item.content, lineHeight, segGap)
         )
+        card.getView<TextView>(R.id.trendContent).letterSpacing =
+            PreferenceManager.getDefaultSharedPreferences(context)
+                .getInt(Constants.LETTER_SPACE, 1) / 50f
     }
 
     private fun convertEmoji(card: BaseViewHolder, item: String) {

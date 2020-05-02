@@ -8,6 +8,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.PreferenceManager
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.entity.Reply
 import com.laotoua.dawnislandk.data.network.ImageLoader
@@ -105,9 +106,16 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
         }
 
         findViewById<TextView>(R.id.quoteContent).run {
+            val lineHeight =
+                PreferenceManager.getDefaultSharedPreferences(context)
+                    .getInt(Constants.LINE_HEIGHT, 0)
+            val segGap =
+                PreferenceManager.getDefaultSharedPreferences(context).getInt(Constants.SEG_GAP, 0)
             text = transformContent(
-                quote.content, referenceClickListener
+                quote.content, lineHeight, segGap, referenceClickListener
             )
+            letterSpacing = PreferenceManager.getDefaultSharedPreferences(context)
+                .getInt(Constants.LETTER_SPACE, 1) / 50f
         }
 
     }

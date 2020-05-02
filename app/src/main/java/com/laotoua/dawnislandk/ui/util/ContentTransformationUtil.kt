@@ -15,6 +15,7 @@ import android.util.DisplayMetrics
 import android.util.TypedValue
 import com.laotoua.dawnislandk.ui.span.HideSpan
 import com.laotoua.dawnislandk.ui.span.ReferenceSpan
+import com.laotoua.dawnislandk.ui.span.SegmentSpacingSpan
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -80,6 +81,8 @@ object ContentTransformationUtil {
 
     fun transformContent(
         content: String,
+        lineHeight: Int,
+        segGap: Int,
         referenceClickListener: ((String) -> Unit)? = null
     ): SpannableStringBuilder {
         return SpannableStringBuilder(htmlToSpanned(content)).apply {
@@ -87,7 +90,20 @@ object ContentTransformationUtil {
             handleReference(this, referenceClickListener)
             handleAcUrl(this)
             handleHideTag(this)
+            handleLineHeightAndSegGap(this, lineHeight, segGap)
         }
+    }
+
+    fun handleLineHeightAndSegGap(content: SpannableStringBuilder, lineHeight: Int, segGap: Int) {
+        // apply segGap if no clear newline in content
+        val mSegGap = if (content.contains("\n\n")) lineHeight else segGap
+        content.setSpan(
+            SegmentSpacingSpan(lineHeight, mSegGap),
+            0,
+            content.length,
+            Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+        )
+
     }
 
     fun dip2px(context: Context, dipValue: Float): Int {

@@ -22,6 +22,7 @@ import com.laotoua.dawnislandk.viewmodel.DataResource
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.CenterPopupView
 import com.lxj.xpopup.interfaces.SimpleCallback
+import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.launch
 
 @SuppressLint("ViewConstructor")
@@ -106,13 +107,17 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
 
         findViewById<TextView>(R.id.quoteContent).run {
             text = transformContent(
-                quote.content, referenceClickListener
+                quote.content, mLineHeight, mSegGap, referenceClickListener
             )
+            letterSpacing = mLetterSpace
         }
 
     }
 
     companion object {
+        private val mLetterSpace by lazy { MMKV.defaultMMKV().getFloat(Constants.LETTER_SPACE, 0f) }
+        private val mLineHeight by lazy { MMKV.defaultMMKV().getInt(Constants.LINE_HEIGHT, 0) }
+        private val mSegGap by lazy { MMKV.defaultMMKV().getInt(Constants.SEG_GAP, 0) }
         fun showQuote(
             caller: Fragment,
             context: Context,

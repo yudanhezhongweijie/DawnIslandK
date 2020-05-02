@@ -1,11 +1,9 @@
 package com.laotoua.dawnislandk.data.state
 
 import android.content.Context
-import androidx.preference.PreferenceManager
 import com.laotoua.dawnislandk.data.entity.Cookie
 import com.laotoua.dawnislandk.data.entity.DawnDatabase
 import com.laotoua.dawnislandk.ui.viewfactory.ThreadCardFactory
-import java.util.*
 
 object AppState {
 
@@ -30,28 +28,11 @@ object AppState {
         mCookies = DB.cookieDao().getAll()
     }
 
-    private var mFeedsId: String? = null
-    val feedsId get() = mFeedsId!!
+    private var mFeedId: String? = null
+    val feedId get() = mFeedId!!
 
-    fun loadFeedsId(context: Context): String {
-        if (mFeedsId == null) {
-            PreferenceManager.getDefaultSharedPreferences(context).run {
-                mFeedsId = getString("feedId", null)
-                if (mFeedsId == null) {
-                    mFeedsId = UUID.randomUUID().toString()
-                    edit().putString(
-                        "feedId",
-                        mFeedsId
-                    ).apply()
-                }
-
-            }
-        }
-        return mFeedsId!!
-    }
-
-    fun setFeedsId(string: String) {
-        mFeedsId = string
+    fun setFeedId(string: String) {
+        mFeedId = string
     }
 
 }

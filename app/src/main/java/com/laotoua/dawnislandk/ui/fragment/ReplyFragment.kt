@@ -244,7 +244,7 @@ class ReplyFragment : Fragment() {
 
         binding.addFeed.setOnClickListener {
             hideMenu()
-            viewModel.addFeed(AppState.feedsId, viewModel.currentThread!!.id)
+            viewModel.addFeed(AppState.feedId, viewModel.currentThread!!.id)
         }
 
         viewModel.addFeedResponse.observe(viewLifecycleOwner, Observer {

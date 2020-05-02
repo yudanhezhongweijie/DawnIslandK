@@ -169,6 +169,13 @@ object UIUtils {
             LoadingStatus.NODATA -> {
                 refreshLayout.refreshComplete()
                 mAdapter.loadMoreModule.loadMoreEnd()
+                if (event.message != null) {
+                    Toast.makeText(
+                        context,
+                        event.message,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
             LoadingStatus.SUCCESS -> {
                 refreshLayout.refreshComplete()

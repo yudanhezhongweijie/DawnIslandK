@@ -23,6 +23,7 @@ import com.laotoua.dawnislandk.ui.util.GlideApp
 import com.laotoua.dawnislandk.ui.viewfactory.ThreadCardFactory
 import com.laotoua.dawnislandk.util.Constants
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
+import com.tencent.mmkv.MMKV
 import timber.log.Timber
 
 
@@ -34,6 +35,10 @@ class QuickAdapter(private val layoutResId: Int) :
     private val thumbCDN = Constants.thumbCDN
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var referenceClickListener: (String) -> Unit
+
+    private val mLetterSpace by lazy { MMKV.defaultMMKV().getFloat(Constants.LETTER_SPACE, 0f) }
+    private val mLineHeight by lazy { MMKV.defaultMMKV().getInt(Constants.LINE_HEIGHT, 0) }
+    private val mSegGap by lazy { MMKV.defaultMMKV().getInt(Constants.SEG_GAP, 0) }
 
     private val factory: ThreadCardFactory by lazy {
         AppState.getThreadCardFactory(
@@ -138,11 +143,12 @@ class QuickAdapter(private val layoutResId: Int) :
             card.setGone(R.id.threadImage, true)
         }
 
-        ContentTransformationUtil.transformContent(item.content).run {
+        ContentTransformationUtil.transformContent(item.content, mLineHeight, mSegGap).run {
             if (this.isEmpty()) card.setGone(R.id.threadContent, true)
             else {
                 card.setText(R.id.threadContent, this)
                 card.setVisible(R.id.threadContent, true)
+                card.getView<TextView>(R.id.threadContent).letterSpacing = mLetterSpace
             }
         }
     }
@@ -196,7 +202,12 @@ class QuickAdapter(private val layoutResId: Int) :
             card.setGone(R.id.replyImage, true)
         }
 
-        ContentTransformationUtil.transformContent(item.content, referenceClickListener).run {
+        ContentTransformationUtil.transformContent(
+            item.content,
+            mLineHeight,
+            mSegGap,
+            referenceClickListener
+        ).run {
             if (this.isEmpty()) card.setGone(R.id.replyContent, true)
             else {
                 card.setText(R.id.replyContent, this)
@@ -204,8 +215,10 @@ class QuickAdapter(private val layoutResId: Int) :
                 /**
                  *  special handler for clickable spans
                  */
-                card.getView<TextView>(R.id.replyContent).movementMethod =
-                    LinkMovementMethod.getInstance()
+                card.getView<TextView>(R.id.replyContent).apply {
+                    movementMethod = LinkMovementMethod.getInstance()
+                    letterSpacing = mLetterSpace
+                }
             }
         }
     }
@@ -217,8 +230,10 @@ class QuickAdapter(private val layoutResId: Int) :
         card.setText(R.id.trendHits, item.hits)
         card.setText(
             R.id.trendContent,
-            ContentTransformationUtil.transformContent(item.content)
+            ContentTransformationUtil.transformContent(item.content, mLineHeight, mSegGap)
         )
+        card.getView<TextView>(R.id.trendContent).letterSpacing =
+            mLetterSpace
     }
 
     private fun convertEmoji(card: BaseViewHolder, item: String) {

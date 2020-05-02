@@ -1,7 +1,6 @@
 package com.laotoua.dawnislandk.ui.viewfactory
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.Typeface
 import android.text.TextUtils
@@ -14,11 +13,11 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.Dimension
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.preference.PreferenceManager
 import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.ui.util.ContentTransformationUtil.dip2px
 import com.laotoua.dawnislandk.util.Constants
+import com.tencent.mmkv.MMKV
 
 class ThreadCardFactory(val context: Context) {
 
@@ -27,9 +26,7 @@ class ThreadCardFactory(val context: Context) {
     private var DEFAULT_CARDVIEW_MARGINEND = 10
     private var DEFAULT_CARDVIEW_MARGINTOP = 16
     private var DEFAULT_CARDVIEW_MARGINBOTTOM = 10
-    private val sharedPreferences: SharedPreferences by lazy {
-        PreferenceManager.getDefaultSharedPreferences(context)
-    }
+    private val mmkv by lazy { MMKV.defaultMMKV() }
     var mainTextSize = 0
     var cardRadius = 0
     var cardElevation = 0
@@ -47,56 +44,56 @@ class ThreadCardFactory(val context: Context) {
     var segGap = 0
 
     fun loadSettings() {
-        mainTextSize = sharedPreferences.getInt(Constants.MAIN_TEXT_SIZE, 15)
-        cardRadius = sharedPreferences.getInt(
+        mainTextSize = mmkv.getInt(Constants.MAIN_TEXT_SIZE, 15)
+        cardRadius = mmkv.getInt(
             Constants.CARD_RADIUS,
             dip2px(context, 5f)
         )
         cardElevation =
-            sharedPreferences.getInt(
+            mmkv.getInt(
                 Constants.CARD_ELEVATION,
                 dip2px(context, 2f)
             )
-        cardMarginTop = sharedPreferences.getInt(
+        cardMarginTop = mmkv.getInt(
             Constants.CARD_MARGIN_TOP,
             DEFAULT_CARDVIEW_MARGINTOP
         )
-        cardMarginLeft = sharedPreferences.getInt(
+        cardMarginLeft = mmkv.getInt(
             Constants.CARD_MARGIN_LEFT,
             DEFAULT_CARDVIEW_MARGINSTART
         )
-        cardMarginRight = sharedPreferences.getInt(
+        cardMarginRight = mmkv.getInt(
             Constants.CARD_MARGIN_RIGHT,
             DEFAULT_CARDVIEW_MARGINEND
         )
-        cardMarginBottom = sharedPreferences.getInt(
+        cardMarginBottom = mmkv.getInt(
             Constants.CARD_MARGIN_BOTTOM,
             DEFAULT_CARDVIEW_MARGINBOTTOM
         )
-        headBarMarginTop = sharedPreferences.getInt(
+        headBarMarginTop = mmkv.getInt(
             Constants.HEAD_BAR_MARGIN_TOP,
             DEFAULT_CARDVIEW_PADDING
         )
         contentMarginTop =
-            sharedPreferences.getInt(
+            mmkv.getInt(
                 Constants.CONTENT_MARGIN_TOP,
                 dip2px(context, 8f)
             )
-        contentMarginLeft = sharedPreferences.getInt(
+        contentMarginLeft = mmkv.getInt(
             Constants.CONTENT_MARGIN_LEFT,
             DEFAULT_CARDVIEW_PADDING
         )
-        contentMarginRight = sharedPreferences.getInt(
+        contentMarginRight = mmkv.getInt(
             Constants.CONTENT_MARGIN_RIGHT,
             DEFAULT_CARDVIEW_PADDING
         )
-        contentMarginBottom = sharedPreferences.getInt(
+        contentMarginBottom = mmkv.getInt(
             Constants.CONTENT_MARGIN_BOTTOM,
             DEFAULT_CARDVIEW_PADDING
         )
-        letterSpace = sharedPreferences.getInt(Constants.LETTER_SPACE, 0)
-        lineHeight = sharedPreferences.getInt(Constants.LINE_HEIGHT, 0)
-        segGap = sharedPreferences.getInt(Constants.SEG_GAP, 0)
+        letterSpace = mmkv.getInt(Constants.LETTER_SPACE, 0)
+        lineHeight = mmkv.getInt(Constants.LINE_HEIGHT, 0)
+        segGap = mmkv.getInt(Constants.SEG_GAP, 0)
     }
 
     fun getCardView(context: Context): ThreadListCard {

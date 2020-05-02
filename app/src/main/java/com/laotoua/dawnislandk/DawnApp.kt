@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.laotoua.dawnislandk.data.entity.DawnDatabase
 import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.ui.util.ReadableTime
+import com.tencent.mmkv.MMKV
 import timber.log.Timber
 
 class DawnApp : Application() {
@@ -13,16 +14,19 @@ class DawnApp : Application() {
         super.onCreate()
         Timber.plant(Timber.DebugTree())
 
-        // Time
-        ReadableTime.initialize(this)
+        // MMKV
+        MMKV.initialize(this)
+
+        // db
         val db = Room.databaseBuilder(
             applicationContext,
             DawnDatabase::class.java, "dawnDB"
         )
             .fallbackToDestructiveMigration()
             .build()
-
         AppState.setDB(db)
 
+        // Time
+        ReadableTime.initialize(this)
     }
 }

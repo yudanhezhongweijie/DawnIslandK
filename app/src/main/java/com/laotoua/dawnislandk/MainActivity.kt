@@ -18,8 +18,10 @@ import com.laotoua.dawnislandk.ui.util.UIUtils.updateAppBarTitleWithinFragment
 import com.laotoua.dawnislandk.viewmodel.CommunityViewModel
 import com.laotoua.dawnislandk.viewmodel.LoadingStatus
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
+import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.*
 
 
 class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
@@ -114,6 +116,11 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
         AppState.loadCookies()
 
         // set default subscriptionID
-        AppState.loadFeedsId(this)
+        var feedId = MMKV.defaultMMKV().getString("feedId", null)
+        if (feedId == null) {
+            feedId = UUID.randomUUID().toString()
+            MMKV.defaultMMKV().putString("feedId", feedId)
+        }
+        AppState.setFeedId(feedId)
     }
 }

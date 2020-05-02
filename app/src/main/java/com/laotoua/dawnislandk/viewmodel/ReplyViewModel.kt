@@ -68,15 +68,15 @@ class ReplyViewModel : ViewModel() {
     }
 
     fun getPreviousPage() {
+
+        // Refresh when no data, usually error occurs
         if (replyList.isEmpty()) {
-            Timber.e("Refreshing without data?")
             _loadingStatus.postValue(
                 SingleLiveEvent.create(
-                    LoadingStatus.FAILED,
-                    "Refreshing without data?"
+                    LoadingStatus.LOADING
                 )
             )
-
+            getNextPage()
             return
         }
         val page = replyList.first().page!!.toInt()

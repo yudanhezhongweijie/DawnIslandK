@@ -252,7 +252,6 @@ class PostPopup(private val caller: Fragment, context: Context) :
         }
 
         findViewById<Button>(R.id.postSend).setOnClickListener {
-            Timber.i("Sending...")
             hideKeyboardFrom(context, this)
             send()
         }
@@ -276,14 +275,19 @@ class PostPopup(private val caller: Fragment, context: Context) :
                     }
                     // TODO: doodle
                     R.id.postDoodle -> {
-                        Toast.makeText(context, "还没做...", Toast.LENGTH_LONG).show()
+                        if (isChecked) {
+                            Toast.makeText(context, "还没做...", Toast.LENGTH_LONG).show()
+                            Timber.d("clicked on doodle")
+                        }
                     }
                     // TODO: save
                     R.id.postSave -> {
-                        Toast.makeText(context, "还没做....", Toast.LENGTH_LONG).show()
+                        if (isChecked) {
+                            Toast.makeText(context, "还没做....", Toast.LENGTH_LONG).show()
+                            Timber.d("clicked on save")
+                        }
                     }
                     else -> {
-                        Timber.e("Unhandled selector in post popup")
                     }
 
                 }
@@ -444,15 +448,20 @@ class PostPopup(private val caller: Fragment, context: Context) :
             Toast.makeText(caller.context, "没有饼干不能发串哦。。", Toast.LENGTH_SHORT).show()
             return
         }
-        postProgress.show()
         name = findViewById<TextView>(R.id.formName).text.toString()
         email = findViewById<TextView>(R.id.formEmail).text.toString()
         title = findViewById<TextView>(R.id.formTitle).text.toString()
         content = postContent!!.text.toString()
+        if (content == "" && imageFile == null) {
+            Toast.makeText(caller.context, ":(没有上传的内容或文件", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         userHash = selectedCookie?.cookieHash ?: ""
 
         // TODO: 值班室需要举报理由才能发送
+        postProgress.show()
+        Timber.i("Sending...")
         caller.lifecycleScope.launch {
             NMBServiceClient.sendPost(
                 newPost,
@@ -481,6 +490,9 @@ class PostPopup(private val caller: Fragment, context: Context) :
                         Timber.e(message)
                         message
                     }
+                }
+                if (message.substring(0, 2) == ":)") {
+                    clearEntries()
                 }
                 postProgress.dismiss()
                 dismiss()

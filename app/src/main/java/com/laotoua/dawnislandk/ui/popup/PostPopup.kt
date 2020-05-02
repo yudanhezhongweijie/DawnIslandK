@@ -182,12 +182,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
         super.onCreate()
         postContent = findViewById<EditText>(R.id.postContent)
             .also {
-                setOnFocusChangeListener { v, hasFocus ->
-                    if (hasFocus) {
-                        showKeyboardFrom(context, v)
-                    }
-                }
-
+                showSoftKeyboard(it)
             }
 
         toggleContainers = findViewById<ConstraintLayout>(R.id.toggleContainers).also {
@@ -500,9 +495,16 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
     }
 
-    private fun showKeyboardFrom(context: Context, view: View) {
-        (context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager)
-            .showSoftInput(view, 0)
+    private fun showSoftKeyboard(view: View) {
+        if (view.requestFocus()) {
+            (context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager)
+                .showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+        }
     }
+
+//    private fun showKeyboardFrom(context: Context, view: View) {
+//        (context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager)
+//            .showSoftInput(view, 0)
+//    }
 
 }

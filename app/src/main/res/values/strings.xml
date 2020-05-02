@@ -1,17 +1,17 @@
 <resources>
-    <string name="app_name">DawnIslandK</string>
+    <string name="app_name" translatable="false">DawnIslandK</string>
 
-    <string name="just_now">刚刚</string>
+    <string name="just_now" translatable="false">刚刚</string>
     <plurals name="some_minutes_ago">
         <item quantity="other">%d 分钟前</item>
     </plurals>
     <plurals name="some_hours_ago">
         <item quantity="other">%d 小时前</item>
     </plurals>
-    <string name="yesterday">昨天</string>
-    <string name="some_days_ago">%d 天前</string>
+    <string name="yesterday" translatable="false">昨天</string>
+    <string name="some_days_ago" translatable="false">%d 天前</string>
 
-    <string name="from_the_future">来自未来</string>
+    <string name="from_the_future" translatable="false">来自未来</string>
     <plurals name="second">
         <item quantity="other">秒</item>
     </plurals>
@@ -27,4 +27,5 @@
     <plurals name="year">
         <item quantity="other">年</item>
     </plurals>
+
 </resources>

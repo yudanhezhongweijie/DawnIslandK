@@ -8,10 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
-import android.widget.LinearLayout
-import android.widget.ScrollView
-import android.widget.SeekBar
-import android.widget.TextView
+import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -345,5 +342,6 @@ class SizeCustomizationFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         cardFactory.loadSettings()
+        Toast.makeText(context, "设置将在重启后生效", Toast.LENGTH_SHORT).show()
     }
 }

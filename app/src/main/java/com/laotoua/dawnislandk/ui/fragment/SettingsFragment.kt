@@ -4,11 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.preference.EditTextPreference
-import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.laotoua.dawnislandk.R
@@ -35,11 +34,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
         lifecycleScope.launchWhenCreated { loadCookies() }
     }
 
+    private val mmkv by lazy { MMKV.defaultMMKV() }
+
     private suspend fun loadCookies() {
         withContext(Dispatchers.IO) {
             AppState.loadCookies()
             cookies = AppState.cookies!!
-            Timber.i("Loaded cookies: $cookies")
+            Timber.d("Loaded cookies: $cookies")
         }
     }
 
@@ -51,6 +52,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         sharedVM.setFragment(this)
         return super.onCreateView(inflater, container, savedInstanceState)
     }
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
 
@@ -73,16 +75,43 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
-        findPreference<EditTextPreference>("feedId")?.setOnPreferenceChangeListener { _, newValue ->
-//            AppState.setFeedsId(newValue as String)
-            MMKV.defaultMMKV().encode("feedId", newValue as String)
-            true
+        findPreference<Preference>("feedId")?.apply {
+            summary = mmkv.getString("feedId", "")
+
+            setOnPreferenceClickListener {
+                val feedId = mmkv.getString("feedId", "")
+                XPopup.Builder(context)
+                    .asInputConfirm("修改订阅ID", "", feedId, feedId) { text ->
+                        mmkv.putString("feedId", text)
+                        summary = text
+
+                        Toast.makeText(context, "设置将在重启后生效", Toast.LENGTH_SHORT).show()
+                    }
+                    .show()
+                true
+            }
         }
 
-        findPreference<ListPreference>("time_format")?.setOnPreferenceChangeListener { _, newValue ->
-//            AppState.setFeedsId(newValue as String)
-            MMKV.defaultMMKV().encode("time_format", newValue as String)
-            true
+
+        findPreference<Preference>("time_format")?.apply {
+            val entries = resources.getStringArray(R.array.time_format_entries)
+            val values = resources.getStringArray(R.array.time_format_values)
+            summary = if (values.first() == mmkv.getString("time_format", "")) {
+                entries.first()
+            } else {
+                entries.last()
+            }
+
+            setOnPreferenceClickListener {
+                XPopup.Builder(context)
+                    .asCenterList("修改时间显示格式", entries) { position, text ->
+                        mmkv.putString("time_format", values[position])
+                        summary = text
+                        Toast.makeText(context, "设置将在重启后生效", Toast.LENGTH_SHORT).show()
+                    }
+                    .show()
+                true
+            }
         }
 
         findPreference<Preference>("sizes_customization")?.setOnPreferenceClickListener {

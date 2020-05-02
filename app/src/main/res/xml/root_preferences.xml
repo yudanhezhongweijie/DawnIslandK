@@ -1,19 +1,13 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
-
     <PreferenceCategory app:title="常规">
-
-        <EditTextPreference
+        <Preference
             app:key="feedId"
-            app:title="订阅"
-            app:useSimpleSummaryProvider="true" />
+            app:title="订阅" />
 
-        <ListPreference
-            app:entries="@array/time_format_entries"
-            app:entryValues="@array/time_format_values"
+        <Preference
             app:key="time_format"
-            app:title="设置时间显示格式"
-            app:useSimpleSummaryProvider="true" />
+            app:title="设置时间显示格式" />
 
         <Preference
             app:key="cookie"

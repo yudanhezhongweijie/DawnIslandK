@@ -18,7 +18,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.chad.library.adapter.base.listener.OnItemChildClickListener
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.entity.Reply
 import com.laotoua.dawnislandk.data.network.ImageLoader
@@ -30,7 +29,6 @@ import com.laotoua.dawnislandk.ui.popup.JumpPopup
 import com.laotoua.dawnislandk.ui.popup.PostPopup
 import com.laotoua.dawnislandk.ui.popup.QuotePopup
 import com.laotoua.dawnislandk.ui.util.UIUtils.updateHeaderAndFooter
-import com.laotoua.dawnislandk.ui.util.extractQuoteId
 import com.laotoua.dawnislandk.viewmodel.ReplyViewModel
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 import com.lxj.xpopup.XPopup
@@ -50,7 +48,19 @@ class ReplyFragment : Fragment() {
     private val viewModel: ReplyViewModel by viewModels()
     private val sharedVM: SharedViewModel by activityViewModels()
     private val mAdapter =
-        QuickAdapter(R.layout.reply_list_item)
+        QuickAdapter(R.layout.reply_list_item).apply {
+            setReferenceClickListener { quote ->
+                // TODO: get Po based on Thread
+                QuotePopup.showQuote(
+                    this@ReplyFragment,
+                    requireContext(),
+                    quotePopup,
+                    quote,
+                    viewModel.po
+                )
+            }
+        }
+
 
     private val imageLoader: ImageLoader by lazy { ImageLoader(requireContext()) }
 
@@ -107,7 +117,7 @@ class ReplyFragment : Fragment() {
                 binding.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
             }
 
-            setOnItemClickListener { _, _, position ->
+            setOnItemClickListener { _, _, _ ->
                 hideMenu()
             }
 
@@ -139,23 +149,6 @@ class ReplyFragment : Fragment() {
                     Timber.i("replyId: $replyId")
                 }
             }
-
-            addCustomChildIds(R.id.quoteId)
-            setCustomQuoteClickListener(
-                OnItemChildClickListener { _, view, _ ->
-                    // TODO Loading animation
-                    val id = extractQuoteId(
-                        view.findViewById<TextView>(R.id.quoteId).text as String
-                    )
-                    // TODO: get Po based on Thread
-                    QuotePopup.showQuote(
-                        this@ReplyFragment,
-                        requireContext(),
-                        quotePopup,
-                        id,
-                        viewModel.po
-                    )
-                })
 
             // load more
             loadMoreModule.setOnLoadMoreListener {

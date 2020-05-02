@@ -4,154 +4,175 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Build
-import android.text.*
-import android.text.style.BackgroundColorSpan
-import android.text.style.ClickableSpan
+import android.text.Html
+import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
+import android.text.style.URLSpan
 import android.util.DisplayMetrics
 import android.util.TypedValue
-import android.view.View
-import android.widget.TextView
-import androidx.core.text.HtmlCompat
+import com.laotoua.dawnislandk.ui.span.HideSpan
+import com.laotoua.dawnislandk.ui.span.ReferenceSpan
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
-fun transformForumName(forumName: String): Spanned {
-    return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-        Html.fromHtml(forumName)
-    } else {
-        Html.fromHtml(forumName, Html.FROM_HTML_MODE_COMPACT)
-    }
-}
+object ContentTransformationUtil {
+    private val REFERENCE_PATTERN = Pattern.compile(">>?(?:No.)?(\\d+)")
+    private val URL_PATTERN =
+        Pattern.compile("(http|https)://[a-z0-9A-Z%-]+(\\.[a-z0-9A-Z%-]+)+(:\\d{1,5})?(/[a-zA-Z0-9-_~:#@!&',;=%/\\*\\.\\?\\+\\$\\[\\]\\(\\)]+)?/?")
+    private val AC_PATTERN = Pattern.compile("ac\\d+")
+    private val HIDE_PATTERN = Pattern.compile("\\[h](.+?)\\[/h]")
 
-fun transformCookie(userid: String, admin: String, po: String = ""): Spannable {
-    /*
-  处理饼干
-  PO需要加粗
-  普通饼干是灰色，po是黑色，红名是红色
- */
-    val cookie = SpannableStringBuilder(userid)
-    if (admin == "1") {
-        val adminColor = ForegroundColorSpan(Color.parseColor("#FF0F0F"))
-        cookie.setSpan(adminColor, 0, cookie.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
-        // TODO: support multiple po
-    } else if (userid == po) {
-        val poColor = ForegroundColorSpan(Color.parseColor("#000000"))
-        cookie.setSpan(poColor, 0, cookie.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
-    }
-    if (userid == po) {
-        val styleSpanBold = StyleSpan(Typeface.BOLD)
-        cookie.setSpan(styleSpanBold, 0, cookie.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
-    }
-    return cookie
-}
-
-fun transformTime(now: String): String {
-    return ReadableTime.getDisplayTime(now)
-}
-
-fun transformTitleAndName(title: String? = "", name: String? = ""): String {
-    var titleAndName = ""
-    if (title != null && title != "" && title != "无标题") {
-        titleAndName += "标题：$title"
-    }
-    if (name != null && name != "" && name != "无名氏") {
-        if (titleAndName.isNotEmpty()) {
-            titleAndName += "\n"
+    @Suppress("DEPRECATION")
+    private fun htmlToSpanned(string: String): Spanned {
+        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            Html.fromHtml(string)
+        } else {
+            Html.fromHtml(string, Html.FROM_HTML_MODE_COMPACT)
         }
-        titleAndName += "作者：$name"
-    }
-    return titleAndName
-}
-
-fun extractQuote(content: String): List<String> {
-    /** api response
-    <font color=\"#789922\">&gt;&gt;No.23527403</font>
-     */
-    val regex = """&gt;&gt;No.\d+""".toRegex()
-
-    return regex.findAll(content).toList().map {
-        it.value.substring(11)
     }
 
-}
-
-fun removeQuote(content: String): String {
-    /** api response
-    <font color=\"#789922\">&gt;&gt;No.23527403</font>
-     */
-    val regex = """<font color="#789922">.*</font>(<br ?/?>)?""".toRegex()
-    return regex.replace(content, "")
-}
-
-
-fun transformContent(content: String): SpannableStringBuilder {
-
-    val nonHide = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        SpannableStringBuilder(Html.fromHtml(content, HtmlCompat.FROM_HTML_MODE_COMPACT))
-    } else {
-        SpannableStringBuilder(Html.fromHtml(content))
+    fun transformForumName(forumName: String): Spanned {
+        return htmlToSpanned(forumName)
     }
-    return transformHideContent(nonHide)
-}
 
-fun transformHideContent(content: SpannableStringBuilder): SpannableStringBuilder {
-    var index: Int
-    var hideStart: Int
-    var hideEnd: Int
-    hideStart = content.indexOf("[h]")
-    hideEnd = content.indexOf("[/h]")
-    while (hideStart != -1 && hideEnd != -1 && hideStart < hideEnd) {
-        content.delete(hideStart, hideStart + 3)
-        content.delete(hideEnd - 3, hideEnd + 1)
-        val foregroundColorSpan = ForegroundColorSpan(Color.TRANSPARENT)
-        val backgroundColorSpan = BackgroundColorSpan(Color.parseColor("#555555"))
-        content.setSpan(
-            backgroundColorSpan,
-            hideStart,
-            hideEnd - 3,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
-        content.setSpan(
-            foregroundColorSpan,
-            hideStart,
-            hideEnd - 3,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
-
-        val clickableSpan: ClickableSpan = object : ClickableSpan() {
-            override fun onClick(widget: View) {
-                if (widget is TextView) {
-                    val charSequence = widget.text
-                    if (charSequence is Spannable) {
-                        charSequence.removeSpan(backgroundColorSpan)
-                        charSequence.removeSpan(foregroundColorSpan)
-                        widget.highlightColor = Color.TRANSPARENT
-                    }
-                }
-            }
-
-            // overrides, DO NOT CREATE PAINT
-            override fun updateDrawState(ds: TextPaint) {
-            }
+    fun transformCookie(userId: String, admin: String, po: String = ""): Spannable {
+        /**
+         * 处理饼干
+         * PO需要加粗
+         * 普通饼干是灰色，po是黑色，红名是红色
+         */
+        val cookie = SpannableStringBuilder(userId)
+        if (admin == "1") {
+            val adminColor = ForegroundColorSpan(Color.parseColor("#FF0F0F"))
+            cookie.setSpan(adminColor, 0, cookie.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
+            // TODO: support multiple po
+        } else if (userId == po) {
+            val poColor = ForegroundColorSpan(Color.parseColor("#000000"))
+            cookie.setSpan(poColor, 0, cookie.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
         }
-        content.setSpan(clickableSpan, hideStart, hideEnd - 3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        index = hideEnd - 3
-        hideStart = content.indexOf("[h]", index)
-        hideEnd = content.indexOf("[/h]", index)
+        if (userId == po) {
+            val styleSpanBold = StyleSpan(Typeface.BOLD)
+            cookie.setSpan(styleSpanBold, 0, cookie.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
+        }
+        return cookie
     }
-    return content
-}
 
-fun dip2px(context: Context, dipValue: Float): Int {
-    val displayMetrics: DisplayMetrics = context.resources.displayMetrics
-    return TypedValue.applyDimension(
-        TypedValue.COMPLEX_UNIT_DIP,
-        dipValue,
-        displayMetrics
-    ).toInt()
-}
+    fun transformTime(now: String): String {
+        return ReadableTime.getDisplayTime(now)
+    }
 
-fun extractQuoteId(string: String): String {
-    val regex = """\D""".toRegex()
-    return string.replace(regex, "")
+    fun transformTitleAndName(title: String? = "", name: String? = ""): String {
+        var titleAndName = ""
+        if (title != null && title != "" && title != "无标题") {
+            titleAndName += "标题：$title"
+        }
+        if (name != null && name != "" && name != "无名氏") {
+            if (titleAndName.isNotEmpty()) {
+                titleAndName += "\n"
+            }
+            titleAndName += "作者：$name"
+        }
+        return titleAndName
+    }
+
+    fun transformContent(
+        content: String,
+        referenceClickListener: ((String) -> Unit)? = null
+    ): SpannableStringBuilder {
+        return SpannableStringBuilder(htmlToSpanned(content)).apply {
+            handleTextUrl(this)
+            handleReference(this, referenceClickListener)
+            handleAcUrl(this)
+            handleHideTag(this)
+        }
+    }
+
+    fun dip2px(context: Context, dipValue: Float): Int {
+        val displayMetrics: DisplayMetrics = context.resources.displayMetrics
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            dipValue,
+            displayMetrics
+        ).toInt()
+    }
+
+    private fun handleReference(
+        content: SpannableStringBuilder,
+        referenceClickListener: ((id: String) -> Unit)? = null
+    ): SpannableStringBuilder {
+        val m: Matcher = REFERENCE_PATTERN.matcher(content)
+        while (m.find()) {
+            val start = m.start()
+            val end = m.end()
+            val referenceSpan = ReferenceSpan(m.group(1)!!, referenceClickListener)
+            content.setSpan(
+                referenceSpan,
+                start,
+                end,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+        return content
+    }
+
+    private fun handleTextUrl(content: SpannableStringBuilder): SpannableStringBuilder {
+        val m: Matcher = URL_PATTERN.matcher(content)
+        while (m.find()) {
+            val start = m.start()
+            val end = m.end()
+            val links: Array<URLSpan> =
+                content.getSpans(
+                    start, end,
+                    URLSpan::class.java
+                )
+            if (links.isNotEmpty()) {
+                // There has been URLSpan already, leave it alone
+                continue
+            }
+            val urlSpan = URLSpan(m.group(0))
+            content.setSpan(
+                urlSpan,
+                start,
+                end,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+        return content
+    }
+
+    private fun handleAcUrl(content: SpannableStringBuilder): SpannableStringBuilder {
+        val m: Matcher = AC_PATTERN.matcher(content)
+        while (m.find()) {
+            val start = m.start()
+            val end = m.end()
+            val links =
+                content.getSpans(
+                    start, end,
+                    URLSpan::class.java
+                )
+            if (links.isNotEmpty()) {
+                // There has been URLSpan already, leave it alone
+                continue
+            }
+            val urlSpan =
+                URLSpan("http://www.acfun.cn/v/" + m.group(0))
+            content.setSpan(urlSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+        return content
+    }
+
+    private fun handleHideTag(content: SpannableStringBuilder): SpannableStringBuilder {
+        val m: Matcher = HIDE_PATTERN.matcher(content)
+        while (m.find()) {
+            val start = m.start()
+            val end = m.end()
+            val hideSpan = HideSpan(start, end)
+            content.setSpan(hideSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            hideSpan.hideSecret(content, start, end)
+        }
+        return content
+    }
 }

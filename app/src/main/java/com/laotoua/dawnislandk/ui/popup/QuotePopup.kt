@@ -2,11 +2,8 @@ package com.laotoua.dawnislandk.ui.popup
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -15,43 +12,44 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.entity.Reply
 import com.laotoua.dawnislandk.data.network.ImageLoader
 import com.laotoua.dawnislandk.data.network.NMBServiceClient
-import com.laotoua.dawnislandk.ui.util.*
+import com.laotoua.dawnislandk.ui.util.ContentTransformationUtil.transformContent
+import com.laotoua.dawnislandk.ui.util.ContentTransformationUtil.transformCookie
+import com.laotoua.dawnislandk.ui.util.ContentTransformationUtil.transformTime
+import com.laotoua.dawnislandk.ui.util.ContentTransformationUtil.transformTitleAndName
+import com.laotoua.dawnislandk.ui.util.GlideApp
+import com.laotoua.dawnislandk.util.Constants
 import com.laotoua.dawnislandk.viewmodel.DataResource
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.CenterPopupView
 import com.lxj.xpopup.interfaces.SimpleCallback
-import kotlinx.android.synthetic.main.quote_list_item.view.*
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @SuppressLint("ViewConstructor")
 class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupView(context) {
 
     private val imageLoader: ImageLoader by lazy { ImageLoader(context) }
 
-    // TODO: clean CDN
-    private val thumbCDN = "https://nmbimg.fastmirror.org/thumb/"
     override fun getImplLayoutId(): Int {
         return R.layout.quote_popup
     }
 
-    private fun convertReply(reply: Reply, po: String) {
-        findViewById<TextView>(R.id.replyCookie).text =
+    private fun convertQuote(quote: Reply, po: String) {
+        findViewById<TextView>(R.id.quoteCookie).text =
             transformCookie(
-                reply.userid,
-                reply.admin!!,
+                quote.userid,
+                quote.admin!!,
                 po
             )
 
-        findViewById<TextView>(R.id.replyTime).text =
-            transformTime(reply.now)
+        findViewById<TextView>(R.id.quoteTime).text =
+            transformTime(quote.now)
 
         // TODO: handle ads
-        findViewById<TextView>(R.id.replyId).text = reply.id
+        findViewById<TextView>(R.id.quoteId).text = quote.id
 
         // TODO: add sage transformation
         findViewById<TextView>(R.id.sage).run {
-            visibility = if (reply.sage == "1") {
+            visibility = if (quote.sage == "1") {
                 View.VISIBLE
             } else {
                 View.GONE
@@ -60,10 +58,10 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
 
         val titleAndName =
             transformTitleAndName(
-                reply.title,
-                reply.name
+                quote.title,
+                quote.name
             )
-        findViewById<TextView>(R.id.replyTitleAndName).run {
+        findViewById<TextView>(R.id.quoteTitleAndName).run {
             if (titleAndName != "") {
                 text = titleAndName
                 visibility = View.VISIBLE
@@ -73,10 +71,10 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
         }
 
         // load image
-        findViewById<ImageView>(R.id.replyImage).run {
-            visibility = if (reply.img != "") {
+        findViewById<ImageView>(R.id.quoteImage).run {
+            visibility = if (quote.img != "") {
                 GlideApp.with(context)
-                    .load(thumbCDN + reply.img + reply.ext)
+                    .load(Constants.thumbCDN + quote.img + quote.ext)
                     .override(250, 250)
                     .fitCenter()
                     .into(this)
@@ -85,10 +83,7 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
                 View.GONE
             }
             setOnClickListener { imageView ->
-                Timber.i("clicked on image in quote ${reply.id}")
-
-                val url = reply.getImgUrl()
-                // TODO support multiple image
+                val url = quote.getImgUrl()
                 val viewerPopup =
                     ImageViewerPopup(
                         caller,
@@ -97,44 +92,22 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
                     )
                 viewerPopup.setXPopupImageLoader(imageLoader)
                 viewerPopup.setSingleSrcView(imageView as ImageView?, url)
-                viewerPopup.setOnClickListener {
-                    Timber.i("on click in thread")
-                }
                 XPopup.Builder(context)
                     .asCustom(viewerPopup)
                     .show()
             }
         }
 
-        findViewById<LinearLayout>(R.id.replyQuotes).run {
-            val quotes =
-                extractQuote(reply.content)
-            if (quotes.isNotEmpty()) {
-                removeAllViews()
-                val quotePopup = QuotePopup(caller, context)
-                quotes.map { id ->
-                    val q = LayoutInflater.from(context)
-                        .inflate(R.layout.quote_list_item, this as ViewGroup, false)
-                    q.quoteId.text = "No. $id"
-                    q.setOnClickListener {
-                        // TODO: get Po based on Thread
-                        showQuote(caller, context, quotePopup, id, po)
-                    }
-                    addView(q)
-                }
-                visibility = View.VISIBLE
-            } else {
-                visibility = View.GONE
-            }
+        val referenceClickListener: (id: String) -> Unit = { id ->
+            // TODO: get Po based on Thread
+            val quotePopup = QuotePopup(caller, context)
+            showQuote(caller, context, quotePopup, id, po)
         }
 
-        findViewById<TextView>(R.id.replyContent).run {
+        findViewById<TextView>(R.id.quoteContent).run {
             text = transformContent(
-                removeQuote(reply.content)
+                quote.content, referenceClickListener
             )
-            setOnClickListener {
-                Timber.i("Quote content click listener not implemented yet")
-            }
         }
 
     }
@@ -163,17 +136,15 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
                                 .setPopupCallback(object : SimpleCallback() {
                                     override fun beforeShow() {
                                         super.beforeShow()
-                                        quotePopup.convertReply(data!!, po)
+                                        quotePopup.convertQuote(data!!, po)
                                     }
                                 })
                                 .asCustom(quotePopup)
                                 .show()
                         }
                     }
-
                 }
             }
         }
     }
-
 }

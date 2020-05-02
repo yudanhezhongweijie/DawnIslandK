@@ -18,7 +18,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -476,7 +475,6 @@ public class XPopupUtils {
          */
         int remainHeight = getRealHeight(context) - getStatusBarHeight() - getNavBarHeight();
 
-        Log.e("zrj", "remainHeight:" + remainHeight);
         /**
          * 剩余高度跟应用区域高度相等 说明导航栏存在
          */

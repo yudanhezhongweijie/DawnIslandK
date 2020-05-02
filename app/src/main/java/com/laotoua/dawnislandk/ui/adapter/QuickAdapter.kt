@@ -4,16 +4,11 @@ import android.graphics.Color
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.method.LinkMovementMethod
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.core.view.forEach
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter.base.BaseQuickAdapter
-import com.chad.library.adapter.base.listener.OnItemChildClickListener
 import com.chad.library.adapter.base.loadmore.BaseLoadMoreView
 import com.chad.library.adapter.base.module.LoadMoreModule
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
@@ -23,11 +18,11 @@ import com.laotoua.dawnislandk.data.entity.Thread
 import com.laotoua.dawnislandk.data.entity.Trend
 import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.ui.span.RoundBackgroundColorSpan
-import com.laotoua.dawnislandk.ui.util.*
+import com.laotoua.dawnislandk.ui.util.ContentTransformationUtil
+import com.laotoua.dawnislandk.ui.util.GlideApp
 import com.laotoua.dawnislandk.ui.viewfactory.ThreadCardFactory
 import com.laotoua.dawnislandk.util.Constants
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
-import kotlinx.android.synthetic.main.quote_list_item.view.*
 import timber.log.Timber
 
 
@@ -38,6 +33,7 @@ class QuickAdapter(private val layoutResId: Int) :
 
     private val thumbCDN = Constants.thumbCDN
     private lateinit var sharedViewModel: SharedViewModel
+    private lateinit var referenceClickListener: (String) -> Unit
 
     private val factory: ThreadCardFactory by lazy {
         AppState.getThreadCardFactory(
@@ -64,6 +60,10 @@ class QuickAdapter(private val layoutResId: Int) :
 
     fun setPo(po: String) {
         this.po = po
+    }
+
+    fun setReferenceClickListener(referenceClickListener: (String) -> Unit) {
+        this.referenceClickListener = referenceClickListener
     }
 
     /** default handler for recyclerview item
@@ -97,14 +97,14 @@ class QuickAdapter(private val layoutResId: Int) :
 
         card.setText(
             R.id.threadCookie,
-            transformCookie(
+            ContentTransformationUtil.transformCookie(
                 item.userid,
                 item.admin
             )
         )
         card.setText(
             R.id.threadTime,
-            transformTime(item.now)
+            ContentTransformationUtil.transformTime(item.now)
         )
         val suffix = if (item.replyCount != null) " • " + item.replyCount else ""
         val spannableString = SpannableString(forumDisplayName + suffix)
@@ -138,23 +138,7 @@ class QuickAdapter(private val layoutResId: Int) :
             card.setGone(R.id.threadImage, true)
         }
 
-
-        val quotes =
-            extractQuote(item.content)
-        val quotesContainer: LinearLayout = card.getView(R.id.threadQuotes)
-        quotesContainer.removeAllViews()
-        quotes.map {
-            val q = LayoutInflater.from(context)
-                .inflate(R.layout.quote_list_item, quotesContainer, false)
-            q.quoteId.text = "No. $it"
-            quotesContainer.addView(q)
-        }
-
-        transformContent(
-            removeQuote(
-                item.content
-            )
-        ).run {
+        ContentTransformationUtil.transformContent(item.content).run {
             if (this.isEmpty()) card.setGone(R.id.threadContent, true)
             else {
                 card.setText(R.id.threadContent, this)
@@ -167,7 +151,7 @@ class QuickAdapter(private val layoutResId: Int) :
 
         card.setText(
             R.id.replyCookie,
-            transformCookie(
+            ContentTransformationUtil.transformCookie(
                 item.userid,
                 item.admin!!,
                 po
@@ -176,7 +160,7 @@ class QuickAdapter(private val layoutResId: Int) :
 
         card.setText(
             R.id.replyTime,
-            transformTime(item.now)
+            ContentTransformationUtil.transformTime(item.now)
         )
         // TODO: handle ads
         card.setText(R.id.replyId, item.id)
@@ -189,7 +173,7 @@ class QuickAdapter(private val layoutResId: Int) :
         }
 
         val titleAndName =
-            transformTitleAndName(
+            ContentTransformationUtil.transformTitleAndName(
                 item.title,
                 item.name
             )
@@ -212,32 +196,7 @@ class QuickAdapter(private val layoutResId: Int) :
             card.setGone(R.id.replyImage, true)
         }
 
-        // TODO: need quotation handler, should be done in view however
-        val quotesContainer: LinearLayout = card.getView(R.id.replyQuotes)
-        val quotes =
-            extractQuote(item.content)
-        if (quotes.isNotEmpty()) {
-            quotesContainer.removeAllViews()
-
-            quotes.map {
-                val q = LayoutInflater.from(context)
-                    .inflate(R.layout.quote_list_item, quotesContainer, false)
-                q.quoteId.text = "No. $it"
-                quotesContainer.addView(q)
-            }
-            // special binding for quotes
-            bindCustomQuoteClickListener(card, R.id.replyQuotes)
-
-            card.setVisible(R.id.replyQuotes, true)
-        } else {
-            card.setGone(R.id.replyQuotes, true)
-        }
-
-        transformContent(
-            removeQuote(
-                item.content
-            )
-        ).run {
+        ContentTransformationUtil.transformContent(item.content, referenceClickListener).run {
             if (this.isEmpty()) card.setGone(R.id.replyContent, true)
             else {
                 card.setText(R.id.replyContent, this)
@@ -256,7 +215,10 @@ class QuickAdapter(private val layoutResId: Int) :
         card.setText(R.id.trendId, item.id)
         card.setText(R.id.trendForum, item.forum)
         card.setText(R.id.trendHits, item.hits)
-        card.setText(R.id.trendContent, transformContent(item.content))
+        card.setText(
+            R.id.trendContent,
+            ContentTransformationUtil.transformContent(item.content)
+        )
     }
 
     private fun convertEmoji(card: BaseViewHolder, item: String) {
@@ -270,45 +232,6 @@ class QuickAdapter(private val layoutResId: Int) :
         )
         card.setImageResource(R.id.luweiSticker, resourceId)
     }
-
-    private var mCustomQuoteClickListener: OnItemChildClickListener? = null
-    private var mCustomChildIds = mutableListOf<Int>()
-
-    fun setCustomQuoteClickListener(listener: OnItemChildClickListener) {
-        mCustomQuoteClickListener = listener
-    }
-
-    fun addCustomChildIds(id: Int) {
-        mCustomChildIds.add(id)
-    }
-
-    /*** Based on super.bindViewClickListener
-     *
-     */
-    private fun bindCustomQuoteClickListener(
-        viewHolder: BaseViewHolder,
-        parent: Int
-    ) {
-        if (mCustomQuoteClickListener != null) {
-            for (id in mCustomChildIds) {
-                viewHolder.itemView.findViewById<ViewGroup>(parent)
-                    .forEach { childView ->
-                        if (!childView.isClickable) {
-                            childView.isClickable = true
-                        }
-                        childView.setOnClickListener { v ->
-                            var position = viewHolder.adapterPosition
-                            if (position == RecyclerView.NO_POSITION) {
-                                return@setOnClickListener
-                            }
-                            position -= headerLayoutCount
-                            mCustomQuoteClickListener?.onItemChildClick(this, v, position)
-                        }
-                    }
-            }
-        }
-    }
-
 
 }
 

@@ -187,6 +187,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
                         showKeyboardFrom(context, v)
                     }
                 }
+
             }
 
         toggleContainers = findViewById<ConstraintLayout>(R.id.toggleContainers).also {

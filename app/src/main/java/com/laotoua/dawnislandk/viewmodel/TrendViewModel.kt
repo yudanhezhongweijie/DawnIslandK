@@ -8,7 +8,6 @@ import com.laotoua.dawnislandk.data.entity.Thread
 import com.laotoua.dawnislandk.data.entity.Trend
 import com.laotoua.dawnislandk.data.network.NMBServiceClient
 import com.laotoua.dawnislandk.data.state.AppState
-import com.laotoua.dawnislandk.ui.util.extractQuote
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -104,7 +103,7 @@ class TrendViewModel : ViewModel() {
         val rank = headers[0].removeSuffix(".")
         val hits = headers[2]
         val forum = headers[3].removeSurrounding("[", "]")
-        val id = extractQuote(rows[1]).first()
+        val id = extractQuote(rows[1])
         val content = rows.subList(3, rows.lastIndex).joinToString("<br />")
         return Trend(rank, hits, forum, id, content)
     }
@@ -113,5 +112,14 @@ class TrendViewModel : ViewModel() {
         Timber.i("Refreshing Trend...")
         page = 1
         getLatestTrend()
+    }
+
+    private fun extractQuote(content: String): String {
+        /** api response
+        <font color=\"#789922\">&gt;&gt;No.23527403</font>
+         */
+        val regex = """&gt;&gt;No.\d+""".toRegex()
+        return regex.find(content)!!.value.substring(11)
+
     }
 }

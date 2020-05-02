@@ -94,7 +94,11 @@ object ContentTransformationUtil {
         }
     }
 
-    fun handleLineHeightAndSegGap(content: SpannableStringBuilder, lineHeight: Int, segGap: Int) {
+    private fun handleLineHeightAndSegGap(
+        content: SpannableStringBuilder,
+        lineHeight: Int,
+        segGap: Int
+    ) {
         // apply segGap if no clear newline in content
         val mSegGap = if (content.contains("\n\n")) lineHeight else segGap
         content.setSpan(

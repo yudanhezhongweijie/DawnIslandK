@@ -8,7 +8,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.preference.PreferenceManager
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.entity.Reply
 import com.laotoua.dawnislandk.data.network.ImageLoader
@@ -23,6 +22,7 @@ import com.laotoua.dawnislandk.viewmodel.DataResource
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.CenterPopupView
 import com.lxj.xpopup.interfaces.SimpleCallback
+import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.launch
 
 @SuppressLint("ViewConstructor")
@@ -106,21 +106,18 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
         }
 
         findViewById<TextView>(R.id.quoteContent).run {
-            val lineHeight =
-                PreferenceManager.getDefaultSharedPreferences(context)
-                    .getInt(Constants.LINE_HEIGHT, 0)
-            val segGap =
-                PreferenceManager.getDefaultSharedPreferences(context).getInt(Constants.SEG_GAP, 0)
             text = transformContent(
-                quote.content, lineHeight, segGap, referenceClickListener
+                quote.content, mLineHeight, mSegGap, referenceClickListener
             )
-            letterSpacing = PreferenceManager.getDefaultSharedPreferences(context)
-                .getInt(Constants.LETTER_SPACE, 1) / 50f
+            letterSpacing = mLetterSpace
         }
 
     }
 
     companion object {
+        private val mLetterSpace by lazy { MMKV.defaultMMKV().getFloat(Constants.LETTER_SPACE, 0f) }
+        private val mLineHeight by lazy { MMKV.defaultMMKV().getInt(Constants.LINE_HEIGHT, 0) }
+        private val mSegGap by lazy { MMKV.defaultMMKV().getInt(Constants.SEG_GAP, 0) }
         fun showQuote(
             caller: Fragment,
             context: Context,

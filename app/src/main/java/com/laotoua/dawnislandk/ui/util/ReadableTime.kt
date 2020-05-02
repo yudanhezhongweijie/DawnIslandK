@@ -2,8 +2,8 @@ package com.laotoua.dawnislandk.ui.util
 
 import android.content.Context
 import android.content.res.Resources
-import androidx.preference.PreferenceManager
 import com.laotoua.dawnislandk.R
+import com.tencent.mmkv.MMKV
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -48,9 +48,7 @@ object ReadableTime {
 
     fun initialize(context: Context) {
         sResources = context.applicationContext.resources
-        timeFormat =
-            PreferenceManager.getDefaultSharedPreferences(context)
-                .getString("time_format", "simplified")
+        timeFormat = MMKV.defaultMMKV().getString("time_format", "simplified")
     }
 
     fun string2Time(str: String): Long {
@@ -69,7 +67,6 @@ object ReadableTime {
         return date!!.time
     }
 
-    // TODO: 目前需要重启
     fun getDisplayTime(time: String): String {
         return when (timeFormat) {
             "simplified" -> getTimeAgo(
@@ -92,7 +89,7 @@ object ReadableTime {
         val resources = sResources
         var now = System.currentTimeMillis()
         val timeZoneShift = (TimeZone.getTimeZone("GMT+08:00").getOffset(now)
-            - TimeZone.getDefault().getOffset(now)).toLong()
+                - TimeZone.getDefault().getOffset(now)).toLong()
         now = System.currentTimeMillis() + timeZoneShift
         if (time > now + 2 * MINUTE_MILLIS || time <= 0) {
             return resources!!.getString(R.string.from_the_future)

@@ -37,7 +37,7 @@ class FeedViewModel : ViewModel() {
         viewModelScope.launch {
             _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.LOADING))
             Timber.i("Downloading Feeds on page $page...")
-            DataResource.create(NMBServiceClient.getFeeds(AppState.feedsId, page)).run {
+            DataResource.create(NMBServiceClient.getFeeds(AppState.feedId, page)).run {
                 when (this) {
                     is DataResource.Error -> {
                         Timber.e(message)
@@ -76,7 +76,7 @@ class FeedViewModel : ViewModel() {
     fun deleteFeed(id: String, position: Int) {
         Timber.i("Deleting Feed $id")
         viewModelScope.launch(Dispatchers.IO) {
-            NMBServiceClient.delFeed(AppState.feedsId, id).run {
+            NMBServiceClient.delFeed(AppState.feedId, id).run {
                 when (this) {
                     is APISuccessMessageResponse -> {
                         feedsList.removeAt(position)

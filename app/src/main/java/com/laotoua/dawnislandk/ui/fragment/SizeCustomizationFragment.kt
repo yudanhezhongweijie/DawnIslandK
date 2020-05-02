@@ -1,6 +1,5 @@
 package com.laotoua.dawnislandk.ui.fragment
 
-import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
 import android.text.SpannableString
@@ -16,7 +15,6 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.preference.PreferenceManager
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.ui.span.RoundBackgroundColorSpan
@@ -24,6 +22,7 @@ import com.laotoua.dawnislandk.ui.span.SegmentSpacingSpan
 import com.laotoua.dawnislandk.ui.viewfactory.ThreadCardFactory
 import com.laotoua.dawnislandk.util.Constants
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
+import com.tencent.mmkv.MMKV
 
 class SizeCustomizationFragment : Fragment() {
 
@@ -40,13 +39,11 @@ class SizeCustomizationFragment : Fragment() {
     private val CONTENT_MARGIN_RIGHT = 8
     private val CONTENT_MARGIN_BOTTOM = 9
     private val HEAD_BAR_MARGIN_TOP = 10
-    private val TEXT_SCALEX = 11
-    private val LINE_SPACE_EXTRA = 12
-    private val SEGMENT_GAP = 13
+    private val LETTER_SPACE = 11
+    private val LINE_HEIGHT = 12
+    private val SEG_GAP = 13
 
-    private val sharedPreferences: SharedPreferences by lazy {
-        PreferenceManager.getDefaultSharedPreferences(context)
-    }
+    private val mmkv by lazy { MMKV.defaultMMKV() }
 
     private val cardFactory: ThreadCardFactory by lazy {
         AppState.getThreadCardFactory(
@@ -85,11 +82,14 @@ class SizeCustomizationFragment : Fragment() {
             SpannableString("北分则易红在保，干品政两报米术，料询容保美。\n该府术没也例空解，法露作长心录。 六深事会部青目传向市始，西法医很呀体近数片。\n活林变须阶候业精六只团起已市，下头却广局正支。")
         exampleText.setSpan(
             SegmentSpacingSpan(
-                sharedPreferences.getInt(Constants.LINE_HEIGHT, 0),
-                sharedPreferences.getInt(Constants.SEG_GAP, 0)
+                mmkv.decodeInt(Constants.LINE_HEIGHT, 0),
+                mmkv.decodeInt(Constants.SEG_GAP, 0)
             ), 0, exampleText.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE
         )
-        demoCard.threadContent!!.setText(exampleText, TextView.BufferType.SPANNABLE)
+        demoCard.threadContent!!.apply {
+            setText(exampleText, TextView.BufferType.SPANNABLE)
+            letterSpacing = mmkv.decodeFloat(Constants.LETTER_SPACE, 0f)
+        }
         demoCard.threadImage!!
             .setImageResource(R.mipmap.ic_launcher)
 
@@ -117,17 +117,17 @@ class SizeCustomizationFragment : Fragment() {
             progressContainer.addView(it)
         }
 
-        generateSeekBar(LINE_SPACE_EXTRA, "行间距", 20).let {
+        generateSeekBar(LINE_HEIGHT, "行间距", 20).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress = cardFactory.lineHeight
             progressContainer.addView(it)
         }
 
-        generateSeekBar(SEGMENT_GAP, "段间距", 25).let {
+        generateSeekBar(SEG_GAP, "段间距", 25).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress = cardFactory.segGap
             progressContainer.addView(it)
         }
 
-        generateSeekBar(TEXT_SCALEX, "字间距", 17).let {
+        generateSeekBar(LETTER_SPACE, "字间距", 17).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress = cardFactory.letterSpace
             progressContainer.addView(it)
         }
@@ -221,32 +221,31 @@ class SizeCustomizationFragment : Fragment() {
                 MAIN_TEXT_SIZE -> {
                     res += Constants.MAIN_TEXT_MIN_SIZE
                     (contentView as TextView).textSize = res.toFloat()
-                    sharedPreferences.edit().putInt(Constants.MAIN_TEXT_SIZE, res).apply()
+                    mmkv.encode(Constants.MAIN_TEXT_SIZE, res)
                 }
                 RADIUS -> {
                     demoCard.radius = res.toFloat()
-                    sharedPreferences.edit().putInt(Constants.CARD_RADIUS, res).apply()
+                    mmkv.encode(Constants.CARD_RADIUS, res)
                 }
                 ELEVATION -> {
                     demoCard.elevation = res.toFloat()
-                    sharedPreferences.edit().putInt(Constants.CARD_ELEVATION, res).apply()
+                    mmkv.encode(Constants.CARD_ELEVATION, res)
                 }
                 CARD_MARGIN_TOP -> {
                     cardLayoutParams.topMargin = res
                     demoCard.layoutParams = cardLayoutParams
-                    sharedPreferences.edit().putInt(Constants.CARD_MARGIN_TOP, res).apply()
+                    mmkv.encode(Constants.CARD_MARGIN_TOP, res)
                 }
                 CARD_MARGIN_LEFT -> {
                     cardLayoutParams.marginStart = res
                     demoCard.layoutParams = cardLayoutParams
-                    sharedPreferences.edit().putInt(Constants.CARD_MARGIN_LEFT, res)
-                        .apply()
+                    mmkv.encode(Constants.CARD_MARGIN_LEFT, res)
+
                 }
                 CARD_MARGIN_RIGHT -> {
                     cardLayoutParams.marginEnd = res
                     demoCard.layoutParams = cardLayoutParams
-                    sharedPreferences.edit().putInt(Constants.CARD_MARGIN_RIGHT, res)
-                        .apply()
+                    mmkv.encode(Constants.CARD_MARGIN_RIGHT, res)
                 }
                 HEAD_BAR_MARGIN_TOP -> {
                     demoCardContainer!!.setPadding(
@@ -255,16 +254,15 @@ class SizeCustomizationFragment : Fragment() {
                         demoCardContainer!!.paddingRight,
                         demoCardContainer!!.paddingBottom
                     )
-                    sharedPreferences.edit().putInt(Constants.HEAD_BAR_MARGIN_TOP, res)
-                        .apply()
+
+                    mmkv.encode(Constants.HEAD_BAR_MARGIN_TOP, res)
                 }
                 CONTENT_MARGIN_TOP -> {
                     val contentLayoutParams =
                         contentView.layoutParams as ConstraintLayout.LayoutParams
                     contentLayoutParams.topMargin = res
                     contentView.layoutParams = contentLayoutParams
-                    sharedPreferences.edit().putInt(Constants.CONTENT_MARGIN_TOP, res)
-                        .apply()
+                    mmkv.encode(Constants.CONTENT_MARGIN_TOP, res)
                 }
                 CONTENT_MARGIN_LEFT -> {
                     demoCardContainer!!.setPadding(
@@ -273,8 +271,7 @@ class SizeCustomizationFragment : Fragment() {
                         demoCardContainer!!.paddingRight,
                         demoCardContainer!!.paddingBottom
                     )
-                    sharedPreferences.edit().putInt(Constants.CONTENT_MARGIN_LEFT, res)
-                        .apply()
+                    mmkv.encode(Constants.CONTENT_MARGIN_LEFT, res)
                 }
                 CONTENT_MARGIN_RIGHT -> {
                     demoCardContainer!!.setPadding(
@@ -283,8 +280,7 @@ class SizeCustomizationFragment : Fragment() {
                         res,
                         demoCardContainer!!.paddingBottom
                     )
-                    sharedPreferences.edit().putInt(Constants.CONTENT_MARGIN_RIGHT, res)
-                        .apply()
+                    mmkv.encode(Constants.CONTENT_MARGIN_RIGHT, res)
                 }
                 CONTENT_MARGIN_BOTTOM -> {
                     demoCardContainer!!.setPadding(
@@ -293,16 +289,15 @@ class SizeCustomizationFragment : Fragment() {
                         demoCardContainer!!.paddingRight,
                         res
                     )
-                    sharedPreferences.edit().putInt(Constants.CONTENT_MARGIN_BOTTOM, res)
-                        .apply()
+                    mmkv.encode(Constants.CONTENT_MARGIN_BOTTOM, res)
                 }
-                TEXT_SCALEX -> {
+                LETTER_SPACE -> {
                     var i = res * 1.0f
                     i /= 50f
                     (contentView as TextView).letterSpacing = i
-                    sharedPreferences.edit().putInt(Constants.LETTER_SPACE, res).apply()
+                    mmkv.encode(Constants.LETTER_SPACE, i)
                 }
-                LINE_SPACE_EXTRA -> {
+                LINE_HEIGHT -> {
                     charSequence = (contentView as TextView).text
                     if (charSequence is SpannableString) {
 
@@ -314,9 +309,9 @@ class SizeCustomizationFragment : Fragment() {
                         segmentSpacingSpans[0].setmHeight(res)
                     }
                     contentView.requestLayout()
-                    sharedPreferences.edit().putInt(Constants.LINE_HEIGHT, res).apply()
+                    mmkv.encode(Constants.LINE_HEIGHT, res)
                 }
-                SEGMENT_GAP -> {
+                SEG_GAP -> {
                     charSequence = (contentView as TextView).text
                     if (charSequence is SpannableString) {
                         val segmentSpacingSpans: Array<SegmentSpacingSpan> =
@@ -327,7 +322,7 @@ class SizeCustomizationFragment : Fragment() {
                         segmentSpacingSpans[0].setSegmentGap(res)
                     }
                     contentView.requestLayout()
-                    sharedPreferences.edit().putInt(Constants.SEG_GAP, res).apply()
+                    mmkv.encode(Constants.SEG_GAP, res)
                 }
                 else -> {
                 }

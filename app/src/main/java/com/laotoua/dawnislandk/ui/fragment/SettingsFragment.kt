@@ -8,6 +8,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.preference.EditTextPreference
+import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.laotoua.dawnislandk.R
@@ -16,6 +17,7 @@ import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.ui.popup.CookieManagerPopup
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 import com.lxj.xpopup.XPopup
+import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -68,16 +70,20 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         }
                     }
                 }
-
-
             true
         }
 
         findPreference<EditTextPreference>("feedId")?.setOnPreferenceChangeListener { _, newValue ->
-            AppState.setFeedsId(newValue as String)
+//            AppState.setFeedsId(newValue as String)
+            MMKV.defaultMMKV().encode("feedId", newValue as String)
             true
         }
 
+        findPreference<ListPreference>("time_format")?.setOnPreferenceChangeListener { _, newValue ->
+//            AppState.setFeedsId(newValue as String)
+            MMKV.defaultMMKV().encode("time_format", newValue as String)
+            true
+        }
 
         findPreference<Preference>("sizes_customization")?.setOnPreferenceClickListener {
             val action =

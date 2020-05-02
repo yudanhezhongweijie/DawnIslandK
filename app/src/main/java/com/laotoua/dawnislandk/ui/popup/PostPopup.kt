@@ -16,6 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.callbacks.onDismiss
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.laotoua.dawnislandk.R
@@ -104,6 +105,17 @@ class PostPopup(private val caller: Fragment, context: Context) :
     private val postProgress by lazy {
         XPopup.Builder(getContext())
             .asLoading("正在发送中")
+    }
+
+    private val reportReasonPopup by lazy {
+        XPopup.Builder(getContext())
+            .dismissOnTouchOutside(false)
+            .asCenterList(
+                "举报理由",
+                resources.getStringArray(R.array.report_reasons)
+            ) { _: Int, text: String? ->
+                postContent!!.append("\n举报理由: $text")
+            }
     }
 
     private var progressBar: ProgressBar? = null
@@ -247,6 +259,10 @@ class PostPopup(private val caller: Fragment, context: Context) :
                         targetId = forumNameMap!!.keys.drop(1).toList()[index]
                         button.text = text
                     }//去除时间线
+                }.onDismiss {
+                    if (button.text == "值班室") {
+                        reportReasonPopup.show()
+                    }
                 }
             }
         }

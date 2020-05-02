@@ -207,4 +207,13 @@
         <item>simplified</item>
     </string-array>
 
+    <string-array name="report_reasons">
+        <item>黄赌毒</item>
+        <item>政治敏感</item>
+        <item>谣言欺诈</item>
+        <item>广告Q群</item>
+        <item>引战辱骂</item>
+        <item>串版自删</item>
+    </string-array>
+
 </resources>

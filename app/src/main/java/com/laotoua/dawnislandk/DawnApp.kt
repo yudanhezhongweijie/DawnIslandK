@@ -6,7 +6,11 @@ import com.laotoua.dawnislandk.data.entity.DawnDatabase
 import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.ui.util.ReadableTime
 import com.tencent.mmkv.MMKV
+import com.tencent.mmkv.MMKVHandler
+import com.tencent.mmkv.MMKVLogLevel
+import com.tencent.mmkv.MMKVRecoverStrategic
 import timber.log.Timber
+
 
 class DawnApp : Application() {
 
@@ -16,6 +20,8 @@ class DawnApp : Application() {
 
         // MMKV
         MMKV.initialize(this)
+        MMKV.registerHandler(handler)
+
 
         // db
         val db = Room.databaseBuilder(
@@ -29,4 +35,45 @@ class DawnApp : Application() {
         // Time
         ReadableTime.initialize(this)
     }
+
+    val handler = object : MMKVHandler {
+        override fun onMMKVCRCCheckFail(p0: String?): MMKVRecoverStrategic {
+            throw Exception("onMMKVCRCCheckFail $p0")
+        }
+
+        override fun wantLogRedirecting(): Boolean {
+            return true
+        }
+
+        override fun mmkvLog(
+            level: MMKVLogLevel?,
+            file: String?,
+            line: Int,
+            func: String?,
+            message: String?
+        ) {
+            val log =
+                "<" + file.toString() + ":" + line.toString() + "::" + func.toString() + "> " + message
+            when (level) {
+                MMKVLogLevel.LevelDebug -> {
+                    Timber.d(log)
+                }
+                MMKVLogLevel.LevelInfo -> {
+                }
+                MMKVLogLevel.LevelWarning -> {
+                }
+                MMKVLogLevel.LevelError -> {
+                    Timber.e(log)
+                }
+                MMKVLogLevel.LevelNone -> {
+                }
+            }
+        }
+
+        override fun onMMKVFileLengthError(p0: String?): MMKVRecoverStrategic {
+            throw Exception("onMMKVFileLengthError $p0")
+        }
+
+    }
 }
+

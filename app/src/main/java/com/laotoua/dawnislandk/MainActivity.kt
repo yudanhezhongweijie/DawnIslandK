@@ -2,12 +2,14 @@ package com.laotoua.dawnislandk
 
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Handler
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.laotoua.dawnislandk.data.entity.Forum
 import com.laotoua.dawnislandk.data.state.AppState
@@ -32,6 +34,10 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
 
     private val mAdapter =
         QuickNodeAdapter(this)
+
+    private var doubleBackToExitPressedOnce = false
+    private val mHandler = Handler()
+    private val mRunnable = Runnable { doubleBackToExitPressedOnce = false }
 
     init {
         // load Resources
@@ -122,5 +128,22 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
             MMKV.defaultMMKV().putString("feedId", feedId)
         }
         AppState.setFeedId(feedId)
+    }
+
+    override fun onBackPressed() {
+        if (!doubleBackToExitPressedOnce &&
+            findNavController(R.id.navHostFragment).previousBackStackEntry == null
+        ) {
+            doubleBackToExitPressedOnce = true
+            Toast.makeText(this, "再按一次以退出应用", Toast.LENGTH_SHORT).show()
+            mHandler.postDelayed(mRunnable, 2000)
+            return
+        }
+        super.onBackPressed()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mHandler.removeCallbacks(mRunnable)
     }
 }

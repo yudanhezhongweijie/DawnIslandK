@@ -40,10 +40,6 @@ class QuickNodeAdapter(val clickListener: ForumClickListener) : BaseNodeAdapter(
         val l = list.map {
             CommunityNode(it)
         }
-        // first node is expanded by default
-        if (!l.isNullOrEmpty()) {
-            l.first().isExpanded = true
-        }
 
         setList(l)
     }
@@ -114,7 +110,7 @@ class QuickNodeAdapter(val clickListener: ForumClickListener) : BaseNodeAdapter(
                 animate = true,
                 notify = true,
                 parentPayload = EXPAND_COLLAPSE_PAYLOAD
-            );
+            )
         }
     }
 

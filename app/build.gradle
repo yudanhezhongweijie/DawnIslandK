@@ -4,6 +4,26 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: "androidx.navigation.safeargs"
 android {
+    signingConfigs {
+        release {
+            if (project.rootProject.file("local.properties").exists()) {
+                Properties properties = new Properties()
+                properties.load(project.rootProject.file("local.properties").newDataInputStream())
+                def store_file = properties.getProperty("storeFile")
+                def store_password = properties.getProperty("storePassword")
+                def key_alias = properties.getProperty("keyAlias")
+                def key_password = properties.getProperty("keyPassword")
+
+                storeFile file(store_file)
+                storePassword store_password
+                keyAlias key_alias
+                keyPassword key_password
+//                v1SigningEnabled true
+                v2SigningEnabled true
+            }
+        }
+    }
+
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
     android.ndkVersion "21.1.6352462"
@@ -38,6 +58,8 @@ android {
             shrinkResources true
 
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            debuggable = true
+            signingConfig signingConfigs.release
         }
     }
 

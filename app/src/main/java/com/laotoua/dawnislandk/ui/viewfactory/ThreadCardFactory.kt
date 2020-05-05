@@ -21,13 +21,13 @@ object ThreadCardFactory {
     val cardRadius by lazy {
         mmkv.getFloat(
             Constants.CARD_RADIUS,
-            0f
+            15f
         )
     }
     val cardElevation by lazy {
         mmkv.getFloat(
             Constants.CARD_ELEVATION,
-            0f
+            15f
         )
     }
     val cardMarginTop by lazy {
@@ -63,7 +63,7 @@ object ThreadCardFactory {
     val contentMarginTop by lazy {
         mmkv.getInt(
             Constants.CONTENT_MARGIN_TOP,
-            0
+            15
         )
     }
     val contentMarginLeft by lazy {
@@ -84,9 +84,9 @@ object ThreadCardFactory {
             DEFAULT_CARDVIEW_PADDING
         )
     }
-    val lineHeight by lazy { mmkv.getInt(Constants.LINE_HEIGHT, 0) }
-    val letterSpace by lazy { mmkv.getFloat(Constants.LETTER_SPACE, 0f) }
-    val segGap by lazy { mmkv.getInt(Constants.SEG_GAP, 0) }
+    val lineHeight by lazy { mmkv.getInt(Constants.LINE_HEIGHT, 10) }
+    val letterSpace by lazy { mmkv.getFloat(Constants.LETTER_SPACE, 15f) }
+    val segGap by lazy { mmkv.getInt(Constants.SEG_GAP, 10) }
 
     fun applySettings(cardView: MaterialCardView) {
         val marginLayoutParams = (ViewGroup.MarginLayoutParams(

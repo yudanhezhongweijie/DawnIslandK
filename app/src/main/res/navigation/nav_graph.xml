@@ -11,7 +11,11 @@
         tools:layout="@layout/reply_fragment">
         <action
             android:id="@+id/action_replyFragment_to_imageViewerFragment"
-            app:destination="@id/imageViewerFragment" />
+            app:destination="@id/imageViewerFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/imageViewerFragment"
@@ -29,13 +33,25 @@
         tools:layout="@layout/pager_fragment">
         <action
             android:id="@+id/action_pagerFragment_to_replyFragment"
-            app:destination="@id/replyFragment" />
+            app:destination="@id/replyFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
         <action
             android:id="@+id/action_pagerFragment_to_imageViewerFragment"
-            app:destination="@id/imageViewerFragment" />
+            app:destination="@id/imageViewerFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
         <action
             android:id="@+id/action_pagerFragment_to_settingsFragment"
-            app:destination="@id/settingsFragment" />
+            app:destination="@id/settingsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"
@@ -43,7 +59,11 @@
         android:label="SettingsFragment">
         <action
             android:id="@+id/action_settingsFragment_to_sizeCustomizationFragment"
-            app:destination="@id/sizeCustomizationFragment" />
+            app:destination="@id/sizeCustomizationFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/sizeCustomizationFragment"

@@ -40,6 +40,7 @@ class QuickAdapter(private val layoutResId: Int) :
     private val mLetterSpace by lazy { MMKV.defaultMMKV().getFloat(Constants.LETTER_SPACE, 0f) }
     private val mLineHeight by lazy { MMKV.defaultMMKV().getInt(Constants.LINE_HEIGHT, 0) }
     private val mSegGap by lazy { MMKV.defaultMMKV().getInt(Constants.SEG_GAP, 0) }
+    private val mTextSize by lazy { MMKV.defaultMMKV().getFloat(Constants.MAIN_TEXT_SIZE, 15f) }
 
     // TODO: support multiple Po
     private var po: String = ""
@@ -120,10 +121,9 @@ class QuickAdapter(private val layoutResId: Int) :
         card.getView<TextView>(R.id.threadForumAndReplyCount)
             .setText(spannableString, TextView.BufferType.SPANNABLE)
 
-        // TODO: add sage transformation
         // sage
         if (item.sage == "1") {
-            card.setVisible(R.id.sage, false)
+            card.setVisible(R.id.sage, true)
         } else {
             card.setGone(R.id.sage, true)
         }
@@ -145,7 +145,10 @@ class QuickAdapter(private val layoutResId: Int) :
             else {
                 card.setText(R.id.threadContent, this)
                 card.setVisible(R.id.threadContent, true)
-                card.getView<TextView>(R.id.threadContent).letterSpacing = mLetterSpace
+                card.getView<TextView>(R.id.threadContent).apply {
+                    textSize = mTextSize
+                    letterSpacing = mLetterSpace
+                }
             }
         }
     }
@@ -168,7 +171,6 @@ class QuickAdapter(private val layoutResId: Int) :
         // TODO: handle ads
         card.setText(R.id.replyId, item.id)
 
-        // TODO: add sage transformation
         if (item.sage == "1") {
             card.setVisible(R.id.sage, true)
         } else {
@@ -215,6 +217,7 @@ class QuickAdapter(private val layoutResId: Int) :
                 card.getView<TextView>(R.id.replyContent).apply {
                     movementMethod = LinkMovementMethod.getInstance()
                     letterSpacing = mLetterSpace
+                    textSize = mTextSize
                 }
             }
         }
@@ -229,8 +232,10 @@ class QuickAdapter(private val layoutResId: Int) :
             R.id.trendContent,
             ContentTransformationUtil.transformContent(item.content, mLineHeight, mSegGap)
         )
-        card.getView<TextView>(R.id.trendContent).letterSpacing =
-            mLetterSpace
+        card.getView<TextView>(R.id.trendContent).apply {
+            letterSpacing = mLetterSpace
+            textSize = mTextSize
+        }
     }
 
     private fun convertEmoji(card: BaseViewHolder, item: String) {

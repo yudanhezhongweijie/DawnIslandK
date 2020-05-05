@@ -213,10 +213,10 @@ class ReplyFragment : Fragment() {
 
         binding.jump.setOnClickListener {
             hideMenu()
-            val pos = 1.coerceAtLeast(
-                (binding.replysView.layoutManager as LinearLayoutManager)
-                    .findLastCompletelyVisibleItemPosition()
-            )
+            val pos = (binding.replysView.layoutManager as LinearLayoutManager)
+                .findLastCompletelyVisibleItemPosition()
+                .coerceAtLeast(0)
+                .coerceAtMost(mAdapter.data.lastIndex)
             val page = (mAdapter.getItem(pos) as Reply).page!!
             XPopup.Builder(context)
                 .setPopupCallback(object : SimpleCallback() {
@@ -266,7 +266,7 @@ class ReplyFragment : Fragment() {
         val rotateBackward = AnimationUtils.loadAnimation(
             requireContext(),
             R.anim.rotate_backward
-        );
+        )
         binding.fabMenu.startAnimation(rotateBackward)
         binding.post.hide()
         binding.jump.hide()
@@ -280,7 +280,7 @@ class ReplyFragment : Fragment() {
         val rotateForward = AnimationUtils.loadAnimation(
             requireContext(),
             R.anim.rotate_forward
-        );
+        )
         binding.fabMenu.startAnimation(rotateForward)
         binding.post.show()
         binding.jump.show()

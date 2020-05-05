@@ -1,5 +1,6 @@
 package com.laotoua.dawnislandk.io
 
+import android.app.Activity
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.net.Uri
@@ -16,7 +17,7 @@ import java.io.*
 
 object ImageUtil {
     fun addPlaceholderImageUriToGallery(
-        caller: Fragment,
+        callerActivity: Activity,
         fileName: String,
         fileExt: String,
         relativeLocation: String
@@ -30,7 +31,7 @@ object ImageUtil {
                 put(MediaStore.Images.ImageColumns.RELATIVE_PATH, relativeLocation)
             }
         }
-        return caller.requireActivity().contentResolver.insert(
+        return callerActivity.contentResolver.insert(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
             contentValues
         )

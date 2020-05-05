@@ -35,7 +35,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="2dp"
             android:layout_weight="1"
-            android:text="1小时前"
+            android:text="2小时前"
             app:layout_constraintStart_toEndOf="@id/threadCookie"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -43,25 +43,16 @@
             android:id="@+id/threadForumAndReplyCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/label_background"
             android:paddingLeft="10dp"
             android:paddingTop="2dp"
             android:paddingRight="10dp"
             android:paddingBottom="2dp"
-            android:background="@drawable/label_background"
-            android:text="欢乐恶搞"
+            android:text="欢乐恶搞 ·  12"
             android:textColor="#FCFCFC"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <LinearLayout
-            android:id="@+id/threadQuotes"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:orientation="vertical"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/threadCookie" />
 
         <TextView
             android:id="@+id/threadContent"
@@ -70,39 +61,38 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="2dp"
             android:ellipsize="end"
-            android:maxLines="6"
-            android:text="我脏了我脏了我脏了我脏了我脏了我脏了我脏了我脏了我脏了我脏了我脏了我脏了我脏了"
+            android:maxLines="10"
+            android:text="北分则易红在保，干品政两报米术，料询容保美。\n该府术没也例空解，法露作长心录。 六深事会部青目传向市始，西法医很呀体近数片。\n活林变须阶候业精六只团起已市，下头却广局正支。"
             android:textColor="@color/mainContentTextColor"
             android:textSize="16sp"
             app:layout_constraintEnd_toStartOf="@+id/threadImage"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/threadQuotes" />
+            app:layout_constraintTop_toBottomOf="@id/threadCookie" />
 
         <ImageView
             android:id="@id/threadImage"
-            android:layout_width="250px"
-            android:layout_height="250px"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
             android:layout_marginTop="9dp"
             android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/threadQuotes"
+            app:layout_constraintTop_toBottomOf="@id/threadCookie"
             app:srcCompat="@mipmap/ic_launcher" />
 
+        <TextView
+            android:id="@+id/sage"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@drawable/sage_background"
+            android:text="本串已被sage"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-    <TextView
-        android:id="@+id/sage"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:background="@drawable/sage_background"
-        android:paddingLeft="15dp"
-        android:paddingTop="15dp"
-        android:text="本串已被sage"
-        android:textStyle="bold"
-        android:visibility="invisible" />
-
 
 </com.google.android.material.card.MaterialCardView>
 

@@ -11,12 +11,13 @@ import androidx.recyclerview.widget.DiffUtil
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.loadmore.BaseLoadMoreView
 import com.chad.library.adapter.base.module.LoadMoreModule
+import com.chad.library.adapter.base.util.getItemView
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
+import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.entity.Reply
 import com.laotoua.dawnislandk.data.entity.Thread
 import com.laotoua.dawnislandk.data.entity.Trend
-import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.ui.span.RoundBackgroundColorSpan
 import com.laotoua.dawnislandk.ui.util.ContentTransformationUtil
 import com.laotoua.dawnislandk.ui.util.GlideApp
@@ -39,12 +40,6 @@ class QuickAdapter(private val layoutResId: Int) :
     private val mLetterSpace by lazy { MMKV.defaultMMKV().getFloat(Constants.LETTER_SPACE, 0f) }
     private val mLineHeight by lazy { MMKV.defaultMMKV().getInt(Constants.LINE_HEIGHT, 0) }
     private val mSegGap by lazy { MMKV.defaultMMKV().getInt(Constants.SEG_GAP, 0) }
-
-    private val factory: ThreadCardFactory by lazy {
-        AppState.getThreadCardFactory(
-            context
-        )
-    }
 
     // TODO: support multiple Po
     private var po: String = ""
@@ -92,7 +87,9 @@ class QuickAdapter(private val layoutResId: Int) :
 
     override fun onCreateDefViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         return if (layoutResId == R.layout.thread_list_item) {
-            createBaseViewHolder(factory.getCardView(context))
+            val view = parent.getItemView(layoutResId)
+            ThreadCardFactory.applySettings(view as MaterialCardView)
+            createBaseViewHolder(view)
         } else {
             super.onCreateDefViewHolder(parent, layoutResId)
         }

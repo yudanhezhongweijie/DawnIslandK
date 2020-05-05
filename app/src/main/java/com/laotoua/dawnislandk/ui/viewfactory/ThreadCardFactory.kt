@@ -1,317 +1,122 @@
 package com.laotoua.dawnislandk.ui.viewfactory
 
-import android.content.Context
-import android.graphics.Color
-import android.graphics.Typeface
-import android.text.TextUtils
-import android.util.TypedValue
-import android.view.View
 import android.view.ViewGroup
-import android.view.ViewGroup.MarginLayoutParams
-import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.annotation.Dimension
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.ui.util.ContentTransformationUtil.dip2px
 import com.laotoua.dawnislandk.util.Constants
 import com.tencent.mmkv.MMKV
 
-class ThreadCardFactory(val context: Context) {
+object ThreadCardFactory {
 
     private var DEFAULT_CARDVIEW_PADDING = 15
     private var DEFAULT_CARDVIEW_MARGINSTART = 10
     private var DEFAULT_CARDVIEW_MARGINEND = 10
     private var DEFAULT_CARDVIEW_MARGINTOP = 16
     private var DEFAULT_CARDVIEW_MARGINBOTTOM = 10
-    private val mmkv by lazy { MMKV.defaultMMKV() }
-    var mainTextSize = 0
-    var cardRadius = 0
-    var cardElevation = 0
-    var cardMarginTop = 0
-    var cardMarginLeft = 0
-    var cardMarginRight = 0
-    var cardMarginBottom = 0
-    var headBarMarginTop = 0
-    var contentMarginTop = 0
-    var contentMarginLeft = 0
-    var contentMarginRight = 0
-    var contentMarginBottom = 0
-    var lineHeight = 0
-    var letterSpace = 0
-    var segGap = 0
 
-    fun loadSettings() {
-        mainTextSize = mmkv.getInt(Constants.MAIN_TEXT_SIZE, 15)
-        cardRadius = mmkv.getInt(
+    private val mmkv by lazy { MMKV.defaultMMKV() }
+    val mainTextSize by lazy { mmkv.getFloat(Constants.MAIN_TEXT_SIZE, 15f) }
+    val cardRadius by lazy {
+        mmkv.getFloat(
             Constants.CARD_RADIUS,
-            dip2px(context, 5f)
+            0f
         )
-        cardElevation =
-            mmkv.getInt(
-                Constants.CARD_ELEVATION,
-                dip2px(context, 2f)
-            )
-        cardMarginTop = mmkv.getInt(
+    }
+    val cardElevation by lazy {
+        mmkv.getFloat(
+            Constants.CARD_ELEVATION,
+            0f
+        )
+    }
+    val cardMarginTop by lazy {
+        mmkv.getInt(
             Constants.CARD_MARGIN_TOP,
             DEFAULT_CARDVIEW_MARGINTOP
         )
-        cardMarginLeft = mmkv.getInt(
+    }
+    val cardMarginLeft by lazy {
+        mmkv.getInt(
             Constants.CARD_MARGIN_LEFT,
             DEFAULT_CARDVIEW_MARGINSTART
         )
-        cardMarginRight = mmkv.getInt(
+    }
+    val cardMarginRight by lazy {
+        mmkv.getInt(
             Constants.CARD_MARGIN_RIGHT,
             DEFAULT_CARDVIEW_MARGINEND
         )
-        cardMarginBottom = mmkv.getInt(
+    }
+    val cardMarginBottom by lazy {
+        mmkv.getInt(
             Constants.CARD_MARGIN_BOTTOM,
             DEFAULT_CARDVIEW_MARGINBOTTOM
         )
-        headBarMarginTop = mmkv.getInt(
+    }
+    val headBarMarginTop by lazy {
+        mmkv.getInt(
             Constants.HEAD_BAR_MARGIN_TOP,
             DEFAULT_CARDVIEW_PADDING
         )
-        contentMarginTop =
-            mmkv.getInt(
-                Constants.CONTENT_MARGIN_TOP,
-                dip2px(context, 8f)
-            )
-        contentMarginLeft = mmkv.getInt(
+    }
+    val contentMarginTop by lazy {
+        mmkv.getInt(
+            Constants.CONTENT_MARGIN_TOP,
+            0
+        )
+    }
+    val contentMarginLeft by lazy {
+        mmkv.getInt(
             Constants.CONTENT_MARGIN_LEFT,
             DEFAULT_CARDVIEW_PADDING
         )
-        contentMarginRight = mmkv.getInt(
+    }
+    val contentMarginRight by lazy {
+        mmkv.getInt(
             Constants.CONTENT_MARGIN_RIGHT,
             DEFAULT_CARDVIEW_PADDING
         )
-        contentMarginBottom = mmkv.getInt(
+    }
+    val contentMarginBottom by lazy {
+        mmkv.getInt(
             Constants.CONTENT_MARGIN_BOTTOM,
             DEFAULT_CARDVIEW_PADDING
         )
-        letterSpace = mmkv.getInt(Constants.LETTER_SPACE, 0)
-        lineHeight = mmkv.getInt(Constants.LINE_HEIGHT, 0)
-        segGap = mmkv.getInt(Constants.SEG_GAP, 0)
     }
+    val lineHeight by lazy { mmkv.getInt(Constants.LINE_HEIGHT, 0) }
+    val letterSpace by lazy { mmkv.getFloat(Constants.LETTER_SPACE, 0f) }
+    val segGap by lazy { mmkv.getInt(Constants.SEG_GAP, 0) }
 
-    fun getCardView(context: Context): ThreadListCard {
-        /**
-         * 创建CardView
-         */
-        val cardView = ThreadListCard(context)
-
-        /**
-         * 设置CardView layout属性
-         */
-        val marginLayoutParams = MarginLayoutParams(
+    fun applySettings(cardView: MaterialCardView) {
+        val marginLayoutParams = (ViewGroup.MarginLayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-        marginLayoutParams.marginStart = cardMarginLeft
-        marginLayoutParams.marginEnd = cardMarginRight
-        marginLayoutParams.topMargin = cardMarginTop
-        marginLayoutParams.bottomMargin = cardMarginBottom
+        )).apply {
+            marginStart = cardMarginLeft
+            marginEnd = cardMarginRight
+            topMargin = cardMarginTop
+            bottomMargin = cardMarginBottom
+        }
         cardView.layoutParams = marginLayoutParams
 
-        /**
-         * 获取点击效果资源
-         */
-        val typedValue = TypedValue()
-        context.theme
-            .resolveAttribute(R.attr.selectableItemBackground, typedValue, true)
-        val attribute = intArrayOf(R.attr.selectableItemBackground)
-        val typedArray =
-            context.theme.obtainStyledAttributes(typedValue.resourceId, attribute)
-        val drawable = typedArray.getDrawable(0)
-        typedArray.recycle()
-
-        /**
-         * 设置点击效果
-         */
-        cardView.foreground = drawable
-        cardView.isClickable = true
-        /**
-         * 设置背景颜色
-         */
-        cardView.setCardBackgroundColor(Color.parseColor("#Ffffff"))
-        cardView.radius = cardRadius.toFloat()
-        cardView.elevation = cardElevation.toFloat()
-        val threadContainer = ConstraintLayout(context)
-        threadContainer.id = R.id.threadContainer
+        cardView.radius = cardRadius
+        cardView.elevation = cardElevation
+        val threadContainer = cardView.findViewById<ConstraintLayout>(R.id.threadContainer)
         threadContainer.setPadding(
             contentMarginLeft,
             headBarMarginTop,
             contentMarginRight,
             contentMarginBottom
         )
-        /**
-         * cookie TextView
-         */
-        val threadCookie = TextView(context)
-        threadCookie.id = R.id.threadCookie
-        threadCookie.typeface = Typeface.defaultFromStyle(Typeface.BOLD)
-        val cookieLayoutParams = ConstraintLayout.LayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-        cookieLayoutParams.topToTop = R.id.threadContainer
-        cookieLayoutParams.startToStart = R.id.threadContainer
-        threadCookie.layoutParams = cookieLayoutParams
 
-        /**
-         * time TextView
-         */
-        val threadTime = TextView(context)
-        threadTime.id = R.id.threadTime
-        val timeLayoutParams = ConstraintLayout.LayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-        timeLayoutParams.startToEnd = R.id.threadCookie
-        timeLayoutParams.marginStart =
-            dip2px(context, 8f)
-        timeLayoutParams.topToTop = R.id.threadContainer
-        threadTime.layoutParams = timeLayoutParams
-        /**
-         * forum TextView
-         */
-        val threadForumAndReplyCount = TextView(context)
-        threadForumAndReplyCount.id = R.id.threadForumAndReplyCount
-        val forumLayoutParams = ConstraintLayout.LayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-        forumLayoutParams.topToTop = R.id.threadContainer
-        forumLayoutParams.endToEnd = R.id.threadContainer
+        val threadContent = cardView.findViewById<TextView>(R.id.threadContent)
+        val contentLayoutParam = threadContent.layoutParams as ConstraintLayout.LayoutParams
 
-        /***
-         * xml中使用padding代替了margin，因为要绘制标签背景，这里暂时空着8，因为考虑使用Span进行绘制,所以size，color之类的属性都暂时不写
-         * 省略的属性有padding、textColor、textSize、background
-         */
-        threadForumAndReplyCount.layoutParams = forumLayoutParams
-        threadForumAndReplyCount.setTextSize(Dimension.SP, 12f)
-
-        /**
-         * content TextView
-         */
-        val threadContent = TextView(context)
-        threadContent.id = R.id.threadContent
-        val contentLayoutParam =
-            ConstraintLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT)
-        contentLayoutParam.topToBottom = R.id.threadQuotes
         contentLayoutParam.topMargin = contentMarginTop
-        contentLayoutParam.endToStart = R.id.threadImage
-        contentLayoutParam.marginEnd =
-            dip2px(context, 2f)
-        contentLayoutParam.startToStart = R.id.threadContainer
         threadContent.layoutParams = contentLayoutParam
-        threadContent.setTextColor(Color.BLACK)
-        threadContent.textSize = mainTextSize.toFloat()
-        threadContent.maxLines = 10
-        threadContent.ellipsize = TextUtils.TruncateAt.END
-        var trueLetterSpace = letterSpace * 1.0f
-        trueLetterSpace /= 50f
-        threadContent.letterSpacing = trueLetterSpace
-        val threadImage = ImageView(context)
-        threadImage.id = R.id.threadImage
-        val imageLayoutParam =
-            ConstraintLayout.LayoutParams(250, 250)
-        imageLayoutParam.topToTop = R.id.threadContent
-        imageLayoutParam.endToEnd = R.id.threadContainer
-        threadImage.layoutParams = imageLayoutParam
+        threadContent.textSize = mainTextSize
 
-        /**
-         *  sage
-         */
-        val sage = TextView(context)
-        sage.id = R.id.sage
-        val sageLayoutParam = ConstraintLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
-        )
-        sageLayoutParam.verticalWeight = 1F
-        sage.layoutParams = sageLayoutParam
-        sage.background = context.getDrawable(R.drawable.sage_background)
-        sage.setPaddingRelative(15, 15, 15, 15)
-        sage.text = "本串已被sage"
-        sage.typeface = Typeface.DEFAULT_BOLD
-        sage.visibility = View.INVISIBLE
-
-
-        /**
-         * quotes
-         */
-        val threadQuotes = LinearLayout(context)
-        threadQuotes.id = R.id.threadQuotes
-        val threadQuotesLayoutParam = ConstraintLayout.LayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-        threadQuotesLayoutParam.topMargin = 6
-        threadQuotesLayoutParam.orientation = LinearLayout.VERTICAL
-        threadQuotesLayoutParam.startToStart = R.id.threadContainer
-        threadQuotesLayoutParam.topToBottom = R.id.threadCookie
-        threadQuotes.layoutParams = threadQuotesLayoutParam
-
-
-
-        cardView.addView(threadContainer)
-        threadContainer.addView(threadCookie)
-        threadContainer.addView(threadTime)
-        threadContainer.addView(threadForumAndReplyCount)
-        threadContainer.addView(threadContent)
-        threadContainer.addView(threadImage)
-        threadContainer.addView(sage)
-        threadContainer.addView(threadQuotes)
-        cardView.threadContainer = threadContainer
-        cardView.threadCookie = threadCookie
-        cardView.threadTime = threadTime
-        cardView.threadForumAndReplyCount = threadForumAndReplyCount
-        cardView.threadContent = threadContent
-        cardView.threadImage = threadImage
-        cardView.sage = sage
-        cardView.threadQuotes = threadQuotes
-        return cardView
-    }
-
-
-
-    inner class ThreadListCard(context: Context?) :
-        MaterialCardView(context) {
-        var threadContainer: ConstraintLayout? = null
-        var threadCookie: TextView? = null
-        var threadTime: TextView? = null
-        var threadForumAndReplyCount: TextView? = null
-        var threadContent: TextView? = null
-        var threadImage: ImageView? = null
-        var sage: TextView? = null
-        var threadQuotes: LinearLayout? = null
-    }
-
-
-    init {
-        DEFAULT_CARDVIEW_PADDING = dip2px(
-            context,
-            DEFAULT_CARDVIEW_PADDING.toFloat()
-        )
-        DEFAULT_CARDVIEW_MARGINSTART = dip2px(
-            context,
-            DEFAULT_CARDVIEW_MARGINSTART.toFloat()
-        )
-        DEFAULT_CARDVIEW_MARGINEND = dip2px(
-            context,
-            DEFAULT_CARDVIEW_MARGINEND.toFloat()
-        )
-        DEFAULT_CARDVIEW_MARGINTOP = dip2px(
-            context,
-            DEFAULT_CARDVIEW_MARGINTOP.toFloat()
-        )
-        DEFAULT_CARDVIEW_MARGINBOTTOM =
-            dip2px(
-                context,
-                DEFAULT_CARDVIEW_MARGINBOTTOM.toFloat()
-            )
-
-        /**
-         * 获取存储
-         */
-        loadSettings()
+        threadContent.letterSpacing = letterSpace
     }
 }

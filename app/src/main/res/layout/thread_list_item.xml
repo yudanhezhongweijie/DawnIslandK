@@ -43,7 +43,6 @@
             android:id="@+id/threadForumAndReplyCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/label_background"
             android:paddingLeft="10dp"
             android:paddingTop="2dp"
             android:paddingRight="10dp"

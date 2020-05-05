@@ -1,5 +1,6 @@
 package com.laotoua.dawnislandk.ui.fragment
 
+import android.graphics.Color
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.Spanned
@@ -13,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.R
+import com.laotoua.dawnislandk.ui.span.RoundBackgroundColorSpan
 import com.laotoua.dawnislandk.ui.span.SegmentSpacingSpan
 import com.laotoua.dawnislandk.ui.viewfactory.ThreadCardFactory
 import com.laotoua.dawnislandk.util.Constants
@@ -66,15 +68,23 @@ class SizeCustomizationFragment : Fragment() {
 
         ThreadCardFactory.applySettings(demoCard)
 
-        val spannableString = SpannableString(demoCard.threadContent.text)
-        spannableString.setSpan(
+        val threadForumAndReplyCount = SpannableString(demoCard.threadForumAndReplyCount.text)
+        threadForumAndReplyCount.setSpan(
+            RoundBackgroundColorSpan(
+                Color.parseColor("#12DBD1"),
+                Color.parseColor("#FFFFFF")
+            ), 0, threadForumAndReplyCount.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+        )
+
+        val threadContent = SpannableString(demoCard.threadContent.text)
+        threadContent.setSpan(
             SegmentSpacingSpan(
                 ThreadCardFactory.lineHeight,
                 ThreadCardFactory.segGap
-            ), 0, spannableString.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+            ), 0, threadContent.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE
         )
         demoCard.threadContent.apply {
-            setText(spannableString, TextView.BufferType.SPANNABLE)
+            setText(threadContent, TextView.BufferType.SPANNABLE)
             letterSpacing = ThreadCardFactory.letterSpace
             textSize = ThreadCardFactory.mainTextSize
         }

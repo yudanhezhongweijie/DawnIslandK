@@ -399,7 +399,10 @@ class PostPopup(private val caller: Fragment, context: Context) :
                                     attachmentContainer!!.visibility = View.VISIBLE
                                 } else {
                                     Timber.d("Didn't take a Picture. Removing placeholder Image...")
-                                    ImageUtil.removePlaceholderImageUriToGallery(caller, this)
+                                    ImageUtil.removePlaceholderImageUriToGallery(
+                                        caller.requireActivity(),
+                                        this
+                                    )
                                 }
                             }
                         }

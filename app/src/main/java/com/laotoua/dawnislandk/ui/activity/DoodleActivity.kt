@@ -87,6 +87,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
         binding.thickness.setOnClickListener {
             showThicknessDialog()
         }
+
         binding.drawAction.setOnClickListener {
             binding.drawAction.apply {
                 isActivated = isActivated.not()
@@ -116,6 +117,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
                 else setImageResource(R.drawable.ic_remove_image_24px)
             }
         }
+
         binding.undo.setOnClickListener {
             binding.doodleView.undo()
             updateUndoRedo()
@@ -147,7 +149,6 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
             }
         }
 
-        // TODO: fix below
         updateUndoRedo()
 
         if (mOutputFile == null) {
@@ -178,11 +179,16 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
                         getString(R.string.cant_create_image_file),
                         Toast.LENGTH_SHORT
                     ).show()
+                    ImageUtil.removePlaceholderImageUriToGallery(this@DoodleActivity, mOutputFile!!)
                     finish()
                 }
             }
             negativeButton(R.string.cancel, null)
-            neutralButton(R.string.do_not_save) { finish() }
+            @Suppress("DEPRECATION")
+            neutralButton(R.string.do_not_save) {
+                ImageUtil.removePlaceholderImageUriToGallery(this@DoodleActivity, mOutputFile!!)
+                finish()
+            }
         }
     }
 
@@ -234,12 +240,28 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
     }
 
     private fun updateUndoRedo() {
-        binding.undo.isEnabled = binding.doodleView.canUndo()
-        binding.redo.isEnabled = binding.doodleView.canRedo()
+        binding.undo.apply {
+            isEnabled = binding.doodleView.canUndo()
+            alpha = if (!isEnabled) {
+                0.2f
+            } else {
+                1f
+            }
+        }
+
+        binding.redo.apply {
+            isEnabled = binding.doodleView.canRedo()
+            alpha = if (!isEnabled) {
+                0.2f
+            } else {
+                1f
+            }
+        }
     }
 
     private fun showPickColorDialog() {
 
+        // TODO: more colors
         val colors = intArrayOf(
             binding.doodleView.paintColor,
             Color.BLACK,
@@ -339,11 +361,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
             setResult(RESULT_OK, intent)
         } else {
             intent.data = null
-            contentResolver.delete(
-                mOutputFile!!,
-                null,
-                null
-            )
+            ImageUtil.removePlaceholderImageUriToGallery(this@DoodleActivity, mOutputFile!!)
             setResult(RESULT_CANCELED, intent)
         }
         finish()
@@ -352,4 +370,5 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
     companion object {
         const val REQUEST_CODE_SELECT_IMAGE = 0
     }
+
 }

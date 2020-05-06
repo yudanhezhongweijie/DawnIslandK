@@ -40,14 +40,10 @@ object ImageUtil {
     }
 
     fun removePlaceholderImageUriToGallery(
-        caller: Fragment,
+        callerActivity: Activity,
         uri: Uri
     ): Int {
-        return caller.requireActivity().contentResolver.delete(
-            uri,
-            null,
-            null
-        )
+        return callerActivity.contentResolver.delete(uri, null, null)
     }
 
     fun loadImageThumbnailToImageView(

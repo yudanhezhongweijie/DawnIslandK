@@ -15,8 +15,11 @@ import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.lifecycleScope
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.WhichButton
+import com.afollestad.materialdialogs.actions.getActionButton
 import com.afollestad.materialdialogs.color.colorChooser
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.customview.getCustomView
@@ -169,7 +172,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
 
     override fun onBackPressed() {
         MaterialDialog(this).show {
-            message(R.string.saving_image)
+            message(R.string.save_image_selection)
             positiveButton(R.string.save) {
                 if (mOutputFile != null) {
                     saveDoodle()
@@ -183,12 +186,13 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
                     finish()
                 }
             }
-            negativeButton(R.string.cancel, null)
+            negativeButton(R.string.cancel)
             @Suppress("DEPRECATION")
             neutralButton(R.string.do_not_save) {
                 ImageUtil.removePlaceholderImageUriToGallery(this@DoodleActivity, mOutputFile!!)
                 finish()
             }
+            getActionButton(WhichButton.NEUTRAL).updateTextColor(Color.RED)
         }
     }
 
@@ -259,25 +263,35 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
         }
     }
 
-    private fun showPickColorDialog() {
-
-        // TODO: more colors
-        val colors = intArrayOf(
+    private val defaultColors by lazy {
+        arrayListOf(
             binding.doodleView.paintColor,
             Color.BLACK,
-            Color.DKGRAY,
-            Color.RED,
-            Color.GREEN,
-            Color.BLUE,
-            Color.YELLOW,
-            Color.CYAN,
-            Color.MAGENTA
+            Color.GRAY,
+            ColorUtils.compositeColors(getColor(R.color.red_500), Color.WHITE),
+            ColorUtils.compositeColors(getColor(R.color.pink_500), Color.WHITE),
+            ColorUtils.compositeColors(getColor(R.color.purple_500), Color.WHITE),
+            ColorUtils.compositeColors(getColor(R.color.indigo_500), Color.WHITE),
+            ColorUtils.compositeColors(getColor(R.color.blue_500), Color.WHITE),
+            ColorUtils.compositeColors(getColor(R.color.light_blue_500), Color.WHITE),
+            ColorUtils.compositeColors(getColor(R.color.cyan_500), Color.WHITE),
+            ColorUtils.compositeColors(getColor(R.color.green_500), Color.WHITE),
+            ColorUtils.compositeColors(getColor(R.color.green_ntr), Color.WHITE),
+            ColorUtils.compositeColors(getColor(R.color.light_green_500), Color.WHITE),
+            ColorUtils.compositeColors(getColor(R.color.lime_500), Color.WHITE),
+            ColorUtils.compositeColors(getColor(R.color.yellow_500), Color.WHITE),
+            ColorUtils.compositeColors(getColor(R.color.amber_500), Color.WHITE),
+            ColorUtils.compositeColors(getColor(R.color.orange_500), Color.WHITE),
+            ColorUtils.compositeColors(getColor(R.color.deep_orange_500), Color.WHITE)
         )
+    }
+
+    private fun showPickColorDialog() {
+        defaultColors[0] = binding.doodleView.paintColor
         MaterialDialog(this).show {
             title(R.string.pick_color)
             colorChooser(
-                colors = colors,
-//                subColors = subColors,
+                colors = defaultColors.toIntArray(),
                 allowCustomArgb = true,
                 initialSelection = binding.doodleView.paintColor
             ) { _, color ->

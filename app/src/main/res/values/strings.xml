@@ -33,6 +33,7 @@
     <string name="save" translatable="false">保存</string>
     <string name="do_not_save" translatable="false">不保存</string>
     <string name="select_picture" translatable="false">选择图片</string>
+    <string name="save_image_selection" translatable="false">要保存图片吗?</string>
     <string name="cant_create_image_file" translatable="false">无法生成图片文件</string>
     <string name="saving_image" translatable="false">正在保存图片...</string>
     <string name="pick_color" translatable="false">选择颜色</string>

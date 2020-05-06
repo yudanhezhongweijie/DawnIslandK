@@ -272,14 +272,8 @@ class DoodleView : View {
         if (drawInfo == null) {
             drawInfo = DrawInfo()
         }
-        drawInfo.set(
-            if (mEraser) mBgColor else paintColor,
-            paintThickness.toFloat(),
-            mPath,
-            mX,
-            mY,
+        drawInfo[if (mEraser) mBgColor else paintColor, paintThickness.toFloat(), mPath, mX, mY] =
             mIsDot
-        )
         val legacy: DrawInfo? = push(drawInfo)
 
         // Draw legacy

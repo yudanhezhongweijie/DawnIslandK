@@ -1,7 +1,6 @@
 package com.laotoua.dawnislandk.ui.activity
 
 import android.animation.ValueAnimator
-import android.app.Dialog
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -29,7 +28,6 @@ import com.laotoua.dawnislandk.ui.util.ReadableTime
 import com.laotoua.dawnislandk.ui.widget.DoodleView
 import com.laotoua.dawnislandk.ui.widget.ThicknessPreviewView
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.io.File
 import java.io.FileDescriptor
 
@@ -52,7 +50,7 @@ import java.io.FileDescriptor
 class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
     private lateinit var binding: ActivityDoodleBinding
     private var mOutputFile: Uri? = null
-    private var mExitWaitingDialog: Dialog? = null
+    private var mExitWaitingDialog: MaterialDialog? = null
     private var mSideAnimator: ValueAnimator = ValueAnimator()
     private var mShowSide = true
     private var mHideSideRunnable: Runnable? = null
@@ -107,11 +105,9 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
                 startActivityForResult(
                     Intent.createChooser(
                         intent,
-//                        getString(R.string.select_picture)
-                        "R.string.select_picture"
+                        getString(R.string.select_picture)
                     ), REQUEST_CODE_SELECT_IMAGE
                 )
-                Timber.d("FIXED PICKING PICS")
             }
             binding.image.apply {
                 isActivated = !isActivated
@@ -136,7 +132,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
             } else {
                 Toast.makeText(
                     this,
-                    "R.string.cant_create_image_file",
+                    getString(R.string.cant_create_image_file),
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -156,7 +152,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
         if (mOutputFile == null) {
             Toast.makeText(
                 this,
-                "R.string.cant_create_image_file",
+                getString(R.string.cant_create_image_file),
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -171,21 +167,21 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
 
     override fun onBackPressed() {
         MaterialDialog(this).show {
-            message(text = "R.string.save_doodle")
+            message(R.string.saving_image)
             positiveButton(R.string.save) {
                 if (mOutputFile != null) {
                     saveDoodle()
                 } else {
                     Toast.makeText(
                         this@DoodleActivity,
-                        "R.string.cant_create_image_file",
+                        getString(R.string.cant_create_image_file),
                         Toast.LENGTH_SHORT
                     ).show()
                     finish()
                 }
             }
             negativeButton(R.string.cancel, null)
-            neutralButton(text = "R.string.dont_save") { finish() }
+            neutralButton(R.string.do_not_save) { finish() }
         }
     }
 
@@ -243,6 +239,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
     private fun showPickColorDialog() {
 
         val colors = intArrayOf(
+            binding.doodleView.paintColor,
             Color.BLACK,
             Color.DKGRAY,
             Color.RED,
@@ -253,16 +250,17 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
             Color.MAGENTA
         )
         MaterialDialog(this).show {
-            title(text = "R.string.colors")
+            title(R.string.pick_color)
             colorChooser(
                 colors = colors,
 //                subColors = subColors,
                 allowCustomArgb = true,
-                showAlphaSelector = true
+                initialSelection = binding.doodleView.paintColor
             ) { _, color ->
                 binding.doodleView.paintColor = color
             }
-            positiveButton(text = "R.string.select")
+            positiveButton(R.string.submit)
+            negativeButton(R.string.cancel)
         }
     }
 
@@ -302,7 +300,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
                     })
                 }
             }
-            dialogThickness!!.positiveButton(text = "OK") {
+            dialogThickness!!.positiveButton(R.string.submit) {
                 binding.doodleView.paintThickness = thickness
             }
         }
@@ -310,19 +308,19 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
     }
 
     private fun saveDoodle() {
-//        if (mExitWaitingDialog == null) {
-//            mExitWaitingDialog = ProgressDialogBuilder(this)
-//                .setTitle(R.string.please_wait)
-//                .setMessage(R.string.saving)
-//                .setCancelable(false)
-//                .show()
-        lifecycleScope.launch {
-            Timber.d("FIXED ME")
-            binding.doodleView.save(this@DoodleActivity, mOutputFile!!)
-//        } else {
-            // Wait here, it might be fast click back button
-//        }
+        if (mExitWaitingDialog == null) {
+
+            mExitWaitingDialog = MaterialDialog(this).apply {
+                customView(R.layout.dialog_progress)
+                cancelable(false)
+                title(R.string.saving_image)
+            }
+            mExitWaitingDialog!!.show()
+            lifecycleScope.launch {
+                binding.doodleView.save(this@DoodleActivity, mOutputFile!!)
+            }
         }
+        // Wait here, it might be fast click back button
     }
 
     override fun onStoreChange(view: DoodleView?) {

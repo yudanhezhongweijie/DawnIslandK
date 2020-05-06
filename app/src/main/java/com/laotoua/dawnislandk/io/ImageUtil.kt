@@ -67,7 +67,7 @@ object ImageUtil {
         }
     }
 
-    fun getImagePathFromUri(caller: Fragment, uri: Uri): File? {
+    fun getImageFileFromUri(caller: Fragment, uri: Uri): File? {
         val parcelFileDescriptor =
             caller.requireActivity().contentResolver.openFileDescriptor(uri, "r", null)
 

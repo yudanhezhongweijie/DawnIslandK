@@ -3,19 +3,19 @@ package com.laotoua.dawnislandk.ui.widget
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
-import android.os.AsyncTask
-import android.os.FileUtils
+import android.net.Uri
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import androidx.annotation.NonNull
 import androidx.annotation.Nullable
+import androidx.appcompat.app.AppCompatActivity
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.ui.util.LayoutUtil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.io.File
 import java.io.FileNotFoundException
-import java.io.FileOutputStream
+import java.io.IOException
 import java.io.OutputStream
 import java.util.*
 import kotlin.math.abs
@@ -65,8 +65,8 @@ class DoodleView : View {
     @Nullable
     private var mHelper: Helper? = null
 
-    @Nullable
-    private var mSaveTask: SaveTask? = null
+
+    private var isLocked: Boolean = false
 
     constructor(context: Context) : super(context) {
         init(context)
@@ -179,9 +179,6 @@ class DoodleView : View {
         }
         canvas.restoreToCount(saved)
     }
-
-    private val isLocked: Boolean
-        get() = mSaveTask != null
 
     private fun motionToPath(
         event: MotionEvent,
@@ -298,7 +295,6 @@ class DoodleView : View {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        Timber.d("touch on doodle view")
         if (isLocked) {
             return true
         }
@@ -369,13 +365,32 @@ class DoodleView : View {
         invalidate()
     }
 
-    fun save(@NonNull file: File) {
+    suspend fun save(callerActivity: AppCompatActivity, uri: Uri) {
         if (isLocked) {
             return
         }
-        mSaveTask = SaveTask(file)
-        mSaveTask!!.execute()
+        isLocked = true
+        val res = withContext(Dispatchers.IO) {
+            drawStore(mCanvas, mPaint)
+            clearStore()
+            Timber.i("Saving Doodle to Gallery... ")
+            var os: OutputStream? = null
+            try {
+                os = callerActivity.contentResolver.openOutputStream(uri)
+                    ?: throw IOException("Failed to get output stream.")
+                mBitmap!!.compress(Bitmap.CompressFormat.PNG, 100, os)
+                true
+            } catch (e: FileNotFoundException) {
+                false
+            } finally {
+                os?.close()
+            }
+        }
+
+        isLocked = false
+        mHelper?.onSavingFinished(res)
     }
+
 
     private var mStop = 0
     private var mSize = 0
@@ -531,37 +546,6 @@ class DoodleView : View {
     interface Helper {
         fun onStoreChange(view: DoodleView?)
         fun onSavingFinished(ok: Boolean)
-    }
-
-    // TODO: replace
-    private inner class SaveTask(private val mFile: File) :
-        AsyncTask<Void, Void, Boolean>() {
-        override fun onPreExecute() {
-            drawStore(mCanvas, mPaint)
-            clearStore()
-        }
-
-        override fun doInBackground(vararg params: Void): Boolean {
-            if (mBitmap == null) {
-                return false
-            }
-            var os: OutputStream? = null
-            return try {
-                os = FileOutputStream(mFile)
-                mBitmap!!.compress(Bitmap.CompressFormat.PNG, 100, os)
-                true
-            } catch (e: FileNotFoundException) {
-                false
-            } finally {
-                FileUtils.closeQuietly(os)
-            }
-        }
-
-        override fun onPostExecute(aBoolean: Boolean) {
-            mSaveTask = null
-            mHelper?.onSavingFinished(aBoolean)
-        }
-
     }
 
     companion object {

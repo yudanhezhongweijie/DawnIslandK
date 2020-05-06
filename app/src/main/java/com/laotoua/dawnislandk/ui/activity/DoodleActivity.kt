@@ -16,6 +16,7 @@ import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.color.colorChooser
 import com.afollestad.materialdialogs.customview.customView
@@ -27,6 +28,7 @@ import com.laotoua.dawnislandk.ui.util.LayoutUtil
 import com.laotoua.dawnislandk.ui.util.ReadableTime
 import com.laotoua.dawnislandk.ui.widget.DoodleView
 import com.laotoua.dawnislandk.ui.widget.ThicknessPreviewView
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
 import java.io.FileDescriptor
@@ -96,7 +98,6 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
         }
 
         binding.image.setOnClickListener {
-            Timber.d("clicked on image")
             if (binding.doodleView.hasInsertBitmap()) {
                 binding.doodleView.insertBitmap(null)
             } else {
@@ -130,9 +131,8 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
             binding.doodleView.clear()
         }
         binding.ok.setOnClickListener {
-            Timber.d("clicked on ok")
             if (mOutputFile != null) {
-//                saveDoodle()
+                saveDoodle()
             } else {
                 Toast.makeText(
                     this,
@@ -160,14 +160,12 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
                 Toast.LENGTH_SHORT
             ).show()
         }
-//        mSideAnimator = ValueAnimator()
         mSideAnimator.duration = 300
         mSideAnimator.addUpdateListener { animation ->
             binding.side.translationX =
                 (animation.animatedValue as Float)
         }
         mHideSideRunnable = Runnable { hideSide() }
-//        SimpleHandler.getInstance().postDelayed(mHideSideRunnable, 3000)
         handler.postDelayed(mHideSideRunnable!!, 3000)
     }
 
@@ -176,7 +174,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
             message(text = "R.string.save_doodle")
             positiveButton(R.string.save) {
                 if (mOutputFile != null) {
-//                        saveDoodle()
+                    saveDoodle()
                 } else {
                     Toast.makeText(
                         this@DoodleActivity,
@@ -213,14 +211,12 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
 
     private fun showSide() {
         if (mHideSideRunnable != null) {
-//            SimpleHandler.getInstance().removeCallbacks(mHideSideRunnable)
             handler.removeCallbacks(mHideSideRunnable!!)
             mHideSideRunnable = null
         }
         if (!mShowSide) {
             mShowSide = true
             mSideAnimator.cancel()
-//            mSideAnimator!!.interpolator = AnimationUtils2.FAST_SLOW_INTERPOLATOR
             mSideAnimator.setFloatValues(binding.side.translationX, 0f)
             mSideAnimator.start()
         }
@@ -234,13 +230,11 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
         if (mShowSide) {
             mShowSide = false
             mSideAnimator.cancel()
-//            mSideAnimator!!.interpolator = AnimationUtils2.SLOW_FAST_INTERPOLATOR
             mSideAnimator.setFloatValues(binding.side.translationX, -binding.side.width.toFloat())
             mSideAnimator.start()
         }
     }
 
-    //
     private fun updateUndoRedo() {
         binding.undo.isEnabled = binding.doodleView.canUndo()
         binding.redo.isEnabled = binding.doodleView.canRedo()
@@ -322,11 +316,13 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
 //                .setMessage(R.string.saving)
 //                .setCancelable(false)
 //                .show()
-        Timber.d("FIXED ME")
-//            binding.doodleView.save(mOutputFile)
+        lifecycleScope.launch {
+            Timber.d("FIXED ME")
+            binding.doodleView.save(this@DoodleActivity, mOutputFile!!)
 //        } else {
-        // Wait here, it might be fast click back button
+            // Wait here, it might be fast click back button
 //        }
+        }
     }
 
     override fun onStoreChange(view: DoodleView?) {
@@ -339,7 +335,6 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
             mExitWaitingDialog = null
         }
         val intent = Intent()
-//        intent.data = Uri.fromFile(mOutputFile)
         intent.data = mOutputFile
         setResult(RESULT_OK, intent)
         finish()

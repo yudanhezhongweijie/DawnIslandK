@@ -340,7 +340,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
             if (FragmentIntentUtil.checkPermissions(caller)) {
                 FragmentIntentUtil.getImageFromGallery(caller, "image/*") { uri: Uri? ->
                     if (uri != null) {
-                        imageFile = ImageUtil.getImagePathFromUri(caller, uri)
+                        imageFile = ImageUtil.getImageFileFromUri(caller, uri)
                         try {
                             ImageUtil.loadImageThumbnailToImageView(
                                 caller,

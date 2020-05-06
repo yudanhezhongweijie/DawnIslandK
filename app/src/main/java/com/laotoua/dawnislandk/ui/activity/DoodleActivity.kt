@@ -1,43 +1,32 @@
 package com.laotoua.dawnislandk.ui.activity
 
-//import android.R
-//import com.hippo.app.ProgressDialogBuilder
-//import com.hippo.io.UriInputStreamPipe
-//import com.hippo.nimingban.NMBAppConfig
-//import com.hippo.nimingban.R
-//import com.hippo.nimingban.util.BitmapUtils
-//import com.hippo.nimingban.util.ReadableTime
-//import com.hippo.nimingban.util.Settings
-//import com.hippo.nimingban.widget.ColorPickerView
-//import com.hippo.nimingban.widget.DoodleView
-//import com.hippo.nimingban.widget.ThicknessPreviewView
-//import com.hippo.ripple.Ripple
-//import com.hippo.util.AnimationUtils2
-//import com.hippo.util.DrawableManager
-//import com.hippo.widget.Slider
-//import com.hippo.yorozuya.LayoutUtils
-//import com.hippo.yorozuya.ResourcesUtils
-//import com.hippo.yorozuya.SimpleHandler
 import android.animation.ValueAnimator
 import android.app.Dialog
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
 import android.view.WindowManager
+import android.widget.SeekBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.color.colorChooser
+import com.afollestad.materialdialogs.customview.customView
+import com.afollestad.materialdialogs.customview.getCustomView
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.ActivityDoodleBinding
 import com.laotoua.dawnislandk.io.ImageUtil
+import com.laotoua.dawnislandk.ui.util.LayoutUtil
 import com.laotoua.dawnislandk.ui.util.ReadableTime
 import com.laotoua.dawnislandk.ui.widget.DoodleView
+import com.laotoua.dawnislandk.ui.widget.ThicknessPreviewView
 import timber.log.Timber
 import java.io.File
 import java.io.FileDescriptor
@@ -66,6 +55,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
     private var mShowSide = true
     private var mHideSideRunnable: Runnable? = null
     private val handler = Handler()
+    private var dialogThickness: MaterialDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,8 +83,9 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
             showPickColorDialog()
         }
 
-        binding.thickness.setOnClickListener { Timber.d("thickness TODO") }
-//            showThicknessDialog()
+        binding.thickness.setOnClickListener {
+            showThicknessDialog()
+        }
         binding.drawAction.setOnClickListener {
             binding.drawAction.apply {
                 isActivated = isActivated.not()
@@ -280,65 +271,49 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
             positiveButton(text = "R.string.select")
         }
     }
-//
-//    private inner class ThicknessDialogHelper @SuppressLint("InflateParams") constructor() :
-//        DialogInterface.OnClickListener, Slider.OnSetProgressListener {
-//        val view: View
-//        private val mTpv: ThicknessPreviewView
-//        private val mSlider: Slider
-//
-//        override fun onClick(
-//            dialog: DialogInterface,
-//            which: Int
-//        ) {
-//            if (DialogInterface.BUTTON_POSITIVE == which) {
-//                binding.doodleView.setPaintThickness(
-//                    LayoutUtils.dp2pix(
-//                        this@DoodleActivity,
-//                        mSlider.getProgress()
-//                    )
-//                )
-//            }
-//        }
-//
-//        fun onSetProgress(
-//            slider: Slider?,
-//            newProgress: Int,
-//            oldProgress: Int,
-//            byUser: Boolean,
-//            confirm: Boolean
-//        ) {
-//            mTpv.setThickness(LayoutUtils.dp2pix(this@DoodleActivity, newProgress))
-//        }
-//
-//        fun onFingerDown() {}
-//        fun onFingerUp() {}
-//
-//        init {
-//            view = getLayoutInflater().inflate(R.layout.dialog_thickness, null)
-//            mTpv =
-//                view.findViewById<View>(R.id.thickness_preview_view) as ThicknessPreviewView
-//            mSlider = view.findViewById<View>(R.id.slider) as Slider
-//            mTpv.setThickness(binding.doodleView.getPaintThickness())
-//            mTpv.setColor(binding.doodleView.getPaintColor())
-//            mSlider.setProgress(
-//                LayoutUtils.pix2dp(
-//                    this@DoodleActivity,
-//                    binding.doodleView.getPaintThickness()
-//                ) as Int
-//            )
-//            mSlider.setOnSetProgressListener(this)
-//        }
-//    }
 
-//    private fun showThicknessDialog() {
-//        val helper: com.hippo.nimingban.ui.DoodleActivity.ThicknessDialogHelper =
-//            com.hippo.nimingban.ui.DoodleActivity.ThicknessDialogHelper()
-//        Builder(this@DoodleActivity)
-//            .setView(helper.getView())
-//            .setPositiveButton(R.string.ok, helper)
-//            .show()
-//    }
+    private fun showThicknessDialog() {
+        if (dialogThickness == null) {
+            dialogThickness = MaterialDialog(this).customView(R.layout.dialog_thickness)
+            var thickness = binding.doodleView.paintThickness
+            dialogThickness!!.getCustomView().apply {
+                val previewView = findViewById<ThicknessPreviewView>(R.id.thicknessPreviewView)
+                previewView.setColor(binding.doodleView.paintColor)
+                previewView.setThickness(thickness)
+
+                val thicknessTextView = findViewById<TextView>(R.id.thickness)
+                thicknessTextView.text =
+                    (LayoutUtil.pix2dp(context, thickness).toInt() + 1).toString()
+                thicknessTextView.typeface = Typeface.DEFAULT_BOLD
+
+                findViewById<SeekBar>(R.id.thicknessSlider).apply {
+                    progress = LayoutUtil.pix2dp(context, thickness).toInt()
+                    setOnSeekBarChangeListener(object :
+                        SeekBar.OnSeekBarChangeListener {
+                        override fun onProgressChanged(
+                            seekBar: SeekBar?,
+                            progress: Int,
+                            fromUser: Boolean
+                        ) {
+                            thickness = LayoutUtil.dp2pix(context, progress.toFloat())
+                            previewView.setThickness(thickness)
+                            thicknessTextView.text = (progress + 1).toString()
+                        }
+
+                        override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                        }
+
+                        override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                        }
+                    })
+                }
+            }
+            dialogThickness!!.positiveButton(text = "OK") {
+                binding.doodleView.paintThickness = thickness
+            }
+        }
+        dialogThickness!!.show()
+    }
 
     private fun saveDoodle() {
 //        if (mExitWaitingDialog == null) {
@@ -369,111 +344,6 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
         setResult(RESULT_OK, intent)
         finish()
     }
-/*
-public static class DoodleLayout extends FrameLayout {
-
-    public DoodleLayout(Context context) {
-        super(context);
-    }
-
-    public DoodleLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public DoodleLayout(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        final int count = getChildCount();
-
-        final int parentLeft = getPaddingLeft();
-        final int parentRight = right - left - getPaddingRight();
-
-        final int parentTop = getPaddingTop();
-        final int parentBottom = bottom - top - getPaddingBottom();
-
-        for (int i = 0; i < count; i++) {
-            final View child = getChildAt(i);
-            if (child.getVisibility() != GONE) {
-                final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-
-                final int width = child.getMeasuredWidth();
-                final int height = child.getMeasuredHeight();
-
-                int childLeft;
-                int childTop;
-
-                int gravity = lp.gravity;
-                if (gravity == -1) {
-                    gravity = Gravity.TOP | Gravity.START;
-                }
-
-                final int verticalGravity = gravity & Gravity.VERTICAL_GRAVITY_MASK;
-                switch (gravity & Gravity.HORIZONTAL_GRAVITY_MASK) {
-                    case Gravity.CENTER_HORIZONTAL:
-                        childLeft = parentLeft + (parentRight - parentLeft - width) / 2 +
-                                lp.leftMargin - lp.rightMargin;
-                        break;
-                    case Gravity.RIGHT:
-                        childLeft = parentRight - width - lp.rightMargin;
-                        break;
-                    case Gravity.LEFT:
-                    default:
-                        childLeft = parentLeft + lp.leftMargin;
-                }
-
-                switch (verticalGravity) {
-                    case Gravity.TOP:
-                        childTop = parentTop + lp.topMargin;
-                        break;
-                    case Gravity.CENTER_VERTICAL:
-                        childTop = parentTop + (parentBottom - parentTop - height) / 2 +
-                                lp.topMargin - lp.bottomMargin;
-                        break;
-                    case Gravity.BOTTOM:
-                        childTop = parentBottom - height - lp.bottomMargin;
-                        break;
-                    default:
-                        childTop = parentTop + lp.topMargin;
-                }
-
-                int offsetX = - (int) (lp.percent * width);
-                child.layout(childLeft + offsetX, childTop, childLeft + width, childTop + height);
-            }
-        }
-    }
-
-    @Override
-    public LayoutParams generateLayoutParams(AttributeSet attrs) {
-        return new LayoutParams(getContext(), attrs);
-    }
-
-    @Override
-    protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {
-        return p instanceof LayoutParams;
-    }
-
-    @Override
-    protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
-        return new LayoutParams(p);
-    }
-
-    public static class LayoutParams extends FrameLayout.LayoutParams {
-
-        public float percent = 0.0f;
-
-        public LayoutParams(Context c, AttributeSet attrs) {
-            super(c, attrs);
-        }
-
-        public LayoutParams(ViewGroup.LayoutParams source) {
-            super(source);
-        }
-    }
-}
-*/
 
     companion object {
         const val REQUEST_CODE_SELECT_IMAGE = 0

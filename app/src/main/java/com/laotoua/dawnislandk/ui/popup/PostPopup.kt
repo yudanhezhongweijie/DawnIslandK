@@ -292,8 +292,6 @@ class PostPopup(private val caller: Fragment, context: Context) :
                     // TODO: doodle
                     R.id.postDoodle -> {
                         if (isChecked) {
-                            Toast.makeText(context, "还没做...", Toast.LENGTH_LONG).show()
-                            Timber.d("clicked on doodle")
 //                            val destination = if (caller is PagerFragment) {
 //                                PagerFragmentDirections.actionPagerFragmentToDoodleActivity()
 //                            } else{

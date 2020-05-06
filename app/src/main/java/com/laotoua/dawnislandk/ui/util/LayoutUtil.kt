@@ -14,6 +14,10 @@ object LayoutUtil {
         ).toInt()
     }
 
+    fun dp2pix(context: Context, dp: Float): Int {
+        return (dp * context.resources.displayMetrics.density + 0.5f).toInt()
+    }
+
     fun pix2dp(context: Context, pix: Int): Float {
         return pix / context.resources.displayMetrics.density
     }

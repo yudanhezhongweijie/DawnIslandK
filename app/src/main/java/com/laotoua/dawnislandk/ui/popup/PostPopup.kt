@@ -13,6 +13,7 @@ import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
@@ -293,7 +294,14 @@ class PostPopup(private val caller: Fragment, context: Context) :
                         if (isChecked) {
                             Toast.makeText(context, "还没做...", Toast.LENGTH_LONG).show()
                             Timber.d("clicked on doodle")
+//                            val destination = if (caller is PagerFragment) {
+//                                PagerFragmentDirections.actionPagerFragmentToDoodleActivity()
+//                            } else{
+//                                ReplyFragmentDirections.actionReplyFragmentToDoodleActivity()
+//                            }
+                            caller.findNavController().navigate(R.id.doodleActivity)
                         }
+
                     }
                     // TODO: save
                     R.id.postSave -> {
@@ -494,9 +502,6 @@ class PostPopup(private val caller: Fragment, context: Context) :
                 imageFile,
                 userHash
             ).run {
-                // TODO, need to confirm success
-//                clearEntries()
-
                 val message = when (this) {
                     is APISuccessMessageResponse -> {
                         if (this.messageType == MessageType.String) {

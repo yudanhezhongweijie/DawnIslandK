@@ -7,4 +7,7 @@
     <color name="ic_launcher_background">#3CA7B9</color>
     <!-- shadow -->
     <color name="shadow">#38000000</color>
+    <!-- paint -->
+    <color name="pure_light">@android:color/white</color>
+    <color name="pure_dark">#ff212121</color>
 </resources>

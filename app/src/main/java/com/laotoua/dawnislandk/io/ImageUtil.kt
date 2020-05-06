@@ -5,6 +5,7 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.net.Uri
 import android.os.Build
+import android.os.FileUtils
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.util.Size
@@ -83,6 +84,8 @@ object ImageUtil {
             Timber.i("File not found. Making a new one...")
             val outputStream = FileOutputStream(file)
             inputStream.copyTo(outputStream)
+            FileUtils.closeQuietly(inputStream)
+            FileUtils.closeQuietly(outputStream)
             return file
         }
         return null
@@ -102,6 +105,8 @@ object ImageUtil {
 
         val outputStream = FileOutputStream(file)
         inputStream.copyTo(outputStream)
+        FileUtils.closeQuietly(inputStream)
+        FileUtils.closeQuietly(outputStream)
         return file
     }
 

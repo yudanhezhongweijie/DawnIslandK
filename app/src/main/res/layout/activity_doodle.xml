@@ -14,100 +14,118 @@
   ~ limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!--    <com.hippo.nimingban.widget.DoodleView-->
-    <!--        android:id="@+id/doodle_view"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="match_parent"/>-->
+    <com.laotoua.dawnislandk.ui.widget.DoodleView
+        android:id="@+id/doodle_view"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <!--    <View-->
+    <!--        android:id="@+id/view"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:background="@drawable/shadow_left" />-->
+
 
     <LinearLayout
         android:id="@+id/side"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:layout_height="0dp"
+        android:background="?attr/colorPrimary"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        <ImageButton
+            android:id="@+id/palette"
             android:layout_width="48dp"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:background="?attr/colorPrimary">
+            android:layout_height="48dp"
+            android:background="@android:color/transparent"
+            android:padding="12dp"
+            app:srcCompat="@drawable/ic_palette_24px" />
 
-            <ImageView
-                android:id="@+id/palette"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:padding="12dp"
-                app:srcCompat="@drawable/ic_palette_24px" />
+        <ImageButton
+            android:id="@+id/thickness"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@android:color/transparent"
+            android:padding="12dp"
+            app:srcCompat="@drawable/ic_line_weight_24px" />
 
-            <ImageView
-                android:id="@+id/thickness"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:padding="12dp"
-                app:srcCompat="@drawable/ic_line_weight_24px" />
+        <ImageButton
+            android:id="@+id/draw_action"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@android:color/transparent"
+            android:padding="12dp"
+            android:src="@drawable/ic_brush_black_24px" />
 
-            <ImageView
-                android:id="@+id/draw_action"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:padding="12dp" />
+        <ImageButton
+            android:id="@+id/image"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@android:color/transparent"
+            android:padding="12dp"
+            android:src="@drawable/ic_insert_image_24px" />
 
-            <ImageView
-                android:id="@+id/image"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:padding="12dp" />
+        <ImageButton
+            android:id="@+id/undo"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@android:color/transparent"
+            android:padding="12dp"
+            android:src="@drawable/ic_undo_24px" />
 
-            <ImageView
-                android:id="@+id/undo"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:padding="12dp" />
+        <ImageButton
+            android:id="@+id/redo"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@android:color/transparent"
+            android:padding="12dp"
+            android:src="@drawable/ic_redo_24px" />
 
-            <ImageView
-                android:id="@+id/redo"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:padding="12dp" />
+        <ImageButton
+            android:id="@+id/clear"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@android:color/transparent"
+            android:padding="12dp"
+            app:srcCompat="@drawable/ic_delete_24px" />
 
-            <ImageView
-                android:id="@+id/clear"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:padding="12dp"
-                app:srcCompat="@drawable/ic_delete_24px" />
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
-            <ImageView
-                android:id="@+id/ok"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:padding="12dp"
-                app:srcCompat="@drawable/ic_check_circle_24px" />
-
-        </LinearLayout>
-
-        <View
-            android:layout_width="4dp"
-            android:layout_height="match_parent"
-            android:background="@drawable/shadow_left" />
+        <ImageButton
+            android:id="@+id/ok"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@android:color/transparent"
+            android:padding="12dp"
+            app:srcCompat="@drawable/ic_check_circle_24px" />
 
     </LinearLayout>
 
-    <ImageView
+    <ImageButton
         android:id="@+id/menu"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_gravity="right|top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
         android:padding="12dp"
+        android:tint="#101010"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_menu_white_24px" />
 
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

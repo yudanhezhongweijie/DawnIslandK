@@ -37,16 +37,14 @@ import kotlin.math.abs
  */
 
 class DoodleView : View {
-    @Nullable
+
     private var mBitmap: Bitmap? = null
 
-    @Nullable
     private var mCanvas: Canvas? = null
     private var mBitmapPaint: Paint? = null
     private var mPath: Path? = null
     private var mPaint: Paint? = null
 
-    @Nullable
     private var mInsertBitmap: Bitmap? = null
     private var mOffsetX = 0
     private var mOffsetY = 0
@@ -62,7 +60,6 @@ class DoodleView : View {
     private val mDst = Rect()
     private var mRecycler: Recycler? = null
 
-    @Nullable
     private var mHelper: Helper? = null
 
 
@@ -110,7 +107,7 @@ class DoodleView : View {
         mEraser = eraser
     }
 
-    fun setHelper(@Nullable helper: Helper?) {
+    fun setHelper(helper: Helper?) {
         mHelper = helper
     }
 

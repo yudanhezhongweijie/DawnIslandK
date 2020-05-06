@@ -28,6 +28,7 @@ import com.laotoua.dawnislandk.ui.util.ReadableTime
 import com.laotoua.dawnislandk.ui.widget.DoodleView
 import com.laotoua.dawnislandk.ui.widget.ThicknessPreviewView
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.io.File
 import java.io.FileDescriptor
 
@@ -199,8 +200,9 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
                     this.close()
                 }
 
-            } catch (e: OutOfMemoryError) {
+            } catch (e: Exception) {
                 // Ignore
+                Timber.e(e)
             }
         }
     }
@@ -309,7 +311,6 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
 
     private fun saveDoodle() {
         if (mExitWaitingDialog == null) {
-
             mExitWaitingDialog = MaterialDialog(this).apply {
                 customView(R.layout.dialog_progress)
                 cancelable(false)
@@ -333,8 +334,18 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
             mExitWaitingDialog = null
         }
         val intent = Intent()
-        intent.data = mOutputFile
-        setResult(RESULT_OK, intent)
+        if (ok) {
+            intent.data = mOutputFile
+            setResult(RESULT_OK, intent)
+        } else {
+            intent.data = null
+            contentResolver.delete(
+                mOutputFile!!,
+                null,
+                null
+            )
+            setResult(RESULT_CANCELED, intent)
+        }
         finish()
     }
 

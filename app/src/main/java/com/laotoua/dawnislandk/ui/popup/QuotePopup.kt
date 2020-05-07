@@ -2,6 +2,7 @@ package com.laotoua.dawnislandk.ui.popup
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.text.method.LinkMovementMethod
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -106,6 +107,7 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
         }
 
         findViewById<TextView>(R.id.quoteContent).run {
+            movementMethod = LinkMovementMethod.getInstance()
             text = transformContent(
                 quote.content, mLineHeight, mSegGap, referenceClickListener
             )

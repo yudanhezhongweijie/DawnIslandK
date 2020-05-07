@@ -25,12 +25,10 @@ class FeedViewModel : ViewModel() {
     private val _delFeedResponse = MutableLiveData<SingleLiveEvent<EventPayload<Int>>>()
     val delFeedResponse: LiveData<SingleLiveEvent<EventPayload<Int>>> get() = _delFeedResponse
 
-    /** server returns variable amount of feeds on pages,
-     *  requesting two pages at the same time less likely to miss data
-     */
-    fun get2PagesFeeds() {
+    var tryAgain = false
+
+    fun getNextPage() {
         getFeedOnPage(nextPage)
-        getFeedOnPage(nextPage + 1)
     }
 
     private fun getFeedOnPage(page: Int) {
@@ -49,28 +47,43 @@ class FeedViewModel : ViewModel() {
                         )
                     }
                     is DataResource.Success -> {
-                        convertFeedData(data!!)
+                        val res = convertFeedData(data!!)
+                        if (res) {
+                            _feeds.postValue(feedsList)
+                            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))
+                        } else {
+                            if (tryAgain) {
+                                getFeedOnPage(nextPage)
+                            } else {
+                                _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.NODATA))
+                            }
+                        }
                     }
                 }
             }
         }
     }
 
-    private fun convertFeedData(data: List<Thread>) {
-        if (data.isNotEmpty()) nextPage += 1 else nextPage -= 1
+    private fun convertFeedData(data: List<Thread>): Boolean {
+        if (data.isEmpty()) {
+            nextPage -= 1
+            tryAgain = true
+            return false
+        }
+        tryAgain = false
         val noDuplicates = data.filterNot { feedsIds.contains(it.id) }
-        if (noDuplicates.isNotEmpty()) {
+        return if (noDuplicates.isNotEmpty()) {
             feedsIds.addAll(noDuplicates.map { it.id })
             feedsList.addAll(noDuplicates)
             Timber.i(
                 "feedsList now has ${feedsList.size} feeds"
             )
-            _feeds.postValue(feedsList)
-            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))
+            nextPage += 1
+            true
         } else {
-            Timber.i("feedsList not updated, still has ${feedsList.size} feeds.")
-            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.NODATA))
+            false
         }
+
     }
 
     fun deleteFeed(id: String, position: Int) {
@@ -108,6 +121,6 @@ class FeedViewModel : ViewModel() {
         feedsList.clear()
         feedsIds.clear()
         nextPage = 1
-        get2PagesFeeds()
+        getFeedOnPage(nextPage)
     }
 }

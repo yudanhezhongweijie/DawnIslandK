@@ -123,7 +123,7 @@ class FeedFragment : Fragment() {
 
             // load more
             loadMoreModule.setOnLoadMoreListener {
-                viewModel.get2PagesFeeds()
+                viewModel.getNextPage()
             }
         }
 

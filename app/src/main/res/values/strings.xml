@@ -29,14 +29,11 @@
     </plurals>
 
     <string name="submit" translatable="false">确认</string>
+    <string name="delete" translatable="false">删除</string>
     <string name="cancel" translatable="false">取消</string>
     <string name="save" translatable="false">保存</string>
     <string name="do_not_save" translatable="false">不保存</string>
     <string name="select_picture" translatable="false">选择图片</string>
-    <string name="save_image_selection" translatable="false">要保存图片吗?</string>
-    <string name="cant_create_image_file" translatable="false">无法生成图片文件</string>
-    <string name="saving_image" translatable="false">正在保存图片...</string>
-    <string name="sending" translatable="false">正在发送中...</string>
     <string name="report_reasons" translatable="false">举报理由</string>
     <string name="pick_color" translatable="false">选择颜色</string>
     <string name="choose_forum" translatable="false">选择板块</string>
@@ -46,7 +43,39 @@
     <string name="title" translatable="false">标题</string>
     <string name="email" translatable="false">邮箱</string>
     <string name="name" translatable="false">名称</string>
+    <string name="need_cookie_to_read" translatable="false">没有饼干! 不能看99页以后的内容...</string>
+    <string name="new_post" translatable="false">发布新串</string>
+    <string name="reply" translatable="false">回复</string>
+    <string name="need_cookie_to_post" translatable="false">没有饼干不能发串哦。。</string>
+    <string name="need_content_to_post" translatable="false">:(没有上传的内容或文件</string>
+
     <string name="need_read_storage_permission" translatable="false">需要读取外部存储权限</string>
     <string name="need_write_storage_permission" translatable="false">需要写入外部存储权限</string>
     <string name="need_take_picture_permission" translatable="false">需要拍照权限</string>
+    <string name="need_camera" translatable="false">你没有相机？？？</string>
+    <string name="copy_thread_id" translatable="false">串号已复制</string>
+    <string name="restart_to_apply_setting" translatable="false">设置将在重启后生效</string>
+    <string name="save_image_selection" translatable="false">要保存图片吗?</string>
+    <string name="cant_create_image_file" translatable="false">无法生成图片文件</string>
+    <string name="saving_image" translatable="false">正在保存图片...</string>
+    <string name="sending" translatable="false">正在发送中...</string>
+    <string name="image_saved" translatable="false">图片保存在Pictures/Dawn</string>
+    <string name="error_in_saving_image" translatable="false">保存图片时发生错误</string>
+    <string name="press_again_to_exit" translatable="false">再按一次以退出应用</string>
+
+
+    <string name="radius" translatable="false">圆角</string>
+    <string name="elevation" translatable="false">阴影</string>
+    <string name="main_text_size" translatable="false">主字号</string>
+    <string name="line_height" translatable="false">行间距</string>
+    <string name="seg_gap" translatable="false">段间距</string>
+    <string name="letter_space" translatable="false">字间距</string>
+    <string name="card_margin_top" translatable="false">卡片间距</string>
+    <string name="card_margin_left" translatable="false">卡片左边距</string>
+    <string name="card_margin_right" translatable="false">卡片右边距</string>
+    <string name="head_bar_margin_top" translatable="false">头部上边距</string>
+    <string name="content_margin_top" translatable="false">内容上边距</string>
+    <string name="content_margin_left" translatable="false">内容左边距</string>
+    <string name="content_margin_right" translatable="false">内容右边距</string>
+    <string name="content_margin_bottom" translatable="false">内容下边距</string>
 </resources>

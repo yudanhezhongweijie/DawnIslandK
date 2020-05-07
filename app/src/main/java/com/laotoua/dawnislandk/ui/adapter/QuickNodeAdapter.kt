@@ -142,14 +142,15 @@ class QuickNodeAdapter(val clickListener: ForumClickListener) : BaseNodeAdapter(
 
     inner class CommunityNode(val community: Community) :
         BaseExpandNode() {
-        private val _childNode = community.forums.map { ForumNode(it) }.toMutableList()
+        private val _childNode: MutableList<BaseNode> =
+            community.forums.map { ForumNode(it) }.toMutableList()
 
         init {
             isExpanded = false
         }
 
         override val childNode: MutableList<BaseNode>?
-            get() = _childNode as MutableList<BaseNode>
+            get() = _childNode
     }
 
     inner class ForumNode(val forum: Forum) : BaseNode() {

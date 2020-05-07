@@ -202,7 +202,7 @@ class ReplyFragment : Fragment() {
             val clip: ClipData =
                 ClipData.newPlainText("currentThreadId", ">>No.${viewModel.currentThread!!.id}")
             clipboard?.setPrimaryClip(clip)
-            Toast.makeText(context, "串号已复制", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, R.string.copy_thread_id, Toast.LENGTH_SHORT).show()
             hideMenu()
         }
 

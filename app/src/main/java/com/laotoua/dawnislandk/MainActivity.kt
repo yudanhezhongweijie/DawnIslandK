@@ -135,7 +135,7 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
             findNavController(R.id.navHostFragment).previousBackStackEntry == null
         ) {
             doubleBackToExitPressedOnce = true
-            Toast.makeText(this, "再按一次以退出应用", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.press_again_to_exit, Toast.LENGTH_SHORT).show()
             mHandler.postDelayed(mRunnable, 2000)
             return
         }

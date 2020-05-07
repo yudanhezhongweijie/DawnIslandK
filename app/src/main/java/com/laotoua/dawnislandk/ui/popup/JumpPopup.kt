@@ -56,7 +56,7 @@ class JumpPopup(private val caller: Fragment, context: Context) : CenterPopupVie
             targetPage = pageInput.text.toString().toInt()
             if (AppState.cookies.isNullOrEmpty() && targetPage > 99) {
                 MaterialDialog(context).show {
-                    message(text = "没有饼干! 不能看99页以后的内容...")
+                    message(R.string.need_cookie_to_read)
                 }
             } else {
                 dismiss()

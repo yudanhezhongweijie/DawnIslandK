@@ -33,7 +33,6 @@ class CookieManagerPopup(context: Context) : CenterPopupView(context) {
     override fun onCreate() {
         super.onCreate()
 
-        // TODO: hash validation
         addCookie.setOnClickListener {
             XPopup.Builder(context)
                 .setPopupCallback(object : SimpleCallback() {

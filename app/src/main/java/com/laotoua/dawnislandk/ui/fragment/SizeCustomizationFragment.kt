@@ -98,75 +98,107 @@ class SizeCustomizationFragment : Fragment() {
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
 
-        generateSeekBar(RADIUS, "圆角").let {
+        generateSeekBar(RADIUS, requireContext().getString(R.string.radius)).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress = ThreadCardFactory.cardRadius.toInt()
             progressContainer.addView(it)
         }
 
-        generateSeekBar(ELEVATION, "阴影").let {
+        generateSeekBar(ELEVATION, requireContext().getString(R.string.elevation)).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress =
                 ThreadCardFactory.cardElevation.toInt()
             progressContainer.addView(it)
         }
 
-        generateSeekBar(MAIN_TEXT_SIZE, "主字号", 10).let {
+        generateSeekBar(
+            MAIN_TEXT_SIZE,
+            requireContext().getString(R.string.main_text_size),
+            10
+        ).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress =
                 ThreadCardFactory.mainTextSize.toInt() - 10
             progressContainer.addView(it)
         }
 
-        generateSeekBar(LINE_HEIGHT, "行间距", 20).let {
+        generateSeekBar(LINE_HEIGHT, requireContext().getString(R.string.line_height), 20).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress = ThreadCardFactory.lineHeight
             progressContainer.addView(it)
         }
 
-        generateSeekBar(SEG_GAP, "段间距", 25).let {
+        generateSeekBar(SEG_GAP, requireContext().getString(R.string.seg_gap), 25).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress = ThreadCardFactory.segGap
             progressContainer.addView(it)
         }
 
-        generateSeekBar(LETTER_SPACE, "字间距", 17).let {
+        generateSeekBar(LETTER_SPACE, requireContext().getString(R.string.letter_space), 17).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress =
                 (ThreadCardFactory.letterSpace * 50f).toInt()
             progressContainer.addView(it)
         }
 
-        generateSeekBar(CARD_MARGIN_TOP, "卡片间距").let {
+        generateSeekBar(CARD_MARGIN_TOP, requireContext().getString(R.string.card_margin_top)).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress = ThreadCardFactory.cardMarginTop
             progressContainer.addView(it)
         }
 
-        generateSeekBar(CARD_MARGIN_LEFT, "卡片左边距", 50).let {
+        generateSeekBar(
+            CARD_MARGIN_LEFT,
+            requireContext().getString(R.string.card_margin_left),
+            50
+        ).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress = ThreadCardFactory.cardMarginLeft
             progressContainer.addView(it)
         }
 
-        generateSeekBar(CARD_MARGIN_RIGHT, "卡片右边距", 50).let {
+        generateSeekBar(
+            CARD_MARGIN_RIGHT,
+            requireContext().getString(R.string.card_margin_right),
+            50
+        ).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress = ThreadCardFactory.cardMarginRight
             progressContainer.addView(it)
         }
 
-        generateSeekBar(HEAD_BAR_MARGIN_TOP, "头部上边距", 60).let {
+        generateSeekBar(
+            HEAD_BAR_MARGIN_TOP,
+            requireContext().getString(R.string.head_bar_margin_top),
+            60
+        ).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress = ThreadCardFactory.headBarMarginTop
             progressContainer.addView(it)
         }
 
-        generateSeekBar(CONTENT_MARGIN_TOP, "内容上边距", 50).let {
+        generateSeekBar(
+            CONTENT_MARGIN_TOP,
+            requireContext().getString(R.string.content_margin_top),
+            50
+        ).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress = ThreadCardFactory.contentMarginTop
             progressContainer.addView(it)
         }
 
-        generateSeekBar(CONTENT_MARGIN_LEFT, "内容左边距", 60).let {
+        generateSeekBar(
+            CONTENT_MARGIN_LEFT,
+            requireContext().getString(R.string.content_margin_left),
+            60
+        ).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress = ThreadCardFactory.contentMarginLeft
             progressContainer.addView(it)
         }
 
-        generateSeekBar(CONTENT_MARGIN_RIGHT, "内容右边距", 60).let {
+        generateSeekBar(
+            CONTENT_MARGIN_RIGHT,
+            requireContext().getString(R.string.content_margin_right),
+            60
+        ).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress = ThreadCardFactory.contentMarginRight
             progressContainer.addView(it)
         }
 
-        generateSeekBar(CONTENT_MARGIN_BOTTOM, "内容下边距", 70).let {
+        generateSeekBar(
+            CONTENT_MARGIN_BOTTOM,
+            requireContext().getString(R.string.content_margin_bottom),
+            70
+        ).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress =
                 ThreadCardFactory.contentMarginBottom
             progressContainer.addView(it)
@@ -341,6 +373,6 @@ class SizeCustomizationFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        Toast.makeText(context, "设置将在重启后生效", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, R.string.restart_to_apply_setting, Toast.LENGTH_SHORT).show()
     }
 }

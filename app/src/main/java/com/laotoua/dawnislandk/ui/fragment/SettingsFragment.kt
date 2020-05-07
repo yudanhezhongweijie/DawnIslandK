@@ -85,7 +85,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         mmkv.putString("feedId", text)
                         summary = text
 
-                        Toast.makeText(context, "设置将在重启后生效", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            R.string.restart_to_apply_setting,
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                     .show()
                 true
@@ -107,7 +111,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     .asCenterList("修改时间显示格式", entries) { position, text ->
                         mmkv.putString("time_format", values[position])
                         summary = text
-                        Toast.makeText(context, "设置将在重启后生效", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            R.string.restart_to_apply_setting,
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                     .show()
                 true

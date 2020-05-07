@@ -89,10 +89,10 @@ class FeedFragment : Fragment() {
                 val id = (mAdapter.getItem(position) as Thread).id
                 MaterialDialog(requireContext()).show {
                     title(text = "删除订阅 $id?")
-                    positiveButton(text = "删除") {
+                    positiveButton(R.string.delete) {
                         viewModel.deleteFeed(id, position)
                     }
-                    negativeButton(text = "取消")
+                    negativeButton(R.string.cancel)
                 }
 
                 true

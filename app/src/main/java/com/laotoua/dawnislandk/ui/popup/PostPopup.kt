@@ -117,14 +117,16 @@ class PostPopup(private val caller: Fragment, context: Context) :
                 context.getString(R.string.report_reasons),
                 resources.getStringArray(R.array.report_reasons)
             ) { _: Int, text: String? ->
-                postContent!!.append("\n举报理由: $text")
+                postContent!!.append("\n${context.getString(R.string.report_reasons)}: $text")
             }
     }
 
     private var progressBar: ProgressBar? = null
 
     private fun updateTitle(targetId: String, newPost: Boolean) {
-        findViewById<TextView>(R.id.postTitle).text = if (newPost) "发布新串" else "回复 >> No. $targetId"
+        findViewById<TextView>(R.id.postTitle).text =
+            if (newPost) context.getString(R.string.new_post)
+            else "${context.getString(R.string.reply)} >> No. $targetId"
     }
 
     private fun updateForumButton() {
@@ -136,7 +138,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
         if (selectedCookie == null || cookies.isNullOrEmpty()) {
             findViewById<TextView>(R.id.postCookie)?.run {
                 text = if (cookies.isNullOrEmpty()) {
-                    "没有饼干"
+                    context.getString(R.string.missing_cookie)
                 } else {
                     selectedCookie = cookies[0]
                     selectedCookie!!.cookieName
@@ -338,7 +340,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
                     }
                     .show()
             } else {
-                Toast.makeText(caller.context, "没有饼干", Toast.LENGTH_SHORT).show()
+                Toast.makeText(caller.context, R.string.missing_cookie, Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -374,7 +376,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
         findViewById<Button>(R.id.postCamera).setOnClickListener {
             if (!caller.requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
-                Toast.makeText(context, "你没有相机？？？", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, R.string.need_camera, Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
             if (!FragmentIntentUtil.checkPermissions(caller)) {
@@ -446,7 +448,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
     private fun send() {
         if (selectedCookie == null) {
-            Toast.makeText(caller.context, "没有饼干不能发串哦。。", Toast.LENGTH_SHORT).show()
+            Toast.makeText(caller.context, R.string.need_cookie_to_post, Toast.LENGTH_SHORT).show()
             return
         }
         name = findViewById<TextView>(R.id.formName).text.toString()
@@ -454,7 +456,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
         title = findViewById<TextView>(R.id.formTitle).text.toString()
         content = postContent!!.text.toString()
         if (content == "" && imageFile == null) {
-            Toast.makeText(caller.context, ":(没有上传的内容或文件", Toast.LENGTH_SHORT).show()
+            Toast.makeText(caller.context, R.string.need_content_to_post, Toast.LENGTH_SHORT).show()
             return
         }
 

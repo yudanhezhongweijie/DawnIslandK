@@ -49,15 +49,15 @@ class ImageViewerPopup(
         super.onAttachedToWindow()
         this.isShowSaveBtn = false
         saveButton.setOnClickListener {
-            Timber.i("fab clicked")
             addPicToGallery(context, imgUrl)
         }
 
         status.observe(caller, Observer {
             when (it) {
-                true -> Toast.makeText(context, "图片保存在Pictures/Dawn", Toast.LENGTH_SHORT)
+                true -> Toast.makeText(context, R.string.image_saved, Toast.LENGTH_SHORT)
                     .show()
-                else -> Toast.makeText(context, "保存图片发生错误", Toast.LENGTH_SHORT).show()
+                else -> Toast.makeText(context, R.string.error_in_saving_image, Toast.LENGTH_SHORT)
+                    .show()
             }
         })
     }

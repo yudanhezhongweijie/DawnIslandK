@@ -112,6 +112,12 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
                 quote.content, mLineHeight, mSegGap, referenceClickListener
             )
             letterSpacing = mLetterSpace
+            setOnFocusChangeListener { v, hasFocus ->
+                if (hasFocus) {
+                    v.clearFocus()
+                    this@QuotePopup.requestFocus()
+                }
+            }
         }
 
     }

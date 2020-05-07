@@ -51,6 +51,7 @@ class ThreadFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
         sharedVM.setFragment(this)
         _binding = ThreadFragmentBinding.inflate(inflater, container, false)
 

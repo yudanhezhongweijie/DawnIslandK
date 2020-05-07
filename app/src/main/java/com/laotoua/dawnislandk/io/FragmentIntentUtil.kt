@@ -13,6 +13,7 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.CallSuper
 import androidx.fragment.app.Fragment
+import com.laotoua.dawnislandk.ui.activity.DoodleActivity
 import timber.log.Timber
 
 object FragmentIntentUtil {
@@ -85,5 +86,26 @@ object FragmentIntentUtil {
         }
     }
 
+    fun drawNewDoodle(caller: Fragment, callback: (Uri?) -> Unit) {
+        caller.prepareCall(MakeDoodle(), callback)(caller)
+    }
+
+    internal class MakeDoodle :
+        ActivityResultContract<Fragment, Uri?>() {
+        @CallSuper
+        override fun createIntent(
+            context: Context,
+            input: Fragment
+        ): Intent {
+            return Intent(input.requireActivity(), DoodleActivity::class.java)
+        }
+
+        override fun parseResult(
+            resultCode: Int,
+            intent: Intent?
+        ): Uri? {
+            return if (intent == null || resultCode != Activity.RESULT_OK) null else intent.data
+        }
+    }
 
 }

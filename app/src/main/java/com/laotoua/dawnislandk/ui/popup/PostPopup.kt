@@ -13,7 +13,6 @@ import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
@@ -289,15 +288,22 @@ class PostPopup(private val caller: Fragment, context: Context) :
                         luweiStickerContainer!!.visibility =
                             if (isChecked) View.VISIBLE else View.GONE
                     }
-                    // TODO: doodle
+
                     R.id.postDoodle -> {
                         if (isChecked) {
-//                            val destination = if (caller is PagerFragment) {
-//                                PagerFragmentDirections.actionPagerFragmentToDoodleActivity()
-//                            } else{
-//                                ReplyFragmentDirections.actionReplyFragmentToDoodleActivity()
-//                            }
-                            caller.findNavController().navigate(R.id.doodleActivity)
+                            FragmentIntentUtil.drawNewDoodle(caller) { uri ->
+                                uri?.let {
+                                    Timber.d("Made a doodle. Setting preview thumbnail...")
+                                    ImageUtil.loadImageThumbnailToImageView(
+                                        caller,
+                                        uri,
+                                        150,
+                                        150,
+                                        postImagePreview!!
+                                    )
+                                    attachmentContainer!!.visibility = View.VISIBLE
+                                }
+                            }
                         }
 
                     }

@@ -12,14 +12,14 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.navArgs
 import com.github.chrisbanes.photoview.PhotoView
-import com.laotoua.dawnislandk.databinding.ImageViewerFragmentBinding
+import com.laotoua.dawnislandk.databinding.FragmentImageViewerBinding
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 
 
 class ImageViewerFragment : Fragment() {
     var toolbar: Toolbar? = null
-    private var _binding: ImageViewerFragmentBinding? = null
-    val binding: ImageViewerFragmentBinding get() = _binding!!
+    private var _binding: FragmentImageViewerBinding? = null
+    val binding: FragmentImageViewerBinding get() = _binding!!
     private val sharedVM: SharedViewModel by activityViewModels()
     private val viewModel: ImageViewerViewModel by viewModels()
     private val args: ImageViewerFragmentArgs by navArgs()
@@ -36,7 +36,7 @@ class ImageViewerFragment : Fragment() {
 
         sharedVM.setFragment(this)
 
-        _binding = ImageViewerFragmentBinding.inflate(inflater, container, false)
+        _binding = FragmentImageViewerBinding.inflate(inflater, container, false)
         val imgUrl: String = args.imgUrl
 
         // load image in Full Screen

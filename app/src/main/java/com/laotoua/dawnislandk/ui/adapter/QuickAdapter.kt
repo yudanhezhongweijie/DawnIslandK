@@ -71,15 +71,15 @@ class QuickAdapter(private val layoutResId: Int) :
      *
      */
     override fun convert(holder: BaseViewHolder, item: Any) {
-        if (layoutResId == R.layout.thread_list_item && item is Thread) {
+        if (layoutResId == R.layout.list_item_thread && item is Thread) {
             convertThread(holder, item, sharedViewModel.getForumDisplayName(item.fid!!))
-        } else if (layoutResId == R.layout.reply_list_item && item is Reply) {
+        } else if (layoutResId == R.layout.list_item_reply && item is Reply) {
             convertReply(holder, item, po)
-        } else if (layoutResId == R.layout.trend_list_item && item is Trend) {
+        } else if (layoutResId == R.layout.list_item_trend && item is Trend) {
             convertTrend(holder, item)
-        } else if (layoutResId == R.layout.emoji_grid_item && item is String) {
+        } else if (layoutResId == R.layout.grid_item_emoji && item is String) {
             convertEmoji(holder, item)
-        } else if (layoutResId == R.layout.luwei_sticker_grid_item && item is String) {
+        } else if (layoutResId == R.layout.grid_item_luwei_sticker && item is String) {
             convertLuweiSticker(holder, item)
         } else {
             throw Exception("Unhandled conversion in adapter")
@@ -87,7 +87,7 @@ class QuickAdapter(private val layoutResId: Int) :
     }
 
     override fun onCreateDefViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
-        return if (layoutResId == R.layout.thread_list_item) {
+        return if (layoutResId == R.layout.list_item_thread) {
             val view = parent.getItemView(layoutResId)
             ThreadCardFactory.applySettings(view as MaterialCardView)
             createBaseViewHolder(view)

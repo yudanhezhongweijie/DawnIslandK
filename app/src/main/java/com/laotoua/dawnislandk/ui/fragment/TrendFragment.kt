@@ -12,7 +12,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.entity.Trend
-import com.laotoua.dawnislandk.databinding.TrendFragmentBinding
+import com.laotoua.dawnislandk.databinding.FragmentTrendBinding
 import com.laotoua.dawnislandk.ui.adapter.QuickAdapter
 import com.laotoua.dawnislandk.ui.util.UIUtils.updateHeaderAndFooter
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
@@ -25,17 +25,17 @@ import timber.log.Timber
 
 class TrendFragment : Fragment() {
 
-    private var _binding: TrendFragmentBinding? = null
+    private var _binding: FragmentTrendBinding? = null
     private val binding get() = _binding!!
     private val viewModel: TrendViewModel by viewModels()
     private val sharedVM: SharedViewModel by activityViewModels()
-    private val mAdapter = QuickAdapter(R.layout.trend_list_item)
+    private val mAdapter = QuickAdapter(R.layout.list_item_trend)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = TrendFragmentBinding.inflate(inflater, container, false)
+        _binding = FragmentTrendBinding.inflate(inflater, container, false)
 
         binding.refreshLayout.apply {
             setHeaderView(ClassicHeader<IIndicator>(context))

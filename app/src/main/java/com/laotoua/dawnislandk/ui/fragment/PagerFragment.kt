@@ -9,15 +9,15 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import com.laotoua.dawnislandk.databinding.PagerFragmentBinding
+import com.laotoua.dawnislandk.databinding.FragmentPagerBinding
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 import timber.log.Timber
 
 
 class PagerFragment : Fragment() {
 
-    private var _binding: PagerFragmentBinding? = null
-    private val binding: PagerFragmentBinding get() = _binding!!
+    private var _binding: FragmentPagerBinding? = null
+    private val binding: FragmentPagerBinding get() = _binding!!
 
     private val sharedVM: SharedViewModel by activityViewModels()
 
@@ -26,7 +26,7 @@ class PagerFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        _binding = PagerFragmentBinding.inflate(inflater, container, false)
+        _binding = FragmentPagerBinding.inflate(inflater, container, false)
         binding.viewPager.adapter = object : FragmentStateAdapter(this) {
             private val mFragmentList: MutableList<Fragment> = mutableListOf()
 

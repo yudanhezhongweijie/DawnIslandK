@@ -50,7 +50,7 @@ class QuickNodeAdapter(val clickListener: ForumClickListener) : BaseNodeAdapter(
             get() = 1
 
         override val layoutId: Int
-            get() = R.layout.community_list_item
+            get() = R.layout.list_item_community
 
         override fun convert(helper: BaseViewHolder, item: BaseNode) {
             val community = (item as CommunityNode).community
@@ -119,7 +119,7 @@ class QuickNodeAdapter(val clickListener: ForumClickListener) : BaseNodeAdapter(
         override val itemViewType: Int
             get() = 2
         override val layoutId: Int
-            get() = R.layout.forum_list_item
+            get() = R.layout.list_item_forum
 
         override fun convert(helper: BaseViewHolder, item: BaseNode) {
             val forum = (item as ForumNode).forum

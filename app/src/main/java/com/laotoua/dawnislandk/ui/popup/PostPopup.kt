@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.callbacks.onDismiss
+import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.laotoua.dawnislandk.R
@@ -91,9 +92,9 @@ class PostPopup(private val caller: Fragment, context: Context) :
     private var expansionContainer: LinearLayout? = null
     private var attachmentContainer: ConstraintLayout? = null
     private var emojiContainer: RecyclerView? = null
-    private val emojiAdapter: QuickAdapter by lazy { QuickAdapter(R.layout.emoji_grid_item) }
+    private val emojiAdapter: QuickAdapter by lazy { QuickAdapter(R.layout.grid_item_emoji) }
     private var luweiStickerContainer: RecyclerView? = null
-    private val luweiStickerAdapter: QuickAdapter by lazy { QuickAdapter(R.layout.luwei_sticker_grid_item) }
+    private val luweiStickerAdapter: QuickAdapter by lazy { QuickAdapter(R.layout.grid_item_luwei_sticker) }
     private var postContent: EditText? = null
     private var postImagePreview: ImageView? = null
 
@@ -102,15 +103,18 @@ class PostPopup(private val caller: Fragment, context: Context) :
     private var keyboardHolder: LinearLayout? = null
 
     private val postProgress by lazy {
-        XPopup.Builder(getContext())
-            .asLoading("正在发送中")
+        MaterialDialog(context).apply {
+            customView(R.layout.dialog_progress)
+            cancelable(false)
+            title(R.string.sending)
+        }
     }
 
     private val reportReasonPopup by lazy {
         XPopup.Builder(getContext())
             .dismissOnTouchOutside(false)
             .asCenterList(
-                "举报理由",
+                context.getString(R.string.report_reasons),
                 resources.getStringArray(R.array.report_reasons)
             ) { _: Int, text: String? ->
                 postContent!!.append("\n举报理由: $text")
@@ -148,7 +152,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
     }
 
     override fun getImplLayoutId(): Int {
-        return R.layout.post_popup
+        return R.layout.popup_post
     }
 
     override fun show(): BottomPopupView {
@@ -288,37 +292,34 @@ class PostPopup(private val caller: Fragment, context: Context) :
                         luweiStickerContainer!!.visibility =
                             if (isChecked) View.VISIBLE else View.GONE
                     }
-
-                    R.id.postDoodle -> {
-                        if (isChecked) {
-                            FragmentIntentUtil.drawNewDoodle(caller) { uri ->
-                                uri?.let {
-                                    Timber.d("Made a doodle. Setting preview thumbnail...")
-                                    ImageUtil.loadImageThumbnailToImageView(
-                                        caller,
-                                        uri,
-                                        150,
-                                        150,
-                                        postImagePreview!!
-                                    )
-                                    attachmentContainer!!.visibility = View.VISIBLE
-                                }
-                            }
-                        }
-
-                    }
-                    // TODO: save
-                    R.id.postSave -> {
-                        if (isChecked) {
-                            Toast.makeText(context, "还没做....", Toast.LENGTH_LONG).show()
-                            Timber.d("clicked on save")
-                        }
-                    }
-                    else -> {
-                    }
-
                 }
             }
+
+        findViewById<Button>(R.id.postDoodle).setOnClickListener {
+            if (!FragmentIntentUtil.checkWriteStoragePermission(caller)
+                || !FragmentIntentUtil.checkReadStoragePermission(caller)
+            ) {
+                return@setOnClickListener
+            }
+            FragmentIntentUtil.drawNewDoodle(caller) { uri ->
+                uri?.let {
+                    Timber.d("Made a doodle. Setting preview thumbnail...")
+                    ImageUtil.loadImageThumbnailToImageView(
+                        caller,
+                        uri,
+                        150,
+                        150,
+                        postImagePreview!!
+                    )
+                    attachmentContainer!!.visibility = View.VISIBLE
+                }
+            }
+        }
+
+        // TODO: save
+        findViewById<Button>(R.id.postSave).apply {
+            visibility = View.GONE
+        }
 
         findViewById<Button>(R.id.postCookie).setOnClickListener {
             if (!cookies.isNullOrEmpty()) {
@@ -343,22 +344,23 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
 
         findViewById<Button>(R.id.postImage).setOnClickListener {
-            if (FragmentIntentUtil.checkPermissions(caller)) {
-                FragmentIntentUtil.getImageFromGallery(caller, "image/*") { uri: Uri? ->
-                    if (uri != null) {
-                        imageFile = ImageUtil.getImageFileFromUri(caller, uri)
-                        try {
-                            ImageUtil.loadImageThumbnailToImageView(
-                                caller,
-                                uri,
-                                150,
-                                150,
-                                postImagePreview!!
-                            )
-                            attachmentContainer!!.visibility = View.VISIBLE
-                        } catch (e: Exception) {
-                            Timber.e(e, "Cannot load thumbnail from image...")
-                        }
+            if (!FragmentIntentUtil.checkReadStoragePermission(caller)) {
+                return@setOnClickListener
+            }
+            FragmentIntentUtil.getImageFromGallery(caller, "image/*") { uri: Uri? ->
+                if (uri != null) {
+                    imageFile = ImageUtil.getImageFileFromUri(caller, uri)
+                    try {
+                        ImageUtil.loadImageThumbnailToImageView(
+                            caller,
+                            uri,
+                            150,
+                            150,
+                            postImagePreview!!
+                        )
+                        attachmentContainer!!.visibility = View.VISIBLE
+                    } catch (e: Exception) {
+                        Timber.e(e, "Cannot load thumbnail from image...")
                     }
                 }
             }
@@ -370,53 +372,52 @@ class PostPopup(private val caller: Fragment, context: Context) :
             attachmentContainer!!.visibility = View.GONE
         }
 
-        // TODO: camera
         findViewById<Button>(R.id.postCamera).setOnClickListener {
             if (!caller.requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
                 Toast.makeText(context, "你没有相机？？？", Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
-            if (FragmentIntentUtil.checkPermissions(caller)) {
-                val timeStamp: String = ReadableTime.getFilenamableTime(System.currentTimeMillis())
-                val relativeLocation =
-                    Environment.DIRECTORY_PICTURES + File.separator + "Dawn"
-                val name = "DawnIsland_$timeStamp"
-                val ext = "jpg"
-                try {
-                    ImageUtil.addPlaceholderImageUriToGallery(
-                        caller.requireActivity(),
-                        name,
-                        ext,
-                        relativeLocation
-                    )
-                        ?.run {
-                            previewUri = this
-                            FragmentIntentUtil.getImageFromCamera(caller, this)
-                            { success: Boolean ->
-                                if (success) {
-                                    Timber.d("Took a Picture. Setting preview thumbnail...")
-                                    ImageUtil.loadImageThumbnailToImageView(
-                                        caller,
-                                        previewUri!!,
-                                        150,
-                                        150,
-                                        postImagePreview!!
-                                    )
-                                    attachmentContainer!!.visibility = View.VISIBLE
-                                } else {
-                                    Timber.d("Didn't take a Picture. Removing placeholder Image...")
-                                    ImageUtil.removePlaceholderImageUriToGallery(
-                                        caller.requireActivity(),
-                                        this
-                                    )
-                                }
+            if (!FragmentIntentUtil.checkPermissions(caller)) {
+                return@setOnClickListener
+            }
+            val timeStamp: String = ReadableTime.getFilenamableTime(System.currentTimeMillis())
+            val relativeLocation =
+                Environment.DIRECTORY_PICTURES + File.separator + "Dawn"
+            val name = "DawnIsland_$timeStamp"
+            val ext = "jpg"
+            try {
+                ImageUtil.addPlaceholderImageUriToGallery(
+                    caller.requireActivity(),
+                    name,
+                    ext,
+                    relativeLocation
+                )
+                    ?.run {
+                        previewUri = this
+                        FragmentIntentUtil.getImageFromCamera(caller, this)
+                        { success: Boolean ->
+                            if (success) {
+                                Timber.d("Took a Picture. Setting preview thumbnail...")
+                                ImageUtil.loadImageThumbnailToImageView(
+                                    caller,
+                                    previewUri!!,
+                                    150,
+                                    150,
+                                    postImagePreview!!
+                                )
+                                attachmentContainer!!.visibility = View.VISIBLE
+                            } else {
+                                Timber.d("Didn't take a Picture. Removing placeholder Image...")
+                                ImageUtil.removePlaceholderImageUriToGallery(
+                                    caller.requireActivity(),
+                                    this
+                                )
                             }
                         }
-                } catch (e: Exception) {
-                    Timber.e(e, "Failed to take a picture...")
-                }
+                    }
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to take a picture...")
             }
-
         }
 
 
@@ -431,41 +432,6 @@ class PostPopup(private val caller: Fragment, context: Context) :
                 keyboardHolder!!.layoutParams = lp
             }
         }
-        /**
-         * 取消缩放功能
-         */
-
-//        constraintLayout = findViewById(R.id.baseContainer)
-//        findViewById<Button>(R.id.postFullScreen).setOnClickListener {
-//            TransitionManager.beginDelayedTransition(constraintLayout!!)
-//            fullScreen = if (fullScreen) {
-//                val constraintSet = ConstraintSet()
-//                constraintSet.clone(constraintLayout)
-//                constraintSet.clear(R.id.dialogContainer, ConstraintSet.TOP)
-//                constraintSet.connect(
-//                    R.id.dialogContainer,
-//                    ConstraintSet.TOP,
-//                    R.id.guideline_half,
-//                    ConstraintSet.TOP,
-//                    0
-//                )
-//                constraintSet.applyTo(constraintLayout)
-//                false
-//            } else {
-//                val constraintSet = ConstraintSet()
-//                constraintSet.clone(constraintLayout)
-//                constraintSet.clear(R.id.dialogContainer, ConstraintSet.TOP)
-//                constraintSet.connect(
-//                    R.id.dialogContainer,
-//                    ConstraintSet.TOP,
-//                    R.id.guideline_full,
-//                    ConstraintSet.TOP,
-//                    0
-//                )
-//                constraintSet.applyTo(constraintLayout)
-//                true
-//            }
-//        }
     }
 
     private fun clearEntries() {
@@ -494,7 +460,6 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
         userHash = selectedCookie?.cookieHash ?: ""
 
-        // TODO: 值班室需要举报理由才能发送
         postProgress.show()
         Timber.i("Sending...")
         caller.lifecycleScope.launch {
@@ -545,10 +510,5 @@ class PostPopup(private val caller: Fragment, context: Context) :
                 .showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
         }
     }
-
-//    private fun showKeyboardFrom(context: Context, view: View) {
-//        (context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager)
-//            .showSoftInput(view, 0)
-//    }
 
 }

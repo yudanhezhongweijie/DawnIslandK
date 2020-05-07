@@ -20,7 +20,7 @@ import com.laotoua.dawnislandk.ui.viewfactory.ThreadCardFactory
 import com.laotoua.dawnislandk.util.Constants
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 import com.tencent.mmkv.MMKV
-import kotlinx.android.synthetic.main.thread_list_item.view.*
+import kotlinx.android.synthetic.main.list_item_thread.view.*
 
 class SizeCustomizationFragment : Fragment() {
 
@@ -46,7 +46,7 @@ class SizeCustomizationFragment : Fragment() {
     private val rootView by lazy { LinearLayout(context) }
     private val demoCard by lazy {
         layoutInflater.inflate(
-            R.layout.thread_list_item,
+            R.layout.list_item_thread,
             rootView,
             false
         ) as MaterialCardView

@@ -13,6 +13,7 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.CallSuper
 import androidx.fragment.app.Fragment
+import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.ui.activity.DoodleActivity
 import timber.log.Timber
 
@@ -24,31 +25,51 @@ object FragmentIntentUtil {
         }(permission)
     }
 
-    fun checkPermissions(caller: Fragment): Boolean {
+    fun checkReadStoragePermission(caller: Fragment): Boolean {
         if (caller.requireContext()
                 .checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
         ) {
-            Toast.makeText(caller.requireContext(), "需要读取外部存储权限", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                caller.requireContext(),
+                R.string.need_read_storage_permission,
+                Toast.LENGTH_SHORT
+            ).show()
             requestPermission(
                 caller,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
             )
             return false
         }
+        return true
+    }
+
+    fun checkWriteStoragePermission(caller: Fragment): Boolean {
         if (caller.requireContext()
                 .checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
         ) {
-            Toast.makeText(caller.requireContext(), "需要写入外部存储权限", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                caller.requireContext(),
+                R.string.need_write_storage_permission,
+                Toast.LENGTH_SHORT
+            ).show()
             requestPermission(
                 caller,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
             )
             return false
         }
+        return true
+    }
+
+    private fun checkTakePicturePermission(caller: Fragment): Boolean {
         if (caller.requireContext()
                 .checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
         ) {
-            Toast.makeText(caller.requireContext(), "需要照相权限", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                caller.requireContext(),
+                R.string.need_take_picture_permission,
+                Toast.LENGTH_SHORT
+            ).show()
             requestPermission(
                 caller,
                 Manifest.permission.CAMERA
@@ -56,6 +77,11 @@ object FragmentIntentUtil {
             return false
         }
         return true
+    }
+
+    fun checkPermissions(caller: Fragment): Boolean {
+        return checkReadStoragePermission(caller) && checkWriteStoragePermission(caller)
+                && checkTakePicturePermission(caller)
     }
 
     fun getImageFromGallery(caller: Fragment, type: String, callback: (Uri?) -> Unit) {

@@ -16,7 +16,7 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.entity.Thread
 import com.laotoua.dawnislandk.data.network.ImageLoader
-import com.laotoua.dawnislandk.databinding.FeedFragmentBinding
+import com.laotoua.dawnislandk.databinding.FragmentFeedBinding
 import com.laotoua.dawnislandk.ui.adapter.QuickAdapter
 import com.laotoua.dawnislandk.ui.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.ui.util.UIUtils.updateHeaderAndFooter
@@ -33,12 +33,12 @@ import timber.log.Timber
 
 class FeedFragment : Fragment() {
 
-    private var _binding: FeedFragmentBinding? = null
-    private val binding: FeedFragmentBinding get() = _binding!!
+    private var _binding: FragmentFeedBinding? = null
+    private val binding: FragmentFeedBinding get() = _binding!!
 
     private val viewModel: FeedViewModel by viewModels()
     private val sharedVM: SharedViewModel by activityViewModels()
-    private val mAdapter = QuickAdapter(R.layout.thread_list_item)
+    private val mAdapter = QuickAdapter(R.layout.list_item_thread)
 
     private val imageLoader: ImageLoader by lazy { ImageLoader(requireContext()) }
 
@@ -47,7 +47,7 @@ class FeedFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         sharedVM.setFragment(this)
-        _binding = FeedFragmentBinding.inflate(inflater, container, false)
+        _binding = FragmentFeedBinding.inflate(inflater, container, false)
         binding.feedsView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)

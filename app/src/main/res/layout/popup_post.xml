@@ -48,7 +48,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="选择板块"
+            android:text="@string/choose_forum"
             android:textAppearance="@style/CollSubTitle"
             android:textSize="18sp"
             app:icon="@drawable/ic_arrow_drop_down_black_24px"
@@ -78,7 +78,7 @@
             android:background="#EAEAEA"
             android:ems="10"
             android:gravity="clip_horizontal"
-            android:hint="在这里输入文字"
+            android:hint="@string/edit_text_hint"
             android:inputType="textMultiLine"
             android:maxLines="15"
             android:minLines="4"
@@ -114,7 +114,7 @@
                 android:id="@+id/postWater"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="水印"
+                android:text="@string/watermark"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/postImagePreview"
@@ -139,18 +139,18 @@
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="没有饼干"
+            android:text="@string/missing_cookie"
             android:textAppearance="@style/CollSubTitle"
             android:textSize="18sp"
             app:icon="@drawable/ic_cookie_black_24px"
             app:iconGravity="start"
-            app:layout_constraintBottom_toTopOf="@+id/toggleButtonGroupContainer"
+            app:layout_constraintBottom_toTopOf="@+id/ButtonGroupContainer"
             app:layout_constraintEnd_toEndOf="@+id/postContent"
             app:layout_constraintStart_toStartOf="@+id/postContent"
             app:strokeWidth="0dp" />
 
         <HorizontalScrollView
-            android:id="@+id/toggleButtonGroupContainer"
+            android:id="@+id/ButtonGroupContainer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:overScrollMode="never"
@@ -158,37 +158,42 @@
             app:layout_constraintEnd_toEndOf="@id/postContent"
             app:layout_constraintStart_toStartOf="@id/postContent">
 
-            <com.google.android.material.button.MaterialButtonToggleGroup
-                android:id="@+id/toggleButtonGroup"
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                app:singleSelection="true">
+                android:layout_height="wrap_content">
 
-
-                <Button
-                    android:id="@+id/postExpand"
-                    style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/toggleButtonGroup"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:icon="@drawable/ic_unfold_more_black_24px"
-                    app:strokeWidth="0dp" />
+                    android:gravity="center"
+                    app:singleSelection="true">
 
-                <Button
-                    android:id="@+id/postFace"
-                    style="@style/Widget.App.Button.OutlinedButton.IconOnly"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:icon="@drawable/ic_emoji_emotions_black_24px"
-                    app:strokeWidth="0dp" />
 
-                <Button
-                    android:id="@+id/postLuwei"
-                    style="@style/Widget.App.Button.OutlinedButton.IconOnly"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:icon="@drawable/ic_speaker_black_24px"
-                    app:strokeWidth="0dp" />
+                    <Button
+                        android:id="@+id/postExpand"
+                        style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:icon="@drawable/ic_unfold_more_black_24px"
+                        app:strokeWidth="0dp" />
+
+                    <Button
+                        android:id="@+id/postFace"
+                        style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:icon="@drawable/ic_emoji_emotions_black_24px"
+                        app:strokeWidth="0dp" />
+
+                    <Button
+                        android:id="@+id/postLuwei"
+                        style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:icon="@drawable/ic_speaker_black_24px"
+                        app:strokeWidth="0dp" />
+                </com.google.android.material.button.MaterialButtonToggleGroup>
 
                 <Button
                     android:id="@+id/postCamera"
@@ -229,8 +234,7 @@
                     android:layout_height="wrap_content"
                     app:icon="@drawable/ic_send_black_24px"
                     app:strokeWidth="0dp" />
-
-            </com.google.android.material.button.MaterialButtonToggleGroup>
+            </LinearLayout>
         </HorizontalScrollView>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -266,7 +270,7 @@
                 app:layout_constraintStart_toStartOf="parent">
 
                 <View
-                    android:id="@+id/spart_line_1"
+                    android:id="@+id/borderline_1"
                     android:layout_width="match_parent"
                     android:layout_height="1px"
                     android:layout_marginBottom="8dp"
@@ -282,13 +286,13 @@
                     android:layout_marginBottom="8dp"
                     android:background="@null"
                     android:ems="10"
-                    android:hint="标题"
+                    android:hint="@string/title"
                     android:inputType="none"
                     android:textSize="15sp"
                     android:visibility="visible" />
 
                 <View
-                    android:id="@+id/spart_line_2"
+                    android:id="@+id/borderline_2"
                     android:layout_width="match_parent"
                     android:layout_height="1px"
                     android:layout_marginBottom="8dp"
@@ -304,12 +308,12 @@
                     android:layout_marginBottom="8dp"
                     android:background="@null"
                     android:ems="10"
-                    android:hint="邮箱"
+                    android:hint="@string/email"
                     android:textSize="15sp"
                     android:visibility="visible" />
 
                 <View
-                    android:id="@+id/spart_line_3"
+                    android:id="@+id/borderline_3"
                     android:layout_width="match_parent"
                     android:layout_height="1px"
                     android:layout_marginBottom="8dp"
@@ -326,13 +330,13 @@
 
                     android:background="@null"
                     android:ems="10"
-                    android:hint="名称"
+                    android:hint="@string/name"
                     android:inputType="textPersonName"
                     android:textSize="15sp"
                     android:visibility="visible" />
 
                 <View
-                    android:id="@+id/spart_line_4"
+                    android:id="@+id/borderline_4"
                     android:layout_width="match_parent"
                     android:layout_height="1px"
                     android:background="#9F9F9F"

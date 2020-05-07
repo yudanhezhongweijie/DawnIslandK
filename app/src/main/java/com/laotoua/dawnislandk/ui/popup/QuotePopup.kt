@@ -31,7 +31,7 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
     private val imageLoader: ImageLoader by lazy { ImageLoader(context) }
 
     override fun getImplLayoutId(): Int {
-        return R.layout.quote_popup
+        return R.layout.popup_quote
     }
 
     private fun convertQuote(quote: Reply, po: String) {

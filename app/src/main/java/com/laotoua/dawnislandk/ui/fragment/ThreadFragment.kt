@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.entity.Thread
 import com.laotoua.dawnislandk.data.network.ImageLoader
-import com.laotoua.dawnislandk.databinding.ThreadFragmentBinding
+import com.laotoua.dawnislandk.databinding.FragmentThreadBinding
 import com.laotoua.dawnislandk.ui.adapter.QuickAdapter
 import com.laotoua.dawnislandk.ui.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.ui.popup.PostPopup
@@ -33,13 +33,13 @@ import timber.log.Timber
 
 class ThreadFragment : Fragment() {
 
-    private var _binding: ThreadFragmentBinding? = null
+    private var _binding: FragmentThreadBinding? = null
     private val binding get() = _binding!!
 
     private val viewModel: ThreadViewModel by viewModels()
     private val sharedVM: SharedViewModel by activityViewModels()
     private val mAdapter =
-        QuickAdapter(R.layout.thread_list_item)
+        QuickAdapter(R.layout.list_item_thread)
 
     private val postPopup: PostPopup by lazy { PostPopup(this, requireContext()) }
 
@@ -53,7 +53,7 @@ class ThreadFragment : Fragment() {
     ): View? {
 
         sharedVM.setFragment(this)
-        _binding = ThreadFragmentBinding.inflate(inflater, container, false)
+        _binding = FragmentThreadBinding.inflate(inflater, container, false)
 
         binding.refreshLayout.apply {
             setHeaderView(ClassicHeader<IIndicator>(context))

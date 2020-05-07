@@ -15,7 +15,7 @@ class CookieAdditionPopup(context: Context) : CenterPopupView(context) {
     private val submitButton: Button by lazy { findViewById<Button>(R.id.submit) }
 
     override fun getImplLayoutId(): Int {
-        return R.layout.cookie_addition_popup
+        return R.layout.popup_cookie_addition
     }
 
     override fun onCreate() {

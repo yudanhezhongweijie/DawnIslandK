@@ -8,7 +8,7 @@
         android:id="@+id/replyFragment"
         android:name="com.laotoua.dawnislandk.ui.fragment.ReplyFragment"
         android:label="reply_fragment"
-        tools:layout="@layout/reply_fragment">
+        tools:layout="@layout/fragment_reply">
         <action
             android:id="@+id/action_replyFragment_to_imageViewerFragment"
             app:destination="@id/imageViewerFragment"
@@ -28,7 +28,7 @@
         android:id="@+id/imageViewerFragment"
         android:name="com.laotoua.dawnislandk.unused.ImageViewerFragment"
         android:label="image_viewer_fragment"
-        tools:layout="@layout/image_viewer_fragment">
+        tools:layout="@layout/fragment_image_viewer">
         <argument
             android:name="imgUrl"
             app:argType="string" />
@@ -37,7 +37,7 @@
         android:id="@+id/pagerFragment"
         android:name="com.laotoua.dawnislandk.ui.fragment.PagerFragment"
         android:label="pager_fragment"
-        tools:layout="@layout/pager_fragment">
+        tools:layout="@layout/fragment_pager">
         <action
             android:id="@+id/action_pagerFragment_to_replyFragment"
             app:destination="@id/replyFragment"

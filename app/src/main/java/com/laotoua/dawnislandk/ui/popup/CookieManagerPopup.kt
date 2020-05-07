@@ -9,7 +9,7 @@ import com.laotoua.dawnislandk.data.entity.Cookie
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.CenterPopupView
 import com.lxj.xpopup.interfaces.SimpleCallback
-import kotlinx.android.synthetic.main.cookie_list_item.view.*
+import kotlinx.android.synthetic.main.list_item_cookie.view.*
 
 
 class CookieManagerPopup(context: Context) : CenterPopupView(context) {

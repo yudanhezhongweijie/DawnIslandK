@@ -22,7 +22,7 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.entity.Reply
 import com.laotoua.dawnislandk.data.network.ImageLoader
 import com.laotoua.dawnislandk.data.state.AppState
-import com.laotoua.dawnislandk.databinding.ReplyFragmentBinding
+import com.laotoua.dawnislandk.databinding.FragmentReplyBinding
 import com.laotoua.dawnislandk.ui.adapter.QuickAdapter
 import com.laotoua.dawnislandk.ui.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.ui.popup.JumpPopup
@@ -43,12 +43,12 @@ import timber.log.Timber
 class ReplyFragment : Fragment() {
 
     //TODO: maintain reply fragment when pressing back, such that progress can be remembered
-    private var _binding: ReplyFragmentBinding? = null
+    private var _binding: FragmentReplyBinding? = null
     private val binding get() = _binding!!
     private val viewModel: ReplyViewModel by viewModels()
     private val sharedVM: SharedViewModel by activityViewModels()
     private val mAdapter =
-        QuickAdapter(R.layout.reply_list_item).apply {
+        QuickAdapter(R.layout.list_item_reply).apply {
             setReferenceClickListener { quote ->
                 // TODO: get Po based on Thread
                 QuotePopup.showQuote(
@@ -79,7 +79,7 @@ class ReplyFragment : Fragment() {
 
         sharedVM.setFragment(this)
 
-        _binding = ReplyFragmentBinding.inflate(inflater, container, false)
+        _binding = FragmentReplyBinding.inflate(inflater, container, false)
 
         binding.refreshLayout.apply {
             setHeaderView(ClassicHeader<IIndicator>(context))

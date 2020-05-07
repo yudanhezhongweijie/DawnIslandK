@@ -23,7 +23,7 @@ class JumpPopup(private val caller: Fragment, context: Context) : CenterPopupVie
     private val submitButton: Button by lazy { findViewById<Button>(R.id.submit) }
 
     override fun getImplLayoutId(): Int {
-        return R.layout.jump_popup
+        return R.layout.popup_jump
     }
 
     override fun onCreate() {

@@ -37,7 +37,7 @@ class ImageViewerPopup(
     private val saveButton by lazy { findViewById<FloatingActionButton>(R.id.save) }
 
     override fun getImplLayoutId(): Int {
-        return R.layout.image_viewer_popup
+        return R.layout.popup_image_viewer
     }
 
     override fun initPopupContent() {

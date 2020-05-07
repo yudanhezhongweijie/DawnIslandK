@@ -44,23 +44,23 @@
 
         <include
             android:id="@+id/cookie1"
-            layout="@layout/cookie_list_item"
+            layout="@layout/list_item_cookie"
             android:background="@drawable/full_round_corner_background" />
 
         <include
             android:id="@+id/cookie2"
-            layout="@layout/cookie_list_item" />
+            layout="@layout/list_item_cookie" />
 
         <include
             android:id="@+id/cookie3"
-            layout="@layout/cookie_list_item" />
+            layout="@layout/list_item_cookie" />
 
         <include
             android:id="@+id/cookie4"
-            layout="@layout/cookie_list_item" />
+            layout="@layout/list_item_cookie" />
 
         <include
             android:id="@+id/cookie5"
-            layout="@layout/cookie_list_item" />
+            layout="@layout/list_item_cookie" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -21,6 +21,8 @@ class PagerFragment : Fragment() {
 
     private val sharedVM: SharedViewModel by activityViewModels()
 
+    private var mForumId: String? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -63,7 +65,10 @@ class PagerFragment : Fragment() {
         }
 
         sharedVM.selectedForum.observe(viewLifecycleOwner, Observer {
-            binding.viewPager.currentItem = 0
+            if (mForumId != it.id) {
+                binding.viewPager.currentItem = 0
+                mForumId = it.id
+            }
         })
 
         return binding.root

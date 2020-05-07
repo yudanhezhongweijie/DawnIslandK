@@ -16,6 +16,13 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_replyFragment_to_doodleActivity"
+            app:destination="@id/doodleActivity"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/imageViewerFragment"
@@ -52,6 +59,13 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_pagerFragment_to_doodleActivity"
+            app:destination="@id/doodleActivity"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"
@@ -69,4 +83,8 @@
         android:id="@+id/sizeCustomizationFragment"
         android:name="com.laotoua.dawnislandk.ui.fragment.SizeCustomizationFragment"
         android:label="SizeCustomizationFragment" />
+    <activity
+        android:id="@+id/doodleActivity"
+        android:name="com.laotoua.dawnislandk.ui.activity.DoodleActivity"
+        android:label="DoodleActivity" />
 </navigation>

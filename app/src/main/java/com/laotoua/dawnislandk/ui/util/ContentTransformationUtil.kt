@@ -1,6 +1,5 @@
 package com.laotoua.dawnislandk.ui.util
 
-import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Build
@@ -11,8 +10,6 @@ import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import android.text.style.URLSpan
-import android.util.DisplayMetrics
-import android.util.TypedValue
 import com.laotoua.dawnislandk.ui.span.HideSpan
 import com.laotoua.dawnislandk.ui.span.ReferenceSpan
 import com.laotoua.dawnislandk.ui.span.SegmentSpacingSpan
@@ -108,15 +105,6 @@ object ContentTransformationUtil {
             Spanned.SPAN_INCLUSIVE_EXCLUSIVE
         )
 
-    }
-
-    fun dip2px(context: Context, dipValue: Float): Int {
-        val displayMetrics: DisplayMetrics = context.resources.displayMetrics
-        return TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            dipValue,
-            displayMetrics
-        ).toInt()
     }
 
     private fun handleReference(

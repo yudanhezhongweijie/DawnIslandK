@@ -28,6 +28,7 @@ import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.io.FragmentIntentUtil
 import com.laotoua.dawnislandk.io.ImageUtil
 import com.laotoua.dawnislandk.ui.adapter.QuickAdapter
+import com.laotoua.dawnislandk.ui.util.ReadableTime
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BottomPopupView
 import com.lxj.xpopup.interfaces.SimpleCallback
@@ -35,8 +36,6 @@ import com.lxj.xpopup.util.KeyboardUtils
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.*
 
 
 @SuppressLint("ViewConstructor")
@@ -289,12 +288,24 @@ class PostPopup(private val caller: Fragment, context: Context) :
                         luweiStickerContainer!!.visibility =
                             if (isChecked) View.VISIBLE else View.GONE
                     }
-                    // TODO: doodle
+
                     R.id.postDoodle -> {
                         if (isChecked) {
-                            Toast.makeText(context, "还没做...", Toast.LENGTH_LONG).show()
-                            Timber.d("clicked on doodle")
+                            FragmentIntentUtil.drawNewDoodle(caller) { uri ->
+                                uri?.let {
+                                    Timber.d("Made a doodle. Setting preview thumbnail...")
+                                    ImageUtil.loadImageThumbnailToImageView(
+                                        caller,
+                                        uri,
+                                        150,
+                                        150,
+                                        postImagePreview!!
+                                    )
+                                    attachmentContainer!!.visibility = View.VISIBLE
+                                }
+                            }
                         }
+
                     }
                     // TODO: save
                     R.id.postSave -> {
@@ -335,7 +346,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
             if (FragmentIntentUtil.checkPermissions(caller)) {
                 FragmentIntentUtil.getImageFromGallery(caller, "image/*") { uri: Uri? ->
                     if (uri != null) {
-                        imageFile = ImageUtil.getImagePathFromUri(caller, uri)
+                        imageFile = ImageUtil.getImageFileFromUri(caller, uri)
                         try {
                             ImageUtil.loadImageThumbnailToImageView(
                                 caller,
@@ -366,13 +377,18 @@ class PostPopup(private val caller: Fragment, context: Context) :
                 return@setOnClickListener
             }
             if (FragmentIntentUtil.checkPermissions(caller)) {
-                val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+                val timeStamp: String = ReadableTime.getFilenamableTime(System.currentTimeMillis())
                 val relativeLocation =
                     Environment.DIRECTORY_PICTURES + File.separator + "Dawn"
                 val name = "DawnIsland_$timeStamp"
                 val ext = "jpg"
                 try {
-                    ImageUtil.addPlaceholderImageUriToGallery(caller, name, ext, relativeLocation)
+                    ImageUtil.addPlaceholderImageUriToGallery(
+                        caller.requireActivity(),
+                        name,
+                        ext,
+                        relativeLocation
+                    )
                         ?.run {
                             previewUri = this
                             FragmentIntentUtil.getImageFromCamera(caller, this)
@@ -389,7 +405,10 @@ class PostPopup(private val caller: Fragment, context: Context) :
                                     attachmentContainer!!.visibility = View.VISIBLE
                                 } else {
                                     Timber.d("Didn't take a Picture. Removing placeholder Image...")
-                                    ImageUtil.removePlaceholderImageUriToGallery(caller, this)
+                                    ImageUtil.removePlaceholderImageUriToGallery(
+                                        caller.requireActivity(),
+                                        this
+                                    )
                                 }
                             }
                         }
@@ -490,9 +509,6 @@ class PostPopup(private val caller: Fragment, context: Context) :
                 imageFile,
                 userHash
             ).run {
-                // TODO, need to confirm success
-//                clearEntries()
-
                 val message = when (this) {
                     is APISuccessMessageResponse -> {
                         if (this.messageType == MessageType.String) {

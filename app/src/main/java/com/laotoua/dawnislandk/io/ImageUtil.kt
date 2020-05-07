@@ -1,9 +1,11 @@
 package com.laotoua.dawnislandk.io
 
+import android.app.Activity
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.net.Uri
 import android.os.Build
+import android.os.FileUtils
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.util.Size
@@ -16,7 +18,7 @@ import java.io.*
 
 object ImageUtil {
     fun addPlaceholderImageUriToGallery(
-        caller: Fragment,
+        callerActivity: Activity,
         fileName: String,
         fileExt: String,
         relativeLocation: String
@@ -30,7 +32,7 @@ object ImageUtil {
                 put(MediaStore.Images.ImageColumns.RELATIVE_PATH, relativeLocation)
             }
         }
-        return caller.requireActivity().contentResolver.insert(
+        return callerActivity.contentResolver.insert(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
             contentValues
         )
@@ -38,14 +40,10 @@ object ImageUtil {
     }
 
     fun removePlaceholderImageUriToGallery(
-        caller: Fragment,
+        callerActivity: Activity,
         uri: Uri
     ): Int {
-        return caller.requireActivity().contentResolver.delete(
-            uri,
-            null,
-            null
-        )
+        return callerActivity.contentResolver.delete(uri, null, null)
     }
 
     fun loadImageThumbnailToImageView(
@@ -65,7 +63,7 @@ object ImageUtil {
         }
     }
 
-    fun getImagePathFromUri(caller: Fragment, uri: Uri): File? {
+    fun getImageFileFromUri(caller: Fragment, uri: Uri): File? {
         val parcelFileDescriptor =
             caller.requireActivity().contentResolver.openFileDescriptor(uri, "r", null)
 
@@ -82,6 +80,8 @@ object ImageUtil {
             Timber.i("File not found. Making a new one...")
             val outputStream = FileOutputStream(file)
             inputStream.copyTo(outputStream)
+            FileUtils.closeQuietly(inputStream)
+            FileUtils.closeQuietly(outputStream)
             return file
         }
         return null
@@ -101,6 +101,8 @@ object ImageUtil {
 
         val outputStream = FileOutputStream(file)
         inputStream.copyTo(outputStream)
+        FileUtils.closeQuietly(inputStream)
+        FileUtils.closeQuietly(outputStream)
         return file
     }
 

@@ -72,7 +72,12 @@ class ImageViewerPopup(
                     imgUrl.substring(imgUrl.lastIndexOf("/") + 1, imgUrl.lastIndexOf("."))
                 val ext = imgUrl.substring(imgUrl.lastIndexOf(".") + 1)
                 try {
-                    ImageUtil.addPlaceholderImageUriToGallery(caller, name, ext, relativeLocation)
+                    ImageUtil.addPlaceholderImageUriToGallery(
+                        caller.requireActivity(),
+                        name,
+                        ext,
+                        relativeLocation
+                    )
                         ?.run {
                             val stream =
                                 caller.requireActivity().contentResolver.openOutputStream(this)

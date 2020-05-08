@@ -212,7 +212,10 @@ class PostPopup(private val caller: Fragment, context: Context) :
             emojiContainer!!.layoutManager = GridLayoutManager(context, 3)
             emojiContainer!!.adapter = emojiAdapter.also { adapter ->
                 adapter.setOnItemClickListener { _, view, _ ->
-                    postContent!!.append((view as TextView).text)
+                    postContent!!.text.insert(
+                        postContent!!.selectionStart,
+                        ((view as TextView).text)
+                    )
                 }
                 progressBar!!.visibility = View.VISIBLE
                 caller.lifecycleScope.launch {

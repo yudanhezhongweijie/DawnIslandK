@@ -22,8 +22,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-
-// TODO: update app bar
 class SettingsFragment : PreferenceFragmentCompat() {
 
     private lateinit var cookies: List<Cookie>

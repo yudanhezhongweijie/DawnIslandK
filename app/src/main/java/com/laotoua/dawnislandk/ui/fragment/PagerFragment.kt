@@ -74,10 +74,9 @@ class PagerFragment : Fragment() {
         return binding.root
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        Timber.i("Pager fragment destroyed!")
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+        Timber.d("Fragment View Destroyed")
     }
-
-
 }

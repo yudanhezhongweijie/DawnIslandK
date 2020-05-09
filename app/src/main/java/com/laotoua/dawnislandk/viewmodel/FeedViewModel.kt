@@ -25,7 +25,7 @@ class FeedViewModel : ViewModel() {
     private val _delFeedResponse = MutableLiveData<SingleLiveEvent<EventPayload<Int>>>()
     val delFeedResponse: LiveData<SingleLiveEvent<EventPayload<Int>>> get() = _delFeedResponse
 
-    var tryAgain = false
+    private var tryAgain = false
 
     fun getNextPage() {
         getFeedOnPage(nextPage)

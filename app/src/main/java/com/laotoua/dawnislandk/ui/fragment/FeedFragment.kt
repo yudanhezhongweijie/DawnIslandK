@@ -1,6 +1,7 @@
 package com.laotoua.dawnislandk.ui.fragment
 
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,6 +44,12 @@ class FeedFragment : Fragment() {
     private val mAdapter = QuickAdapter(R.layout.list_item_thread)
 
     private val imageLoader: ImageLoader by lazy { ImageLoader(requireContext()) }
+
+    private val mHandler = Handler()
+    private val mDelayedLoad = Runnable {
+        viewModel.getNextPage()
+    }
+    private var delayedLoading = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -88,12 +95,6 @@ class FeedFragment : Fragment() {
 
         // item click
         mAdapter.apply {
-            // initial load
-            if (data.size == 0) binding.refreshLayout.autoRefresh(
-                Constants.ACTION_NOTIFY,
-                false
-            )
-
             setOnItemClickListener { adapter, _, position ->
                 sharedVM.setThread(adapter.getItem(position) as Thread)
                 val action =
@@ -156,6 +157,7 @@ class FeedFragment : Fragment() {
         viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.run {
                 updateHeaderAndFooter(binding.refreshLayout, mAdapter, this)
+                delayedLoading = false
             }
         })
 
@@ -165,6 +167,24 @@ class FeedFragment : Fragment() {
         })
 
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // initial load
+        if (mAdapter.data.size == 0 && !delayedLoading) {
+            binding.refreshLayout.autoRefresh(
+                Constants.ACTION_NOTHING,
+                false
+            )
+            // give sometime to skip load if bypassing this fragment
+            delayedLoading = mHandler.postDelayed(mDelayedLoad, 500)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mHandler.removeCallbacks(mDelayedLoad)
     }
 
     override fun onDestroyView() {

@@ -1,6 +1,7 @@
 package com.laotoua.dawnislandk.ui.fragment
 
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,6 +33,12 @@ class TrendFragment : Fragment() {
     private val viewModel: TrendViewModel by viewModels()
     private val sharedVM: SharedViewModel by activityViewModels()
     private val mAdapter = QuickAdapter(R.layout.list_item_trend)
+
+    private val mHandler = Handler()
+    private val mDelayedLoad = Runnable {
+        viewModel.refresh()
+    }
+    private var delayedLoading = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -74,22 +81,14 @@ class TrendFragment : Fragment() {
         viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.run {
                 updateHeaderAndFooter(binding.refreshLayout, mAdapter, this)
+                delayedLoading = false
             }
         })
 
 
         // item click
         mAdapter.apply {
-            // initial load
-            if (data.size == 0) {
-                binding.refreshLayout.autoRefresh(
-                    Constants.ACTION_NOTIFY,
-                    false
-                )
-            }
-
             loadMoreModule.isEnableLoadMore = false
-
             setOnItemClickListener { adapter, _, position ->
                 val target = adapter.getItem(position) as Trend
                 sharedVM.setThread(target.toThread(sharedVM.getForumIdByName(target.forum)))
@@ -104,6 +103,24 @@ class TrendFragment : Fragment() {
         })
 
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // initial load
+        if (mAdapter.data.size == 0 && !delayedLoading) {
+            binding.refreshLayout.autoRefresh(
+                Constants.ACTION_NOTHING,
+                false
+            )
+            // give sometime to skip load if bypassing this fragment
+            delayedLoading = mHandler.postDelayed(mDelayedLoad, 500)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mHandler.removeCallbacks(mDelayedLoad)
     }
 
     override fun onDestroyView() {

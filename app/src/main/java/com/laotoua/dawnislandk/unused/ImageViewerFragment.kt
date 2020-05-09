@@ -34,8 +34,6 @@ class ImageViewerFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        sharedVM.setFragment(this)
-
         _binding = FragmentImageViewerBinding.inflate(inflater, container, false)
         val imgUrl: String = args.imgUrl
 

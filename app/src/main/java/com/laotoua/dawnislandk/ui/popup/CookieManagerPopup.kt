@@ -22,7 +22,7 @@ class CookieManagerPopup(context: Context) : CenterPopupView(context) {
     private val cookieAdditionPopup: CookieAdditionPopup by lazy { CookieAdditionPopup(context) }
 
     override fun getImplLayoutId(): Int {
-        return R.layout.cookie_manager_popup
+        return R.layout.popup_cookie_manager
     }
 
     fun setCookies(cookies: List<Cookie>) {

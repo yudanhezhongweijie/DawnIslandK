@@ -12,10 +12,12 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.laotoua.dawnislandk.R
@@ -77,9 +79,21 @@ class ReplyFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        sharedVM.setFragment(this)
-
         _binding = FragmentReplyBinding.inflate(inflater, container, false)
+
+        binding.toolbarLayout.toolbar.apply {
+            title = "A岛 • ${sharedVM.getCurrentForumDisplayName()}"
+            setSubtitle(R.string.adnmb)
+            val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+            setNavigationIcon(R.drawable.ic_arrow_back_white_24px)
+            setNavigationOnClickListener {
+                findNavController().popBackStack()
+            }
+            setOnClickListener {
+                binding.recyclerView.layoutManager?.scrollToPosition(0)
+            }
+        }
 
         binding.refreshLayout.apply {
             setHeaderView(ClassicHeader<IIndicator>(context))
@@ -90,7 +104,7 @@ class ReplyFragment : Fragment() {
             })
         }
 
-        binding.replysView.apply {
+        binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = mAdapter
             setHasFixedSize(true)
@@ -182,10 +196,12 @@ class ReplyFragment : Fragment() {
         sharedVM.selectedThread.observe(viewLifecycleOwner, Observer {
             if (viewModel.currentThread == null) {
                 viewModel.setThread(it)
+                updateSubtitle()
             } else if (viewModel.currentThread != null && viewModel.currentThread!!.id != it.id) {
                 Timber.i("Thread has changed to ${it.id}. Clearing old data...")
                 mAdapter.setList(ArrayList())
                 viewModel.setThread(it)
+                updateSubtitle()
             }
 
         })
@@ -213,7 +229,7 @@ class ReplyFragment : Fragment() {
 
         binding.jump.setOnClickListener {
             hideMenu()
-            val pos = (binding.replysView.layoutManager as LinearLayoutManager)
+            val pos = (binding.recyclerView.layoutManager as LinearLayoutManager)
                 .findLastCompletelyVisibleItemPosition()
                 .coerceAtLeast(0)
                 .coerceAtMost(mAdapter.data.lastIndex)
@@ -296,5 +312,9 @@ class ReplyFragment : Fragment() {
         } else {
             showMenu()
         }
+    }
+
+    private fun updateSubtitle() {
+        binding.toolbarLayout.toolbar.subtitle = "No.${viewModel.currentThread!!.id} • adnmb.com"
     }
 }

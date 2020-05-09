@@ -9,9 +9,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.*
+import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.ui.span.RoundBackgroundColorSpan
@@ -60,8 +63,6 @@ class SizeCustomizationFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
-        sharedVM.setFragment(this)
 
         rootView.setPaddingRelative(10, 10, 10, 10)
         rootView.orientation = LinearLayout.VERTICAL
@@ -212,7 +213,22 @@ class SizeCustomizationFragment : Fragment() {
 
         rootView.addView(scrollView)
 
-        return rootView
+        val wrapper = inflater.inflate(R.layout.fragment_empty_linear, container, false).apply {
+            findViewById<Toolbar>(R.id.toolbar).apply {
+                setTitle(R.string.size_customization_settings)
+                subtitle = ""
+                val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                setNavigationIcon(R.drawable.ic_arrow_back_white_24px)
+                setNavigationOnClickListener {
+                    findNavController().popBackStack()
+                }
+            }
+        } as LinearLayout
+
+        wrapper.addView(rootView)
+        return wrapper
+
     }
 
 

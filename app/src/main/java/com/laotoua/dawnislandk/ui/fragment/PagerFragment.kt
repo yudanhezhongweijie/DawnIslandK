@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
 import com.laotoua.dawnislandk.databinding.FragmentPagerBinding
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 import timber.log.Timber
@@ -54,14 +53,6 @@ class PagerFragment : Fragment() {
                 mFragmentList.add(TrendFragment())
                 mFragmentList.add(FeedFragment())
             }
-        }.also { adapter ->
-            binding.viewPager.registerOnPageChangeCallback(object :
-                ViewPager2.OnPageChangeCallback() {
-                override fun onPageSelected(position: Int) {
-                    sharedVM.setFragment(adapter.getItem(position))
-                    super.onPageSelected(position)
-                }
-            })
         }
 
         sharedVM.selectedForum.observe(viewLifecycleOwner, Observer {

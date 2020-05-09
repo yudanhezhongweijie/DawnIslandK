@@ -14,8 +14,6 @@ import com.laotoua.dawnislandk.data.entity.Forum
 import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
 import com.laotoua.dawnislandk.ui.adapter.QuickNodeAdapter
-import com.laotoua.dawnislandk.ui.util.UIUtils.updateAppBarByFragment
-import com.laotoua.dawnislandk.ui.util.UIUtils.updateAppBarTitleWithinFragment
 import com.laotoua.dawnislandk.viewmodel.CommunityViewModel
 import com.laotoua.dawnislandk.viewmodel.LoadingStatus
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
@@ -93,19 +91,6 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
             }
         })
 
-        // update app bar for each fragment
-        sharedVM.currentFragment.observe(this, Observer {
-            updateAppBarByFragment(
-                it,
-                sharedVM.generateAppbarTitle(),
-                sharedVM.generateAppBarSubtitle()
-            )
-        })
-
-        // special handler for forum change, without fragment change
-        sharedVM.selectedForum.observe(this, Observer {
-            updateAppBarTitleWithinFragment(sharedVM.generateAppbarTitle())
-        })
     }
 
     // Forum Click

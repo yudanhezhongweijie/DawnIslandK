@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils.loadAnimation
 import android.widget.ImageView
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -52,8 +54,22 @@ class ThreadFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        sharedVM.setFragment(this)
         _binding = FragmentThreadBinding.inflate(inflater, container, false)
+
+        binding.toolbarLayout.toolbar.apply {
+            updateTitle()
+            setSubtitle(R.string.adnmb)
+            val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+            setNavigationIcon(R.drawable.ic_menu_white_24px)
+            setNavigationOnClickListener {
+                drawerLayout.openDrawer(GravityCompat.START)
+            }
+
+            setOnClickListener {
+                binding.recyclerView.layoutManager?.scrollToPosition(0)
+            }
+        }
 
         binding.refreshLayout.apply {
             setHeaderView(ClassicHeader<IIndicator>(context))
@@ -65,7 +81,7 @@ class ThreadFragment : Fragment() {
             })
         }
 
-        binding.threadsView.apply {
+        binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = mAdapter
             setHasFixedSize(true)
@@ -146,6 +162,8 @@ class ThreadFragment : Fragment() {
                 mAdapter.setList(emptyList())
                 viewModel.setForum(it)
                 hideMenu()
+
+                updateTitle()
             }
         })
 
@@ -222,4 +240,7 @@ class ThreadFragment : Fragment() {
         }
     }
 
+    private fun updateTitle() {
+        binding.toolbarLayout.toolbar.title = "A岛 • ${viewModel.currentForum?.name ?: "时间线"}"
+    }
 }

@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -37,6 +39,21 @@ class TrendFragment : Fragment() {
     ): View? {
         _binding = FragmentTrendBinding.inflate(inflater, container, false)
 
+        binding.toolbarLayout.toolbar.apply {
+            setTitle(R.string.trend)
+            setSubtitle(R.string.adnmb)
+            val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+            setNavigationIcon(R.drawable.ic_menu_white_24px)
+            setNavigationOnClickListener {
+                drawerLayout.openDrawer(GravityCompat.START)
+            }
+
+            setOnClickListener {
+                binding.recyclerView.layoutManager?.scrollToPosition(0)
+            }
+        }
+
         binding.refreshLayout.apply {
             setHeaderView(ClassicHeader<IIndicator>(context))
             setOnRefreshListener(object : RefreshingListenerAdapter() {
@@ -47,7 +64,7 @@ class TrendFragment : Fragment() {
             })
         }
 
-        binding.trendsView.apply {
+        binding.recyclerView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             adapter = mAdapter

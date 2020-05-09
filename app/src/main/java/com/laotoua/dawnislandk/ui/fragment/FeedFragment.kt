@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -46,9 +48,24 @@ class FeedFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        sharedVM.setFragment(this)
         _binding = FragmentFeedBinding.inflate(inflater, container, false)
-        binding.feedsView.apply {
+
+        binding.toolbarLayout.toolbar.apply {
+            setTitle(R.string.my_feed)
+            setSubtitle(R.string.adnmb)
+            val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+            setNavigationIcon(R.drawable.ic_menu_white_24px)
+            setNavigationOnClickListener {
+                drawerLayout.openDrawer(GravityCompat.START)
+            }
+
+            setOnClickListener {
+                binding.recyclerView.layoutManager?.scrollToPosition(0)
+            }
+        }
+
+        binding.recyclerView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             adapter = mAdapter

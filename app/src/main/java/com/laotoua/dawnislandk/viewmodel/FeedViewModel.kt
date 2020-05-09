@@ -66,9 +66,11 @@ class FeedViewModel : ViewModel() {
 
     private fun convertFeedData(data: List<Thread>): Boolean {
         if (data.isEmpty()) {
-            nextPage -= 1
-            tryAgain = true
-            return false
+            if (nextPage > 1) {
+                nextPage -= 1
+                tryAgain = true
+                return false
+            }
         }
         tryAgain = false
         val noDuplicates = data.filterNot { feedsIds.contains(it.id) }

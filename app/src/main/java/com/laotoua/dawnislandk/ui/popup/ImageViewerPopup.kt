@@ -108,8 +108,10 @@ class ImageViewerPopup(
             photoView.setOnClickListener {
                 saveShown = if (saveShown) {
                     saveButton.hide()
+                    saveButton.isClickable = false
                     false
                 } else {
+                    saveButton.isClickable = true
                     saveButton.show()
                     true
                 }

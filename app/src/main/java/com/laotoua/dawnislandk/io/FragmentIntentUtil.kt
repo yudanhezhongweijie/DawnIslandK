@@ -20,7 +20,7 @@ import timber.log.Timber
 object FragmentIntentUtil {
 
     private fun requestPermission(caller: Fragment, permission: String) {
-        caller.prepareCall(ActivityResultContracts.RequestPermission()) {
+        caller.registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             Timber.i("requesting $permission permission...")
         }(permission)
     }
@@ -85,11 +85,11 @@ object FragmentIntentUtil {
     }
 
     fun getImageFromGallery(caller: Fragment, type: String, callback: (Uri?) -> Unit) {
-        caller.prepareCall(ActivityResultContracts.GetContent(), callback)(type)
+        caller.registerForActivityResult(ActivityResultContracts.GetContent(), callback)(type)
     }
 
     fun getImageFromCamera(caller: Fragment, uri: Uri, callback: (Boolean) -> Unit) {
-        caller.prepareCall(MyTakePicture(), callback)(uri)
+        caller.registerForActivityResult(MyTakePicture(), callback)(uri)
     }
 
     // temp workaround for Default TakePicture, which might not return thumbnail upon success
@@ -113,7 +113,7 @@ object FragmentIntentUtil {
     }
 
     fun drawNewDoodle(caller: Fragment, callback: (Uri?) -> Unit) {
-        caller.prepareCall(MakeDoodle(), callback)(caller)
+        caller.registerForActivityResult(MakeDoodle(), callback)(caller)
     }
 
     internal class MakeDoodle :

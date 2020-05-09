@@ -113,7 +113,11 @@ class ReplyFragment : Fragment() {
                     if (dy > 0) {
                         binding.fabMenu.hide()
                         hideMenu()
-                    } else if (dy < 0) binding.fabMenu.show()
+                        binding.fabMenu.isClickable = false
+                    } else if (dy < 0) {
+                        binding.fabMenu.show()
+                        binding.fabMenu.isClickable = true
+                    }
                 }
             })
         }
@@ -206,7 +210,7 @@ class ReplyFragment : Fragment() {
         })
 
         binding.fabMenu.setOnClickListener {
-            if (it.isShown) toggleMenu()
+            toggleMenu()
         }
 
         binding.copyId.setOnClickListener {

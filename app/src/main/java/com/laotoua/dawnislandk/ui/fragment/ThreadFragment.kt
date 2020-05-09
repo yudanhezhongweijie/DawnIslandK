@@ -90,7 +90,11 @@ class ThreadFragment : Fragment() {
                     if (dy > 0) {
                         hideMenu()
                         binding.fabMenu.hide()
-                    } else if (dy < 0) binding.fabMenu.show()
+                        binding.fabMenu.isClickable = false
+                    } else if (dy < 0) {
+                        binding.fabMenu.show()
+                        binding.fabMenu.isClickable = true
+                    }
                 }
             })
         }
@@ -168,7 +172,7 @@ class ThreadFragment : Fragment() {
         })
 
         binding.fabMenu.setOnClickListener {
-            if (it.isShown) toggleMenu()
+            toggleMenu()
         }
 
         binding.setting.setOnClickListener {
@@ -244,3 +248,4 @@ class ThreadFragment : Fragment() {
         binding.toolbarLayout.toolbar.title = "A岛 • ${viewModel.currentForum?.name ?: "时间线"}"
     }
 }
+

@@ -168,7 +168,7 @@ class ThreadFragment : Fragment() {
         })
 
         binding.fabMenu.setOnClickListener {
-            toggleMenu()
+            if (it.isShown) toggleMenu()
         }
 
         binding.setting.setOnClickListener {

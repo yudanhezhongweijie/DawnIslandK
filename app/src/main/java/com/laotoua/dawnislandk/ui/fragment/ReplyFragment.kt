@@ -206,7 +206,7 @@ class ReplyFragment : Fragment() {
         })
 
         binding.fabMenu.setOnClickListener {
-            toggleMenu()
+            if (it.isShown) toggleMenu()
         }
 
         binding.copyId.setOnClickListener {

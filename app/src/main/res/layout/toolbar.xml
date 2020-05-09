@@ -14,6 +14,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:focusable="false"
         app:subtitle="adnmb.com"
         app:subtitleTextColor="#FFFFFF"
         app:title="时间线"

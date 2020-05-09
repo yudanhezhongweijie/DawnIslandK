@@ -31,10 +31,6 @@ class PagerFragment : Fragment() {
         binding.viewPager.adapter = object : FragmentStateAdapter(this) {
             private val mFragmentList: MutableList<Fragment> = mutableListOf()
 
-            fun getItem(position: Int): Fragment {
-                return mFragmentList[position]
-            }
-
             override fun getItemCount(): Int {
                 return mFragmentList.size
             }

@@ -6,7 +6,7 @@ import android.text.style.ReplacementSpan
 
 class RoundBackgroundColorSpan(private val bgColor: Int, private val textColor: Int) :
     ReplacementSpan() {
-    var radiu = 20
+    private var radius = 20
     var size = 0
     var top = 0
     var bottom = 0
@@ -25,14 +25,14 @@ class RoundBackgroundColorSpan(private val bgColor: Int, private val textColor: 
             height /= 6
             top = tempFM.top - height
             bottom = tempFM.bottom + height
-            radiu = (bottom - top) / 2
+            radius = (bottom - top) / 2
             first = false
         }
         if (fm != null && fm.top != 0) {
             fm.top = top
             fm.bottom = bottom
         }
-        size = paint.measureText(text, start, end).toInt() + radiu * 2
+        size = paint.measureText(text, start, end).toInt() + radius * 2
         return size
     }
 
@@ -48,13 +48,13 @@ class RoundBackgroundColorSpan(private val bgColor: Int, private val textColor: 
         paint: Paint
     ) {
         val color1 = paint.color
-        val alpht = paint.alpha
+        val alpha = paint.alpha
         val defaultShader = paint.shader
         paint.alpha = 255
         val linearGradient = LinearGradient(
             0f,
             top.toFloat(),
-            (x + paint.measureText(text, start, end).toInt() + radiu * 2),
+            (x + paint.measureText(text, start, end).toInt() + radius * 2),
             bottom.toFloat(),
             Color.parseColor("#2195da"),
             Color.parseColor("#3ae4cd"),
@@ -65,19 +65,15 @@ class RoundBackgroundColorSpan(private val bgColor: Int, private val textColor: 
             RectF(
                 0f,
                 top.toFloat(),
-                x + (paint.measureText(text, start, end).toInt() + radiu * 2),
+                x + (paint.measureText(text, start, end).toInt() + radius * 2),
                 bottom.toFloat()
-            ), radiu.toFloat(), radiu.toFloat(), paint
+            ), radius.toFloat(), radius.toFloat(), paint
         )
         paint.shader = defaultShader
         paint.color = textColor
-        canvas.drawText(text, start, end, x + radiu, y.toFloat(), paint)
+        canvas.drawText(text, start, end, x + radius, y.toFloat(), paint)
         paint.color = color1
-        paint.alpha = alpht
-    }
-
-    companion object {
-        private const val TAG = "RoundBackgroundColorSpa"
+        paint.alpha = alpha
     }
 
 }

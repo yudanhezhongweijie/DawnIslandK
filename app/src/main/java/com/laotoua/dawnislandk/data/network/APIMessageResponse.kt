@@ -19,7 +19,7 @@ sealed class APIMessageResponse {
             try {
                 // html test
                 val regex =
-                    "[\\S\\s]*\\<html[\\S\\s]*\\>[\\S\\s]*\\<\\/html[\\S\\s]*\\>[\\S\\s]*".toRegex()
+                    "[\\S\\s]*<html[\\S\\s]*>[\\S\\s]*</html[\\S\\s]*>[\\S\\s]*".toRegex()
                 val response = withContext(Dispatchers.IO) { call.execute() }
 
                 if (response.isSuccessful) {

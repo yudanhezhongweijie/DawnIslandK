@@ -70,7 +70,7 @@ class ReplyFragment : Fragment() {
 
     private val quotePopup: QuotePopup by lazy { QuotePopup(this, requireContext()) }
 
-    private val jumpPopup: JumpPopup by lazy { JumpPopup(this, requireContext()) }
+    private val jumpPopup: JumpPopup by lazy { JumpPopup(requireContext()) }
 
     private var isFabOpen = false
 

@@ -385,8 +385,7 @@ class DoodleView : View {
 
     private var mStop = 0
     private var mSize = 0
-    private val mData: Array<DrawInfo?> =
-        arrayOfNulls<DrawInfo>(CAPACITY)
+    private val mData = arrayOfNulls<DrawInfo>(CAPACITY)
 
     fun canUndo(): Boolean {
         return mStop > 0

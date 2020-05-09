@@ -19,7 +19,7 @@ object Constants {
     const val MAIN_TEXT_MIN_SIZE = 10
 
     const val baseCDN = "https://nmb.fastmirror.org/"
-    const val imgCDN = "https://nmbimg.fastmirror.org/"
+    private const val imgCDN = "https://nmbimg.fastmirror.org/"
     const val thumbCDN = "${imgCDN}thumb/"
     const val imageCDN = "${imgCDN}image/"
 }

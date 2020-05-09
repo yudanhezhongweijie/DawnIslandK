@@ -21,7 +21,7 @@ class TrendViewModel : ViewModel() {
     val trendList: LiveData<List<Trend>> get() = _trendList
 
     private val trendLength = 32
-    var page = 1
+    private var page = 1
 
     private var _loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
     val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>>

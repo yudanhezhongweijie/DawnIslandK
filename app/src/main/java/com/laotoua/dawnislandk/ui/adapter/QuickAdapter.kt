@@ -140,8 +140,8 @@ class QuickAdapter(private val layoutResId: Int) :
             card.setGone(R.id.threadImage, true)
         }
 
-        ContentTransformationUtil.transformContent(item.content, mLineHeight, mSegGap).run {
-            if (this.isEmpty()) card.setGone(R.id.threadContent, true)
+        ContentTransformationUtil.transformContent(item.content, mLineHeight, mSegGap).apply {
+            if (isEmpty()) card.setGone(R.id.threadContent, true)
             else {
                 card.setText(R.id.threadContent, this)
                 card.setVisible(R.id.threadContent, true)
@@ -206,8 +206,8 @@ class QuickAdapter(private val layoutResId: Int) :
             mLineHeight,
             mSegGap,
             referenceClickListener
-        ).run {
-            if (this.isEmpty()) card.setGone(R.id.replyContent, true)
+        ).apply {
+            if (isEmpty()) card.setGone(R.id.replyContent, true)
             else {
                 card.setText(R.id.replyContent, this)
                 card.setVisible(R.id.replyContent, true)

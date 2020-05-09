@@ -10,11 +10,11 @@ import com.tencent.mmkv.MMKV
 
 object ThreadCardFactory {
 
-    private var DEFAULT_CARDVIEW_PADDING = 15
-    private var DEFAULT_CARDVIEW_MARGINSTART = 10
-    private var DEFAULT_CARDVIEW_MARGINEND = 10
-    private var DEFAULT_CARDVIEW_MARGINTOP = 16
-    private var DEFAULT_CARDVIEW_MARGINBOTTOM = 10
+    private var defaultCardViewPadding = 15
+    private var defaultCardViewMarginStart = 10
+    private var defaultCardViewMarginEnd = 10
+    private var defaultCardViewMarginTop = 16
+    private var defaultCardViewMarginBottom = 10
 
     private val mmkv by lazy { MMKV.defaultMMKV() }
     val mainTextSize by lazy { mmkv.getFloat(Constants.MAIN_TEXT_SIZE, 15f) }
@@ -33,31 +33,31 @@ object ThreadCardFactory {
     val cardMarginTop by lazy {
         mmkv.getInt(
             Constants.CARD_MARGIN_TOP,
-            DEFAULT_CARDVIEW_MARGINTOP
+            defaultCardViewMarginTop
         )
     }
     val cardMarginLeft by lazy {
         mmkv.getInt(
             Constants.CARD_MARGIN_LEFT,
-            DEFAULT_CARDVIEW_MARGINSTART
+            defaultCardViewMarginStart
         )
     }
     val cardMarginRight by lazy {
         mmkv.getInt(
             Constants.CARD_MARGIN_RIGHT,
-            DEFAULT_CARDVIEW_MARGINEND
+            defaultCardViewMarginEnd
         )
     }
-    val cardMarginBottom by lazy {
+    private val cardMarginBottom by lazy {
         mmkv.getInt(
             Constants.CARD_MARGIN_BOTTOM,
-            DEFAULT_CARDVIEW_MARGINBOTTOM
+            defaultCardViewMarginBottom
         )
     }
     val headBarMarginTop by lazy {
         mmkv.getInt(
             Constants.HEAD_BAR_MARGIN_TOP,
-            DEFAULT_CARDVIEW_PADDING
+            defaultCardViewPadding
         )
     }
     val contentMarginTop by lazy {
@@ -69,19 +69,19 @@ object ThreadCardFactory {
     val contentMarginLeft by lazy {
         mmkv.getInt(
             Constants.CONTENT_MARGIN_LEFT,
-            DEFAULT_CARDVIEW_PADDING
+            defaultCardViewPadding
         )
     }
     val contentMarginRight by lazy {
         mmkv.getInt(
             Constants.CONTENT_MARGIN_RIGHT,
-            DEFAULT_CARDVIEW_PADDING
+            defaultCardViewPadding
         )
     }
     val contentMarginBottom by lazy {
         mmkv.getInt(
             Constants.CONTENT_MARGIN_BOTTOM,
-            DEFAULT_CARDVIEW_PADDING
+            defaultCardViewPadding
         )
     }
     val lineHeight by lazy { mmkv.getInt(Constants.LINE_HEIGHT, 10) }

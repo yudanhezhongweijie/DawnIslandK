@@ -73,14 +73,14 @@ class PostPopup(private val caller: Fragment, context: Context) :
     var newPost = false
     var targetId = ""
     var name = ""
-    var email = ""
+    private var email = ""
     var title = ""
     var content = ""
     var forumNameMap: Map<String, String>? = null
 
-    var waterMark: String? = null
-    var imageFile: File? = null
-    var userHash = ""
+    private var waterMark: String? = null
+    private var imageFile: File? = null
+    private var userHash = ""
 
     private var previewUri: Uri? = null
 

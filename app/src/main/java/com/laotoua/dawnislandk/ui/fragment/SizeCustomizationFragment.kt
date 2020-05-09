@@ -13,7 +13,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.R
@@ -21,28 +20,25 @@ import com.laotoua.dawnislandk.ui.span.RoundBackgroundColorSpan
 import com.laotoua.dawnislandk.ui.span.SegmentSpacingSpan
 import com.laotoua.dawnislandk.ui.viewfactory.ThreadCardFactory
 import com.laotoua.dawnislandk.util.Constants
-import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 import com.tencent.mmkv.MMKV
 import kotlinx.android.synthetic.main.list_item_thread.view.*
 
 class SizeCustomizationFragment : Fragment() {
 
-    private val sharedVM: SharedViewModel by activityViewModels()
-
-    private val MAIN_TEXT_SIZE = 0
-    private val RADIUS = 1
-    private val ELEVATION = 2
-    private val CARD_MARGIN_TOP = 3
-    private val CARD_MARGIN_LEFT = 4
-    private val CARD_MARGIN_RIGHT = 5
-    private val CONTENT_MARGIN_TOP = 6
-    private val CONTENT_MARGIN_LEFT = 7
-    private val CONTENT_MARGIN_RIGHT = 8
-    private val CONTENT_MARGIN_BOTTOM = 9
-    private val HEAD_BAR_MARGIN_TOP = 10
-    private val LETTER_SPACE = 11
-    private val LINE_HEIGHT = 12
-    private val SEG_GAP = 13
+    private val mainTextSize = 0
+    private val radius = 1
+    private val elevation = 2
+    private val cardMarginTop = 3
+    private val cardMarginLeft = 4
+    private val cardMarginRight = 5
+    private val contentMarginTop = 6
+    private val contentMarginLeft = 7
+    private val contentMarginRight = 8
+    private val contentMarginBottom = 9
+    private val headBarMarginTop = 10
+    private val letterSpace = 11
+    private val lineHeight = 12
+    private val segGap = 13
 
     private val mmkv by lazy { MMKV.defaultMMKV() }
 
@@ -99,19 +95,19 @@ class SizeCustomizationFragment : Fragment() {
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
 
-        generateSeekBar(RADIUS, requireContext().getString(R.string.radius)).let {
+        generateSeekBar(radius, requireContext().getString(R.string.radius)).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress = ThreadCardFactory.cardRadius.toInt()
             progressContainer.addView(it)
         }
 
-        generateSeekBar(ELEVATION, requireContext().getString(R.string.elevation)).let {
+        generateSeekBar(elevation, requireContext().getString(R.string.elevation)).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress =
                 ThreadCardFactory.cardElevation.toInt()
             progressContainer.addView(it)
         }
 
         generateSeekBar(
-            MAIN_TEXT_SIZE,
+            mainTextSize,
             requireContext().getString(R.string.main_text_size),
             10
         ).let {
@@ -120,29 +116,29 @@ class SizeCustomizationFragment : Fragment() {
             progressContainer.addView(it)
         }
 
-        generateSeekBar(LINE_HEIGHT, requireContext().getString(R.string.line_height), 20).let {
+        generateSeekBar(lineHeight, requireContext().getString(R.string.line_height), 20).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress = ThreadCardFactory.lineHeight
             progressContainer.addView(it)
         }
 
-        generateSeekBar(SEG_GAP, requireContext().getString(R.string.seg_gap), 25).let {
+        generateSeekBar(segGap, requireContext().getString(R.string.seg_gap), 25).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress = ThreadCardFactory.segGap
             progressContainer.addView(it)
         }
 
-        generateSeekBar(LETTER_SPACE, requireContext().getString(R.string.letter_space), 17).let {
+        generateSeekBar(letterSpace, requireContext().getString(R.string.letter_space), 17).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress =
                 (ThreadCardFactory.letterSpace * 50f).toInt()
             progressContainer.addView(it)
         }
 
-        generateSeekBar(CARD_MARGIN_TOP, requireContext().getString(R.string.card_margin_top)).let {
+        generateSeekBar(cardMarginTop, requireContext().getString(R.string.card_margin_top)).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress = ThreadCardFactory.cardMarginTop
             progressContainer.addView(it)
         }
 
         generateSeekBar(
-            CARD_MARGIN_LEFT,
+            cardMarginLeft,
             requireContext().getString(R.string.card_margin_left),
             50
         ).let {
@@ -151,7 +147,7 @@ class SizeCustomizationFragment : Fragment() {
         }
 
         generateSeekBar(
-            CARD_MARGIN_RIGHT,
+            cardMarginRight,
             requireContext().getString(R.string.card_margin_right),
             50
         ).let {
@@ -160,7 +156,7 @@ class SizeCustomizationFragment : Fragment() {
         }
 
         generateSeekBar(
-            HEAD_BAR_MARGIN_TOP,
+            headBarMarginTop,
             requireContext().getString(R.string.head_bar_margin_top),
             60
         ).let {
@@ -169,7 +165,7 @@ class SizeCustomizationFragment : Fragment() {
         }
 
         generateSeekBar(
-            CONTENT_MARGIN_TOP,
+            contentMarginTop,
             requireContext().getString(R.string.content_margin_top),
             50
         ).let {
@@ -178,7 +174,7 @@ class SizeCustomizationFragment : Fragment() {
         }
 
         generateSeekBar(
-            CONTENT_MARGIN_LEFT,
+            contentMarginLeft,
             requireContext().getString(R.string.content_margin_left),
             60
         ).let {
@@ -187,7 +183,7 @@ class SizeCustomizationFragment : Fragment() {
         }
 
         generateSeekBar(
-            CONTENT_MARGIN_RIGHT,
+            contentMarginRight,
             requireContext().getString(R.string.content_margin_right),
             60
         ).let {
@@ -196,7 +192,7 @@ class SizeCustomizationFragment : Fragment() {
         }
 
         generateSeekBar(
-            CONTENT_MARGIN_BOTTOM,
+            contentMarginBottom,
             requireContext().getString(R.string.content_margin_bottom),
             70
         ).let {
@@ -263,36 +259,36 @@ class SizeCustomizationFragment : Fragment() {
 
             val contentView: View = demoCard.findViewById(R.id.threadContent)
             when (seekBar.id) {
-                MAIN_TEXT_SIZE -> {
+                mainTextSize -> {
                     res += Constants.MAIN_TEXT_MIN_SIZE
                     (contentView as TextView).textSize = res.toFloat()
                     mmkv.putFloat(Constants.MAIN_TEXT_SIZE, res.toFloat())
                 }
-                RADIUS -> {
+                radius -> {
                     demoCard.radius = res.toFloat()
                     mmkv.putFloat(Constants.CARD_RADIUS, res.toFloat())
                 }
-                ELEVATION -> {
+                elevation -> {
                     demoCard.elevation = res.toFloat()
                     mmkv.putFloat(Constants.CARD_ELEVATION, res.toFloat())
                 }
-                CARD_MARGIN_TOP -> {
+                cardMarginTop -> {
                     cardLayoutParams.topMargin = res
                     demoCard.layoutParams = cardLayoutParams
                     mmkv.putInt(Constants.CARD_MARGIN_TOP, res)
                 }
-                CARD_MARGIN_LEFT -> {
+                cardMarginLeft -> {
                     cardLayoutParams.marginStart = res
                     demoCard.layoutParams = cardLayoutParams
                     mmkv.putInt(Constants.CARD_MARGIN_LEFT, res)
 
                 }
-                CARD_MARGIN_RIGHT -> {
+                cardMarginRight -> {
                     cardLayoutParams.marginEnd = res
                     demoCard.layoutParams = cardLayoutParams
                     mmkv.putInt(Constants.CARD_MARGIN_RIGHT, res)
                 }
-                HEAD_BAR_MARGIN_TOP -> {
+                headBarMarginTop -> {
                     demoCardContainer.setPadding(
                         demoCardContainer.paddingLeft,
                         res,
@@ -302,14 +298,14 @@ class SizeCustomizationFragment : Fragment() {
 
                     mmkv.putInt(Constants.HEAD_BAR_MARGIN_TOP, res)
                 }
-                CONTENT_MARGIN_TOP -> {
+                contentMarginTop -> {
                     val contentLayoutParams =
                         contentView.layoutParams as ConstraintLayout.LayoutParams
                     contentLayoutParams.topMargin = res
                     contentView.layoutParams = contentLayoutParams
                     mmkv.putInt(Constants.CONTENT_MARGIN_TOP, res)
                 }
-                CONTENT_MARGIN_LEFT -> {
+                contentMarginLeft -> {
                     demoCardContainer.setPadding(
                         res,
                         demoCardContainer.paddingTop,
@@ -318,7 +314,7 @@ class SizeCustomizationFragment : Fragment() {
                     )
                     mmkv.putInt(Constants.CONTENT_MARGIN_LEFT, res)
                 }
-                CONTENT_MARGIN_RIGHT -> {
+                contentMarginRight -> {
                     demoCardContainer.setPadding(
                         demoCardContainer.paddingLeft,
                         demoCardContainer.paddingTop,
@@ -327,7 +323,7 @@ class SizeCustomizationFragment : Fragment() {
                     )
                     mmkv.putInt(Constants.CONTENT_MARGIN_RIGHT, res)
                 }
-                CONTENT_MARGIN_BOTTOM -> {
+                contentMarginBottom -> {
                     demoCardContainer.setPadding(
                         demoCardContainer.paddingLeft,
                         demoCardContainer.paddingTop,
@@ -336,31 +332,31 @@ class SizeCustomizationFragment : Fragment() {
                     )
                     mmkv.putInt(Constants.CONTENT_MARGIN_BOTTOM, res)
                 }
-                LETTER_SPACE -> {
+                letterSpace -> {
                     var i = res * 1.0f
                     i /= 50f
                     (contentView as TextView).letterSpacing = i
                     mmkv.putFloat(Constants.LETTER_SPACE, i)
                 }
-                LINE_HEIGHT -> {
+                lineHeight -> {
                     charSequence = (contentView as TextView).text
                     if (charSequence is SpannableString) {
 
                         val segmentSpacingSpans: Array<SegmentSpacingSpan> =
-                            (charSequence as SpannableString).getSpans<SegmentSpacingSpan>(
+                            (charSequence as SpannableString).getSpans(
                                 0, (charSequence as SpannableString).length,
                                 SegmentSpacingSpan::class.java
                             )
-                        segmentSpacingSpans[0].setmHeight(res)
+                        segmentSpacingSpans[0].setHeight(res)
                     }
                     contentView.requestLayout()
                     mmkv.putInt(Constants.LINE_HEIGHT, res)
                 }
-                SEG_GAP -> {
+                segGap -> {
                     charSequence = (contentView as TextView).text
                     if (charSequence is SpannableString) {
                         val segmentSpacingSpans: Array<SegmentSpacingSpan> =
-                            (charSequence as SpannableString).getSpans<SegmentSpacingSpan>(
+                            (charSequence as SpannableString).getSpans(
                                 0, (charSequence as SpannableString).length,
                                 SegmentSpacingSpan::class.java
                             )

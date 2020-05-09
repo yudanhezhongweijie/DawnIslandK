@@ -5,7 +5,7 @@ import android.text.style.LineHeightSpan
 
 class SegmentSpacingSpan(private var mHeight: Int, private var segmentGap: Int) :
     LineHeightSpan {
-    fun setmHeight(mHeight: Int) {
+    fun setHeight(mHeight: Int) {
         this.mHeight = mHeight
         seg = false
         line = false

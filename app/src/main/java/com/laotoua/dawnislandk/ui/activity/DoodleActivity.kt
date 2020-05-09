@@ -14,6 +14,8 @@ import android.view.WindowManager
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.invoke
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.lifecycleScope
@@ -61,6 +63,27 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
     private val handler = Handler()
     private var dialogThickness: MaterialDialog? = null
 
+    private val getImageBackground =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            // Handle the returned Uri
+            uri?.run {
+                try {
+                    contentResolver.openFileDescriptor(this, "r")?.run {
+                        val fileDescriptor: FileDescriptor = this.fileDescriptor
+                        val bitmap: Bitmap =
+                            BitmapFactory.decodeFileDescriptor(fileDescriptor)
+                        binding.doodleView.insertBitmap(bitmap)
+                        binding.image.isActivated = true
+                        this.close()
+                    }
+
+                } catch (e: Exception) {
+                    // Ignore
+                    Timber.e(e)
+                }
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDoodleBinding.inflate(layoutInflater)
@@ -104,15 +127,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
             if (binding.doodleView.hasInsertBitmap()) {
                 binding.doodleView.insertBitmap(null)
             } else {
-                val intent = Intent()
-                intent.type = "image/*"
-                intent.action = Intent.ACTION_GET_CONTENT
-                startActivityForResult(
-                    Intent.createChooser(
-                        intent,
-                        getString(R.string.select_picture)
-                    ), REQUEST_CODE_SELECT_IMAGE
-                )
+                getImageBackground("image/*")
             }
             binding.image.apply {
                 isActivated = !isActivated
@@ -193,27 +208,6 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
                 finish()
             }
             getActionButton(WhichButton.NEUTRAL).updateTextColor(Color.RED)
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CODE_SELECT_IMAGE && resultCode == RESULT_OK) {
-            val uri = data?.data ?: return
-            try {
-                contentResolver.openFileDescriptor(uri, "r")?.run {
-                    val fileDescriptor: FileDescriptor = this.fileDescriptor
-                    val bitmap: Bitmap =
-                        BitmapFactory.decodeFileDescriptor(fileDescriptor)
-                    binding.doodleView.insertBitmap(bitmap)
-                    binding.image.isActivated = true
-                    this.close()
-                }
-
-            } catch (e: Exception) {
-                // Ignore
-                Timber.e(e)
-            }
         }
     }
 
@@ -379,10 +373,6 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
             setResult(RESULT_CANCELED, intent)
         }
         finish()
-    }
-
-    companion object {
-        const val REQUEST_CODE_SELECT_IMAGE = 0
     }
 
 }

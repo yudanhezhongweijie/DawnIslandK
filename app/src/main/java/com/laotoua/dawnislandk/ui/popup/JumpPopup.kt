@@ -7,20 +7,19 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.widget.doOnTextChanged
-import androidx.fragment.app.Fragment
 import com.afollestad.materialdialogs.MaterialDialog
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.state.AppState
 import com.lxj.xpopup.core.CenterPopupView
 
-class JumpPopup(private val caller: Fragment, context: Context) : CenterPopupView(context) {
-    var currentPage = 1
-    var maxPage = 1
+class JumpPopup(context: Context) : CenterPopupView(context) {
+    private var currentPage = 1
+    private var maxPage = 1
     var submit = false
     var targetPage = 1
 
-    private val pageInput: EditText by lazy { findViewById<EditText>(R.id.pageInput) }
-    private val submitButton: Button by lazy { findViewById<Button>(R.id.submit) }
+    private val pageInput by lazy { findViewById<EditText>(R.id.pageInput) }
+    private val submitButton by lazy { findViewById<Button>(R.id.submit) }
 
     override fun getImplLayoutId(): Int {
         return R.layout.popup_jump
@@ -65,7 +64,7 @@ class JumpPopup(private val caller: Fragment, context: Context) : CenterPopupVie
     }
 
     private fun updateInput() {
-        pageInput.setText(targetPage.toString(), TextView.BufferType.EDITABLE);
+        pageInput.setText(targetPage.toString(), TextView.BufferType.EDITABLE)
     }
 
     fun updatePages(current: Int, max: Int) {

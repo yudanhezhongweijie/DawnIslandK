@@ -125,9 +125,8 @@ class ReplyFragment : Fragment() {
 
         // item click
         mAdapter.apply {
-            // initial load
+            // initial loading animation only, actual loading is triggered by sharedVM
             if (data.size == 0) {
-                viewModel.getNextPage()
                 binding.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
             }
 

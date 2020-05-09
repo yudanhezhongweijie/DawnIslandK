@@ -1,6 +1,5 @@
 package com.laotoua.dawnislandk
 
-import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.view.WindowManager
@@ -15,8 +14,6 @@ import com.laotoua.dawnislandk.data.entity.Forum
 import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
 import com.laotoua.dawnislandk.ui.adapter.QuickNodeAdapter
-import com.laotoua.dawnislandk.ui.util.UIUtils.updateAppBarByFragment
-import com.laotoua.dawnislandk.ui.util.UIUtils.updateAppBarTitleWithinFragment
 import com.laotoua.dawnislandk.viewmodel.CommunityViewModel
 import com.laotoua.dawnislandk.viewmodel.LoadingStatus
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
@@ -66,7 +63,7 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
         //设置布局能够延伸到状态栏(StatusBar)和导航栏(NavigationBar)里面
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         //设置状态栏(StatusBar)颜色透明
-        window.statusBarColor = Color.TRANSPARENT
+//        window.statusBarColor = Color.TRANSPARENT
     }
 
     // left forum drawer
@@ -94,19 +91,6 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
             }
         })
 
-        // update app bar for each fragment
-        sharedVM.currentFragment.observe(this, Observer {
-            updateAppBarByFragment(
-                it,
-                sharedVM.generateAppbarTitle(),
-                sharedVM.generateAppBarSubtitle()
-            )
-        })
-
-        // special handler for forum change, without fragment change
-        sharedVM.selectedForum.observe(this, Observer {
-            updateAppBarTitleWithinFragment(sharedVM.generateAppbarTitle())
-        })
     }
 
     // Forum Click

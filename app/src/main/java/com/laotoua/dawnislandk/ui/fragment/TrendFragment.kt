@@ -1,9 +1,12 @@
 package com.laotoua.dawnislandk.ui.fragment
 
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -31,11 +34,32 @@ class TrendFragment : Fragment() {
     private val sharedVM: SharedViewModel by activityViewModels()
     private val mAdapter = QuickAdapter(R.layout.list_item_trend)
 
+    private val mHandler = Handler()
+    private val mDelayedLoad = Runnable {
+        viewModel.refresh()
+    }
+    private var delayedLoading = false
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentTrendBinding.inflate(inflater, container, false)
+
+        binding.toolbarLayout.toolbar.apply {
+            setTitle(R.string.trend)
+            setSubtitle(R.string.adnmb)
+            val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+            setNavigationIcon(R.drawable.ic_menu_white_24px)
+            setNavigationOnClickListener {
+                drawerLayout.openDrawer(GravityCompat.START)
+            }
+
+            setOnClickListener {
+                binding.recyclerView.layoutManager?.scrollToPosition(0)
+            }
+        }
 
         binding.refreshLayout.apply {
             setHeaderView(ClassicHeader<IIndicator>(context))
@@ -47,7 +71,7 @@ class TrendFragment : Fragment() {
             })
         }
 
-        binding.trendsView.apply {
+        binding.recyclerView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             adapter = mAdapter
@@ -57,22 +81,14 @@ class TrendFragment : Fragment() {
         viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.run {
                 updateHeaderAndFooter(binding.refreshLayout, mAdapter, this)
+                delayedLoading = false
             }
         })
 
 
         // item click
         mAdapter.apply {
-            // initial load
-            if (data.size == 0) {
-                binding.refreshLayout.autoRefresh(
-                    Constants.ACTION_NOTIFY,
-                    false
-                )
-            }
-
             loadMoreModule.isEnableLoadMore = false
-
             setOnItemClickListener { adapter, _, position ->
                 val target = adapter.getItem(position) as Trend
                 sharedVM.setThread(target.toThread(sharedVM.getForumIdByName(target.forum)))
@@ -87,6 +103,24 @@ class TrendFragment : Fragment() {
         })
 
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // initial load
+        if (mAdapter.data.size == 0 && !delayedLoading) {
+            binding.refreshLayout.autoRefresh(
+                Constants.ACTION_NOTHING,
+                false
+            )
+            // give sometime to skip load if bypassing this fragment
+            delayedLoading = mHandler.postDelayed(mDelayedLoad, 500)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mHandler.removeCallbacks(mDelayedLoad)
     }
 
     override fun onDestroyView() {

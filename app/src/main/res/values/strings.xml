@@ -46,9 +46,13 @@
     <string name="need_cookie_to_read" translatable="false">没有饼干! 不能看99页以后的内容...</string>
     <string name="new_post" translatable="false">发布新串</string>
     <string name="reply" translatable="false">回复</string>
+    <string name="my_feed" translatable="false">我的订阅</string>
+    <string name="settings" translatable="false">设置</string>
+    <string name="size_customization_settings" translatable="false">设置串卡片布局</string>
+    <string name="trend" translatable="false">A岛热榜</string>
+    <string name="adnmb" translatable="false">adnmb.com</string>
     <string name="need_cookie_to_post" translatable="false">没有饼干不能发串哦。。</string>
     <string name="need_content_to_post" translatable="false">:(没有上传的内容或文件</string>
-
     <string name="need_read_storage_permission" translatable="false">需要读取外部存储权限</string>
     <string name="need_write_storage_permission" translatable="false">需要写入外部存储权限</string>
     <string name="need_take_picture_permission" translatable="false">需要拍照权限</string>
@@ -62,8 +66,6 @@
     <string name="image_saved" translatable="false">图片保存在Pictures/Dawn</string>
     <string name="error_in_saving_image" translatable="false">保存图片时发生错误</string>
     <string name="press_again_to_exit" translatable="false">再按一次以退出应用</string>
-
-
     <string name="radius" translatable="false">圆角</string>
     <string name="elevation" translatable="false">阴影</string>
     <string name="main_text_size" translatable="false">主字号</string>

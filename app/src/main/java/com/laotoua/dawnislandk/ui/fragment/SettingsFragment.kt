@@ -4,8 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.Toast
-import androidx.fragment.app.activityViewModels
+import androidx.appcompat.widget.Toolbar
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.preference.Preference
@@ -14,7 +16,6 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.entity.Cookie
 import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.ui.popup.CookieManagerPopup
-import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 import com.lxj.xpopup.XPopup
 import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.Dispatchers
@@ -22,13 +23,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-
-// TODO: update app bar
 class SettingsFragment : PreferenceFragmentCompat() {
 
     private lateinit var cookies: List<Cookie>
-
-    private val sharedVM: SharedViewModel by activityViewModels()
 
     init {
         lifecycleScope.launchWhenCreated { loadCookies() }
@@ -40,7 +37,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
         withContext(Dispatchers.IO) {
             AppState.loadCookies()
             cookies = AppState.cookies!!
-            Timber.d("Loaded cookies: $cookies")
         }
     }
 
@@ -49,8 +45,22 @@ class SettingsFragment : PreferenceFragmentCompat() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        sharedVM.setFragment(this)
-        return super.onCreateView(inflater, container, savedInstanceState)
+        val view = super.onCreateView(inflater, container, savedInstanceState)
+        val wrapper = inflater.inflate(R.layout.fragment_empty_linear, container, false).apply {
+            findViewById<Toolbar>(R.id.toolbar).apply {
+                setTitle(R.string.settings)
+                subtitle = ""
+                val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                setNavigationIcon(R.drawable.ic_arrow_back_white_24px)
+                setNavigationOnClickListener {
+                    findNavController().popBackStack()
+                }
+            }
+        } as LinearLayout
+
+        wrapper.addView(view)
+        return wrapper
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {

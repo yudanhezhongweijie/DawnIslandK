@@ -1,11 +1,14 @@
 package com.laotoua.dawnislandk.ui.fragment
 
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -42,13 +45,34 @@ class FeedFragment : Fragment() {
 
     private val imageLoader: ImageLoader by lazy { ImageLoader(requireContext()) }
 
+    private val mHandler = Handler()
+    private val mDelayedLoad = Runnable {
+        viewModel.getNextPage()
+    }
+    private var delayedLoading = false
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        sharedVM.setFragment(this)
         _binding = FragmentFeedBinding.inflate(inflater, container, false)
-        binding.feedsView.apply {
+
+        binding.toolbarLayout.toolbar.apply {
+            setTitle(R.string.my_feed)
+            setSubtitle(R.string.adnmb)
+            val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+            setNavigationIcon(R.drawable.ic_menu_white_24px)
+            setNavigationOnClickListener {
+                drawerLayout.openDrawer(GravityCompat.START)
+            }
+
+            setOnClickListener {
+                binding.recyclerView.layoutManager?.scrollToPosition(0)
+            }
+        }
+
+        binding.recyclerView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             adapter = mAdapter
@@ -71,12 +95,6 @@ class FeedFragment : Fragment() {
 
         // item click
         mAdapter.apply {
-            // initial load
-            if (data.size == 0) binding.refreshLayout.autoRefresh(
-                Constants.ACTION_NOTIFY,
-                false
-            )
-
             setOnItemClickListener { adapter, _, position ->
                 sharedVM.setThread(adapter.getItem(position) as Thread)
                 val action =
@@ -139,6 +157,7 @@ class FeedFragment : Fragment() {
         viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.run {
                 updateHeaderAndFooter(binding.refreshLayout, mAdapter, this)
+                delayedLoading = false
             }
         })
 
@@ -148,6 +167,24 @@ class FeedFragment : Fragment() {
         })
 
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // initial load
+        if (mAdapter.data.size == 0 && !delayedLoading) {
+            binding.refreshLayout.autoRefresh(
+                Constants.ACTION_NOTHING,
+                false
+            )
+            // give sometime to skip load if bypassing this fragment
+            delayedLoading = mHandler.postDelayed(mDelayedLoad, 500)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mHandler.removeCallbacks(mDelayedLoad)
     }
 
     override fun onDestroyView() {

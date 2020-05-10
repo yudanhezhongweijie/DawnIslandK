@@ -311,11 +311,12 @@ class PostPopup(private val caller: Fragment, context: Context) :
                     Timber.d("Made a doodle. Setting preview thumbnail...")
                     ImageUtil.loadImageThumbnailToImageView(
                         caller,
-                        uri,
+                        it,
                         150,
                         150,
                         postImagePreview!!
                     )
+                    imageFile = ImageUtil.getImageFileFromUri(caller, it)
                     attachmentContainer!!.visibility = View.VISIBLE
                 }
             }
@@ -410,6 +411,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
                                     150,
                                     postImagePreview!!
                                 )
+                                imageFile = ImageUtil.getImageFileFromUri(caller, this)
                                 attachmentContainer!!.visibility = View.VISIBLE
                             } else {
                                 Timber.d("Didn't take a Picture. Removing placeholder Image...")

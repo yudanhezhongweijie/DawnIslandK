@@ -86,6 +86,21 @@ class QuickAdapter(private val layoutResId: Int) :
         }
     }
 
+    override fun convert(holder: BaseViewHolder, item: Any, payloads: List<Any>) {
+        if (layoutResId == R.layout.list_item_thread && item is Thread) {
+            convertThreadWithPayload(
+                holder,
+                payloads.first() as Payload.ThreadPayload,
+                sharedViewModel.getForumDisplayName(item.fid!!)
+            )
+        } else if (layoutResId == R.layout.list_item_reply && item is Reply) {
+            convertReplyWithPayload(holder, payloads.first() as Payload.ReplyPayload)
+        } else {
+            Timber.e("unhandled payload conversion")
+            throw Exception("unhandled payload conversion")
+        }
+    }
+
     override fun onCreateDefViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         return if (layoutResId == R.layout.list_item_thread) {
             val view = parent.getItemView(layoutResId)
@@ -97,7 +112,6 @@ class QuickAdapter(private val layoutResId: Int) :
     }
 
     private fun convertThread(card: BaseViewHolder, item: Thread, forumDisplayName: String) {
-
         card.setText(
             R.id.threadCookie,
             ContentTransformationUtil.transformCookie(
@@ -153,8 +167,47 @@ class QuickAdapter(private val layoutResId: Int) :
         }
     }
 
-    private fun convertReply(card: BaseViewHolder, item: Reply, po: String) {
+    private fun convertThreadWithPayload(
+        card: BaseViewHolder,
+        payload: Payload.ThreadPayload, forumDisplayName: String
+    ) {
+        card.setText(
+            R.id.threadTime,
+            ContentTransformationUtil.transformTime(payload.now)
+        )
+        val suffix = if (payload.replyCount != null) " • " + payload.replyCount else ""
+        val spannableString = SpannableString(forumDisplayName + suffix)
+        spannableString.setSpan(
+            RoundBackgroundColorSpan(
+                Color.parseColor("#12DBD1"),
+                Color.parseColor("#FFFFFF")
+            ), 0, spannableString.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+        )
 
+        card.getView<TextView>(R.id.threadForumAndReplyCount)
+            .setText(spannableString, TextView.BufferType.SPANNABLE)
+
+        // sage
+        if (payload.sage == "1") {
+            card.setVisible(R.id.sage, true)
+        } else {
+            card.setGone(R.id.sage, true)
+        }
+        ContentTransformationUtil.transformContent(payload.content, mLineHeight, mSegGap)
+            .apply {
+                if (isEmpty()) card.setGone(R.id.threadContent, true)
+                else {
+                    card.setText(R.id.threadContent, this)
+                    card.setVisible(R.id.threadContent, true)
+                    card.getView<TextView>(R.id.threadContent).apply {
+                        textSize = mTextSize
+                        letterSpacing = mLetterSpace
+                    }
+                }
+            }
+    }
+
+    private fun convertReply(card: BaseViewHolder, item: Reply, po: String) {
         card.setText(
             R.id.replyCookie,
             ContentTransformationUtil.transformCookie(
@@ -223,6 +276,35 @@ class QuickAdapter(private val layoutResId: Int) :
         }
     }
 
+    private fun convertReplyWithPayload(
+        card: BaseViewHolder,
+        payload: Payload.ReplyPayload
+    ) {
+        card.setText(
+            R.id.replyTime,
+            ContentTransformationUtil.transformTime(payload.now)
+        )
+
+        // sage
+        if (payload.sage == "1") {
+            card.setVisible(R.id.sage, true)
+        } else {
+            card.setGone(R.id.sage, true)
+        }
+        ContentTransformationUtil.transformContent(payload.content, mLineHeight, mSegGap)
+            .apply {
+                if (isEmpty()) card.setGone(R.id.replyContent, true)
+                else {
+                    card.setText(R.id.replyContent, this)
+                    card.setVisible(R.id.replyContent, true)
+                    card.getView<TextView>(R.id.replyContent).apply {
+                        textSize = mTextSize
+                        letterSpacing = mLetterSpace
+                    }
+                }
+            }
+    }
+
     private fun convertTrend(card: BaseViewHolder, item: Trend) {
         card.setText(R.id.trendRank, item.rank)
         card.setText(R.id.trendId, item.id)
@@ -250,159 +332,194 @@ class QuickAdapter(private val layoutResId: Int) :
         card.setImageResource(R.id.luweiSticker, resourceId)
     }
 
-}
+    private class DiffItemCallback : DiffUtil.ItemCallback<Any>() {
 
-class DiffCallback(private val oldList: List<Any>, private val newList: List<Any>) :
-    DiffUtil.Callback() {
-    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        val oldItem = oldList[oldItemPosition]
-        val newItem = newList[newItemPosition]
-        return when {
-            (oldItem is Thread && newItem is Thread) -> oldItem.id == newItem.id && oldItem.fid == newItem.fid
+        /**
+         * 判断是否是同一个item
+         *
+         * @param oldItem New data
+         * @param newItem old Data
+         * @return
+         */
+        override fun areItemsTheSame(
+            oldItem: Any,
+            newItem: Any
+        ): Boolean {
+            return when {
+                (oldItem is Thread && newItem is Thread) -> oldItem.id == newItem.id && oldItem.fid == newItem.fid
 
-            (oldItem is Reply && newItem is Reply) -> oldItem.id == newItem.id
+                (oldItem is Reply && newItem is Reply) -> oldItem.id == newItem.id
 
-            else -> {
-                Timber.e("Unhandled type comparison")
-                false
+                (oldItem is Trend && newItem is Trend) -> oldItem.id == newItem.id
+
+                else -> {
+                    Timber.e("Unhandled type comparison $oldItem vs $newItem")
+                    throw Exception("Unhandled type comparison")
+                }
+            }
+        }
+
+        /**
+         * 当是同一个item时，再判断内容是否发生改变
+         *
+         * @param oldItem New data
+         * @param newItem old Data
+         * @return
+         */
+        override fun areContentsTheSame(
+            oldItem: Any,
+            newItem: Any
+        ): Boolean {
+            return when {
+                (oldItem is Thread && newItem is Thread) -> {
+                    oldItem.now == newItem.now
+                            && oldItem.sage == newItem.sage
+                            && oldItem.replyCount == newItem.replyCount
+                            && oldItem.content == newItem.content
+                }
+                (oldItem is Reply && newItem is Reply) -> {
+                    oldItem.now == newItem.now
+                            && oldItem.sage == newItem.sage
+                            && oldItem.content == newItem.content
+                }
+
+                (oldItem is Trend && newItem is Trend) -> {
+                    true
+                }
+                else -> {
+                    Timber.e("Unhandled type comparison")
+                    throw Exception("Unhandled type comparison")
+                }
+            }
+        }
+
+        /**
+         * 可选实现
+         * 如果需要精确修改某一个view中的内容，请实现此方法。
+         * 如果不实现此方法，或者返回null，将会直接刷新整个item。
+         *
+         * @param oldItem Old data
+         * @param newItem New data
+         * @return Payload info. if return null, the entire item will be refreshed.
+         */
+        override fun getChangePayload(
+            oldItem: Any,
+            newItem: Any
+        ): Any? {
+            return when {
+                (oldItem is Thread && newItem is Thread) -> {
+                    Payload.ThreadPayload(
+                        newItem.now,
+                        newItem.content,
+                        newItem.sage,
+                        newItem.replyCount
+                    )
+                }
+                (oldItem is Reply && newItem is Reply) -> {
+                    Payload.ReplyPayload(newItem.now, newItem.content, newItem.sage)
+                }
+                (oldItem is Trend && newItem is Trend) -> {
+                    null
+                }
+                else -> {
+                    Timber.e("Unhandled type comparison")
+                    null
+                }
             }
         }
     }
 
-    override fun getOldListSize(): Int {
-        return oldList.size
+    internal sealed class Payload {
+        class ThreadPayload(
+            val now: String,
+            val content: String,
+            val sage: String?,
+            val replyCount: String?
+        )
+
+        class ReplyPayload(
+            val now: String,
+            val content: String,
+            val sage: String?
+        )
     }
 
-    override fun getNewListSize(): Int {
-        return newList.size
-    }
+    private class DiffCallback(private val oldList: List<Any>, private val newList: List<Any>) :
+        DiffUtil.Callback() {
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            val oldItem = oldList[oldItemPosition]
+            val newItem = newList[newItemPosition]
+            return when {
+                (oldItem is Thread && newItem is Thread) -> oldItem.id == newItem.id && oldItem.fid == newItem.fid
 
-    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        val oldItem = oldList[oldItemPosition]
-        val newItem = newList[newItemPosition]
-        return when {
-            (oldItem is Thread && newItem is Thread) -> {
-                oldItem.sage == newItem.sage
-                        && oldItem.replyCount == newItem.replyCount
-                        && oldItem.content == newItem.content
-            }
-            (oldItem is Reply && newItem is Reply) -> {
-                oldItem.sage == newItem.sage
-                        && oldItem.content == newItem.content
-            }
-            else -> {
-                Timber.e("Unhandled type comparison")
-                false
+                (oldItem is Reply && newItem is Reply) -> oldItem.id == newItem.id
+
+                else -> {
+                    Timber.e("Unhandled type comparison")
+                    false
+                }
             }
         }
-    }
 
-}
+        override fun getOldListSize(): Int {
+            return oldList.size
+        }
 
-class DiffItemCallback : DiffUtil.ItemCallback<Any>() {
+        override fun getNewListSize(): Int {
+            return newList.size
+        }
 
-    /**
-     * 判断是否是同一个item
-     *
-     * @param oldItem New data
-     * @param newItem old Data
-     * @return
-     */
-    override fun areItemsTheSame(
-        oldItem: Any,
-        newItem: Any
-    ): Boolean {
-        return when {
-            (oldItem is Thread && newItem is Thread) -> oldItem.id == newItem.id && oldItem.fid == newItem.fid
-
-            (oldItem is Reply && newItem is Reply) -> oldItem.id == newItem.id
-
-            (oldItem is Trend && newItem is Trend) -> oldItem.id == newItem.id
-
-            else -> {
-                Timber.e("Unhandled type comparison $oldItem vs $newItem")
-                throw Exception("Unhandled type comparison")
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            val oldItem = oldList[oldItemPosition]
+            val newItem = newList[newItemPosition]
+            return when {
+                (oldItem is Thread && newItem is Thread) -> {
+                    oldItem.sage == newItem.sage
+                            && oldItem.replyCount == newItem.replyCount
+                            && oldItem.content == newItem.content
+                }
+                (oldItem is Reply && newItem is Reply) -> {
+                    oldItem.sage == newItem.sage
+                            && oldItem.content == newItem.content
+                }
+                else -> {
+                    Timber.e("Unhandled type comparison")
+                    false
+                }
             }
         }
-    }
 
-    /**
-     * 当是同一个item时，再判断内容是否发生改变
-     *
-     * @param oldItem New data
-     * @param newItem old Data
-     * @return
-     */
-    override fun areContentsTheSame(
-        oldItem: Any,
-        newItem: Any
-    ): Boolean {
-        return when {
-            (oldItem is Thread && newItem is Thread) -> {
-                oldItem.sage == newItem.sage
-                        && oldItem.replyCount == newItem.replyCount
-                        && oldItem.content == newItem.content
-            }
-            (oldItem is Reply && newItem is Reply) -> {
-                oldItem.sage == newItem.sage
-                        && oldItem.content == newItem.content
-            }
 
-            (oldItem is Trend && newItem is Trend) -> {
-                true
-            }
-            else -> {
-                Timber.e("Unhandled type comparison")
-                throw Exception("Unhandled type comparison")
-            }
-        }
-    }
-
-    /**
-     * 可选实现
-     * 如果需要精确修改某一个view中的内容，请实现此方法。
-     * 如果不实现此方法，或者返回null，将会直接刷新整个item。
-     *
-     * @param oldItem Old data
-     * @param newItem New data
-     * @return Payload info. if return null, the entire item will be refreshed.
-     */
-    override fun getChangePayload(
-        oldItem: Any,
-        newItem: Any
-    ): Any? {
-        return null
     }
 
 
-}
-
-// TODO
-class DawnLoadMoreView : BaseLoadMoreView() {
-    override fun getLoadComplete(holder: BaseViewHolder): View {
-        TODO("Not yet implemented")
+    // TODO
+    private class DawnLoadMoreView : BaseLoadMoreView() {
+        override fun getLoadComplete(holder: BaseViewHolder): View {
+            TODO("Not yet implemented")
 //        return holder.findView(R.id.load_more_load_complete_view);
-    }
+        }
 
-    override fun getLoadEndView(holder: BaseViewHolder): View {
-        TODO("Not yet implemented")
+        override fun getLoadEndView(holder: BaseViewHolder): View {
+            TODO("Not yet implemented")
 //        return holder.findView(R.id.load_more_load_end_view);
-    }
+        }
 
-    override fun getLoadFailView(holder: BaseViewHolder): View {
-        TODO("Not yet implemented")
+        override fun getLoadFailView(holder: BaseViewHolder): View {
+            TODO("Not yet implemented")
 //        return holder.findView(R.id.load_more_load_fail_view);
-    }
+        }
 
-    override fun getLoadingView(holder: BaseViewHolder): View {
-        TODO("Not yet implemented")
+        override fun getLoadingView(holder: BaseViewHolder): View {
+            TODO("Not yet implemented")
 //        return holder.findView(R.id.load_more_loading_view);
-    }
+        }
 
-    override fun getRootView(parent: ViewGroup): View {
-        TODO("Not yet implemented")
-        // 布局中 “加载失败”的View
+        override fun getRootView(parent: ViewGroup): View {
+            TODO("Not yet implemented")
+            // 布局中 “加载失败”的View
 //        return LayoutInflater.from(parent.getContext()).inflate(R.layout.view_load_more, parent, false);
-    }
+        }
 
+    }
 }

@@ -1,18 +1,20 @@
 package com.laotoua.dawnislandk.ui.popup
 
 import android.content.Context
+import android.content.Intent
 import android.view.View
 import android.widget.ImageButton
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.fragment.app.Fragment
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.entity.Cookie
-import com.lxj.xpopup.XPopup
+import com.laotoua.dawnislandk.ui.activity.QRCookieActivity
 import com.lxj.xpopup.core.CenterPopupView
-import com.lxj.xpopup.interfaces.SimpleCallback
 import kotlinx.android.synthetic.main.list_item_cookie.view.*
 
 
-class CookieManagerPopup(context: Context) : CenterPopupView(context) {
+class CookieManagerPopup(private val caller: Fragment, context: Context) :
+    CenterPopupView(context) {
 
     val cookies = mutableListOf<Cookie>()
 

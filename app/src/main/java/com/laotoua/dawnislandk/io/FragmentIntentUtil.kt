@@ -80,8 +80,10 @@ object FragmentIntentUtil {
     }
 
     fun checkPermissions(caller: Fragment): Boolean {
-        return checkReadStoragePermission(caller) && checkWriteStoragePermission(caller)
-                && checkTakePicturePermission(caller)
+        var result = checkTakePicturePermission(caller)
+        result = checkReadStoragePermission(caller) && result
+        result = checkWriteStoragePermission(caller) && result
+        return result
     }
 
     fun getImageFromGallery(caller: Fragment, type: String, callback: (Uri?) -> Unit) {

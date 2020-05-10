@@ -2,7 +2,6 @@ package com.laotoua.dawnislandk
 
 import android.os.Bundle
 import android.os.Handler
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +13,7 @@ import com.laotoua.dawnislandk.data.entity.Forum
 import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
 import com.laotoua.dawnislandk.ui.adapter.QuickNodeAdapter
+import com.laotoua.dawnislandk.ui.util.StatusBarUtil
 import com.laotoua.dawnislandk.viewmodel.CommunityViewModel
 import com.laotoua.dawnislandk.viewmodel.LoadingStatus
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
@@ -46,25 +46,11 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        initStatusBar()
+        StatusBarUtil.immersiveStatusBar(this)
 
         setUpForumDrawer()
     }
 
-    private fun initStatusBar() {
-        /**
-         * 新的状态栏透明方案
-         */
-
-        window.clearFlags(
-            WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
-                    or WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION
-        )
-        //设置布局能够延伸到状态栏(StatusBar)和导航栏(NavigationBar)里面
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-        //设置状态栏(StatusBar)颜色透明
-//        window.statusBarColor = Color.TRANSPARENT
-    }
 
     // left forum drawer
     private fun setUpForumDrawer() {

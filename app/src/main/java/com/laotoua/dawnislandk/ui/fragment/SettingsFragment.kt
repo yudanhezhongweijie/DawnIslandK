@@ -67,7 +67,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
 
         findPreference<Preference>("cookie")?.setOnPreferenceClickListener {
-            val cookiePopup = CookieManagerPopup(requireContext())
+            val cookiePopup = CookieManagerPopup(this, requireContext())
             cookiePopup.setCookies(cookies)
             XPopup.Builder(context)
                 .asCustom(cookiePopup)

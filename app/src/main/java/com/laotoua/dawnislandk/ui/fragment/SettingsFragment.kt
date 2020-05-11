@@ -88,21 +88,26 @@ class SettingsFragment : Fragment() {
         }
 
         binding.feedId.apply {
+            var feedId = mmkv.getString("feedId", "")
             key.setText(R.string.feedId)
-            summary.text = mmkv.getString("feedId", "")
+            summary.text = feedId
             root.setOnClickListener {
-                val feedId = mmkv.getString("feedId", "")
-                XPopup.Builder(context)
-                    .asInputConfirm("修改订阅ID", "", feedId, feedId) { text ->
-                        mmkv.putString("feedId", text)
-                        summary.text = text
+                MaterialDialog(requireContext()).show {
+                    title(R.string.feedId)
+                    cornerRadius(res = R.dimen.dialog_radius)
+                    input(hint = feedId, prefill = feedId) { _, text ->
+                        feedId = text.toString()
+                        mmkv.putString("feedId", feedId)
+                        summary.text = feedId
                         Toast.makeText(
                             context,
                             R.string.restart_to_apply_setting,
                             Toast.LENGTH_SHORT
                         ).show()
                     }
-                    .show()
+                    positiveButton(R.string.submit)
+                    negativeButton(R.string.cancel)
+                }
             }
         }
 
@@ -117,9 +122,11 @@ class SettingsFragment : Fragment() {
             }
 
             root.setOnClickListener {
-                XPopup.Builder(context)
-                    .asCenterList("修改时间显示格式", entries) { position, text ->
-                        mmkv.putString("time_format", values[position])
+                MaterialDialog(requireContext()).show {
+                    title(R.string.time_display_format)
+                    cornerRadius(res = R.dimen.dialog_radius)
+                    listItems(R.array.time_format_entries) { _, index, text ->
+                        mmkv.putString("time_format", values[index])
                         summary.text = text
                         Toast.makeText(
                             context,
@@ -127,7 +134,7 @@ class SettingsFragment : Fragment() {
                             Toast.LENGTH_SHORT
                         ).show()
                     }
-                    .show()
+                }
             }
         }
 

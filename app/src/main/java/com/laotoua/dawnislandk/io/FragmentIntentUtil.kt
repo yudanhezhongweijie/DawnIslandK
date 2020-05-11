@@ -158,7 +158,7 @@ object FragmentIntentUtil {
         ): String? {
             return if (intent == null || resultCode != Activity.RESULT_OK) null else intent.getStringExtra(
                 Intents.Scan.RESULT
-            )?.split(":")?.last()?.dropLast(1)?.removeSurrounding("\"", "\"")
+            )
         }
     }
 

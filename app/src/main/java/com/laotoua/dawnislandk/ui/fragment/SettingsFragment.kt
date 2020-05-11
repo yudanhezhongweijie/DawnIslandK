@@ -28,6 +28,7 @@ import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.interfaces.SimpleCallback
 import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 import timber.log.Timber
 
 class SettingsFragment : Fragment() {
@@ -247,9 +248,11 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    private fun saveCookieWithInputName(cookieHash: String) {
+    private fun saveCookieWithInputName(cookieJson: String) {
+        val cookieHash = JSONObject(cookieJson).getString("cookie")
         MaterialDialog(requireContext()).show {
             title(R.string.edit_cookie_remark)
+            cancelable(false)
             input(hint = cookieHash) { _, text ->
                 addCookie(
                     Cookie(

@@ -12,6 +12,7 @@ import com.king.zxing.DecodeFormatManager
 import com.king.zxing.Intents
 import com.king.zxing.camera.FrontLightMode
 import com.king.zxing.util.CodeUtils
+import com.king.zxing.util.LogUtils
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.io.ImageUtil
 import timber.log.Timber
@@ -56,23 +57,12 @@ class QRCookieActivity : CaptureActivity() {
             getCookieImage.launch("image/*")
         }
 
+        LogUtils.setPriority(LogUtils.ERROR)
+
         //获取CaptureHelper，里面有扫码相关的配置设置
         captureHelper.playBeep(false) //播放音效
             .vibrate(true) //震动
             .decodeFormats(DecodeFormatManager.QR_CODE_FORMATS)//设置只识别二维码会提升速度
             .frontLightMode(FrontLightMode.OFF) //设置闪光灯模式
-            .continuousScan(false)
     }
-
-    /**
-     * 扫码结果回调
-     * @param result 扫码结果
-     * @return
-     */
-    override fun onResultCallback(result: String?): Boolean {
-        Toast.makeText(this, result, Toast.LENGTH_SHORT).show()
-        Timber.d("result $result")
-        return super.onResultCallback(result)
-    }
-
 }

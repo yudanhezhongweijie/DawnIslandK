@@ -28,6 +28,32 @@
         <item name="android:textSize">16sp</item>
     </style>
 
+    <style name="PreferenceCategory">
+        <item name="android:fontFamily">@font/segoe_ui</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:layout_marginBottom">2dp</item>
+        <item name="paddingStart">10dp</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">#000000</item>
+    </style>
+
+    <style name="PreferenceItemKey">
+        <item name="android:fontFamily">@font/segoe_ui</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="paddingStart">16dp</item>
+    </style>
+
+    <style name="PreferenceItemSummary">
+        <item name="android:fontFamily">@font/segoe_ui</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">#727272</item>
+        <item name="paddingStart">20dp</item>
+    </style>
+
     <style name="NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
@@ -47,4 +73,16 @@
         <item name="android:minHeight">48dp</item>
     </style>
 
+    <style name="DawnOutlinedButton" parent="Widget.MaterialComponents.Button.OutlinedButton.Icon">
+        <item name="iconGravity">end</item>
+        <item name="iconSize">24dp</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="strokeColor">@color/colorPrimary</item>
+        <item name="shapeAppearance">@style/DawnOutlinedButtonShape</item>
+    </style>
+
+    <style name="DawnOutlinedButtonShape" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">19dp</item>
+    </style>
 </resources>

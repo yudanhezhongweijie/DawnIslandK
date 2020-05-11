@@ -4,26 +4,21 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.Toast
-import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.entity.Cookie
 import com.laotoua.dawnislandk.data.state.AppState
-import com.laotoua.dawnislandk.ui.popup.CookieManagerPopup
+import com.laotoua.dawnislandk.databinding.FragmentSettingsBinding
 import com.lxj.xpopup.XPopup
 import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 
-class SettingsFragment : PreferenceFragmentCompat() {
+class SettingsFragment : Fragment() {
 
     private lateinit var cookies: List<Cookie>
 
@@ -45,56 +40,27 @@ class SettingsFragment : PreferenceFragmentCompat() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = super.onCreateView(inflater, container, savedInstanceState)
-        val wrapper = inflater.inflate(R.layout.fragment_empty_linear, container, false).apply {
-            findViewById<Toolbar>(R.id.toolbar).apply {
-                setTitle(R.string.settings)
-                subtitle = ""
-                val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
-                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-                setNavigationIcon(R.drawable.ic_arrow_back_white_24px)
-                setNavigationOnClickListener {
-                    findNavController().popBackStack()
-                }
+        val binding = FragmentSettingsBinding.inflate(inflater, container, false)
+        binding.toolbarLayout.toolbar.apply {
+            setTitle(R.string.settings)
+            subtitle = ""
+            val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+            setNavigationIcon(R.drawable.ic_arrow_back_white_24px)
+            setNavigationOnClickListener {
+                findNavController().popBackStack()
             }
-        } as LinearLayout
-
-        wrapper.addView(view)
-        return wrapper
-    }
-
-    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        setPreferencesFromResource(R.xml.root_preferences, rootKey)
-
-        findPreference<Preference>("cookie")?.setOnPreferenceClickListener {
-            val cookiePopup = CookieManagerPopup(this, requireContext())
-            cookiePopup.setCookies(cookies)
-            XPopup.Builder(context)
-                .asCustom(cookiePopup)
-                .show()
-                .dismissWith {
-                    if (cookies != cookiePopup.cookies) {
-                        lifecycleScope.launch(Dispatchers.IO) {
-                            Timber.i("Updating cookie entries...")
-                            Timber.i("Cookies: ${cookiePopup.cookies}")
-                            AppState.DB.cookieDao().resetCookies(cookiePopup.cookies)
-                            loadCookies()
-                        }
-                    }
-                }
-            true
         }
 
-        findPreference<Preference>("feedId")?.apply {
-            summary = mmkv.getString("feedId", "")
-
-            setOnPreferenceClickListener {
+        binding.feedId.apply {
+            key.setText(R.string.feedId)
+            summary.text = mmkv.getString("feedId", "")
+            root.setOnClickListener {
                 val feedId = mmkv.getString("feedId", "")
                 XPopup.Builder(context)
                     .asInputConfirm("修改订阅ID", "", feedId, feedId) { text ->
                         mmkv.putString("feedId", text)
-                        summary = text
-
+                        summary.text = text
                         Toast.makeText(
                             context,
                             R.string.restart_to_apply_setting,
@@ -102,25 +68,24 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         ).show()
                     }
                     .show()
-                true
             }
         }
 
-
-        findPreference<Preference>("time_format")?.apply {
+        binding.timeFormat.apply {
+            key.setText(R.string.time_display_format)
             val entries = resources.getStringArray(R.array.time_format_entries)
             val values = resources.getStringArray(R.array.time_format_values)
-            summary = if (values.first() == mmkv.getString("time_format", "")) {
+            summary.text = if (values.first() == mmkv.getString("time_format", "")) {
                 entries.first()
             } else {
                 entries.last()
             }
 
-            setOnPreferenceClickListener {
+            root.setOnClickListener {
                 XPopup.Builder(context)
                     .asCenterList("修改时间显示格式", entries) { position, text ->
                         mmkv.putString("time_format", values[position])
-                        summary = text
+                        summary.text = text
                         Toast.makeText(
                             context,
                             R.string.restart_to_apply_setting,
@@ -128,16 +93,41 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         ).show()
                     }
                     .show()
-                true
             }
         }
 
-        findPreference<Preference>("sizes_customization")?.setOnPreferenceClickListener {
-            val action =
-                SettingsFragmentDirections.actionSettingsFragmentToSizeCustomizationFragment()
-            findNavController().navigate(action)
+//        binding.cookie.apply {
+//            key.setText(R.string.cookie_management)
+//            root.setOnClickListener {
+//                val cookiePopup = CookieManagerPopup(this@SettingsFragment, requireContext())
+//                cookiePopup.setCookies(cookies)
+//                XPopup.Builder(context)
+//                    .asCustom(cookiePopup)
+//                    .show()
+//                    .dismissWith {
+//                        if (cookies != cookiePopup.cookies) {
+//                            lifecycleScope.launch(Dispatchers.IO) {
+//                                Timber.i("Updating cookie entries...")
+//                                Timber.i("Cookies: ${cookiePopup.cookies}")
+//                                AppState.DB.cookieDao().resetCookies(cookiePopup.cookies)
+//                                loadCookies()
+//                            }
+//                        }
+//                    }
+//            }
+//        }
 
-            true
+        binding.sizeCustomization.apply {
+            key.setText(R.string.size_customization_settings)
+            root.setOnClickListener {
+                val action =
+                    SettingsFragmentDirections.actionSettingsFragmentToSizeCustomizationFragment()
+                findNavController().navigate(action)
+            }
+
         }
+
+        return binding.root
     }
+
 }

@@ -36,26 +36,27 @@ class CookieManagerPopup(private val caller: Fragment, context: Context) :
         super.onCreate()
 
         addCookie.setOnClickListener {
-            XPopup.Builder(context)
-                .setPopupCallback(object : SimpleCallback() {
-                    override fun beforeShow() {
-                        cookieAdditionPopup.clearEntries()
-                        super.beforeShow()
-                    }
-                })
-                .asCustom(cookieAdditionPopup)
-                .show()
-                .dismissWith {
-                    if (cookieAdditionPopup.cookieHash != "") {
-                        cookies.add(
-                            Cookie(
-                                cookieAdditionPopup.cookieHash,
-                                cookieAdditionPopup.cookieName
-                            )
-                        )
-                        updateCookiesView()
-                    }
-                }
+            caller.startActivity(Intent(caller.requireActivity(), QRCookieActivity::class.java))
+//            XPopup.Builder(context)
+//                .setPopupCallback(object : SimpleCallback() {
+//                    override fun beforeShow() {
+//                        cookieAdditionPopup.clearEntries()
+//                        super.beforeShow()
+//                    }
+//                })
+//                .asCustom(cookieAdditionPopup)
+//                .show()
+//                .dismissWith {
+//                    if (cookieAdditionPopup.cookieHash != "") {
+//                        cookies.add(
+//                            Cookie(
+//                                cookieAdditionPopup.cookieHash,
+//                                cookieAdditionPopup.cookieName
+//                            )
+//                        )
+//                        updateCookiesView()
+//                    }
+//                }
         }
 
         cookiesView.addAll(

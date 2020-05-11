@@ -136,6 +136,8 @@ class SettingsFragment : Fragment() {
         binding.addCookie.apply {
             setOnClickListener {
                 MaterialDialog(context).show {
+                    title(R.string.add_cookie)
+                    cornerRadius(res = R.dimen.dialog_radius)
                     listItems(R.array.cookie_addition_options) { _, index, _ ->
                         when (index) {
                             0 -> getCookieImage.launch("image/*")
@@ -205,11 +207,18 @@ class SettingsFragment : Fragment() {
         view.remove.setOnClickListener {
             binding.cookieList.removeView(view.root)
             deleteCookie(cookie)
+            if (binding.cookieList.childCount < 5) {
+                binding.addCookie.isEnabled = true
+            }
+            binding.cookieSummary.text = "${binding.cookieList.childCount} / 5"
         }
 
         binding.cookieList.addView(view.root)
 
         binding.cookieSummary.text = "${binding.cookieList.childCount} / 5"
+        if (binding.cookieList.childCount >= 5) {
+            binding.addCookie.isEnabled = false
+        }
     }
 
     private fun updateCookie(cookie: Cookie) {

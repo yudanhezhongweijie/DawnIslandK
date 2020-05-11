@@ -114,7 +114,7 @@ class ReplyViewModel : ViewModel() {
             _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.LOADING))
             DataResource.create(
                 NMBServiceClient.getReplys(
-                    AppState.cookies?.firstOrNull()?.cookieHash,
+                    AppState.cookies.firstOrNull()?.cookieHash,
                     _currentThread!!.id,
                     page
                 )

@@ -198,8 +198,9 @@ class PostPopup(private val caller: Fragment, context: Context) :
     override fun onCreate() {
         super.onCreate()
         postContent = findViewById<EditText>(R.id.postContent)
-            .also {
-                showSoftKeyboard(it)
+            .apply {
+                showSoftKeyboard(this)
+                setOnClickListener { view -> showSoftKeyboard(view) }
             }
 
         toggleContainers = findViewById<ConstraintLayout>(R.id.toggleContainers).also {
@@ -341,6 +342,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
                     ) { ind, _ ->
                         selectedCookie = cookies[ind]
                         findViewById<TextView>(R.id.postCookie).text = selectedCookie!!.cookieName
+                        postContent!!.requestFocus()
                     }
                     .show()
             } else {

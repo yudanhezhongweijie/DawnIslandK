@@ -11,6 +11,7 @@
     <color name="pure_light">@android:color/white</color>
     <color name="pure_dark">#ff212121</color>
 
+    <color name="gray_400">#ff727272</color>
     <!--
       ~ Copyright 2015 Hippo Seven
       ~

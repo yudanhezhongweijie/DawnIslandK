@@ -47,6 +47,27 @@
 
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/cookieSummaryPrefix"
+            style="@style/PreferenceItemKey"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="饼干槽:"
+            android:textColor="@color/gray_400"
+            app:layout_constraintBaseline_toBaselineOf="@id/addCookie"
+            app:layout_constraintStart_toStartOf="@id/cookieList" />
+
+        <TextView
+            android:id="@+id/cookieSummary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            style="@style/PreferenceItemKey"
+            android:textColor="@color/gray_400"
+            app:layout_constraintStart_toEndOf="@+id/cookieSummaryPrefix"
+            app:layout_constraintTop_toTopOf="@id/cookieSummaryPrefix" />
+
         <Button
             android:id="@+id/addCookie"
             style="@style/DawnOutlinedButton"

@@ -1,5 +1,6 @@
 package com.laotoua.dawnislandk.ui.fragment
 
+import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -184,6 +185,7 @@ class SettingsFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("SetTextI18n")
     private fun addCookieToLayout(cookie: Cookie) {
         val view = ListItemCookieBinding.inflate(layoutInflater)
         view.cookieName.text = cookie.cookieName
@@ -206,6 +208,8 @@ class SettingsFragment : Fragment() {
         }
 
         binding.cookieList.addView(view.root)
+
+        binding.cookieSummary.text = "${binding.cookieList.childCount} / 5"
     }
 
     private fun updateCookie(cookie: Cookie) {

@@ -28,6 +28,12 @@ object AppState {
         DB.cookieDao().delete(cookie)
     }
 
+    suspend fun updateCookie(cookie: Cookie) {
+        cookies.first { it.cookieHash == cookie.cookieHash }.cookieName =
+            cookie.cookieName
+        DB.cookieDao().updateCookie(cookie)
+    }
+
     private var mFeedId: String? = null
     val feedId get() = mFeedId!!
 

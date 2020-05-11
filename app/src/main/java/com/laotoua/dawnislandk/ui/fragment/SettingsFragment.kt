@@ -230,10 +230,8 @@ class SettingsFragment : Fragment() {
 
     private fun updateCookie(cookie: Cookie) {
         lifecycleScope.launch {
-            AppState.DB.cookieDao().updateCookie(cookie)
+            AppState.updateCookie(cookie)
         }
-        AppState.cookies.first { it.cookieHash == cookie.cookieHash }.cookieName =
-            cookie.cookieName
     }
 
     private fun addCookie(cookie: Cookie) {

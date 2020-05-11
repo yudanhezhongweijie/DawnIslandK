@@ -10,7 +10,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
-import android.view.WindowManager
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
@@ -30,6 +29,7 @@ import com.laotoua.dawnislandk.databinding.ActivityDoodleBinding
 import com.laotoua.dawnislandk.io.ImageUtil
 import com.laotoua.dawnislandk.ui.util.LayoutUtil
 import com.laotoua.dawnislandk.ui.util.ReadableTime
+import com.laotoua.dawnislandk.ui.util.StatusBarUtil
 import com.laotoua.dawnislandk.ui.widget.DoodleView
 import com.laotoua.dawnislandk.ui.widget.ThicknessPreviewView
 import kotlinx.coroutines.launch
@@ -88,10 +88,8 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
         super.onCreate(savedInstanceState)
         binding = ActivityDoodleBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        window.clearFlags(
-            WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
-                    or WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION
-        )
+
+        StatusBarUtil.immersiveStatusBar(this)
 
         val timeStamp: String = ReadableTime.getFilenamableTime(System.currentTimeMillis())
         val relativeLocation =

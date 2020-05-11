@@ -62,15 +62,20 @@ object ImageUtil {
         }
     }
 
-    fun getImageFileFromUri(caller: Fragment, uri: Uri): File? {
+    fun getImageFileFromUri(
+        fragment: Fragment? = null,
+        activity: Activity? = null,
+        uri: Uri
+    ): File? {
+        val caller = fragment?.requireActivity() ?: activity!!
         val parcelFileDescriptor =
-            caller.requireActivity().contentResolver.openFileDescriptor(uri, "r", null)
+            caller.contentResolver.openFileDescriptor(uri, "r", null)
 
         parcelFileDescriptor?.let {
             val inputStream = FileInputStream(parcelFileDescriptor.fileDescriptor)
             val file = File(
-                caller.requireContext().cacheDir,
-                caller.requireContext().contentResolver.getFileName(uri)
+                caller.cacheDir,
+                caller.contentResolver.getFileName(uri)
             )
             if (file.exists()) {
                 Timber.i("File exists..Reusing the old file")

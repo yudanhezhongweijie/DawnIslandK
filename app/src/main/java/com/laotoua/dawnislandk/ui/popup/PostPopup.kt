@@ -316,7 +316,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
                         150,
                         postImagePreview!!
                     )
-                    imageFile = ImageUtil.getImageFileFromUri(caller, it)
+                    imageFile = ImageUtil.getImageFileFromUri(fragment = caller, uri = it)
                     attachmentContainer!!.visibility = View.VISIBLE
                 }
             }
@@ -355,7 +355,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
             }
             FragmentIntentUtil.getImageFromGallery(caller, "image/*") { uri: Uri? ->
                 if (uri != null) {
-                    imageFile = ImageUtil.getImageFileFromUri(caller, uri)
+                    imageFile = ImageUtil.getImageFileFromUri(fragment = caller, uri = uri)
                     try {
                         ImageUtil.loadImageThumbnailToImageView(
                             caller,
@@ -411,7 +411,8 @@ class PostPopup(private val caller: Fragment, context: Context) :
                                     150,
                                     postImagePreview!!
                                 )
-                                imageFile = ImageUtil.getImageFileFromUri(caller, this)
+                                imageFile =
+                                    ImageUtil.getImageFileFromUri(fragment = caller, uri = this)
                                 attachmentContainer!!.visibility = View.VISIBLE
                             } else {
                                 Timber.d("Didn't take a Picture. Removing placeholder Image...")

@@ -65,6 +65,7 @@
     <string name="sending" translatable="false">正在发送中...</string>
     <string name="image_saved" translatable="false">图片保存在Pictures/Dawn</string>
     <string name="error_in_saving_image" translatable="false">保存图片时发生错误</string>
+    <string name="didnt_get_cookie_from_image" translatable="false">没有读取到饼干。。请检查图片</string>
     <string name="press_again_to_exit" translatable="false">再按一次以退出应用</string>
     <string name="radius" translatable="false">圆角</string>
     <string name="elevation" translatable="false">阴影</string>

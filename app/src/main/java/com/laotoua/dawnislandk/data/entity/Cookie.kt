@@ -8,7 +8,7 @@ data class Cookie(
     @PrimaryKey
     val cookieHash: String,
 
-    val cookieName: String
+    var cookieName: String
 )
 
 

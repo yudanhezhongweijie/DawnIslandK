@@ -48,6 +48,7 @@
     <string name="reply" translatable="false">回复</string>
     <string name="my_feed" translatable="false">我的订阅</string>
     <string name="feedId" translatable="false">订阅ID</string>
+    <string name="edit_cookie_remark" translatable="false">编辑饼干备注</string>
     <string name="time_display_format" translatable="false">时间显示格式</string>
     <string name="cookie_management" translatable="false">饼干管理</string>
     <string name="add_cookie" translatable="false">添加饼干</string>

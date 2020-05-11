@@ -9,38 +9,43 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.input.input
+import com.afollestad.materialdialogs.list.listItems
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.entity.Cookie
 import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.databinding.FragmentSettingsBinding
+import com.laotoua.dawnislandk.databinding.ListItemCookieBinding
+import com.laotoua.dawnislandk.io.FragmentIntentUtil
+import com.laotoua.dawnislandk.ui.popup.CookieAdditionPopup
 import com.lxj.xpopup.XPopup
+import com.lxj.xpopup.interfaces.SimpleCallback
 import com.tencent.mmkv.MMKV
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
 
 class SettingsFragment : Fragment() {
 
-    private lateinit var cookies: List<Cookie>
-
-    init {
-        lifecycleScope.launchWhenCreated { loadCookies() }
-    }
+    private val cookies get() = AppState.cookies
 
     private val mmkv by lazy { MMKV.defaultMMKV() }
 
-    private suspend fun loadCookies() {
-        withContext(Dispatchers.IO) {
-            AppState.loadCookies()
-            cookies = AppState.cookies!!
-        }
+    private val cookieAdditionPopup: CookieAdditionPopup by lazy {
+        CookieAdditionPopup(
+            requireContext()
+        )
     }
+
+    private var _binding: FragmentSettingsBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val binding = FragmentSettingsBinding.inflate(inflater, container, false)
+        _binding = FragmentSettingsBinding.inflate(inflater, container, false)
+
         binding.toolbarLayout.toolbar.apply {
             setTitle(R.string.settings)
             subtitle = ""
@@ -96,26 +101,56 @@ class SettingsFragment : Fragment() {
             }
         }
 
-//        binding.cookie.apply {
-//            key.setText(R.string.cookie_management)
-//            root.setOnClickListener {
-//                val cookiePopup = CookieManagerPopup(this@SettingsFragment, requireContext())
-//                cookiePopup.setCookies(cookies)
-//                XPopup.Builder(context)
-//                    .asCustom(cookiePopup)
-//                    .show()
-//                    .dismissWith {
-//                        if (cookies != cookiePopup.cookies) {
-//                            lifecycleScope.launch(Dispatchers.IO) {
-//                                Timber.i("Updating cookie entries...")
-//                                Timber.i("Cookies: ${cookiePopup.cookies}")
-//                                AppState.DB.cookieDao().resetCookies(cookiePopup.cookies)
-//                                loadCookies()
-//                            }
-//                        }
-//                    }
-//            }
-//        }
+        cookies.map { addCookieToLayout(it) }
+
+        binding.addCookie.apply {
+            setOnClickListener {
+                MaterialDialog(context).show {
+                    listItems(R.array.cookie_addition_options) { _, index, _ ->
+                        when (index) {
+                            0 -> {
+                                FragmentIntentUtil.getCookieFromQRCode(this@SettingsFragment) {
+                                    it?.run {
+                                        MaterialDialog(requireContext()).show {
+                                            title(R.string.edit_cookie_remark)
+                                            input(hint = it) { _, text ->
+                                                addCookie(
+                                                    Cookie(
+                                                        cookieName = text.toString(),
+                                                        cookieHash = it
+                                                    )
+                                                )
+                                            }
+                                            positiveButton(R.string.submit)
+                                        }
+                                    }
+                                }
+                            }
+                            1 -> XPopup.Builder(context)
+                                .setPopupCallback(object : SimpleCallback() {
+                                    override fun beforeShow() {
+                                        cookieAdditionPopup.clearEntries()
+                                        super.beforeShow()
+                                    }
+                                })
+                                .asCustom(cookieAdditionPopup)
+                                .show()
+                                .dismissWith {
+                                    if (cookieAdditionPopup.cookieHash != "") {
+                                        addCookie(
+                                            Cookie(
+                                                cookieAdditionPopup.cookieHash,
+                                                cookieAdditionPopup.cookieName
+                                            )
+                                        )
+                                    }
+                                }
+                        }
+
+                    }
+                }
+            }
+        }
 
         binding.sizeCustomization.apply {
             key.setText(R.string.size_customization_settings)
@@ -128,6 +163,51 @@ class SettingsFragment : Fragment() {
         }
 
         return binding.root
+    }
+
+    private fun addCookieToLayout(cookie: Cookie) {
+        val view = ListItemCookieBinding.inflate(layoutInflater)
+        view.cookieName.text = cookie.cookieName
+        view.edit.setOnClickListener {
+            MaterialDialog(requireContext()).show {
+                title(R.string.edit_cookie_remark)
+                input(prefill = cookie.cookieName) { _, text ->
+                    // Text submitted with the action button
+                    cookie.cookieName = text.toString()
+                    updateCookie(cookie)
+                    view.cookieName.text = text.toString()
+                }
+                positiveButton(R.string.submit)
+            }
+        }
+
+        view.remove.setOnClickListener {
+            binding.cookieList.removeView(view.root)
+            deleteCookie(cookie)
+        }
+
+        binding.cookieList.addView(view.root)
+    }
+
+    private fun updateCookie(cookie: Cookie) {
+        lifecycleScope.launch {
+            AppState.DB.cookieDao().updateCookie(cookie)
+        }
+        AppState.cookies.first { it.cookieHash == cookie.cookieHash }.cookieName =
+            cookie.cookieName
+    }
+
+    private fun addCookie(cookie: Cookie) {
+        lifecycleScope.launch {
+            AppState.addCookie(cookie)
+        }
+        addCookieToLayout(cookie)
+    }
+
+    private fun deleteCookie(cookie: Cookie) {
+        lifecycleScope.launch {
+            AppState.deleteCookies(cookie)
+        }
     }
 
 }

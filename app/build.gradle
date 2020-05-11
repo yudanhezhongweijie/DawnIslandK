@@ -112,6 +112,7 @@ dependencies {
 //    implementation 'com.lxj:xpopup:1.8.17'
     implementation project(':libs:Xpopup')
     implementation 'com.afollestad.material-dialogs:core:3.3.0'
+    implementation 'com.afollestad.material-dialogs:input:3.3.0'
     implementation 'com.afollestad.material-dialogs:color:3.2.1'
 
     implementation 'me.dkzwm.widget.srl:core:1.7.1.1.androidx'

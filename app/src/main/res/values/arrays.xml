@@ -216,4 +216,9 @@
         <item>串版自删</item>
     </string-array>
 
+    <string-array name="cookie_addition_options">
+        <item>二维码输入</item>
+        <item>手动输入</item>
+    </string-array>
+
 </resources>

@@ -134,7 +134,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
     }
 
     private fun updateCookies() {
-        cookies = AppState.cookies!!
+        cookies = AppState.cookies
         if (selectedCookie == null || cookies.isNullOrEmpty()) {
             findViewById<TextView>(R.id.postCookie)?.run {
                 text = if (cookies.isNullOrEmpty()) {

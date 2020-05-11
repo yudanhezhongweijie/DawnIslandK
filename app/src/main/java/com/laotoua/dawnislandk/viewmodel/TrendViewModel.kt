@@ -37,7 +37,7 @@ class TrendViewModel : ViewModel() {
     private suspend fun getLatestTrendPage() {
         DataResource.create(
             NMBServiceClient.getReplys(
-                AppState.cookies?.firstOrNull()?.cookieHash,
+                AppState.cookies.firstOrNull()?.cookieHash,
                 trendId,
                 page
             )

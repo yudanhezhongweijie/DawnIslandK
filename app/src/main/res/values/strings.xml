@@ -47,7 +47,13 @@
     <string name="new_post" translatable="false">发布新串</string>
     <string name="reply" translatable="false">回复</string>
     <string name="my_feed" translatable="false">我的订阅</string>
+    <string name="feedId" translatable="false">订阅ID</string>
+    <string name="edit_cookie_remark" translatable="false">编辑饼干备注</string>
+    <string name="time_display_format" translatable="false">时间显示格式</string>
+    <string name="cookie_management" translatable="false">饼干管理</string>
+    <string name="add_cookie" translatable="false">添加饼干</string>
     <string name="settings" translatable="false">设置</string>
+    <string name="general_settings" translatable="false">通用设置</string>
     <string name="size_customization_settings" translatable="false">设置串卡片布局</string>
     <string name="trend" translatable="false">A岛热榜</string>
     <string name="adnmb" translatable="false">adnmb.com</string>

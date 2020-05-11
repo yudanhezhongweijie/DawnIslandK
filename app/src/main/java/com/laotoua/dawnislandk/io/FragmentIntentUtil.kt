@@ -13,8 +13,10 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.CallSuper
 import androidx.fragment.app.Fragment
+import com.king.zxing.Intents
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.ui.activity.DoodleActivity
+import com.laotoua.dawnislandk.ui.activity.QRCookieActivity
 import timber.log.Timber
 
 object FragmentIntentUtil {
@@ -133,6 +135,30 @@ object FragmentIntentUtil {
             intent: Intent?
         ): Uri? {
             return if (intent == null || resultCode != Activity.RESULT_OK) null else intent.data
+        }
+    }
+
+    fun getCookieFromQRCode(caller: Fragment, callback: (String?) -> Unit) {
+        caller.registerForActivityResult(ScanQRCode(), callback)(caller)
+    }
+
+    internal class ScanQRCode :
+        ActivityResultContract<Fragment, String?>() {
+        @CallSuper
+        override fun createIntent(
+            context: Context,
+            input: Fragment
+        ): Intent {
+            return Intent(input.requireActivity(), QRCookieActivity::class.java)
+        }
+
+        override fun parseResult(
+            resultCode: Int,
+            intent: Intent?
+        ): String? {
+            return if (intent == null || resultCode != Activity.RESULT_OK) null else intent.getStringExtra(
+                Intents.Scan.RESULT
+            )
         }
     }
 

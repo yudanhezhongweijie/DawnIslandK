@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#19A8A8</color>
+    <color name="colorPrimary">#1BAAAB</color>
     <color name="colorPrimaryDark">#19A8A8</color>
     <color name="colorAccent">#0B96B8</color>
     <color name="mainContentTextColor">#000000</color>
@@ -11,6 +11,7 @@
     <color name="pure_light">@android:color/white</color>
     <color name="pure_dark">#ff212121</color>
 
+    <color name="gray_400">#ff727272</color>
     <!--
       ~ Copyright 2015 Hippo Seven
       ~

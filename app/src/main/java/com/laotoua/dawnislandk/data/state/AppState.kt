@@ -11,11 +11,27 @@ object AppState {
         mDb = db
     }
 
-    private var mCookies: List<Cookie>? = null
+    private var mCookies = mutableListOf<Cookie>()
     val cookies get() = mCookies
 
     suspend fun loadCookies() {
-        mCookies = DB.cookieDao().getAll()
+        mCookies = DB.cookieDao().getAll().toMutableList()
+    }
+
+    suspend fun addCookie(cookie: Cookie) {
+        mCookies.add(cookie)
+        DB.cookieDao().insert(cookie)
+    }
+
+    suspend fun deleteCookies(cookie: Cookie) {
+        mCookies.remove(cookie)
+        DB.cookieDao().delete(cookie)
+    }
+
+    suspend fun updateCookie(cookie: Cookie) {
+        cookies.first { it.cookieHash == cookie.cookieHash }.cookieName =
+            cookie.cookieName
+        DB.cookieDao().updateCookie(cookie)
     }
 
     private var mFeedId: String? = null
@@ -24,5 +40,4 @@ object AppState {
     fun setFeedId(string: String) {
         mFeedId = string
     }
-
 }

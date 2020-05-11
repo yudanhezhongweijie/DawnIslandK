@@ -16,9 +16,25 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="4dp"
         android:text="cookie"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textColor="@color/gray_400"
+        android:textStyle="bold"
+        android:textAppearance="@style/PreferenceItemKey"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        android:background="@android:color/transparent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/cookieName"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_create_24px"
+        android:tint="@color/gray_400" />
 
     <ImageButton
         android:id="@+id/remove"

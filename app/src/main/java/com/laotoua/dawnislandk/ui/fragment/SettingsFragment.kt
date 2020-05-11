@@ -1,10 +1,12 @@
 package com.laotoua.dawnislandk.ui.fragment
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -12,17 +14,20 @@ import androidx.navigation.fragment.findNavController
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.input.input
 import com.afollestad.materialdialogs.list.listItems
+import com.king.zxing.util.CodeUtils
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.entity.Cookie
 import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.databinding.FragmentSettingsBinding
 import com.laotoua.dawnislandk.databinding.ListItemCookieBinding
 import com.laotoua.dawnislandk.io.FragmentIntentUtil
+import com.laotoua.dawnislandk.io.ImageUtil
 import com.laotoua.dawnislandk.ui.popup.CookieAdditionPopup
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.interfaces.SimpleCallback
 import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class SettingsFragment : Fragment() {
 
@@ -35,6 +40,30 @@ class SettingsFragment : Fragment() {
             requireContext()
         )
     }
+
+    private val getCookieImage =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            uri?.run {
+                try {
+                    val file =
+                        ImageUtil.getImageFileFromUri(fragment = this@SettingsFragment, uri = uri)
+                            ?: return@registerForActivityResult
+                    val res = CodeUtils.parseQRCode(file.path)
+                    if (res != null) {
+                        saveCookieWithInputName(res)
+                    } else {
+                        Toast.makeText(
+                            context,
+                            R.string.didnt_get_cookie_from_image,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                } catch (e: Exception) {
+                    // Ignore
+                    Timber.e(e)
+                }
+            }
+        }
 
     private var _binding: FragmentSettingsBinding? = null
     private val binding get() = _binding!!
@@ -108,25 +137,15 @@ class SettingsFragment : Fragment() {
                 MaterialDialog(context).show {
                     listItems(R.array.cookie_addition_options) { _, index, _ ->
                         when (index) {
-                            0 -> {
+                            0 -> getCookieImage.launch("image/*")
+                            1 -> {
                                 FragmentIntentUtil.getCookieFromQRCode(this@SettingsFragment) {
                                     it?.run {
-                                        MaterialDialog(requireContext()).show {
-                                            title(R.string.edit_cookie_remark)
-                                            input(hint = it) { _, text ->
-                                                addCookie(
-                                                    Cookie(
-                                                        cookieName = text.toString(),
-                                                        cookieHash = it
-                                                    )
-                                                )
-                                            }
-                                            positiveButton(R.string.submit)
-                                        }
+                                        saveCookieWithInputName(it)
                                     }
                                 }
                             }
-                            1 -> XPopup.Builder(context)
+                            2 -> XPopup.Builder(context)
                                 .setPopupCallback(object : SimpleCallback() {
                                     override fun beforeShow() {
                                         cookieAdditionPopup.clearEntries()
@@ -207,6 +226,21 @@ class SettingsFragment : Fragment() {
     private fun deleteCookie(cookie: Cookie) {
         lifecycleScope.launch {
             AppState.deleteCookies(cookie)
+        }
+    }
+
+    private fun saveCookieWithInputName(cookieHash: String) {
+        MaterialDialog(requireContext()).show {
+            title(R.string.edit_cookie_remark)
+            input(hint = cookieHash) { _, text ->
+                addCookie(
+                    Cookie(
+                        cookieName = text.toString(),
+                        cookieHash = cookieHash
+                    )
+                )
+            }
+            positiveButton(R.string.submit)
         }
     }
 

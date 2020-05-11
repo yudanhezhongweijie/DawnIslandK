@@ -217,7 +217,8 @@
     </string-array>
 
     <string-array name="cookie_addition_options">
-        <item>二维码输入</item>
+        <item>读取本地二维码</item>
+        <item>扫描二维码</item>
         <item>手动输入</item>
     </string-array>
 

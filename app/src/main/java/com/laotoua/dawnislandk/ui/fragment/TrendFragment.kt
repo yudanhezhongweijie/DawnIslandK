@@ -96,7 +96,10 @@ class TrendFragment : Fragment() {
                 sharedVM.setThread(target.toThread(sharedVM.getForumIdByName(target.forum)))
                 val action =
                     PagerFragmentDirections.actionPagerFragmentToReplyFragment()
-                findNavController().navigate(action)
+                /**
+                 *  add prefix to finNav won't fail in simultaneous clicks
+                 */
+                this@TrendFragment.findNavController().navigate(action)
             }
         }
 

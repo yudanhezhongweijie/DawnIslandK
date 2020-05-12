@@ -21,71 +21,63 @@ import timber.log.Timber
 
 object FragmentIntentUtil {
 
-    private fun requestPermission(caller: Fragment, permission: String) {
+    private val allPermissions = arrayOf(
+        Manifest.permission.READ_EXTERNAL_STORAGE,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        Manifest.permission.CAMERA
+    )
+
+    private fun requestSinglePermission(caller: Fragment, permission: String) {
         caller.registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             Timber.i("requesting $permission permission...")
         }(permission)
     }
 
-    fun checkReadStoragePermission(caller: Fragment): Boolean {
+    private fun requestMultiplePermission(caller: Fragment, permissions: Array<String>) {
+        caller.registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+            Timber.i("requesting multiple permissions: $permissions")
+        }(permissions)
+    }
+
+    fun checkAndRequestSinglePermission(
+        caller: Fragment,
+        permission: String,
+        request: Boolean
+    ): Boolean {
         if (caller.requireContext()
-                .checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                .checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED
         ) {
+            val toastMsg = when (permission) {
+                Manifest.permission.READ_EXTERNAL_STORAGE -> R.string.need_read_storage_permission
+                Manifest.permission.WRITE_EXTERNAL_STORAGE -> R.string.need_write_storage_permission
+                Manifest.permission.CAMERA -> R.string.need_take_picture_permission
+                else -> {
+                    throw Exception("Missing handler in checkAndRequestSinglePermission")
+                }
+            }
             Toast.makeText(
                 caller.requireContext(),
-                R.string.need_read_storage_permission,
+                toastMsg,
                 Toast.LENGTH_SHORT
             ).show()
-            requestPermission(
-                caller,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
+            if (request) {
+                requestSinglePermission(caller, permission)
+            }
             return false
         }
         return true
     }
 
-    fun checkWriteStoragePermission(caller: Fragment): Boolean {
-        if (caller.requireContext()
-                .checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-        ) {
-            Toast.makeText(
-                caller.requireContext(),
-                R.string.need_write_storage_permission,
-                Toast.LENGTH_SHORT
-            ).show()
-            requestPermission(
-                caller,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-            return false
-        }
-        return true
-    }
+    fun checkAndRequestAllPermissions(
+        caller: Fragment,
+        permissions: Array<String>? = allPermissions
+    ): Boolean {
+        val missingPermissions = permissions!!.filterNot {
+            checkAndRequestSinglePermission(caller, it, false)
+        }.toTypedArray()
 
-    private fun checkTakePicturePermission(caller: Fragment): Boolean {
-        if (caller.requireContext()
-                .checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
-        ) {
-            Toast.makeText(
-                caller.requireContext(),
-                R.string.need_take_picture_permission,
-                Toast.LENGTH_SHORT
-            ).show()
-            requestPermission(
-                caller,
-                Manifest.permission.CAMERA
-            )
-            return false
-        }
-        return true
-    }
-
-    fun checkPermissions(caller: Fragment): Boolean {
-        var result = checkTakePicturePermission(caller)
-        result = checkReadStoragePermission(caller) && result
-        result = checkWriteStoragePermission(caller) && result
-        return result
+        requestMultiplePermission(caller, missingPermissions)
+        return missingPermissions.isEmpty()
     }
 
     fun getImageFromGallery(caller: Fragment, type: String, callback: (Uri?) -> Unit) {
@@ -96,7 +88,7 @@ object FragmentIntentUtil {
         caller.registerForActivityResult(MyTakePicture(), callback)(uri)
     }
 
-    // temp workaround for Default TakePicture, which might not return thumbnail upon success
+    // temp workaround for Default TakePicture, which *DOES NOT* return thumbnail upon success
     internal class MyTakePicture :
         ActivityResultContract<Uri, Boolean>() {
         @CallSuper

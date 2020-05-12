@@ -1,9 +1,9 @@
 package com.laotoua.dawnislandk.ui.popup
 
+import android.Manifest.permission
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Environment
 import android.view.View
@@ -302,8 +302,12 @@ class PostPopup(private val caller: Fragment, context: Context) :
             }
 
         findViewById<Button>(R.id.postDoodle).setOnClickListener {
-            if (!FragmentIntentUtil.checkWriteStoragePermission(caller)
-                || !FragmentIntentUtil.checkReadStoragePermission(caller)
+            if (!FragmentIntentUtil.checkAndRequestAllPermissions(
+                    caller, arrayOf(
+                        permission.READ_EXTERNAL_STORAGE,
+                        permission.WRITE_EXTERNAL_STORAGE
+                    )
+                )
             ) {
                 return@setOnClickListener
             }
@@ -352,7 +356,10 @@ class PostPopup(private val caller: Fragment, context: Context) :
 
 
         findViewById<Button>(R.id.postImage).setOnClickListener {
-            if (!FragmentIntentUtil.checkReadStoragePermission(caller)) {
+            if (!FragmentIntentUtil.checkAndRequestSinglePermission(
+                    caller, permission.READ_EXTERNAL_STORAGE, true
+                )
+            ) {
                 return@setOnClickListener
             }
             FragmentIntentUtil.getImageFromGallery(caller, "image/*") { uri: Uri? ->
@@ -381,11 +388,12 @@ class PostPopup(private val caller: Fragment, context: Context) :
         }
 
         findViewById<Button>(R.id.postCamera).setOnClickListener {
-            if (!caller.requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
-                Toast.makeText(context, R.string.need_camera, Toast.LENGTH_LONG).show()
-                return@setOnClickListener
-            }
-            if (!FragmentIntentUtil.checkPermissions(caller)) {
+            if (!FragmentIntentUtil.checkAndRequestSinglePermission(
+                    caller,
+                    permission.CAMERA,
+                    true
+                )
+            ) {
                 return@setOnClickListener
             }
             val timeStamp: String = ReadableTime.getFilenamableTime(System.currentTimeMillis())

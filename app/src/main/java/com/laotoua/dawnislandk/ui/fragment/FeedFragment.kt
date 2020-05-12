@@ -121,9 +121,9 @@ class FeedFragment : Fragment() {
                 true
             }
 
-            addChildClickViewIds(R.id.threadImage)
+            addChildClickViewIds(R.id.attachedImage)
             setOnItemChildClickListener { adapter, view, position ->
-                if (view.id == R.id.threadImage) {
+                if (view.id == R.id.attachedImage) {
                     val url = (adapter.getItem(
                         position
                     ) as Thread).getImgUrl()

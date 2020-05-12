@@ -13,6 +13,7 @@ import com.laotoua.dawnislandk.data.entity.Forum
 import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
 import com.laotoua.dawnislandk.ui.adapter.QuickNodeAdapter
+import com.laotoua.dawnislandk.ui.popup.QuotePopup
 import com.laotoua.dawnislandk.ui.util.ToolBarUtil.immersiveToolbarInitialization
 import com.laotoua.dawnislandk.viewmodel.CommunityViewModel
 import com.laotoua.dawnislandk.viewmodel.LoadingStatus
@@ -99,6 +100,11 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
     }
 
     override fun onBackPressed() {
+        /**
+         *  Catch for popup which failed to request focus
+         */
+        if (!QuotePopup.ensureQuotePopupDismissal()) return
+
         if (!doubleBackToExitPressedOnce &&
             findNavController(R.id.navHostFragment).previousBackStackEntry == null
         ) {

@@ -51,7 +51,7 @@ class SizeCustomizationFragment : Fragment() {
             false
         ) as MaterialCardView
     }
-    private val demoCardContainer: ConstraintLayout by lazy { demoCard.threadContainer }
+    private val demoCardContainer: ConstraintLayout by lazy { demoCard.cardContainer }
     private var charSequence: CharSequence? = null
 
     private val progressContainer by lazy { LinearLayout(requireContext()) }
@@ -66,7 +66,7 @@ class SizeCustomizationFragment : Fragment() {
 
         ThreadCardFactory.applySettings(demoCard)
 
-        val threadForumAndReplyCount = SpannableString(demoCard.threadForumAndReplyCount.text)
+        val threadForumAndReplyCount = SpannableString(demoCard.forumAndReplyCount.text)
         threadForumAndReplyCount.setSpan(
             RoundBackgroundColorSpan(
                 Color.parseColor("#12DBD1"),
@@ -74,14 +74,14 @@ class SizeCustomizationFragment : Fragment() {
             ), 0, threadForumAndReplyCount.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE
         )
 
-        val threadContent = SpannableString(demoCard.threadContent.text)
+        val threadContent = SpannableString(demoCard.content.text)
         threadContent.setSpan(
             SegmentSpacingSpan(
                 ThreadCardFactory.lineHeight,
                 ThreadCardFactory.segGap
             ), 0, threadContent.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE
         )
-        demoCard.threadContent.apply {
+        demoCard.content.apply {
             setText(threadContent, TextView.BufferType.SPANNABLE)
             letterSpacing = ThreadCardFactory.letterSpace
             textSize = ThreadCardFactory.mainTextSize
@@ -259,7 +259,7 @@ class SizeCustomizationFragment : Fragment() {
             var res = progress
             val cardLayoutParams = demoCard.layoutParams as MarginLayoutParams
 
-            val contentView: View = demoCard.findViewById(R.id.threadContent)
+            val contentView: View = demoCard.findViewById(R.id.content)
             when (seekBar.id) {
                 mainTextSize -> {
                     res += Constants.MAIN_TEXT_MIN_SIZE

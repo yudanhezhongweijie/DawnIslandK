@@ -25,6 +25,7 @@ import com.lxj.xpopup.core.CenterPopupView
 import com.lxj.xpopup.interfaces.SimpleCallback
 import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.launch
+import java.util.*
 
 @SuppressLint("ViewConstructor")
 class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupView(context) {
@@ -103,7 +104,7 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
         val referenceClickListener: (id: String) -> Unit = { id ->
             // TODO: get Po based on Thread
             val quotePopup = QuotePopup(caller, context)
-            showQuote(caller, context, quotePopup, id, po, this)
+            showQuote(caller, context, quotePopup, id, po)
         }
 
         findViewById<TextView>(R.id.quoteContent).run {
@@ -113,28 +114,46 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
             )
             letterSpacing = mLetterSpace
         }
+    }
 
+    override fun onDismiss() {
+        super.onDismiss()
+        quoteStack.pop()
+        if (!quoteStack.empty()) {
+            quoteStack.peek().requestFocus()
+        }
     }
 
     companion object {
         private val mLetterSpace by lazy { MMKV.defaultMMKV().getFloat(Constants.LETTER_SPACE, 0f) }
         private val mLineHeight by lazy { MMKV.defaultMMKV().getInt(Constants.LINE_HEIGHT, 0) }
         private val mSegGap by lazy { MMKV.defaultMMKV().getInt(Constants.SEG_GAP, 0) }
+
+        private var quoteStack: Stack<QuotePopup> = Stack()
+
+        fun ensureQuotePopupDismissal(): Boolean {
+            val empty = quoteStack.empty()
+            if (!empty) {
+                quoteStack.peek().dismiss()
+            }
+            return empty
+        }
+
         fun showQuote(
             caller: Fragment,
             context: Context,
             quotePopup: QuotePopup,
             id: String,
-            po: String,
-            parentPopup: QuotePopup? = null
+            po: String
         ) {
+            quoteStack.push(quotePopup)
             caller.lifecycleScope.launch {
                 DataResource.create(NMBServiceClient.getQuote(id)).run {
                     when (this) {
                         is DataResource.Error -> {
                             Toast.makeText(
                                 context,
-                                "${message}...",
+                                "$message...",
                                 Toast.LENGTH_SHORT
                             )
                                 .show()
@@ -149,7 +168,6 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
                                 })
                                 .asCustom(quotePopup)
                                 .show()
-                                .dismissWith { parentPopup?.requestFocus() }
                         }
                     }
                 }

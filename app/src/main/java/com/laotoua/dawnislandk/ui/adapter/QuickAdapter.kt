@@ -74,15 +74,15 @@ class QuickAdapter(private val layoutResId: Int) :
      */
     override fun convert(holder: BaseViewHolder, item: Any) {
         if (layoutResId == R.layout.list_item_thread && item is Thread) {
-            convertThread(holder, item, sharedViewModel.getForumDisplayName(item.fid!!))
+            holder.convertThread(item, sharedViewModel.getForumDisplayName(item.fid!!))
         } else if (layoutResId == R.layout.list_item_reply && item is Reply) {
-            convertReply(holder, item, po)
+            holder.convertReply(item, po)
         } else if (layoutResId == R.layout.list_item_trend && item is Trend) {
-            convertTrend(holder, item)
+            holder.convertTrend(item)
         } else if (layoutResId == R.layout.grid_item_emoji && item is String) {
-            convertEmoji(holder, item)
+            holder.convertEmoji(item)
         } else if (layoutResId == R.layout.grid_item_luwei_sticker && item is String) {
-            convertLuweiSticker(holder, item)
+            holder.convertLuweiSticker(item)
         } else {
             throw Exception("Unhandled conversion in adapter")
         }
@@ -90,13 +90,12 @@ class QuickAdapter(private val layoutResId: Int) :
 
     override fun convert(holder: BaseViewHolder, item: Any, payloads: List<Any>) {
         if (layoutResId == R.layout.list_item_thread && item is Thread) {
-            convertThreadWithPayload(
-                holder,
+            holder.convertThreadWithPayload(
                 payloads.first() as Payload.ThreadPayload,
                 sharedViewModel.getForumDisplayName(item.fid!!)
             )
         } else if (layoutResId == R.layout.list_item_reply && item is Reply) {
-            convertReplyWithPayload(holder, payloads.first() as Payload.ReplyPayload)
+            holder.convertReplyWithPayload(payloads.first() as Payload.ReplyPayload)
         } else {
             Timber.e("unhandled payload conversion")
             throw Exception("unhandled payload conversion")
@@ -113,225 +112,155 @@ class QuickAdapter(private val layoutResId: Int) :
         }
     }
 
-    private fun convertThread(card: BaseViewHolder, item: Thread, forumDisplayName: String) {
-        card.setText(
-            R.id.threadCookie,
-            ContentTransformationUtil.transformCookie(
-                item.userid,
-                item.admin
-            )
-        )
-        card.setText(
-            R.id.threadTime,
-            ContentTransformationUtil.transformTime(item.now)
-        )
-        val suffix = if (item.replyCount != null) " • " + item.replyCount else ""
-        val spannableString = SpannableString(forumDisplayName + suffix)
-        spannableString.setSpan(
-            RoundBackgroundColorSpan(
-                Color.parseColor("#12DBD1"),
-                Color.parseColor("#FFFFFF")
-            ), 0, spannableString.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE
-        )
 
-        card.getView<TextView>(R.id.threadForumAndReplyCount)
-            .setText(spannableString, TextView.BufferType.SPANNABLE)
-
-        // sage
-        if (item.sage == "1") {
-            card.setVisible(R.id.sage, true)
-        } else {
-            card.setGone(R.id.sage, true)
-        }
-
-        // load image
-        if (item.img != "") {
-            GlideApp.with(context)
-                .load(thumbCDN + item.img + item.ext)
-                .override(100, 100)
-                .fitCenter()
-                .into(card.getView(R.id.threadImage))
-            card.setVisible(R.id.threadImage, true)
-        } else {
-            card.setGone(R.id.threadImage, true)
-        }
-
-        ContentTransformationUtil.transformContent(item.content, mLineHeight, mSegGap).apply {
-            if (isEmpty()) card.setGone(R.id.threadContent, true)
-            else {
-                card.setText(R.id.threadContent, this)
-                card.setVisible(R.id.threadContent, true)
-                card.getView<TextView>(R.id.threadContent).apply {
-                    textSize = mTextSize
-                    letterSpacing = mLetterSpace
-                }
-            }
-        }
+    private fun BaseViewHolder.convertThread(item: Thread, forumDisplayName: String) {
+        convertUserId(item.userid, item.admin)
+        convertTimeStamp(item.now)
+        convertForumAndReply(item.replyCount, forumDisplayName)
+        convertSage(item.sage)
+        convertImage(item.img, item.ext)
+        convertContent(item.content, false)
     }
 
-    private fun convertThreadWithPayload(
-        card: BaseViewHolder,
+    private fun BaseViewHolder.convertThreadWithPayload(
         payload: Payload.ThreadPayload, forumDisplayName: String
     ) {
-        card.setText(
-            R.id.threadTime,
-            ContentTransformationUtil.transformTime(payload.now)
-        )
-        val suffix = if (payload.replyCount != null) " • " + payload.replyCount else ""
-        val spannableString = SpannableString(forumDisplayName + suffix)
-        spannableString.setSpan(
-            RoundBackgroundColorSpan(
-                Color.parseColor("#12DBD1"),
-                Color.parseColor("#FFFFFF")
-            ), 0, spannableString.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE
-        )
-
-        card.getView<TextView>(R.id.threadForumAndReplyCount)
-            .setText(spannableString, TextView.BufferType.SPANNABLE)
-
-        // sage
-        if (payload.sage == "1") {
-            card.setVisible(R.id.sage, true)
-        } else {
-            card.setGone(R.id.sage, true)
-        }
-        ContentTransformationUtil.transformContent(payload.content, mLineHeight, mSegGap)
-            .apply {
-                if (isEmpty()) card.setGone(R.id.threadContent, true)
-                else {
-                    card.setText(R.id.threadContent, this)
-                    card.setVisible(R.id.threadContent, true)
-                    card.getView<TextView>(R.id.threadContent).apply {
-                        textSize = mTextSize
-                        letterSpacing = mLetterSpace
-                    }
-                }
-            }
+        convertTimeStamp(payload.now)
+        convertForumAndReply(payload.replyCount, forumDisplayName)
+        convertSage(payload.sage)
+        convertContent(payload.content, false)
     }
 
-    private fun convertReply(card: BaseViewHolder, item: Reply, po: String) {
-        card.setText(
-            R.id.replyCookie,
-            ContentTransformationUtil.transformCookie(
-                item.userid,
-                item.admin!!,
-                po
-            )
-        )
-
-        card.setText(
-            R.id.replyTime,
-            ContentTransformationUtil.transformTime(item.now)
-        )
-        // TODO: handle ads
-        card.setText(R.id.replyId, item.id)
-
-        if (item.sage == "1") {
-            card.setVisible(R.id.sage, true)
-        } else {
-            card.setGone(R.id.sage, true)
-        }
-
-        val titleAndName =
-            ContentTransformationUtil.transformTitleAndName(
-                item.title,
-                item.name
-            )
-        if (titleAndName != "") {
-            card.setText(R.id.replyTitleAndName, titleAndName)
-            card.setVisible(R.id.replyTitleAndName, true)
-        } else {
-            card.setGone(R.id.replyTitleAndName, true)
-        }
-
-        // load image
-        if (item.img != "") {
-            GlideApp.with(context)
-                .load(thumbCDN + item.img + item.ext)
-                .override(250, 250)
-                .fitCenter()
-                .into(card.getView(R.id.replyImage))
-            card.setVisible(R.id.replyImage, true)
-        } else {
-            card.setGone(R.id.replyImage, true)
-        }
-
-        ContentTransformationUtil.transformContent(
-            item.content,
-            mLineHeight,
-            mSegGap,
-            referenceClickListener
-        ).apply {
-            if (isEmpty()) card.setGone(R.id.replyContent, true)
-            else {
-                card.setText(R.id.replyContent, this)
-                card.setVisible(R.id.replyContent, true)
-                /**
-                 *  special handler for clickable spans
-                 */
-                card.getView<TextView>(R.id.replyContent).apply {
-                    movementMethod = LinkMovementMethod.getInstance()
-                    letterSpacing = mLetterSpace
-                    textSize = mTextSize
-                }
-            }
-        }
+    private fun BaseViewHolder.convertReply(item: Reply, po: String) {
+        convertUserId(item.userid, item.admin!!, po)
+        convertTimeStamp(item.now)
+        convertSage(item.sage)
+        convertImage(item.img, item.ext)
+        convertContent(item.content, true, referenceClickListener)
+        convertRefId(item.id)
+        convertTitleAndName(item.title, item.name)
     }
 
-    private fun convertReplyWithPayload(
-        card: BaseViewHolder,
+    private fun BaseViewHolder.convertReplyWithPayload(
         payload: Payload.ReplyPayload
     ) {
-        card.setText(
-            R.id.replyTime,
-            ContentTransformationUtil.transformTime(payload.now)
-        )
-
-        // sage
-        if (payload.sage == "1") {
-            card.setVisible(R.id.sage, true)
-        } else {
-            card.setGone(R.id.sage, true)
-        }
-        ContentTransformationUtil.transformContent(payload.content, mLineHeight, mSegGap)
-            .apply {
-                if (isEmpty()) card.setGone(R.id.replyContent, true)
-                else {
-                    card.setText(R.id.replyContent, this)
-                    card.setVisible(R.id.replyContent, true)
-                    card.getView<TextView>(R.id.replyContent).apply {
-                        textSize = mTextSize
-                        letterSpacing = mLetterSpace
-                    }
-                }
-            }
+        convertTimeStamp(payload.now)
+        convertSage(payload.sage)
+        convertContent(payload.content, true, referenceClickListener)
     }
 
-    private fun convertTrend(card: BaseViewHolder, item: Trend) {
-        card.setText(R.id.trendRank, item.rank)
-        card.setText(R.id.trendId, item.id)
-        card.setText(R.id.trendForum, item.forum)
-        card.setText(R.id.trendHits, item.hits)
-        card.setText(
-            R.id.trendContent,
-            ContentTransformationUtil.transformContent(item.content, mLineHeight, mSegGap)
-        )
-        card.getView<TextView>(R.id.trendContent).apply {
-            letterSpacing = mLetterSpace
-            textSize = mTextSize
-        }
+    private fun BaseViewHolder.convertTrend(item: Trend) {
+        setText(R.id.trendRank, item.rank)
+        convertRefId(item.id)
+        setText(R.id.trendForum, item.forum)
+        setText(R.id.hits, item.hits)
+        convertContent(item.content, false)
     }
 
-    private fun convertEmoji(card: BaseViewHolder, item: String) {
-        card.setText(R.id.emoji, item)
+    private fun BaseViewHolder.convertEmoji(item: String) {
+        setText(R.id.emoji, item)
     }
 
-    private fun convertLuweiSticker(card: BaseViewHolder, item: String) {
+    private fun BaseViewHolder.convertLuweiSticker(item: String) {
         val resourceId: Int = context.resources.getIdentifier(
             "le$item", "drawable",
             context.packageName
         )
-        card.setImageResource(R.id.luweiSticker, resourceId)
+        setImageResource(R.id.luweiSticker, resourceId)
+    }
+
+
+    private fun BaseViewHolder.convertUserId(
+        userId: String,
+        admin: String,
+        po: String = ""
+    ) {
+        setText(R.id.userId, ContentTransformationUtil.transformCookie(userId, admin, po))
+    }
+
+    private fun BaseViewHolder.convertTimeStamp(now: String) {
+        setText(R.id.timestamp, ContentTransformationUtil.transformTime(now))
+    }
+
+    private fun BaseViewHolder.convertForumAndReply(replyCount: String?, forumDisplayName: String) {
+        val suffix = if (replyCount != null) " • $replyCount" else ""
+        val spannableString = SpannableString(forumDisplayName + suffix)
+        spannableString.setSpan(
+            RoundBackgroundColorSpan(
+                Color.parseColor("#12DBD1"),
+                Color.parseColor("#FFFFFF")
+            ), 0, spannableString.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+        )
+
+        getView<TextView>(R.id.forumAndReplyCount)
+            .setText(spannableString, TextView.BufferType.SPANNABLE)
+    }
+
+    private fun BaseViewHolder.convertRefId(id: String) {
+        // TODO: handle ads
+        setText(R.id.refId, id)
+    }
+
+    private fun BaseViewHolder.convertTitleAndName(title: String?, name: String?) {
+        val titleAndName =
+            ContentTransformationUtil.transformTitleAndName(
+                title,
+                name
+            )
+        if (titleAndName != "") {
+            setText(R.id.titleAndName, titleAndName)
+            setVisible(R.id.titleAndName, true)
+        } else {
+            setGone(R.id.titleAndName, true)
+        }
+    }
+
+    private fun BaseViewHolder.convertSage(sage: String?) {
+        if (sage == "1") {
+            setVisible(R.id.sage, true)
+        } else {
+            setGone(R.id.sage, true)
+        }
+    }
+
+    private fun BaseViewHolder.convertImage(img: String, ext: String) {
+        if (img != "") {
+            GlideApp.with(context)
+                .load(thumbCDN + img + ext)
+                .override(100, 100)
+                .fitCenter()
+                .into(getView(R.id.attachedImage))
+            setVisible(R.id.attachedImage, true)
+        } else {
+            setGone(R.id.attachedImage, true)
+        }
+    }
+
+    private fun BaseViewHolder.convertContent(
+        content: String,
+        clickable: Boolean,
+        referenceClickListener: ((String) -> Unit)? = null
+    ) {
+        val res = ContentTransformationUtil.transformContent(
+            content,
+            mLineHeight,
+            mSegGap,
+            referenceClickListener
+        )
+
+        if (res.isEmpty()) setGone(R.id.content, true)
+        else {
+            setText(R.id.content, res)
+            setVisible(R.id.content, true)
+            getView<TextView>(R.id.content).apply {
+                /**
+                 *  special handler for clickable spans
+                 */
+                if (clickable) movementMethod = LinkMovementMethod.getInstance()
+                textSize = mTextSize
+                letterSpacing = mLetterSpace
+            }
+        }
     }
 
     private class DiffItemCallback : DiffUtil.ItemCallback<Any>() {

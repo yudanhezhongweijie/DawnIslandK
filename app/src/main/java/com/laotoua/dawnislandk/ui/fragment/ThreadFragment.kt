@@ -120,9 +120,9 @@ class ThreadFragment : Fragment() {
                 this@ThreadFragment.findNavController().navigate(action)
             }
 
-            addChildClickViewIds(R.id.threadImage)
+            addChildClickViewIds(R.id.attachedImage)
             setOnItemChildClickListener { adapter, view, position ->
-                if (view.id == R.id.threadImage) {
+                if (view.id == R.id.attachedImage) {
                     hideMenu()
                     val url = (adapter.getItem(
                         position

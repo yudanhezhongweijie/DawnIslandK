@@ -111,17 +111,19 @@ object ContentTransformationUtil {
         content: SpannableStringBuilder,
         referenceClickListener: ((id: String) -> Unit)? = null
     ): SpannableStringBuilder {
-        val m: Matcher = REFERENCE_PATTERN.matcher(content)
-        while (m.find()) {
-            val start = m.start()
-            val end = m.end()
-            val referenceSpan = ReferenceSpan(m.group(1)!!, referenceClickListener)
-            content.setSpan(
-                referenceSpan,
-                start,
-                end,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
+        if (referenceClickListener != null) {
+            val m: Matcher = REFERENCE_PATTERN.matcher(content)
+            while (m.find()) {
+                val start = m.start()
+                val end = m.end()
+                val referenceSpan = ReferenceSpan(m.group(1)!!, referenceClickListener)
+                content.setSpan(
+                    referenceSpan,
+                    start,
+                    end,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
         }
         return content
     }

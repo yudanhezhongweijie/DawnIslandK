@@ -142,12 +142,12 @@ class ReplyFragment : Fragment() {
 
             // image
             addChildClickViewIds(
-                R.id.replyImage,
-                R.id.replyId
+                R.id.attachedImage,
+                R.id.refId
             )
 
             setOnItemChildClickListener { adapter, view, position ->
-                if (view.id == R.id.replyImage) {
+                if (view.id == R.id.attachedImage) {
                     hideMenu()
                     Timber.i("clicked on image at $position")
 
@@ -156,13 +156,11 @@ class ReplyFragment : Fragment() {
                     val viewerPopup = ImageViewerPopup(this@ReplyFragment, requireContext(), url)
                     viewerPopup.setXPopupImageLoader(imageLoader)
                     viewerPopup.setSingleSrcView(view as ImageView?, url)
-                    viewerPopup.setOnClickListener {
-                        Timber.i("on click in thread")
-                    }
+
                     XPopup.Builder(context)
                         .asCustom(viewerPopup)
                         .show()
-                } else if (view.id == R.id.replyId) {
+                } else if (view.id == R.id.refId) {
                     // TODO
                     val replyId = (view as TextView).text
                     Timber.i("replyId: $replyId")

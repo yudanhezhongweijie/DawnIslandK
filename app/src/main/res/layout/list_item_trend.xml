@@ -31,7 +31,7 @@
             android:id="@+id/trendRank"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="1"
+            android:text="@string/sample_trend_rank"
             android:textSize="36sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -46,19 +46,19 @@
             android:paddingTop="2dp"
             android:paddingRight="10dp"
             android:paddingBottom="2dp"
-            android:text="欢乐恶搞"
+            android:text="@string/sample_forum"
             android:textColor="#FCFCFC"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/trendContent"
+            android:id="@+id/content"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:text="我脏了我脏了我脏了我脏了我脏了我脏了我脏了我脏了我脏了我脏了我脏了我脏了我脏了"
+            android:text="@string/sample_thread_content"
             android:textColor="@color/mainContentTextColor"
             android:textSize="15sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -66,44 +66,45 @@
             app:layout_constraintTop_toBottomOf="@+id/trendForum" />
 
         <TextView
-            android:id="@+id/trendIdPrefix"
+            android:id="@+id/refIdPrefix"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="No."
+            android:text="@string/number_prefix"
             app:layout_constraintStart_toEndOf="@+id/trendDivider"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/trendId"
+            android:id="@+id/refId"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="15786353"
-            app:layout_constraintStart_toEndOf="@+id/trendIdPrefix"
+            android:text="@string/sample_ref_id"
+            app:layout_constraintStart_toEndOf="@+id/refIdPrefix"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/trendHits"
+            android:id="@+id/hits"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="2dp"
-            android:text="256"
+            android:text="@string/sample_trend_hits"
             android:textColor="#FF9393"
             android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@+id/trendFireIcon"
+            app:layout_constraintStart_toEndOf="@+id/fireIcon"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            android:id="@+id/trendFireIcon"
+            android:id="@+id/fireIcon"
             android:layout_width="16dp"
             android:layout_height="16dp"
             android:layout_marginStart="8dp"
             android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toTopOf="@+id/trendContent"
-            app:layout_constraintStart_toEndOf="@+id/trendId"
+            app:layout_constraintBottom_toTopOf="@+id/content"
+            app:layout_constraintStart_toEndOf="@+id/refId"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_whatshot_24px"
-            app:tint="#FB3E3E" />
+            app:srcCompat="@drawable/ic_whats_hot_24px"
+            app:tint="#FB3E3E"
+            android:contentDescription="@string/image_description" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

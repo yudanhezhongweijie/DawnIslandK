@@ -13,77 +13,78 @@
     app:cardElevation="2dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/threadContainer"
+        android:id="@+id/cardContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="15dp">
 
         <TextView
-            android:id="@+id/threadCookie"
+            android:id="@+id/userId"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:text="dfsgdfa"
+            android:text="@string/sample_user_id"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/threadTime"
+            android:id="@+id/timestamp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="2dp"
             android:layout_weight="1"
-            android:text="2小时前"
-            app:layout_constraintStart_toEndOf="@id/threadCookie"
+            android:text="@string/sample_timestamp_simplified"
+            app:layout_constraintStart_toEndOf="@id/userId"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/threadForumAndReplyCount"
+            android:id="@+id/forumAndReplyCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingLeft="10dp"
             android:paddingTop="2dp"
             android:paddingRight="10dp"
             android:paddingBottom="2dp"
-            android:text="欢乐恶搞 ·  12"
+            android:text="@string/sample_forum_and_reply"
             android:textColor="#FCFCFC"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/threadContent"
+            android:id="@+id/content"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="2dp"
             android:ellipsize="end"
             android:maxLines="10"
-            android:text="北分则易红在保，干品政两报米术，料询容保美。\n该府术没也例空解，法露作长心录。 六深事会部青目传向市始，西法医很呀体近数片。\n活林变须阶候业精六只团起已市，下头却广局正支。"
+            android:text="@string/sample_thread_content"
             android:textColor="@color/mainContentTextColor"
             android:textSize="16sp"
-            app:layout_constraintEnd_toStartOf="@+id/threadImage"
+            app:layout_constraintEnd_toStartOf="@id/attachedImage"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/threadCookie" />
+            app:layout_constraintTop_toBottomOf="@id/userId" />
 
         <ImageView
-            android:id="@id/threadImage"
+            android:id="@+id/attachedImage"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_marginTop="9dp"
             android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/threadCookie"
-            app:srcCompat="@mipmap/ic_launcher" />
+            app:layout_constraintTop_toBottomOf="@id/userId"
+            app:srcCompat="@mipmap/ic_launcher"
+            android:contentDescription="@string/image_description" />
 
         <TextView
             android:id="@+id/sage"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:background="@drawable/sage_background"
-            android:text="本串已被sage"
+            android:text="@string/sage_text"
             android:textStyle="bold"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"

@@ -86,4 +86,19 @@
     <string name="content_margin_left" translatable="false">内容左边距</string>
     <string name="content_margin_right" translatable="false">内容右边距</string>
     <string name="content_margin_bottom" translatable="false">内容下边距</string>
+
+    <string name="sage_text" translatable="false">本串已被sage</string>
+    <string name="sample_ref_id" translatable="false">23333333</string>
+    <string name="sample_user_id" translatable="false">sAMPlEUserID</string>
+    <string name="sample_content_reply" translatable="false">测试测试测试</string>
+    <string name="sample_timestamp_plain" translatable="false">2/7 23:23:12</string>
+    <string name="sample_title_and_name" translatable="false">标题：哈哈哈\n作者：咩咩咩</string>
+    <string name="number_prefix" translatable="false">No.</string>
+    <string name="sample_timestamp_simplified" translatable="false">2小时前</string>
+    <string name="sample_forum_and_reply" translatable="false">欢乐恶搞 · 12</string>
+    <string name="sample_thread_content" translatable="false">北分则易红在保，干品政两报米术，料询容保美。\n该府术没也例空解，法露作长心录。 六深事会部青目传向市始，西法医很呀体近数片。\n活林变须阶候业精六只团起已市，下头却广局正支。</string>
+    <string name="image_description" translatable="false">图片</string>
+    <string name="sample_trend_rank" translatable="false">13</string>
+    <string name="sample_forum" translatable="false">欢乐恶搞</string>
+    <string name="sample_trend_hits" translatable="false">256</string>
 </resources>

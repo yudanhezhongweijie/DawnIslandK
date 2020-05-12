@@ -13,39 +13,39 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:text="本串已被sage"
+        android:text="@string/sage_text"
         android:textColor="#B9FF0F0F"
-        android:textSize="10sp"
+        android:textSize="12sp"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/replyCookie" />
+        app:layout_constraintTop_toBottomOf="@id/userId" />
 
     <TextView
-        android:id="@+id/replyId"
+        android:id="@+id/refId"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="23333333"
+        android:text="@string/sample_ref_id"
         android:textAppearance="@style/ContentBarText"
         android:textSize="13sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/replyCookie"
+        android:id="@+id/userId"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Rdsfgag"
+        android:text="@string/sample_user_id"
         android:textAppearance="@style/ContentBarText"
         android:textSize="13sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/replyContent"
+        android:id="@+id/content"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
-        android:text="测试测试测试"
+        android:text="@string/sample_content_reply"
         android:textColor="@color/mainContentTextColor"
         android:textIsSelectable="true"
         android:textSize="16sp"
@@ -54,22 +54,22 @@
         app:layout_constraintTop_toBottomOf="@id/barrier" />
 
     <TextView
-        android:id="@+id/replyTime"
+        android:id="@+id/timestamp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:text="2/7 23:23:12"
+        android:text="@string/sample_timestamp_plain"
         android:textAppearance="@style/ContentBarText"
         android:textSize="13sp"
-        app:layout_constraintStart_toEndOf="@id/replyCookie"
+        app:layout_constraintStart_toEndOf="@id/userId"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/replyTitleAndName"
+        android:id="@+id/titleAndName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="标题：哈哈哈\n作者：咩咩咩"
-        android:textSize="10sp"
+        android:text="@string/sample_title_and_name"
+        android:textSize="12sp"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/sage" />
@@ -79,29 +79,29 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:constraint_referenced_ids="replyCookie,sage,replyTitleAndName"
+        app:constraint_referenced_ids="userId,sage,titleAndName"
         tools:layout_editor_absoluteX="5dp"
         tools:layout_editor_absoluteY="731dp" />
 
     <TextView
-        android:id="@+id/replyIdSuffix"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="No."
+        android:text="@string/number_prefix"
         android:textAppearance="@style/ContentBarText"
         android:textSize="13sp"
-        app:layout_constraintEnd_toStartOf="@id/replyId"
+        app:layout_constraintEnd_toStartOf="@id/refId"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/replyImage"
+        android:id="@+id/attachedImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="3dp"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/replyContent"
-        app:srcCompat="@mipmap/ic_launcher" />
+        app:layout_constraintTop_toBottomOf="@id/content"
+        app:srcCompat="@mipmap/ic_launcher"
+        android:contentDescription="@string/image_description" />
 
     <View
         android:id="@+id/bottomBorder"
@@ -109,7 +109,7 @@
         android:layout_height="1.2dp"
         android:layout_marginTop="8dp"
         android:background="#E0E0E0"
-        app:layout_constraintTop_toBottomOf="@id/replyImage"
+        app:layout_constraintTop_toBottomOf="@id/attachedImage"
         tools:layout_editor_absoluteX="12dp" />
 
 

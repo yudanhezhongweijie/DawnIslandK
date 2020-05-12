@@ -102,7 +102,7 @@ object ThreadCardFactory {
 
         cardView.radius = cardRadius
         cardView.elevation = cardElevation
-        val threadContainer = cardView.findViewById<ConstraintLayout>(R.id.threadContainer)
+        val threadContainer = cardView.findViewById<ConstraintLayout>(R.id.cardContainer)
         threadContainer.setPadding(
             contentMarginLeft,
             headBarMarginTop,
@@ -110,7 +110,7 @@ object ThreadCardFactory {
             contentMarginBottom
         )
 
-        val threadContent = cardView.findViewById<TextView>(R.id.threadContent)
+        val threadContent = cardView.findViewById<TextView>(R.id.content)
         val contentLayoutParam = threadContent.layoutParams as ConstraintLayout.LayoutParams
 
         contentLayoutParam.topMargin = contentMarginTop

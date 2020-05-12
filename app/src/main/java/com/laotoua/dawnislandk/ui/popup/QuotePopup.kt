@@ -103,7 +103,7 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
         val referenceClickListener: (id: String) -> Unit = { id ->
             // TODO: get Po based on Thread
             val quotePopup = QuotePopup(caller, context)
-            showQuote(caller, context, quotePopup, id, po)
+            showQuote(caller, context, quotePopup, id, po, this)
         }
 
         findViewById<TextView>(R.id.quoteContent).run {
@@ -112,12 +112,6 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
                 quote.content, mLineHeight, mSegGap, referenceClickListener
             )
             letterSpacing = mLetterSpace
-            setOnFocusChangeListener { v, hasFocus ->
-                if (hasFocus) {
-                    v.clearFocus()
-                    this@QuotePopup.requestFocus()
-                }
-            }
         }
 
     }
@@ -131,7 +125,8 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
             context: Context,
             quotePopup: QuotePopup,
             id: String,
-            po: String
+            po: String,
+            parentPopup: QuotePopup? = null
         ) {
             caller.lifecycleScope.launch {
                 DataResource.create(NMBServiceClient.getQuote(id)).run {
@@ -154,10 +149,12 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
                                 })
                                 .asCustom(quotePopup)
                                 .show()
+                                .dismissWith { parentPopup?.requestFocus() }
                         }
                     }
                 }
             }
         }
+
     }
 }

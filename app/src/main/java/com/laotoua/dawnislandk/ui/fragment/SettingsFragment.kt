@@ -1,5 +1,6 @@
 package com.laotoua.dawnislandk.ui.fragment
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Bundle
@@ -152,9 +153,16 @@ class SettingsFragment : Fragment() {
                         when (index) {
                             0 -> getCookieImage.launch("image/*")
                             1 -> {
-                                FragmentIntentUtil.getCookieFromQRCode(this@SettingsFragment) {
-                                    it?.run {
-                                        saveCookieWithInputName(it)
+                                if (FragmentIntentUtil.checkAndRequestSinglePermission(
+                                        this@SettingsFragment,
+                                        Manifest.permission.CAMERA,
+                                        true
+                                    )
+                                ) {
+                                    FragmentIntentUtil.getCookieFromQRCode(this@SettingsFragment) {
+                                        it?.run {
+                                            saveCookieWithInputName(it)
+                                        }
                                     }
                                 }
                             }

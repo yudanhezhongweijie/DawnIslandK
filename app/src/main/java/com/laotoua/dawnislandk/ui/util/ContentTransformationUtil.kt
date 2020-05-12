@@ -177,9 +177,13 @@ object ContentTransformationUtil {
         while (m.find()) {
             val start = m.start()
             val end = m.end()
-            val hideSpan = HideSpan(start, end)
-            content.setSpan(hideSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-            hideSpan.hideSecret(content, start, end)
+            /**
+             *  remove surrounding [h][/h]
+             */
+            content.replace(start, end, content.subSequence(start + 3, end - 4))
+            val hideSpan = HideSpan(start, end - 7)
+            content.setSpan(hideSpan, start, end - 7, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            hideSpan.hideSecret(content, start, end - 7)
         }
         return content
     }

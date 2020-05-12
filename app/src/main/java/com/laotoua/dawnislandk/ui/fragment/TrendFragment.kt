@@ -17,6 +17,7 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.entity.Trend
 import com.laotoua.dawnislandk.databinding.FragmentTrendBinding
 import com.laotoua.dawnislandk.ui.adapter.QuickAdapter
+import com.laotoua.dawnislandk.ui.util.ToolBarUtil.immersiveToolbar
 import com.laotoua.dawnislandk.ui.util.UIUtils.updateHeaderAndFooter
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 import com.laotoua.dawnislandk.viewmodel.TrendViewModel
@@ -47,6 +48,7 @@ class TrendFragment : Fragment() {
         _binding = FragmentTrendBinding.inflate(inflater, container, false)
 
         binding.toolbarLayout.toolbar.apply {
+            immersiveToolbar()
             setTitle(R.string.trend)
             setSubtitle(R.string.adnmb)
             val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)

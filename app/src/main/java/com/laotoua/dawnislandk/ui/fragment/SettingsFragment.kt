@@ -24,6 +24,7 @@ import com.laotoua.dawnislandk.databinding.ListItemCookieBinding
 import com.laotoua.dawnislandk.io.FragmentIntentUtil
 import com.laotoua.dawnislandk.io.ImageUtil
 import com.laotoua.dawnislandk.ui.popup.CookieAdditionPopup
+import com.laotoua.dawnislandk.ui.util.ToolBarUtil.immersiveToolbar
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.interfaces.SimpleCallback
 import com.tencent.mmkv.MMKV
@@ -78,6 +79,7 @@ class SettingsFragment : Fragment() {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
 
         binding.toolbarLayout.toolbar.apply {
+            immersiveToolbar()
             setTitle(R.string.settings)
             subtitle = ""
             val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)

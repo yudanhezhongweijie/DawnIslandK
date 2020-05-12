@@ -13,7 +13,7 @@ import com.laotoua.dawnislandk.data.entity.Forum
 import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
 import com.laotoua.dawnislandk.ui.adapter.QuickNodeAdapter
-import com.laotoua.dawnislandk.ui.util.StatusBarUtil
+import com.laotoua.dawnislandk.ui.util.ToolBarUtil.immersiveToolbarInitialization
 import com.laotoua.dawnislandk.viewmodel.CommunityViewModel
 import com.laotoua.dawnislandk.viewmodel.LoadingStatus
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
@@ -44,10 +44,8 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+        immersiveToolbarInitialization()
         setContentView(binding.root)
-
-        StatusBarUtil.immersiveStatusBar(this)
-
         setUpForumDrawer()
     }
 

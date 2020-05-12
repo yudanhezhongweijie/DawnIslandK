@@ -18,6 +18,7 @@ import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.ui.span.RoundBackgroundColorSpan
 import com.laotoua.dawnislandk.ui.span.SegmentSpacingSpan
+import com.laotoua.dawnislandk.ui.util.ToolBarUtil.immersiveToolbar
 import com.laotoua.dawnislandk.ui.viewfactory.ThreadCardFactory
 import com.laotoua.dawnislandk.util.Constants
 import com.tencent.mmkv.MMKV
@@ -211,6 +212,7 @@ class SizeCustomizationFragment : Fragment() {
 
         val wrapper = inflater.inflate(R.layout.fragment_empty_linear, container, false).apply {
             findViewById<Toolbar>(R.id.toolbar).apply {
+                immersiveToolbar()
                 setTitle(R.string.size_customization_settings)
                 subtitle = ""
                 val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)

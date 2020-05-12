@@ -15,6 +15,7 @@ import com.king.zxing.util.CodeUtils
 import com.king.zxing.util.LogUtils
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.io.ImageUtil
+import com.laotoua.dawnislandk.ui.util.ToolBarUtil.themeStatusBar
 import timber.log.Timber
 
 class QRCookieActivity : CaptureActivity() {
@@ -58,6 +59,8 @@ class QRCookieActivity : CaptureActivity() {
         }
 
         LogUtils.setPriority(LogUtils.ERROR)
+
+        themeStatusBar()
 
         //获取CaptureHelper，里面有扫码相关的配置设置
         captureHelper.playBeep(false) //播放音效

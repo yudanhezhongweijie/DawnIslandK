@@ -29,7 +29,7 @@ import com.laotoua.dawnislandk.databinding.ActivityDoodleBinding
 import com.laotoua.dawnislandk.io.ImageUtil
 import com.laotoua.dawnislandk.ui.util.LayoutUtil
 import com.laotoua.dawnislandk.ui.util.ReadableTime
-import com.laotoua.dawnislandk.ui.util.StatusBarUtil
+import com.laotoua.dawnislandk.ui.util.ToolBarUtil.themeStatusBar
 import com.laotoua.dawnislandk.ui.widget.DoodleView
 import com.laotoua.dawnislandk.ui.widget.ThicknessPreviewView
 import kotlinx.coroutines.launch
@@ -89,7 +89,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
         binding = ActivityDoodleBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        StatusBarUtil.immersiveStatusBar(this)
+        themeStatusBar()
 
         val timeStamp: String = ReadableTime.getFilenamableTime(System.currentTimeMillis())
         val relativeLocation =

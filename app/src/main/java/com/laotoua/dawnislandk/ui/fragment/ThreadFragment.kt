@@ -22,6 +22,7 @@ import com.laotoua.dawnislandk.databinding.FragmentThreadBinding
 import com.laotoua.dawnislandk.ui.adapter.QuickAdapter
 import com.laotoua.dawnislandk.ui.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.ui.popup.PostPopup
+import com.laotoua.dawnislandk.ui.util.ToolBarUtil.immersiveToolbar
 import com.laotoua.dawnislandk.ui.util.UIUtils.updateHeaderAndFooter
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 import com.laotoua.dawnislandk.viewmodel.ThreadViewModel
@@ -55,8 +56,8 @@ class ThreadFragment : Fragment() {
     ): View? {
 
         _binding = FragmentThreadBinding.inflate(inflater, container, false)
-
         binding.toolbarLayout.toolbar.apply {
+            immersiveToolbar()
             updateTitle()
             setSubtitle(R.string.adnmb)
             val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)

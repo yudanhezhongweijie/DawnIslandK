@@ -30,6 +30,7 @@ import com.laotoua.dawnislandk.ui.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.ui.popup.JumpPopup
 import com.laotoua.dawnislandk.ui.popup.PostPopup
 import com.laotoua.dawnislandk.ui.popup.QuotePopup
+import com.laotoua.dawnislandk.ui.util.ToolBarUtil.immersiveToolbar
 import com.laotoua.dawnislandk.ui.util.UIUtils.updateHeaderAndFooter
 import com.laotoua.dawnislandk.viewmodel.ReplyViewModel
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
@@ -82,6 +83,7 @@ class ReplyFragment : Fragment() {
         _binding = FragmentReplyBinding.inflate(inflater, container, false)
 
         binding.toolbarLayout.toolbar.apply {
+            immersiveToolbar()
             title = "A岛 • ${sharedVM.getCurrentForumDisplayName()}"
             setSubtitle(R.string.adnmb)
             val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)

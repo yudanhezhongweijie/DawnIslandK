@@ -22,6 +22,7 @@ import com.laotoua.dawnislandk.data.network.ImageLoader
 import com.laotoua.dawnislandk.databinding.FragmentFeedBinding
 import com.laotoua.dawnislandk.ui.adapter.QuickAdapter
 import com.laotoua.dawnislandk.ui.popup.ImageViewerPopup
+import com.laotoua.dawnislandk.ui.util.ToolBarUtil.immersiveToolbar
 import com.laotoua.dawnislandk.ui.util.UIUtils.updateHeaderAndFooter
 import com.laotoua.dawnislandk.viewmodel.FeedViewModel
 import com.laotoua.dawnislandk.viewmodel.LoadingStatus
@@ -58,6 +59,7 @@ class FeedFragment : Fragment() {
         _binding = FragmentFeedBinding.inflate(inflater, container, false)
 
         binding.toolbarLayout.toolbar.apply {
+            immersiveToolbar()
             setTitle(R.string.my_feed)
             setSubtitle(R.string.adnmb)
             val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)

@@ -227,7 +227,7 @@ class QuickAdapter(private val layoutResId: Int) :
         if (img != "") {
             GlideApp.with(context)
                 .load(thumbCDN + img + ext)
-                .override(100, 100)
+                .override(400, 400)
                 .fitCenter()
                 .into(getView(R.id.attachedImage))
             setVisible(R.id.attachedImage, true)

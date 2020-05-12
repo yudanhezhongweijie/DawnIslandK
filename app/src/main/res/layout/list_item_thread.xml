@@ -70,8 +70,10 @@
 
         <ImageView
             android:id="@+id/attachedImage"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="50dp"
+            android:minHeight="50dp"
             android:layout_marginTop="9dp"
             android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"

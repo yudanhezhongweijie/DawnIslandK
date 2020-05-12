@@ -90,7 +90,7 @@
     <string name="sage_text" translatable="false">本串已被sage</string>
     <string name="sample_ref_id" translatable="false">23333333</string>
     <string name="sample_user_id" translatable="false">sAMPlEUserID</string>
-    <string name="sample_content_reply" translatable="false">测试测试测试</string>
+    <string name="sample_reply_content" translatable="false">测试测试测试</string>
     <string name="sample_timestamp_plain" translatable="false">2/7 23:23:12</string>
     <string name="sample_title_and_name" translatable="false">标题：哈哈哈\n作者：咩咩咩</string>
     <string name="number_prefix" translatable="false">No.</string>

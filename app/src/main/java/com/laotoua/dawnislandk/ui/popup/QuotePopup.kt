@@ -108,6 +108,10 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
         }
 
         findViewById<TextView>(R.id.quoteContent).run {
+            /** when TextView is scrolled, resetting text does not reset scroll position
+             *  WITHOUT scroll reset, text is not shown
+             */
+            scrollY = 0
             movementMethod = LinkMovementMethod.getInstance()
             text = transformContent(
                 quote.content, mLineHeight, mSegGap, referenceClickListener

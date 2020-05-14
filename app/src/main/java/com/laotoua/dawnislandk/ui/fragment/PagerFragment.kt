@@ -35,9 +35,12 @@ class PagerFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         _binding = FragmentPagerBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         val gestureListener = object : GestureDetector.SimpleOnGestureListener() {
             override fun onFling(
                 event1: MotionEvent,
@@ -101,7 +104,6 @@ class PagerFragment : Fragment() {
             }
         })
 
-        return binding.root
     }
 
     override fun onDestroyView() {

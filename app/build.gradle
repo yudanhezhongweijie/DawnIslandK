@@ -96,7 +96,10 @@ dependencies {
 
     def appcompat_version = "1.2.0-beta01"
     implementation "androidx.appcompat:appcompat:$appcompat_version"
-    implementation "androidx.constraintlayout:constraintlayout:2.0.0-beta6"
+    /** DO NOT UPGRADE to 2.0.0-beta6
+     *  because it triggers BaseQuickAdapter's LoadMoreListener in view rendering
+     */
+    implementation "androidx.constraintlayout:constraintlayout:2.0.0-beta5"
 
     implementation 'com.jakewharton.timber:timber:4.7.1'
 

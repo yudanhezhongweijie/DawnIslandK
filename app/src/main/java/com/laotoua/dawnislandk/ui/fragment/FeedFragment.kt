@@ -57,6 +57,11 @@ class FeedFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentFeedBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         binding.toolbarLayout.toolbar.apply {
             immersiveToolbar()
@@ -168,10 +173,8 @@ class FeedFragment : Fragment() {
 
         viewModel.feeds.observe(viewLifecycleOwner, Observer {
             mAdapter.setDiffNewData(it.toMutableList())
-            Timber.i("Adapter will have ${it.size} threads")
+            Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
         })
-
-        return binding.root
     }
 
     override fun onResume() {

@@ -46,6 +46,11 @@ class TrendFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentTrendBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         binding.toolbarLayout.toolbar.apply {
             immersiveToolbar()
@@ -57,7 +62,6 @@ class TrendFragment : Fragment() {
             setNavigationOnClickListener {
                 drawerLayout.openDrawer(GravityCompat.START)
             }
-
             setOnClickListener {
                 binding.recyclerView.layoutManager?.scrollToPosition(0)
             }
@@ -79,7 +83,6 @@ class TrendFragment : Fragment() {
             adapter = mAdapter
         }
 
-
         viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.run {
                 updateHeaderAndFooter(binding.refreshLayout, mAdapter, this)
@@ -87,8 +90,6 @@ class TrendFragment : Fragment() {
             }
         })
 
-
-        // item click
         mAdapter.apply {
             loadMoreModule.isEnableLoadMore = false
             setOnItemClickListener { adapter, _, position ->
@@ -107,7 +108,6 @@ class TrendFragment : Fragment() {
             mAdapter.setDiffNewData(list.toMutableList())
         })
 
-        return binding.root
     }
 
     override fun onResume() {

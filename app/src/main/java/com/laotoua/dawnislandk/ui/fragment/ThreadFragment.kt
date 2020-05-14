@@ -54,8 +54,12 @@ class ThreadFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         _binding = FragmentThreadBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         binding.toolbarLayout.toolbar.apply {
             immersiveToolbar()
             updateTitle()
@@ -159,7 +163,7 @@ class ThreadFragment : Fragment() {
 
         viewModel.thread.observe(viewLifecycleOwner, Observer {
             mAdapter.setDiffNewData(it.toMutableList())
-            Timber.i("Adapter will have ${it.size} threads")
+            Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
         })
 
         sharedVM.selectedForum.observe(viewLifecycleOwner, Observer {
@@ -196,8 +200,6 @@ class ThreadFragment : Fragment() {
                 sharedVM.getForumNameMapping()
             )
         }
-
-        return binding.root
     }
 
     override fun onResume() {

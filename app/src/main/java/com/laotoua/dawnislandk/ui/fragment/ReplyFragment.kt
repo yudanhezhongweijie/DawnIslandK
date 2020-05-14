@@ -79,8 +79,12 @@ class ReplyFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         _binding = FragmentReplyBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         binding.toolbarLayout.toolbar.apply {
             immersiveToolbar()
@@ -193,7 +197,7 @@ class ReplyFragment : Fragment() {
             }
 
             mAdapter.setPo(viewModel.po)
-            Timber.i("Adapter will have ${it.size} threads")
+            Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
         })
 
         sharedVM.selectedThread.observe(viewLifecycleOwner, Observer {
@@ -271,8 +275,6 @@ class ReplyFragment : Fragment() {
                 Toast.makeText(context, eventPayload.message, Toast.LENGTH_SHORT).show()
             }
         })
-
-        return binding.root
     }
 
     override fun onDestroyView() {

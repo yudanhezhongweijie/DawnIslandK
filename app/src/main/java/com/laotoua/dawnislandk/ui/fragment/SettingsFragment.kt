@@ -78,6 +78,11 @@ class SettingsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         binding.toolbarLayout.toolbar.apply {
             immersiveToolbar()
@@ -186,7 +191,6 @@ class SettingsFragment : Fragment() {
                                     }
                                 }
                         }
-
                     }
                 }
             }
@@ -199,10 +203,7 @@ class SettingsFragment : Fragment() {
                     SettingsFragmentDirections.actionSettingsFragmentToSizeCustomizationFragment()
                 findNavController().navigate(action)
             }
-
         }
-
-        return binding.root
     }
 
     @SuppressLint("SetTextI18n")

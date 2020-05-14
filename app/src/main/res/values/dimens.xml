@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="dialog_radius">14dp</dimen>
-    <dimen name="toolbar_height">56dp</dimen>
-    <dimen name="toolbar_expanded_height">180dp</dimen>
 </resources>

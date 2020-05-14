@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.viewpager2.widget.ViewPager2 xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/viewPager"
+<com.laotoua.dawnislandk.ui.widget.GestureInterceptorFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/viewPagerInterceptor"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".ui.fragment.PagerFragment">
+    android:layout_height="match_parent">
 
-</androidx.viewpager2.widget.ViewPager2>
+    <androidx.viewpager2.widget.ViewPager2 xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:overScrollMode="never"
+        tools:context=".ui.fragment.PagerFragment">
+
+    </androidx.viewpager2.widget.ViewPager2>
+</com.laotoua.dawnislandk.ui.widget.GestureInterceptorFrameLayout>

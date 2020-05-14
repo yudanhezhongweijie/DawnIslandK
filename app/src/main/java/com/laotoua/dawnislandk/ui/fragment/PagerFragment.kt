@@ -11,6 +11,8 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.FragmentPagerBinding
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
+import com.zhpan.indicator.enums.IndicatorSlideMode
+import com.zhpan.indicator.enums.IndicatorStyle
 import timber.log.Timber
 
 
@@ -81,6 +83,16 @@ class PagerFragment : Fragment() {
                 mFragmentList.add(FeedFragment())
             }
         }
+
+        binding.drawerIndicator.setColorFilter(requireContext().getColor(R.color.lime_500))
+        binding.pageIndicatorView
+            .setSliderColor(
+                requireContext().getColor(R.color.lime_500),
+                requireContext().getColor(R.color.teal_500)
+            )
+            .setSlideMode(IndicatorSlideMode.WORM)
+            .setIndicatorStyle(IndicatorStyle.CIRCLE)
+            .setupWithViewPager(binding.viewPager)
 
         sharedVM.selectedForum.observe(viewLifecycleOwner, Observer {
             if (mForumId != it.id) {

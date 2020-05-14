@@ -101,4 +101,8 @@
     <string name="sample_trend_rank" translatable="false">13</string>
     <string name="sample_forum" translatable="false">欢乐恶搞</string>
     <string name="sample_trend_hits" translatable="false">256</string>
+    <string name="current_page" translatable="false">当前页数:</string>
+    <string name="sample_int" translatable="false">1</string>
+    <string name="total_page" translatable="false">总页数:</string>
+    <string name="jump_page" translatable="false">跳页</string>
 </resources>

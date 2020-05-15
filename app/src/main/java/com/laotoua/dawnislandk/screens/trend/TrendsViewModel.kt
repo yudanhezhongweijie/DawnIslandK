@@ -4,11 +4,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.data.local.Thread
 import com.laotoua.dawnislandk.data.local.Trend
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.data.repository.DataResource
-import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.SingleLiveEvent
@@ -45,7 +45,7 @@ class TrendsViewModel @Inject constructor(private val webService: NMBServiceClie
     private suspend fun getLatestTrendPage() {
         DataResource.create(
             webService.getReplys(
-                AppState.cookies.firstOrNull()?.cookieHash,
+                applicationDataStore.cookies.firstOrNull()?.cookieHash,
                 trendId,
                 page
             )

@@ -1,8 +1,7 @@
 package com.laotoua.dawnislandk
 
-import androidx.room.Room
-import com.laotoua.dawnislandk.data.local.dao.DawnDatabase
-import com.laotoua.dawnislandk.data.state.AppState
+import com.laotoua.dawnislandk.data.local.ApplicationDataStore
+import com.laotoua.dawnislandk.data.local.dao.CookieDao
 import com.laotoua.dawnislandk.di.DaggerDawnAppComponent
 import com.laotoua.dawnislandk.util.ReadableTime
 import com.tencent.mmkv.MMKV
@@ -12,13 +11,21 @@ import com.tencent.mmkv.MMKVRecoverStrategic
 import dagger.android.AndroidInjector
 import dagger.android.DaggerApplication
 import timber.log.Timber
+import javax.inject.Inject
 
 
 class DawnApp : DaggerApplication() {
 
+    companion object {
+        lateinit var applicationDataStore: ApplicationDataStore
+    }
+
     override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
         return DaggerDawnAppComponent.factory().create(applicationContext)
     }
+
+    @Inject
+    lateinit var cookieDao: CookieDao
 
     override fun onCreate() {
         super.onCreate()
@@ -28,15 +35,7 @@ class DawnApp : DaggerApplication() {
         MMKV.initialize(this)
         MMKV.registerHandler(handler)
 
-
-        // db
-        val db = Room.databaseBuilder(
-            applicationContext,
-            DawnDatabase::class.java, "dawnDB"
-        )
-            .fallbackToDestructiveMigration()
-            .build()
-        AppState.setDB(db)
+        applicationDataStore = ApplicationDataStore(cookieDao)
 
         // Time
         ReadableTime.initialize(this)

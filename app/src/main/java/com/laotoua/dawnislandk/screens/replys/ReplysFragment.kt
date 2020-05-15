@@ -20,9 +20,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.Reply
-import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.databinding.FragmentReplyBinding
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
@@ -282,7 +282,7 @@ class ReplysFragment : DaggerFragment() {
 
         binding.addFeed.setOnClickListener {
             hideMenu()
-            viewModel.addFeed(AppState.feedId, viewModel.currentThread!!.id)
+            viewModel.addFeed(applicationDataStore.feedId, viewModel.currentThread!!.id)
         }
 
         viewModel.addFeedResponse.observe(viewLifecycleOwner, Observer {

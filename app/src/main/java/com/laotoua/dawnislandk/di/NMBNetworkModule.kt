@@ -9,8 +9,9 @@ import retrofit2.Retrofit
 import javax.inject.Singleton
 
 @Module
-class NMBNetworkModule {
+object NMBNetworkModule {
 
+    @JvmStatic
     @Provides
     @Singleton
     fun provideNMBService(): NMBService = Retrofit.Builder()
@@ -18,6 +19,7 @@ class NMBNetworkModule {
         .build()
         .create(NMBService::class.java)
 
+    @JvmStatic
     @Provides
     @Singleton
     fun provideNMBServiceClient(service: NMBService): NMBServiceClient {

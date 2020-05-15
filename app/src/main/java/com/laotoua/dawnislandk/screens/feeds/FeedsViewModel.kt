@@ -4,11 +4,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.data.local.Thread
 import com.laotoua.dawnislandk.data.remote.APISuccessMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.data.repository.DataResource
-import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.SingleLiveEvent
@@ -44,7 +44,7 @@ class FeedsViewModel @Inject constructor(private val webService: NMBServiceClien
                 )
             )
             Timber.i("Downloading Feeds on page $page...")
-            DataResource.create(webService.getFeeds(AppState.feedId, page)).run {
+            DataResource.create(webService.getFeeds(applicationDataStore.feedId, page)).run {
                 when (this) {
                     is DataResource.Error -> {
                         Timber.e(message)
@@ -108,7 +108,7 @@ class FeedsViewModel @Inject constructor(private val webService: NMBServiceClien
     fun deleteFeed(id: String, position: Int) {
         Timber.i("Deleting Feed $id")
         viewModelScope.launch(Dispatchers.IO) {
-            webService.delFeed(AppState.feedId, id).run {
+            webService.delFeed(applicationDataStore.feedId, id).run {
                 when (this) {
                     is APISuccessMessageResponse -> {
                         feedsList.removeAt(position)

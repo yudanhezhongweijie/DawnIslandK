@@ -10,8 +10,9 @@ import dagger.Provides
 import javax.inject.Singleton
 
 @Module
-class DatabaseModule {
+object DatabaseModule {
 
+    @JvmStatic
     @Provides
     @Singleton
     fun provideDawnDB(applicationContext: Context): DawnDatabase {
@@ -23,12 +24,14 @@ class DatabaseModule {
             .build()
     }
 
+    @JvmStatic
     @Provides
     @Singleton
     fun provideCommunityDao(dawnDatabase: DawnDatabase): CommunityDao {
         return dawnDatabase.communityDao()
     }
 
+    @JvmStatic
     @Provides
     @Singleton
     fun provideCookieDao(dawnDatabase: DawnDatabase): CookieDao {

@@ -9,19 +9,17 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.Forum
-import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
 import com.laotoua.dawnislandk.screens.adapters.QuickNodeAdapter
 import com.laotoua.dawnislandk.screens.replys.QuotePopup
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbarInitialization
 import com.laotoua.dawnislandk.util.LoadingStatus
-import com.tencent.mmkv.MMKV
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.*
 import javax.inject.Inject
 
 
@@ -95,15 +93,8 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
 
     // initialize Global resources
     private suspend fun loadResources() {
-        AppState.loadCookies()
-
-        // set default subscriptionID
-        var feedId = MMKV.defaultMMKV().getString("feedId", null)
-        if (feedId == null) {
-            feedId = UUID.randomUUID().toString()
-            MMKV.defaultMMKV().putString("feedId", feedId)
-        }
-        AppState.setFeedId(feedId)
+        applicationDataStore.loadCookies()
+        applicationDataStore.initializeFeedId()
     }
 
     override fun onBackPressed() {
@@ -111,6 +102,11 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
          *  Catch for popup which failed to request focus
          */
         if (!QuotePopup.ensureQuotePopupDismissal()) return
+
+        if (binding.drawerLayout.isOpen) {
+            binding.drawerLayout.close()
+            return
+        }
 
         if (!doubleBackToExitPressedOnce &&
             findNavController(R.id.navHostFragment).previousBackStackEntry == null

@@ -17,9 +17,9 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.input.input
 import com.afollestad.materialdialogs.list.listItems
 import com.king.zxing.util.CodeUtils
+import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.Cookie
-import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.databinding.FragmentSettingsBinding
 import com.laotoua.dawnislandk.databinding.ListItemCookieBinding
 import com.laotoua.dawnislandk.io.FragmentIntentUtil
@@ -34,7 +34,7 @@ import timber.log.Timber
 
 class SettingsFragment : Fragment() {
 
-    private val cookies get() = AppState.cookies
+    private val cookies get() = applicationDataStore.cookies
 
     private val mmkv by lazy { MMKV.defaultMMKV() }
 
@@ -96,7 +96,7 @@ class SettingsFragment : Fragment() {
         }
 
         binding.feedId.apply {
-            var feedId = mmkv.getString("feedId", "")
+            var feedId = applicationDataStore.feedId
             key.setText(R.string.feedId)
             summary.text = feedId
             root.setOnClickListener {
@@ -105,7 +105,7 @@ class SettingsFragment : Fragment() {
                     cornerRadius(res = R.dimen.dialog_radius)
                     input(hint = feedId, prefill = feedId) { _, text ->
                         feedId = text.toString()
-                        mmkv.putString("feedId", feedId)
+                        applicationDataStore.setFeedId(feedId)
                         summary.text = feedId
                         Toast.makeText(
                             context,
@@ -241,20 +241,20 @@ class SettingsFragment : Fragment() {
 
     private fun updateCookie(cookie: Cookie) {
         lifecycleScope.launch {
-            AppState.updateCookie(cookie)
+            applicationDataStore.updateCookie(cookie)
         }
     }
 
     private fun addCookie(cookie: Cookie) {
         lifecycleScope.launch {
-            AppState.addCookie(cookie)
+            applicationDataStore.addCookie(cookie)
         }
         addCookieToLayout(cookie)
     }
 
     private fun deleteCookie(cookie: Cookie) {
         lifecycleScope.launch {
-            AppState.deleteCookies(cookie)
+            applicationDataStore.deleteCookies(cookie)
         }
     }
 

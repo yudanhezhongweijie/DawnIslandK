@@ -20,12 +20,12 @@ import com.afollestad.materialdialogs.callbacks.onDismiss
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.google.android.material.button.MaterialButtonToggleGroup
+import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.Cookie
 import com.laotoua.dawnislandk.data.remote.APISuccessMessageResponse
 import com.laotoua.dawnislandk.data.remote.MessageType
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
-import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.io.FragmentIntentUtil
 import com.laotoua.dawnislandk.io.ImageUtil
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
@@ -137,7 +137,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
     }
 
     private fun updateCookies() {
-        cookies = AppState.cookies
+        cookies = applicationDataStore.cookies
         if (selectedCookie == null || cookies.isNullOrEmpty()) {
             findViewById<TextView>(R.id.postCookie)?.run {
                 text = if (cookies.isNullOrEmpty()) {

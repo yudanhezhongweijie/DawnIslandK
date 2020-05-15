@@ -8,8 +8,8 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.widget.doOnTextChanged
 import com.afollestad.materialdialogs.MaterialDialog
+import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.data.state.AppState
 import com.lxj.xpopup.core.CenterPopupView
 
 class JumpPopup(context: Context) : CenterPopupView(context) {
@@ -53,7 +53,7 @@ class JumpPopup(context: Context) : CenterPopupView(context) {
         submitButton.setOnClickListener {
             submit = true
             targetPage = pageInput.text.toString().toInt()
-            if (AppState.cookies.isNullOrEmpty() && targetPage > 99) {
+            if (applicationDataStore.cookies.isNullOrEmpty() && targetPage > 99) {
                 MaterialDialog(context).show {
                     message(R.string.need_cookie_to_read)
                 }

@@ -10,8 +10,10 @@ import com.laotoua.dawnislandk.data.repository.DataResource
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
-class CommunityViewModel : ViewModel() {
+class CommunityViewModel @Inject constructor(private val communityRepository: CommunityRepository) :
+    ViewModel() {
 
     private var _communityList = MutableLiveData<List<Community>>()
     val communityList: LiveData<List<Community>>
@@ -21,15 +23,13 @@ class CommunityViewModel : ViewModel() {
     val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>>
         get() = _loadingStatus
 
-    private val repository = CommunityRepository()
-
     init {
         getCommunities()
     }
 
     private fun getCommunities(remoteDataOnly: Boolean = false) {
         viewModelScope.launch {
-            repository.getCommunities(remoteDataOnly).collect {
+            communityRepository.getCommunities(remoteDataOnly).collect {
                 Timber.d("collecting flow")
                 when (it) {
                     is DataResource.Error -> {

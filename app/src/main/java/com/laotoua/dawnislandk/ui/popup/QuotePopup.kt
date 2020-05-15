@@ -135,6 +135,9 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
 
         private var quoteStack: Stack<QuotePopup> = Stack()
 
+        // TODO: injection
+        val NMBServiceClient = NMBServiceClient()
+
         fun ensureQuotePopupDismissal(): Boolean {
             val empty = quoteStack.empty()
             if (!empty) {

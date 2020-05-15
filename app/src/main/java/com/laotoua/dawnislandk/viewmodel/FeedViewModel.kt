@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.entity.Thread
 import com.laotoua.dawnislandk.data.network.APISuccessMessageResponse
-import com.laotoua.dawnislandk.data.network.NMBServiceClient
 import com.laotoua.dawnislandk.data.repository.DataResource
 import com.laotoua.dawnislandk.data.state.AppState
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +26,9 @@ class FeedViewModel : ViewModel() {
     val delFeedResponse: LiveData<SingleLiveEvent<EventPayload<Int>>> get() = _delFeedResponse
 
     private var tryAgain = false
+
+    // TODO: injection
+    val NMBServiceClient = com.laotoua.dawnislandk.data.network.NMBServiceClient()
 
     fun getNextPage() {
         getFeedOnPage(nextPage)

@@ -43,7 +43,10 @@ import java.io.File
 class PostPopup(private val caller: Fragment, context: Context) :
     BottomPopupView(context) {
 
+
     companion object {
+        // TODO: injection
+        val NMBServiceClient = NMBServiceClient()
         fun show(
             caller: Fragment,
             postPopup: PostPopup,

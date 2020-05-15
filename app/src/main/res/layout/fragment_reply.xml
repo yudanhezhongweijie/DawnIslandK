@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.fragment.ReplyFragment">
+    tools:context=".screens.replys.ReplysFragment">
 
     <include
         android:id="@+id/toolbarLayout"
@@ -38,7 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:text="收藏"
+        android:text="@string/subscribe"
         android:visibility="gone"
         app:icon="@drawable/ic_favorite_24px"
         app:layout_constraintBottom_toTopOf="@id/onlyPo"
@@ -51,7 +51,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:text="只看Po"
+        android:text="@string/see_po_only"
         android:visibility="gone"
         app:icon="@drawable/ic_filter_list_black_48px"
         app:layout_constraintBottom_toTopOf="@id/copyId"
@@ -64,7 +64,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:text="复制串号"
+        android:text="@string/copy_thread_id"
         android:visibility="gone"
         app:icon="@drawable/ic_label_black_48px"
         app:layout_constraintBottom_toTopOf="@id/jump"
@@ -77,7 +77,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:text="跳页"
+        android:text="@string/page_jump"
         android:visibility="gone"
         app:icon="@drawable/ic_bookmarks_black_48px"
         app:layout_constraintBottom_toTopOf="@+id/post"
@@ -90,7 +90,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:text="发布"
+        android:text="@string/post"
         android:visibility="gone"
         app:icon="@drawable/ic_post_black_48px"
         app:layout_constraintBottom_toTopOf="@+id/fabMenu"

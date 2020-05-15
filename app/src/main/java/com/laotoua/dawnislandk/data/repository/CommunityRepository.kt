@@ -1,8 +1,8 @@
 package com.laotoua.dawnislandk.data.repository
 
-import com.laotoua.dawnislandk.data.entity.Community
-import com.laotoua.dawnislandk.data.entity.CommunityDao
-import com.laotoua.dawnislandk.data.network.NMBServiceClient
+import com.laotoua.dawnislandk.data.local.Community
+import com.laotoua.dawnislandk.data.local.dao.CommunityDao
+import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import timber.log.Timber
@@ -16,7 +16,7 @@ class CommunityRepository @Inject constructor(
     fun getCommunities(remoteDataOnly: Boolean): Flow<DataResource<List<Community>>> = flow {
         var localList: List<Community>? = null
         if (!remoteDataOnly) {
-            localList = dao.getCommunities()
+            localList = dao.getAll()
             Timber.i("Loaded ${localList.size} communities from db")
             emit(DataResource.create(localList))
         }

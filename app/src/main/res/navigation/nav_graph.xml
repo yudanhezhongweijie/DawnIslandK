@@ -6,7 +6,7 @@
     app:startDestination="@id/pagerFragment">
     <fragment
         android:id="@+id/replyFragment"
-        android:name="com.laotoua.dawnislandk.ui.fragment.ReplyFragment"
+        android:name="com.laotoua.dawnislandk.screens.replys.ReplysFragment"
         android:label="reply_fragment"
         tools:layout="@layout/fragment_reply">
         <action
@@ -35,7 +35,7 @@
     </fragment>
     <fragment
         android:id="@+id/pagerFragment"
-        android:name="com.laotoua.dawnislandk.ui.fragment.PagerFragment"
+        android:name="com.laotoua.dawnislandk.screens.PagerFragment"
         android:label="pager_fragment"
         tools:layout="@layout/fragment_pager">
         <action
@@ -69,7 +69,7 @@
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.laotoua.dawnislandk.ui.fragment.SettingsFragment"
+        android:name="com.laotoua.dawnislandk.screens.settings.SettingsFragment"
         android:label="SettingsFragment">
         <action
             android:id="@+id/action_settingsFragment_to_sizeCustomizationFragment"
@@ -81,10 +81,10 @@
     </fragment>
     <fragment
         android:id="@+id/sizeCustomizationFragment"
-        android:name="com.laotoua.dawnislandk.ui.fragment.SizeCustomizationFragment"
+        android:name="com.laotoua.dawnislandk.screens.settings.SizesCustomizationFragment"
         android:label="SizeCustomizationFragment" />
     <activity
         android:id="@+id/doodleActivity"
-        android:name="com.laotoua.dawnislandk.ui.activity.DoodleActivity"
+        android:name="com.laotoua.dawnislandk.screens.tasks.DoodleActivity"
         android:label="DoodleActivity" />
 </navigation>

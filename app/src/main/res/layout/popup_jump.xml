@@ -79,7 +79,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="@string/jump_page"
+        android:text="@string/page_jump"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@id/pageCountContainer"
@@ -98,7 +98,8 @@
         app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_first_page_black_48px" />
+        app:srcCompat="@drawable/ic_first_page_black_48px"
+        tools:ignore="ContentDescription" />
 
     <EditText
         android:id="@+id/pageInput"
@@ -110,7 +111,8 @@
         app:layout_constraintEnd_toStartOf="@+id/lastPage"
         app:layout_constraintHorizontal_weight="2"
         app:layout_constraintStart_toEndOf="@+id/firstPage"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="Autofill,LabelFor" />
 
     <ImageButton
         android:id="@+id/lastPage"
@@ -123,7 +125,8 @@
         app:layout_constraintStart_toEndOf="@+id/pageInput"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_last_page_black_48px"
-        tools:layout_constraintHorizontal_weight="1" />
+        tools:layout_constraintHorizontal_weight="1"
+        tools:ignore="ContentDescription" />
 
     <Button
         android:id="@+id/submit"

@@ -2,10 +2,10 @@ package com.laotoua.dawnislandk
 
 //import dagger.android.support.DaggerApplication
 import androidx.room.Room
-import com.laotoua.dawnislandk.data.entity.DawnDatabase
+import com.laotoua.dawnislandk.data.local.dao.DawnDatabase
 import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.di.DaggerDawnAppComponent
-import com.laotoua.dawnislandk.ui.util.ReadableTime
+import com.laotoua.dawnislandk.util.ReadableTime
 import com.tencent.mmkv.MMKV
 import com.tencent.mmkv.MMKVHandler
 import com.tencent.mmkv.MMKVLogLevel

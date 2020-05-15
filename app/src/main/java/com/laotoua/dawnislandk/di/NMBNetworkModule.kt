@@ -1,7 +1,7 @@
 package com.laotoua.dawnislandk.di
 
-import com.laotoua.dawnislandk.data.network.NMBService
-import com.laotoua.dawnislandk.data.network.NMBServiceClient
+import com.laotoua.dawnislandk.data.remote.NMBService
+import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.util.Constants
 import dagger.Module
 import dagger.Provides

@@ -15,8 +15,8 @@ import androidx.annotation.CallSuper
 import androidx.fragment.app.Fragment
 import com.king.zxing.Intents
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.ui.activity.DoodleActivity
-import com.laotoua.dawnislandk.ui.activity.QRCookieActivity
+import com.laotoua.dawnislandk.screens.tasks.DoodleActivity
+import com.laotoua.dawnislandk.screens.tasks.QRCookieActivity
 import timber.log.Timber
 
 object FragmentIntentUtil {

@@ -23,7 +23,7 @@
     android:paddingLeft="16dp"
     android:paddingRight="16dp">
 
-    <com.laotoua.dawnislandk.ui.widget.ThicknessPreviewView
+    <com.laotoua.dawnislandk.screens.widget.ThicknessPreviewView
         android:id="@+id/thicknessPreviewView"
         android:layout_width="match_parent"
         android:layout_height="128dp" />
@@ -33,7 +33,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="thickness" />
+        android:text="@string/sample_int" />
 
     <LinearLayout
         android:layout_width="match_parent"

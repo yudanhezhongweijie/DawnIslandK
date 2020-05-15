@@ -1,7 +1,7 @@
 package com.laotoua.dawnislandk.data.repository
 
-import com.laotoua.dawnislandk.data.network.APIDataResponse
-import com.laotoua.dawnislandk.data.network.APISuccessDataResponse
+import com.laotoua.dawnislandk.data.remote.APIDataResponse
+import com.laotoua.dawnislandk.data.remote.APISuccessDataResponse
 
 sealed class DataResource<T>(
     val message: String,

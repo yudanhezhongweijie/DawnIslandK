@@ -1,7 +1,7 @@
 package com.laotoua.dawnislandk.data.state
 
-import com.laotoua.dawnislandk.data.entity.Cookie
-import com.laotoua.dawnislandk.data.entity.DawnDatabase
+import com.laotoua.dawnislandk.data.local.Cookie
+import com.laotoua.dawnislandk.data.local.dao.DawnDatabase
 
 object AppState {
     private var mDb: DawnDatabase? = null

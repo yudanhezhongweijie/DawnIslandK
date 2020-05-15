@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.laotoua.dawnislandk.ui.widget.GestureInterceptorFrameLayout
+    <com.laotoua.dawnislandk.screens.widget.GestureInterceptorFrameLayout
         android:id="@+id/viewPagerInterceptor"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -17,11 +17,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:overScrollMode="never"
-            tools:context=".ui.fragment.PagerFragment">
+            tools:context=".screens.PagerFragment">
 
         </androidx.viewpager2.widget.ViewPager2>
 
-    </com.laotoua.dawnislandk.ui.widget.GestureInterceptorFrameLayout>
+    </com.laotoua.dawnislandk.screens.widget.GestureInterceptorFrameLayout>
 
     <com.zhpan.indicator.IndicatorView
         android:id="@+id/pageIndicatorView"
@@ -43,7 +43,8 @@
         app:layout_constraintBottom_toBottomOf="@id/pageIndicatorView"
         app:layout_constraintEnd_toStartOf="@id/pageIndicatorView"
         app:layout_constraintTop_toTopOf="@id/pageIndicatorView"
-        app:srcCompat="@drawable/ic_menu_white_24px" />
+        app:srcCompat="@drawable/ic_menu_white_24px"
+        tools:ignore="ContentDescription" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

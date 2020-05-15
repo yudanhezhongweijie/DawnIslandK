@@ -9,7 +9,7 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".MainActivity">
+        tools:context=".screens.MainActivity">
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/navHostFragment"
@@ -37,12 +37,13 @@
             android:layout_width="0dp"
             android:layout_height="160dp"
             android:clickable="true"
-            android:contentDescription="drawer_head"
+            android:focusable="true"
             android:scaleType="centerCrop"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/drawer_head" />
+            app:srcCompat="@drawable/drawer_head"
+            tools:ignore="ContentDescription" />
 
         <Button
             android:id="@+id/forumRefresh"

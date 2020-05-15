@@ -16,10 +16,11 @@
 
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.laotoua.dawnislandk.ui.widget.DoodleView
+    <com.laotoua.dawnislandk.screens.widget.DoodleView
         android:id="@+id/doodle_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -52,7 +53,8 @@
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackground"
             android:padding="12dp"
-            app:srcCompat="@drawable/ic_palette_24px" />
+            app:srcCompat="@drawable/ic_palette_24px"
+            tools:ignore="ContentDescription" />
 
         <ImageButton
             android:id="@+id/thickness"
@@ -60,7 +62,8 @@
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackground"
             android:padding="12dp"
-            app:srcCompat="@drawable/ic_line_weight_24px" />
+            app:srcCompat="@drawable/ic_line_weight_24px"
+            tools:ignore="ContentDescription" />
 
         <ImageButton
             android:id="@+id/draw_action"
@@ -68,7 +71,8 @@
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackground"
             android:padding="12dp"
-            android:src="@drawable/ic_brush_black_24px" />
+            android:src="@drawable/ic_brush_black_24px"
+            tools:ignore="ContentDescription" />
 
         <ImageButton
             android:id="@+id/image"
@@ -76,7 +80,8 @@
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackground"
             android:padding="12dp"
-            android:src="@drawable/ic_insert_image_24px" />
+            android:src="@drawable/ic_insert_image_24px"
+            tools:ignore="ContentDescription" />
 
         <ImageButton
             android:id="@+id/undo"
@@ -84,7 +89,8 @@
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackground"
             android:padding="12dp"
-            android:src="@drawable/ic_undo_24px" />
+            android:src="@drawable/ic_undo_24px"
+            tools:ignore="ContentDescription" />
 
         <ImageButton
             android:id="@+id/redo"
@@ -92,7 +98,8 @@
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackground"
             android:padding="12dp"
-            android:src="@drawable/ic_redo_24px" />
+            android:src="@drawable/ic_redo_24px"
+            tools:ignore="ContentDescription" />
 
         <ImageButton
             android:id="@+id/clear"
@@ -100,7 +107,8 @@
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackground"
             android:padding="12dp"
-            app:srcCompat="@drawable/ic_delete_24px" />
+            app:srcCompat="@drawable/ic_delete_24px"
+            tools:ignore="ContentDescription" />
 
         <Space
             android:layout_width="match_parent"
@@ -113,7 +121,8 @@
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackground"
             android:padding="12dp"
-            app:srcCompat="@drawable/ic_check_circle_24px" />
+            app:srcCompat="@drawable/ic_check_circle_24px"
+            tools:ignore="ContentDescription" />
 
     </LinearLayout>
 
@@ -126,6 +135,7 @@
         android:tint="#101010"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_menu_white_24px" />
+        app:srcCompat="@drawable/ic_menu_white_24px"
+        tools:ignore="ContentDescription" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

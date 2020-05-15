@@ -2,9 +2,9 @@ package com.laotoua.dawnislandk.di
 
 import android.content.Context
 import androidx.room.Room
-import com.laotoua.dawnislandk.data.entity.CommunityDao
-import com.laotoua.dawnislandk.data.entity.CookieDao
-import com.laotoua.dawnislandk.data.entity.DawnDatabase
+import com.laotoua.dawnislandk.data.local.dao.CommunityDao
+import com.laotoua.dawnislandk.data.local.dao.CookieDao
+import com.laotoua.dawnislandk.data.local.dao.DawnDatabase
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton

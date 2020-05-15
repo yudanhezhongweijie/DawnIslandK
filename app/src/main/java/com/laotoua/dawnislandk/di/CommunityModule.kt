@@ -1,8 +1,8 @@
 package com.laotoua.dawnislandk.di
 
 import androidx.lifecycle.ViewModel
-import com.laotoua.dawnislandk.MainActivity
-import com.laotoua.dawnislandk.viewmodel.CommunityViewModel
+import com.laotoua.dawnislandk.screens.CommunityViewModel
+import com.laotoua.dawnislandk.screens.MainActivity
 import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector

@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,19 +20,25 @@ import com.laotoua.dawnislandk.viewmodel.CommunityViewModel
 import com.laotoua.dawnislandk.viewmodel.LoadingStatus
 import com.laotoua.dawnislandk.viewmodel.SharedViewModel
 import com.tencent.mmkv.MMKV
+import dagger.android.AndroidInjection.inject
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.*
+import javax.inject.Inject
 
 
 class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
 
     private lateinit var binding: ActivityMainBinding
-    private val communityVM: CommunityViewModel by viewModels()
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    private val communityVM: CommunityViewModel by viewModels { viewModelFactory }
+
     private val sharedVM: SharedViewModel by viewModels()
 
-    private val mAdapter =
-        QuickNodeAdapter(this)
+    private val mAdapter = QuickNodeAdapter(this)
 
     private var doubleBackToExitPressedOnce = false
     private val mHandler = Handler()
@@ -43,7 +50,12 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        /**
+         * Dagger injection required for ViewModelFactory
+         */
+        inject(this)
         super.onCreate(savedInstanceState)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         immersiveToolbarInitialization()
         setContentView(binding.root)
@@ -55,6 +67,7 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
     private fun setUpForumDrawer() {
 
         binding.forumRefresh.setOnClickListener {
+            mAdapter.setData(emptyList())
             communityVM.refresh()
         }
 

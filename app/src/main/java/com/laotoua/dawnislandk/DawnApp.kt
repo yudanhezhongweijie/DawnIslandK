@@ -1,18 +1,25 @@
 package com.laotoua.dawnislandk
 
-import android.app.Application
+//import dagger.android.support.DaggerApplication
 import androidx.room.Room
 import com.laotoua.dawnislandk.data.entity.DawnDatabase
 import com.laotoua.dawnislandk.data.state.AppState
+import com.laotoua.dawnislandk.di.DaggerDawnAppComponent
 import com.laotoua.dawnislandk.ui.util.ReadableTime
 import com.tencent.mmkv.MMKV
 import com.tencent.mmkv.MMKVHandler
 import com.tencent.mmkv.MMKVLogLevel
 import com.tencent.mmkv.MMKVRecoverStrategic
+import dagger.android.AndroidInjector
+import dagger.android.DaggerApplication
 import timber.log.Timber
 
 
-class DawnApp : Application() {
+class DawnApp : DaggerApplication() {
+
+    override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
+        return DaggerDawnAppComponent.factory().create(applicationContext)
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -36,7 +43,7 @@ class DawnApp : Application() {
         ReadableTime.initialize(this)
     }
 
-    val handler = object : MMKVHandler {
+    private val handler = object : MMKVHandler {
         override fun onMMKVCRCCheckFail(p0: String?): MMKVRecoverStrategic {
             throw Exception("onMMKVCRCCheckFail $p0")
         }

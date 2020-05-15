@@ -8,13 +8,15 @@ import com.laotoua.dawnislandk.data.entity.Reply
 import com.laotoua.dawnislandk.data.entity.Thread
 import com.laotoua.dawnislandk.data.network.APISuccessMessageResponse
 import com.laotoua.dawnislandk.data.network.MessageType
-import com.laotoua.dawnislandk.data.network.NMBServiceClient
+import com.laotoua.dawnislandk.data.repository.DataResource
 import com.laotoua.dawnislandk.data.state.AppState
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class ReplyViewModel : ViewModel() {
 //    private var dao: ReplyDao? = null
+// TODO: injection
+val NMBServiceClient = com.laotoua.dawnislandk.data.network.NMBServiceClient()
 
     private var _currentThread: Thread? = null
     val currentThread: Thread? get() = _currentThread

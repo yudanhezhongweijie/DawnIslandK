@@ -6,12 +6,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.entity.Forum
 import com.laotoua.dawnislandk.data.entity.Thread
-import com.laotoua.dawnislandk.data.network.NMBServiceClient
+import com.laotoua.dawnislandk.data.repository.DataResource
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class ThreadViewModel : ViewModel() {
-
+    // TODO: injection
+    val NMBServiceClient = com.laotoua.dawnislandk.data.network.NMBServiceClient()
     private val threadList = mutableListOf<Thread>()
     private val threadIds = mutableSetOf<String>()
     private var _thread = MutableLiveData<List<Thread>>()

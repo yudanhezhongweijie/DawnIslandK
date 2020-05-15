@@ -5,14 +5,15 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.entity.Community
-import com.laotoua.dawnislandk.data.entity.CommunityDao
-import com.laotoua.dawnislandk.data.network.NMBServiceClient
-import com.laotoua.dawnislandk.data.state.AppState
+import com.laotoua.dawnislandk.data.repository.CommunityRepository
+import com.laotoua.dawnislandk.data.repository.DataResource
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
-class CommunityViewModel : ViewModel() {
-    private val dao: CommunityDao = AppState.DB.communityDao()
+class CommunityViewModel @Inject constructor(private val communityRepository: CommunityRepository) :
+    ViewModel() {
 
     private var _communityList = MutableLiveData<List<Community>>()
     val communityList: LiveData<List<Community>>
@@ -23,64 +24,29 @@ class CommunityViewModel : ViewModel() {
         get() = _loadingStatus
 
     init {
-        // TODO added repository
-        loadCommunitiesFromDB()
-        getCommunitiesFromServer()
+        getCommunities()
     }
 
-    private fun getCommunitiesFromServer() {
+    private fun getCommunities(remoteDataOnly: Boolean = false) {
         viewModelScope.launch {
-            DataResource.create(NMBServiceClient.getCommunities()).run {
-                when (this) {
+            communityRepository.getCommunities(remoteDataOnly).collect {
+                Timber.d("collecting flow")
+                when (it) {
                     is DataResource.Error -> {
-                        Timber.e(message)
+                        Timber.e(it.message)
                         _loadingStatus.postValue(
                             SingleLiveEvent.create(
                                 LoadingStatus.FAILED,
-                                "无法读取板块列表...\n$message"
+                                "无法读取板块列表...\n${it.message}"
                             )
                         )
                     }
                     is DataResource.Success -> {
-                        convertServerData(data!!)
+                        _communityList.postValue(it.data!!)
                     }
                 }
             }
         }
-    }
-
-    private fun convertServerData(data: List<Community>) {
-        Timber.i("Downloaded communities size ${data.size}")
-        if (data.isEmpty()) {
-            Timber.d("API returns empty response")
-            return
-        }
-        if (data != communityList.value) {
-            Timber.i("Community list has changed. updating...")
-            _communityList.postValue(data)
-
-            // save to local db
-            viewModelScope.launch { saveCommunitiesToDB(data) }
-        } else {
-            Timber.i("Community list is the same as Db. Reusing...")
-        }
-    }
-
-    private fun loadCommunitiesFromDB() {
-        viewModelScope.launch {
-            dao.getAll().let {
-                if (it.isNotEmpty()) {
-                    Timber.i("Loaded ${it.size} communities from db")
-                    _communityList.postValue(it)
-                } else {
-                    Timber.i("Db has no data about communities")
-                }
-            }
-        }
-    }
-
-    private suspend fun saveCommunitiesToDB(list: List<Community>) {
-        dao.insertAll(list)
     }
 
     fun getForumNameMapping(): Map<String, String> {
@@ -90,7 +56,7 @@ class CommunityViewModel : ViewModel() {
     }
 
     fun refresh() {
-        getCommunitiesFromServer()
+        getCommunities(true)
     }
 
 }

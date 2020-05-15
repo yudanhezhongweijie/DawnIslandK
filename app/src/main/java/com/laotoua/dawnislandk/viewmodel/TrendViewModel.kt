@@ -6,13 +6,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.entity.Thread
 import com.laotoua.dawnislandk.data.entity.Trend
-import com.laotoua.dawnislandk.data.network.NMBServiceClient
+import com.laotoua.dawnislandk.data.repository.DataResource
 import com.laotoua.dawnislandk.data.state.AppState
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class TrendViewModel : ViewModel() {
-
+    // TODO: injection
+    val NMBServiceClient = com.laotoua.dawnislandk.data.network.NMBServiceClient()
     private val trendId = "15347469"
     private val po = "m9R9kaD"
     private val trendDelimiter = "\n\u2014\u2014\u2014\u2014\u2014<br />\n<br />\n"

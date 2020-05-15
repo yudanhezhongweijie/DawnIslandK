@@ -13,13 +13,13 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.entity.Reply
 import com.laotoua.dawnislandk.data.network.ImageLoader
 import com.laotoua.dawnislandk.data.network.NMBServiceClient
+import com.laotoua.dawnislandk.data.repository.DataResource
 import com.laotoua.dawnislandk.ui.util.ContentTransformationUtil.transformContent
 import com.laotoua.dawnislandk.ui.util.ContentTransformationUtil.transformCookie
 import com.laotoua.dawnislandk.ui.util.ContentTransformationUtil.transformTime
 import com.laotoua.dawnislandk.ui.util.ContentTransformationUtil.transformTitleAndName
 import com.laotoua.dawnislandk.ui.util.GlideApp
 import com.laotoua.dawnislandk.util.Constants
-import com.laotoua.dawnislandk.viewmodel.DataResource
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.CenterPopupView
 import com.lxj.xpopup.interfaces.SimpleCallback
@@ -134,6 +134,9 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
         private val mSegGap by lazy { MMKV.defaultMMKV().getInt(Constants.SEG_GAP, 0) }
 
         private var quoteStack: Stack<QuotePopup> = Stack()
+
+        // TODO: injection
+        val NMBServiceClient = NMBServiceClient()
 
         fun ensureQuotePopupDismissal(): Boolean {
             val empty = quoteStack.empty()

@@ -15,13 +15,17 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Retrofit
 import timber.log.Timber
 import java.io.File
+import javax.inject.Inject
 
 
-object NMBServiceClient {
-    private val service: NMBService = Retrofit.Builder()
-        .baseUrl(Constants.baseCDN)
-        .build()
-        .create(NMBService::class.java)
+class NMBServiceClient @Inject constructor(private val service: NMBService) {
+    // TODO: injection only
+    constructor() : this(
+        Retrofit.Builder()
+            .baseUrl(Constants.baseCDN)
+            .build()
+            .create(NMBService::class.java)
+    )
 
     private val parser = Gson()
 

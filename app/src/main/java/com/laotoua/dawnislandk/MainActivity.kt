@@ -55,6 +55,7 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
     private fun setUpForumDrawer() {
 
         binding.forumRefresh.setOnClickListener {
+            mAdapter.setData(emptyList())
             communityVM.refresh()
         }
 

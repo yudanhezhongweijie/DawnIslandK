@@ -1,8 +1,7 @@
-package com.laotoua.dawnislandk.viewmodel
+package com.laotoua.dawnislandk.data.repository
 
 import com.laotoua.dawnislandk.data.network.APIDataResponse
 import com.laotoua.dawnislandk.data.network.APISuccessDataResponse
-import timber.log.Timber
 
 sealed class DataResource<T>(
     val message: String,
@@ -11,15 +10,12 @@ sealed class DataResource<T>(
     companion object {
         fun <T> create(dataResponse: APIDataResponse<T>): DataResource<T> {
             return when (dataResponse) {
-                is APISuccessDataResponse -> {
-                    Success(dataResponse.message, dataResponse.data)
-                }
-                else -> {
-                    Timber.e("Unhandled ${dataResponse.javaClass.simpleName}: ${dataResponse.message}")
-                    Error(dataResponse.message, dataResponse.data)
-                }
+                is APISuccessDataResponse -> Success(dataResponse.message, dataResponse.data)
+                else -> Error(dataResponse.message, dataResponse.data)
             }
         }
+
+        fun <T> create(data: T): DataResource<T> = Success("Room data", data)
     }
 
     class Success<T>(message: String, data: T) : DataResource<T>(message, data)

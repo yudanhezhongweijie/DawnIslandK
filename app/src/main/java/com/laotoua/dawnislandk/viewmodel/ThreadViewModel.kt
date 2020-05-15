@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.entity.Forum
 import com.laotoua.dawnislandk.data.entity.Thread
 import com.laotoua.dawnislandk.data.network.NMBServiceClient
+import com.laotoua.dawnislandk.data.repository.DataResource
 import kotlinx.coroutines.launch
 import timber.log.Timber
 

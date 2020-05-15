@@ -51,11 +51,9 @@ sealed class APIDataResponse<out T> {
                     } else {
                         msg
                     }
-                    Timber.e(errorMsg)
                     APIErrorDataResponse<Nothing>(errorMsg ?: "unknown error")
                 }
             } catch (e: Exception) {
-                Timber.e(e)
                 return APIErrorDataResponse<Nothing>(e.toString())
             }
         }

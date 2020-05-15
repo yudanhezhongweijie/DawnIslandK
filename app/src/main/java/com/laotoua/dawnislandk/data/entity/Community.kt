@@ -28,7 +28,7 @@ data class Community(
 @Dao
 interface CommunityDao {
     @Query("SELECT * FROM community")
-    suspend fun getAll(): List<Community>
+    suspend fun getCommunities(): List<Community>
 
     @Query("SELECT * FROM community WHERE id==:id")
     suspend fun getCommunityById(id: String): Community

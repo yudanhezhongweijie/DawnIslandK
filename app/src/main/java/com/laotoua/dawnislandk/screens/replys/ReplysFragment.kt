@@ -13,10 +13,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -33,19 +33,24 @@ import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.screens.widget.popup.PostPopup
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.interfaces.SimpleCallback
+import dagger.android.support.DaggerFragment
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import me.dkzwm.widget.srl.config.Constants
 import me.dkzwm.widget.srl.extra.header.ClassicHeader
 import me.dkzwm.widget.srl.indicator.IIndicator
 import timber.log.Timber
+import javax.inject.Inject
 
 
-class ReplysFragment : Fragment() {
+class ReplysFragment : DaggerFragment() {
 
     //TODO: maintain reply fragment when pressing back, such that progress can be remembered
     private var _binding: FragmentReplyBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: ReplysViewModel by viewModels()
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    private val viewModel: ReplysViewModel by viewModels { viewModelFactory }
     private val sharedVM: SharedViewModel by activityViewModels()
     private val mAdapter =
         QuickAdapter(R.layout.list_item_reply).apply {

@@ -8,6 +8,7 @@ import com.laotoua.dawnislandk.data.local.Reply
 import com.laotoua.dawnislandk.data.local.Thread
 import com.laotoua.dawnislandk.data.remote.APISuccessMessageResponse
 import com.laotoua.dawnislandk.data.remote.MessageType
+import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.data.repository.DataResource
 import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.util.EventPayload
@@ -15,12 +16,9 @@ import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.SingleLiveEvent
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
-class ReplysViewModel : ViewModel() {
-//    private var dao: ReplyDao? = null
-// TODO: injection
-val NMBServiceClient = com.laotoua.dawnislandk.data.remote.NMBServiceClient()
-
+class ReplysViewModel @Inject constructor(private val webService: NMBServiceClient) : ViewModel() {
     private var _currentThread: Thread? = null
     val currentThread: Thread? get() = _currentThread
     private val replyList = mutableListOf<Reply>()
@@ -135,7 +133,7 @@ val NMBServiceClient = com.laotoua.dawnislandk.data.remote.NMBServiceClient()
                 )
             )
             DataResource.create(
-                NMBServiceClient.getReplys(
+                webService.getReplys(
                     AppState.cookies.firstOrNull()?.cookieHash,
                     _currentThread!!.id,
                     page
@@ -232,7 +230,7 @@ val NMBServiceClient = com.laotoua.dawnislandk.data.remote.NMBServiceClient()
     fun addFeed(uuid: String, id: String) {
         Timber.i("Adding Feed $id")
         viewModelScope.launch {
-            NMBServiceClient.addFeed(uuid, id).run {
+            webService.addFeed(uuid, id).run {
                 when (this) {
                     is APISuccessMessageResponse -> {
                         if (messageType == MessageType.String) {

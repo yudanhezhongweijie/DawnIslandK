@@ -6,6 +6,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.laotoua.dawnislandk.R
@@ -15,21 +16,25 @@ import com.laotoua.dawnislandk.screens.threads.ThreadsFragment
 import com.laotoua.dawnislandk.screens.trend.TrendsFragment
 import com.zhpan.indicator.enums.IndicatorSlideMode
 import com.zhpan.indicator.enums.IndicatorStyle
+import dagger.android.support.DaggerFragment
 import timber.log.Timber
+import javax.inject.Inject
 
 
-class PagerFragment : Fragment() {
+class PagerFragment : DaggerFragment() {
 
     private var _binding: FragmentPagerBinding? = null
     private val binding: FragmentPagerBinding get() = _binding!!
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
     private val sharedVM: SharedViewModel by activityViewModels()
 
     private var mForumId: String? = null
 
     private val minSwipeDist = 120
 
-    private val viewConfiguration by lazy { ViewConfiguration.get(context) }
+    private val scaledMinimumFlingVelocity by lazy { ViewConfiguration.get(context).scaledMinimumFlingVelocity }
 
     private val drawerLayout by lazy { requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout) }
 
@@ -52,7 +57,7 @@ class PagerFragment : Fragment() {
             ): Boolean {
                 val res = (binding.viewPager.currentItem == 0
                         && event2.x - event1.x > minSwipeDist
-                        && velocityX >= viewConfiguration.scaledMinimumFlingVelocity)
+                        && velocityX >= scaledMinimumFlingVelocity)
                 if (res) {
                     drawerLayout.open()
                 }

@@ -1,6 +1,5 @@
 package com.laotoua.dawnislandk
 
-//import dagger.android.support.DaggerApplication
 import androidx.room.Room
 import com.laotoua.dawnislandk.data.local.dao.DawnDatabase
 import com.laotoua.dawnislandk.data.state.AppState

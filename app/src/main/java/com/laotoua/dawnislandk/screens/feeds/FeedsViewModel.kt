@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.local.Thread
 import com.laotoua.dawnislandk.data.remote.APISuccessMessageResponse
+import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.data.repository.DataResource
 import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.util.EventPayload
@@ -14,8 +15,9 @@ import com.laotoua.dawnislandk.util.SingleLiveEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
-class FeedsViewModel : ViewModel() {
+class FeedsViewModel @Inject constructor(private val webService: NMBServiceClient) : ViewModel() {
     private val feedsList = mutableListOf<Thread>()
     private val feedsIds = mutableSetOf<String>()
     private var _feeds = MutableLiveData<List<Thread>>()
@@ -30,9 +32,6 @@ class FeedsViewModel : ViewModel() {
 
     private var tryAgain = false
 
-    // TODO: injection
-    val NMBServiceClient = com.laotoua.dawnislandk.data.remote.NMBServiceClient()
-
     fun getNextPage() {
         getFeedOnPage(nextPage)
     }
@@ -45,7 +44,7 @@ class FeedsViewModel : ViewModel() {
                 )
             )
             Timber.i("Downloading Feeds on page $page...")
-            DataResource.create(NMBServiceClient.getFeeds(AppState.feedId, page)).run {
+            DataResource.create(webService.getFeeds(AppState.feedId, page)).run {
                 when (this) {
                     is DataResource.Error -> {
                         Timber.e(message)
@@ -109,7 +108,7 @@ class FeedsViewModel : ViewModel() {
     fun deleteFeed(id: String, position: Int) {
         Timber.i("Deleting Feed $id")
         viewModelScope.launch(Dispatchers.IO) {
-            NMBServiceClient.delFeed(AppState.feedId, id).run {
+            webService.delFeed(AppState.feedId, id).run {
                 when (this) {
                     is APISuccessMessageResponse -> {
                         feedsList.removeAt(position)

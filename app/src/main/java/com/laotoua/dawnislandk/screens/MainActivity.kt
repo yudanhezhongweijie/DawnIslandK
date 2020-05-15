@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -19,14 +18,14 @@ import com.laotoua.dawnislandk.screens.replys.QuotePopup
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbarInitialization
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.tencent.mmkv.MMKV
-import dagger.android.AndroidInjection.inject
+import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
 
 
-class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
+class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListener {
 
     private lateinit var binding: ActivityMainBinding
 
@@ -49,10 +48,6 @@ class MainActivity : AppCompatActivity(), QuickNodeAdapter.ForumClickListener {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        /**
-         * Dagger injection required for ViewModelFactory
-         */
-        inject(this)
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)

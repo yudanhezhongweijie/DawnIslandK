@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.local.Thread
 import com.laotoua.dawnislandk.data.local.Trend
+import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.data.repository.DataResource
 import com.laotoua.dawnislandk.data.state.AppState
 import com.laotoua.dawnislandk.util.EventPayload
@@ -13,10 +14,9 @@ import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.SingleLiveEvent
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
-class TrendsViewModel : ViewModel() {
-    // TODO: injection
-    val NMBServiceClient = com.laotoua.dawnislandk.data.remote.NMBServiceClient()
+class TrendsViewModel @Inject constructor(private val webService: NMBServiceClient) : ViewModel() {
     private val trendId = "15347469"
     private val po = "m9R9kaD"
     private val trendDelimiter = "\n\u2014\u2014\u2014\u2014\u2014<br />\n<br />\n"
@@ -44,7 +44,7 @@ class TrendsViewModel : ViewModel() {
 
     private suspend fun getLatestTrendPage() {
         DataResource.create(
-            NMBServiceClient.getReplys(
+            webService.getReplys(
                 AppState.cookies.firstOrNull()?.cookieHash,
                 trendId,
                 page

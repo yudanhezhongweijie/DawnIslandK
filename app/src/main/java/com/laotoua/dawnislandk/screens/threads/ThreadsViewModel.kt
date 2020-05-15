@@ -6,16 +6,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.local.Forum
 import com.laotoua.dawnislandk.data.local.Thread
+import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.data.repository.DataResource
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.SingleLiveEvent
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
-class ThreadsViewModel : ViewModel() {
-    // TODO: injection
-    val NMBServiceClient = com.laotoua.dawnislandk.data.remote.NMBServiceClient()
+class ThreadsViewModel @Inject constructor(private val webService: NMBServiceClient) : ViewModel() {
     private val threadList = mutableListOf<Thread>()
     private val threadIds = mutableSetOf<String>()
     private var _thread = MutableLiveData<List<Thread>>()
@@ -37,7 +37,7 @@ class ThreadsViewModel : ViewModel() {
             )
             val fid = _currentForum?.id ?: "-1"
             Timber.i("Getting threads from $fid ${_currentForum?.name} on page $pageCount")
-            DataResource.create(NMBServiceClient.getThreads(fid, pageCount)).run {
+            DataResource.create(webService.getThreads(fid, pageCount)).run {
                 when (this) {
                     is DataResource.Error -> {
                         Timber.e(message)

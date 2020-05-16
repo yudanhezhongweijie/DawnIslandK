@@ -34,19 +34,19 @@ import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BottomPopupView
 import com.lxj.xpopup.interfaces.SimpleCallback
 import com.lxj.xpopup.util.KeyboardUtils
+import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
+import javax.inject.Inject
 
 
 @SuppressLint("ViewConstructor")
-class PostPopup(private val caller: Fragment, context: Context) :
+class PostPopup(private val caller: DaggerFragment, context: Context) :
     BottomPopupView(context) {
 
 
     companion object {
-        // TODO: injection
-        val NMBServiceClient = NMBServiceClient()
         fun show(
             caller: Fragment,
             postPopup: PostPopup,
@@ -72,6 +72,13 @@ class PostPopup(private val caller: Fragment, context: Context) :
                 .show()
         }
     }
+
+    init {
+        caller.androidInjector().inject(this)
+    }
+
+    @Inject
+    lateinit var webServiceClient: NMBServiceClient
 
     var newPost = false
     var targetId = ""
@@ -484,7 +491,7 @@ class PostPopup(private val caller: Fragment, context: Context) :
         postProgress.show()
         Timber.i("Sending...")
         caller.lifecycleScope.launch {
-            NMBServiceClient.sendPost(
+            webServiceClient.sendPost(
                 newPost,
                 targetId,
                 name,

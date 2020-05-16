@@ -14,7 +14,8 @@ import javax.inject.Singleton
         AndroidSupportInjectionModule::class,
         NMBNetworkModule::class,
         DatabaseModule::class,
-        ViewModelModule::class
+        ViewModelModule::class,
+        CustomViewModule::class
     ]
 )
 interface DawnAppComponent : AndroidInjector<DawnApp> {

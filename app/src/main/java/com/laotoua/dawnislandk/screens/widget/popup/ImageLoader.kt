@@ -10,7 +10,7 @@ import com.laotoua.dawnislandk.util.GlideApp
 import com.lxj.xpopup.interfaces.XPopupImageLoader
 import java.io.File
 
-class ImageLoader(val context: Context) :
+class ImageLoader(private val context: Context) :
     XPopupImageLoader {
     private val cdn = Constants.imageCDN
 

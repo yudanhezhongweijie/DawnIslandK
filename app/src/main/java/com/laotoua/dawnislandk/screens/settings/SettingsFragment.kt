@@ -172,11 +172,10 @@ class SettingsFragment : Fragment() {
         binding.animationSwitch.apply {
             key.setText(R.string.animation_on_off)
             preferenceSwitch.visibility = View.VISIBLE
-            val animationStatus = MMKV.defaultMMKV().getBoolean("animation", false)
-            toggleAnimation(animationStatus)
+            preferenceSwitch.isChecked = MMKV.defaultMMKV().getBoolean("animation", false)
+            updateSwitchSummary(R.string.animation_on, R.string.animation_off)
             root.setOnClickListener {
-                preferenceSwitch.toggle()
-                toggleAnimation(preferenceSwitch.isChecked)
+                toggleAnimationSwitch()
                 Toast.makeText(
                     context,
                     R.string.restart_to_apply_setting,
@@ -297,14 +296,18 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    private fun ListItemPreferenceBinding.toggleAnimation(isChecked: Boolean) {
-        MMKV.defaultMMKV().putBoolean("animation", isChecked)
-        if (isChecked) {
-            summary.setText(R.string.animation_on)
-        } else {
-            summary.setText(R.string.animation_off)
-        }
+    private fun ListItemPreferenceBinding.toggleAnimationSwitch() {
+        preferenceSwitch.toggle()
+        MMKV.defaultMMKV().putBoolean("animation", preferenceSwitch.isChecked)
+        updateSwitchSummary(R.string.animation_on, R.string.animation_off)
+    }
 
+    private fun ListItemPreferenceBinding.updateSwitchSummary(summaryOn: Int, summaryOff: Int) {
+        if (preferenceSwitch.isChecked) {
+            summary.setText(summaryOn)
+        } else {
+            summary.setText(summaryOff)
+        }
     }
 
 }

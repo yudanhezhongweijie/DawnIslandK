@@ -7,7 +7,6 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.Reply
@@ -25,11 +24,13 @@ import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.CenterPopupView
 import com.lxj.xpopup.interfaces.SimpleCallback
 import com.tencent.mmkv.MMKV
+import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.launch
-import java.util.*
+import timber.log.Timber
+import javax.inject.Inject
 
 @SuppressLint("ViewConstructor")
-class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupView(context) {
+class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterPopupView(context) {
 
     private val imageLoader: ImageLoader by lazy {
         ImageLoader(
@@ -41,23 +42,76 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
         return R.layout.popup_quote
     }
 
-    private fun convertQuote(quote: Reply, po: String) {
+    init {
+        caller.androidInjector().inject(this)
+    }
+
+    @Inject
+    lateinit var webServiceClient: NMBServiceClient
+
+    enum class DownloadStatus {
+        IDLE,
+        SUCCESS,
+        DOWNLOADING,
+        ERROR
+    }
+
+    private var status: DownloadStatus = DownloadStatus.IDLE
+
+    private var quote: Reply? = null
+
+    private lateinit var errorMsg: String
+
+    private var mPo: String = ""
+
+    private fun downloadQuote(id: String, po: String) {
+        caller.lifecycleScope.launch {
+            status = DownloadStatus.DOWNLOADING
+            mPo = po
+            DataResource.create(webServiceClient.getQuote(id)).run {
+                status = when (this) {
+                    is DataResource.Error -> {
+                        errorMsg = message
+                        Toast.makeText(
+                            context,
+                            "$errorMsg...",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                        DownloadStatus.ERROR
+                    }
+                    is DataResource.Success -> {
+                        quote = data!!
+                        DownloadStatus.SUCCESS
+                    }
+                }
+            }
+
+            showAfterDownload()
+        }
+    }
+
+    private fun convertQuote() {
+        if (status != DownloadStatus.SUCCESS || quote == null) {
+            Timber.e("Quote is not ready")
+            return
+        }
         findViewById<TextView>(R.id.quoteCookie).text =
             transformCookie(
-                quote.userid,
-                quote.admin!!,
-                po
+                quote!!.userid,
+                quote!!.admin!!,
+                mPo
             )
 
         findViewById<TextView>(R.id.quoteTime).text =
-            transformTime(quote.now)
+            transformTime(quote!!.now)
 
         // TODO: handle ads
-        findViewById<TextView>(R.id.quoteId).text = quote.id
+        findViewById<TextView>(R.id.quoteId).text = quote!!.id
 
         // TODO: add sage transformation
         findViewById<TextView>(R.id.sage).run {
-            visibility = if (quote.sage == "1") {
+            visibility = if (quote!!.sage == "1") {
                 View.VISIBLE
             } else {
                 View.GONE
@@ -66,8 +120,8 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
 
         val titleAndName =
             transformTitleAndName(
-                quote.title,
-                quote.name
+                quote!!.title,
+                quote!!.name
             )
         findViewById<TextView>(R.id.quoteTitleAndName).run {
             if (titleAndName != "") {
@@ -80,9 +134,9 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
 
         // load image
         findViewById<ImageView>(R.id.quoteImage).run {
-            visibility = if (quote.img != "") {
+            visibility = if (quote!!.img != "") {
                 GlideApp.with(context)
-                    .load(Constants.thumbCDN + quote.img + quote.ext)
+                    .load(Constants.thumbCDN + quote!!.img + quote!!.ext)
                     .override(250, 250)
                     .fitCenter()
                     .into(this)
@@ -91,7 +145,7 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
                 View.GONE
             }
             setOnClickListener { imageView ->
-                val url = quote.getImgUrl()
+                val url = quote!!.getImgUrl()
                 val viewerPopup =
                     ImageViewerPopup(
                         caller,
@@ -108,16 +162,11 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
 
         val referenceClickListener: (id: String) -> Unit = { id ->
             // TODO: get Po based on Thread
-            val quotePopup = QuotePopup(
-                caller,
-                context
-            )
             showQuote(
                 caller,
                 context,
-                quotePopup,
                 id,
-                po
+                mPo
             )
         }
 
@@ -128,7 +177,7 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
             scrollY = 0
             movementMethod = LinkMovementMethod.getInstance()
             text = transformContent(
-                quote.content,
+                quote!!.content,
                 mLineHeight,
                 mSegGap, referenceClickListener
             )
@@ -137,11 +186,17 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
         }
     }
 
-    override fun onDismiss() {
-        super.onDismiss()
-        quoteStack.pop()
-        if (!quoteStack.empty()) {
-            quoteStack.peek().requestFocus()
+    private fun showAfterDownload() {
+        if (status == DownloadStatus.SUCCESS) {
+            XPopup.Builder(context)
+                .setPopupCallback(object : SimpleCallback() {
+                    override fun beforeShow() {
+                        super.beforeShow()
+                        convertQuote()
+                    }
+                })
+                .asCustom(this)
+                .show()
         }
     }
 
@@ -150,53 +205,51 @@ class QuotePopup(private val caller: Fragment, context: Context) : CenterPopupVi
         private val mLineHeight by lazy { MMKV.defaultMMKV().getInt(Constants.LINE_HEIGHT, 0) }
         private val mSegGap by lazy { MMKV.defaultMMKV().getInt(Constants.SEG_GAP, 0) }
 
-        private var quoteStack: Stack<QuotePopup> = Stack()
-
-        // TODO: injection
-        val NMBServiceClient = NMBServiceClient()
+        private var quotePopupList = mutableListOf<QuotePopup>()
 
         fun ensureQuotePopupDismissal(): Boolean {
-            val empty = quoteStack.empty()
-            if (!empty) {
-                quoteStack.peek().dismiss()
+            quotePopupList.lastOrNull { it.isShow }.run {
+                this?.dismiss()
+                return this == null
             }
-            return empty
         }
 
+
+        // TODO Repository for quotes
         fun showQuote(
-            caller: Fragment,
+            caller: DaggerFragment,
             context: Context,
-            quotePopup: QuotePopup,
             id: String,
             po: String
         ) {
-            quoteStack.push(quotePopup)
-            caller.lifecycleScope.launch {
-                DataResource.create(NMBServiceClient.getQuote(id)).run {
-                    when (this) {
-                        is DataResource.Error -> {
-                            Toast.makeText(
-                                context,
-                                "$message...",
-                                Toast.LENGTH_SHORT
-                            )
-                                .show()
-                        }
-                        is DataResource.Success -> {
-                            XPopup.Builder(context)
-                                .setPopupCallback(object : SimpleCallback() {
-                                    override fun beforeShow() {
-                                        super.beforeShow()
-                                        quotePopup.convertQuote(data!!, po)
-                                    }
-                                })
-                                .asCustom(quotePopup)
-                                .show()
-                        }
+            var top = quotePopupList.firstOrNull { it.isDismiss }
+            if (top == null) {
+                top = QuotePopup(caller, context)
+                quotePopupList.add(top)
+            }
+            when (top.status) {
+                DownloadStatus.SUCCESS -> {
+                    if (top.quote?.id != id) {
+                        top.downloadQuote(id, po)
+                    } else if (!top.isShow) {
+                        top.showAfterDownload()
                     }
+                }
+                DownloadStatus.IDLE -> {
+                    top.downloadQuote(id, po)
+                }
+                DownloadStatus.DOWNLOADING -> {
+                    // TODO: add animation
+                    Timber.d("Downloading quote")
+                }
+                // retry
+                DownloadStatus.ERROR -> {
+                    Timber.d("Didn't get quote. Retrying...")
+                    top.downloadQuote(id, po)
                 }
             }
         }
+
 
     }
 }

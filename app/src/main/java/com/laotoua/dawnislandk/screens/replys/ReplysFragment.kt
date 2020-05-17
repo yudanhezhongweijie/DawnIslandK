@@ -59,7 +59,6 @@ class ReplysFragment : DaggerFragment() {
                 QuotePopup.showQuote(
                     this@ReplysFragment,
                     requireContext(),
-                    quotePopup,
                     quote,
                     viewModel.po
                 )
@@ -75,12 +74,6 @@ class ReplysFragment : DaggerFragment() {
 
     private val postPopup: PostPopup by lazy { PostPopup(this, requireContext()) }
 
-    private val quotePopup: QuotePopup by lazy {
-        QuotePopup(
-            this,
-            requireContext()
-        )
-    }
 
     private val jumpPopup: JumpPopup by lazy {
         JumpPopup(
@@ -180,9 +173,8 @@ class ReplysFragment : DaggerFragment() {
                         .asCustom(viewerPopup)
                         .show()
                 } else if (view.id == R.id.refId) {
-                    // TODO
                     val replyId = (view as TextView).text
-                    Timber.i("replyId: $replyId")
+                    copyId(">>No.$replyId")
                 }
             }
 
@@ -233,14 +225,7 @@ class ReplysFragment : DaggerFragment() {
         }
 
         binding.copyId.setOnClickListener {
-            val clipboard = getSystemService(
-                requireContext(),
-                ClipboardManager::class.java
-            )
-            val clip: ClipData =
-                ClipData.newPlainText("currentThreadId", ">>No.${viewModel.currentThread!!.id}")
-            clipboard?.setPrimaryClip(clip)
-            Toast.makeText(context, R.string.thread_id_copied, Toast.LENGTH_SHORT).show()
+            copyId(">>No.${viewModel.currentThread!!.id}")
             hideMenu()
         }
 
@@ -290,6 +275,17 @@ class ReplysFragment : DaggerFragment() {
                 Toast.makeText(context, eventPayload.message, Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+    private fun copyId(text: String) {
+        val clipboard = getSystemService(
+            requireContext(),
+            ClipboardManager::class.java
+        )
+        val clip: ClipData =
+            ClipData.newPlainText("currentThreadId", text)
+        clipboard?.setPrimaryClip(clip)
+        Toast.makeText(context, R.string.thread_id_copied, Toast.LENGTH_SHORT).show()
     }
 
     override fun onDestroyView() {

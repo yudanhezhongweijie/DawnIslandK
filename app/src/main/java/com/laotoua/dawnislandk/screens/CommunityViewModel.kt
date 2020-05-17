@@ -45,7 +45,7 @@ class CommunityViewModel @Inject constructor(private val communityRepository: Co
                         )
                     }
                     is DataResource.Success -> {
-                        _communityList.postValue(it.data!!)
+                        if (it.data!!.isNotEmpty()) _communityList.postValue(it.data)
                     }
                 }
             }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_alignParentStart="true"
@@ -15,9 +16,9 @@
         android:layout_height="32dp"
         android:layout_gravity="center"
         android:layout_marginStart="30dp"
-        android:contentDescription="forumIcon"
         android:padding="4dp"
-        android:tint="#828282" />
+        android:tint="#828282"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/forumName"
@@ -25,7 +26,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_marginStart="2dp"
-        android:text="forumName"
+        android:text="@string/sample_forum"
         android:textColor="#000000"
         android:textSize="16sp" />
 

@@ -193,6 +193,10 @@ class ThreadsFragment : DaggerFragment() {
 
         binding.setting.setOnClickListener {
             hideMenu()
+            /**
+             * navigation during scroll will crash the app
+             */
+            binding.recyclerView.stopScroll()
             val action =
                 PagerFragmentDirections.actionPagerFragmentToSettingsFragment()
             findNavController().navigate(action)

@@ -177,9 +177,10 @@ object ContentTransformation {
 
     private fun handleHideTag(content: SpannableStringBuilder): SpannableStringBuilder {
         val m: Matcher = HIDE_PATTERN.matcher(content)
+        var matchCount = 0
         while (m.find()) {
-            val start = m.start()
-            val end = m.end()
+            val start = m.start() - 7 * matchCount
+            val end = m.end() - 7 * matchCount
             /**
              *  remove surrounding [h][/h]
              */
@@ -187,6 +188,7 @@ object ContentTransformation {
             val hideSpan = HideSpan(start, end - 7)
             content.setSpan(hideSpan, start, end - 7, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
             hideSpan.hideSecret(content, start, end - 7)
+            matchCount += 1
         }
         return content
     }

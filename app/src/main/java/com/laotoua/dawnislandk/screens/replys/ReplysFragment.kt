@@ -31,6 +31,7 @@ import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widget.popup.ImageLoader
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.screens.widget.popup.PostPopup
+import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.interfaces.SimpleCallback
 import dagger.android.support.DaggerFragment
@@ -66,16 +67,16 @@ class ReplysFragment : DaggerFragment() {
         }
 
 
-    private val imageLoader: ImageLoader by lazy {
+    private val imageLoader: ImageLoader by lazyOnMainOnly {
         ImageLoader(
             requireContext()
         )
     }
 
-    private val postPopup: PostPopup by lazy { PostPopup(this, requireContext()) }
+    private val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext()) }
 
 
-    private val jumpPopup: JumpPopup by lazy {
+    private val jumpPopup: JumpPopup by lazyOnMainOnly {
         JumpPopup(
             requireContext()
         )

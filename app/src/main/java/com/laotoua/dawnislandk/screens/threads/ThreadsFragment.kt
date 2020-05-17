@@ -26,6 +26,7 @@ import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widget.popup.ImageLoader
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.screens.widget.popup.PostPopup
+import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
 import dagger.android.support.DaggerFragment
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
@@ -48,11 +49,11 @@ class ThreadsFragment : DaggerFragment() {
     private val mAdapter =
         QuickAdapter(R.layout.list_item_thread)
 
-    private val postPopup: PostPopup by lazy { PostPopup(this, requireContext()) }
+    private val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext()) }
 
     private var isFabOpen = false
 
-    private val imageLoader: ImageLoader by lazy {
+    private val imageLoader: ImageLoader by lazyOnMainOnly {
         ImageLoader(
             requireContext()
         )

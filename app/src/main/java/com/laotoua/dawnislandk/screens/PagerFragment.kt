@@ -14,6 +14,7 @@ import com.laotoua.dawnislandk.databinding.FragmentPagerBinding
 import com.laotoua.dawnislandk.screens.feeds.FeedsFragment
 import com.laotoua.dawnislandk.screens.threads.ThreadsFragment
 import com.laotoua.dawnislandk.screens.trend.TrendsFragment
+import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.zhpan.indicator.enums.IndicatorSlideMode
 import com.zhpan.indicator.enums.IndicatorStyle
 import dagger.android.support.DaggerFragment
@@ -34,9 +35,9 @@ class PagerFragment : DaggerFragment() {
 
     private val minSwipeDist = 120
 
-    private val scaledMinimumFlingVelocity by lazy { ViewConfiguration.get(context).scaledMinimumFlingVelocity }
+    private val scaledMinimumFlingVelocity by lazyOnMainOnly { ViewConfiguration.get(context).scaledMinimumFlingVelocity }
 
-    private val drawerLayout by lazy { requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout) }
+    private val drawerLayout by lazyOnMainOnly { requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout) }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

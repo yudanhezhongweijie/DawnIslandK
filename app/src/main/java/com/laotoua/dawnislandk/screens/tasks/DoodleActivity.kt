@@ -32,6 +32,7 @@ import com.laotoua.dawnislandk.screens.util.ToolBar.themeStatusBar
 import com.laotoua.dawnislandk.screens.widget.DoodleView
 import com.laotoua.dawnislandk.screens.widget.ThicknessPreviewView
 import com.laotoua.dawnislandk.util.ReadableTime
+import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
@@ -255,7 +256,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
         }
     }
 
-    private val defaultColors by lazy {
+    private val defaultColors by lazyOnMainOnly {
         arrayListOf(
             binding.doodleView.paintColor,
             Color.BLACK,

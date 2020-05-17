@@ -20,6 +20,7 @@ import com.laotoua.dawnislandk.screens.widget.popup.ImageLoader
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.util.Constants
 import com.laotoua.dawnislandk.util.GlideApp
+import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.CenterPopupView
 import com.lxj.xpopup.interfaces.SimpleCallback
@@ -32,7 +33,7 @@ import javax.inject.Inject
 @SuppressLint("ViewConstructor")
 class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterPopupView(context) {
 
-    private val imageLoader: ImageLoader by lazy {
+    private val imageLoader: ImageLoader by lazyOnMainOnly {
         ImageLoader(
             context
         )
@@ -201,9 +202,13 @@ class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterP
     }
 
     companion object {
-        private val mLetterSpace by lazy { MMKV.defaultMMKV().getFloat(Constants.LETTER_SPACE, 0f) }
-        private val mLineHeight by lazy { MMKV.defaultMMKV().getInt(Constants.LINE_HEIGHT, 0) }
-        private val mSegGap by lazy { MMKV.defaultMMKV().getInt(Constants.SEG_GAP, 0) }
+        private val mLetterSpace by lazyOnMainOnly {
+            MMKV.defaultMMKV().getFloat(Constants.LETTER_SPACE, 0f)
+        }
+        private val mLineHeight by lazyOnMainOnly {
+            MMKV.defaultMMKV().getInt(Constants.LINE_HEIGHT, 0)
+        }
+        private val mSegGap by lazyOnMainOnly { MMKV.defaultMMKV().getInt(Constants.SEG_GAP, 0) }
 
         private var quotePopupList = mutableListOf<QuotePopup>()
 

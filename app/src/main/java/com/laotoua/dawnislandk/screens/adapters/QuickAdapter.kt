@@ -24,6 +24,7 @@ import com.laotoua.dawnislandk.screens.util.ContentTransformation
 import com.laotoua.dawnislandk.screens.widget.span.RoundBackgroundColorSpan
 import com.laotoua.dawnislandk.util.Constants
 import com.laotoua.dawnislandk.util.GlideApp
+import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.tencent.mmkv.MMKV
 import timber.log.Timber
 
@@ -33,14 +34,18 @@ class QuickAdapter(private val layoutResId: Int) :
     BaseQuickAdapter<Any, BaseViewHolder>(layoutResId, ArrayList()),
     LoadMoreModule {
 
-    private val thumbCDN = Constants.thumbCDN
+    companion object {
+        private const val thumbCDN = Constants.thumbCDN
+        private val mmkv = MMKV.defaultMMKV()
+        private val mLetterSpace by lazyOnMainOnly { mmkv.getFloat(Constants.LETTER_SPACE, 0f) }
+        private val mLineHeight by lazyOnMainOnly { mmkv.getInt(Constants.LINE_HEIGHT, 0) }
+        private val mSegGap by lazyOnMainOnly { mmkv.getInt(Constants.SEG_GAP, 0) }
+        private val mTextSize by lazyOnMainOnly { mmkv.getFloat(Constants.MAIN_TEXT_SIZE, 15f) }
+    }
+
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var referenceClickListener: (String) -> Unit
 
-    private val mLetterSpace by lazy { MMKV.defaultMMKV().getFloat(Constants.LETTER_SPACE, 0f) }
-    private val mLineHeight by lazy { MMKV.defaultMMKV().getInt(Constants.LINE_HEIGHT, 0) }
-    private val mSegGap by lazy { MMKV.defaultMMKV().getInt(Constants.SEG_GAP, 0) }
-    private val mTextSize by lazy { MMKV.defaultMMKV().getFloat(Constants.MAIN_TEXT_SIZE, 15f) }
 
     // TODO: support multiple Po
     private var po: String = ""

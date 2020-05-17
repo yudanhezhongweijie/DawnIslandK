@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.io.ImageUtil
+import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.core.ImageViewerPopupView
 import com.lxj.xpopup.photoview.PhotoView
 import kotlinx.coroutines.Dispatchers
@@ -34,7 +35,7 @@ class ImageViewerPopup(
     private val _status = MutableLiveData<Boolean>()
     private val status: LiveData<Boolean> get() = _status
     private var saveShown = true
-    private val saveButton by lazy { findViewById<FloatingActionButton>(R.id.save) }
+    private val saveButton by lazyOnMainOnly { findViewById<FloatingActionButton>(R.id.save) }
 
     override fun getImplLayoutId(): Int {
         return R.layout.popup_image_viewer

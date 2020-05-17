@@ -10,6 +10,7 @@ import androidx.core.widget.doOnTextChanged
 import com.afollestad.materialdialogs.MaterialDialog
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
+import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.core.CenterPopupView
 
 class JumpPopup(context: Context) : CenterPopupView(context) {
@@ -18,8 +19,8 @@ class JumpPopup(context: Context) : CenterPopupView(context) {
     var submit = false
     var targetPage = 1
 
-    private val pageInput by lazy { findViewById<EditText>(R.id.pageInput) }
-    private val submitButton by lazy { findViewById<Button>(R.id.submit) }
+    private val pageInput by lazyOnMainOnly { findViewById<EditText>(R.id.pageInput) }
+    private val submitButton by lazyOnMainOnly { findViewById<Button>(R.id.submit) }
 
     override fun getImplLayoutId(): Int {
         return R.layout.popup_jump

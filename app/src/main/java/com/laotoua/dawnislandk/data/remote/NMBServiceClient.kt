@@ -5,27 +5,18 @@ import com.google.gson.reflect.TypeToken
 import com.laotoua.dawnislandk.data.local.Community
 import com.laotoua.dawnislandk.data.local.Reply
 import com.laotoua.dawnislandk.data.local.Thread
-import com.laotoua.dawnislandk.util.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import retrofit2.Retrofit
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
 
 
 class NMBServiceClient @Inject constructor(private val service: NMBService) {
-    // TODO: injection only
-    constructor() : this(
-        Retrofit.Builder()
-            .baseUrl(Constants.baseCDN)
-            .build()
-            .create(NMBService::class.java)
-    )
 
     private val parser = Gson()
 

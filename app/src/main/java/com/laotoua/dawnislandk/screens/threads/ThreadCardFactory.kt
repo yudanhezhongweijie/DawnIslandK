@@ -6,6 +6,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.util.Constants
+import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.tencent.mmkv.MMKV
 
 object ThreadCardFactory {
@@ -16,77 +17,77 @@ object ThreadCardFactory {
     private var defaultCardViewMarginTop = 16
     private var defaultCardViewMarginBottom = 10
 
-    private val mmkv by lazy { MMKV.defaultMMKV() }
-    val mainTextSize by lazy { mmkv.getFloat(Constants.MAIN_TEXT_SIZE, 15f) }
-    val cardRadius by lazy {
+    private val mmkv by lazyOnMainOnly { MMKV.defaultMMKV() }
+    val mainTextSize by lazyOnMainOnly { mmkv.getFloat(Constants.MAIN_TEXT_SIZE, 15f) }
+    val cardRadius by lazyOnMainOnly {
         mmkv.getFloat(
             Constants.CARD_RADIUS,
             15f
         )
     }
-    val cardElevation by lazy {
+    val cardElevation by lazyOnMainOnly {
         mmkv.getFloat(
             Constants.CARD_ELEVATION,
             15f
         )
     }
-    val cardMarginTop by lazy {
+    val cardMarginTop by lazyOnMainOnly {
         mmkv.getInt(
             Constants.CARD_MARGIN_TOP,
             defaultCardViewMarginTop
         )
     }
-    val cardMarginLeft by lazy {
+    val cardMarginLeft by lazyOnMainOnly {
         mmkv.getInt(
             Constants.CARD_MARGIN_LEFT,
             defaultCardViewMarginStart
         )
     }
-    val cardMarginRight by lazy {
+    val cardMarginRight by lazyOnMainOnly {
         mmkv.getInt(
             Constants.CARD_MARGIN_RIGHT,
             defaultCardViewMarginEnd
         )
     }
-    private val cardMarginBottom by lazy {
+    private val cardMarginBottom by lazyOnMainOnly {
         mmkv.getInt(
             Constants.CARD_MARGIN_BOTTOM,
             defaultCardViewMarginBottom
         )
     }
-    val headBarMarginTop by lazy {
+    val headBarMarginTop by lazyOnMainOnly {
         mmkv.getInt(
             Constants.HEAD_BAR_MARGIN_TOP,
             defaultCardViewPadding
         )
     }
-    val contentMarginTop by lazy {
+    val contentMarginTop by lazyOnMainOnly {
         mmkv.getInt(
             Constants.CONTENT_MARGIN_TOP,
             15
         )
     }
-    val contentMarginLeft by lazy {
+    val contentMarginLeft by lazyOnMainOnly {
         mmkv.getInt(
             Constants.CONTENT_MARGIN_LEFT,
             defaultCardViewPadding
         )
     }
-    val contentMarginRight by lazy {
+    val contentMarginRight by lazyOnMainOnly {
         mmkv.getInt(
             Constants.CONTENT_MARGIN_RIGHT,
             defaultCardViewPadding
         )
     }
-    val contentMarginBottom by lazy {
+    val contentMarginBottom by lazyOnMainOnly {
         mmkv.getInt(
             Constants.CONTENT_MARGIN_BOTTOM,
             defaultCardViewPadding
         )
     }
-    val lineHeight by lazy { mmkv.getInt(Constants.LINE_HEIGHT, 10) }
-    val letterSpace by lazy { mmkv.getFloat(Constants.LETTER_SPACE, 15f) }
-    val segGap by lazy { mmkv.getInt(Constants.SEG_GAP, 10) }
+    val lineHeight by lazyOnMainOnly { mmkv.getInt(Constants.LINE_HEIGHT, 10) }
+    val letterSpace by lazyOnMainOnly { mmkv.getFloat(Constants.LETTER_SPACE, 15f) }
+    val segGap by lazyOnMainOnly { mmkv.getInt(Constants.SEG_GAP, 10) }
 
     fun applySettings(cardView: MaterialCardView) {
         val marginLayoutParams = (ViewGroup.MarginLayoutParams(

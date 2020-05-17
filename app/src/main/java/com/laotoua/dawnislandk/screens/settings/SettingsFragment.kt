@@ -1,19 +1,23 @@
 package com.laotoua.dawnislandk.screens.settings
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.widget.doOnTextChanged
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.WhichButton
+import com.afollestad.materialdialogs.actions.getActionButton
+import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.input.input
 import com.afollestad.materialdialogs.list.listItems
 import com.king.zxing.util.CodeUtils
@@ -26,8 +30,7 @@ import com.laotoua.dawnislandk.databinding.ListItemPreferenceBinding
 import com.laotoua.dawnislandk.io.FragmentIntentUtil
 import com.laotoua.dawnislandk.io.ImageUtil
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
-import com.lxj.xpopup.XPopup
-import com.lxj.xpopup.interfaces.SimpleCallback
+import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.launch
 import org.json.JSONObject
@@ -37,12 +40,31 @@ class SettingsFragment : Fragment() {
 
     private val cookies get() = applicationDataStore.cookies
 
-    private val mmkv by lazy { MMKV.defaultMMKV() }
+    private val mmkv by lazyOnMainOnly { MMKV.defaultMMKV() }
 
-    private val cookieAdditionPopup: CookieAdditionPopup by lazy {
-        CookieAdditionPopup(
-            requireContext()
-        )
+    private val cookieAdditionPopup: MaterialDialog by lazyOnMainOnly {
+        MaterialDialog(requireContext()).apply {
+            title(R.string.add_cookie)
+            customView(R.layout.dialog_cookie_addition)
+            positiveButton(R.string.submit) {
+                val cookieName = findViewById<EditText>(R.id.cookieNameText).text
+                val cookieHash = findViewById<EditText>(R.id.cookieHashText).text
+                if (cookieHash.toString() != "") {
+                    addCookie(
+                        Cookie(
+                            cookieHash.toString(),
+                            cookieName.toString()
+                        )
+                    )
+                    cookieHash.clear()
+                    cookieName.clear()
+                }
+            }
+            negativeButton(R.string.cancel)
+            findViewById<EditText>(R.id.cookieHashText).doOnTextChanged { text, _, _, _ ->
+                getActionButton(WhichButton.POSITIVE).isEnabled = !text.isNullOrBlank()
+            }
+        }
     }
 
     private val getCookieImage =
@@ -187,25 +209,7 @@ class SettingsFragment : Fragment() {
                                     }
                                 }
                             }
-                            2 -> XPopup.Builder(context)
-                                .setPopupCallback(object : SimpleCallback() {
-                                    override fun beforeShow() {
-                                        cookieAdditionPopup.clearEntries()
-                                        super.beforeShow()
-                                    }
-                                })
-                                .asCustom(cookieAdditionPopup)
-                                .show()
-                                .dismissWith {
-                                    if (cookieAdditionPopup.cookieHash != "") {
-                                        addCookie(
-                                            Cookie(
-                                                cookieAdditionPopup.cookieHash,
-                                                cookieAdditionPopup.cookieName
-                                            )
-                                        )
-                                    }
-                                }
+                            2 -> cookieAdditionPopup.show()
                         }
                     }
                 }
@@ -222,7 +226,6 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    @SuppressLint("SetTextI18n")
     private fun addCookieToLayout(cookie: Cookie) {
         val view = ListItemCookieBinding.inflate(layoutInflater)
         view.cookieName.text = cookie.cookieName
@@ -245,12 +248,14 @@ class SettingsFragment : Fragment() {
             if (binding.cookieList.childCount < 5) {
                 binding.addCookie.isEnabled = true
             }
-            binding.cookieSummary.text = "${binding.cookieList.childCount} / 5"
+            binding.cookieSummary.text =
+                resources.getString(R.string.cookie_count, binding.cookieList.childCount)
         }
 
         binding.cookieList.addView(view.root)
 
-        binding.cookieSummary.text = "${binding.cookieList.childCount} / 5"
+        binding.cookieSummary.text =
+            resources.getString(R.string.cookie_count, binding.cookieList.childCount)
         if (binding.cookieList.childCount >= 5) {
             binding.addCookie.isEnabled = false
         }

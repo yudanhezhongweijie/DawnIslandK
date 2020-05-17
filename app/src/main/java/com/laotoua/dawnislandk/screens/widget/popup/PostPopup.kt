@@ -29,6 +29,7 @@ import com.laotoua.dawnislandk.io.FragmentIntentUtil
 import com.laotoua.dawnislandk.io.ImageUtil
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.util.ReadableTime
+import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BottomPopupView
 import com.lxj.xpopup.interfaces.SimpleCallback
@@ -95,14 +96,15 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
 
     private var selectedCookie: Cookie? = null
     private var postCookie: Button? = null
+    private var postForum: Button? = null
 
     private var toggleContainers: ConstraintLayout? = null
     private var expansionContainer: LinearLayout? = null
     private var attachmentContainer: ConstraintLayout? = null
     private var emojiContainer: RecyclerView? = null
-    private val emojiAdapter: QuickAdapter by lazy { QuickAdapter(R.layout.grid_item_emoji) }
+    private val emojiAdapter: QuickAdapter by lazyOnMainOnly { QuickAdapter(R.layout.grid_item_emoji) }
     private var luweiStickerContainer: RecyclerView? = null
-    private val luweiStickerAdapter: QuickAdapter by lazy { QuickAdapter(R.layout.grid_item_luwei_sticker) }
+    private val luweiStickerAdapter: QuickAdapter by lazyOnMainOnly { QuickAdapter(R.layout.grid_item_luwei_sticker) }
     private var postContent: EditText? = null
     private var postImagePreview: ImageView? = null
 
@@ -110,29 +112,44 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
     private var keyboardHeight = -1
     private var keyboardHolder: LinearLayout? = null
 
-    private val postProgress by lazy {
+    private val postProgress by lazyOnMainOnly {
         MaterialDialog(context).apply {
+            title(R.string.sending)
             customView(R.layout.dialog_progress)
             cancelable(false)
-            title(R.string.sending)
         }
     }
 
-    private val reportReasonPopup by lazy {
+    private val reportReasonPopup by lazyOnMainOnly {
         MaterialDialog(context).apply {
+            title(R.string.report_reasons)
             listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
                 postContent!!.append("\n${context.getString(R.string.report_reasons)}: $text")
             }
             cancelOnTouchOutside(false)
-            title(R.string.report_reasons)
         }
     }
 
-    private val cookiePopup by lazy {
+    private val cookiePopup by lazyOnMainOnly {
         MaterialDialog(context).apply {
+            title(R.string.select_cookie)
             listItemsSingleChoice(items = cookies.map { c -> c.cookieName }) { _, ind, text ->
                 selectedCookie = cookies[ind]
                 postCookie!!.text = text
+            }
+        }
+    }
+
+    private val targetForumPopup by lazyOnMainOnly {
+        MaterialDialog(context).show {
+            title(R.string.select_target_forum)
+            listItemsSingleChoice(items = forumNameMap!!.values.drop(1)) { _, index, text ->
+                targetId = forumNameMap!!.keys.drop(1).toList()[index]
+                postForum!!.text = text
+            }//去除时间线
+        }.onDismiss {
+            if (postForum!!.text == "值班室") {
+                reportReasonPopup.show()
             }
         }
     }
@@ -273,22 +290,15 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
             keyboardHolder = findViewById(R.id.keyboardHolder)
         }
 
-        attachmentContainer = findViewById<ConstraintLayout>(R.id.attachmentContainer).also {
+        attachmentContainer = findViewById<ConstraintLayout>(R.id.attachmentContainer).apply {
             postImagePreview = findViewById(R.id.postImagePreview)
         }
 
-        findViewById<Button>(R.id.postForum).let { button ->
-            button.setOnClickListener {
-                KeyboardUtils.hideSoftInput(postContent!!)
-                MaterialDialog(context).show {
-                    listItemsSingleChoice(items = forumNameMap!!.values.drop(1)) { _, index, text ->
-                        targetId = forumNameMap!!.keys.drop(1).toList()[index]
-                        button.text = text
-                    }//去除时间线
-                }.onDismiss {
-                    if (button.text == "值班室") {
-                        reportReasonPopup.show()
-                    }
+        postForum = findViewById<Button>(R.id.postForum).apply {
+            if (visibility == View.VISIBLE) {
+                setOnClickListener {
+                    KeyboardUtils.hideSoftInput(postContent!!)
+                    targetForumPopup.show()
                 }
             }
         }
@@ -451,6 +461,7 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
         }
 
         findViewById<ImageView>(R.id.postClose).setOnClickListener {
+            KeyboardUtils.hideSoftInput(postContent!!)
             dismissWith {
                 val lp = keyboardHolder!!.layoutParams
                 lp.height = 0

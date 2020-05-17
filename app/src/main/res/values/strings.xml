@@ -40,6 +40,7 @@
     <string name="edit_text_hint" translatable="false">在这里输入文字</string>
     <string name="watermark" translatable="false">水印</string>
     <string name="missing_cookie" translatable="false">没有饼干</string>
+    <string name="cookie_count" translatable="false">%d / 5</string>
     <string name="title" translatable="false">标题</string>
     <string name="email" translatable="false">邮箱</string>
     <string name="name" translatable="false">名称</string>
@@ -56,6 +57,8 @@
     <string name="animation_off" translatable="false">关闭动画效果</string>
     <string name="cookie_management" translatable="false">饼干管理</string>
     <string name="add_cookie" translatable="false">添加饼干</string>
+    <string name="select_cookie" translatable="false">选择饼干</string>
+    <string name="select_target_forum" translatable="false">选择发布板块</string>
     <string name="settings" translatable="false">设置</string>
     <string name="general_settings" translatable="false">通用设置</string>
     <string name="size_customization_settings" translatable="false">设置串卡片布局</string>
@@ -113,4 +116,6 @@
     <string name="see_po_only" translatable="false">只看Po</string>
     <string name="copy_thread_id" translatable="false">复制串号</string>
     <string name="please_select_target_forum" translatable="false">请选择发布板块</string>
+    <string name="cookie_name" translatable="false">饼干名字</string>
+    <string name="cookie_hash" translatable="false">饼干序列</string>
 </resources>

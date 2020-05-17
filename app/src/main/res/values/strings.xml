@@ -112,4 +112,5 @@
     <string name="subscribe" translatable="false">收藏</string>
     <string name="see_po_only" translatable="false">只看Po</string>
     <string name="copy_thread_id" translatable="false">复制串号</string>
+    <string name="please_select_target_forum" translatable="false">请选择发布板块</string>
 </resources>

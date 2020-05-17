@@ -8,7 +8,6 @@ import android.net.Uri
 import android.os.Environment
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
@@ -45,17 +44,15 @@ import javax.inject.Inject
 class PostPopup(private val caller: DaggerFragment, context: Context) :
     BottomPopupView(context) {
 
-
     companion object {
         fun show(
             caller: Fragment,
             postPopup: PostPopup,
-            targetId: String,
+            targetId: String?,
             newPost: Boolean = false,
             forumNameMap: Map<String, String>? = null
         ) {
             XPopup.Builder(caller.context)
-
                 .setPopupCallback(object : SimpleCallback() {
                     override fun beforeShow() {
                         postPopup.targetId = targetId
@@ -81,7 +78,7 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
     lateinit var webServiceClient: NMBServiceClient
 
     var newPost = false
-    var targetId = ""
+    var targetId: String? = null
     var name = ""
     private var email = ""
     var title = ""
@@ -97,6 +94,7 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
     private var cookies = listOf<Cookie>()
 
     private var selectedCookie: Cookie? = null
+    private var postCookie: Button? = null
 
     private var toggleContainers: ConstraintLayout? = null
     private var expansionContainer: LinearLayout? = null
@@ -121,19 +119,27 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
     }
 
     private val reportReasonPopup by lazy {
-        XPopup.Builder(getContext())
-            .dismissOnTouchOutside(false)
-            .asCenterList(
-                context.getString(R.string.report_reasons),
-                resources.getStringArray(R.array.report_reasons)
-            ) { _: Int, text: String? ->
+        MaterialDialog(context).apply {
+            listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
                 postContent!!.append("\n${context.getString(R.string.report_reasons)}: $text")
             }
+            cancelOnTouchOutside(false)
+            title(R.string.report_reasons)
+        }
+    }
+
+    private val cookiePopup by lazy {
+        MaterialDialog(context).apply {
+            listItemsSingleChoice(items = cookies.map { c -> c.cookieName }) { _, ind, text ->
+                selectedCookie = cookies[ind]
+                postCookie!!.text = text
+            }
+        }
     }
 
     private var progressBar: ProgressBar? = null
 
-    private fun updateTitle(targetId: String, newPost: Boolean) {
+    private fun updateTitle(targetId: String?, newPost: Boolean) {
         findViewById<TextView>(R.id.postTitle).text =
             if (newPost) context.getString(R.string.post_new_thread)
             else "${context.getString(R.string.reply)} >> No. $targetId"
@@ -146,7 +152,7 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
     private fun updateCookies() {
         cookies = applicationDataStore.cookies
         if (selectedCookie == null || cookies.isNullOrEmpty()) {
-            findViewById<TextView>(R.id.postCookie)?.run {
+            findViewById<Button>(R.id.postCookie)?.run {
                 text = if (cookies.isNullOrEmpty()) {
                     context.getString(R.string.missing_cookie)
                 } else {
@@ -209,8 +215,8 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
         super.onCreate()
         postContent = findViewById<EditText>(R.id.postContent)
             .apply {
-                showSoftKeyboard(this)
-                setOnClickListener { view -> showSoftKeyboard(view) }
+                KeyboardUtils.showSoftInput(this)
+                setOnClickListener { view -> KeyboardUtils.showSoftInput(view) }
             }
 
         toggleContainers = findViewById<ConstraintLayout>(R.id.toggleContainers).also {
@@ -273,6 +279,7 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
 
         findViewById<Button>(R.id.postForum).let { button ->
             button.setOnClickListener {
+                KeyboardUtils.hideSoftInput(postContent!!)
                 MaterialDialog(context).show {
                     listItemsSingleChoice(items = forumNameMap!!.values.drop(1)) { _, index, text ->
                         targetId = forumNameMap!!.keys.drop(1).toList()[index]
@@ -287,7 +294,7 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
         }
 
         findViewById<Button>(R.id.postSend).setOnClickListener {
-            hideKeyboardFrom(context, postContent!!)
+            KeyboardUtils.hideSoftInput(postContent!!)
             send()
         }
 
@@ -299,12 +306,12 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
                     }
 
                     R.id.postFace -> {
-                        hideKeyboardFrom(context, postContent!!)
+                        KeyboardUtils.hideSoftInput(postContent!!)
                         emojiContainer!!.visibility = if (isChecked) View.VISIBLE else View.GONE
                     }
 
                     R.id.postLuwei -> {
-                        hideKeyboardFrom(context, postContent!!)
+                        KeyboardUtils.hideSoftInput(postContent!!)
                         luweiStickerContainer!!.visibility =
                             if (isChecked) View.VISIBLE else View.GONE
                     }
@@ -342,25 +349,15 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
             visibility = View.GONE
         }
 
-        findViewById<Button>(R.id.postCookie).setOnClickListener {
-            if (!cookies.isNullOrEmpty()) {
-                hideKeyboardFrom(context, postContent!!)
-                XPopup.Builder(context)
-                    .atView(it) // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                    .asAttachList(
-                        cookies.map { c -> c.cookieName }.toTypedArray(),
-                        intArrayOf(
-                            R.mipmap.ic_launcher, R.mipmap.ic_launcher, R.mipmap.ic_launcher,
-                            R.mipmap.ic_launcher, R.mipmap.ic_launcher
-                        )
-                    ) { ind, _ ->
-                        selectedCookie = cookies[ind]
-                        findViewById<TextView>(R.id.postCookie).text = selectedCookie!!.cookieName
-                        postContent!!.requestFocus()
-                    }
-                    .show()
-            } else {
-                Toast.makeText(caller.context, R.string.missing_cookie, Toast.LENGTH_SHORT).show()
+        postCookie = findViewById<Button>(R.id.postCookie).apply {
+            setOnClickListener {
+                if (!cookies.isNullOrEmpty()) {
+                    KeyboardUtils.hideSoftInput(postContent!!)
+                    cookiePopup.show()
+                } else {
+                    Toast.makeText(caller.context, R.string.missing_cookie, Toast.LENGTH_SHORT)
+                        .show()
+                }
             }
         }
 
@@ -477,6 +474,11 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
             Toast.makeText(caller.context, R.string.need_cookie_to_post, Toast.LENGTH_SHORT).show()
             return
         }
+        if (targetId == null && newPost) {
+            Toast.makeText(caller.context, R.string.please_select_target_forum, Toast.LENGTH_SHORT)
+                .show()
+            return
+        }
         name = findViewById<TextView>(R.id.formName).text.toString()
         email = findViewById<TextView>(R.id.formEmail).text.toString()
         title = findViewById<TextView>(R.id.formTitle).text.toString()
@@ -493,7 +495,7 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
         caller.lifecycleScope.launch {
             webServiceClient.sendPost(
                 newPost,
-                targetId,
+                targetId!!,
                 name,
                 email,
                 title,
@@ -525,19 +527,4 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
             }
         }
     }
-
-    private fun hideKeyboardFrom(context: Context, view: View) {
-        view.clearFocus()
-        (context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager)
-            .hideSoftInputFromWindow(view.windowToken, 0)
-
-    }
-
-    private fun showSoftKeyboard(view: View) {
-        view.requestFocus()
-        (context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager)
-            .toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY)
-
-    }
-
 }

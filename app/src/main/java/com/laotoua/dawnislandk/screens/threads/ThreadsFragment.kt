@@ -203,7 +203,7 @@ class ThreadsFragment : DaggerFragment() {
             PostPopup.show(
                 this,
                 postPopup,
-                sharedVM.selectedForum.value!!.id,
+                sharedVM.selectedForum.value?.id,
                 true,
                 sharedVM.getForumNameMapping()
             )

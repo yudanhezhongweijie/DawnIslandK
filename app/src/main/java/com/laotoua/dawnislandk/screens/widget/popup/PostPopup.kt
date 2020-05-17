@@ -287,7 +287,7 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
         }
 
         findViewById<Button>(R.id.postSend).setOnClickListener {
-            hideKeyboardFrom(context, this)
+            hideKeyboardFrom(context, postContent!!)
             send()
         }
 
@@ -299,12 +299,12 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
                     }
 
                     R.id.postFace -> {
-                        hideKeyboardFrom(context, this)
+                        hideKeyboardFrom(context, postContent!!)
                         emojiContainer!!.visibility = if (isChecked) View.VISIBLE else View.GONE
                     }
 
                     R.id.postLuwei -> {
-                        hideKeyboardFrom(context, this)
+                        hideKeyboardFrom(context, postContent!!)
                         luweiStickerContainer!!.visibility =
                             if (isChecked) View.VISIBLE else View.GONE
                     }
@@ -344,7 +344,7 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
 
         findViewById<Button>(R.id.postCookie).setOnClickListener {
             if (!cookies.isNullOrEmpty()) {
-                hideKeyboardFrom(context, this)
+                hideKeyboardFrom(context, postContent!!)
                 XPopup.Builder(context)
                     .atView(it) // 依附于所点击的View，内部会自动判断在上方或者下方显示
                     .asAttachList(
@@ -527,16 +527,17 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
     }
 
     private fun hideKeyboardFrom(context: Context, view: View) {
+        view.clearFocus()
         (context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager)
             .hideSoftInputFromWindow(view.windowToken, 0)
 
     }
 
     private fun showSoftKeyboard(view: View) {
-        if (view.requestFocus()) {
-            (context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager)
-                .showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
-        }
+        view.requestFocus()
+        (context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager)
+            .toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY)
+
     }
 
 }

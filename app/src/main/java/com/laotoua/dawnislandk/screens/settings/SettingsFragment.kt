@@ -22,6 +22,7 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.Cookie
 import com.laotoua.dawnislandk.databinding.FragmentSettingsBinding
 import com.laotoua.dawnislandk.databinding.ListItemCookieBinding
+import com.laotoua.dawnislandk.databinding.ListItemPreferenceBinding
 import com.laotoua.dawnislandk.io.FragmentIntentUtil
 import com.laotoua.dawnislandk.io.ImageUtil
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
@@ -143,6 +144,22 @@ class SettingsFragment : Fragment() {
                         ).show()
                     }
                 }
+            }
+        }
+
+        binding.animationSwitch.apply {
+            key.setText(R.string.animation_on_off)
+            preferenceSwitch.visibility = View.VISIBLE
+            val animationStatus = MMKV.defaultMMKV().getBoolean("animation", false)
+            toggleAnimation(animationStatus)
+            root.setOnClickListener {
+                preferenceSwitch.toggle()
+                toggleAnimation(preferenceSwitch.isChecked)
+                Toast.makeText(
+                    context,
+                    R.string.restart_to_apply_setting,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -273,6 +290,16 @@ class SettingsFragment : Fragment() {
             }
             positiveButton(R.string.submit)
         }
+    }
+
+    private fun ListItemPreferenceBinding.toggleAnimation(isChecked: Boolean) {
+        MMKV.defaultMMKV().putBoolean("animation", isChecked)
+        if (isChecked) {
+            summary.setText(R.string.animation_on)
+        } else {
+            summary.setText(R.string.animation_off)
+        }
+
     }
 
 }

@@ -52,8 +52,10 @@ class QuickAdapter(private val layoutResId: Int) :
         // 当数据不满一页时，是否继续自动加载（默认为true）
         loadMoreModule.isEnableLoadMoreIfNotFullPage = false
 
-        setAnimationWithDefault(AnimationType.ScaleIn)
-        isAnimationFirstOnly = false
+        if (MMKV.defaultMMKV().getBoolean("animation", false)) {
+            setAnimationWithDefault(AnimationType.ScaleIn)
+            isAnimationFirstOnly = false
+        }
         setDiffCallback(DiffItemCallback())
     }
 

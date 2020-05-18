@@ -18,8 +18,8 @@ package com.laotoua.dawnislandk.util
 
 import android.content.Context
 import android.content.res.Resources
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
-import com.tencent.mmkv.MMKV
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -64,7 +64,7 @@ object ReadableTime {
 
     fun initialize(context: Context) {
         sResources = context.applicationContext.resources
-        timeFormat = MMKV.defaultMMKV().getString("time_format", "simplified")
+        timeFormat = DawnApp.applicationDataStore.mmkv.getString("time_format", "simplified")
     }
 
     fun string2Time(str: String): Long {

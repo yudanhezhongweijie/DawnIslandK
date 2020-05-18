@@ -4,10 +4,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.card.MaterialCardView
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.util.Constants
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
-import com.tencent.mmkv.MMKV
 
 object ThreadCardFactory {
 
@@ -17,7 +17,7 @@ object ThreadCardFactory {
     private var defaultCardViewMarginTop = 16
     private var defaultCardViewMarginBottom = 10
 
-    private val mmkv by lazyOnMainOnly { MMKV.defaultMMKV() }
+    private val mmkv = DawnApp.applicationDataStore.mmkv
     val mainTextSize by lazyOnMainOnly { mmkv.getFloat(Constants.MAIN_TEXT_SIZE, 15f) }
     val cardRadius by lazyOnMainOnly {
         mmkv.getFloat(

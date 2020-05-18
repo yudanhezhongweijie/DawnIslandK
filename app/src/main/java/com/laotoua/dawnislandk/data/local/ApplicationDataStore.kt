@@ -1,6 +1,8 @@
 package com.laotoua.dawnislandk.data.local
 
 import com.laotoua.dawnislandk.data.local.dao.CookieDao
+import com.laotoua.dawnislandk.util.Constants
+import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.tencent.mmkv.MMKV
 import java.util.*
 import javax.inject.Inject
@@ -13,14 +15,21 @@ class ApplicationDataStore @Inject constructor(private val cookieDao: CookieDao)
     private var mFeedId: String? = null
     val feedId get() = mFeedId!!
 
+    val mmkv: MMKV by lazyOnMainOnly { MMKV.defaultMMKV() }
+
+    val mLetterSpace by lazyOnMainOnly { mmkv.getFloat(Constants.LETTER_SPACE, 0f) }
+    val mLineHeight by lazyOnMainOnly { mmkv.getInt(Constants.LINE_HEIGHT, 0) }
+    val mSegGap by lazyOnMainOnly { mmkv.getInt(Constants.SEG_GAP, 0) }
+    val mTextSize by lazyOnMainOnly { mmkv.getFloat(Constants.MAIN_TEXT_SIZE, 15f) }
+
     fun initializeFeedId() {
-        mFeedId = MMKV.defaultMMKV().getString("feedId", null)
+        mFeedId = mmkv.getString("feedId", null)
         if (mFeedId == null) setFeedId(UUID.randomUUID().toString())
     }
 
     fun setFeedId(string: String) {
         mFeedId = string
-        MMKV.defaultMMKV().putString("feedId", mFeedId)
+        mmkv.putString("feedId", mFeedId)
     }
 
     suspend fun loadCookies() {

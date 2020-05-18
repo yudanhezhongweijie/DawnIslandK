@@ -47,7 +47,7 @@ class FeedsFragment : DaggerFragment() {
     lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel: FeedsViewModel by viewModels { viewModelFactory }
     private val sharedVM: SharedViewModel by activityViewModels()
-    private val mAdapter = QuickAdapter(R.layout.list_item_thread)
+    private val mAdapter: QuickAdapter by lazyOnMainOnly { QuickAdapter(R.layout.list_item_thread) }
 
     private val imageLoader: ImageLoader by lazyOnMainOnly {
         ImageLoader(

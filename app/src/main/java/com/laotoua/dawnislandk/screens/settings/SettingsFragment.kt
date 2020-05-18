@@ -31,7 +31,6 @@ import com.laotoua.dawnislandk.io.FragmentIntentUtil
 import com.laotoua.dawnislandk.io.ImageUtil
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
-import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import timber.log.Timber
@@ -39,8 +38,6 @@ import timber.log.Timber
 class SettingsFragment : Fragment() {
 
     private val cookies get() = applicationDataStore.cookies
-
-    private val mmkv by lazyOnMainOnly { MMKV.defaultMMKV() }
 
     private val cookieAdditionPopup: MaterialDialog by lazyOnMainOnly {
         MaterialDialog(requireContext()).apply {
@@ -146,7 +143,8 @@ class SettingsFragment : Fragment() {
             key.setText(R.string.time_display_format)
             val entries = resources.getStringArray(R.array.time_format_entries)
             val values = resources.getStringArray(R.array.time_format_values)
-            summary.text = if (values.first() == mmkv.getString("time_format", "")) {
+            summary.text =
+                if (values.first() == applicationDataStore.mmkv.getString("time_format", "")) {
                 entries.first()
             } else {
                 entries.last()
@@ -157,7 +155,7 @@ class SettingsFragment : Fragment() {
                     title(R.string.time_display_format)
                     cornerRadius(res = R.dimen.dialog_radius)
                     listItems(R.array.time_format_entries) { _, index, text ->
-                        mmkv.putString("time_format", values[index])
+                        applicationDataStore.mmkv.putString("time_format", values[index])
                         summary.text = text
                         Toast.makeText(
                             context,
@@ -172,7 +170,7 @@ class SettingsFragment : Fragment() {
         binding.animationSwitch.apply {
             key.setText(R.string.animation_on_off)
             preferenceSwitch.visibility = View.VISIBLE
-            preferenceSwitch.isChecked = MMKV.defaultMMKV().getBoolean("animation", false)
+            preferenceSwitch.isChecked = applicationDataStore.mmkv.getBoolean("animation", false)
             updateSwitchSummary(R.string.animation_on, R.string.animation_off)
             root.setOnClickListener {
                 toggleAnimationSwitch()
@@ -298,7 +296,7 @@ class SettingsFragment : Fragment() {
 
     private fun ListItemPreferenceBinding.toggleAnimationSwitch() {
         preferenceSwitch.toggle()
-        MMKV.defaultMMKV().putBoolean("animation", preferenceSwitch.isChecked)
+        applicationDataStore.mmkv.putBoolean("animation", preferenceSwitch.isChecked)
         updateSwitchSummary(R.string.animation_on, R.string.animation_off)
     }
 

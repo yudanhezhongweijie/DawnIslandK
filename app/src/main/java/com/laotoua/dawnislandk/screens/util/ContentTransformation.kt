@@ -3,13 +3,11 @@ package com.laotoua.dawnislandk.screens.util
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Build
-import android.text.Html
-import android.text.Spannable
-import android.text.SpannableStringBuilder
-import android.text.Spanned
+import android.text.*
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import android.text.style.URLSpan
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.screens.widget.span.HideSpan
 import com.laotoua.dawnislandk.screens.widget.span.ReferenceSpan
 import com.laotoua.dawnislandk.screens.widget.span.SegmentSpacingSpan
@@ -43,7 +41,7 @@ object ContentTransformation {
          * PO需要加粗
          * 普通饼干是灰色，po是黑色，红名是红色
          */
-        val cookie = SpannableStringBuilder(userId)
+        val cookie = SpannableString(userId)
         if (admin == "1") {
             val adminColor = ForegroundColorSpan(Color.parseColor("#FF0F0F"))
             cookie.setSpan(adminColor, 0, cookie.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
@@ -79,8 +77,8 @@ object ContentTransformation {
 
     fun transformContent(
         content: String,
-        lineHeight: Int,
-        segGap: Int,
+        lineHeight: Int = DawnApp.applicationDataStore.mLineHeight,
+        segGap: Int = DawnApp.applicationDataStore.mLineHeight,
         referenceClickListener: ((String) -> Unit)? = null
     ): SpannableStringBuilder {
         return SpannableStringBuilder(htmlToSpanned(content)).apply {

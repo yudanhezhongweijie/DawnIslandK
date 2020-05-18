@@ -14,6 +14,7 @@ import com.chad.library.adapter.base.module.LoadMoreModule
 import com.chad.library.adapter.base.util.getItemView
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.google.android.material.card.MaterialCardView
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.Reply
 import com.laotoua.dawnislandk.data.local.Thread
@@ -24,8 +25,6 @@ import com.laotoua.dawnislandk.screens.util.ContentTransformation
 import com.laotoua.dawnislandk.screens.widget.span.RoundBackgroundColorSpan
 import com.laotoua.dawnislandk.util.Constants
 import com.laotoua.dawnislandk.util.GlideApp
-import com.laotoua.dawnislandk.util.lazyOnMainOnly
-import com.tencent.mmkv.MMKV
 import timber.log.Timber
 
 
@@ -33,15 +32,6 @@ import timber.log.Timber
 class QuickAdapter(private val layoutResId: Int) :
     BaseQuickAdapter<Any, BaseViewHolder>(layoutResId, ArrayList()),
     LoadMoreModule {
-
-    companion object {
-        private const val thumbCDN = Constants.thumbCDN
-        private val mmkv = MMKV.defaultMMKV()
-        private val mLetterSpace by lazyOnMainOnly { mmkv.getFloat(Constants.LETTER_SPACE, 0f) }
-        private val mLineHeight by lazyOnMainOnly { mmkv.getInt(Constants.LINE_HEIGHT, 0) }
-        private val mSegGap by lazyOnMainOnly { mmkv.getInt(Constants.SEG_GAP, 0) }
-        private val mTextSize by lazyOnMainOnly { mmkv.getFloat(Constants.MAIN_TEXT_SIZE, 15f) }
-    }
 
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var referenceClickListener: (String) -> Unit
@@ -57,7 +47,7 @@ class QuickAdapter(private val layoutResId: Int) :
         // 当数据不满一页时，是否继续自动加载（默认为true）
         loadMoreModule.isEnableLoadMoreIfNotFullPage = false
 
-        if (MMKV.defaultMMKV().getBoolean("animation", false)) {
+        if (DawnApp.applicationDataStore.mmkv.getBoolean("animation", false)) {
             setAnimationWithDefault(AnimationType.ScaleIn)
             isAnimationFirstOnly = false
         }
@@ -233,8 +223,8 @@ class QuickAdapter(private val layoutResId: Int) :
     private fun BaseViewHolder.convertImage(img: String, ext: String) {
         if (img != "") {
             GlideApp.with(context)
-                .load(thumbCDN + img + ext)
-                .override(400, 400)
+                .load(Constants.thumbCDN + img + ext)
+//                .override(400, 400)
                 .fitCenter()
                 .into(getView(R.id.attachedImage))
             setVisible(R.id.attachedImage, true)
@@ -249,10 +239,8 @@ class QuickAdapter(private val layoutResId: Int) :
         referenceClickListener: ((String) -> Unit)? = null
     ) {
         val res = ContentTransformation.transformContent(
-            content,
-            mLineHeight,
-            mSegGap,
-            referenceClickListener
+            content = content,
+            referenceClickListener = referenceClickListener
         )
 
         if (res.isEmpty()) setGone(R.id.content, true)
@@ -264,8 +252,8 @@ class QuickAdapter(private val layoutResId: Int) :
                  *  special handler for clickable spans
                  */
                 if (clickable) movementMethod = LinkMovementMethod.getInstance()
-                textSize = mTextSize
-                letterSpacing = mLetterSpace
+                textSize = DawnApp.applicationDataStore.mTextSize
+                letterSpacing = DawnApp.applicationDataStore.mLetterSpace
             }
         }
     }

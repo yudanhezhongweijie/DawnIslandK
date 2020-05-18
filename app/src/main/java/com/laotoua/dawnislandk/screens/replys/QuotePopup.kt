@@ -8,6 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.Reply
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
@@ -24,7 +25,6 @@ import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.CenterPopupView
 import com.lxj.xpopup.interfaces.SimpleCallback
-import com.tencent.mmkv.MMKV
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -97,18 +97,18 @@ class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterP
             Timber.e("Quote is not ready")
             return
         }
-        findViewById<TextView>(R.id.quoteCookie).text =
+        findViewById<TextView>(R.id.userId).text =
             transformCookie(
                 quote!!.userid,
                 quote!!.admin!!,
                 mPo
             )
 
-        findViewById<TextView>(R.id.quoteTime).text =
+        findViewById<TextView>(R.id.timestamp).text =
             transformTime(quote!!.now)
 
         // TODO: handle ads
-        findViewById<TextView>(R.id.quoteId).text = quote!!.id
+        findViewById<TextView>(R.id.refId).text = quote!!.id
 
         // TODO: add sage transformation
         findViewById<TextView>(R.id.sage).run {
@@ -124,7 +124,7 @@ class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterP
                 quote!!.title,
                 quote!!.name
             )
-        findViewById<TextView>(R.id.quoteTitleAndName).run {
+        findViewById<TextView>(R.id.titleAndName).run {
             if (titleAndName != "") {
                 text = titleAndName
                 visibility = View.VISIBLE
@@ -134,11 +134,11 @@ class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterP
         }
 
         // load image
-        findViewById<ImageView>(R.id.quoteImage).run {
+        findViewById<ImageView>(R.id.attachedImage).run {
             visibility = if (quote!!.img != "") {
                 GlideApp.with(context)
                     .load(Constants.thumbCDN + quote!!.img + quote!!.ext)
-                    .override(250, 250)
+//                    .override(250, 250)
                     .fitCenter()
                     .into(this)
                 View.VISIBLE
@@ -171,7 +171,7 @@ class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterP
             )
         }
 
-        findViewById<TextView>(R.id.quoteContent).run {
+        findViewById<TextView>(R.id.content).run {
             /** when TextView is scrolled, resetting text does not reset scroll position
              *  WITHOUT scroll reset, text is not shown
              */
@@ -179,11 +179,10 @@ class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterP
             movementMethod = LinkMovementMethod.getInstance()
             text = transformContent(
                 quote!!.content,
-                mLineHeight,
-                mSegGap, referenceClickListener
+                DawnApp.applicationDataStore.mLineHeight,
+                DawnApp.applicationDataStore.mSegGap, referenceClickListener
             )
-            letterSpacing =
-                mLetterSpace
+            letterSpacing = DawnApp.applicationDataStore.mLetterSpace
         }
     }
 
@@ -202,13 +201,6 @@ class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterP
     }
 
     companion object {
-        private val mLetterSpace by lazyOnMainOnly {
-            MMKV.defaultMMKV().getFloat(Constants.LETTER_SPACE, 0f)
-        }
-        private val mLineHeight by lazyOnMainOnly {
-            MMKV.defaultMMKV().getInt(Constants.LINE_HEIGHT, 0)
-        }
-        private val mSegGap by lazyOnMainOnly { MMKV.defaultMMKV().getInt(Constants.SEG_GAP, 0) }
 
         private var quotePopupList = mutableListOf<QuotePopup>()
 

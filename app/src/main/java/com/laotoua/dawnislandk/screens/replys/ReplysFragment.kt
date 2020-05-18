@@ -53,7 +53,7 @@ class ReplysFragment : DaggerFragment() {
     lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel: ReplysViewModel by viewModels { viewModelFactory }
     private val sharedVM: SharedViewModel by activityViewModels()
-    private val mAdapter =
+    private val mAdapter: QuickAdapter by lazyOnMainOnly {
         QuickAdapter(R.layout.list_item_reply).apply {
             setReferenceClickListener { quote ->
                 // TODO: get Po based on Thread
@@ -65,6 +65,7 @@ class ReplysFragment : DaggerFragment() {
                 )
             }
         }
+    }
 
 
     private val imageLoader: ImageLoader by lazyOnMainOnly {

@@ -46,8 +46,9 @@ class ThreadsFragment : DaggerFragment() {
     lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel: ThreadsViewModel by viewModels { viewModelFactory }
     private val sharedVM: SharedViewModel by activityViewModels()
-    private val mAdapter =
+    private val mAdapter: QuickAdapter by lazyOnMainOnly {
         QuickAdapter(R.layout.list_item_thread)
+    }
 
     private val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext()) }
 

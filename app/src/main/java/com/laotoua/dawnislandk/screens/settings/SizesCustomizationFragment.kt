@@ -15,13 +15,13 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.card.MaterialCardView
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.screens.threads.ThreadCardFactory
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widget.span.RoundBackgroundColorSpan
 import com.laotoua.dawnislandk.screens.widget.span.SegmentSpacingSpan
 import com.laotoua.dawnislandk.util.Constants
-import com.tencent.mmkv.MMKV
 import kotlinx.android.synthetic.main.list_item_thread.view.*
 
 class SizesCustomizationFragment : Fragment() {
@@ -41,7 +41,7 @@ class SizesCustomizationFragment : Fragment() {
     private val lineHeight = 12
     private val segGap = 13
 
-    private val mmkv by lazy { MMKV.defaultMMKV() }
+    private val mmkv = DawnApp.applicationDataStore.mmkv
 
     private val rootView by lazy { LinearLayout(context) }
     private val demoCard by lazy {

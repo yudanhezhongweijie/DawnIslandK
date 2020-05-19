@@ -5,9 +5,9 @@
     android:background="@drawable/full_round_corner_background">
 
     <include
+        layout="@layout/list_item_reply"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        layout="@layout/list_item_reply" />
+        android:layout_height="wrap_content" />
 
 </LinearLayout>
 

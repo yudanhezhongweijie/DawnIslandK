@@ -23,8 +23,8 @@ class ReplysViewModel @Inject constructor(private val webService: NMBServiceClie
     val currentThread: Thread? get() = _currentThread
     private val replyList = mutableListOf<Reply>()
     private val replyIds = mutableSetOf<String>()
-    private var _reply = MutableLiveData<List<Reply>>()
-    val reply: LiveData<List<Reply>> get() = _reply
+    private var _replys = MutableLiveData<List<Reply>>()
+    val replys: LiveData<List<Reply>> get() = _replys
 
     private var fullPage = false
 
@@ -178,7 +178,7 @@ class ReplysViewModel @Inject constructor(private val webService: NMBServiceClie
             replyList.add(0, data.toReply())
             replyIds.add(data.id)
 
-            _reply.postValue(replyList)
+            _replys.postValue(replyList)
             // TODO: previous page & next page should be handled the same
             if (direction == DIRECTION.PREVIOUS) previousPage.add(data.toReply())
         }
@@ -207,7 +207,7 @@ class ReplysViewModel @Inject constructor(private val webService: NMBServiceClie
                     }
                 }
 
-            _reply.postValue(replyList)
+            _replys.postValue(replyList)
             _loadingStatus.postValue(
                 SingleLiveEvent.create(
                     LoadingStatus.SUCCESS

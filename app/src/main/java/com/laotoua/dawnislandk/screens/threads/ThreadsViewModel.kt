@@ -18,8 +18,8 @@ import javax.inject.Inject
 class ThreadsViewModel @Inject constructor(private val webService: NMBServiceClient) : ViewModel() {
     private val threadList = mutableListOf<Thread>()
     private val threadIds = mutableSetOf<String>()
-    private var _thread = MutableLiveData<List<Thread>>()
-    val thread: LiveData<List<Thread>> get() = _thread
+    private var _threads = MutableLiveData<List<Thread>>()
+    val threads: LiveData<List<Thread>> get() = _threads
     private var _currentForum: Forum? = null
     val currentForum: Forum? get() = _currentForum
     private var pageCount = 1
@@ -66,7 +66,7 @@ class ThreadsViewModel @Inject constructor(private val webService: NMBServiceCli
             Timber.i(
                 "New thread + ads has size of ${noDuplicates.size}, threadIds size ${threadIds.size}, Forum ${currentForum?.name} now have ${threadList.size} threads"
             )
-            _thread.postValue(threadList)
+            _threads.postValue(threadList)
             _loadingStatus.postValue(
                 SingleLiveEvent.create(
                     LoadingStatus.SUCCESS

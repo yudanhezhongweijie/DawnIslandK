@@ -82,13 +82,9 @@ class ReplysFragment : DaggerFragment() {
             }
         }
 
-        binding.refreshLayout.apply {
-            setHeaderView(ClassicHeader<IIndicator>(context))
-            setOnRefreshListener(object : RefreshingListenerAdapter() {
-                override fun onRefreshing() {
-                    viewModel.getPreviousPage()
-                }
-            })
+        // initial loading animation only, actual loading is triggered by sharedVM
+        if (viewModel.replys.value.isNullOrEmpty()) {
+            binding.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
         }
 
         val imageLoader = ImageLoader()
@@ -145,6 +141,35 @@ class ReplysFragment : DaggerFragment() {
                 viewModel.getNextPage()
             }
 
+
+        }
+
+
+        binding.refreshLayout.apply {
+            setHeaderView(ClassicHeader<IIndicator>(context))
+            setOnRefreshListener(object : RefreshingListenerAdapter() {
+                override fun onRefreshing() {
+                    viewModel.getPreviousPage()
+                }
+            })
+        }
+
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = mAdapter
+            setHasFixedSize(true)
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    if (dy > 0) {
+                        binding.fabMenu.hide()
+                        hideMenu()
+                        binding.fabMenu.isClickable = false
+                    } else if (dy < 0) {
+                        binding.fabMenu.show()
+                        binding.fabMenu.isClickable = true
+                    }
+                }
+            })
         }
 
         viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
@@ -153,7 +178,7 @@ class ReplysFragment : DaggerFragment() {
             }
         })
 
-        viewModel.reply.observe(viewLifecycleOwner, Observer {
+        viewModel.replys.observe(viewLifecycleOwner, Observer {
             if (viewModel.direction == ReplysViewModel.DIRECTION.PREVIOUS) {
                 Timber.i("Inserting items to the top")
 //                    val diffResult = DiffUtil.calculateDiff(DiffCallback(mAdapter.data, it), false)
@@ -254,6 +279,11 @@ class ReplysFragment : DaggerFragment() {
         super.onDestroyView()
         _binding = null
         Timber.d("Fragment View Destroyed")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        QuotePopup.clearQuotePopups()
     }
 
     private fun hideMenu() {

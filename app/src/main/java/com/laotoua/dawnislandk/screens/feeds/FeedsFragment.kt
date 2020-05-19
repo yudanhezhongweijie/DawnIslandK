@@ -64,6 +64,17 @@ class FeedsFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // initial load
+        if (viewModel.feeds.value.isNullOrEmpty() && !delayedLoading) {
+            binding.refreshLayout.autoRefresh(
+                Constants.ACTION_NOTHING,
+                false
+            )
+            // give sometime to skip load if bypassing this fragment
+            mHandler = mHandler ?: Handler()
+            delayedLoading = mHandler!!.postDelayed(mDelayedLoad, 500)
+        }
+
         binding.toolbarLayout.toolbar.apply {
             immersiveToolbar()
             setTitle(R.string.my_feed)
@@ -82,29 +93,13 @@ class FeedsFragment : DaggerFragment() {
 
         val imageLoader = ImageLoader()
 
-        binding.recyclerView.apply {
-            setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(context)
-            adapter = mAdapter
-        }
+        val mAdapter = QuickAdapter(R.layout.list_item_thread).apply {
 
-        /*** connect SharedVm and adapter
-         *  may have better way of getting runtime data
-         */
-        mAdapter.setSharedVM(sharedVM)
+            /*** connect SharedVm and adapter
+             *  may have better way of getting runtime data
+             */
+            setSharedVM(sharedVM)
 
-        binding.refreshLayout.apply {
-            setHeaderView(ClassicHeader<IIndicator>(context))
-            setOnRefreshListener(object : RefreshingListenerAdapter() {
-                override fun onRefreshing() {
-                    mAdapter.setList(emptyList())
-                    viewModel.refresh()
-                }
-            })
-        }
-
-        // item click
-        mAdapter.apply {
             setOnItemClickListener { adapter, _, position ->
                 sharedVM.setThread(adapter.getItem(position) as Thread)
                 val action =
@@ -116,8 +111,8 @@ class FeedsFragment : DaggerFragment() {
             }
 
             // long click to delete
-            setOnItemLongClickListener { _, _, position ->
-                val id = (mAdapter.getItem(position) as Thread).id
+            setOnItemLongClickListener { adapter, _, position ->
+                val id = (adapter.getItem(position) as Thread).id
                 MaterialDialog(requireContext()).show {
                     title(text = "删除订阅 $id?")
                     positiveButton(R.string.delete) {
@@ -158,6 +153,22 @@ class FeedsFragment : DaggerFragment() {
             }
         }
 
+        binding.recyclerView.apply {
+            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(context)
+            adapter = mAdapter
+        }
+
+        binding.refreshLayout.apply {
+            setHeaderView(ClassicHeader<IIndicator>(context))
+            setOnRefreshListener(object : RefreshingListenerAdapter() {
+                override fun onRefreshing() {
+                    mAdapter.setList(emptyList())
+                    viewModel.refresh()
+                }
+            })
+        }
+
         viewModel.delFeedResponse.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let { eventPayload ->
                 Toast.makeText(context, eventPayload.message, Toast.LENGTH_SHORT).show()
@@ -178,19 +189,6 @@ class FeedsFragment : DaggerFragment() {
             mAdapter.setDiffNewData(it.toMutableList())
             Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
         })
-    }
-
-    override fun onResume() {
-        super.onResume()
-        // initial load
-        if (mAdapter.data.size == 0 && !delayedLoading) {
-            binding.refreshLayout.autoRefresh(
-                Constants.ACTION_NOTHING,
-                false
-            )
-            // give sometime to skip load if bypassing this fragment
-            delayedLoading = mHandler.postDelayed(mDelayedLoad, 500)
-        }
     }
 
     override fun onPause() {

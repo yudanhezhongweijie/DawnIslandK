@@ -30,14 +30,7 @@ class PagerFragment : DaggerFragment() {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
     private val sharedVM: SharedViewModel by activityViewModels()
-
     private var mForumId: String? = null
-
-    private val minSwipeDist = 120
-
-    private val scaledMinimumFlingVelocity by lazyOnMainOnly { ViewConfiguration.get(context).scaledMinimumFlingVelocity }
-
-    private val drawerLayout by lazyOnMainOnly { requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout) }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -88,12 +81,6 @@ class PagerFragment : DaggerFragment() {
                     2 -> FeedsFragment()
                     else -> throw Exception("unhandled pager fragment creation")
                 }
-            }
-
-            init {
-                mFragmentList.add(ThreadsFragment())
-                mFragmentList.add(TrendsFragment())
-                mFragmentList.add(FeedsFragment())
             }
         }
 

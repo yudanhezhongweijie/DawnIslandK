@@ -22,7 +22,7 @@ class TrendsViewModel @Inject constructor(private val webService: NMBServiceClie
     private val trendDelimiter = "\n\u2014\u2014\u2014\u2014\u2014<br />\n<br />\n"
 
     private var _trendList = MutableLiveData<List<Trend>>()
-    val trendList: LiveData<List<Trend>> get() = _trendList
+    val trends: LiveData<List<Trend>> get() = _trendList
 
     private val trendLength = 32
     private var page = 1

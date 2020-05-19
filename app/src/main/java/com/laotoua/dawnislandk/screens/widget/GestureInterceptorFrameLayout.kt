@@ -22,6 +22,10 @@ class GestureInterceptorFrameLayout : FrameLayout {
         mDetector = GestureDetectorCompat(context, simpleOnGestureListener)
     }
 
+    fun clearGestureDetector() {
+        mDetector = null
+    }
+
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         /**
          * This method determines whether we have intercepted the motion by using a GestureListener

@@ -171,6 +171,7 @@ class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterP
             /** when TextView is scrolled, resetting text does not reset scroll position
              *  WITHOUT scroll reset, text is not shown
              */
+            maxLines = 15
             scrollY = 0
             movementMethod = LinkMovementMethod.getInstance()
             text = transformContent(

@@ -33,11 +33,7 @@ import javax.inject.Inject
 @SuppressLint("ViewConstructor")
 class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterPopupView(context) {
 
-    private val imageLoader: ImageLoader by lazyOnMainOnly {
-        ImageLoader(
-            context
-        )
-    }
+    private val imageLoader: ImageLoader by lazyOnMainOnly { ImageLoader() }
 
     override fun getImplLayoutId(): Int {
         return R.layout.popup_quote
@@ -175,6 +171,7 @@ class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterP
             /** when TextView is scrolled, resetting text does not reset scroll position
              *  WITHOUT scroll reset, text is not shown
              */
+            maxLines = 15
             scrollY = 0
             movementMethod = LinkMovementMethod.getInstance()
             text = transformContent(
@@ -209,6 +206,10 @@ class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterP
                 this?.dismiss()
                 return this == null
             }
+        }
+
+        fun clearQuotePopups() {
+            quotePopupList.clear()
         }
 
 

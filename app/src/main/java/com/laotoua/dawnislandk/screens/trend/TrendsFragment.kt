@@ -21,7 +21,6 @@ import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
-import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import dagger.android.support.DaggerFragment
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import me.dkzwm.widget.srl.config.Constants
@@ -40,9 +39,8 @@ class TrendsFragment : DaggerFragment() {
 
     private val viewModel: TrendsViewModel by viewModels { viewModelFactory }
     private val sharedVM: SharedViewModel by activityViewModels()
-    private val mAdapter: QuickAdapter by lazyOnMainOnly { QuickAdapter(R.layout.list_item_trend) }
 
-    private val mHandler = Handler()
+    private var mHandler: Handler? = null
     private val mDelayedLoad = Runnable {
         viewModel.refresh()
     }
@@ -58,6 +56,29 @@ class TrendsFragment : DaggerFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // initial load
+        if (viewModel.trends.value.isNullOrEmpty() && !delayedLoading) {
+            binding.refreshLayout.autoRefresh(
+                Constants.ACTION_NOTHING,
+                false
+            )
+            // give sometime to skip load if bypassing this fragment
+            mHandler = mHandler ?: Handler()
+            delayedLoading = mHandler!!.postDelayed(mDelayedLoad, 500)
+        }
+        val mAdapter = QuickAdapter(R.layout.list_item_trend).apply {
+            loadMoreModule.isEnableLoadMore = false
+            setOnItemClickListener { adapter, _, position ->
+                val target = adapter.getItem(position) as Trend
+                sharedVM.setThread(target.toThread(sharedVM.getForumIdByName(target.forum)))
+                val action =
+                    PagerFragmentDirections.actionPagerFragmentToReplyFragment()
+                /**
+                 *  add prefix to finNav won't fail in simultaneous clicks
+                 */
+                this@TrendsFragment.findNavController().navigate(action)
+            }
+        }
 
         binding.toolbarLayout.toolbar.apply {
             immersiveToolbar()
@@ -97,46 +118,20 @@ class TrendsFragment : DaggerFragment() {
             }
         })
 
-        mAdapter.apply {
-            loadMoreModule.isEnableLoadMore = false
-            setOnItemClickListener { adapter, _, position ->
-                val target = adapter.getItem(position) as Trend
-                sharedVM.setThread(target.toThread(sharedVM.getForumIdByName(target.forum)))
-                val action =
-                    PagerFragmentDirections.actionPagerFragmentToReplyFragment()
-                /**
-                 *  add prefix to finNav won't fail in simultaneous clicks
-                 */
-                this@TrendsFragment.findNavController().navigate(action)
-            }
-        }
-
-        viewModel.trendList.observe(viewLifecycleOwner, Observer { list ->
+        viewModel.trends.observe(viewLifecycleOwner, Observer { list ->
             mAdapter.setDiffNewData(list.toMutableList())
         })
 
     }
 
-    override fun onResume() {
-        super.onResume()
-        // initial load
-        if (mAdapter.data.size == 0 && !delayedLoading) {
-            binding.refreshLayout.autoRefresh(
-                Constants.ACTION_NOTHING,
-                false
-            )
-            // give sometime to skip load if bypassing this fragment
-            delayedLoading = mHandler.postDelayed(mDelayedLoad, 500)
-        }
-    }
-
     override fun onPause() {
         super.onPause()
-        mHandler.removeCallbacks(mDelayedLoad)
+        mHandler?.removeCallbacks(mDelayedLoad)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        mHandler = null
         _binding = null
         Timber.d("Fragment View Destroyed")
     }

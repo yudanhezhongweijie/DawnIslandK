@@ -53,35 +53,6 @@ class ReplysFragment : DaggerFragment() {
     lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel: ReplysViewModel by viewModels { viewModelFactory }
     private val sharedVM: SharedViewModel by activityViewModels()
-    private val mAdapter: QuickAdapter by lazyOnMainOnly {
-        QuickAdapter(R.layout.list_item_reply).apply {
-            setReferenceClickListener { quote ->
-                // TODO: get Po based on Thread
-                QuotePopup.showQuote(
-                    this@ReplysFragment,
-                    requireContext(),
-                    quote,
-                    viewModel.po
-                )
-            }
-        }
-    }
-
-
-    private val imageLoader: ImageLoader by lazyOnMainOnly {
-        ImageLoader(
-            requireContext()
-        )
-    }
-
-    private val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext()) }
-
-
-    private val jumpPopup: JumpPopup by lazyOnMainOnly {
-        JumpPopup(
-            requireContext()
-        )
-    }
 
     private var isFabOpen = false
 
@@ -111,44 +82,29 @@ class ReplysFragment : DaggerFragment() {
             }
         }
 
-        binding.refreshLayout.apply {
-            setHeaderView(ClassicHeader<IIndicator>(context))
-            setOnRefreshListener(object : RefreshingListenerAdapter() {
-                override fun onRefreshing() {
-                    viewModel.getPreviousPage()
-                }
-            })
+        // initial loading animation only, actual loading is triggered by sharedVM
+        if (viewModel.replys.value.isNullOrEmpty()) {
+            binding.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
         }
 
-        binding.recyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = mAdapter
-            setHasFixedSize(true)
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    if (dy > 0) {
-                        binding.fabMenu.hide()
-                        hideMenu()
-                        binding.fabMenu.isClickable = false
-                    } else if (dy < 0) {
-                        binding.fabMenu.show()
-                        binding.fabMenu.isClickable = true
-                    }
-                }
-            })
-        }
+        val imageLoader = ImageLoader()
+        val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext()) }
+        val jumpPopup: JumpPopup by lazyOnMainOnly { JumpPopup(requireContext()) }
 
-        /*** connect SharedVm and adapter
-         *  may have better way of getting runtime data
-         */
-        mAdapter.setSharedVM(sharedVM)
-
-        // item click
-        mAdapter.apply {
-            // initial loading animation only, actual loading is triggered by sharedVM
-            if (data.size == 0) {
-                binding.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
+        val mAdapter = QuickAdapter(R.layout.list_item_reply).apply {
+            setReferenceClickListener { quote ->
+                // TODO: get Po based on Thread
+                QuotePopup.showQuote(
+                    this@ReplysFragment,
+                    requireContext(),
+                    quote,
+                    viewModel.po
+                )
             }
+            /*** connect SharedVm and adapter
+             *  may have better way of getting runtime data
+             */
+            setSharedVM(sharedVM)
 
             setOnItemClickListener { _, _, _ ->
                 hideMenu()
@@ -185,6 +141,35 @@ class ReplysFragment : DaggerFragment() {
                 viewModel.getNextPage()
             }
 
+
+        }
+
+
+        binding.refreshLayout.apply {
+            setHeaderView(ClassicHeader<IIndicator>(context))
+            setOnRefreshListener(object : RefreshingListenerAdapter() {
+                override fun onRefreshing() {
+                    viewModel.getPreviousPage()
+                }
+            })
+        }
+
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = mAdapter
+            setHasFixedSize(true)
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    if (dy > 0) {
+                        binding.fabMenu.hide()
+                        hideMenu()
+                        binding.fabMenu.isClickable = false
+                    } else if (dy < 0) {
+                        binding.fabMenu.show()
+                        binding.fabMenu.isClickable = true
+                    }
+                }
+            })
         }
 
         viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
@@ -193,7 +178,7 @@ class ReplysFragment : DaggerFragment() {
             }
         })
 
-        viewModel.reply.observe(viewLifecycleOwner, Observer {
+        viewModel.replys.observe(viewLifecycleOwner, Observer {
             if (viewModel.direction == ReplysViewModel.DIRECTION.PREVIOUS) {
                 Timber.i("Inserting items to the top")
 //                    val diffResult = DiffUtil.calculateDiff(DiffCallback(mAdapter.data, it), false)
@@ -294,6 +279,11 @@ class ReplysFragment : DaggerFragment() {
         super.onDestroyView()
         _binding = null
         Timber.d("Fragment View Destroyed")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        QuotePopup.clearQuotePopups()
     }
 
     private fun hideMenu() {

@@ -27,7 +27,6 @@ import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widget.popup.ImageLoader
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.util.LoadingStatus
-import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
 import dagger.android.support.DaggerFragment
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
@@ -47,15 +46,8 @@ class FeedsFragment : DaggerFragment() {
     lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel: FeedsViewModel by viewModels { viewModelFactory }
     private val sharedVM: SharedViewModel by activityViewModels()
-    private val mAdapter: QuickAdapter by lazyOnMainOnly { QuickAdapter(R.layout.list_item_thread) }
 
-    private val imageLoader: ImageLoader by lazyOnMainOnly {
-        ImageLoader(
-            requireContext()
-        )
-    }
-
-    private val mHandler = Handler()
+    private var mHandler: Handler? = null
     private val mDelayedLoad = Runnable {
         viewModel.getNextPage()
     }
@@ -71,6 +63,17 @@ class FeedsFragment : DaggerFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // initial load
+        if (viewModel.feeds.value.isNullOrEmpty() && !delayedLoading) {
+            binding.refreshLayout.autoRefresh(
+                Constants.ACTION_NOTHING,
+                false
+            )
+            // give sometime to skip load if bypassing this fragment
+            mHandler = mHandler ?: Handler()
+            delayedLoading = mHandler!!.postDelayed(mDelayedLoad, 500)
+        }
 
         binding.toolbarLayout.toolbar.apply {
             immersiveToolbar()
@@ -88,29 +91,15 @@ class FeedsFragment : DaggerFragment() {
             }
         }
 
-        binding.recyclerView.apply {
-            setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(context)
-            adapter = mAdapter
-        }
+        val imageLoader = ImageLoader()
 
-        /*** connect SharedVm and adapter
-         *  may have better way of getting runtime data
-         */
-        mAdapter.setSharedVM(sharedVM)
+        val mAdapter = QuickAdapter(R.layout.list_item_thread).apply {
 
-        binding.refreshLayout.apply {
-            setHeaderView(ClassicHeader<IIndicator>(context))
-            setOnRefreshListener(object : RefreshingListenerAdapter() {
-                override fun onRefreshing() {
-                    mAdapter.setList(emptyList())
-                    viewModel.refresh()
-                }
-            })
-        }
+            /*** connect SharedVm and adapter
+             *  may have better way of getting runtime data
+             */
+            setSharedVM(sharedVM)
 
-        // item click
-        mAdapter.apply {
             setOnItemClickListener { adapter, _, position ->
                 sharedVM.setThread(adapter.getItem(position) as Thread)
                 val action =
@@ -122,8 +111,8 @@ class FeedsFragment : DaggerFragment() {
             }
 
             // long click to delete
-            setOnItemLongClickListener { _, _, position ->
-                val id = (mAdapter.getItem(position) as Thread).id
+            setOnItemLongClickListener { adapter, _, position ->
+                val id = (adapter.getItem(position) as Thread).id
                 MaterialDialog(requireContext()).show {
                     title(text = "删除订阅 $id?")
                     positiveButton(R.string.delete) {
@@ -164,6 +153,22 @@ class FeedsFragment : DaggerFragment() {
             }
         }
 
+        binding.recyclerView.apply {
+            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(context)
+            adapter = mAdapter
+        }
+
+        binding.refreshLayout.apply {
+            setHeaderView(ClassicHeader<IIndicator>(context))
+            setOnRefreshListener(object : RefreshingListenerAdapter() {
+                override fun onRefreshing() {
+                    mAdapter.setList(emptyList())
+                    viewModel.refresh()
+                }
+            })
+        }
+
         viewModel.delFeedResponse.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let { eventPayload ->
                 Toast.makeText(context, eventPayload.message, Toast.LENGTH_SHORT).show()
@@ -186,26 +191,14 @@ class FeedsFragment : DaggerFragment() {
         })
     }
 
-    override fun onResume() {
-        super.onResume()
-        // initial load
-        if (mAdapter.data.size == 0 && !delayedLoading) {
-            binding.refreshLayout.autoRefresh(
-                Constants.ACTION_NOTHING,
-                false
-            )
-            // give sometime to skip load if bypassing this fragment
-            delayedLoading = mHandler.postDelayed(mDelayedLoad, 500)
-        }
-    }
-
     override fun onPause() {
         super.onPause()
-        mHandler.removeCallbacks(mDelayedLoad)
+        mHandler?.removeCallbacks(mDelayedLoad)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        mHandler = null
         _binding = null
         Timber.d("Fragment View Destroyed")
     }

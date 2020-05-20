@@ -46,19 +46,8 @@ class ThreadsFragment : DaggerFragment() {
     lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel: ThreadsViewModel by viewModels { viewModelFactory }
     private val sharedVM: SharedViewModel by activityViewModels()
-    private val mAdapter: QuickAdapter by lazyOnMainOnly {
-        QuickAdapter(R.layout.list_item_thread)
-    }
-
-    private val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext()) }
 
     private var isFabOpen = false
-
-    private val imageLoader: ImageLoader by lazyOnMainOnly {
-        ImageLoader(
-            requireContext()
-        )
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -86,42 +75,22 @@ class ThreadsFragment : DaggerFragment() {
             }
         }
 
-        binding.refreshLayout.apply {
-            setHeaderView(ClassicHeader<IIndicator>(context))
-            setOnRefreshListener(object : RefreshingListenerAdapter() {
-                override fun onRefreshing() {
-                    mAdapter.setList(emptyList())
-                    viewModel.refresh()
-                }
-            })
+        // initial load
+        if (viewModel.threads.value.isNullOrEmpty()) {
+            binding.refreshLayout.autoRefresh(
+                Constants.ACTION_NOTHING,
+                false
+            )
         }
 
-        binding.recyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = mAdapter
-            setHasFixedSize(true)
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    if (dy > 0) {
-                        hideMenu()
-                        binding.fabMenu.hide()
-                        binding.fabMenu.isClickable = false
-                    } else if (dy < 0) {
-                        binding.fabMenu.show()
-                        binding.fabMenu.isClickable = true
-                    }
-                }
-            })
-        }
+        val imageLoader = ImageLoader()
+        val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext()) }
 
-        /*** connect SharedVm and adapter
-         *  may have better way of getting runtime data
-         */
-        mAdapter.setSharedVM(sharedVM)
-
-        mAdapter.apply {
-            // initial load
-            if (data.size == 0) binding.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
+        val mAdapter = QuickAdapter(R.layout.list_item_thread).apply {
+            /*** connect SharedVm and adapter
+             *  may have better way of getting runtime data
+             */
+            setSharedVM(sharedVM)
 
             setOnItemClickListener { adapter, _, position ->
                 hideMenu()
@@ -161,8 +130,36 @@ class ThreadsFragment : DaggerFragment() {
             loadMoreModule.setOnLoadMoreListener {
                 Timber.i("Fetching new data...")
                 viewModel.getThreads()
-            }
 
+            }
+        }
+
+        binding.refreshLayout.apply {
+            setHeaderView(ClassicHeader<IIndicator>(context))
+            setOnRefreshListener(object : RefreshingListenerAdapter() {
+                override fun onRefreshing() {
+                    mAdapter.setList(emptyList())
+                    viewModel.refresh()
+                }
+            })
+        }
+
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = mAdapter
+            setHasFixedSize(true)
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    if (dy > 0) {
+                        hideMenu()
+                        binding.fabMenu.hide()
+                        binding.fabMenu.isClickable = false
+                    } else if (dy < 0) {
+                        binding.fabMenu.show()
+                        binding.fabMenu.isClickable = true
+                    }
+                }
+            })
         }
 
         viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
@@ -171,7 +168,7 @@ class ThreadsFragment : DaggerFragment() {
             }
         })
 
-        viewModel.thread.observe(viewLifecycleOwner, Observer {
+        viewModel.threads.observe(viewLifecycleOwner, Observer {
             mAdapter.setDiffNewData(it.toMutableList())
             Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
         })

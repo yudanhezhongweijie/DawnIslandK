@@ -34,8 +34,6 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
 
     private val sharedVM: SharedViewModel by viewModels()
 
-    private val mAdapter = QuickNodeAdapter(this)
-
     private var doubleBackToExitPressedOnce = false
     private val mHandler = Handler()
     private val mRunnable = Runnable { doubleBackToExitPressedOnce = false }
@@ -58,6 +56,7 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
     // left forum drawer
     private fun setUpForumDrawer() {
 
+        val mAdapter = QuickNodeAdapter(this)
         binding.forumRefresh.setOnClickListener {
             mAdapter.setData(emptyList())
             communityVM.refresh()

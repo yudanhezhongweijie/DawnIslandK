@@ -36,7 +36,6 @@ class QuickAdapter(private val layoutResId: Int) :
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var referenceClickListener: (String) -> Unit
 
-
     // TODO: support multiple Po
     private var po: String = ""
 

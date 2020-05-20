@@ -8,6 +8,10 @@ import android.view.MotionEvent
 import android.widget.FrameLayout
 import androidx.core.view.GestureDetectorCompat
 
+/**
+ *  Only used in VP2, currently unused due to
+ *  https://issuetracker.google.com/issues/154751401
+ */
 class GestureInterceptorFrameLayout : FrameLayout {
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)

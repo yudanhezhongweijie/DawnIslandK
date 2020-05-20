@@ -6,22 +6,23 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.laotoua.dawnislandk.screens.widget.GestureInterceptorFrameLayout
-        android:id="@+id/viewPagerInterceptor"
+    <!--    <com.laotoua.dawnislandk.screens.widget.GestureInterceptorFrameLayout-->
+    <!--        android:id="@+id/viewPagerInterceptor"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent">-->
+    <!--        <androidx.viewpager2.widget.ViewPager2-->
+    <!--            android:id="@+id/viewPager"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="match_parent"-->
+    <!--            android:overScrollMode="never"-->
+    <!--            tools:context=".screens.PagerFragment"/>-->
+    <!--    </com.laotoua.dawnislandk.screens.widget.GestureInterceptorFrameLayout>-->
+    <com.laotoua.dawnislandk.screens.widget.DawnViewPager1
+        android:id="@+id/viewPager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/viewPager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:overScrollMode="never"
-            tools:context=".screens.PagerFragment">
-
-        </androidx.viewpager2.widget.ViewPager2>
-
-    </com.laotoua.dawnislandk.screens.widget.GestureInterceptorFrameLayout>
+        android:layout_height="match_parent"
+        android:overScrollMode="never"
+        tools:context=".screens.PagerFragment" />
 
     <com.zhpan.indicator.IndicatorView
         android:id="@+id/pageIndicatorView"

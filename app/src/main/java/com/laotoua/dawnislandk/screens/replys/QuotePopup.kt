@@ -33,11 +33,7 @@ import javax.inject.Inject
 @SuppressLint("ViewConstructor")
 class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterPopupView(context) {
 
-    private val imageLoader: ImageLoader by lazyOnMainOnly {
-        ImageLoader(
-            context
-        )
-    }
+    private val imageLoader: ImageLoader by lazyOnMainOnly { ImageLoader() }
 
     override fun getImplLayoutId(): Int {
         return R.layout.popup_quote
@@ -209,6 +205,10 @@ class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterP
                 this?.dismiss()
                 return this == null
             }
+        }
+
+        fun clearQuotePopups() {
+            quotePopupList.clear()
         }
 
 

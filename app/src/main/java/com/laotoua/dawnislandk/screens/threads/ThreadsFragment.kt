@@ -46,19 +46,8 @@ class ThreadsFragment : DaggerFragment() {
     lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel: ThreadsViewModel by viewModels { viewModelFactory }
     private val sharedVM: SharedViewModel by activityViewModels()
-    private val mAdapter: QuickAdapter by lazyOnMainOnly {
-        QuickAdapter(R.layout.list_item_thread)
-    }
-
-    private val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext()) }
 
     private var isFabOpen = false
-
-    private val imageLoader: ImageLoader by lazyOnMainOnly {
-        ImageLoader(
-            requireContext()
-        )
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -128,10 +117,9 @@ class ThreadsFragment : DaggerFragment() {
                 sharedVM.setThread(adapter.getItem(position) as Thread)
                 val action =
                     PagerFragmentDirections.actionPagerFragmentToReplyFragment()
-                /**
-                 *  add prefix to finNav won't fail in simultaneous clicks
-                 */
-                this@ThreadsFragment.findNavController().navigate(action)
+
+                // TODO: fix multiple simultaneous clicks
+                findNavController().navigate(action)
             }
 
             addChildClickViewIds(R.id.attachedImage)

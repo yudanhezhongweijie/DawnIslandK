@@ -21,7 +21,6 @@ import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
-import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import dagger.android.support.DaggerFragment
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import me.dkzwm.widget.srl.config.Constants
@@ -42,7 +41,7 @@ class TrendsFragment : DaggerFragment() {
     private val sharedVM: SharedViewModel by activityViewModels()
     private val mAdapter: QuickAdapter by lazyOnMainOnly { QuickAdapter(R.layout.list_item_trend) }
 
-    private val mHandler = Handler()
+    private var mHandler: Handler? = null
     private val mDelayedLoad = Runnable {
         viewModel.refresh()
     }
@@ -132,11 +131,12 @@ class TrendsFragment : DaggerFragment() {
 
     override fun onPause() {
         super.onPause()
-        mHandler.removeCallbacks(mDelayedLoad)
+        mHandler?.removeCallbacks(mDelayedLoad)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        mHandler = null
         _binding = null
         Timber.d("Fragment View Destroyed")
     }

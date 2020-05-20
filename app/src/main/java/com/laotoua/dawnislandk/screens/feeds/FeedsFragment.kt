@@ -27,7 +27,6 @@ import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widget.popup.ImageLoader
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.util.LoadingStatus
-import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
 import dagger.android.support.DaggerFragment
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
@@ -47,15 +46,8 @@ class FeedsFragment : DaggerFragment() {
     lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel: FeedsViewModel by viewModels { viewModelFactory }
     private val sharedVM: SharedViewModel by activityViewModels()
-    private val mAdapter: QuickAdapter by lazyOnMainOnly { QuickAdapter(R.layout.list_item_thread) }
 
-    private val imageLoader: ImageLoader by lazyOnMainOnly {
-        ImageLoader(
-            requireContext()
-        )
-    }
-
-    private val mHandler = Handler()
+    private var mHandler: Handler? = null
     private val mDelayedLoad = Runnable {
         viewModel.getNextPage()
     }
@@ -87,6 +79,8 @@ class FeedsFragment : DaggerFragment() {
                 binding.recyclerView.layoutManager?.scrollToPosition(0)
             }
         }
+
+        val imageLoader = ImageLoader()
 
         binding.recyclerView.apply {
             setHasFixedSize(true)
@@ -201,11 +195,12 @@ class FeedsFragment : DaggerFragment() {
 
     override fun onPause() {
         super.onPause()
-        mHandler.removeCallbacks(mDelayedLoad)
+        mHandler?.removeCallbacks(mDelayedLoad)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        mHandler = null
         _binding = null
         Timber.d("Fragment View Destroyed")
     }

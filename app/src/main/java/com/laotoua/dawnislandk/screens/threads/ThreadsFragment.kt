@@ -97,7 +97,10 @@ class ThreadsFragment : DaggerFragment() {
                 sharedVM.setThread(adapter.getItem(position) as Thread)
                 val action =
                     PagerFragmentDirections.actionPagerFragmentToReplyFragment()
-                findNavController().navigate(action)
+                /**
+                 *  add prefix to finNav won't fail in simultaneous clicks
+                 */
+                this@ThreadsFragment.findNavController().navigate(action)
             }
 
             addChildClickViewIds(R.id.attachedImage)

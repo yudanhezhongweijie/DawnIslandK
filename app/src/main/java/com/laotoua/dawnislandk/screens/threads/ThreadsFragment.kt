@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.Thread
 import com.laotoua.dawnislandk.databinding.FragmentThreadBinding
+import com.laotoua.dawnislandk.screens.PagerFragment
 import com.laotoua.dawnislandk.screens.PagerFragmentDirections
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
@@ -144,6 +145,7 @@ class ThreadsFragment : DaggerFragment() {
             })
         }
 
+        (requireParentFragment() as PagerFragment).showPageIndicator()
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = mAdapter
@@ -154,9 +156,11 @@ class ThreadsFragment : DaggerFragment() {
                         hideMenu()
                         binding.fabMenu.hide()
                         binding.fabMenu.isClickable = false
+                        (requireParentFragment() as PagerFragment).hidePageIndicator()
                     } else if (dy < 0) {
                         binding.fabMenu.show()
                         binding.fabMenu.isClickable = true
+                        (requireParentFragment() as PagerFragment).showPageIndicator()
                     }
                 }
             })

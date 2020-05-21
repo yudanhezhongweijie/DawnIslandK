@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
@@ -15,6 +17,7 @@ import com.laotoua.dawnislandk.databinding.FragmentPagerBinding
 import com.laotoua.dawnislandk.screens.feeds.FeedsFragment
 import com.laotoua.dawnislandk.screens.threads.ThreadsFragment
 import com.laotoua.dawnislandk.screens.trend.TrendsFragment
+import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.zhpan.indicator.enums.IndicatorSlideMode
 import com.zhpan.indicator.enums.IndicatorStyle
 import dagger.android.support.DaggerFragment
@@ -107,5 +110,39 @@ class PagerFragment : DaggerFragment() {
         super.onDestroyView()
         _binding = null
         Timber.d("Fragment View Destroyed")
+    }
+
+    private val fadeOut: Animation by lazyOnMainOnly {
+        AnimationUtils.loadAnimation(
+            requireContext(),
+            R.anim.fade_out
+        )
+    }
+
+    private val fadeIn: Animation by lazyOnMainOnly {
+        AnimationUtils.loadAnimation(
+            requireContext(),
+            R.anim.fade_in
+        )
+    }
+    private var indicatorHidden = false
+    fun hidePageIndicator() {
+        if (!indicatorHidden) {
+            binding.drawerIndicator.startAnimation(fadeOut)
+            binding.pageIndicatorView.startAnimation(fadeOut)
+            binding.drawerIndicator.visibility = View.GONE
+            binding.pageIndicatorView.visibility = View.GONE
+            indicatorHidden = true
+        }
+    }
+
+    fun showPageIndicator() {
+        if (indicatorHidden) {
+            binding.drawerIndicator.startAnimation(fadeIn)
+            binding.pageIndicatorView.startAnimation(fadeIn)
+            binding.drawerIndicator.visibility = View.VISIBLE
+            binding.pageIndicatorView.visibility = View.VISIBLE
+            indicatorHidden = false
+        }
     }
 }

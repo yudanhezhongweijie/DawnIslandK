@@ -10,7 +10,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -44,32 +43,6 @@ import javax.inject.Inject
 @SuppressLint("ViewConstructor")
 class PostPopup(private val caller: DaggerFragment, context: Context) :
     BottomPopupView(context) {
-
-    companion object {
-        fun show(
-            caller: Fragment,
-            postPopup: PostPopup,
-            targetId: String?,
-            newPost: Boolean = false,
-            forumNameMap: Map<String, String>? = null
-        ) {
-            XPopup.Builder(caller.context)
-                .setPopupCallback(object : SimpleCallback() {
-                    override fun beforeShow() {
-                        postPopup.targetId = targetId
-                        postPopup.newPost = newPost
-                        postPopup.forumNameMap = forumNameMap
-                        postPopup.updateView()
-                        super.beforeShow()
-                    }
-
-                })
-                .enableDrag(false)
-                .moveUpToKeyboard(false)
-                .asCustom(postPopup)
-                .show()
-        }
-    }
 
     init {
         caller.androidInjector().inject(this)
@@ -111,6 +84,7 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
     // keyboard height listener
     private var keyboardHeight = -1
     private var keyboardHolder: LinearLayout? = null
+    private var afterPostTask: (() -> Unit)? = null
 
     private val postProgress by lazyOnMainOnly {
         MaterialDialog(context).apply {
@@ -180,10 +154,45 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
         }
     }
 
-    fun updateView() {
+    fun bindAfterPostTask(task: (() -> Unit)) {
+        afterPostTask = task
+    }
+
+    fun updateView(quote: String?) {
         updateTitle(targetId, newPost)
         updateCookies()
         updateForumButton()
+        quote?.run {
+            postContent!!.text.insert(
+                0,
+                quote
+            )
+        }
+    }
+
+    fun setupAndShow(
+        targetId: String?,
+        newPost: Boolean = false,
+        forumNameMap: Map<String, String>? = null,
+        quote: String? = null,
+        task: (() -> Unit)? = null
+    ) {
+        XPopup.Builder(context)
+            .setPopupCallback(object : SimpleCallback() {
+                override fun beforeShow() {
+                    this@PostPopup.targetId = targetId
+                    this@PostPopup.newPost = newPost
+                    this@PostPopup.forumNameMap = forumNameMap
+                    this@PostPopup.updateView(quote)
+                    task?.run { this@PostPopup.bindAfterPostTask(this) }
+                    super.beforeShow()
+                }
+
+            })
+//            .enableDrag(false)
+//            .moveUpToKeyboard(false)
+            .asCustom(this@PostPopup)
+            .show()
     }
 
     override fun getImplLayoutId(): Int {
@@ -529,11 +538,14 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
                         message
                     }
                 }
-                if (message.substring(0, 2) == ":)") {
-                    clearEntries()
-                }
+
                 postProgress.dismiss()
-                dismiss()
+                dismissWith {
+                    if (message.substring(0, 2) == ":)") {
+                        clearEntries()
+                        afterPostTask?.invoke()
+                    }
+                }
                 Toast.makeText(caller.context, message, Toast.LENGTH_LONG).show()
             }
         }

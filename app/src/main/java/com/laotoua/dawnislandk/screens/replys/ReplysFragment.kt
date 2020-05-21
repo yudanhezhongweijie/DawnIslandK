@@ -131,8 +131,11 @@ class ReplysFragment : DaggerFragment() {
                         .asCustom(viewerPopup)
                         .show()
                 } else if (view.id == R.id.refId) {
-                    val replyId = (view as TextView).text
-                    copyId(">>No.$replyId")
+                    val content = ">>No.${(view as TextView).text}\n"
+                    postPopup.setupAndShow(
+                        viewModel.currentThread!!.id,
+                        quote = content
+                    )
                 }
             }
 
@@ -218,8 +221,18 @@ class ReplysFragment : DaggerFragment() {
 
         binding.post.setOnClickListener {
             hideMenu()
-            PostPopup.show(this, postPopup, viewModel.currentThread!!.id)
+            val pos = (binding.recyclerView.layoutManager as LinearLayoutManager)
+                .findLastCompletelyVisibleItemPosition()
+                .coerceAtLeast(0)
+                .coerceAtMost(mAdapter.data.lastIndex)
+            val page = (mAdapter.getItem(pos) as Reply).page!!
+            postPopup.setupAndShow(viewModel.currentThread!!.id) {
+                if (page == viewModel.maxPage) {
+                    mAdapter.loadMoreModule.loadMoreToLoading()
+                }
+            }
         }
+
 
         binding.jump.setOnClickListener {
             hideMenu()

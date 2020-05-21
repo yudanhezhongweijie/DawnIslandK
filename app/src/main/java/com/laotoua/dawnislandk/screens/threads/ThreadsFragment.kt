@@ -207,9 +207,7 @@ class ThreadsFragment : DaggerFragment() {
 
         binding.post.setOnClickListener {
             hideMenu()
-            PostPopup.show(
-                this,
-                postPopup,
+            postPopup.setupAndShow(
                 sharedVM.selectedForum.value?.id,
                 true,
                 sharedVM.getForumNameMapping()

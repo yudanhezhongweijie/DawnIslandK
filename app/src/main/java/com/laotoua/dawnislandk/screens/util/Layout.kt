@@ -29,10 +29,10 @@ object Layout {
         return pix / context.resources.displayMetrics.density
     }
 
-    fun <T> Fragment.updateHeaderAndFooter(
+    fun <AdapterType, PayloadType> Fragment.updateHeaderAndFooter(
         refreshLayout: SmoothRefreshLayout,
-        mAdapter: QuickAdapter,
-        event: EventPayload<T>
+        mAdapter: QuickAdapter<AdapterType>,
+        event: EventPayload<PayloadType>
     ) {
         when (event.loadingStatus) {
             LoadingStatus.FAILED -> {

@@ -87,15 +87,15 @@ class ThreadsFragment : DaggerFragment() {
         val imageLoader = ImageLoader()
         val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext()) }
 
-        val mAdapter = QuickAdapter(R.layout.list_item_thread).apply {
+        val mAdapter = QuickAdapter<Thread>(R.layout.list_item_thread).apply {
             /*** connect SharedVm and adapter
              *  may have better way of getting runtime data
              */
             setSharedVM(sharedVM)
 
-            setOnItemClickListener { adapter, _, position ->
+            setOnItemClickListener { _, _, position ->
                 hideMenu()
-                sharedVM.setThread(adapter.getItem(position) as Thread)
+                sharedVM.setThread(getItem(position))
                 val action =
                     PagerFragmentDirections.actionPagerFragmentToReplyFragment()
                 /**
@@ -105,12 +105,10 @@ class ThreadsFragment : DaggerFragment() {
             }
 
             addChildClickViewIds(R.id.attachedImage)
-            setOnItemChildClickListener { adapter, view, position ->
+            setOnItemChildClickListener { _, view, position ->
                 if (view.id == R.id.attachedImage) {
                     hideMenu()
-                    val url = (adapter.getItem(
-                        position
-                    ) as Thread).getImgUrl()
+                    val url = getItem(position).getImgUrl()
 
                     // TODO support multiple image
                     val viewerPopup =

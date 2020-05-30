@@ -18,8 +18,8 @@ import javax.inject.Inject
 class ThreadsViewModel @Inject constructor(private val webService: NMBServiceClient) : ViewModel() {
     private val threadList = mutableListOf<Thread>()
     private val threadIds = mutableSetOf<String>()
-    private var _threads = MutableLiveData<List<Thread>>()
-    val threads: LiveData<List<Thread>> get() = _threads
+    private var _threads = MutableLiveData<MutableList<Thread>>()
+    val threads: LiveData<MutableList<Thread>> get() = _threads
     private var _currentForum: Forum? = null
     val currentForum: Forum? get() = _currentForum
     private var pageCount = 1

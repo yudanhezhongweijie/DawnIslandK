@@ -68,10 +68,10 @@ class TrendsFragment : DaggerFragment() {
             mHandler = mHandler ?: Handler()
             delayedLoading = mHandler!!.postDelayed(mDelayedLoad, 500)
         }
-        val mAdapter = QuickAdapter(R.layout.list_item_trend).apply {
+        val mAdapter = QuickAdapter<Trend>(R.layout.list_item_trend).apply {
             loadMoreModule.isEnableLoadMore = false
-            setOnItemClickListener { adapter, _, position ->
-                val target = adapter.getItem(position) as Trend
+            setOnItemClickListener { _, _, position ->
+                val target = getItem(position)
                 sharedVM.setThread(target.toThread(sharedVM.getForumIdByName(target.forum)))
                 val action =
                     PagerFragmentDirections.actionPagerFragmentToReplyFragment()

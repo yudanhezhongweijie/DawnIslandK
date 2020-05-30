@@ -21,8 +21,8 @@ class TrendsViewModel @Inject constructor(private val webService: NMBServiceClie
     private val po = "m9R9kaD"
     private val trendDelimiter = "\n\u2014\u2014\u2014\u2014\u2014<br />\n<br />\n"
 
-    private var _trendList = MutableLiveData<List<Trend>>()
-    val trends: LiveData<List<Trend>> get() = _trendList
+    private var _trendList = MutableLiveData<MutableList<Trend>>()
+    val trends: LiveData<MutableList<Trend>> get() = _trendList
 
     private val trendLength = 32
     private var page = 1
@@ -93,7 +93,7 @@ class TrendsViewModel @Inject constructor(private val webService: NMBServiceClie
 
 
     private fun convertTrendData(trends: List<String>) {
-        _trendList.postValue(trends.map { convertStringToTrend(it) })
+        _trendList.postValue(trends.map { convertStringToTrend(it) }.toMutableList())
         _loadingStatus.postValue(
             SingleLiveEvent.create(
                 LoadingStatus.SUCCESS

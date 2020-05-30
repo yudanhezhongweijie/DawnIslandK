@@ -83,15 +83,15 @@ class ReplysFragment : DaggerFragment() {
         }
 
         // initial loading animation only, actual loading is triggered by sharedVM
-        if (viewModel.replys.value.isNullOrEmpty()) {
-            binding.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
-        }
+//        if (viewModel.replys.value.isNullOrEmpty()) {
+//            binding.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
+//        }
 
         val imageLoader = ImageLoader()
         val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext()) }
         val jumpPopup: JumpPopup by lazyOnMainOnly { JumpPopup(requireContext()) }
 
-        val mAdapter = QuickAdapter(R.layout.list_item_reply).apply {
+        val mAdapter = QuickAdapter<Reply>(R.layout.list_item_reply).apply {
             setReferenceClickListener { quote ->
                 // TODO: get Po based on Thread
                 QuotePopup.showQuote(
@@ -116,12 +116,12 @@ class ReplysFragment : DaggerFragment() {
                 R.id.refId
             )
 
-            setOnItemChildClickListener { adapter, view, position ->
+            setOnItemChildClickListener { _, view, position ->
                 if (view.id == R.id.attachedImage) {
                     hideMenu()
                     Timber.i("clicked on image at $position")
 
-                    val url = (adapter.getItem(position) as Reply).getImgUrl()
+                    val url = getItem(position).getImgUrl()
                     // TODO support multiple image
                     val viewerPopup = ImageViewerPopup(this@ReplysFragment, requireContext(), url)
                     viewerPopup.setXPopupImageLoader(imageLoader)
@@ -133,7 +133,7 @@ class ReplysFragment : DaggerFragment() {
                 } else if (view.id == R.id.refId) {
                     val content = ">>No.${(view as TextView).text}\n"
                     postPopup.setupAndShow(
-                        viewModel.currentThread!!.id,
+                        viewModel.currentThreadId,
                         quote = content
                     )
                 }
@@ -143,10 +143,7 @@ class ReplysFragment : DaggerFragment() {
             loadMoreModule.setOnLoadMoreListener {
                 viewModel.getNextPage()
             }
-
-
         }
-
 
         binding.refreshLayout.apply {
             setHeaderView(ClassicHeader<IIndicator>(context))
@@ -183,7 +180,7 @@ class ReplysFragment : DaggerFragment() {
 
         viewModel.replys.observe(viewLifecycleOwner, Observer {
             if (viewModel.direction == ReplysViewModel.DIRECTION.PREVIOUS) {
-                Timber.i("Inserting items to the top")
+                Timber.i("Inserting items to the top ${viewModel.previousPage.size}")
 //                    val diffResult = DiffUtil.calculateDiff(DiffCallback(mAdapter.data, it), false)
 //                    mAdapter.setDiffNewData(diffResult, it.toMutableList())
                 // TODO: previous page & next page should be handled the same
@@ -198,16 +195,8 @@ class ReplysFragment : DaggerFragment() {
         })
 
         sharedVM.selectedThread.observe(viewLifecycleOwner, Observer {
-            if (viewModel.currentThread == null) {
-                viewModel.setThread(it)
-                updateSubtitle()
-            } else if (viewModel.currentThread != null && viewModel.currentThread!!.id != it.id) {
-                Timber.i("Thread has changed to ${it.id}. Clearing old data...")
-                mAdapter.setList(ArrayList())
-                viewModel.setThread(it)
-                updateSubtitle()
-            }
-
+            viewModel.setThread(it)
+            updateSubtitle()
         })
 
         binding.fabMenu.setOnClickListener {
@@ -215,18 +204,14 @@ class ReplysFragment : DaggerFragment() {
         }
 
         binding.copyId.setOnClickListener {
-            copyId(">>No.${viewModel.currentThread!!.id}")
+            copyId(">>No.${viewModel.currentThreadId}")
             hideMenu()
         }
 
         binding.post.setOnClickListener {
             hideMenu()
-            val pos = (binding.recyclerView.layoutManager as LinearLayoutManager)
-                .findLastCompletelyVisibleItemPosition()
-                .coerceAtLeast(0)
-                .coerceAtMost(mAdapter.data.lastIndex)
-            val page = (mAdapter.getItem(pos) as Reply).page!!
-            postPopup.setupAndShow(viewModel.currentThread!!.id) {
+            val page = getCurrentPage(mAdapter)
+            postPopup.setupAndShow(viewModel.currentThreadId) {
                 if (page == viewModel.maxPage) {
                     mAdapter.loadMoreModule.loadMoreToLoading()
                 }
@@ -236,11 +221,7 @@ class ReplysFragment : DaggerFragment() {
 
         binding.jump.setOnClickListener {
             hideMenu()
-            val pos = (binding.recyclerView.layoutManager as LinearLayoutManager)
-                .findLastCompletelyVisibleItemPosition()
-                .coerceAtLeast(0)
-                .coerceAtMost(mAdapter.data.lastIndex)
-            val page = (mAdapter.getItem(pos) as Reply).page!!
+            val page = getCurrentPage(mAdapter)
             XPopup.Builder(context)
                 .setPopupCallback(object : SimpleCallback() {
                     override fun beforeShow() {
@@ -267,7 +248,7 @@ class ReplysFragment : DaggerFragment() {
 
         binding.addFeed.setOnClickListener {
             hideMenu()
-            viewModel.addFeed(applicationDataStore.feedId, viewModel.currentThread!!.id)
+            viewModel.addFeed(applicationDataStore.feedId, viewModel.currentThreadId!!)
         }
 
         viewModel.addFeedResponse.observe(viewLifecycleOwner, Observer {
@@ -286,6 +267,14 @@ class ReplysFragment : DaggerFragment() {
             ClipData.newPlainText("currentThreadId", text)
         clipboard?.setPrimaryClip(clip)
         Toast.makeText(context, R.string.thread_id_copied, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun getCurrentPage(adapter: QuickAdapter<Reply>): Int {
+        val pos = (binding.recyclerView.layoutManager as LinearLayoutManager)
+            .findLastCompletelyVisibleItemPosition()
+            .coerceAtLeast(0)
+            .coerceAtMost(adapter.data.lastIndex)
+        return adapter.getItem(pos).page
     }
 
     override fun onDestroyView() {
@@ -336,6 +325,6 @@ class ReplysFragment : DaggerFragment() {
     }
 
     private fun updateSubtitle() {
-        binding.toolbarLayout.toolbar.subtitle = "No.${viewModel.currentThread!!.id} • adnmb.com"
+        binding.toolbarLayout.toolbar.subtitle = "No.${viewModel.currentThreadId} • adnmb.com"
     }
 }

@@ -1,10 +1,11 @@
 package com.laotoua.dawnislandk.data.remote
 
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.laotoua.dawnislandk.data.local.Community
 import com.laotoua.dawnislandk.data.local.Reply
 import com.laotoua.dawnislandk.data.local.Thread
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -15,25 +16,36 @@ import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
 
-
 class NMBServiceClient @Inject constructor(private val service: NMBService) {
 
-    private val parser = Gson()
+    private val moshi: Moshi = Moshi.Builder().build()
 
     private val parseCommunities: (String) -> List<Community> = { response ->
-        parser.fromJson(response, object : TypeToken<List<Community>>() {}.type)
+        val adapter: JsonAdapter<List<Community>> = moshi.adapter(
+            Types.newParameterizedType(
+                List::class.java,
+                Community::class.java
+            )
+        )
+        adapter.fromJson(response)!!
     }
 
     private val parseThreads: (String) -> List<Thread> = { response ->
-        parser.fromJson(response, object : TypeToken<List<Thread>>() {}.type)
+        val adapter: JsonAdapter<List<Thread>> = moshi.adapter(
+            Types.newParameterizedType(
+                List::class.java,
+                Thread::class.java
+            )
+        )
+        adapter.fromJson(response)!!
     }
 
     private val parseReplys: (String) -> Thread = { response ->
-        parser.fromJson(response, Thread::class.java)
+        moshi.adapter(Thread::class.java).fromJson(response)!!
     }
 
     private val parseQuote: (String) -> Reply = { response ->
-        parser.fromJson(response, Reply::class.java)
+        moshi.adapter(Reply::class.java).fromJson(response)!!
     }
 
     suspend fun getCommunities(): APIDataResponse<List<Community>> {

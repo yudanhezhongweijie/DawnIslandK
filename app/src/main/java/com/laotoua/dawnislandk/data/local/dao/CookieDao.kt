@@ -6,10 +6,10 @@ import com.laotoua.dawnislandk.data.local.Cookie
 
 @Dao
 interface CookieDao {
-    @Query("SELECT * FROM cookie")
+    @Query("SELECT * FROM Cookie")
     suspend fun getAll(): List<Cookie>
 
-    @Query("SELECT * FROM cookie WHERE cookieHash==:cookieHash")
+    @Query("SELECT * FROM Cookie WHERE cookieHash==:cookieHash")
     suspend fun getCookieByUserHash(cookieHash: String): Cookie
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

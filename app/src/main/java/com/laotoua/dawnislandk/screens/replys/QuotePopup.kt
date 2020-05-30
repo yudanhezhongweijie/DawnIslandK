@@ -96,7 +96,7 @@ class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterP
         findViewById<TextView>(R.id.userId).text =
             transformCookie(
                 quote!!.userid,
-                quote!!.admin!!,
+                quote!!.admin,
                 mPo
             )
 

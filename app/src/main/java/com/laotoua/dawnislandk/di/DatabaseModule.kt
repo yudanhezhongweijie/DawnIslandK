@@ -2,9 +2,7 @@ package com.laotoua.dawnislandk.di
 
 import android.content.Context
 import androidx.room.Room
-import com.laotoua.dawnislandk.data.local.dao.CommunityDao
-import com.laotoua.dawnislandk.data.local.dao.CookieDao
-import com.laotoua.dawnislandk.data.local.dao.DawnDatabase
+import com.laotoua.dawnislandk.data.local.dao.*
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -36,5 +34,19 @@ object DatabaseModule {
     @Singleton
     fun provideCookieDao(dawnDatabase: DawnDatabase): CookieDao {
         return dawnDatabase.cookieDao()
+    }
+
+    @JvmStatic
+    @Provides
+    @Singleton
+    fun provideReplyDao(dawnDatabase: DawnDatabase): ReplyDao {
+        return dawnDatabase.replyDao()
+    }
+
+    @JvmStatic
+    @Provides
+    @Singleton
+    fun provideThreadDao(dawnDatabase: DawnDatabase): ThreadDao {
+        return dawnDatabase.threadDao()
     }
 }

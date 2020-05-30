@@ -1,47 +1,74 @@
 package com.laotoua.dawnislandk.data.local
 
+import androidx.room.Entity
 import androidx.room.Ignore
-import com.google.gson.annotations.SerializedName
+import androidx.room.PrimaryKey
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
+@Entity
 data class Thread(
-    @SerializedName("id")
-    val id: String, //	该串的id
-    @SerializedName("fid")
-    var fid: String? = "", //	该串的fid, 非时间线的串会被设置
-
-    @Ignore
-    var forumName: String? = "",// only used for displaying name
-
-    @SerializedName("category")
-    var category: String? = "",
-
-    @SerializedName("img")
+    @PrimaryKey val id: String, //	该串的id
+    var fid: String = "", //	该串的fid, 非时间线的串会被设置
+    @Ignore var forumName: String = "",// only used for displaying name
+    var category: String = "",
     val img: String, //	该串的图片相对地址
-    @SerializedName("ext")
     val ext: String, // 	该串图片的后缀
-    @SerializedName("now")
     val now: String, // 	该串的可视化发言时间
-    @SerializedName("userid")
     val userid: String, //userid 	该串的饼干
-    @SerializedName("name")
     val name: String, //name 	你懂得
-    @SerializedName("email")
     val email: String, //email 	你懂得
-    @SerializedName("title")
     val title: String, //title 	你还是懂的(:з」∠)
-    @SerializedName("content")
     val content: String, //content 	....这个你也懂
-    @SerializedName("sage")
-    val sage: String? = null, // sage
-    @SerializedName("admin")
-    val admin: String, //admin 	是否是酷炫红名，如果是酷炫红名则userid为红名id
-    @SerializedName("status")
-    val status: String? = "n", //?
-    @SerializedName("replys")
-    val replys: List<Reply>? = null, //replys 	主页展示回复的帖子
-    @SerializedName("replyCount")
-    val replyCount: String? = null //replyCount 	总共有多少个回复
+    val sage: String = "0", // sage
+    val admin: String = "0", //admin 	是否是酷炫红名，如果是酷炫红名则userid为红名id
+    val status: String = "n", //
+    @Ignore var replys: List<Reply> = emptyList(), //replys 	主页展示回复的帖子
+    val replyCount: String = "0", //replyCount 	总共有多少个回复
+    var readingProgress: Int = 0, // 记录上次看到的进度
+    var lastUpdatedAt: Long = 0
 ) {
+    // Room uses this
+    constructor(
+        id: String,
+        fid: String,
+        category: String,
+        img: String,
+        ext: String,
+        now: String,
+        userid: String,
+        name: String,
+        email: String,
+        title: String,
+        content: String,
+        sage: String,
+        admin: String,
+        status: String,
+        replyCount: String,
+        readingProgress: Int,
+        lastUpdatedAt: Long
+    ) : this(
+        id,
+        fid,
+        "",
+        category,
+        img,
+        ext,
+        now,
+        userid,
+        name,
+        email,
+        title,
+        content,
+        sage,
+        admin,
+        status,
+        emptyList(),
+        replyCount,
+        readingProgress,
+        lastUpdatedAt
+    )
+
     // convert threadList to Reply
     fun toReply() = Reply(
         id = id,
@@ -55,7 +82,8 @@ data class Thread(
         now = now,
         content = content,
         img = img,
-        ext = ext
+        ext = ext,
+        page = 1
     )
 
     fun getImgUrl(): String {

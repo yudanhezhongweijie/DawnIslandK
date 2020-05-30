@@ -16,6 +16,8 @@ sealed class DataResource<T>(
         }
 
         fun <T> create(data: T): DataResource<T> = Success("Room data", data)
+
+        fun <T> create(message: String, data: T): DataResource<T> = Success(message, data)
     }
 
     class Success<T>(message: String, data: T) : DataResource<T>(message, data)

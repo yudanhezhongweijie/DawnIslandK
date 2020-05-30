@@ -45,14 +45,14 @@ class TrendsViewModel @Inject constructor(private val webService: NMBServiceClie
     private suspend fun getLatestTrendPage() {
         DataResource.create(
             webService.getReplys(
-                applicationDataStore.cookies.firstOrNull()?.cookieHash,
+                applicationDataStore.firstCookieHash,
                 trendId,
                 page
             )
         ).run {
             when (this) {
                 is DataResource.Success -> {
-                    val count = data!!.replyCount?.toInt() ?: 0
+                    val count = data!!.replyCount.toInt()
                     if (page == 1) {
                         page = kotlin.math.ceil(count.toDouble() / 19).toInt()
                         getLatestTrendPage()
@@ -80,7 +80,7 @@ class TrendsViewModel @Inject constructor(private val webService: NMBServiceClie
     }
 
     private fun extractLatestTrend(data: Thread): List<String> {
-        for (reply in data.replys!!.reversed()) {
+        for (reply in data.replys.reversed()) {
             if (reply.userid == po) {
                 val list = reply.content.split(trendDelimiter, ignoreCase = true)
                 if (list.size == 32) {

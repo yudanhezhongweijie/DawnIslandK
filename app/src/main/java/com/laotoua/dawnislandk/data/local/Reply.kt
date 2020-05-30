@@ -1,36 +1,29 @@
 package com.laotoua.dawnislandk.data.local
 
-import com.google.gson.annotations.SerializedName
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
+@Entity
 data class Reply(
-    @SerializedName("id")
-    val id: String,
-    @SerializedName("userid")
+    @PrimaryKey val id: String,
     val userid: String,
-    @SerializedName("name")
-    val name: String? = "",
-    @SerializedName("sage")
-    val sage: String? = "",
-    @SerializedName("admin")
-    val admin: String? = "1",
-    @SerializedName("status")
-    val status: String? = "n", //?
-    @SerializedName("title")
-    val title: String? = "",
-    @SerializedName("email")
+    val name: String = "",
+    val sage: String = "0",
+    val admin: String = "0",
+    val status: String = "n",
+    val title: String,
     val email: String,
-    @SerializedName("now")
     val now: String,
-    @SerializedName("content")
     val content: String,
-    @SerializedName("img")
     val img: String,
-    @SerializedName("ext")
     val ext: String,
-    @Transient
-    var page: Int? = 1
+    var page: Int = 1,
+    var parentId: String = "",
+    var lastUpdatedAt: Long = 0
 ) {
-    fun getImgUrl(): String {
-        return img + ext
-    }
+    fun getImgUrl(): String = (img + ext)
+
+    fun isNotAd(): Boolean = (id != "9999999")
 }

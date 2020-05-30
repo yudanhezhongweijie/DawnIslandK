@@ -1,18 +1,32 @@
 package com.laotoua.dawnislandk.data.local.dao
 
 import androidx.room.TypeConverter
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.laotoua.dawnislandk.data.local.Forum
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
 
 class Converter {
+    private val moshi = Moshi.Builder().build()
     @TypeConverter
-    fun listToJson(value: String): List<Forum> {
-        return Gson().fromJson(value, object : TypeToken<List<Forum>>() {}.type)
+    fun jsonToList(value: String): List<Forum> {
+        val adapter: JsonAdapter<List<Forum>> = moshi.adapter(
+            Types.newParameterizedType(
+                List::class.java,
+                Forum::class.java
+            )
+        )
+        return adapter.fromJson(value)!!
     }
 
     @TypeConverter
-    fun jsonToList(list: List<Forum>): String {
-        return Gson().toJson(list)
+    fun listToJson(list: List<Forum>): String {
+        val adapter: JsonAdapter<List<Forum>> = moshi.adapter(
+            Types.newParameterizedType(
+                List::class.java,
+                Forum::class.java
+            )
+        )
+        return adapter.toJson(list)
     }
 }

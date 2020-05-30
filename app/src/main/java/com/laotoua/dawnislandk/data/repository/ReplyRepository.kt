@@ -15,9 +15,7 @@ import com.laotoua.dawnislandk.util.SingleLiveEvent
 import kotlinx.coroutines.Dispatchers
 import timber.log.Timber
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
 class ReplyRepository @Inject constructor(
     private val webService: NMBServiceClient,
     private val replyDao: ReplyDao,
@@ -68,7 +66,7 @@ class ReplyRepository @Inject constructor(
 
     fun checkFullPage(page: Int): Boolean = (replyMap[page]?.value?.size == 19)
 
-    private fun setLoadingStatus(status: LoadingStatus, message: String? = null) {
+    fun setLoadingStatus(status: LoadingStatus, message: String? = null) {
         loadingStatus.postValue(SingleLiveEvent.create(status, message))
     }
 
@@ -126,8 +124,14 @@ class ReplyRepository @Inject constructor(
             emptyPage.postValue(true)
             return
         }
-        if (noAd.isEmpty() || (replyMap[page]?.value == noAd && page == maxPage)) {
-            setLoadingStatus(LoadingStatus.NODATA)
+        /**
+         *  On the last page, show NO DATA to indicate footer load end;
+         *  When entering to a thread with cached data, refresh header is showing,
+         *  set LoadingStatus to Success to hide the header
+         */
+        if (noAd.isEmpty() || replyMap[page]?.value == noAd) {
+            if (page == maxPage) setLoadingStatus(LoadingStatus.NODATA)
+            else setLoadingStatus(LoadingStatus.SUCCESS)
             return
         }
         Timber.d("Updating ${noAd.size} rows for $currentThreadId on $page")

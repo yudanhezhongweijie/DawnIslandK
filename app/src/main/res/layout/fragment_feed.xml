@@ -13,7 +13,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <me.dkzwm.widget.srl.SmoothRefreshLayout
+    <me.dkzwm.widget.srl.MaterialSmoothRefreshLayout
         android:id="@+id/refreshLayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -27,6 +27,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scrollbars="vertical" />
-    </me.dkzwm.widget.srl.SmoothRefreshLayout>
+    </me.dkzwm.widget.srl.MaterialSmoothRefreshLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

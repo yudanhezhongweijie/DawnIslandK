@@ -1,15 +1,30 @@
 package com.laotoua.dawnislandk.screens.replys
 
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.local.Reply
 import com.laotoua.dawnislandk.data.local.Thread
 import com.laotoua.dawnislandk.data.repository.ReplyRepository
-import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.LoadingStatus
-import com.laotoua.dawnislandk.util.SingleLiveEvent
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.collections.List
+import kotlin.collections.MutableList
+import kotlin.collections.emptyList
+import kotlin.collections.first
+import kotlin.collections.firstOrNull
+import kotlin.collections.indexOfLast
+import kotlin.collections.indices
+import kotlin.collections.isNullOrEmpty
+import kotlin.collections.last
+import kotlin.collections.lastOrNull
+import kotlin.collections.map
+import kotlin.collections.mutableListOf
+import kotlin.collections.mutableMapOf
+import kotlin.collections.set
 
 class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository) : ViewModel() {
     val currentThreadId: String? get() = replyRepo.currentThreadId
@@ -24,7 +39,7 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
             if (it == true) {
                 val emptyPage = replyRepo.attachAdAndHead(emptyList(), 1)
                 handleNewPageData(emptyPage, DIRECTION.NEXT)
-                mLoadingStatus.value = SingleLiveEvent.create(LoadingStatus.NODATA)
+                replyRepo.setLoadingStatus(LoadingStatus.NODATA)
             }
         }
     }
@@ -32,11 +47,7 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
     private val listeningPages = mutableMapOf<Int, LiveData<List<Reply>>>()
     val maxPage get() = replyRepo.maxPage
 
-    private val mLoadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
-    val loadingStatus = MediatorLiveData<SingleLiveEvent<EventPayload<Nothing>>>().apply {
-        addSource(replyRepo.loadingStatus) { value = it }
-        addSource(mLoadingStatus) { value = it }
-    }
+    val loadingStatus get() = replyRepo.loadingStatus
 
     val addFeedResponse
         get() = replyRepo.addFeedResponse
@@ -74,8 +85,7 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
         }
         val lastPage = (replyList.firstOrNull()?.page ?: 1) - 1
         if (lastPage < 1) {
-            replyRepo.loadingStatus.value =
-                SingleLiveEvent.create(LoadingStatus.NODATA, "没有上一页了...")
+            replyRepo.setLoadingStatus(LoadingStatus.NODATA, "没有上一页了...")
             return
         }
         listenToNewPage(lastPage, direction)
@@ -87,9 +97,9 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
         if (listeningPages[page] != newPage) {
             listeningPages[page] = newPage
             replys.addSource(newPage) {
-                val pageWithAdAndHead = replyRepo.attachAdAndHead(it, page)
-                if (!pageWithAdAndHead.isNullOrEmpty()) {
-                    handleNewPageData(pageWithAdAndHead, direction)
+                if (!it.isNullOrEmpty()) {
+                    handleNewPageData(replyRepo.attachAdAndHead(it, page), direction)
+                    replyRepo.setLoadingStatus(LoadingStatus.SUCCESS)
                 }
             }
         } else {
@@ -124,7 +134,6 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
     private fun handleNewPageData(list: MutableList<Reply>, direction: DIRECTION) {
         mergeNewPage(list, direction)
         replys.postValue(replyList)
-        mLoadingStatus.value = SingleLiveEvent.create(LoadingStatus.SUCCESS)
     }
 
     private fun clearCache() {

@@ -28,8 +28,8 @@ android {
     buildToolsVersion "29.0.3"
     android.ndkVersion "21.1.6352462"
 
-    viewBinding {
-        enabled = true
+    buildFeatures{
+         viewBinding = true
     }
 
     defaultConfig {
@@ -120,12 +120,9 @@ dependencies {
     implementation 'com.afollestad.material-dialogs:input:3.3.0'
     implementation 'com.afollestad.material-dialogs:color:3.2.1'
 
-    implementation 'me.dkzwm.widget.srl:core:1.7.1.1.androidx'
-    implementation 'me.dkzwm.widget.srl:ext-util:1.7.1.1.androidx'
-    implementation 'me.dkzwm.widget.srl:ext-material:1.7.1.1.androidx'
-    implementation 'me.dkzwm.widget.srl:ext-horizontal:1.7.1.1.androidx'
-    implementation 'me.dkzwm.widget.srl:ext-classics:1.7.1.1.androidx'
-    implementation 'me.dkzwm.widget.srl:ext-two-level:1.7.1.1.androidx'
+    implementation 'me.dkzwm.widget.srl:core:1.7.1.2.androidx'
+    implementation 'me.dkzwm.widget.srl:ext-util:1.7.1.2.androidx'
+    implementation 'me.dkzwm.widget.srl:ext-material:1.7.1.2.androidx'
 
     implementation 'com.king.zxing:zxing-lite:1.1.9-androidx'
 
@@ -157,5 +154,5 @@ dependencies {
     kapt "com.google.dagger:dagger-android-processor:$dagger_version"
 
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.3'
-
+    debugImplementation 'com.amitshekhar.android:debug-db:1.0.6'
 }

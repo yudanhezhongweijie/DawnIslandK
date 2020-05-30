@@ -32,8 +32,6 @@ import com.lxj.xpopup.XPopup
 import dagger.android.support.DaggerFragment
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import me.dkzwm.widget.srl.config.Constants
-import me.dkzwm.widget.srl.extra.header.ClassicHeader
-import me.dkzwm.widget.srl.indicator.IIndicator
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -134,7 +132,6 @@ class ThreadsFragment : DaggerFragment() {
         }
 
         binding.refreshLayout.apply {
-            setHeaderView(ClassicHeader<IIndicator>(context))
             setOnRefreshListener(object : RefreshingListenerAdapter() {
                 override fun onRefreshing() {
                     mAdapter.setList(emptyList())

@@ -1,5 +1,7 @@
 package com.laotoua.dawnislandk.data.local.dao
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.distinctUntilChanged
 import androidx.room.*
 import com.laotoua.dawnislandk.data.local.Thread
 import java.util.*
@@ -10,7 +12,10 @@ interface ThreadDao {
     suspend fun getAll(): List<Thread>
 
     @Query("SELECT * FROM Thread WHERE id=:id")
-    suspend fun getThreadById(id: String): Thread
+    fun findThreadById(id: String): LiveData<Thread>
+
+    fun findDistinctThreadById(id: String): LiveData<Thread> =
+        findThreadById(id).distinctUntilChanged()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(thread: Thread)

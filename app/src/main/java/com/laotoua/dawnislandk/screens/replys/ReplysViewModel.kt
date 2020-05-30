@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.local.Reply
 import com.laotoua.dawnislandk.data.repository.ReplyRepository
 import com.laotoua.dawnislandk.util.LoadingStatus
+import com.laotoua.dawnislandk.util.addOrSet
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -14,21 +15,13 @@ import kotlin.collections.set
 
 class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository) : ViewModel() {
     val currentThreadId: String? get() = replyRepo.currentThreadId
-    val po get() = replyRepo.po
+    val po get() = replyRepo.currentThread?.value?.userid ?: ""
 
     private val replyList = mutableListOf<Reply>()
 
     // TODO: previous page & next page should be handled the same
     var previousPage: List<Reply> = emptyList()
-    val replys = MediatorLiveData<MutableList<Reply>>().apply {
-        addSource(replyRepo.emptyPage) {
-            if (it == true) {
-                val emptyPage = replyRepo.attachAdAndHead(emptyList(), 1)
-                handleNewPageData(emptyPage, DIRECTION.NEXT)
-                replyRepo.setLoadingStatus(LoadingStatus.NODATA)
-            }
-        }
-    }
+    val replys = MediatorLiveData<MutableList<Reply>>()
 
     private val listeningPages = mutableMapOf<Int, LiveData<List<Reply>>>()
     val maxPage get() = replyRepo.maxPage
@@ -45,9 +38,9 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
 
     var direction = DIRECTION.NEXT
 
-    fun setThread(id: String) {
+    fun setThreadId(id: String) {
         if (id != currentThreadId) clearCache()
-        replyRepo.setThread(id)
+        replyRepo.setThreadId(id)
         if (replyList.isEmpty()) getNextPage(false)
     }
 
@@ -77,6 +70,12 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
         listenToNewPage(lastPage, direction)
     }
 
+    private fun List<Reply>.attachAd(page: Int) = toMutableList().apply {
+        //  insert Ad below thread head or as first
+        replyRepo.getAd(page)?.let {
+            add(if (page == 1) 1 else 0, it)
+        }
+    }
 
     private fun listenToNewPage(page: Int, direction: DIRECTION) {
         val newPage = replyRepo.getLiveDataOnPage(page)
@@ -84,8 +83,7 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
             listeningPages[page] = newPage
             replys.addSource(newPage) {
                 if (!it.isNullOrEmpty()) {
-                    handleNewPageData(replyRepo.attachAdAndHead(it, page), direction)
-                    replyRepo.setLoadingStatus(LoadingStatus.SUCCESS)
+                    handleNewPageData(it.attachAd(page), direction)
                 }
             }
         } else {
@@ -104,15 +102,9 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
         } else if (replyList.isEmpty() || targetPage > replyList.last().page) {
             replyList.addAll(list)
         } else {
-            val ind = replyList.indexOfLast { it.page < targetPage } + 1
-            for (i in list.indices) {
-                when {
-                    (ind + i >= replyList.size || replyList[ind + i].page > list[i].page) -> {
-                        replyList.add(ind + i, list[i])
-                    }
-                    replyList[ind + i].page == list[i].page -> replyList[ind + i] = list[i]
-                    else -> throw Exception("replyList insertion error")
-                }
+            val insertInd = replyList.indexOfLast { it.page < targetPage } + 1
+            list.mapIndexed { i, reply ->
+                replyList.addOrSet(insertInd + i, reply)
             }
         }
     }
@@ -120,6 +112,7 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
     private fun handleNewPageData(list: MutableList<Reply>, direction: DIRECTION) {
         mergeNewPage(list, direction)
         replys.postValue(replyList)
+        replyRepo.setLoadingStatus(LoadingStatus.SUCCESS)
     }
 
     private fun clearCache() {

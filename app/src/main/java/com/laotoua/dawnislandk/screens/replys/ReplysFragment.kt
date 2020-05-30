@@ -78,11 +78,6 @@ class ReplysFragment : DaggerFragment() {
             }
         }
 
-//         initial loading animation only, actual loading is triggered by sharedVM
-        if (viewModel.replys.value.isNullOrEmpty()) {
-            binding.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
-        }
-
         val imageLoader = ImageLoader()
         val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext()) }
         val jumpPopup: JumpPopup by lazyOnMainOnly { JumpPopup(requireContext()) }
@@ -190,7 +185,7 @@ class ReplysFragment : DaggerFragment() {
         })
 
         sharedVM.selectedThreadId.observe(viewLifecycleOwner, Observer {
-            viewModel.setThread(it)
+            viewModel.setThreadId(it)
             updateTitle()
             updateSubtitle()
         })

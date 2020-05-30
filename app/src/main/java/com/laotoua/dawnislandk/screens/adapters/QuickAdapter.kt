@@ -175,8 +175,8 @@ class QuickAdapter<T>(private val layoutResId: Int) :
         setText(R.id.timestamp, ContentTransformation.transformTime(now))
     }
 
-    private fun BaseViewHolder.convertForumAndReply(replyCount: String?, forumDisplayName: String) {
-        val suffix = if (replyCount != null) " • $replyCount" else ""
+    private fun BaseViewHolder.convertForumAndReply(replyCount: String, forumDisplayName: String) {
+        val suffix = if (replyCount.isNotBlank()) " • $replyCount" else ""
         val spannableString = SpannableString(forumDisplayName + suffix)
         spannableString.setSpan(
             RoundBackgroundColorSpan(
@@ -200,7 +200,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
                 title,
                 name
             )
-        if (titleAndName != "") {
+        if (titleAndName.isNotBlank()) {
             setText(R.id.titleAndName, titleAndName)
             setVisible(R.id.titleAndName, true)
         } else {
@@ -217,7 +217,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
     }
 
     private fun BaseViewHolder.convertImage(img: String, ext: String) {
-        if (img != "") {
+        if (img.isNotBlank()) {
             GlideApp.with(context)
                 .load(Constants.thumbCDN + img + ext)
 //                .override(400, 400)
@@ -355,14 +355,14 @@ class QuickAdapter<T>(private val layoutResId: Int) :
         class ThreadPayload(
             val now: String,
             val content: String,
-            val sage: String?,
-            val replyCount: String?
+            val sage: String,
+            val replyCount: String
         )
 
         class ReplyPayload(
             val now: String,
             val content: String,
-            val sage: String?
+            val sage: String
         )
     }
 

@@ -60,7 +60,6 @@ class ThreadsFragment : DaggerFragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbarLayout.toolbar.apply {
             immersiveToolbar()
-            updateTitle()
             setSubtitle(R.string.adnmb)
             val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
@@ -172,17 +171,14 @@ class ThreadsFragment : DaggerFragment() {
             Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
         })
 
-        sharedVM.selectedForum.observe(viewLifecycleOwner, Observer {
-            if (viewModel.currentForum == null) {
-                viewModel.setForum(it)
-            } else if (viewModel.currentForum != null && viewModel.currentForum!!.id != it.id) {
-                Timber.i("Forum has changed to ${it.name}. Cleaning old adapter data...")
+        sharedVM.selectedForumId.observe(viewLifecycleOwner, Observer {
+            if (viewModel.currentFid != null && viewModel.currentFid != it) {
+                Timber.d("Forum has changed to $it. Cleaning old adapter data...")
                 mAdapter.setList(emptyList())
-                viewModel.setForum(it)
-                hideMenu()
-
-                updateTitle()
             }
+            viewModel.setForum(it)
+            updateTitle(it)
+            hideMenu()
         })
 
         binding.fabMenu.setOnClickListener {
@@ -203,7 +199,7 @@ class ThreadsFragment : DaggerFragment() {
         binding.post.setOnClickListener {
             hideMenu()
             postPopup.setupAndShow(
-                sharedVM.selectedForum.value?.id,
+                sharedVM.selectedForumId.value,
                 true,
                 sharedVM.getForumNameMapping()
             )
@@ -258,8 +254,8 @@ class ThreadsFragment : DaggerFragment() {
         }
     }
 
-    private fun updateTitle() {
-        binding.toolbarLayout.toolbar.title = "A岛 • ${viewModel.currentForum?.name ?: "时间线"}"
+    private fun updateTitle(fid: String) {
+        binding.toolbarLayout.toolbar.title = "A岛 • ${sharedVM.getForumDisplayName(fid)}"
     }
 }
 

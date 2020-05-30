@@ -43,19 +43,23 @@ class ReplyRepository @Inject constructor(
          *  MARK full page for next page load
          *  *** FIRST PAGE also has thread head
          */
-        if (page == 1) add(currentThread!!.toReply())
+//        if(currentThread!!.isDataComplete().not()) return@apply
+        if (page == 1 && currentThread != null && currentThread!!.isDataComplete()) add(
+            currentThread!!.toReply()
+        )
         adMap[page]?.let { add(it) }
         addAll(list)
     }
 
-    fun setThread(f: Thread) {
-        if (f.id == currentThreadId) return
+    // TODO: get header
+    fun setThread(id: String) {
+        if (id == currentThreadId) return
         Timber.i("Thread has changed... Clearing old data")
         clearCache()
-        Timber.i("Setting new Thread: ${f.id}")
-        currentThreadId = f.id
-        currentThread = f
-        po = f.userid
+        Timber.i("Setting new Thread: $id")
+        currentThreadId = id
+//        currentThread = f
+//        po = f.userid
         emptyPage.value = false
     }
 

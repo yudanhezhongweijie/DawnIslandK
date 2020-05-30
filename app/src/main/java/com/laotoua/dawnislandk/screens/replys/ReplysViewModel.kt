@@ -5,25 +5,11 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.local.Reply
-import com.laotoua.dawnislandk.data.local.Thread
 import com.laotoua.dawnislandk.data.repository.ReplyRepository
 import com.laotoua.dawnislandk.util.LoadingStatus
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
-import kotlin.collections.List
-import kotlin.collections.MutableList
-import kotlin.collections.emptyList
-import kotlin.collections.first
-import kotlin.collections.firstOrNull
-import kotlin.collections.indexOfLast
-import kotlin.collections.indices
-import kotlin.collections.isNullOrEmpty
-import kotlin.collections.last
-import kotlin.collections.lastOrNull
-import kotlin.collections.map
-import kotlin.collections.mutableListOf
-import kotlin.collections.mutableMapOf
 import kotlin.collections.set
 
 class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository) : ViewModel() {
@@ -59,9 +45,9 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
 
     var direction = DIRECTION.NEXT
 
-    fun setThread(f: Thread) {
-        if (f.id != currentThreadId) clearCache()
-        replyRepo.setThread(f)
+    fun setThread(id: String) {
+        if (id != currentThreadId) clearCache()
+        replyRepo.setThread(id)
         if (replyList.isEmpty()) getNextPage(false)
     }
 

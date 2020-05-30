@@ -9,7 +9,7 @@ interface CookieDao {
     @Query("SELECT * FROM Cookie")
     suspend fun getAll(): List<Cookie>
 
-    @Query("SELECT * FROM Cookie WHERE cookieHash==:cookieHash")
+    @Query("SELECT * FROM Cookie WHERE cookieHash=:cookieHash")
     suspend fun getCookieByUserHash(cookieHash: String): Cookie
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -30,6 +30,6 @@ interface CookieDao {
     @Delete
     suspend fun delete(cookie: Cookie)
 
-    @Query("DELETE FROM cookie")
+    @Query("DELETE FROM Cookie")
     fun nukeTable()
 }

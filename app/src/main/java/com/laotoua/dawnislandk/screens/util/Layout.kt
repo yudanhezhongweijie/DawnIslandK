@@ -45,7 +45,7 @@ object Layout {
                 ).show()
             }
             LoadingStatus.NODATA -> {
-                refreshLayout.refreshComplete(true, 5L)
+                refreshLayout.refreshComplete(true, 100L)
                 mAdapter.loadMoreModule.loadMoreEnd()
                 if (event.message != null) {
                     Toast.makeText(
@@ -56,7 +56,7 @@ object Layout {
                 }
             }
             LoadingStatus.SUCCESS -> {
-                refreshLayout.refreshComplete(true, 5L)
+                refreshLayout.refreshComplete(true, 100L)
                 mAdapter.loadMoreModule.loadMoreComplete()
             }
             LoadingStatus.LOADING -> {

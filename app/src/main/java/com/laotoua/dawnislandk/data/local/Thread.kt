@@ -10,7 +10,6 @@ import com.squareup.moshi.JsonClass
 data class Thread(
     @PrimaryKey val id: String, //	该串的id
     var fid: String = "", //	该串的fid, 非时间线的串会被设置
-    @Ignore var forumName: String = "",// only used for displaying name
     var category: String = "",
     val img: String, //	该串的图片相对地址
     val ext: String, // 	该串图片的后缀
@@ -50,7 +49,6 @@ data class Thread(
     ) : this(
         id,
         fid,
-        "",
         category,
         img,
         ext,
@@ -86,7 +84,7 @@ data class Thread(
         page = 1
     )
 
-    fun getImgUrl(): String {
-        return img + ext
-    }
+    fun isDataComplete(): Boolean = (userid.isNotBlank() && now.isNotBlank())
+
+    fun getImgUrl() = (img + ext)
 }

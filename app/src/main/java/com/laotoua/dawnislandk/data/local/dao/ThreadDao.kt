@@ -9,7 +9,7 @@ interface ThreadDao {
     @Query("SELECT * FROM Thread")
     suspend fun getAll(): List<Thread>
 
-    @Query("SELECT * FROM Thread WHERE id==:id")
+    @Query("SELECT * FROM Thread WHERE id=:id")
     suspend fun getThreadById(id: String): Thread
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

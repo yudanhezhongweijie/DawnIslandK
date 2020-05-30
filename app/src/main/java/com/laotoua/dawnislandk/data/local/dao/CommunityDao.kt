@@ -9,7 +9,7 @@ interface CommunityDao {
     @Query("SELECT * FROM Community")
     fun getAll(): LiveData<List<Community>>
 
-    @Query("SELECT * FROM Community WHERE id==:id")
+    @Query("SELECT * FROM Community WHERE id=:id")
     suspend fun getCommunityById(id: String): Community
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

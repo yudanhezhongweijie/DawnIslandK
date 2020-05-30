@@ -20,6 +20,6 @@ data class Forum(
     val status: String = ""
 ) {
     fun getDisplayName(): String {
-        return if (showName != "") showName else name
+        return if (showName.isNotBlank()) showName else name
     }
 }

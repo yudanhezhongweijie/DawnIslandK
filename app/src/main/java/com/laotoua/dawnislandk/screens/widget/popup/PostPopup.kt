@@ -503,7 +503,7 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
         email = findViewById<TextView>(R.id.formEmail).text.toString()
         title = findViewById<TextView>(R.id.formTitle).text.toString()
         content = postContent!!.text.toString()
-        if (content == "" && imageFile == null) {
+        if (content.isBlank() && imageFile == null) {
             Toast.makeText(caller.context, R.string.need_content_to_post, Toast.LENGTH_SHORT).show()
             return
         }

@@ -97,10 +97,10 @@ class PagerFragment : DaggerFragment() {
             .setIndicatorStyle(IndicatorStyle.CIRCLE)
             .setupWithViewPager(binding.viewPager)
 
-        sharedVM.selectedForum.observe(viewLifecycleOwner, Observer {
-            if (mForumId != it.id) {
+        sharedVM.selectedForumId.observe(viewLifecycleOwner, Observer {
+            if (mForumId != it) {
                 binding.viewPager.currentItem = 0
-                mForumId = it.id
+                mForumId = it
             }
         })
 

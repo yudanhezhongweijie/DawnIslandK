@@ -67,8 +67,6 @@ class ReplysFragment : DaggerFragment() {
 
         binding.toolbarLayout.toolbar.apply {
             immersiveToolbar()
-            title = "A岛 • ${sharedVM.getCurrentForumDisplayName()}"
-            setSubtitle(R.string.adnmb)
             val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             setNavigationIcon(R.drawable.ic_arrow_back_white_24px)
@@ -191,8 +189,9 @@ class ReplysFragment : DaggerFragment() {
             Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
         })
 
-        sharedVM.selectedThread.observe(viewLifecycleOwner, Observer {
+        sharedVM.selectedThreadId.observe(viewLifecycleOwner, Observer {
             viewModel.setThread(it)
+            updateTitle()
             updateSubtitle()
         })
 
@@ -319,6 +318,10 @@ class ReplysFragment : DaggerFragment() {
         } else {
             showMenu()
         }
+    }
+
+    private fun updateTitle() {
+        binding.toolbarLayout.toolbar.title = "A岛 • ${sharedVM.getSelectedThreadForumName()}"
     }
 
     private fun updateSubtitle() {

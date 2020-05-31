@@ -6,9 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.provider.MediaStore
 import android.widget.Toast
-import androidx.activity.invoke
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.CallSuper
@@ -30,13 +28,13 @@ object FragmentIntentUtil {
     private fun requestSinglePermission(caller: Fragment, permission: String) {
         caller.registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             Timber.i("requesting $permission permission...")
-        }(permission)
+        }.launch(permission)
     }
 
     private fun requestMultiplePermission(caller: Fragment, permissions: Array<String>) {
         caller.registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
             Timber.i("requesting multiple permissions: $permissions")
-        }(permissions)
+        }.launch(permissions)
     }
 
     fun checkAndRequestSinglePermission(
@@ -81,35 +79,17 @@ object FragmentIntentUtil {
     }
 
     fun getImageFromGallery(caller: Fragment, type: String, callback: (Uri?) -> Unit) {
-        caller.registerForActivityResult(ActivityResultContracts.GetContent(), callback)(type)
+        caller.registerForActivityResult(ActivityResultContracts.GetContent(), callback)
+            .launch(type)
     }
 
     fun getImageFromCamera(caller: Fragment, uri: Uri, callback: (Boolean) -> Unit) {
-        caller.registerForActivityResult(MyTakePicture(), callback)(uri)
-    }
-
-    // temp workaround for Default TakePicture, which *DOES NOT* return thumbnail upon success
-    internal class MyTakePicture :
-        ActivityResultContract<Uri, Boolean>() {
-        @CallSuper
-        override fun createIntent(
-            context: Context,
-            input: Uri
-        ): Intent {
-            return Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                .putExtra(MediaStore.EXTRA_OUTPUT, input)
-        }
-
-        override fun parseResult(
-            resultCode: Int,
-            intent: Intent?
-        ): Boolean {
-            return (intent == null || resultCode != Activity.RESULT_OK).not()
-        }
+        caller.registerForActivityResult(ActivityResultContracts.TakePicture(), callback)
+            .launch(uri)
     }
 
     fun drawNewDoodle(caller: Fragment, callback: (Uri?) -> Unit) {
-        caller.registerForActivityResult(MakeDoodle(), callback)(caller)
+        caller.registerForActivityResult(MakeDoodle(), callback).launch(caller)
     }
 
     internal class MakeDoodle :
@@ -131,7 +111,7 @@ object FragmentIntentUtil {
     }
 
     fun getCookieFromQRCode(caller: Fragment, callback: (String?) -> Unit) {
-        caller.registerForActivityResult(ScanQRCode(), callback)(caller)
+        caller.registerForActivityResult(ScanQRCode(), callback).launch(caller)
     }
 
     internal class ScanQRCode :

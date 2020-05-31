@@ -13,7 +13,6 @@ import android.os.Handler
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.invoke
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.ColorUtils
@@ -126,7 +125,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
             if (binding.doodleView.hasInsertBitmap()) {
                 binding.doodleView.insertBitmap(null)
             } else {
-                getImageBackground("image/*")
+                getImageBackground.launch("image/*")
             }
             binding.image.apply {
                 isActivated = !isActivated

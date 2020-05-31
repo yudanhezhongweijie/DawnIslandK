@@ -3,7 +3,6 @@ package com.laotoua.dawnislandk.data.remote
 import com.laotoua.dawnislandk.data.local.Community
 import com.laotoua.dawnislandk.data.local.Reply
 import com.laotoua.dawnislandk.data.local.Thread
-import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import kotlinx.coroutines.Dispatchers
@@ -21,23 +20,21 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
     private val moshi: Moshi = Moshi.Builder().build()
 
     private val parseCommunities: (String) -> List<Community> = { response ->
-        val adapter: JsonAdapter<List<Community>> = moshi.adapter(
+        moshi.adapter<List<Community>>(
             Types.newParameterizedType(
                 List::class.java,
                 Community::class.java
             )
-        )
-        adapter.fromJson(response)!!
+        ).fromJson(response)!!
     }
 
     private val parseThreads: (String) -> List<Thread> = { response ->
-        val adapter: JsonAdapter<List<Thread>> = moshi.adapter(
+        moshi.adapter<List<Thread>>(
             Types.newParameterizedType(
                 List::class.java,
                 Thread::class.java
             )
-        )
-        adapter.fromJson(response)!!
+        ).fromJson(response)!!
     }
 
     private val parseReplys: (String) -> Thread = { response ->

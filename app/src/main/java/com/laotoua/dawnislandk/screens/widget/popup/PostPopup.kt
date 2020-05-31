@@ -75,9 +75,9 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
     private var expansionContainer: LinearLayout? = null
     private var attachmentContainer: ConstraintLayout? = null
     private var emojiContainer: RecyclerView? = null
-    private val emojiAdapter: QuickAdapter by lazyOnMainOnly { QuickAdapter(R.layout.grid_item_emoji) }
+    private val emojiAdapter by lazyOnMainOnly { QuickAdapter<String>(R.layout.grid_item_emoji) }
     private var luweiStickerContainer: RecyclerView? = null
-    private val luweiStickerAdapter: QuickAdapter by lazyOnMainOnly { QuickAdapter(R.layout.grid_item_luwei_sticker) }
+    private val luweiStickerAdapter by lazyOnMainOnly { QuickAdapter<String>(R.layout.grid_item_luwei_sticker) }
     private var postContent: EditText? = null
     private var postImagePreview: ImageView? = null
 
@@ -272,7 +272,7 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
             luweiStickerContainer!!.layoutManager = GridLayoutManager(context, 3)
             luweiStickerContainer!!.adapter = luweiStickerAdapter.also { adapter ->
                 adapter.setOnItemClickListener { _, _, pos ->
-                    val emojiId = adapter.getItem(pos) as String
+                    val emojiId = adapter.getItem(pos)
                     val resourceId: Int = context.resources.getIdentifier(
                         "le$emojiId", "drawable",
                         context.packageName
@@ -503,7 +503,7 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
         email = findViewById<TextView>(R.id.formEmail).text.toString()
         title = findViewById<TextView>(R.id.formTitle).text.toString()
         content = postContent!!.text.toString()
-        if (content == "" && imageFile == null) {
+        if (content.isBlank() && imageFile == null) {
             Toast.makeText(caller.context, R.string.need_content_to_post, Toast.LENGTH_SHORT).show()
             return
         }

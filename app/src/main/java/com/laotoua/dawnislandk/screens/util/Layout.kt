@@ -29,14 +29,16 @@ object Layout {
         return pix / context.resources.displayMetrics.density
     }
 
-    fun <T> Fragment.updateHeaderAndFooter(
+    fun <AdapterType, PayloadType> Fragment.updateHeaderAndFooter(
         refreshLayout: SmoothRefreshLayout,
-        mAdapter: QuickAdapter,
-        event: EventPayload<T>
+        mAdapter: QuickAdapter<AdapterType>,
+        event: EventPayload<PayloadType>
     ) {
+        val headerDismissalDelayDuration = 200L
         when (event.loadingStatus) {
+            // TODO: stick failure message on header or footer instead of toast
             LoadingStatus.FAILED -> {
-                refreshLayout.refreshComplete(false)
+                refreshLayout.refreshComplete(false, headerDismissalDelayDuration)
                 mAdapter.loadMoreModule.loadMoreFail()
                 Toast.makeText(
                     context,
@@ -45,7 +47,7 @@ object Layout {
                 ).show()
             }
             LoadingStatus.NODATA -> {
-                refreshLayout.refreshComplete()
+                refreshLayout.refreshComplete(true, headerDismissalDelayDuration)
                 mAdapter.loadMoreModule.loadMoreEnd()
                 if (event.message != null) {
                     Toast.makeText(
@@ -56,7 +58,7 @@ object Layout {
                 }
             }
             LoadingStatus.SUCCESS -> {
-                refreshLayout.refreshComplete()
+                refreshLayout.refreshComplete(true, headerDismissalDelayDuration)
                 mAdapter.loadMoreModule.loadMoreComplete()
             }
             LoadingStatus.LOADING -> {

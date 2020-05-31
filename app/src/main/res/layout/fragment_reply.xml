@@ -13,7 +13,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <me.dkzwm.widget.srl.SmoothRefreshLayout
+    <me.dkzwm.widget.srl.MaterialSmoothRefreshLayout
         android:id="@+id/refreshLayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -29,7 +29,7 @@
             android:scrollbars="vertical">
 
         </androidx.recyclerview.widget.RecyclerView>
-    </me.dkzwm.widget.srl.SmoothRefreshLayout>
+    </me.dkzwm.widget.srl.MaterialSmoothRefreshLayout>
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/addFeed"

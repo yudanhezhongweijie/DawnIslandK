@@ -54,7 +54,7 @@ class JumpPopup(context: Context) : CenterPopupView(context) {
         submitButton.setOnClickListener {
             submit = true
             targetPage = pageInput.text.toString().toInt()
-            if (applicationDataStore.cookies.isNullOrEmpty() && targetPage > 99) {
+            if (applicationDataStore.firstCookieHash == null && targetPage > 99) {
                 MaterialDialog(context).show {
                     message(R.string.need_cookie_to_read)
                 }

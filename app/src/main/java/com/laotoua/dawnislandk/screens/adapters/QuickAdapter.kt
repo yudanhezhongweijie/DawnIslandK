@@ -4,12 +4,10 @@ import android.graphics.Color
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.method.LinkMovementMethod
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import com.chad.library.adapter.base.BaseQuickAdapter
-import com.chad.library.adapter.base.loadmore.BaseLoadMoreView
 import com.chad.library.adapter.base.module.LoadMoreModule
 import com.chad.library.adapter.base.util.getItemView
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
@@ -29,8 +27,8 @@ import timber.log.Timber
 
 
 // TODO: handle no new data exception
-class QuickAdapter(private val layoutResId: Int) :
-    BaseQuickAdapter<Any, BaseViewHolder>(layoutResId, ArrayList()),
+class QuickAdapter<T>(private val layoutResId: Int) :
+    BaseQuickAdapter<T, BaseViewHolder>(layoutResId, mutableListOf<T>()),
     LoadMoreModule {
 
     private lateinit var sharedViewModel: SharedViewModel
@@ -68,9 +66,9 @@ class QuickAdapter(private val layoutResId: Int) :
     /** default handler for recyclerview item
      *
      */
-    override fun convert(holder: BaseViewHolder, item: Any) {
+    override fun convert(holder: BaseViewHolder, item: T) {
         if (layoutResId == R.layout.list_item_thread && item is Thread) {
-            holder.convertThread(item, sharedViewModel.getForumDisplayName(item.fid!!))
+            holder.convertThread(item, sharedViewModel.getForumDisplayName(item.fid))
         } else if (layoutResId == R.layout.list_item_reply && item is Reply) {
             holder.convertReply(item, po)
         } else if (layoutResId == R.layout.list_item_trend && item is Trend) {
@@ -84,16 +82,15 @@ class QuickAdapter(private val layoutResId: Int) :
         }
     }
 
-    override fun convert(holder: BaseViewHolder, item: Any, payloads: List<Any>) {
+    override fun convert(holder: BaseViewHolder, item: T, payloads: List<Any>) {
         if (layoutResId == R.layout.list_item_thread && item is Thread) {
             holder.convertThreadWithPayload(
                 payloads.first() as Payload.ThreadPayload,
-                sharedViewModel.getForumDisplayName(item.fid!!)
+                sharedViewModel.getForumDisplayName(item.fid)
             )
         } else if (layoutResId == R.layout.list_item_reply && item is Reply) {
             holder.convertReplyWithPayload(payloads.first() as Payload.ReplyPayload)
         } else {
-            Timber.e("unhandled payload conversion")
             throw Exception("unhandled payload conversion")
         }
     }
@@ -128,7 +125,7 @@ class QuickAdapter(private val layoutResId: Int) :
     }
 
     private fun BaseViewHolder.convertReply(item: Reply, po: String) {
-        convertUserId(item.userid, item.admin!!, po)
+        convertUserId(item.userid, item.admin, po)
         convertTimeStamp(item.now)
         convertSage(item.sage)
         convertImage(item.img, item.ext)
@@ -178,8 +175,8 @@ class QuickAdapter(private val layoutResId: Int) :
         setText(R.id.timestamp, ContentTransformation.transformTime(now))
     }
 
-    private fun BaseViewHolder.convertForumAndReply(replyCount: String?, forumDisplayName: String) {
-        val suffix = if (replyCount != null) " • $replyCount" else ""
+    private fun BaseViewHolder.convertForumAndReply(replyCount: String, forumDisplayName: String) {
+        val suffix = if (replyCount.isNotBlank()) " • $replyCount" else ""
         val spannableString = SpannableString(forumDisplayName + suffix)
         spannableString.setSpan(
             RoundBackgroundColorSpan(
@@ -203,7 +200,7 @@ class QuickAdapter(private val layoutResId: Int) :
                 title,
                 name
             )
-        if (titleAndName != "") {
+        if (titleAndName.isNotBlank()) {
             setText(R.id.titleAndName, titleAndName)
             setVisible(R.id.titleAndName, true)
         } else {
@@ -220,7 +217,7 @@ class QuickAdapter(private val layoutResId: Int) :
     }
 
     private fun BaseViewHolder.convertImage(img: String, ext: String) {
-        if (img != "") {
+        if (img.isNotBlank()) {
             GlideApp.with(context)
                 .load(Constants.thumbCDN + img + ext)
 //                .override(400, 400)
@@ -257,7 +254,7 @@ class QuickAdapter(private val layoutResId: Int) :
         }
     }
 
-    private class DiffItemCallback : DiffUtil.ItemCallback<Any>() {
+    private class DiffItemCallback<T> : DiffUtil.ItemCallback<T>() {
 
         /**
          * 判断是否是同一个item
@@ -267,8 +264,8 @@ class QuickAdapter(private val layoutResId: Int) :
          * @return
          */
         override fun areItemsTheSame(
-            oldItem: Any,
-            newItem: Any
+            oldItem: T,
+            newItem: T
         ): Boolean {
             return when {
                 (oldItem is Thread && newItem is Thread) -> oldItem.id == newItem.id && oldItem.fid == newItem.fid
@@ -292,8 +289,8 @@ class QuickAdapter(private val layoutResId: Int) :
          * @return
          */
         override fun areContentsTheSame(
-            oldItem: Any,
-            newItem: Any
+            oldItem: T,
+            newItem: T
         ): Boolean {
             return when {
                 (oldItem is Thread && newItem is Thread) -> {
@@ -328,8 +325,8 @@ class QuickAdapter(private val layoutResId: Int) :
          * @return Payload info. if return null, the entire item will be refreshed.
          */
         override fun getChangePayload(
-            oldItem: Any,
-            newItem: Any
+            oldItem: T,
+            newItem: T
         ): Any? {
             return when {
                 (oldItem is Thread && newItem is Thread) -> {
@@ -358,18 +355,18 @@ class QuickAdapter(private val layoutResId: Int) :
         class ThreadPayload(
             val now: String,
             val content: String,
-            val sage: String?,
-            val replyCount: String?
+            val sage: String,
+            val replyCount: String
         )
 
         class ReplyPayload(
             val now: String,
             val content: String,
-            val sage: String?
+            val sage: String
         )
     }
 
-    private class DiffCallback(private val oldList: List<Any>, private val newList: List<Any>) :
+    private class DiffCallback<T>(private val oldList: List<T>, private val newList: List<T>) :
         DiffUtil.Callback() {
         override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
             val oldItem = oldList[oldItemPosition]
@@ -413,38 +410,5 @@ class QuickAdapter(private val layoutResId: Int) :
                 }
             }
         }
-
-
-    }
-
-
-    // TODO
-    private class DawnLoadMoreView : BaseLoadMoreView() {
-        override fun getLoadComplete(holder: BaseViewHolder): View {
-            TODO("Not yet implemented")
-//        return holder.findView(R.id.load_more_load_complete_view);
-        }
-
-        override fun getLoadEndView(holder: BaseViewHolder): View {
-            TODO("Not yet implemented")
-//        return holder.findView(R.id.load_more_load_end_view);
-        }
-
-        override fun getLoadFailView(holder: BaseViewHolder): View {
-            TODO("Not yet implemented")
-//        return holder.findView(R.id.load_more_load_fail_view);
-        }
-
-        override fun getLoadingView(holder: BaseViewHolder): View {
-            TODO("Not yet implemented")
-//        return holder.findView(R.id.load_more_loading_view);
-        }
-
-        override fun getRootView(parent: ViewGroup): View {
-            TODO("Not yet implemented")
-            // 布局中 “加载失败”的View
-//        return LayoutInflater.from(parent.getContext()).inflate(R.layout.view_load_more, parent, false);
-        }
-
     }
 }

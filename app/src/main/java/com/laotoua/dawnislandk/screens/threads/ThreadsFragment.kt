@@ -32,8 +32,6 @@ import com.lxj.xpopup.XPopup
 import dagger.android.support.DaggerFragment
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import me.dkzwm.widget.srl.config.Constants
-import me.dkzwm.widget.srl.extra.header.ClassicHeader
-import me.dkzwm.widget.srl.indicator.IIndicator
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -62,7 +60,6 @@ class ThreadsFragment : DaggerFragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbarLayout.toolbar.apply {
             immersiveToolbar()
-            updateTitle()
             setSubtitle(R.string.adnmb)
             val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
@@ -87,15 +84,15 @@ class ThreadsFragment : DaggerFragment() {
         val imageLoader = ImageLoader()
         val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext()) }
 
-        val mAdapter = QuickAdapter(R.layout.list_item_thread).apply {
+        val mAdapter = QuickAdapter<Thread>(R.layout.list_item_thread).apply {
             /*** connect SharedVm and adapter
              *  may have better way of getting runtime data
              */
             setSharedVM(sharedVM)
 
-            setOnItemClickListener { adapter, _, position ->
+            setOnItemClickListener { _, _, position ->
                 hideMenu()
-                sharedVM.setThread(adapter.getItem(position) as Thread)
+                sharedVM.setThread(getItem(position))
                 val action =
                     PagerFragmentDirections.actionPagerFragmentToReplyFragment()
                 /**
@@ -105,12 +102,10 @@ class ThreadsFragment : DaggerFragment() {
             }
 
             addChildClickViewIds(R.id.attachedImage)
-            setOnItemChildClickListener { adapter, view, position ->
+            setOnItemChildClickListener { _, view, position ->
                 if (view.id == R.id.attachedImage) {
                     hideMenu()
-                    val url = (adapter.getItem(
-                        position
-                    ) as Thread).getImgUrl()
+                    val url = getItem(position).getImgUrl()
 
                     // TODO support multiple image
                     val viewerPopup =
@@ -136,7 +131,6 @@ class ThreadsFragment : DaggerFragment() {
         }
 
         binding.refreshLayout.apply {
-            setHeaderView(ClassicHeader<IIndicator>(context))
             setOnRefreshListener(object : RefreshingListenerAdapter() {
                 override fun onRefreshing() {
                     mAdapter.setList(emptyList())
@@ -177,17 +171,14 @@ class ThreadsFragment : DaggerFragment() {
             Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
         })
 
-        sharedVM.selectedForum.observe(viewLifecycleOwner, Observer {
-            if (viewModel.currentForum == null) {
-                viewModel.setForum(it)
-            } else if (viewModel.currentForum != null && viewModel.currentForum!!.id != it.id) {
-                Timber.i("Forum has changed to ${it.name}. Cleaning old adapter data...")
+        sharedVM.selectedForumId.observe(viewLifecycleOwner, Observer {
+            if (viewModel.currentFid != null && viewModel.currentFid != it) {
+                Timber.d("Forum has changed to $it. Cleaning old adapter data...")
                 mAdapter.setList(emptyList())
-                viewModel.setForum(it)
-                hideMenu()
-
-                updateTitle()
             }
+            viewModel.setForum(it)
+            updateTitle(it)
+            hideMenu()
         })
 
         binding.fabMenu.setOnClickListener {
@@ -208,7 +199,7 @@ class ThreadsFragment : DaggerFragment() {
         binding.post.setOnClickListener {
             hideMenu()
             postPopup.setupAndShow(
-                sharedVM.selectedForum.value?.id,
+                sharedVM.selectedForumId.value,
                 true,
                 sharedVM.getForumNameMapping()
             )
@@ -263,8 +254,8 @@ class ThreadsFragment : DaggerFragment() {
         }
     }
 
-    private fun updateTitle() {
-        binding.toolbarLayout.toolbar.title = "A岛 • ${viewModel.currentForum?.name ?: "时间线"}"
+    private fun updateTitle(fid: String) {
+        binding.toolbarLayout.toolbar.title = "A岛 • ${sharedVM.getForumDisplayName(fid)}"
     }
 }
 

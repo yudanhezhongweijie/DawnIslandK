@@ -21,8 +21,8 @@ class TrendsViewModel @Inject constructor(private val webService: NMBServiceClie
     private val po = "m9R9kaD"
     private val trendDelimiter = "\n\u2014\u2014\u2014\u2014\u2014<br />\n<br />\n"
 
-    private var _trendList = MutableLiveData<List<Trend>>()
-    val trends: LiveData<List<Trend>> get() = _trendList
+    private var _trendList = MutableLiveData<MutableList<Trend>>()
+    val trends: LiveData<MutableList<Trend>> get() = _trendList
 
     private val trendLength = 32
     private var page = 1
@@ -45,14 +45,14 @@ class TrendsViewModel @Inject constructor(private val webService: NMBServiceClie
     private suspend fun getLatestTrendPage() {
         DataResource.create(
             webService.getReplys(
-                applicationDataStore.cookies.firstOrNull()?.cookieHash,
+                applicationDataStore.firstCookieHash,
                 trendId,
                 page
             )
         ).run {
             when (this) {
                 is DataResource.Success -> {
-                    val count = data!!.replyCount?.toInt() ?: 0
+                    val count = data!!.replyCount.toInt()
                     if (page == 1) {
                         page = kotlin.math.ceil(count.toDouble() / 19).toInt()
                         getLatestTrendPage()
@@ -80,7 +80,7 @@ class TrendsViewModel @Inject constructor(private val webService: NMBServiceClie
     }
 
     private fun extractLatestTrend(data: Thread): List<String> {
-        for (reply in data.replys!!.reversed()) {
+        for (reply in data.replys.reversed()) {
             if (reply.userid == po) {
                 val list = reply.content.split(trendDelimiter, ignoreCase = true)
                 if (list.size == 32) {
@@ -93,7 +93,7 @@ class TrendsViewModel @Inject constructor(private val webService: NMBServiceClie
 
 
     private fun convertTrendData(trends: List<String>) {
-        _trendList.postValue(trends.map { convertStringToTrend(it) })
+        _trendList.postValue(trends.map { convertStringToTrend(it) }.toMutableList())
         _loadingStatus.postValue(
             SingleLiveEvent.create(
                 LoadingStatus.SUCCESS

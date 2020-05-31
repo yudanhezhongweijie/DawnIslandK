@@ -33,8 +33,6 @@ import com.lxj.xpopup.XPopup
 import dagger.android.support.DaggerFragment
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import me.dkzwm.widget.srl.config.Constants
-import me.dkzwm.widget.srl.extra.header.ClassicHeader
-import me.dkzwm.widget.srl.indicator.IIndicator
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -95,15 +93,15 @@ class FeedsFragment : DaggerFragment() {
 
         val imageLoader = ImageLoader()
 
-        val mAdapter = QuickAdapter(R.layout.list_item_thread).apply {
+        val mAdapter = QuickAdapter<Thread>(R.layout.list_item_thread).apply {
 
             /*** connect SharedVm and adapter
              *  may have better way of getting runtime data
              */
             setSharedVM(sharedVM)
 
-            setOnItemClickListener { adapter, _, position ->
-                sharedVM.setThread(adapter.getItem(position) as Thread)
+            setOnItemClickListener { _, _, position ->
+                sharedVM.setThread(getItem(position))
                 val action =
                     PagerFragmentDirections.actionPagerFragmentToReplyFragment()
                 /**
@@ -113,8 +111,8 @@ class FeedsFragment : DaggerFragment() {
             }
 
             // long click to delete
-            setOnItemLongClickListener { adapter, _, position ->
-                val id = (adapter.getItem(position) as Thread).id
+            setOnItemLongClickListener { _, _, position ->
+                val id = getItem(position).id
                 MaterialDialog(requireContext()).show {
                     title(text = "删除订阅 $id?")
                     positiveButton(R.string.delete) {
@@ -127,11 +125,9 @@ class FeedsFragment : DaggerFragment() {
             }
 
             addChildClickViewIds(R.id.attachedImage)
-            setOnItemChildClickListener { adapter, view, position ->
+            setOnItemChildClickListener { _, view, position ->
                 if (view.id == R.id.attachedImage) {
-                    val url = (adapter.getItem(
-                        position
-                    ) as Thread).getImgUrl()
+                    val url = getItem(position).getImgUrl()
 
                     // TODO support multiple image
                     val viewerPopup =
@@ -172,7 +168,6 @@ class FeedsFragment : DaggerFragment() {
         }
 
         binding.refreshLayout.apply {
-            setHeaderView(ClassicHeader<IIndicator>(context))
             setOnRefreshListener(object : RefreshingListenerAdapter() {
                 override fun onRefreshing() {
                     mAdapter.setList(emptyList())

@@ -46,7 +46,7 @@ class SettingsFragment : Fragment() {
             positiveButton(R.string.submit) {
                 val cookieName = findViewById<EditText>(R.id.cookieNameText).text
                 val cookieHash = findViewById<EditText>(R.id.cookieHashText).text
-                if (cookieHash.toString() != "") {
+                if (cookieHash.toString().isNotBlank()) {
                     addCookie(
                         Cookie(
                             cookieHash.toString(),

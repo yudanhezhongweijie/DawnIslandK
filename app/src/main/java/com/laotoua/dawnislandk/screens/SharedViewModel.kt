@@ -8,41 +8,38 @@ import com.laotoua.dawnislandk.data.local.Thread
 import timber.log.Timber
 
 class SharedViewModel : ViewModel() {
-    private var _selectedForum = MutableLiveData<Forum>()
-    val selectedForum: LiveData<Forum> get() = _selectedForum
-    private var _selectedThread = MutableLiveData<Thread>()
-    val selectedThread: LiveData<Thread> get() = _selectedThread
+    private var _selectedForumId = MutableLiveData<String>()
+    val selectedForumId: LiveData<String> get() = _selectedForumId
+    private var _selectedThreadId = MutableLiveData<String>()
+    val selectedThreadId: LiveData<String> get() = _selectedThreadId
+    private var selectedThreadFid: String = "-1"
 
     private var forumNameMapping = mapOf<String, String>()
 
     fun setForum(f: Forum) {
-        Timber.i("set forum to id: ${f.id}")
-        _selectedForum.postValue(f)
+        Timber.d("Setting forum to id: ${f.id}")
+        _selectedForumId.value = f.id
     }
 
     fun setThread(t: Thread) {
-        Timber.i("set thread to id: ${t.id}")
-        _selectedThread.postValue(t)
+        Timber.d("Setting thread to ${t.id} and its fid to ${t.fid}")
+        selectedThreadFid = t.fid
+        _selectedThreadId.value = t.id
     }
 
     fun setForumNameMapping(map: Map<String, String>) {
-        this.forumNameMapping = map
+        forumNameMapping = map
     }
 
-    fun getForumNameMapping(): Map<String, String> {
-        return forumNameMapping
-    }
+    fun getForumNameMapping(): Map<String, String> = forumNameMapping
 
-    fun getForumDisplayName(id: String): String {
-        return forumNameMapping[id] ?: ""
-    }
+    fun getForumDisplayName(id: String): String = forumNameMapping[id] ?: ""
 
-    fun getCurrentForumDisplayName(): String {
-        return getForumDisplayName(selectedThread.value?.fid!!)
-    }
+    fun getSelectedThreadForumName(): String = getForumDisplayName(selectedThreadFid)
 
     fun getForumIdByName(name: String): String {
-        return forumNameMapping.filter { (_, value) -> value == name }.keys.first()
+        return forumNameMapping.filterValues { it == name }.keys.first()
     }
+
 
 }

@@ -28,8 +28,8 @@ android {
     buildToolsVersion "29.0.3"
     android.ndkVersion "21.1.6352462"
 
-    viewBinding {
-        enabled = true
+    buildFeatures{
+         viewBinding = true
     }
 
     defaultConfig {
@@ -92,6 +92,7 @@ dependencies {
     implementation "androidx.fragment:fragment-ktx:1.3.0-alpha04"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.3.0-alpha02"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.3.0-alpha02"
     implementation 'com.google.android.material:material:1.2.0-alpha06'
 
     def appcompat_version = "1.2.0-beta01"
@@ -106,7 +107,9 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.8.1'
     implementation 'com.squareup.retrofit2:converter-gson:2.8.1'
     implementation "com.squareup.okhttp3:okhttp:4.6.0"
-    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation "com.squareup.moshi:moshi-kotlin:1.9.2"
+    kapt "com.squareup.moshi:moshi-kotlin-codegen:1.9.2"
+
     implementation 'org.jsoup:jsoup:1.13.1'
     implementation 'org.apache.commons:commons-text:1.8'
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.2'
@@ -117,12 +120,9 @@ dependencies {
     implementation 'com.afollestad.material-dialogs:input:3.3.0'
     implementation 'com.afollestad.material-dialogs:color:3.2.1'
 
-    implementation 'me.dkzwm.widget.srl:core:1.7.1.1.androidx'
-    implementation 'me.dkzwm.widget.srl:ext-util:1.7.1.1.androidx'
-    implementation 'me.dkzwm.widget.srl:ext-material:1.7.1.1.androidx'
-    implementation 'me.dkzwm.widget.srl:ext-horizontal:1.7.1.1.androidx'
-    implementation 'me.dkzwm.widget.srl:ext-classics:1.7.1.1.androidx'
-    implementation 'me.dkzwm.widget.srl:ext-two-level:1.7.1.1.androidx'
+    implementation 'me.dkzwm.widget.srl:core:1.7.1.2.androidx'
+    implementation 'me.dkzwm.widget.srl:ext-util:1.7.1.2.androidx'
+    implementation 'me.dkzwm.widget.srl:ext-material:1.7.1.2.androidx'
 
     implementation 'com.king.zxing:zxing-lite:1.1.9-androidx'
 
@@ -154,5 +154,5 @@ dependencies {
     kapt "com.google.dagger:dagger-android-processor:$dagger_version"
 
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.3'
-
+    debugImplementation 'com.amitshekhar.android:debug-db:1.0.6'
 }

@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.laotoua.dawnislandk.data.local.Forum
 import com.laotoua.dawnislandk.data.local.Thread
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.data.repository.DataResource
@@ -18,10 +17,10 @@ import javax.inject.Inject
 class ThreadsViewModel @Inject constructor(private val webService: NMBServiceClient) : ViewModel() {
     private val threadList = mutableListOf<Thread>()
     private val threadIds = mutableSetOf<String>()
-    private var _threads = MutableLiveData<List<Thread>>()
-    val threads: LiveData<List<Thread>> get() = _threads
-    private var _currentForum: Forum? = null
-    val currentForum: Forum? get() = _currentForum
+    private var _threads = MutableLiveData<MutableList<Thread>>()
+    val threads: LiveData<MutableList<Thread>> get() = _threads
+    private var _currentFid: String? = null
+    val currentFid: String? get() = _currentFid
     private var pageCount = 1
 
     private var _loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
@@ -35,8 +34,8 @@ class ThreadsViewModel @Inject constructor(private val webService: NMBServiceCli
                     LoadingStatus.LOADING
                 )
             )
-            val fid = _currentForum?.id ?: "-1"
-            Timber.i("Getting threads from $fid ${_currentForum?.name} on page $pageCount")
+            val fid = _currentFid ?: "-1"
+            Timber.d("Getting threads from $fid on page $pageCount")
             DataResource.create(webService.getThreads(fid, pageCount)).run {
                 when (this) {
                     is DataResource.Error -> {
@@ -63,8 +62,8 @@ class ThreadsViewModel @Inject constructor(private val webService: NMBServiceCli
         if (noDuplicates.isNotEmpty()) {
             threadIds.addAll(noDuplicates.map { it.id })
             threadList.addAll(noDuplicates)
-            Timber.i(
-                "New thread + ads has size of ${noDuplicates.size}, threadIds size ${threadIds.size}, Forum ${currentForum?.name} now have ${threadList.size} threads"
+            Timber.d(
+                "New thread + ads has size of ${noDuplicates.size}, threadIds size ${threadIds.size}, Forum $currentFid now have ${threadList.size} threads"
             )
             _threads.postValue(threadList)
             _loadingStatus.postValue(
@@ -74,8 +73,8 @@ class ThreadsViewModel @Inject constructor(private val webService: NMBServiceCli
             )
             pageCount += 1
         } else {
-            val message = "Forum ${currentForum?.getDisplayName()} has no new threads."
-            Timber.i(message)
+            val message = "Forum $currentFid has no new threads."
+            Timber.d(message)
             _loadingStatus.postValue(
                 SingleLiveEvent.create(
                     LoadingStatus.FAILED,
@@ -85,19 +84,19 @@ class ThreadsViewModel @Inject constructor(private val webService: NMBServiceCli
         }
     }
 
-    fun setForum(f: Forum) {
-        if (f == currentForum) return
+    fun setForum(fid: String) {
+        if (fid == currentFid) return
         Timber.i("Forum has changed. Cleaning old threads...")
         threadList.clear()
         threadIds.clear()
-        Timber.i("Setting new forum: ${f.id}")
-        _currentForum = f
+        Timber.d("Setting new forum: $fid")
+        _currentFid = fid
         pageCount = 1
         getThreads()
     }
 
     fun refresh() {
-        Timber.i("Refreshing forum ${currentForum!!.name}...")
+        Timber.d("Refreshing forum $currentFid...")
         threadList.clear()
         threadIds.clear()
         pageCount = 1

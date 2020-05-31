@@ -66,11 +66,12 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
         binding.forumContainer.adapter = mAdapter
 
         communityVM.communityList.observe(this, Observer {
+            if (it.isNullOrEmpty()) return@Observer
             mAdapter.setData(it)
             Timber.i("Loaded ${it.size} communities to Adapter")
+            sharedVM.setForumNameMapping(communityVM.getForumNameMapping())
             // TODO: set default forum
             sharedVM.setForum(it[0].forums[0])
-            sharedVM.setForumNameMapping(communityVM.getForumNameMapping())
         })
 
         communityVM.loadingStatus.observe(this, Observer {

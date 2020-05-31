@@ -26,8 +26,6 @@ import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import dagger.android.support.DaggerFragment
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import me.dkzwm.widget.srl.config.Constants
-import me.dkzwm.widget.srl.extra.header.ClassicHeader
-import me.dkzwm.widget.srl.indicator.IIndicator
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -68,10 +66,10 @@ class TrendsFragment : DaggerFragment() {
             mHandler = mHandler ?: Handler()
             delayedLoading = mHandler!!.postDelayed(mDelayedLoad, 500)
         }
-        val mAdapter = QuickAdapter(R.layout.list_item_trend).apply {
+        val mAdapter = QuickAdapter<Trend>(R.layout.list_item_trend).apply {
             loadMoreModule.isEnableLoadMore = false
-            setOnItemClickListener { adapter, _, position ->
-                val target = adapter.getItem(position) as Trend
+            setOnItemClickListener { _, _, position ->
+                val target = getItem(position)
                 sharedVM.setThread(target.toThread(sharedVM.getForumIdByName(target.forum)))
                 val action =
                     PagerFragmentDirections.actionPagerFragmentToReplyFragment()
@@ -98,7 +96,6 @@ class TrendsFragment : DaggerFragment() {
         }
 
         binding.refreshLayout.apply {
-            setHeaderView(ClassicHeader<IIndicator>(context))
             setOnRefreshListener(object : RefreshingListenerAdapter() {
                 override fun onRefreshing() {
                     viewModel.refresh()

@@ -1,283 +1,137 @@
 package com.laotoua.dawnislandk.screens.replys
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.data.local.Reply
-import com.laotoua.dawnislandk.data.local.Thread
-import com.laotoua.dawnislandk.data.remote.APISuccessMessageResponse
-import com.laotoua.dawnislandk.data.remote.MessageType
-import com.laotoua.dawnislandk.data.remote.NMBServiceClient
-import com.laotoua.dawnislandk.data.repository.DataResource
-import com.laotoua.dawnislandk.util.EventPayload
+import com.laotoua.dawnislandk.data.repository.ReplyRepository
 import com.laotoua.dawnislandk.util.LoadingStatus
-import com.laotoua.dawnislandk.util.SingleLiveEvent
+import com.laotoua.dawnislandk.util.addOrSet
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.collections.set
 
-class ReplysViewModel @Inject constructor(private val webService: NMBServiceClient) : ViewModel() {
-    private var _currentThread: Thread? = null
-    val currentThread: Thread? get() = _currentThread
+class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository) : ViewModel() {
+    val currentThreadId: String? get() = replyRepo.currentThreadId
+    val po get() = replyRepo.currentThread?.value?.userid ?: ""
+
     private val replyList = mutableListOf<Reply>()
-    private val replyIds = mutableSetOf<String>()
-    private var _replys = MutableLiveData<List<Reply>>()
-    val replys: LiveData<List<Reply>> get() = _replys
-
-    private var fullPage = false
-
-    private var maxReply = 0
-
-    private var _po: String = ""
-    val po get() = _po
 
     // TODO: previous page & next page should be handled the same
-    var previousPage = mutableListOf<Reply>()
+    var previousPage: List<Reply> = emptyList()
+    val replys = MediatorLiveData<MutableList<Reply>>()
 
-    val maxPage get() = 1.coerceAtLeast(kotlin.math.ceil(maxReply.toDouble() / 19).toInt())
+    private val listeningPages = mutableMapOf<Int, LiveData<List<Reply>>>()
+    val maxPage get() = replyRepo.maxPage
 
-    private var _loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
-    val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>>
-        get() = _loadingStatus
+    val loadingStatus get() = replyRepo.loadingStatus
 
-    private val _addFeedResponse = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
-    val addFeedResponse: LiveData<SingleLiveEvent<EventPayload<Nothing>>> get() = _addFeedResponse
+    val addFeedResponse
+        get() = replyRepo.addFeedResponse
 
     enum class DIRECTION {
         NEXT,
         PREVIOUS
     }
 
-    var direction: DIRECTION =
-        DIRECTION.NEXT
+    var direction = DIRECTION.NEXT
 
-    fun setThread(f: Thread) {
-        if (f.id == currentThread?.id ?: "") return
-        Timber.i("Thread has changed... Clearing old data")
-        replyList.clear()
-        replyIds.clear()
-        Timber.i("Setting new Thread: ${f.id}")
-        _currentThread = f
-        getNextPage()
+    fun setThreadId(id: String) {
+        if (id != currentThreadId) clearCache()
+        replyRepo.setThreadId(id)
+        if (replyList.isEmpty()) getNextPage(false)
     }
 
-    fun getNextPage() {
-        var page = 1
-        if (replyList.isNotEmpty()) page = replyList.last().page!!
-        if (fullPage) page += 1
-        direction =
-            DIRECTION.NEXT
-        getReplys(
-            page,
-            DIRECTION.NEXT
-        )
+    /** sometimes VM is KILLED but repo IS ALIVE, cache in Repo
+     *  may show current page is full so should get next page,
+     *  but VM still needs the cached current page to display
+     */
+    fun getNextPage(incrementPage: Boolean = true) {
+        direction = DIRECTION.NEXT
+        var nextPage = replyList.lastOrNull()?.page ?: 1
+        if (incrementPage && replyRepo.checkFullPage(nextPage)) nextPage += 1
+        listenToNewPage(nextPage, direction)
     }
 
     fun getPreviousPage() {
-
+        direction = DIRECTION.PREVIOUS
         // Refresh when no data, usually error occurs
-        if (replyList.isEmpty()) {
-            _loadingStatus.postValue(
-                SingleLiveEvent.create(
-                    LoadingStatus.LOADING
-                )
-            )
+        if (replyList.isNullOrEmpty()) {
             getNextPage()
             return
         }
-        val page = replyList.first().page!!.toInt()
-        if (page == 1) {
-            _loadingStatus.postValue(
-                SingleLiveEvent.create(
-                    LoadingStatus.NODATA,
-                    "没有上一页了..."
-
-                )
-            )
+        val lastPage = (replyList.firstOrNull()?.page ?: 1) - 1
+        if (lastPage < 1) {
+            replyRepo.setLoadingStatus(LoadingStatus.NODATA, "没有上一页了...")
             return
         }
+        listenToNewPage(lastPage, direction)
+    }
 
-        previousPage.clear()
-        direction =
-            DIRECTION.PREVIOUS
-        getReplys(
-            page - 1,
-            DIRECTION.PREVIOUS
-        )
+    private fun List<Reply>.attachAd(page: Int) = toMutableList().apply {
+        //  insert Ad below thread head or as first
+        replyRepo.getAd(page)?.let {
+            add(if (page == 1) 1 else 0, it)
+        }
+    }
+
+    private fun listenToNewPage(page: Int, direction: DIRECTION) {
+        val newPage = replyRepo.getLiveDataOnPage(page)
+        if (listeningPages[page] != newPage) {
+            listeningPages[page] = newPage
+            replys.addSource(newPage) {
+                if (!it.isNullOrEmpty()) {
+                    handleNewPageData(it.attachAd(page), direction)
+                }
+            }
+        } else {
+            viewModelScope.launch {
+                replyRepo.getServerData(page)
+            }
+        }
+    }
+
+    private fun mergeNewPage(list: MutableList<Reply>, direction: DIRECTION) {
+        if (list.isNullOrEmpty()) return
+        val targetPage = list.first().page
+        if (direction == DIRECTION.PREVIOUS) {
+            replyList.addAll(0, list)
+            previousPage = list
+        } else if (replyList.isEmpty() || targetPage > replyList.last().page) {
+            replyList.addAll(list)
+        } else {
+            val insertInd = replyList.indexOfLast { it.page < targetPage } + 1
+            list.mapIndexed { i, reply ->
+                replyList.addOrSet(insertInd + i, reply)
+            }
+        }
+    }
+
+    private fun handleNewPageData(list: MutableList<Reply>, direction: DIRECTION) {
+        mergeNewPage(list, direction)
+        replys.postValue(replyList)
+        replyRepo.setLoadingStatus(LoadingStatus.SUCCESS)
+    }
+
+    private fun clearCache() {
+        listeningPages.values.map { replys.removeSource(it) }
+        listeningPages.clear()
+        replyList.clear()
     }
 
     fun jumpTo(page: Int) {
         Timber.i("Jumping to page $page... Clearing old data")
-        replyList.clear()
-        replyIds.clear()
-        direction =
-            DIRECTION.NEXT
-        getReplys(
-            page,
-            DIRECTION.NEXT
-        )
-    }
-
-    private fun getReplys(page: Int, direction: DIRECTION) {
-        if (_currentThread == null) {
-            Timber.e("Trying to read replys without selected forum")
-            return
-        }
-
-        viewModelScope.launch {
-            _loadingStatus.postValue(
-                SingleLiveEvent.create(
-                    LoadingStatus.LOADING
-                )
-            )
-            DataResource.create(
-                webService.getReplys(
-                    applicationDataStore.cookies.firstOrNull()?.cookieHash,
-                    _currentThread!!.id,
-                    page
-                )
-            ).run {
-                when (this) {
-                    is DataResource.Success -> {
-                        convertServerData(data!!, page, direction)
-                    }
-                    is DataResource.Error -> {
-                        Timber.e(message)
-                        _loadingStatus.postValue(
-                            SingleLiveEvent.create(
-                                LoadingStatus.FAILED,
-                                "无法读取串回复...\n$message"
-                            )
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    private fun convertServerData(data: Thread, page: Int, direction: DIRECTION) {
-        // update current thread with latest info
-        _currentThread = data
-        _po = data.userid
-
-        val list = mutableListOf<Reply>()
-        maxReply = data.replyCount?.toInt() ?: 0
-        list.addAll(data.replys!!)
-        /**
-         *  w. cookie, responses have 20 reply w. ad, or 19 reply w/o ad
-         *  w/o cookie, always have 20 reply w. ad
-         *  MARK full page for next page load
-         */
-        fullPage =
-            (list.size == 20 || (list.size == 19 && list.first().id != "9999999"))
-
-        // add thread to as first reply for page 1
-        if (page == 1 && !replyIds.contains(data.id)) {
-            replyList.add(0, data.toReply())
-            replyIds.add(data.id)
-
-            _replys.postValue(replyList)
-            // TODO: previous page & next page should be handled the same
-            if (direction == DIRECTION.PREVIOUS) previousPage.add(data.toReply())
-        }
-
-        val noDuplicates =
-            list.filterNot { replyIds.contains(it.id) && it.id != "9999999" }
-
-        if ((noDuplicates.isNotEmpty() &&
-                    (noDuplicates.size > 1 || noDuplicates.first().id != "9999999"))
-        ) {
-            replyIds.addAll(noDuplicates.map { it.id })
-            Timber.i(
-                "No duplicate reply size ${noDuplicates.size}, replyIds size ${replyIds.size}"
-            )
-
-            // add page to Reply
-            noDuplicates.apply { map { it.page = page } }
-                .let {
-                    if (direction == DIRECTION.NEXT) {
-                        replyList.addAll(it)
-                    } else {
-                        val insertInd = if (page == 1) 1 else 0
-                        replyList.addAll(insertInd, it)
-                        // TODO: previous page & next page should be handled the same
-                        previousPage.addAll(it)
-                    }
-                }
-
-            _replys.postValue(replyList)
-            _loadingStatus.postValue(
-                SingleLiveEvent.create(
-                    LoadingStatus.SUCCESS
-                )
-            )
-
-            Timber.i("CurrentPage: $page ReplyIds(w. ad, head): ${replyIds.size} replyList: ${replyList.size} replyCount: $maxReply")
-        } else {
-            Timber.i("Thread ${data.id} has no new replys.")
-            _loadingStatus.postValue(
-                SingleLiveEvent.create(
-                    LoadingStatus.NODATA
-                )
-            )
-
-        }
+        direction = DIRECTION.NEXT
+        clearCache()
+        listenToNewPage(page, direction)
     }
 
     // TODO: do not send request if subscribe already
     fun addFeed(uuid: String, id: String) {
-        Timber.i("Adding Feed $id")
         viewModelScope.launch {
-            webService.addFeed(uuid, id).run {
-                when (this) {
-                    is APISuccessMessageResponse -> {
-                        if (messageType == MessageType.String) {
-                            _addFeedResponse.postValue(
-                                SingleLiveEvent.create(
-                                    LoadingStatus.SUCCESS,
-                                    message
-                                )
-                            )
-                        } else {
-                            Timber.e(message)
-                        }
-                    }
-                    else -> {
-                        Timber.e("Response type: ${this.javaClass.simpleName}\n $message")
-                        _addFeedResponse.postValue(
-                            SingleLiveEvent.create(
-                                LoadingStatus.FAILED,
-                                "订阅失败...是不是已经订阅了呢?"
-                            )
-                        )
-                    }
-                }
-            }
+            replyRepo.addFeed(uuid, id)
         }
     }
-    // TODO
-//    fun loadFromDB() {
-//        viewModelScope.launch {
-//            withContext(Dispatchers.IO) {
-//                dao?.getAll().let {
-//                    if (it?.size ?: 0 > 0) {
-//                        Timber.i("Loaded ${it?.size} replys from db")
-//                        _replyList.postValue(it)
-//                    } else {
-//                        Timber.i("Db has no data about replys")
-//                    }
-//                }
-//            }
-//        }
-//    }
-
-    // TODO
-//    fun setDb(dao: ForumDao) {
-//        this.dao = dao
-//        Timber.i("Forum DAO set!!!")
-//    }
-
-
 }

@@ -36,7 +36,6 @@ import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.interfaces.SimpleCallback
 import dagger.android.support.DaggerFragment
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
-import me.dkzwm.widget.srl.config.Constants
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -157,6 +156,11 @@ class ReplysFragment : DaggerFragment() {
                     } else if (dy < 0) {
                         binding.fabMenu.show()
                         binding.fabMenu.isClickable = true
+                        if ((layoutManager as LinearLayoutManager).findFirstVisibleItemPosition() <= 2
+                            && !binding.refreshLayout.isRefreshing
+                        ) {
+                            viewModel.getPreviousPage()
+                        }
                     }
                 }
             })
@@ -169,19 +173,9 @@ class ReplysFragment : DaggerFragment() {
         })
 
         viewModel.replys.observe(viewLifecycleOwner, Observer {
-            if (viewModel.direction == ReplysViewModel.DIRECTION.PREVIOUS) {
-                Timber.i("Inserting items to the top ${viewModel.previousPage.size}")
-//                    val diffResult = DiffUtil.calculateDiff(DiffCallback(mAdapter.data, it), false)
-//                    mAdapter.setDiffNewData(diffResult, it.toMutableList())
-                // TODO: previous page & next page should be handled the same
-                mAdapter.addData(0, viewModel.previousPage)
-            } else {
-                Timber.i("Inserting items to the end")
-                mAdapter.setDiffNewData(it.toMutableList())
-            }
-
+            mAdapter.setDiffNewData(it.toMutableList())
             mAdapter.setPo(viewModel.po)
-            Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
+            Timber.i("${this.javaClass.simpleName} Adapter will have ${mAdapter.data.size} threads")
         })
 
         sharedVM.selectedThreadId.observe(viewLifecycleOwner, Observer {
@@ -224,7 +218,7 @@ class ReplysFragment : DaggerFragment() {
                 .show()
                 .dismissWith {
                     if (jumpPopup.submit) {
-                        binding.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
+                        mAdapter.setList(emptyList())
                         Timber.i("Jumping to ${jumpPopup.targetPage}...")
                         viewModel.jumpTo(jumpPopup.targetPage)
                     }

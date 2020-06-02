@@ -19,8 +19,6 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
 
     private val replyList = mutableListOf<Reply>()
 
-    // TODO: previous page & next page should be handled the same
-    var previousPage: List<Reply> = emptyList()
     val replys = MediatorLiveData<MutableList<Reply>>()
 
     private val listeningPages = mutableMapOf<Int, LiveData<List<Reply>>>()
@@ -30,13 +28,6 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
 
     val addFeedResponse
         get() = replyRepo.addFeedResponse
-
-    enum class DIRECTION {
-        NEXT,
-        PREVIOUS
-    }
-
-    var direction = DIRECTION.NEXT
 
     fun setThreadId(id: String) {
         if (id != currentThreadId) clearCache()
@@ -49,25 +40,20 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
      *  but VM still needs the cached current page to display
      */
     fun getNextPage(incrementPage: Boolean = true) {
-        direction = DIRECTION.NEXT
         var nextPage = replyList.lastOrNull()?.page ?: 1
         if (incrementPage && replyRepo.checkFullPage(nextPage)) nextPage += 1
-        listenToNewPage(nextPage, direction)
+        listenToNewPage(nextPage)
     }
 
     fun getPreviousPage() {
-        direction = DIRECTION.PREVIOUS
         // Refresh when no data, usually error occurs
         if (replyList.isNullOrEmpty()) {
             getNextPage()
             return
         }
         val lastPage = (replyList.firstOrNull()?.page ?: 1) - 1
-        if (lastPage < 1) {
-            replyRepo.setLoadingStatus(LoadingStatus.NODATA, "没有上一页了...")
-            return
-        }
-        listenToNewPage(lastPage, direction)
+        if (lastPage < 1) return
+        listenToNewPage(lastPage)
     }
 
     private fun List<Reply>.attachAd(page: Int) = toMutableList().apply {
@@ -77,13 +63,13 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
         }
     }
 
-    private fun listenToNewPage(page: Int, direction: DIRECTION) {
+    private fun listenToNewPage(page: Int) {
         val newPage = replyRepo.getLiveDataOnPage(page)
         if (listeningPages[page] != newPage) {
             listeningPages[page] = newPage
             replys.addSource(newPage) {
                 if (!it.isNullOrEmpty()) {
-                    handleNewPageData(it.attachAd(page), direction)
+                    handleNewPageData(it.attachAd(page))
                 }
             }
         } else {
@@ -93,14 +79,13 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
         }
     }
 
-    private fun mergeNewPage(list: MutableList<Reply>, direction: DIRECTION) {
+    private fun mergeNewPage(list: MutableList<Reply>) {
         if (list.isNullOrEmpty()) return
         val targetPage = list.first().page
-        if (direction == DIRECTION.PREVIOUS) {
-            replyList.addAll(0, list)
-            previousPage = list
-        } else if (replyList.isEmpty() || targetPage > replyList.last().page) {
+        if (replyList.isEmpty() || targetPage > replyList.last().page) {
             replyList.addAll(list)
+        } else if (targetPage < replyList.first().page) {
+            replyList.addAll(0, list)
         } else {
             val insertInd = replyList.indexOfLast { it.page < targetPage } + 1
             list.mapIndexed { i, reply ->
@@ -109,8 +94,8 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
         }
     }
 
-    private fun handleNewPageData(list: MutableList<Reply>, direction: DIRECTION) {
-        mergeNewPage(list, direction)
+    private fun handleNewPageData(list: MutableList<Reply>) {
+        mergeNewPage(list)
         replys.postValue(replyList)
         replyRepo.setLoadingStatus(LoadingStatus.SUCCESS)
     }
@@ -123,9 +108,8 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
 
     fun jumpTo(page: Int) {
         Timber.i("Jumping to page $page... Clearing old data")
-        direction = DIRECTION.NEXT
-        clearCache()
-        listenToNewPage(page, direction)
+        replyList.clear()
+        listenToNewPage(page)
     }
 
     // TODO: do not send request if subscribe already

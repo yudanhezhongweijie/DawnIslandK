@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.method.LinkMovementMethod
+import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
@@ -23,7 +24,6 @@ import com.laotoua.dawnislandk.screens.util.ContentTransformation
 import com.laotoua.dawnislandk.screens.widget.span.RoundBackgroundColorSpan
 import com.laotoua.dawnislandk.util.Constants
 import com.laotoua.dawnislandk.util.GlideApp
-import timber.log.Timber
 
 
 // TODO: handle no new data exception
@@ -96,12 +96,19 @@ class QuickAdapter<T>(private val layoutResId: Int) :
     }
 
     override fun onCreateDefViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
-        return if (layoutResId == R.layout.list_item_thread) {
-            val view = parent.getItemView(layoutResId)
-            ThreadCardFactory.applySettings(view as MaterialCardView)
-            createBaseViewHolder(view)
-        } else {
-            super.onCreateDefViewHolder(parent, layoutResId)
+        return when (layoutResId) {
+            R.layout.list_item_thread -> {
+                val view = parent.getItemView(layoutResId).applyTextSizeAndLetterSpacing()
+                ThreadCardFactory.applySettings(view as MaterialCardView)
+                createBaseViewHolder(view)
+            }
+            R.layout.list_item_reply -> {
+                val view = parent.getItemView(layoutResId).applyTextSizeAndLetterSpacing(true)
+                createBaseViewHolder(view)
+            }
+            else -> {
+                super.onCreateDefViewHolder(parent, layoutResId)
+            }
         }
     }
 
@@ -112,7 +119,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
         convertForumAndReply(item.replyCount, forumDisplayName)
         convertSage(item.sage)
         convertImage(item.img, item.ext)
-        convertContent(item.content, false)
+        convertContent(item.content)
     }
 
     private fun BaseViewHolder.convertThreadWithPayload(
@@ -121,7 +128,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
         convertTimeStamp(payload.now)
         convertForumAndReply(payload.replyCount, forumDisplayName)
         convertSage(payload.sage)
-        convertContent(payload.content, false)
+        convertContent(payload.content)
     }
 
     private fun BaseViewHolder.convertReply(item: Reply, po: String) {
@@ -129,7 +136,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
         convertTimeStamp(item.now)
         convertSage(item.sage)
         convertImage(item.img, item.ext)
-        convertContent(item.content, true, referenceClickListener)
+        convertContent(item.content, referenceClickListener)
         convertRefId(item.id)
         convertTitleAndName(item.title, item.name)
     }
@@ -139,7 +146,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
     ) {
         convertTimeStamp(payload.now)
         convertSage(payload.sage)
-        convertContent(payload.content, true, referenceClickListener)
+        convertContent(payload.content, referenceClickListener)
     }
 
     private fun BaseViewHolder.convertTrend(item: Trend) {
@@ -147,7 +154,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
         convertRefId(item.id)
         setText(R.id.trendForum, item.forum)
         setText(R.id.hits, item.hits)
-        convertContent(item.content, false)
+        convertContent(item.content)
     }
 
     private fun BaseViewHolder.convertEmoji(item: String) {
@@ -231,7 +238,6 @@ class QuickAdapter<T>(private val layoutResId: Int) :
 
     private fun BaseViewHolder.convertContent(
         content: String,
-        clickable: Boolean,
         referenceClickListener: ((String) -> Unit)? = null
     ) {
         val res = ContentTransformation.transformContent(
@@ -243,55 +249,31 @@ class QuickAdapter<T>(private val layoutResId: Int) :
         else {
             setText(R.id.content, res)
             setVisible(R.id.content, true)
-            getView<TextView>(R.id.content).apply {
-                /**
-                 *  special handler for clickable spans
-                 */
-                if (clickable) movementMethod = LinkMovementMethod.getInstance()
-                textSize = DawnApp.applicationDataStore.mTextSize
-                letterSpacing = DawnApp.applicationDataStore.mLetterSpace
-            }
+        }
+    }
+
+    private fun View.applyTextSizeAndLetterSpacing(clickable: Boolean = false) = apply {
+        findViewById<TextView>(R.id.content).apply {
+            if (clickable) movementMethod = LinkMovementMethod.getInstance()
+            textSize = DawnApp.applicationDataStore.mTextSize
+            letterSpacing = DawnApp.applicationDataStore.mLetterSpace
+
         }
     }
 
     private class DiffItemCallback<T> : DiffUtil.ItemCallback<T>() {
-
-        /**
-         * 判断是否是同一个item
-         *
-         * @param oldItem New data
-         * @param newItem old Data
-         * @return
-         */
-        override fun areItemsTheSame(
-            oldItem: T,
-            newItem: T
-        ): Boolean {
+        override fun areItemsTheSame(oldItem: T, newItem: T): Boolean {
             return when {
                 (oldItem is Thread && newItem is Thread) -> oldItem.id == newItem.id && oldItem.fid == newItem.fid
-
-                (oldItem is Reply && newItem is Reply) -> oldItem.id == newItem.id
-
+                (oldItem is Reply && newItem is Reply) ->
+                    if (oldItem.isNotAd() || newItem.isNotAd()) oldItem.id == newItem.id
+                    else false
                 (oldItem is Trend && newItem is Trend) -> oldItem.id == newItem.id
-
-                else -> {
-                    Timber.e("Unhandled type comparison $oldItem vs $newItem")
-                    throw Exception("Unhandled type comparison")
-                }
+                else -> throw Exception("Unhandled type comparison")
             }
         }
 
-        /**
-         * 当是同一个item时，再判断内容是否发生改变
-         *
-         * @param oldItem New data
-         * @param newItem old Data
-         * @return
-         */
-        override fun areContentsTheSame(
-            oldItem: T,
-            newItem: T
-        ): Boolean {
+        override fun areContentsTheSame(oldItem: T, newItem: T): Boolean {
             return when {
                 (oldItem is Thread && newItem is Thread) -> {
                     oldItem.now == newItem.now
@@ -304,30 +286,12 @@ class QuickAdapter<T>(private val layoutResId: Int) :
                             && oldItem.sage == newItem.sage
                             && oldItem.content == newItem.content
                 }
-
-                (oldItem is Trend && newItem is Trend) -> {
-                    true
-                }
-                else -> {
-                    Timber.e("Unhandled type comparison")
-                    throw Exception("Unhandled type comparison")
-                }
+                (oldItem is Trend && newItem is Trend) -> true
+                else -> throw Exception("Unhandled type comparison")
             }
         }
 
-        /**
-         * 可选实现
-         * 如果需要精确修改某一个view中的内容，请实现此方法。
-         * 如果不实现此方法，或者返回null，将会直接刷新整个item。
-         *
-         * @param oldItem Old data
-         * @param newItem New data
-         * @return Payload info. if return null, the entire item will be refreshed.
-         */
-        override fun getChangePayload(
-            oldItem: T,
-            newItem: T
-        ): Any? {
+        override fun getChangePayload(oldItem: T, newItem: T): Any? {
             return when {
                 (oldItem is Thread && newItem is Thread) -> {
                     Payload.ThreadPayload(
@@ -343,10 +307,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
                 (oldItem is Trend && newItem is Trend) -> {
                     null
                 }
-                else -> {
-                    Timber.e("Unhandled type comparison")
-                    null
-                }
+                else -> throw Exception("Unhandled type comparison")
             }
         }
     }
@@ -364,51 +325,5 @@ class QuickAdapter<T>(private val layoutResId: Int) :
             val content: String,
             val sage: String
         )
-    }
-
-    private class DiffCallback<T>(private val oldList: List<T>, private val newList: List<T>) :
-        DiffUtil.Callback() {
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            val oldItem = oldList[oldItemPosition]
-            val newItem = newList[newItemPosition]
-            return when {
-                (oldItem is Thread && newItem is Thread) -> oldItem.id == newItem.id && oldItem.fid == newItem.fid
-
-                (oldItem is Reply && newItem is Reply) -> oldItem.id == newItem.id
-
-                else -> {
-                    Timber.e("Unhandled type comparison")
-                    false
-                }
-            }
-        }
-
-        override fun getOldListSize(): Int {
-            return oldList.size
-        }
-
-        override fun getNewListSize(): Int {
-            return newList.size
-        }
-
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            val oldItem = oldList[oldItemPosition]
-            val newItem = newList[newItemPosition]
-            return when {
-                (oldItem is Thread && newItem is Thread) -> {
-                    oldItem.sage == newItem.sage
-                            && oldItem.replyCount == newItem.replyCount
-                            && oldItem.content == newItem.content
-                }
-                (oldItem is Reply && newItem is Reply) -> {
-                    oldItem.sage == newItem.sage
-                            && oldItem.content == newItem.content
-                }
-                else -> {
-                    Timber.e("Unhandled type comparison")
-                    false
-                }
-            }
-        }
     }
 }

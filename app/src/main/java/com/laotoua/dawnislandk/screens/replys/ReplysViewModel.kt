@@ -32,15 +32,22 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
     fun setThreadId(id: String) {
         if (id != currentThreadId) clearCache()
         replyRepo.setThreadId(id)
-        if (replyList.isEmpty()) getNextPage(false)
+        viewModelScope.launch { if (replyList.isEmpty()) loadReadingProgress(id) }
     }
+
+    private suspend fun loadReadingProgress(id: String) {
+        getNextPage(false, replyRepo.getReadingProgress(id))
+    }
+
+    fun saveReadingProgress(page: Int) =
+        viewModelScope.launch { replyRepo.saveReadingProgress(page) }
 
     /** sometimes VM is KILLED but repo IS ALIVE, cache in Repo
      *  may show current page is full so should get next page,
      *  but VM still needs the cached current page to display
      */
-    fun getNextPage(incrementPage: Boolean = true) {
-        var nextPage = replyList.lastOrNull()?.page ?: 1
+    fun getNextPage(incrementPage: Boolean = true, readingProgress: Int? = null) {
+        var nextPage = readingProgress ?: (replyList.lastOrNull()?.page ?: 1)
         if (incrementPage && replyRepo.checkFullPage(nextPage)) nextPage += 1
         listenToNewPage(nextPage)
     }
@@ -52,7 +59,10 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
             return
         }
         val lastPage = (replyList.firstOrNull()?.page ?: 1) - 1
-        if (lastPage < 1) return
+        if (lastPage < 1) {
+            replyRepo.setLoadingStatus(LoadingStatus.NODATA)
+            return
+        }
         listenToNewPage(lastPage)
     }
 

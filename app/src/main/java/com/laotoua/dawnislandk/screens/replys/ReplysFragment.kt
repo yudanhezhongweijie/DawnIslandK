@@ -36,6 +36,7 @@ import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.interfaces.SimpleCallback
 import dagger.android.support.DaggerFragment
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
+import me.dkzwm.widget.srl.config.Constants
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -138,13 +139,24 @@ class ReplysFragment : DaggerFragment() {
         binding.refreshLayout.apply {
             setOnRefreshListener(object : RefreshingListenerAdapter() {
                 override fun onRefreshing() {
-                    viewModel.getPreviousPage()
+                    if (mAdapter.getItem(
+                            (binding.recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                        ).page == 1
+                    ) {
+                        Toast.makeText(context, "没有上一页了。。。", Toast.LENGTH_SHORT).show()
+                        refreshComplete(true, 100L)
+                    } else {
+                        viewModel.getPreviousPage()
+                    }
                 }
             })
         }
 
+        // top item indicates the current page, uses for remembering last read page
+        var topItemPage = 1
         binding.recyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
+            val llm = LinearLayoutManager(context)
+            layoutManager = llm
             adapter = mAdapter
             setHasFixedSize(true)
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -156,10 +168,15 @@ class ReplysFragment : DaggerFragment() {
                     } else if (dy < 0) {
                         binding.fabMenu.show()
                         binding.fabMenu.isClickable = true
-                        if ((layoutManager as LinearLayoutManager).findFirstVisibleItemPosition() <= 2
-                            && !binding.refreshLayout.isRefreshing
-                        ) {
+                        if (llm.findFirstVisibleItemPosition() <= 2 && !binding.refreshLayout.isRefreshing) {
                             viewModel.getPreviousPage()
+                        }
+                    }
+
+                    mAdapter.getItem(llm.findFirstVisibleItemPosition()).page.run {
+                        if (this != topItemPage) {
+                            viewModel.saveReadingProgress(this)
+                            topItemPage = this
                         }
                     }
                 }
@@ -218,7 +235,7 @@ class ReplysFragment : DaggerFragment() {
                 .show()
                 .dismissWith {
                     if (jumpPopup.submit) {
-                        mAdapter.setList(emptyList())
+                        binding.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
                         Timber.i("Jumping to ${jumpPopup.targetPage}...")
                         viewModel.jumpTo(jumpPopup.targetPage)
                     }

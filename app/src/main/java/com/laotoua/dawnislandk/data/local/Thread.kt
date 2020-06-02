@@ -24,7 +24,7 @@ data class Thread(
     val status: String = "n", //
     @Ignore var replys: List<Reply> = emptyList(), //replys 	主页展示回复的帖子
     val replyCount: String = "0", //replyCount 	总共有多少个回复
-    var readingProgress: Int = 0, // 记录上次看到的进度
+    var readingProgress: Int = 1, // 记录上次看到的进度
     var lastUpdatedAt: Long = 0
 ) {
     // Room uses this

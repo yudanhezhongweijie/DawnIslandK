@@ -65,6 +65,17 @@ class ReplyRepository @Inject constructor(
         currentThread = threadDao.findDistinctThreadById(id)
     }
 
+    suspend fun getReadingProgress(id: String): Int {
+        return threadDao.findThreadReadingProgressByIdSync(id) ?: 1
+    }
+
+    suspend fun saveReadingProgress(progress: Int) {
+        if (currentThread?.value == null) return
+        val new = currentThread?.value!!.copy()
+        new.readingProgress = progress
+        threadDao.updateThreads(new)
+    }
+
     private fun clearCache() {
         replyMap.clear()
         adMap.clear()
@@ -154,7 +165,7 @@ class ReplyRepository @Inject constructor(
 
     private suspend fun convertServerData(data: Thread, page: Int) {
         // update current thread with latest info
-        threadDao.insert(data)
+        saveThread(data)
 
         maxReply = data.replyCount.toInt()
         data.replys.map {
@@ -190,6 +201,13 @@ class ReplyRepository @Inject constructor(
 
     // DO NOT SAVE ADS
     private suspend fun saveReplys(replys: List<Reply>) = replyDao.insertAll(replys)
+
+    private suspend fun saveThread(thread: Thread) {
+        currentThread?.value?.run {
+            thread.readingProgress = this.readingProgress
+        }
+        threadDao.insert(thread)
+    }
 
     // TODO: do not send request if subscribe already
     suspend fun addFeed(uuid: String, id: String) {

@@ -14,6 +14,9 @@ interface ThreadDao {
     @Query("SELECT * FROM Thread WHERE id=:id")
     fun findThreadById(id: String): LiveData<Thread>
 
+    @Query("SELECT readingProgress FROM Thread WHERE id=:id")
+    suspend fun findThreadReadingProgressByIdSync(id: String): Int?
+
     fun findDistinctThreadById(id: String): LiveData<Thread> =
         findThreadById(id).distinctUntilChanged()
 
@@ -24,6 +27,9 @@ interface ThreadDao {
         thread.lastUpdatedAt = Date().time
         insert(thread)
     }
+
+    @Update
+    suspend fun updateThreads(vararg threads: Thread)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(threadList: List<Thread>)

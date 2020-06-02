@@ -4,6 +4,7 @@ package com.laotoua.dawnislandk.screens.replys
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.os.Bundle
+import android.text.style.UnderlineSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.text.toSpannable
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -28,6 +30,7 @@ import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
+import com.laotoua.dawnislandk.screens.widget.DoubleClickListener
 import com.laotoua.dawnislandk.screens.widget.popup.ImageLoader
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.screens.widget.popup.PostPopup
@@ -54,6 +57,9 @@ class ReplysFragment : DaggerFragment() {
 
     private var isFabOpen = false
 
+    // last visible item indicates the current page, uses for remembering last read page
+    private var currentPage = 1
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -65,7 +71,7 @@ class ReplysFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.toolbarLayout.toolbar.apply {
+        binding.toolbar.apply {
             immersiveToolbar()
             val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
@@ -73,9 +79,17 @@ class ReplysFragment : DaggerFragment() {
             setNavigationOnClickListener {
                 findNavController().popBackStack()
             }
-            setOnClickListener {
-                binding.recyclerView.layoutManager?.scrollToPosition(0)
-            }
+            setOnClickListener(
+                DoubleClickListener(callback = object : DoubleClickListener.DoubleClickCallBack {
+                    override fun doubleClicked() {
+                        binding.recyclerView.layoutManager?.scrollToPosition(0)
+                    }
+                })
+            )
+        }
+
+        binding.filter.setOnClickListener {
+            Timber.d("clicked on filter")
         }
 
         val imageLoader = ImageLoader()
@@ -152,8 +166,6 @@ class ReplysFragment : DaggerFragment() {
             })
         }
 
-        // top item indicates the current page, uses for remembering last read page
-        var topItemPage = 1
         binding.recyclerView.apply {
             val llm = LinearLayoutManager(context)
             layoutManager = llm
@@ -173,10 +185,13 @@ class ReplysFragment : DaggerFragment() {
                         }
                     }
 
-                    mAdapter.getItem(llm.findFirstVisibleItemPosition()).page.run {
-                        if (this != topItemPage) {
-                            viewModel.saveReadingProgress(this)
-                            topItemPage = this
+                    val lastCompletelyVisiblePos = llm.findLastVisibleItemPosition()
+                    if (lastCompletelyVisiblePos < mAdapter.data.lastIndex) {
+                        mAdapter.getItem(lastCompletelyVisiblePos).page.run {
+                            if (this != currentPage) {
+                                viewModel.saveReadingProgress(this)
+                                updateCurrentPage(this)
+                            }
                         }
                     }
                 }
@@ -190,6 +205,7 @@ class ReplysFragment : DaggerFragment() {
         })
 
         viewModel.replys.observe(viewLifecycleOwner, Observer {
+            if (mAdapter.data.isEmpty()) updateCurrentPage(it.first().page)
             mAdapter.setDiffNewData(it.toMutableList())
             mAdapter.setPo(viewModel.po)
             Timber.i("${this.javaClass.simpleName} Adapter will have ${mAdapter.data.size} threads")
@@ -240,12 +256,6 @@ class ReplysFragment : DaggerFragment() {
                         viewModel.jumpTo(jumpPopup.targetPage)
                     }
                 }
-        }
-
-        binding.onlyPo.setOnClickListener {
-            Timber.i("Clicked on onlyPo")
-            Toast.makeText(context, "还没写嘿嘿嘿。。", Toast.LENGTH_SHORT).show()
-            hideMenu()
         }
 
         binding.addFeed.setOnClickListener {
@@ -299,7 +309,6 @@ class ReplysFragment : DaggerFragment() {
         binding.post.hide()
         binding.jump.hide()
         binding.copyId.hide()
-        binding.onlyPo.hide()
         binding.addFeed.hide()
         isFabOpen = false
     }
@@ -313,7 +322,6 @@ class ReplysFragment : DaggerFragment() {
         binding.post.show()
         binding.jump.show()
         binding.copyId.show()
-        binding.onlyPo.show()
         binding.addFeed.show()
         isFabOpen = true
     }
@@ -327,10 +335,18 @@ class ReplysFragment : DaggerFragment() {
     }
 
     private fun updateTitle() {
-        binding.toolbarLayout.toolbar.title = "A岛 • ${sharedVM.getSelectedThreadForumName()}"
+        binding.toolbar.title = "A岛 • ${sharedVM.getSelectedThreadForumName()}"
     }
 
     private fun updateSubtitle() {
-        binding.toolbarLayout.toolbar.subtitle = "No.${viewModel.currentThreadId} • adnmb.com"
+        binding.toolbar.subtitle = "No.${viewModel.currentThreadId} • adnmb.com"
+    }
+
+    private fun updateCurrentPage(page: Int) {
+        binding.pageCounter.text = page.toString().toSpannable().apply {
+            setSpan(UnderlineSpan(), 0, this.length, 0)
+        }
+
+        currentPage = page
     }
 }

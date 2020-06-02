@@ -26,7 +26,7 @@ interface ReplyDao {
 
     suspend fun insertAllWithTimeStamp(replyList: List<Reply>) {
         val timestamp = Date().time
-        val listWithTimeStamps = replyList.apply { map { it.lastUpdatedAt = timestamp } }
+        val listWithTimeStamps = replyList.apply { map { it.setUpdatedTimestamp(timestamp) } }
         insertAll(listWithTimeStamps)
     }
 

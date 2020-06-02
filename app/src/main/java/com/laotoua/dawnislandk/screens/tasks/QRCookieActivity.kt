@@ -14,8 +14,8 @@ import com.king.zxing.camera.FrontLightMode
 import com.king.zxing.util.CodeUtils
 import com.king.zxing.util.LogUtils
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.io.ImageUtil
 import com.laotoua.dawnislandk.screens.util.ToolBar.themeStatusBar
+import com.laotoua.dawnislandk.util.ImageUtil
 import timber.log.Timber
 
 class QRCookieActivity : CaptureActivity() {

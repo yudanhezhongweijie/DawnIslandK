@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.io
+package com.laotoua.dawnislandk.util
 
 import android.app.Activity
 import android.content.ContentResolver
@@ -10,7 +10,6 @@ import android.provider.OpenableColumns
 import android.util.Size
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
-import com.laotoua.dawnislandk.util.GlideApp
 import timber.log.Timber
 import java.io.*
 

@@ -16,6 +16,7 @@ import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.SingleLiveEvent
+import com.laotoua.dawnislandk.util.equalsExceptTimestamp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
@@ -73,7 +74,7 @@ class ReplyRepository @Inject constructor(
         if (currentThread?.value == null) return
         val new = currentThread?.value!!.copy()
         new.readingProgress = progress
-        threadDao.updateThreads(new)
+        threadDao.updateThreadsWithTimeStamp(new)
     }
 
     private fun clearCache() {
@@ -165,7 +166,9 @@ class ReplyRepository @Inject constructor(
 
     private suspend fun convertServerData(data: Thread, page: Int) {
         // update current thread with latest info
-        saveThread(data)
+        if (!data.equalsExceptTimestampAndReply(currentThread?.value)) {
+            saveThread(data)
+        }
 
         maxReply = data.replyCount.toInt()
         data.replys.map {
@@ -187,26 +190,25 @@ class ReplyRepository @Inject constructor(
          *  When entering to a thread with cached data, refresh header is showing,
          *  set LoadingStatus to Success to hide the header
          */
-        if (noAd.isEmpty() || (replyMap[page]?.value == noAd) ||
-            (page == 1 && replyMap[page]?.value?.drop(1) == noAd)
+        if (noAd.isEmpty() || replyMap[page]?.value.equalsExceptTimestamp(noAd) ||
+            (page == 1 && replyMap[page]?.value?.drop(1).equalsExceptTimestamp(noAd))
         ) {
             if (page == maxPage) setLoadingStatus(LoadingStatus.NODATA)
             else setLoadingStatus(LoadingStatus.SUCCESS)
             return
         }
-
         Timber.d("Updating ${noAd.size} rows for $currentThreadId on $page")
         saveReplys(noAd)
     }
 
     // DO NOT SAVE ADS
-    private suspend fun saveReplys(replys: List<Reply>) = replyDao.insertAll(replys)
+    private suspend fun saveReplys(replys: List<Reply>) = replyDao.insertAllWithTimeStamp(replys)
 
     private suspend fun saveThread(thread: Thread) {
         currentThread?.value?.run {
             thread.readingProgress = this.readingProgress
         }
-        threadDao.insert(thread)
+        threadDao.insertWithTimeStamp(thread)
     }
 
     // TODO: do not send request if subscribe already

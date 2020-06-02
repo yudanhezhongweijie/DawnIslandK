@@ -27,9 +27,9 @@ import com.laotoua.dawnislandk.data.local.Cookie
 import com.laotoua.dawnislandk.databinding.FragmentSettingsBinding
 import com.laotoua.dawnislandk.databinding.ListItemCookieBinding
 import com.laotoua.dawnislandk.databinding.ListItemPreferenceBinding
-import com.laotoua.dawnislandk.io.FragmentIntentUtil
-import com.laotoua.dawnislandk.io.ImageUtil
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
+import com.laotoua.dawnislandk.util.FragmentIntentUtil
+import com.laotoua.dawnislandk.util.ImageUtil
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import kotlinx.coroutines.launch
 import org.json.JSONObject

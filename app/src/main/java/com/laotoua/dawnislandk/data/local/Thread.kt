@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.squareup.moshi.JsonClass
+import java.util.*
 
 @JsonClass(generateAdapter = true)
 @Entity
@@ -87,4 +88,19 @@ data class Thread(
     fun isDataComplete(): Boolean = (userid.isNotBlank() && now.isNotBlank())
 
     fun getImgUrl() = (img + ext)
+
+    fun equalsExceptTimestampAndReply(target: Thread?): Boolean =
+        if (target == null) false
+        else id == target.id && fid == target.fid
+                && category == target.category && img == target.img
+                && ext == target.ext && now == target.now
+                && userid == target.userid && name == target.name
+                && email == target.email && title == target.title
+                && content == target.content && sage == target.sage
+                && admin == target.admin && status == target.status
+                && replyCount == target.replyCount && readingProgress == target.readingProgress
+
+    fun setUpdatedTimestamp(time: Long? = null) {
+        lastUpdatedAt = time ?: Date().time
+    }
 }

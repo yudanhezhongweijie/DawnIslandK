@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.io
+package com.laotoua.dawnislandk.util
 
 import android.Manifest
 import android.app.Activity
@@ -59,7 +59,10 @@ object FragmentIntentUtil {
                 Toast.LENGTH_SHORT
             ).show()
             if (request) {
-                requestSinglePermission(caller, permission)
+                requestSinglePermission(
+                    caller,
+                    permission
+                )
             }
             return false
         }
@@ -71,10 +74,17 @@ object FragmentIntentUtil {
         permissions: Array<String>? = allPermissions
     ): Boolean {
         val missingPermissions = permissions!!.filterNot {
-            checkAndRequestSinglePermission(caller, it, false)
+            checkAndRequestSinglePermission(
+                caller,
+                it,
+                false
+            )
         }.toTypedArray()
 
-        requestMultiplePermission(caller, missingPermissions)
+        requestMultiplePermission(
+            caller,
+            missingPermissions
+        )
         return missingPermissions.isEmpty()
     }
 

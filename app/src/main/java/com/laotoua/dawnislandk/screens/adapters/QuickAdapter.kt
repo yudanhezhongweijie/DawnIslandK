@@ -265,9 +265,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
         override fun areItemsTheSame(oldItem: T, newItem: T): Boolean {
             return when {
                 (oldItem is Thread && newItem is Thread) -> oldItem.id == newItem.id && oldItem.fid == newItem.fid
-                (oldItem is Reply && newItem is Reply) ->
-                    if (oldItem.isNotAd() || newItem.isNotAd()) oldItem.id == newItem.id
-                    else false
+                (oldItem is Reply && newItem is Reply) -> oldItem.id == newItem.id && oldItem.content == newItem.content
                 (oldItem is Trend && newItem is Trend) -> oldItem.id == newItem.id
                 else -> throw Exception("Unhandled type comparison")
             }
@@ -282,7 +280,8 @@ class QuickAdapter<T>(private val layoutResId: Int) :
                             && oldItem.content == newItem.content
                 }
                 (oldItem is Reply && newItem is Reply) -> {
-                    oldItem.now == newItem.now
+                    if (!oldItem.isNotAd() && !newItem.isNotAd()) true
+                    else oldItem.now == newItem.now
                             && oldItem.sage == newItem.sage
                             && oldItem.content == newItem.content
                 }

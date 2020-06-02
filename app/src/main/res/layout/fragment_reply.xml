@@ -6,12 +6,67 @@
     android:layout_height="match_parent"
     tools:context=".screens.replys.ReplysFragment">
 
-    <include
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/toolbarLayout"
-        layout="@layout/toolbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:paddingTop="30dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/appbar" />
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:focusable="false"
+            android:theme="@style/Theme.MaterialComponents.DayNight.DarkActionBar"
+            app:contentInsetStartWithNavigation="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:subtitle="adnmb.com"
+            app:subtitleTextColor="#FFFFFF"
+            app:title="时间线"
+            app:titleTextColor="#FFFFFF" />
+
+        <TextView
+            android:id="@+id/pageCounter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:textColor="@color/pure_light"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="@id/filter"
+            app:layout_constraintEnd_toStartOf="@id/filter"
+            app:layout_constraintTop_toTopOf="@id/filter" />
+
+        <ImageButton
+            android:id="@+id/filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:background="?attr/selectableItemBackground"
+            android:padding="8dp"
+            android:src="@drawable/ic_filter_list_24px"
+            android:tint="@color/pure_light"
+            app:layout_constraintBottom_toBottomOf="@id/toolbar"
+            app:layout_constraintEnd_toEndOf="@id/toolbar"
+            app:layout_constraintTop_toTopOf="@id/toolbar" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <me.dkzwm.widget.srl.MaterialSmoothRefreshLayout
         android:id="@+id/refreshLayout"
@@ -41,19 +96,6 @@
         android:text="@string/subscribe"
         android:visibility="gone"
         app:icon="@drawable/ic_favorite_24px"
-        app:layout_constraintBottom_toTopOf="@id/onlyPo"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/onlyPo"
-        style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:text="@string/see_po_only"
-        android:visibility="gone"
-        app:icon="@drawable/ic_filter_list_black_48px"
         app:layout_constraintBottom_toTopOf="@id/copyId"
         app:layout_constraintEnd_toEndOf="parent" />
 

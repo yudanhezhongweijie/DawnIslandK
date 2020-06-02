@@ -24,19 +24,26 @@ interface ThreadDao {
     suspend fun insert(thread: Thread)
 
     suspend fun insertWithTimeStamp(thread: Thread) {
-        thread.lastUpdatedAt = Date().time
+        thread.setUpdatedTimestamp()
         insert(thread)
     }
 
     @Update
     suspend fun updateThreads(vararg threads: Thread)
 
+    @Update
+    suspend fun updateThreadsWithTimeStamp(vararg threads: Thread) {
+        val timestamp = Date().time
+        threads.map { it.setUpdatedTimestamp(timestamp) }
+        updateThreads(*threads)
+    }
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(threadList: List<Thread>)
 
     suspend fun insertAllWithTimeStamp(threadList: List<Thread>) {
         val timestamp = Date().time
-        val listWithTimeStamps = threadList.apply { map { it.lastUpdatedAt = timestamp } }
+        val listWithTimeStamps = threadList.apply { map { it.setUpdatedTimestamp(timestamp) } }
         insertAll(listWithTimeStamps)
     }
 

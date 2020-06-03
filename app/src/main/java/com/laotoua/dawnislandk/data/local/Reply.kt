@@ -1,6 +1,7 @@
 package com.laotoua.dawnislandk.data.local
 
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.squareup.moshi.JsonClass
 import java.util.*
@@ -24,9 +25,32 @@ data class Reply(
     var parentId: String = "",
     var lastUpdatedAt: Long = 0
 ) {
-    fun getImgUrl(): String = (img + ext)
+    // used for reply filtering
+    @Ignore
+    var visible: Boolean = true
 
+    @Ignore
+    var mTitleAndName: String? = null
+
+    fun getTitleAndName(): String {
+        if (mTitleAndName == null) {
+            mTitleAndName = ""
+            if (title != "" && title != "无标题") {
+                mTitleAndName += "标题：$title"
+            }
+            if (name != "" && name != "无名氏") {
+                if (mTitleAndName!!.isNotEmpty()) {
+                    mTitleAndName += "\n"
+                }
+                mTitleAndName += "作者：$name"
+            }
+        }
+        return mTitleAndName!!
+    }
+
+    fun getImgUrl(): String = (img + ext)
     fun isNotAd(): Boolean = (id != "9999999")
+    fun isAd(): Boolean = !isNotAd()
 
     fun equalsExceptTimestamp(target: Reply?): Boolean =
         if (target == null) false

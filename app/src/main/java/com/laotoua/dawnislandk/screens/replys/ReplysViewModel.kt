@@ -19,6 +19,8 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
 
     private val replyList = mutableListOf<Reply>()
 
+    private val filterIds = mutableListOf<String>()
+
     val replys = MediatorLiveData<MutableList<Reply>>()
 
     private val listeningPages = mutableMapOf<Int, LiveData<List<Reply>>>()
@@ -49,7 +51,7 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
     fun getNextPage(incrementPage: Boolean = true, readingProgress: Int? = null) {
         var nextPage = readingProgress ?: (replyList.lastOrNull()?.page ?: 1)
         if (incrementPage && replyRepo.checkFullPage(nextPage)) nextPage += 1
-        listenToNewPage(nextPage)
+        listenToNewPage(nextPage, filterIds)
     }
 
     fun getPreviousPage() {
@@ -59,11 +61,8 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
             return
         }
         val lastPage = (replyList.firstOrNull()?.page ?: 1) - 1
-        if (lastPage < 1) {
-            replyRepo.setLoadingStatus(LoadingStatus.NODATA)
-            return
-        }
-        listenToNewPage(lastPage)
+        if (lastPage < 1) return
+        listenToNewPage(lastPage, filterIds)
     }
 
     private fun List<Reply>.attachAd(page: Int) = toMutableList().apply {
@@ -73,13 +72,13 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
         }
     }
 
-    private fun listenToNewPage(page: Int) {
+    private fun listenToNewPage(page: Int, filterIds: List<String>) {
         val newPage = replyRepo.getLiveDataOnPage(page)
         if (listeningPages[page] != newPage) {
             listeningPages[page] = newPage
             replys.addSource(newPage) {
                 if (!it.isNullOrEmpty()) {
-                    handleNewPageData(it.attachAd(page))
+                    handleNewPageData(it.attachAd(page), filterIds)
                 }
             }
         } else {
@@ -89,9 +88,11 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
         }
     }
 
-    private fun mergeNewPage(list: MutableList<Reply>) {
+    private fun mergeNewPage(list: MutableList<Reply>, filterIds: List<String>) {
         if (list.isNullOrEmpty()) return
         val targetPage = list.first().page
+        // apply filter
+        applyFilterToList(list, filterIds)
         if (replyList.isEmpty() || targetPage > replyList.last().page) {
             replyList.addAll(list)
         } else if (targetPage < replyList.first().page) {
@@ -104,8 +105,8 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
         }
     }
 
-    private fun handleNewPageData(list: MutableList<Reply>) {
-        mergeNewPage(list)
+    private fun handleNewPageData(list: MutableList<Reply>, filterIds: List<String>) {
+        mergeNewPage(list, filterIds)
         replys.postValue(replyList)
         replyRepo.setLoadingStatus(LoadingStatus.SUCCESS)
     }
@@ -114,12 +115,37 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
         listeningPages.values.map { replys.removeSource(it) }
         listeningPages.clear()
         replyList.clear()
+        clearFilter()
     }
+
+    fun onlyPo() {
+        applyFilter(po)
+    }
+
+    private fun applyFilter(vararg Ids: String) {
+        filterIds.addAll(Ids)
+        if (replyList.isNotEmpty()) applyFilterToList(replyList, filterIds)
+        replys.postValue(replyList)
+    }
+
+    fun clearFilter() {
+        filterIds.clear()
+        replyList.map { it.visible = true }
+        replys.postValue(replyList)
+    }
+
+    // keep ad as well
+    private fun applyFilterToList(list: MutableList<Reply>, filterIds: List<String>) {
+        if (filterIds.isNotEmpty()) list.map {
+            it.visible = filterIds.contains(it.userid) || it.isAd()
+        }
+    }
+
 
     fun jumpTo(page: Int) {
         Timber.i("Jumping to page $page... Clearing old data")
         replyList.clear()
-        listenToNewPage(page)
+        listenToNewPage(page, filterIds)
     }
 
     // TODO: do not send request if subscribe already

@@ -122,6 +122,7 @@ class ReplyRepository @Inject constructor(
             addSource(head) {
                 // catch pending value (null DB query result)
                 if (it == null) return@addSource
+                if (it.replyCount.toInt() > maxReply) maxReply = it.replyCount.toInt()
                 header = it.toReply()
                 // wait for other source finish loading and set together
                 page?.let { list -> if (list.isNotEmpty()) value = listOf(header!!).plus(list) }
@@ -179,7 +180,7 @@ class ReplyRepository @Inject constructor(
         }
 
         // handle Ad
-        data.replys.firstOrNull { !it.isNotAd() }?.let {
+        data.replys.firstOrNull { it.isAd() }?.let {
             adMap[page] = it
         }
         val noAd = data.replys.filter { it.isNotAd() }

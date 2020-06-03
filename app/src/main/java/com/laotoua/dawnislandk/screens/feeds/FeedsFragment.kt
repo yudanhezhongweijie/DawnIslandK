@@ -179,7 +179,7 @@ class FeedsFragment : DaggerFragment() {
         viewModel.delFeedResponse.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let { eventPayload ->
                 Toast.makeText(context, eventPayload.message, Toast.LENGTH_SHORT).show()
-                if (eventPayload.loadingStatus == LoadingStatus.SUCCESS) mAdapter.remove(
+                if (eventPayload.loadingStatus == LoadingStatus.SUCCESS) mAdapter.removeAt(
                     eventPayload.payload!!
                 )
             }

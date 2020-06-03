@@ -61,20 +61,6 @@ object ContentTransformation {
         return ReadableTime.getDisplayTime(now)
     }
 
-    fun transformTitleAndName(title: String? = "", name: String? = ""): String {
-        var titleAndName = ""
-        if (title != null && title != "" && title != "无标题") {
-            titleAndName += "标题：$title"
-        }
-        if (name != null && name != "" && name != "无名氏") {
-            if (titleAndName.isNotEmpty()) {
-                titleAndName += "\n"
-            }
-            titleAndName += "作者：$name"
-        }
-        return titleAndName
-    }
-
     fun transformContent(
         content: String,
         lineHeight: Int = DawnApp.applicationDataStore.mLineHeight,

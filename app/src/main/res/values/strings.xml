@@ -122,4 +122,7 @@
     <string name="saves_reading_progress" translatable="false">是否保存阅读进度</string>
     <string name="reading_progress_on" translatable="false">打开串回跳转到上次看到的页面</string>
     <string name="reading_progress_off" translatable="false">打开串会在首页</string>
+    <string name="reply_filter_off" translatable="false">回复过滤关闭</string>
+    <string name="reply_filter_on" translatable="false">回复过滤开启。新的回复将被过滤</string>
+    <string name="checked_filtered_reply" translatable="false">点击查看隐藏的 %d 字</string>
 </resources>

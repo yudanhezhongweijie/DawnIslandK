@@ -28,6 +28,7 @@ import com.laotoua.dawnislandk.databinding.FragmentSettingsBinding
 import com.laotoua.dawnislandk.databinding.ListItemCookieBinding
 import com.laotoua.dawnislandk.databinding.ListItemPreferenceBinding
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
+import com.laotoua.dawnislandk.util.Constants
 import com.laotoua.dawnislandk.util.FragmentIntentUtil
 import com.laotoua.dawnislandk.util.ImageUtil
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
@@ -140,22 +141,23 @@ class SettingsFragment : Fragment() {
         }
 
         binding.timeFormat.apply {
+            val mmkvKey = Constants.TIME_FORMAT
             key.setText(R.string.time_display_format)
             val entries = resources.getStringArray(R.array.time_format_entries)
             val values = resources.getStringArray(R.array.time_format_values)
             summary.text =
-                if (values.first() == applicationDataStore.mmkv.getString("time_format", "")) {
-                entries.first()
-            } else {
-                entries.last()
-            }
+                if (values.first() == applicationDataStore.mmkv.getString(mmkvKey, "")) {
+                    entries.first()
+                } else {
+                    entries.last()
+                }
 
             root.setOnClickListener {
                 MaterialDialog(requireContext()).show {
                     title(R.string.time_display_format)
                     cornerRadius(res = R.dimen.dialog_radius)
                     listItems(R.array.time_format_entries) { _, index, text ->
-                        applicationDataStore.mmkv.putString("time_format", values[index])
+                        applicationDataStore.mmkv.putString(mmkvKey, values[index])
                         summary.text = text
                         Toast.makeText(
                             context,
@@ -167,13 +169,30 @@ class SettingsFragment : Fragment() {
             }
         }
 
+        binding.useReadingProgress.apply {
+            val mmkvKey = Constants.READING_PROGRESS
+            key.setText(R.string.saves_reading_progress)
+            preferenceSwitch.visibility = View.VISIBLE
+            preferenceSwitch.isChecked = applicationDataStore.mmkv.getBoolean(mmkvKey, false)
+            updateSwitchSummary(R.string.reading_progress_on, R.string.reading_progress_off)
+            root.setOnClickListener {
+                toggleSwitch(mmkvKey, R.string.reading_progress_on, R.string.reading_progress_off)
+                Toast.makeText(
+                    context,
+                    R.string.restart_to_apply_setting,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
         binding.animationSwitch.apply {
+            val mmkvKey = Constants.ANIMATION
             key.setText(R.string.animation_on_off)
             preferenceSwitch.visibility = View.VISIBLE
-            preferenceSwitch.isChecked = applicationDataStore.mmkv.getBoolean("animation", false)
+            preferenceSwitch.isChecked = applicationDataStore.mmkv.getBoolean(mmkvKey, false)
             updateSwitchSummary(R.string.animation_on, R.string.animation_off)
             root.setOnClickListener {
-                toggleAnimationSwitch()
+                toggleSwitch(mmkvKey, R.string.animation_on, R.string.animation_off)
                 Toast.makeText(
                     context,
                     R.string.restart_to_apply_setting,
@@ -294,10 +313,14 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    private fun ListItemPreferenceBinding.toggleAnimationSwitch() {
+    private fun ListItemPreferenceBinding.toggleSwitch(
+        mmkvKey: String,
+        summaryOn: Int,
+        summaryOff: Int
+    ) {
         preferenceSwitch.toggle()
-        applicationDataStore.mmkv.putBoolean("animation", preferenceSwitch.isChecked)
-        updateSwitchSummary(R.string.animation_on, R.string.animation_off)
+        applicationDataStore.mmkv.putBoolean(mmkvKey, preferenceSwitch.isChecked)
+        updateSwitchSummary(summaryOn, summaryOff)
     }
 
     private fun ListItemPreferenceBinding.updateSwitchSummary(summaryOn: Int, summaryOff: Int) {

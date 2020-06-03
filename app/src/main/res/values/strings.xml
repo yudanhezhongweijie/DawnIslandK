@@ -118,4 +118,8 @@
     <string name="please_select_target_forum" translatable="false">请选择发布板块</string>
     <string name="cookie_name" translatable="false">饼干名字</string>
     <string name="cookie_hash" translatable="false">饼干序列</string>
+    <string name="cookie_slots" translatable="false">饼干槽:</string>
+    <string name="saves_reading_progress" translatable="false">是否保存阅读进度</string>
+    <string name="reading_progress_on" translatable="false">打开串回跳转到上次看到的页面</string>
+    <string name="reading_progress_off" translatable="false">打开串会在首页</string>
 </resources>

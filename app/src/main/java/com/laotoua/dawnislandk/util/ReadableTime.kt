@@ -64,7 +64,10 @@ object ReadableTime {
 
     fun initialize(context: Context) {
         sResources = context.applicationContext.resources
-        timeFormat = DawnApp.applicationDataStore.mmkv.getString("time_format", "simplified")
+        timeFormat = DawnApp.applicationDataStore.mmkv.getString(
+            Constants.TIME_FORMAT,
+            Constants.DEFAULT_TIME_FORMAT
+        )
     }
 
     fun string2Time(str: String): Long {

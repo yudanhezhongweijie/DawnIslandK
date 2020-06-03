@@ -66,12 +66,14 @@ class ReplyRepository @Inject constructor(
         currentThread = threadDao.findDistinctThreadById(id)
     }
 
-    suspend fun getReadingProgress(id: String): Int {
-        return threadDao.findThreadReadingProgressByIdSync(id) ?: 1
-    }
+    suspend fun getReadingProgress(id: String): Int =
+        if (DawnApp.applicationDataStore.readingProgressStatus)
+            threadDao.findThreadReadingProgressByIdSync(id) ?: 1
+        else 1
+
 
     suspend fun saveReadingProgress(progress: Int) {
-        if (currentThread?.value == null) return
+        if (currentThread?.value == null || !DawnApp.applicationDataStore.readingProgressStatus) return
         val new = currentThread?.value!!.copy()
         new.readingProgress = progress
         threadDao.updateThreadsWithTimeStamp(new)

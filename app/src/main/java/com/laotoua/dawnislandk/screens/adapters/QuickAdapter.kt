@@ -44,7 +44,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
         // 当数据不满一页时，是否继续自动加载（默认为true）
         loadMoreModule.isEnableLoadMoreIfNotFullPage = false
 
-        if (DawnApp.applicationDataStore.mmkv.getBoolean("animation", false)) {
+        if (DawnApp.applicationDataStore.animationStatus) {
             setAnimationWithDefault(AnimationType.ScaleIn)
             isAnimationFirstOnly = false
         }

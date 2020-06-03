@@ -17,6 +17,11 @@ object Constants {
     const val LINE_HEIGHT = "line_height"
     const val SEG_GAP = "seg_gap"
     const val MAIN_TEXT_MIN_SIZE = 10
+    const val ANIMATION = "animation"
+    const val READING_PROGRESS = "reading_progress"
+    const val TIME_FORMAT = "time_format"
+    const val DEFAULT_TIME_FORMAT = "simplified"
+    const val FEED_ID = "feedId"
 
     const val baseCDN = "https://nmb.fastmirror.org/"
     private const val imgCDN = "https://nmbimg.fastmirror.org/"

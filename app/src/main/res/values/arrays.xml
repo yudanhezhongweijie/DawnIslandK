@@ -89,7 +89,7 @@
         <item>(´∀((☆ミつ"</item>
     </string-array>
 
-    <string-array name="LuweiStickers">
+    <string-array name="LuweiStickersWhite">
         <item>_0000_104</item>
         <item>_0013_091</item>
         <item>_0027_022</item>
@@ -196,6 +196,114 @@
         <item>_0013_036</item>
         <item>_0026_079</item>
         <item>_0040_009</item>
+    </string-array>
+
+    <string-array name="LuweiStickersColor">
+        <item>c_0000_001</item>
+        <item>c_0027_028</item>
+        <item>c_0054_055</item>
+        <item>c_0081_082</item>
+        <item>c_0001_002</item>
+        <item>c_0028_029</item>
+        <item>c_0055_056</item>
+        <item>c_0082_083</item>
+        <item>c_0002_003</item>
+        <item>c_0029_030</item>
+        <item>c_0056_057</item>
+        <item>c_0083_084</item>
+        <item>c_0003_004</item>
+        <item>c_0030_031</item>
+        <item>c_0057_058</item>
+        <item>c_0084_085</item>
+        <item>c_0004_005</item>
+        <item>c_0031_032</item>
+        <item>c_0058_059</item>
+        <item>c_0085_086</item>
+        <item>c_0005_006</item>
+        <item>c_0032_033</item>
+        <item>c_0059_060</item>
+        <item>c_0086_087</item>
+        <item>c_0006_007</item>
+        <item>c_0033_034</item>
+        <item>c_0060_061</item>
+        <item>c_0087_088</item>
+        <item>c_0007_008</item>
+        <item>c_0034_035</item>
+        <item>c_0061_062</item>
+        <item>c_0088_089</item>
+        <item>c_0008_009</item>
+        <item>c_0035_036</item>
+        <item>c_0062_063</item>
+        <item>c_0089_090</item>
+        <item>c_0009_010</item>
+        <item>c_0036_037</item>
+        <item>c_0063_064</item>
+        <item>c_0090_091</item>
+        <item>c_0010_011</item>
+        <item>c_0037_038</item>
+        <item>c_0064_065</item>
+        <item>c_0091_092</item>
+        <item>c_0011_012</item>
+        <item>c_0038_039</item>
+        <item>c_0065_066</item>
+        <item>c_0092_093</item>
+        <item>c_0012_013</item>
+        <item>c_0039_040</item>
+        <item>c_0066_067</item>
+        <item>c_0093_094</item>
+        <item>c_0013_014</item>
+        <item>c_0040_041</item>
+        <item>c_0067_068</item>
+        <item>c_0094_095</item>
+        <item>c_0014_015</item>
+        <item>c_0041_042</item>
+        <item>c_0068_069</item>
+        <item>c_0095_096</item>
+        <item>c_0015_016</item>
+        <item>c_0042_043</item>
+        <item>c_0069_070</item>
+        <item>c_0096_097</item>
+        <item>c_0016_017</item>
+        <item>c_0043_044</item>
+        <item>c_0070_071</item>
+        <item>c_0097_098</item>
+        <item>c_0017_018</item>
+        <item>c_0044_045</item>
+        <item>c_0071_072</item>
+        <item>c_0098_099</item>
+        <item>c_0018_019</item>
+        <item>c_0045_046</item>
+        <item>c_0072_073</item>
+        <item>c_0099_100</item>
+        <item>c_0019_020</item>
+        <item>c_0046_047</item>
+        <item>c_0073_074</item>
+        <item>c_0100_101</item>
+        <item>c_0020_021</item>
+        <item>c_0047_048</item>
+        <item>c_0074_075</item>
+        <item>c_0101_102</item>
+        <item>c_0021_022</item>
+        <item>c_0048_049</item>
+        <item>c_0075_076</item>
+        <item>c_0102_103</item>
+        <item>c_0022_023</item>
+        <item>c_0049_050</item>
+        <item>c_0076_077</item>
+        <item>c_0103_104</item>
+        <item>c_0023_024</item>
+        <item>c_0050_051</item>
+        <item>c_0077_078</item>
+        <item>c_0104_105</item>
+        <item>c_0024_025</item>
+        <item>c_0051_052</item>
+        <item>c_0078_079</item>
+        <item>c_0025_026</item>
+        <item>c_0052_053</item>
+        <item>c_0079_080</item>
+        <item>c_0026_027</item>
+        <item>c_0053_054</item>
+        <item>c_0080_081</item>
     </string-array>
     <!-- Time Format Preference -->
     <string-array name="time_format_entries">

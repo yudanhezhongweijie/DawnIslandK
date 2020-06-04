@@ -125,4 +125,6 @@
     <string name="reply_filter_off" translatable="false">回复过滤关闭</string>
     <string name="reply_filter_on" translatable="false">回复过滤开启。新的回复将被过滤</string>
     <string name="checked_filtered_reply" translatable="false">点击查看隐藏的 %d 字</string>
+    <string name="transparent_white" translatable="false">透明白</string>
+    <string name="colorful" translatable="false">彩色</string>
 </resources>

@@ -283,6 +283,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
                 (oldItem is Reply && newItem is Reply) -> oldItem.id == newItem.id && oldItem.content == newItem.content
                         && oldItem.visible == newItem.visible
                 (oldItem is Trend && newItem is Trend) -> oldItem.id == newItem.id
+                (oldItem is String && newItem is String) -> oldItem == newItem
                 else -> throw Exception("Unhandled type comparison")
             }
         }

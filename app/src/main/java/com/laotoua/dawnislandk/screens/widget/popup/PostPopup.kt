@@ -76,7 +76,13 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
     private var attachmentContainer: ConstraintLayout? = null
     private var emojiContainer: RecyclerView? = null
     private val emojiAdapter by lazyOnMainOnly { QuickAdapter<String>(R.layout.grid_item_emoji) }
-    private var luweiStickerContainer: RecyclerView? = null
+    private var luweiStickerContainer: ConstraintLayout? = null
+    private val stickersWhite by lazyOnMainOnly {
+        resources.getStringArray(R.array.LuweiStickersWhite).toMutableList()
+    }
+    private val stickersColor by lazyOnMainOnly {
+        resources.getStringArray(R.array.LuweiStickersColor).toMutableList()
+    }
     private val luweiStickerAdapter by lazyOnMainOnly { QuickAdapter<String>(R.layout.grid_item_luwei_sticker) }
     private var postContent: EditText? = null
     private var postImagePreview: ImageView? = null
@@ -127,8 +133,6 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
             }
         }
     }
-
-    private var progressBar: ProgressBar? = null
 
     private fun updateTitle(targetId: String?, newPost: Boolean) {
         findViewById<TextView>(R.id.postTitle).text =
@@ -189,7 +193,7 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
                 }
 
             })
-//            .enableDrag(false)
+            .enableDrag(false)
 //            .moveUpToKeyboard(false)
             .asCustom(this@PostPopup)
             .show()
@@ -248,8 +252,7 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
         toggleContainers = findViewById<ConstraintLayout>(R.id.toggleContainers).also {
             expansionContainer = findViewById(R.id.expansionContainer)
 
-            progressBar = findViewById(R.id.progressBar)
-
+            keyboardHolder = findViewById(R.id.keyboardHolder)
             // add emoji
             emojiContainer = findViewById(R.id.emojiContainer)
             emojiContainer!!.layoutManager = GridLayoutManager(context, 3)
@@ -260,43 +263,39 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
                         ((view as TextView).text)
                     )
                 }
-                progressBar!!.visibility = View.VISIBLE
-                caller.lifecycleScope.launch {
-                    adapter.setDiffNewData(resources.getStringArray(R.array.emoji).toMutableList())
-                    progressBar!!.visibility = View.GONE
-                }
+                adapter.setDiffNewData(resources.getStringArray(R.array.emoji).toMutableList())
             }
 
             // add luweiSticker
             luweiStickerContainer = findViewById(R.id.luweiStickerContainer)
-            luweiStickerContainer!!.layoutManager = GridLayoutManager(context, 3)
-            luweiStickerContainer!!.adapter = luweiStickerAdapter.also { adapter ->
-                adapter.setOnItemClickListener { _, _, pos ->
-                    val emojiId = adapter.getItem(pos)
-                    val resourceId: Int = context.resources.getIdentifier(
-                        "le$emojiId", "drawable",
-                        context.packageName
-                    )
-                    try {
-                        imageFile =
-                            ImageUtil.getFileFromDrawable(caller, emojiId, resourceId)
-                        postImagePreview!!.setImageResource(resourceId)
-                        attachmentContainer!!.visibility = View.VISIBLE
-                    } catch (e: Exception) {
-                        Timber.e(e)
+            luweiStickerContainer.apply {
+                findViewById<MaterialButtonToggleGroup>(R.id.luweiStickerToggle).addOnButtonCheckedListener { _, checkedId, isChecked ->
+                    if (checkedId == R.id.luweiStickerWhite && isChecked) {
+                        luweiStickerAdapter.setDiffNewData(stickersWhite)
+                    } else if (checkedId == R.id.luweiStickerColor && isChecked) {
+                        luweiStickerAdapter.setDiffNewData(stickersColor)
                     }
                 }
+                findViewById<RecyclerView>(R.id.luweiStickerRecyclerView).apply {
+                    layoutManager = GridLayoutManager(context, 3)
+                    adapter = luweiStickerAdapter
+                    luweiStickerAdapter.setOnItemClickListener { _, _, pos ->
+                        val emojiId = luweiStickerAdapter.getItem(pos)
+                        val resourceId: Int = context.resources.getIdentifier(
+                            "le$emojiId", "drawable",
+                            context.packageName
+                        )
+                        try {
+                            imageFile = ImageUtil.getFileFromDrawable(caller, emojiId, resourceId)
+                            postImagePreview!!.setImageResource(resourceId)
+                            attachmentContainer!!.visibility = View.VISIBLE
+                        } catch (e: Exception) {
+                            Timber.e(e)
+                        }
+                    }
 
-                progressBar!!.visibility = View.VISIBLE
-                caller.lifecycleScope.launch {
-                    adapter.setDiffNewData(
-                        resources.getStringArray(R.array.LuweiStickers).toMutableList()
-                    )
-                    progressBar!!.visibility = View.GONE
                 }
             }
-
-            keyboardHolder = findViewById(R.id.keyboardHolder)
         }
 
         attachmentContainer = findViewById<ConstraintLayout>(R.id.attachmentContainer).apply {
@@ -471,11 +470,12 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
 
         findViewById<ImageView>(R.id.postClose).setOnClickListener {
             KeyboardUtils.hideSoftInput(postContent!!)
-            dismissWith {
-                val lp = keyboardHolder!!.layoutParams
-                lp.height = 0
-                keyboardHolder!!.layoutParams = lp
-            }
+            dismiss()
+//            dismissWith {
+//                val lp = keyboardHolder!!.layoutParams
+//                lp.height = 0
+//                keyboardHolder!!.layoutParams = lp
+//            }
         }
     }
 
@@ -487,6 +487,7 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
         imageFile = null
         postImagePreview!!.setImageResource(0)
         findViewById<MaterialButtonToggleGroup>(R.id.toggleButtonGroup).clearChecked()
+        findViewById<MaterialButtonToggleGroup>(R.id.luweiStickerToggle).clearChecked()
     }
 
     private fun send() {

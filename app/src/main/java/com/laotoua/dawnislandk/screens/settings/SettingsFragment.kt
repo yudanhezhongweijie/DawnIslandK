@@ -39,32 +39,6 @@ import timber.log.Timber
 class SettingsFragment : Fragment() {
 
     private val cookies get() = applicationDataStore.cookies
-
-    private val cookieAdditionPopup: MaterialDialog by lazyOnMainOnly {
-        MaterialDialog(requireContext()).apply {
-            title(R.string.add_cookie)
-            customView(R.layout.dialog_cookie_addition)
-            positiveButton(R.string.submit) {
-                val cookieName = findViewById<EditText>(R.id.cookieNameText).text
-                val cookieHash = findViewById<EditText>(R.id.cookieHashText).text
-                if (cookieHash.toString().isNotBlank()) {
-                    addCookie(
-                        Cookie(
-                            cookieHash.toString(),
-                            cookieName.toString()
-                        )
-                    )
-                    cookieHash.clear()
-                    cookieName.clear()
-                }
-            }
-            negativeButton(R.string.cancel)
-            findViewById<EditText>(R.id.cookieHashText).doOnTextChanged { text, _, _, _ ->
-                getActionButton(WhichButton.POSITIVE).isEnabled = !text.isNullOrBlank()
-            }
-        }
-    }
-
     private val getCookieImage =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
             uri?.run {
@@ -103,6 +77,31 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val cookieAdditionPopup: MaterialDialog by lazyOnMainOnly {
+            MaterialDialog(requireContext()).apply {
+                title(R.string.add_cookie)
+                customView(R.layout.dialog_cookie_addition)
+                positiveButton(R.string.submit) {
+                    val cookieName = findViewById<EditText>(R.id.cookieNameText).text
+                    val cookieHash = findViewById<EditText>(R.id.cookieHashText).text
+                    if (cookieHash.toString().isNotBlank()) {
+                        addCookie(
+                            Cookie(
+                                cookieHash.toString(),
+                                cookieName.toString()
+                            )
+                        )
+                        cookieHash.clear()
+                        cookieName.clear()
+                    }
+                }
+                negativeButton(R.string.cancel)
+                findViewById<EditText>(R.id.cookieHashText).doOnTextChanged { text, _, _, _ ->
+                    getActionButton(WhichButton.POSITIVE).isEnabled = !text.isNullOrBlank()
+                }
+            }
+        }
 
         binding.toolbarLayout.toolbar.apply {
             immersiveToolbar()
@@ -329,6 +328,11 @@ class SettingsFragment : Fragment() {
         } else {
             summary.setText(summaryOff)
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 }

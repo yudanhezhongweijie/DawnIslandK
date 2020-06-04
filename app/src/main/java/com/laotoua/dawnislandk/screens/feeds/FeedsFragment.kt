@@ -71,10 +71,6 @@ class FeedsFragment : DaggerFragment() {
             delayedLoading = mHandler!!.postDelayed(mDelayedLoad, 500)
         }
 
-        (parentFragment as PagerFragment).setToolbarClickListener {
-            binding.recyclerView.layoutManager?.scrollToPosition(0)
-        }
-
         val imageLoader = ImageLoader()
 
         val mAdapter = QuickAdapter<Thread>(R.layout.list_item_thread).apply {
@@ -169,6 +165,13 @@ class FeedsFragment : DaggerFragment() {
             mAdapter.setDiffNewData(it.toMutableList())
             Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
         })
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (parentFragment as PagerFragment).setToolbarClickListener {
+            binding.recyclerView.layoutManager?.scrollToPosition(0)
+        }
     }
 
     override fun onPause() {

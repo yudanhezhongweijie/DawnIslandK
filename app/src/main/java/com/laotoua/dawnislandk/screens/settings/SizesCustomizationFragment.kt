@@ -110,24 +110,24 @@ class SizesCustomizationFragment : Fragment() {
         generateSeekBar(
             mainTextSize,
             requireContext().getString(R.string.main_text_size),
-            10
+            20
         ).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress =
                 ThreadCardFactory.mainTextSize.toInt() - 10
             progressContainer.addView(it)
         }
 
-        generateSeekBar(lineHeight, requireContext().getString(R.string.line_height), 20).let {
+        generateSeekBar(lineHeight, requireContext().getString(R.string.line_height), 40).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress = ThreadCardFactory.lineHeight
             progressContainer.addView(it)
         }
 
-        generateSeekBar(segGap, requireContext().getString(R.string.seg_gap), 25).let {
+        generateSeekBar(segGap, requireContext().getString(R.string.seg_gap), 40).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress = ThreadCardFactory.segGap
             progressContainer.addView(it)
         }
 
-        generateSeekBar(letterSpace, requireContext().getString(R.string.letter_space), 17).let {
+        generateSeekBar(letterSpace, requireContext().getString(R.string.letter_space), 40).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress =
                 (ThreadCardFactory.letterSpace * 50f).toInt()
             progressContainer.addView(it)
@@ -140,8 +140,7 @@ class SizesCustomizationFragment : Fragment() {
 
         generateSeekBar(
             cardMarginLeft,
-            requireContext().getString(R.string.card_margin_left),
-            50
+            requireContext().getString(R.string.card_margin_left)
         ).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress = ThreadCardFactory.cardMarginLeft
             progressContainer.addView(it)
@@ -149,8 +148,7 @@ class SizesCustomizationFragment : Fragment() {
 
         generateSeekBar(
             cardMarginRight,
-            requireContext().getString(R.string.card_margin_right),
-            50
+            requireContext().getString(R.string.card_margin_right)
         ).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress = ThreadCardFactory.cardMarginRight
             progressContainer.addView(it)
@@ -158,8 +156,7 @@ class SizesCustomizationFragment : Fragment() {
 
         generateSeekBar(
             headBarMarginTop,
-            requireContext().getString(R.string.head_bar_margin_top),
-            60
+            requireContext().getString(R.string.head_bar_margin_top)
         ).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress = ThreadCardFactory.headBarMarginTop
             progressContainer.addView(it)
@@ -167,8 +164,7 @@ class SizesCustomizationFragment : Fragment() {
 
         generateSeekBar(
             contentMarginTop,
-            requireContext().getString(R.string.content_margin_top),
-            50
+            requireContext().getString(R.string.content_margin_top)
         ).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress = ThreadCardFactory.contentMarginTop
             progressContainer.addView(it)
@@ -176,8 +172,7 @@ class SizesCustomizationFragment : Fragment() {
 
         generateSeekBar(
             contentMarginLeft,
-            requireContext().getString(R.string.content_margin_left),
-            60
+            requireContext().getString(R.string.content_margin_left)
         ).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress = ThreadCardFactory.contentMarginLeft
             progressContainer.addView(it)
@@ -185,8 +180,7 @@ class SizesCustomizationFragment : Fragment() {
 
         generateSeekBar(
             contentMarginRight,
-            requireContext().getString(R.string.content_margin_right),
-            60
+            requireContext().getString(R.string.content_margin_right)
         ).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress = ThreadCardFactory.contentMarginRight
             progressContainer.addView(it)
@@ -194,8 +188,7 @@ class SizesCustomizationFragment : Fragment() {
 
         generateSeekBar(
             contentMarginBottom,
-            requireContext().getString(R.string.content_margin_bottom),
-            70
+            requireContext().getString(R.string.content_margin_bottom)
         ).let {
             it?.findViewWithTag<SeekBar>("SeekBar")?.progress =
                 ThreadCardFactory.contentMarginBottom
@@ -214,7 +207,7 @@ class SizesCustomizationFragment : Fragment() {
             findViewById<Toolbar>(R.id.toolbar).apply {
                 immersiveToolbar()
                 setTitle(R.string.size_customization_settings)
-                subtitle = ""
+                setSubtitle(R.string.adnmb)
                 val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
                 setNavigationIcon(R.drawable.ic_arrow_back_white_24px)

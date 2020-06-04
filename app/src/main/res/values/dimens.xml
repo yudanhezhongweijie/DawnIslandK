@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="dialog_radius">14dp</dimen>
-    <dimen name="vp2_indicator_height">12dp</dimen>
-    <dimen name="vp2_indicator_width">12dp</dimen>
-    <dimen name="vp2_indicator_gap">10dp</dimen>
+    <dimen name="vp2_indicator_height">10dp</dimen>
+    <dimen name="vp2_indicator_width">10dp</dimen>
+    <dimen name="vp2_indicator_gap">8dp</dimen>
 </resources>

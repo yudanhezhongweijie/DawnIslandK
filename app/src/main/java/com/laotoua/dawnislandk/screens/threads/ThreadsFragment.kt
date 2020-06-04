@@ -182,6 +182,9 @@ class ThreadsFragment : DaggerFragment() {
     override fun onResume() {
         super.onResume()
         binding.fabMenu.show()
+        (parentFragment as PagerFragment).setToolbarClickListener {
+            binding.recyclerView.layoutManager?.scrollToPosition(0)
+        }
     }
 
     override fun onPause() {

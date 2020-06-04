@@ -76,10 +76,6 @@ class TrendsFragment : DaggerFragment() {
             }
         }
 
-        (parentFragment as PagerFragment).setToolbarClickListener {
-            binding.recyclerView.layoutManager?.scrollToPosition(0)
-        }
-
         binding.refreshLayout.apply {
             setOnRefreshListener(object : RefreshingListenerAdapter() {
                 override fun onRefreshing() {
@@ -106,6 +102,13 @@ class TrendsFragment : DaggerFragment() {
             mAdapter.setDiffNewData(list.toMutableList())
         })
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (parentFragment as PagerFragment).setToolbarClickListener {
+            binding.recyclerView.layoutManager?.scrollToPosition(0)
+        }
     }
 
     override fun onPause() {

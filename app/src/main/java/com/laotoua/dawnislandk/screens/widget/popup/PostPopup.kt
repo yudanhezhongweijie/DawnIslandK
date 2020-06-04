@@ -4,6 +4,9 @@ import android.Manifest.permission
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.graphics.Color
+import android.graphics.LinearGradient
+import android.graphics.Shader
 import android.net.Uri
 import android.os.Environment
 import android.view.View
@@ -275,6 +278,18 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
                     } else if (checkedId == R.id.luweiStickerColor && isChecked) {
                         luweiStickerAdapter.setDiffNewData(stickersColor)
                     }
+                }
+
+                findViewById<Button>(R.id.luweiStickerColor).apply {
+                    paint.shader = LinearGradient(
+                        0f, 0f, paint.measureText(text.toString()), textSize, intArrayOf(
+                            Color.parseColor("#F97C3C"),
+                            Color.parseColor("#FDB54E"),
+                            Color.parseColor("#64B678"),
+                            Color.parseColor("#478AEA"),
+                            Color.parseColor("#8446CC")
+                        ), null, Shader.TileMode.CLAMP
+                    )
                 }
                 findViewById<RecyclerView>(R.id.luweiStickerRecyclerView).apply {
                     layoutManager = GridLayoutManager(context, 3)

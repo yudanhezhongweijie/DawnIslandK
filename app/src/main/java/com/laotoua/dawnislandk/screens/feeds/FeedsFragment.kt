@@ -13,7 +13,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.Thread
@@ -136,20 +135,10 @@ class FeedsFragment : DaggerFragment() {
             }
         }
 
-        (requireParentFragment() as PagerFragment).showPageIndicator()
         binding.recyclerView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             adapter = mAdapter
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    if (dy > 0) {
-                        (requireParentFragment() as PagerFragment).hidePageIndicator()
-                    } else if (dy < 0) {
-                        (requireParentFragment() as PagerFragment).showPageIndicator()
-                    }
-                }
-            })
         }
 
         binding.refreshLayout.apply {

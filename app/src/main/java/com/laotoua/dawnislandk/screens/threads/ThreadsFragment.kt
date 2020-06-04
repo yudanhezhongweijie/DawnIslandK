@@ -127,7 +127,6 @@ class ThreadsFragment : DaggerFragment() {
             })
         }
 
-        (requireParentFragment() as PagerFragment).showPageIndicator()
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = mAdapter
@@ -138,11 +137,9 @@ class ThreadsFragment : DaggerFragment() {
                         hideMenu()
                         binding.fabMenu.hide()
                         binding.fabMenu.isClickable = false
-                        (requireParentFragment() as PagerFragment).hidePageIndicator()
                     } else if (dy < 0) {
                         binding.fabMenu.show()
                         binding.fabMenu.isClickable = true
-                        (requireParentFragment() as PagerFragment).showPageIndicator()
                     }
                 }
             })

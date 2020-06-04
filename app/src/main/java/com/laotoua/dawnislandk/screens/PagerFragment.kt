@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -45,8 +44,8 @@ class PagerFragment : DaggerFragment() {
             super.onPageSelected(position)
             when (position) {
                 0 -> updateTitle()
-                1 -> setTitle(R.string.trend)
-                2 -> setTitle(R.string.my_feed)
+                1 -> updateTitle(R.string.trend)
+                2 -> updateTitle(R.string.my_feed)
             }
         }
     }
@@ -115,12 +114,14 @@ class PagerFragment : DaggerFragment() {
             findNavController().navigate(action)
         }
 
-        binding.drawerIndicator.setColorFilter(requireContext().getColor(R.color.lime_500))
         binding.pageIndicatorView
             .setSliderColor(
                 requireContext().getColor(R.color.lime_500),
-                requireContext().getColor(R.color.teal_500)
+                requireContext().getColor(R.color.pure_light)
             )
+            .setSliderWidth(requireContext().resources.getDimension(R.dimen.vp2_indicator_width))
+            .setSliderHeight(requireContext().resources.getDimension(R.dimen.vp2_indicator_height))
+            .setSliderGap(requireContext().resources.getDimension(R.dimen.vp2_indicator_gap))
             .setSlideMode(IndicatorSlideMode.WORM)
             .setIndicatorStyle(IndicatorStyle.CIRCLE)
             .setupWithViewPager(binding.viewPager2)
@@ -144,46 +145,21 @@ class PagerFragment : DaggerFragment() {
         Timber.d("Fragment View Destroyed")
     }
 
-    private val fadeOut: Animation by lazyOnMainOnly {
-        AnimationUtils.loadAnimation(
-            requireContext(),
-            R.anim.fade_out
-        )
-    }
-
-    private val fadeIn: Animation by lazyOnMainOnly {
-        AnimationUtils.loadAnimation(
-            requireContext(),
-            R.anim.fade_in
-        )
-    }
-    private var indicatorHidden = false
-    fun hidePageIndicator() {
-        if (!indicatorHidden) {
-            binding.drawerIndicator.startAnimation(fadeOut)
-            binding.pageIndicatorView.startAnimation(fadeOut)
-            binding.drawerIndicator.visibility = View.GONE
-            binding.pageIndicatorView.visibility = View.GONE
-            indicatorHidden = true
-        }
-    }
-
-    fun showPageIndicator() {
-        if (indicatorHidden) {
-            binding.drawerIndicator.startAnimation(fadeIn)
-            binding.pageIndicatorView.startAnimation(fadeIn)
-            binding.drawerIndicator.visibility = View.VISIBLE
-            binding.pageIndicatorView.visibility = View.VISIBLE
-            indicatorHidden = false
-        }
-    }
-
     fun setTitle(resId: Int) {
         binding.toolbar.setTitle(resId)
     }
 
-    fun updateTitle() {
-        binding.toolbar.title = sharedVM.getToolbarTitle()
+    private val slideInLeftAnimation by lazyOnMainOnly {
+        AnimationUtils.loadAnimation(
+            requireContext(),
+            R.anim.slide_in_left
+        )
+    }
+
+    fun updateTitle(resId: Int? = null) {
+        binding.toolbar.startAnimation(slideInLeftAnimation)
+        if (resId != null) binding.toolbar.setTitle(resId)
+        else binding.toolbar.title = sharedVM.getToolbarTitle()
     }
 
     fun setToolbarClickListener(listener: (View) -> Unit) {

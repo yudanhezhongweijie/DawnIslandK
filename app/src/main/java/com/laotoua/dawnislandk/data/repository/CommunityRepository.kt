@@ -7,6 +7,9 @@ import com.laotoua.dawnislandk.data.local.Community
 import com.laotoua.dawnislandk.data.local.dao.CommunityDao
 import com.laotoua.dawnislandk.data.remote.APIErrorDataResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
+import com.laotoua.dawnislandk.util.EventPayload
+import com.laotoua.dawnislandk.util.LoadingStatus
+import com.laotoua.dawnislandk.util.SingleLiveEvent
 import kotlinx.coroutines.Dispatchers
 import timber.log.Timber
 import javax.inject.Inject
@@ -24,12 +27,18 @@ class CommunityRepository @Inject constructor(
         matchRemoteData(local)
     }
 
-    private val mErrorMsg = MutableLiveData<String>()
-    val errorMsg: LiveData<String> get() = mErrorMsg
+    private val _loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
+    val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>> get() = _loadingStatus
 
     private suspend fun getRemoteData(): List<Community> {
+        _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.LOADING))
         webService.getCommunities().run {
-            if (this is APIErrorDataResponse) mErrorMsg.postValue(message)
+            if (this is APIErrorDataResponse) _loadingStatus.postValue(
+                SingleLiveEvent.create(
+                    LoadingStatus.FAILED,
+                    "无法读取板块列表...\n${message}"
+                )
+            )
             return data ?: emptyList()
         }
     }
@@ -43,6 +52,7 @@ class CommunityRepository @Inject constructor(
             Timber.d("Remote data differs from local data or forced refresh. Updating...")
             dao.insertAll(remote)
         }
+        _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))
     }
 
     suspend fun refresh() {

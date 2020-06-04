@@ -13,24 +13,18 @@ object ToolBar {
         window.statusBarColor = resources.getColor(R.color.colorPrimary, null)
     }
 
-    private var topInset: Int = 0
-
+    // add status bar's height to toolbar content margin
     fun Toolbar.immersiveToolbar(): Toolbar = apply {
-        setMarginTop(topInset)
+        setOnApplyWindowInsetsListener { _, insets ->
+            setMarginTop(insets.systemWindowInsetTop)
+            insets.consumeSystemWindowInsets()
+        }
     }
 
+    // expand toolbar to status bar
     fun Activity.immersiveToolbarInitialization() = apply {
-        window.decorView.apply {
-            systemUiVisibility =
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-            /** *ONLY* compute insets on the based activity, children should only be reusing the attribute
-             *
-             */
-            setOnApplyWindowInsetsListener { _, insets ->
-                topInset = insets.systemWindowInsetTop
-                insets.consumeSystemWindowInsets()
-            }
-        }
+        window.decorView.systemUiVisibility =
+            View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
     }
 
     private fun View.setMarginTop(value: Int) = updateLayoutParams<ViewGroup.MarginLayoutParams> {

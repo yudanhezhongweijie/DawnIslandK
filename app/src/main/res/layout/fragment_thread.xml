@@ -6,21 +6,10 @@
     android:layout_height="match_parent"
     tools:context=".screens.threads.ThreadsFragment">
 
-    <include
-        android:id="@+id/toolbarLayout"
-        layout="@layout/toolbar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <me.dkzwm.widget.srl.MaterialSmoothRefreshLayout
         android:id="@+id/refreshLayout"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbarLayout">
+        android:layout_height="match_parent">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
@@ -28,19 +17,6 @@
             android:layout_height="match_parent"
             android:scrollbars="vertical" />
     </me.dkzwm.widget.srl.MaterialSmoothRefreshLayout>
-
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/setting"
-        style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:text="@string/settings"
-        android:visibility="gone"
-        app:icon="@drawable/ic_settings_black_48px"
-        app:layout_constraintBottom_toTopOf="@+id/post"
-        app:layout_constraintEnd_toEndOf="parent" />
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/post"

@@ -16,8 +16,11 @@ class SharedViewModel : ViewModel() {
 
     private var forumNameMapping = mapOf<String, String>()
 
+    private var toolbarTitle = "A岛"
+
     fun setForum(f: Forum) {
         Timber.d("Setting forum to id: ${f.id}")
+        toolbarTitle = "A岛 • ${forumNameMapping[f.id]}"
         _selectedForumId.value = f.id
     }
 
@@ -36,6 +39,8 @@ class SharedViewModel : ViewModel() {
     fun getForumDisplayName(id: String): String = forumNameMapping[id] ?: ""
 
     fun getSelectedThreadForumName(): String = getForumDisplayName(selectedThreadFid)
+
+    fun getToolbarTitle(): String = toolbarTitle
 
     fun getForumIdByName(name: String): String {
         return forumNameMapping.filterValues { it == name }.keys.first()

@@ -6,8 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils.loadAnimation
 import android.widget.ImageView
-import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -23,7 +21,6 @@ import com.laotoua.dawnislandk.screens.PagerFragmentDirections
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
-import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widget.popup.ImageLoader
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.screens.widget.popup.PostPopup
@@ -58,20 +55,11 @@ class ThreadsFragment : DaggerFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.toolbarLayout.toolbar.apply {
-            immersiveToolbar()
-            setSubtitle(R.string.adnmb)
-            val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-            setNavigationIcon(R.drawable.ic_menu_white_24px)
-            setNavigationOnClickListener {
-                drawerLayout.openDrawer(GravityCompat.START)
-            }
 
-            setOnClickListener {
-                binding.recyclerView.layoutManager?.scrollToPosition(0)
-            }
+        (parentFragment as PagerFragment).setToolbarClickListener {
+            binding.recyclerView.layoutManager?.scrollToPosition(0)
         }
+
 
         // initial load
         if (viewModel.threads.value.isNullOrEmpty()) {
@@ -177,23 +165,11 @@ class ThreadsFragment : DaggerFragment() {
                 mAdapter.setList(emptyList())
             }
             viewModel.setForum(it)
-            updateTitle(it)
             hideMenu()
         })
 
         binding.fabMenu.setOnClickListener {
             toggleMenu()
-        }
-
-        binding.setting.setOnClickListener {
-            hideMenu()
-            /**
-             * navigation during scroll will crash the app
-             */
-            binding.recyclerView.stopScroll()
-            val action =
-                PagerFragmentDirections.actionPagerFragmentToSettingsFragment()
-            findNavController().navigate(action)
         }
 
         binding.post.setOnClickListener {
@@ -229,7 +205,6 @@ class ThreadsFragment : DaggerFragment() {
             R.anim.rotate_backward
         )
         binding.fabMenu.startAnimation(rotateBackward)
-        binding.setting.hide()
         binding.post.hide()
         isFabOpen = false
     }
@@ -241,7 +216,6 @@ class ThreadsFragment : DaggerFragment() {
         )
         binding.fabMenu.startAnimation(rotateForward)
 
-        binding.setting.show()
         binding.post.show()
         isFabOpen = true
     }
@@ -252,10 +226,6 @@ class ThreadsFragment : DaggerFragment() {
         } else {
             showMenu()
         }
-    }
-
-    private fun updateTitle(fid: String) {
-        binding.toolbarLayout.toolbar.title = "A岛 • ${sharedVM.getForumDisplayName(fid)}"
     }
 }
 

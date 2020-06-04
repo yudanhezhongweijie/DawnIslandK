@@ -7,8 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -25,7 +23,6 @@ import com.laotoua.dawnislandk.screens.PagerFragmentDirections
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
-import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widget.popup.ImageLoader
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.util.LoadingStatus
@@ -75,20 +72,8 @@ class FeedsFragment : DaggerFragment() {
             delayedLoading = mHandler!!.postDelayed(mDelayedLoad, 500)
         }
 
-        binding.toolbarLayout.toolbar.apply {
-            immersiveToolbar()
-            setTitle(R.string.my_feed)
-            setSubtitle(R.string.adnmb)
-            val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-            setNavigationIcon(R.drawable.ic_menu_white_24px)
-            setNavigationOnClickListener {
-                drawerLayout.openDrawer(GravityCompat.START)
-            }
-
-            setOnClickListener {
-                binding.recyclerView.layoutManager?.scrollToPosition(0)
-            }
+        (parentFragment as PagerFragment).setToolbarClickListener {
+            binding.recyclerView.layoutManager?.scrollToPosition(0)
         }
 
         val imageLoader = ImageLoader()
@@ -170,7 +155,6 @@ class FeedsFragment : DaggerFragment() {
         binding.refreshLayout.apply {
             setOnRefreshListener(object : RefreshingListenerAdapter() {
                 override fun onRefreshing() {
-                    mAdapter.setList(emptyList())
                     viewModel.refresh()
                 }
             })

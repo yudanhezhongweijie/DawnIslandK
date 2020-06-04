@@ -171,10 +171,10 @@ class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterP
             movementMethod = LinkMovementMethod.getInstance()
             text = transformContent(
                 quote!!.content,
-                DawnApp.applicationDataStore.mLineHeight,
-                DawnApp.applicationDataStore.mSegGap, referenceClickListener
+                DawnApp.applicationDataStore.lineHeight,
+                DawnApp.applicationDataStore.segGap, referenceClickListener
             )
-            letterSpacing = DawnApp.applicationDataStore.mLetterSpace
+            letterSpacing = DawnApp.applicationDataStore.letterSpace
         }
     }
 

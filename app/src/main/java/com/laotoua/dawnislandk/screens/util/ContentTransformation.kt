@@ -63,8 +63,8 @@ object ContentTransformation {
 
     fun transformContent(
         content: String,
-        lineHeight: Int = DawnApp.applicationDataStore.mLineHeight,
-        segGap: Int = DawnApp.applicationDataStore.mLineHeight,
+        lineHeight: Int = DawnApp.applicationDataStore.lineHeight,
+        segGap: Int = DawnApp.applicationDataStore.lineHeight,
         referenceClickListener: ((String) -> Unit)? = null
     ): SpannableStringBuilder {
         return SpannableStringBuilder(htmlToSpanned(content)).apply {

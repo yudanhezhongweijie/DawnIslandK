@@ -18,7 +18,11 @@ object ThreadCardFactory {
     private var defaultCardViewMarginBottom = 10
 
     private val mmkv = DawnApp.applicationDataStore.mmkv
-    val mainTextSize by lazyOnMainOnly { mmkv.getFloat(Constants.MAIN_TEXT_SIZE, 15f) }
+    val mainTextSize = DawnApp.applicationDataStore.textSize
+    val lineHeight = DawnApp.applicationDataStore.lineHeight
+    val letterSpace = DawnApp.applicationDataStore.letterSpace
+    val segGap = DawnApp.applicationDataStore.segGap
+
     val cardRadius by lazyOnMainOnly {
         mmkv.getFloat(
             Constants.CARD_RADIUS,
@@ -85,30 +89,21 @@ object ThreadCardFactory {
             defaultCardViewPadding
         )
     }
-    val lineHeight by lazyOnMainOnly { mmkv.getInt(Constants.LINE_HEIGHT, 10) }
-    val letterSpace by lazyOnMainOnly { mmkv.getFloat(Constants.LETTER_SPACE, 15f) }
-    val segGap by lazyOnMainOnly { mmkv.getInt(Constants.SEG_GAP, 10) }
 
     fun applySettings(cardView: MaterialCardView) {
         val marginLayoutParams = (ViewGroup.MarginLayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         )).apply {
-            marginStart =
-                cardMarginLeft
-            marginEnd =
-                cardMarginRight
-            topMargin =
-                cardMarginTop
-            bottomMargin =
-                cardMarginBottom
+            marginStart = cardMarginLeft
+            marginEnd = cardMarginRight
+            topMargin = cardMarginTop
+            bottomMargin = cardMarginBottom
         }
         cardView.layoutParams = marginLayoutParams
 
-        cardView.radius =
-            cardRadius
-        cardView.elevation =
-            cardElevation
+        cardView.radius = cardRadius
+        cardView.elevation = cardElevation
         val threadContainer = cardView.findViewById<ConstraintLayout>(R.id.cardContainer)
         threadContainer.setPadding(
             contentMarginLeft,
@@ -116,17 +111,11 @@ object ThreadCardFactory {
             contentMarginRight,
             contentMarginBottom
         )
-
         val threadContent = cardView.findViewById<TextView>(R.id.content)
         val contentLayoutParam = threadContent.layoutParams as ConstraintLayout.LayoutParams
-
-        contentLayoutParam.topMargin =
-            contentMarginTop
+        contentLayoutParam.topMargin = contentMarginTop
         threadContent.layoutParams = contentLayoutParam
-        threadContent.textSize =
-            mainTextSize
-
-        threadContent.letterSpacing =
-            letterSpace
+        threadContent.textSize = mainTextSize
+        threadContent.letterSpacing = letterSpace
     }
 }

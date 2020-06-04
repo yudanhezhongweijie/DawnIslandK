@@ -18,17 +18,23 @@ class ApplicationDataStore @Inject constructor(private val cookieDao: CookieDao)
 
     val mmkv: MMKV by lazyOnMainOnly { MMKV.defaultMMKV() }
 
-    val mLetterSpace by lazyOnMainOnly { mmkv.getFloat(Constants.LETTER_SPACE, 0f) }
-    val mLineHeight by lazyOnMainOnly { mmkv.getInt(Constants.LINE_HEIGHT, 0) }
-    val mSegGap by lazyOnMainOnly { mmkv.getInt(Constants.SEG_GAP, 0) }
-    val mTextSize by lazyOnMainOnly { mmkv.getFloat(Constants.MAIN_TEXT_SIZE, 15f) }
+    // View settings
+    val letterSpace by lazyOnMainOnly { mmkv.getFloat(Constants.LETTER_SPACE, 0f) }
+    val lineHeight by lazyOnMainOnly { mmkv.getInt(Constants.LINE_HEIGHT, 0) }
+    val segGap by lazyOnMainOnly { mmkv.getInt(Constants.SEG_GAP, 0) }
+    val textSize by lazyOnMainOnly { mmkv.getFloat(Constants.MAIN_TEXT_SIZE, 15f) }
+
+    // adapter settings
     val animationStatus by lazyOnMainOnly { mmkv.getBoolean(Constants.ANIMATION, false) }
+
+    // Reading settings
     val readingProgressStatus by lazyOnMainOnly {
         mmkv.getBoolean(
             Constants.READING_PROGRESS,
             false
         )
     }
+
 
     fun initializeFeedId() {
         mFeedId = mmkv.getString(Constants.FEED_ID, null)

@@ -270,8 +270,8 @@ class QuickAdapter<T>(private val layoutResId: Int) :
     private fun View.applyTextSizeAndLetterSpacing(clickable: Boolean = false) = apply {
         findViewById<TextView>(R.id.content).apply {
             if (clickable) movementMethod = LinkMovementMethod.getInstance()
-            textSize = DawnApp.applicationDataStore.mTextSize
-            letterSpacing = DawnApp.applicationDataStore.mLetterSpace
+            textSize = DawnApp.applicationDataStore.textSize
+            letterSpacing = DawnApp.applicationDataStore.letterSpace
 
         }
     }

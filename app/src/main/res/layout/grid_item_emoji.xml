@@ -10,6 +10,7 @@
     android:layout_marginBottom="4dp"
     android:background="?attr/selectableItemBackground"
     android:clickable="true"
+    android:focusable="true"
     android:fontFamily="@font/missing_characters"
     android:gravity="center"
     android:padding="8dp"

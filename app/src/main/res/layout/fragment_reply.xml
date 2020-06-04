@@ -24,7 +24,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/appbar" />
+            app:srcCompat="@drawable/appbar"
+            tools:ignore="ContentDescription" />
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
@@ -64,7 +65,8 @@
             android:tint="@color/pure_light"
             app:layout_constraintBottom_toBottomOf="@id/toolbar"
             app:layout_constraintEnd_toEndOf="@id/toolbar"
-            app:layout_constraintTop_toTopOf="@id/toolbar" />
+            app:layout_constraintTop_toTopOf="@id/toolbar"
+            tools:ignore="ContentDescription" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

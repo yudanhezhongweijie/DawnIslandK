@@ -88,10 +88,6 @@ class ReplysFragment : DaggerFragment() {
             )
         }
 
-        binding.filter.setOnClickListener {
-            Timber.d("clicked on filter")
-        }
-
         val imageLoader = ImageLoader()
         val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext()) }
         val jumpPopup: JumpPopup by lazyOnMainOnly { JumpPopup(requireContext()) }
@@ -115,32 +111,38 @@ class ReplysFragment : DaggerFragment() {
                 hideMenu()
             }
 
-            // image
             addChildClickViewIds(
                 R.id.attachedImage,
-                R.id.refId
+                R.id.refId,
+                R.id.expandSummary
             )
 
             setOnItemChildClickListener { _, view, position ->
-                if (view.id == R.id.attachedImage) {
-                    hideMenu()
-                    Timber.i("clicked on image at $position")
+                when (view.id) {
+                    R.id.attachedImage -> {
+                        hideMenu()
+                        val url = getItem(position).getImgUrl()
+                        // TODO support multiple image
+                        val viewerPopup =
+                            ImageViewerPopup(this@ReplysFragment, requireContext(), url)
+                        viewerPopup.setXPopupImageLoader(imageLoader)
+                        viewerPopup.setSingleSrcView(view as ImageView?, url)
 
-                    val url = getItem(position).getImgUrl()
-                    // TODO support multiple image
-                    val viewerPopup = ImageViewerPopup(this@ReplysFragment, requireContext(), url)
-                    viewerPopup.setXPopupImageLoader(imageLoader)
-                    viewerPopup.setSingleSrcView(view as ImageView?, url)
-
-                    XPopup.Builder(context)
-                        .asCustom(viewerPopup)
-                        .show()
-                } else if (view.id == R.id.refId) {
-                    val content = ">>No.${(view as TextView).text}\n"
-                    postPopup.setupAndShow(
-                        viewModel.currentThreadId,
-                        quote = content
-                    )
+                        XPopup.Builder(context)
+                            .asCustom(viewerPopup)
+                            .show()
+                    }
+                    R.id.refId -> {
+                        val content = ">>No.${(view as TextView).text}\n"
+                        postPopup.setupAndShow(
+                            viewModel.currentThreadId,
+                            quote = content
+                        )
+                    }
+                    R.id.expandSummary -> {
+                        data[position].visible = true
+                        notifyItemChanged(position)
+                    }
                 }
             }
 
@@ -205,6 +207,7 @@ class ReplysFragment : DaggerFragment() {
         })
 
         viewModel.replys.observe(viewLifecycleOwner, Observer {
+            if (it.isEmpty()) return@Observer
             if (mAdapter.data.isEmpty()) updateCurrentPage(it.first().page)
             mAdapter.setDiffNewData(it.toMutableList())
             mAdapter.setPo(viewModel.po)
@@ -216,6 +219,21 @@ class ReplysFragment : DaggerFragment() {
             updateTitle()
             updateSubtitle()
         })
+
+        binding.filter.setOnClickListener {
+            binding.filter.apply {
+                isActivated = isActivated.not()
+                if (!isActivated) {
+                    setImageResource(R.drawable.ic_filter_list_24px)
+                    viewModel.clearFilter()
+                    Toast.makeText(context, R.string.reply_filter_off, Toast.LENGTH_SHORT).show()
+                } else {
+                    setImageResource(R.drawable.ic_clear_all_24px)
+                    viewModel.onlyPo()
+                    Toast.makeText(context, R.string.reply_filter_on, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
 
         binding.fabMenu.setOnClickListener {
             toggleMenu()

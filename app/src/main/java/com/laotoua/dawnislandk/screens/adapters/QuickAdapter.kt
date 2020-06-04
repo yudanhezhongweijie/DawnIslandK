@@ -118,7 +118,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
         convertTimeStamp(item.now)
         convertForumAndReply(item.replyCount, forumDisplayName)
         convertSage(item.sage)
-        convertImage(item.img, item.ext)
+        convertImage(item.getImgUrl())
         convertContent(item.content)
     }
 
@@ -135,10 +135,11 @@ class QuickAdapter<T>(private val layoutResId: Int) :
         convertUserId(item.userid, item.admin, po)
         convertTimeStamp(item.now)
         convertSage(item.sage)
-        convertImage(item.img, item.ext)
-        convertContent(item.content, referenceClickListener)
         convertRefId(item.id)
-        convertTitleAndName(item.title, item.name)
+        convertImage(item.getImgUrl(), item.visible)
+        convertContent(item.content, referenceClickListener, item.visible)
+        convertTitleAndName(item.getTitleAndName(), item.visible)
+        convertExpandSummary(item.visible)
     }
 
     private fun BaseViewHolder.convertReplyWithPayload(
@@ -146,7 +147,10 @@ class QuickAdapter<T>(private val layoutResId: Int) :
     ) {
         convertTimeStamp(payload.now)
         convertSage(payload.sage)
-        convertContent(payload.content, referenceClickListener)
+        convertContent(payload.content, referenceClickListener, payload.visible)
+        convertImage(payload.imgUrl, payload.visible)
+        convertTitleAndName(payload.titleAndName, payload.visible)
+        convertExpandSummary(payload.visible)
     }
 
     private fun BaseViewHolder.convertTrend(item: Trend) {
@@ -182,7 +186,10 @@ class QuickAdapter<T>(private val layoutResId: Int) :
         setText(R.id.timestamp, ContentTransformation.transformTime(now))
     }
 
-    private fun BaseViewHolder.convertForumAndReply(replyCount: String, forumDisplayName: String) {
+    private fun BaseViewHolder.convertForumAndReply(
+        replyCount: String,
+        forumDisplayName: String
+    ) {
         val suffix = if (replyCount.isNotBlank()) " • $replyCount" else ""
         val spannableString = SpannableString(forumDisplayName + suffix)
         spannableString.setSpan(
@@ -201,13 +208,8 @@ class QuickAdapter<T>(private val layoutResId: Int) :
         setText(R.id.refId, id)
     }
 
-    private fun BaseViewHolder.convertTitleAndName(title: String?, name: String?) {
-        val titleAndName =
-            ContentTransformation.transformTitleAndName(
-                title,
-                name
-            )
-        if (titleAndName.isNotBlank()) {
+    private fun BaseViewHolder.convertTitleAndName(titleAndName: String, visible: Boolean = true) {
+        if (titleAndName.isNotBlank() && visible) {
             setText(R.id.titleAndName, titleAndName)
             setVisible(R.id.titleAndName, true)
         } else {
@@ -223,10 +225,10 @@ class QuickAdapter<T>(private val layoutResId: Int) :
         }
     }
 
-    private fun BaseViewHolder.convertImage(img: String, ext: String) {
-        if (img.isNotBlank()) {
+    private fun BaseViewHolder.convertImage(imgUrl: String, visible: Boolean = true) {
+        if (imgUrl.isNotBlank() && visible) {
             GlideApp.with(context)
-                .load(Constants.thumbCDN + img + ext)
+                .load(Constants.thumbCDN + imgUrl)
 //                .override(400, 400)
                 .fitCenter()
                 .into(getView(R.id.attachedImage))
@@ -238,17 +240,30 @@ class QuickAdapter<T>(private val layoutResId: Int) :
 
     private fun BaseViewHolder.convertContent(
         content: String,
-        referenceClickListener: ((String) -> Unit)? = null
+        referenceClickListener: ((String) -> Unit)? = null,
+        visible: Boolean = true
     ) {
         val res = ContentTransformation.transformContent(
             content = content,
             referenceClickListener = referenceClickListener
         )
+        if (res.isNotBlank()) setText(R.id.content, res)
+        if (res.isBlank() || !visible) setGone(R.id.content, true)
+        else setVisible(R.id.content, true)
+    }
 
-        if (res.isEmpty()) setGone(R.id.content, true)
-        else {
-            setText(R.id.content, res)
-            setVisible(R.id.content, true)
+    private fun BaseViewHolder.convertExpandSummary(visible: Boolean) {
+        if (!visible) {
+            setText(
+                R.id.expandSummary,
+                context.resources.getString(
+                    R.string.checked_filtered_reply,
+                    getView<TextView>(R.id.content).text.count()
+                )
+            )
+            setVisible(R.id.expandSummary, true)
+        } else {
+            setGone(R.id.expandSummary, true)
         }
     }
 
@@ -266,6 +281,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
             return when {
                 (oldItem is Thread && newItem is Thread) -> oldItem.id == newItem.id && oldItem.fid == newItem.fid
                 (oldItem is Reply && newItem is Reply) -> oldItem.id == newItem.id && oldItem.content == newItem.content
+                        && oldItem.visible == newItem.visible
                 (oldItem is Trend && newItem is Trend) -> oldItem.id == newItem.id
                 else -> throw Exception("Unhandled type comparison")
             }
@@ -280,10 +296,11 @@ class QuickAdapter<T>(private val layoutResId: Int) :
                             && oldItem.content == newItem.content
                 }
                 (oldItem is Reply && newItem is Reply) -> {
-                    if (!oldItem.isNotAd() && !newItem.isNotAd()) true
+                    if (oldItem.isAd() && newItem.isAd()) true
                     else oldItem.now == newItem.now
                             && oldItem.sage == newItem.sage
                             && oldItem.content == newItem.content
+                            && oldItem.visible == newItem.visible
                 }
                 (oldItem is Trend && newItem is Trend) -> true
                 else -> throw Exception("Unhandled type comparison")
@@ -301,7 +318,14 @@ class QuickAdapter<T>(private val layoutResId: Int) :
                     )
                 }
                 (oldItem is Reply && newItem is Reply) -> {
-                    Payload.ReplyPayload(newItem.now, newItem.content, newItem.sage)
+                    Payload.ReplyPayload(
+                        newItem.now,
+                        newItem.content,
+                        newItem.sage,
+                        newItem.visible,
+                        newItem.getImgUrl(),
+                        newItem.getTitleAndName()
+                    )
                 }
                 (oldItem is Trend && newItem is Trend) -> {
                     null
@@ -322,7 +346,10 @@ class QuickAdapter<T>(private val layoutResId: Int) :
         class ReplyPayload(
             val now: String,
             val content: String,
-            val sage: String
+            val sage: String,
+            val visible: Boolean,
+            val imgUrl: String,
+            val titleAndName: String
         )
     }
 }

@@ -16,7 +16,6 @@ import com.laotoua.dawnislandk.data.repository.DataResource
 import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformContent
 import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformCookie
 import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformTime
-import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformTitleAndName
 import com.laotoua.dawnislandk.screens.widget.popup.ImageLoader
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.util.Constants
@@ -115,11 +114,7 @@ class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterP
             }
         }
 
-        val titleAndName =
-            transformTitleAndName(
-                quote!!.title,
-                quote!!.name
-            )
+        val titleAndName = quote!!.getTitleAndName()
         findViewById<TextView>(R.id.titleAndName).run {
             if (titleAndName != "") {
                 text = titleAndName

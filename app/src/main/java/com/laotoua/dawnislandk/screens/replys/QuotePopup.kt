@@ -174,6 +174,7 @@ class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterP
                 DawnApp.applicationDataStore.lineHeight,
                 DawnApp.applicationDataStore.segGap, referenceClickListener
             )
+            textSize = DawnApp.applicationDataStore.textSize
             letterSpacing = DawnApp.applicationDataStore.letterSpace
         }
     }

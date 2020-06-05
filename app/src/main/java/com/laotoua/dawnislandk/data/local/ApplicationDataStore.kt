@@ -11,7 +11,7 @@ class ApplicationDataStore @Inject constructor(private val cookieDao: CookieDao)
 
     private var mCookies = mutableListOf<Cookie>()
     val cookies get() = mCookies
-    val firstCookieHash = cookies.firstOrNull()?.cookieHash
+    val firstCookieHash get() = cookies.firstOrNull()?.cookieHash
 
     private var mFeedId: String? = null
     val feedId get() = mFeedId!!

@@ -106,7 +106,7 @@ class SettingsFragment : Fragment() {
         binding.toolbarLayout.toolbar.apply {
             immersiveToolbar()
             setTitle(R.string.settings)
-            subtitle = ""
+            setSubtitle(R.string.adnmb)
             val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             setNavigationIcon(R.drawable.ic_arrow_back_white_24px)

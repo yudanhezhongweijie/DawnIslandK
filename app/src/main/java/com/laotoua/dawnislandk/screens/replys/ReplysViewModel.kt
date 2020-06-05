@@ -15,7 +15,7 @@ import kotlin.collections.set
 
 class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository) : ViewModel() {
     val currentThreadId: String? get() = replyRepo.currentThreadId
-    val po get() = replyRepo.currentThread?.value?.userid ?: ""
+    val po get() = replyRepo.po
 
     private val replyList = mutableListOf<Reply>()
 
@@ -32,7 +32,7 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
         get() = replyRepo.addFeedResponse
 
     fun setThreadId(id: String) {
-        if (id != currentThreadId) clearCache()
+        if (id != currentThreadId) clearCache(true)
         replyRepo.setThreadId(id)
         viewModelScope.launch { if (replyList.isEmpty()) loadReadingProgress(id) }
     }
@@ -111,11 +111,11 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
         replyRepo.setLoadingStatus(LoadingStatus.SUCCESS)
     }
 
-    private fun clearCache() {
+    private fun clearCache(clearFilter: Boolean) {
         listeningPages.values.map { replys.removeSource(it) }
         listeningPages.clear()
         replyList.clear()
-        clearFilter()
+        if (clearFilter) clearFilter()
     }
 
     fun onlyPo() {
@@ -144,7 +144,7 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
 
     fun jumpTo(page: Int) {
         Timber.i("Jumping to page $page... Clearing old data")
-        replyList.clear()
+        clearCache(false)
         listenToNewPage(page, filterIds)
     }
 

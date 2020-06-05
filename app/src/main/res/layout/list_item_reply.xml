@@ -58,12 +58,11 @@
         android:id="@+id/timestamp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:text="@string/sample_timestamp_plain"
         android:textAppearance="@style/ContentBarText"
         android:textSize="14sp"
-        app:layout_constraintEnd_toStartOf="@+id/numberPrefix"
-        app:layout_constraintStart_toEndOf="@id/userId"
+        app:layout_constraintEnd_toEndOf="@id/refId"
+        app:layout_constraintStart_toStartOf="@id/userId"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView

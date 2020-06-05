@@ -38,7 +38,7 @@ class ReplyRepository @Inject constructor(
     private val replyMap = sortedMapOf<Int, LiveData<List<Reply>>>()
     private val adMap = sortedMapOf<Int, Reply>()
     private var maxReply = 0
-
+    var po = ""
     val maxPage get() = 1.coerceAtLeast(kotlin.math.ceil(maxReply.toDouble() / 19).toInt())
     val loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
     val addFeedResponse = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
@@ -67,10 +67,12 @@ class ReplyRepository @Inject constructor(
     }
 
     suspend fun getReadingProgress(id: String): Int =
-        if (DawnApp.applicationDataStore.readingProgressStatus)
-            threadDao.findThreadReadingProgressByIdSync(id) ?: 1
-        else 1
-
+        if (DawnApp.applicationDataStore.readingProgressStatus) {
+            threadDao.findThreadByIdSync(id)?.let {
+                po = it.userid
+                it.readingProgress
+            } ?: 1
+        } else 1
 
     suspend fun saveReadingProgress(progress: Int) {
         if (currentThread?.value == null || !DawnApp.applicationDataStore.readingProgressStatus) return
@@ -123,6 +125,7 @@ class ReplyRepository @Inject constructor(
                 // catch pending value (null DB query result)
                 if (it == null) return@addSource
                 if (it.replyCount.toInt() > maxReply) maxReply = it.replyCount.toInt()
+                po = it.userid
                 header = it.toReply()
                 // wait for other source finish loading and set together
                 page?.let { list -> if (list.isNotEmpty()) value = listOf(header!!).plus(list) }

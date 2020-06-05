@@ -58,7 +58,7 @@ class ReplysFragment : DaggerFragment() {
     private var isFabOpen = false
 
     // last visible item indicates the current page, uses for remembering last read page
-    private var currentPage = 1
+    private var currentPage = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -189,12 +189,7 @@ class ReplysFragment : DaggerFragment() {
 
                     val lastCompletelyVisiblePos = llm.findLastVisibleItemPosition()
                     if (lastCompletelyVisiblePos < mAdapter.data.lastIndex) {
-                        mAdapter.getItem(lastCompletelyVisiblePos).page.run {
-                            if (this != currentPage) {
-                                viewModel.saveReadingProgress(this)
-                                updateCurrentPage(this)
-                            }
-                        }
+                        updateCurrentPage(mAdapter.getItem(lastCompletelyVisiblePos).page)
                     }
                 }
             })
@@ -226,10 +221,21 @@ class ReplysFragment : DaggerFragment() {
                 if (!isActivated) {
                     setImageResource(R.drawable.ic_filter_list_24px)
                     viewModel.clearFilter()
+                    (binding.recyclerView.layoutManager as LinearLayoutManager).run {
+                        val startPos = findFirstVisibleItemPosition()
+                        val endPos = findLastVisibleItemPosition()
+                        mAdapter.notifyItemRangeChanged(startPos, endPos - startPos)
+                    }
                     Toast.makeText(context, R.string.reply_filter_off, Toast.LENGTH_SHORT).show()
                 } else {
                     setImageResource(R.drawable.ic_clear_all_24px)
                     viewModel.onlyPo()
+                    (binding.recyclerView.layoutManager as LinearLayoutManager).run {
+                        val startPos = findFirstVisibleItemPosition()
+                        val endPos = findLastVisibleItemPosition()
+                        mAdapter.notifyItemRangeChanged(startPos, endPos - startPos)
+                    }
+
                     Toast.makeText(context, R.string.reply_filter_on, Toast.LENGTH_SHORT).show()
                 }
             }
@@ -254,7 +260,6 @@ class ReplysFragment : DaggerFragment() {
             }
         }
 
-
         binding.jump.setOnClickListener {
             hideMenu()
             val page = getCurrentPage(mAdapter)
@@ -270,6 +275,7 @@ class ReplysFragment : DaggerFragment() {
                 .dismissWith {
                     if (jumpPopup.submit) {
                         binding.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
+                        mAdapter.setList(emptyList())
                         Timber.i("Jumping to ${jumpPopup.targetPage}...")
                         viewModel.jumpTo(jumpPopup.targetPage)
                     }
@@ -361,10 +367,13 @@ class ReplysFragment : DaggerFragment() {
     }
 
     private fun updateCurrentPage(page: Int) {
-        binding.pageCounter.text = page.toString().toSpannable().apply {
-            setSpan(UnderlineSpan(), 0, this.length, 0)
-        }
+        if (page != currentPage) {
+            viewModel.saveReadingProgress(page)
+            binding.pageCounter.text = page.toString().toSpannable().apply {
+                setSpan(UnderlineSpan(), 0, this.length, 0)
+            }
 
-        currentPage = page
+            currentPage = page
+        }
     }
 }

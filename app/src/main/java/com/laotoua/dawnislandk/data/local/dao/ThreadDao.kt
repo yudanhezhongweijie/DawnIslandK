@@ -14,8 +14,8 @@ interface ThreadDao {
     @Query("SELECT * FROM Thread WHERE id=:id")
     fun findThreadById(id: String): LiveData<Thread>
 
-    @Query("SELECT readingProgress FROM Thread WHERE id=:id")
-    suspend fun findThreadReadingProgressByIdSync(id: String): Int?
+    @Query("SELECT * FROM Thread WHERE id=:id")
+    suspend fun findThreadByIdSync(id: String): Thread?
 
     fun findDistinctThreadById(id: String): LiveData<Thread> =
         findThreadById(id).distinctUntilChanged()

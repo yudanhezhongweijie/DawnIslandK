@@ -60,7 +60,6 @@ class ThreadsFragment : DaggerFragment() {
             binding.recyclerView.layoutManager?.scrollToPosition(0)
         }
 
-
         // initial load
         if (viewModel.threads.value.isNullOrEmpty()) {
             binding.refreshLayout.autoRefresh(
@@ -112,16 +111,13 @@ class ThreadsFragment : DaggerFragment() {
             }
 
             loadMoreModule.setOnLoadMoreListener {
-                Timber.i("Fetching new data...")
                 viewModel.getThreads()
-
             }
         }
 
         binding.refreshLayout.apply {
             setOnRefreshListener(object : RefreshingListenerAdapter() {
                 override fun onRefreshing() {
-                    mAdapter.setList(emptyList())
                     viewModel.refresh()
                 }
             })

@@ -20,8 +20,6 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--printusage outputs/mapping/release/usage.txt
-
 # xPopup
 #-dontwarn com.lxj.xpopup.widget.**
 #-keep class com.lxj.xpopup.widget.**{*;}
@@ -30,10 +28,6 @@
 -keepnames class androidx.navigation.fragment.NavHostFragment
 
 ### moshi
--keep class kotlin.reflect.jvm.internal.impl.builtins.BuiltInsLoaderImpl
--keepclassmembers class kotlin.Metadata {
-    public <methods>;
-}
 # JSR 305 annotations are for embedding nullability information.
 -dontwarn javax.annotation.**
 
@@ -50,5 +44,11 @@
     <fields>;
     **[] values();
 }
+-keep class kotlin.reflect.jvm.internal.impl.builtins.BuiltInsLoaderImpl
+
+-keepclassmembers class kotlin.Metadata {
+    public <methods>;
+}
+### moshi
 
 

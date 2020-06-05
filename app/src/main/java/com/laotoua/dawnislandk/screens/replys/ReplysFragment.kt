@@ -219,24 +219,16 @@ class ReplysFragment : DaggerFragment() {
             binding.filter.apply {
                 isActivated = isActivated.not()
                 if (!isActivated) {
-                    setImageResource(R.drawable.ic_filter_list_24px)
                     viewModel.clearFilter()
-                    (binding.recyclerView.layoutManager as LinearLayoutManager).run {
-                        val startPos = findFirstVisibleItemPosition()
-                        val endPos = findLastVisibleItemPosition()
-                        mAdapter.notifyItemRangeChanged(startPos, endPos - startPos)
-                    }
                     Toast.makeText(context, R.string.reply_filter_off, Toast.LENGTH_SHORT).show()
                 } else {
-                    setImageResource(R.drawable.ic_clear_all_24px)
                     viewModel.onlyPo()
-                    (binding.recyclerView.layoutManager as LinearLayoutManager).run {
-                        val startPos = findFirstVisibleItemPosition()
-                        val endPos = findLastVisibleItemPosition()
-                        mAdapter.notifyItemRangeChanged(startPos, endPos - startPos)
-                    }
-
                     Toast.makeText(context, R.string.reply_filter_on, Toast.LENGTH_SHORT).show()
+                }
+                (binding.recyclerView.layoutManager as LinearLayoutManager).run {
+                    val startPos = findFirstVisibleItemPosition()
+                    val endPos = findLastVisibleItemPosition()
+                    mAdapter.notifyItemRangeChanged(startPos, endPos - startPos)
                 }
             }
         }

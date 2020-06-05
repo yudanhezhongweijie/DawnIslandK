@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_activated="true" android:drawable="@drawable/ic_clear_all_24px" />
+    <item android:state_activated="false" android:drawable="@drawable/ic_filter_list_24px" />
+</selector>

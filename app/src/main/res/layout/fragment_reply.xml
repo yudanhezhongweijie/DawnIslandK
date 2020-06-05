@@ -61,7 +61,7 @@
             android:layout_marginEnd="8dp"
             android:background="?attr/selectableItemBackground"
             android:padding="8dp"
-            android:src="@drawable/ic_filter_list_24px"
+            android:src="@drawable/btn_filter"
             android:tint="@color/pure_light"
             app:layout_constraintBottom_toBottomOf="@id/toolbar"
             app:layout_constraintEnd_toEndOf="@id/toolbar"

@@ -20,11 +20,11 @@ data class Thread(
     val email: String, //email 	你懂得
     val title: String, //title 	你还是懂的(:з」∠)
     val content: String, //content 	....这个你也懂
-    val sage: String = "0", // sage
+    val sage: String = "", // sage
     val admin: String = "0", //admin 	是否是酷炫红名，如果是酷炫红名则userid为红名id
-    val status: String = "n", //
+    val status: String = "", //
     @Ignore var replys: List<Reply> = emptyList(), //replys 	主页展示回复的帖子
-    val replyCount: String = "0", //replyCount 	总共有多少个回复
+    val replyCount: String = "", //replyCount 	总共有多少个回复
     var readingProgress: Int = 1, // 记录上次看到的进度
     var lastUpdatedAt: Long = 0
 ) {

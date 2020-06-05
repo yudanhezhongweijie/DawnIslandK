@@ -8,11 +8,9 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.os.Handler
 import android.widget.SeekBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.ColorUtils
@@ -29,12 +27,9 @@ import com.laotoua.dawnislandk.screens.util.Layout
 import com.laotoua.dawnislandk.screens.util.ToolBar.themeStatusBar
 import com.laotoua.dawnislandk.screens.widget.DoodleView
 import com.laotoua.dawnislandk.screens.widget.ThicknessPreviewView
-import com.laotoua.dawnislandk.util.ImageUtil
-import com.laotoua.dawnislandk.util.ReadableTime
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.io.File
 import java.io.FileDescriptor
 
 /*
@@ -55,7 +50,6 @@ import java.io.FileDescriptor
 
 class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
     private lateinit var binding: ActivityDoodleBinding
-    private var mOutputFile: Uri? = null
     private var mExitWaitingDialog: MaterialDialog? = null
     private var mSideAnimator: ValueAnimator = ValueAnimator()
     private var mShowSide = true
@@ -90,14 +84,6 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
         setContentView(binding.root)
 
         themeStatusBar()
-
-        val timeStamp: String = ReadableTime.getFilenamableTime(System.currentTimeMillis())
-        val relativeLocation =
-            Environment.DIRECTORY_PICTURES + File.separator + "Dawn"
-        val name = "Doodle_$timeStamp"
-        val ext = "png"
-        mOutputFile = ImageUtil.addPlaceholderImageUriToGallery(this, name, ext, relativeLocation)
-
         binding.doodleView.setHelper(this)
 
         binding.side.setOnClickListener {
@@ -146,15 +132,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
             binding.doodleView.clear()
         }
         binding.ok.setOnClickListener {
-            if (mOutputFile != null) {
-                saveDoodle()
-            } else {
-                Toast.makeText(
-                    this,
-                    getString(R.string.cant_create_image_file),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+            saveDoodle()
         }
 
         binding.menu.setOnClickListener {
@@ -167,13 +145,6 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
 
         updateUndoRedo()
 
-        if (mOutputFile == null) {
-            Toast.makeText(
-                this,
-                getString(R.string.cant_create_image_file),
-                Toast.LENGTH_SHORT
-            ).show()
-        }
         mSideAnimator.duration = 300
         mSideAnimator.addUpdateListener { animation ->
             binding.side.translationX =
@@ -187,22 +158,11 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
         MaterialDialog(this).show {
             message(R.string.save_image_selection)
             positiveButton(R.string.save) {
-                if (mOutputFile != null) {
-                    saveDoodle()
-                } else {
-                    Toast.makeText(
-                        this@DoodleActivity,
-                        getString(R.string.cant_create_image_file),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    ImageUtil.removePlaceholderImageUriToGallery(this@DoodleActivity, mOutputFile!!)
-                    finish()
-                }
+                saveDoodle()
             }
             negativeButton(R.string.cancel)
             @Suppress("DEPRECATION")
             neutralButton(R.string.do_not_save) {
-                ImageUtil.removePlaceholderImageUriToGallery(this@DoodleActivity, mOutputFile!!)
                 finish()
             }
             getActionButton(WhichButton.NEUTRAL).updateTextColor(Color.RED)
@@ -346,7 +306,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
             }
             mExitWaitingDialog!!.show()
             lifecycleScope.launch {
-                binding.doodleView.save(this@DoodleActivity, mOutputFile!!)
+                binding.doodleView.save(this@DoodleActivity)
             }
         }
         // Wait here, it might be fast click back button
@@ -356,20 +316,14 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
         updateUndoRedo()
     }
 
-    override fun onSavingFinished(ok: Boolean) {
+    override fun onSavingFinished(savedUri: Uri?) {
         if (mExitWaitingDialog != null) {
             mExitWaitingDialog!!.dismiss()
             mExitWaitingDialog = null
         }
         val intent = Intent()
-        if (ok) {
-            intent.data = mOutputFile
-            setResult(RESULT_OK, intent)
-        } else {
-            intent.data = null
-            ImageUtil.removePlaceholderImageUriToGallery(this@DoodleActivity, mOutputFile!!)
-            setResult(RESULT_CANCELED, intent)
-        }
+        intent.data = savedUri
+        setResult(if (savedUri != null) RESULT_OK else RESULT_CANCELED, intent)
         finish()
     }
 

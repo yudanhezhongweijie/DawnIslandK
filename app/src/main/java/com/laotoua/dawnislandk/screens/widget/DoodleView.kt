@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
 import android.net.Uri
+import android.os.Environment
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
@@ -11,12 +12,12 @@ import androidx.annotation.Nullable
 import androidx.appcompat.app.AppCompatActivity
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.screens.util.Layout
+import com.laotoua.dawnislandk.util.ImageUtil
+import com.laotoua.dawnislandk.util.ReadableTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.io.FileNotFoundException
-import java.io.IOException
-import java.io.OutputStream
+import java.io.File
 import java.util.*
 import kotlin.math.abs
 
@@ -356,7 +357,7 @@ class DoodleView : View {
         invalidate()
     }
 
-    suspend fun save(callerActivity: AppCompatActivity, uri: Uri) {
+    suspend fun save(callerActivity: AppCompatActivity) {
         if (isLocked) {
             return
         }
@@ -365,17 +366,14 @@ class DoodleView : View {
             drawStore(mCanvas, mPaint)
             clearStore()
             Timber.i("Saving Doodle to Gallery... ")
-            var os: OutputStream? = null
-            try {
-                os = callerActivity.contentResolver.openOutputStream(uri)
-                    ?: throw IOException("Failed to get output stream.")
-                mBitmap!!.compress(Bitmap.CompressFormat.PNG, 100, os)
-                true
-            } catch (e: FileNotFoundException) {
-                false
-            } finally {
-                os?.close()
-            }
+            val timeStamp: String = ReadableTime.getFilenamableTime(System.currentTimeMillis())
+            val relativeLocation =
+                Environment.DIRECTORY_PICTURES + File.separator + "Dawn"
+            val fileName = "Doodle_$timeStamp.png"
+            ImageUtil.writeBitmapToGallery(
+                callerActivity, fileName, relativeLocation,
+                mBitmap!!
+            )
         }
 
         isLocked = false
@@ -535,7 +533,7 @@ class DoodleView : View {
 
     interface Helper {
         fun onStoreChange(view: DoodleView?)
-        fun onSavingFinished(ok: Boolean)
+        fun onSavingFinished(savedUri: Uri?)
     }
 
     companion object {

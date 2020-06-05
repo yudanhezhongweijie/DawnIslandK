@@ -8,7 +8,6 @@ import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Shader
 import android.net.Uri
-import android.os.Environment
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
@@ -30,7 +29,6 @@ import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.util.FragmentIntentUtil
 import com.laotoua.dawnislandk.util.ImageUtil
-import com.laotoua.dawnislandk.util.ReadableTime
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BottomPopupView
@@ -65,8 +63,6 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
     private var waterMark: String? = null
     private var imageFile: File? = null
     private var userHash = ""
-
-    private var previewUri: Uri? = null
 
     private var cookies = listOf<Cookie>()
 
@@ -436,48 +432,19 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
             ) {
                 return@setOnClickListener
             }
-            val timeStamp: String = ReadableTime.getFilenamableTime(System.currentTimeMillis())
-            val relativeLocation =
-                Environment.DIRECTORY_PICTURES + File.separator + "Dawn"
-            val name = "DawnIsland_$timeStamp"
-            val ext = "jpg"
-            try {
-                ImageUtil.addPlaceholderImageUriToGallery(
-                    caller.requireActivity(),
-                    name,
-                    ext,
-                    relativeLocation
+            FragmentIntentUtil.getImageFromCamera(caller) { uri: Uri ->
+                Timber.d("Took a Picture. Setting preview thumbnail...")
+                ImageUtil.loadImageThumbnailToImageView(
+                    caller,
+                    uri,
+                    150,
+                    150,
+                    postImagePreview!!
                 )
-                    ?.run {
-                        previewUri = this
-                        FragmentIntentUtil.getImageFromCamera(caller, this)
-                        { success: Boolean ->
-                            if (success) {
-                                Timber.d("Took a Picture. Setting preview thumbnail...")
-                                ImageUtil.loadImageThumbnailToImageView(
-                                    caller,
-                                    previewUri!!,
-                                    150,
-                                    150,
-                                    postImagePreview!!
-                                )
-                                imageFile =
-                                    ImageUtil.getImageFileFromUri(fragment = caller, uri = this)
-                                attachmentContainer!!.visibility = View.VISIBLE
-                            } else {
-                                Timber.d("Didn't take a Picture. Removing placeholder Image...")
-                                ImageUtil.removePlaceholderImageUriToGallery(
-                                    caller.requireActivity(),
-                                    this
-                                )
-                            }
-                        }
-                    }
-            } catch (e: Exception) {
-                Timber.e(e, "Failed to take a picture...")
+                imageFile = ImageUtil.getImageFileFromUri(fragment = caller, uri = uri)
+                attachmentContainer!!.visibility = View.VISIBLE
             }
         }
-
 
         findViewById<CheckBox>(R.id.postWater).setOnClickListener {
             waterMark = if ((it as CheckBox).isChecked) "true" else null

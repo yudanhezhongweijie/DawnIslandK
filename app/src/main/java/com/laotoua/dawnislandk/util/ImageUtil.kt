@@ -3,6 +3,7 @@ package com.laotoua.dawnislandk.util
 import android.app.Activity
 import android.content.ContentResolver
 import android.content.ContentValues
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
@@ -15,26 +16,116 @@ import java.io.*
 
 
 object ImageUtil {
+
+    private val cachedImages = mutableSetOf<String>()
+    fun imageExistInGalleryBasedOnFilenameAndExt(
+        callerActivity: Activity,
+        fileName: String,
+        relativeLocation: String
+    ): Boolean {
+        if (cachedImages.contains(fileName)) return true
+        val selection = "${MediaStore.Images.ImageColumns.DISPLAY_NAME}=?"
+        val selectionArgs = arrayOf(fileName)
+        val projection = arrayOf(MediaStore.Images.ImageColumns.DISPLAY_NAME)
+        var res = false
+        callerActivity.contentResolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            projection,
+            selection,
+            selectionArgs,
+            null
+        )?.use { cursor -> res = (cursor.count > 0) }
+
+        if (res) cachedImages.add(fileName)
+        return res
+    }
+
+    private fun copyFromFileToImageUri(callerActivity: Activity, uri: Uri, file: File): Boolean {
+        try {
+            val stream = callerActivity.contentResolver.openOutputStream(uri)
+                ?: throw IOException("Failed to get output stream.")
+            stream.write(file.readBytes())
+            stream.close()
+        } catch (e: Exception) {
+            Timber.e(e)
+            return false
+        }
+        return true
+    }
+
+    fun copyImageFileToGallery(
+        callerActivity: Activity,
+        fileName: String,
+        relativeLocation: String,
+        file: File
+    ): Boolean {
+        try {
+            val uri = addPlaceholderImageUriToGallery(
+                callerActivity,
+                fileName,
+                relativeLocation
+            )
+            return try {
+                copyFromFileToImageUri(
+                    callerActivity,
+                    uri,
+                    file
+                )
+            } catch (writeException: Exception) {
+                Timber.e(writeException)
+                removePlaceholderImageUriToGallery(callerActivity, uri)
+                false
+            }
+        } catch (uriException: Exception) {
+            Timber.e(uriException)
+            return false
+        }
+    }
+
+    fun writeBitmapToGallery(
+        callerActivity: Activity, fileName: String, relativeLocation: String,
+        bitmap: Bitmap
+    ): Uri? {
+        return try {
+            val uri = addPlaceholderImageUriToGallery(
+                callerActivity,
+                fileName,
+                relativeLocation
+            )
+            try {
+                callerActivity.contentResolver.openOutputStream(uri)?.use {
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+                }
+                uri
+            } catch (e: Exception) {
+                removePlaceholderImageUriToGallery(callerActivity, uri)
+                null
+            }
+        } catch (e: FileNotFoundException) {
+            null
+        }
+    }
+
     fun addPlaceholderImageUriToGallery(
         callerActivity: Activity,
         fileName: String,
-        fileExt: String,
         relativeLocation: String
-    ): Uri? {
+    ): Uri {
         val contentValues = ContentValues().apply {
-            put(MediaStore.Images.ImageColumns.DISPLAY_NAME, "$fileName.$fileExt")
-            put(MediaStore.MediaColumns.MIME_TYPE, "image/$fileExt")
-
+            val mimeType = fileName.substringAfterLast(".")
+            put(MediaStore.Images.ImageColumns.DISPLAY_NAME, fileName)
+            put(MediaStore.MediaColumns.MIME_TYPE, "image/$mimeType")
             // without this part causes "Failed to create new MediaStore record" exception to be invoked (uri is null below)
+            // https://stackoverflow.com/questions/56904485/how-to-save-an-image-in-android-q-using-mediastore
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 put(MediaStore.Images.ImageColumns.RELATIVE_PATH, relativeLocation)
             }
         }
+
         return callerActivity.contentResolver.insert(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
             contentValues
-        )
-            ?: throw IOException("Failed to create new MediaStore record.")
+        ) ?: throw IOException("Failed to create new MediaStore record.")
     }
 
     fun removePlaceholderImageUriToGallery(
@@ -56,7 +147,7 @@ object ImageUtil {
                 .loadThumbnail(uri, Size(width, height), null)
                 .run { imageView.setImageBitmap(this) }
         } else {
-            GlideApp.with(caller)
+            GlideApp.with(imageView)
                 .load(uri).override(width, height).into(imageView)
         }
     }
@@ -111,12 +202,10 @@ object ImageUtil {
 
     private fun ContentResolver.getFileName(fileUri: Uri): String {
         var name = ""
-        val returnCursor = this.query(fileUri, null, null, null, null)
-        if (returnCursor != null) {
-            val nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            returnCursor.moveToFirst()
-            name = returnCursor.getString(nameIndex)
-            returnCursor.close()
+        val projection = arrayOf(MediaStore.Images.ImageColumns.DISPLAY_NAME)
+        this.query(fileUri, projection, null, null, null)?.use {
+            it.moveToFirst()
+            name = it.getString(it.getColumnIndex(OpenableColumns.DISPLAY_NAME))
         }
         return name
     }

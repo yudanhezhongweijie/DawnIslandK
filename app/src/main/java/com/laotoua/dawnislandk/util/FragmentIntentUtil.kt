@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Environment
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
@@ -16,6 +17,7 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.screens.tasks.DoodleActivity
 import com.laotoua.dawnislandk.screens.tasks.QRCookieActivity
 import timber.log.Timber
+import java.io.File
 
 object FragmentIntentUtil {
 
@@ -93,9 +95,34 @@ object FragmentIntentUtil {
             .launch(type)
     }
 
-    fun getImageFromCamera(caller: Fragment, uri: Uri, callback: (Boolean) -> Unit) {
-        caller.registerForActivityResult(ActivityResultContracts.TakePicture(), callback)
-            .launch(uri)
+    fun getImageFromCamera(caller: Fragment, callback: (Uri) -> Unit) {
+        val timeStamp: String = ReadableTime.getFilenamableTime(System.currentTimeMillis())
+        val relativeLocation = Environment.DIRECTORY_PICTURES + File.separator + "Dawn"
+        val fileName = "DawnIsland_$timeStamp.jpg"
+        try {
+            val uri = ImageUtil.addPlaceholderImageUriToGallery(
+                caller.requireActivity(),
+                fileName,
+                relativeLocation
+            )
+            caller.registerForActivityResult(ActivityResultContracts.TakePicture()) {
+                if (it == true) {
+                    callback.invoke(uri)
+                } else {
+                    ImageUtil.removePlaceholderImageUriToGallery(
+                        caller.requireActivity(),
+                        uri
+                    )
+                }
+            }.launch(uri)
+        } catch (e: Exception) {
+            Timber.e(e)
+            Toast.makeText(
+                caller.requireContext(),
+                R.string.something_went_wrong,
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     fun drawNewDoodle(caller: Fragment, callback: (Uri?) -> Unit) {

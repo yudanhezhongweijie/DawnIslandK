@@ -97,7 +97,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
 
     override fun onCreateDefViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         return when (layoutResId) {
-            R.layout.list_item_thread -> {
+            R.layout.list_item_thread, R.layout.list_item_trend -> {
                 val view = parent.getItemView(layoutResId).applyTextSizeAndLetterSpacing()
                 ThreadCardFactory.applySettings(view as MaterialCardView)
                 createBaseViewHolder(view)

@@ -67,9 +67,7 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
 
     private fun List<Reply>.attachAd(page: Int) = toMutableList().apply {
         //  insert Ad below thread head or as first
-        replyRepo.getAd(page)?.let {
-            add(if (page == 1) 1 else 0, it)
-        }
+        replyRepo.getAd(page)?.let { add(if (page == 1) 1 else 0, it) }
     }
 
     private fun listenToNewPage(page: Int, filterIds: List<String>) {

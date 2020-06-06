@@ -59,6 +59,7 @@ class ThreadsViewModel @Inject constructor(private val webService: NMBServiceCli
         // assign fid if not timeline
         if (fid != "-1") data.map { it.fid = fid }
         val noDuplicates = data.filterNot { threadIds.contains(it.id) }
+        pageCount += 1
         if (noDuplicates.isNotEmpty()) {
             threadIds.addAll(noDuplicates.map { it.id })
             threadList.addAll(noDuplicates)
@@ -71,16 +72,10 @@ class ThreadsViewModel @Inject constructor(private val webService: NMBServiceCli
                     LoadingStatus.SUCCESS
                 )
             )
-            pageCount += 1
+            // possible page X+1's data is identical page X's data when server updates too quickly
         } else {
-            val message = "Forum $currentFid has no new threads."
-            Timber.d(message)
-            _loadingStatus.postValue(
-                SingleLiveEvent.create(
-                    LoadingStatus.FAILED,
-                    message
-                )
-            )
+            Timber.d("Last page were all duplicates. Making new request")
+            getThreads()
         }
     }
 

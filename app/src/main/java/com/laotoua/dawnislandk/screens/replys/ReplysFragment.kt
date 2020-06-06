@@ -227,8 +227,8 @@ class ReplysFragment : DaggerFragment() {
                 }
                 (binding.recyclerView.layoutManager as LinearLayoutManager).run {
                     val startPos = findFirstVisibleItemPosition()
-                    val endPos = findLastVisibleItemPosition()
-                    mAdapter.notifyItemRangeChanged(startPos, endPos - startPos)
+                    val itemCount = findLastVisibleItemPosition() - startPos
+                    mAdapter.notifyItemRangeChanged(startPos, itemCount + initialPrefetchItemCount)
                 }
             }
         }

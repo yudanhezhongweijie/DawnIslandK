@@ -220,10 +220,8 @@ class QuickAdapter<T>(private val layoutResId: Int) :
     private fun BaseViewHolder.convertSage(sage: String?) {
         if (sage == "1") {
             setVisible(R.id.sage, true)
-            if (layoutResId == R.layout.list_item_thread) setVisible(R.id.sageText, true)
         } else {
             setGone(R.id.sage, true)
-            if (layoutResId == R.layout.list_item_thread) setGone(R.id.sageText, true)
         }
     }
 

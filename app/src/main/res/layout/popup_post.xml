@@ -7,13 +7,6 @@
     android:layout_height="match_parent">
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_full"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.1" />
-
-    <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline_half"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -47,22 +40,19 @@
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:text="@string/choose_forum"
-            android:textAppearance="@style/CollSubTitle"
-            android:textSize="18sp"
             app:icon="@drawable/ic_arrow_drop_down_black_24px"
             app:iconGravity="textEnd"
-            app:layout_constraintBottom_toBottomOf="@id/postTitle"
-            app:layout_constraintStart_toEndOf="@+id/postTitle"
-            app:layout_constraintTop_toTopOf="@id/postTitle" />
+            app:layout_constraintBottom_toTopOf="@+id/ButtonGroupContainer"
+            app:layout_constraintEnd_toStartOf="@+id/postCookie"
+            app:layout_constraintStart_toStartOf="@+id/postContent" />
 
         <ImageButton
             android:id="@+id/postClose"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:tint="@color/colorAccent"
             android:background="?attr/selectableItemBackground"
+            android:tint="@color/colorAccent"
             app:layout_constraintBottom_toBottomOf="@id/postTitle"
             app:layout_constraintEnd_toEndOf="@id/postContent"
             app:layout_constraintTop_toTopOf="@id/postTitle"
@@ -142,13 +132,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/missing_cookie"
-            android:textAppearance="@style/CollSubTitle"
-            android:textSize="18sp"
             app:icon="@drawable/ic_cookie_black_24px"
             app:iconGravity="start"
             app:layout_constraintBottom_toTopOf="@+id/ButtonGroupContainer"
             app:layout_constraintEnd_toEndOf="@+id/postContent"
-            app:layout_constraintStart_toStartOf="@+id/postContent"
+            app:layout_constraintStart_toEndOf="@+id/postForum"
             app:strokeWidth="0dp" />
 
         <HorizontalScrollView

@@ -44,12 +44,6 @@ class ReplyRepository @Inject constructor(
 
     private var downloadJob: Job? = null
 
-    /** When thread has 0 reply, this triggers VM to show an empty page
-     *
-     */
-    private var emptyPage = MutableLiveData<Boolean>()
-
-
     fun getAd(page: Int): Reply? = adMap[page]
 
     fun setThreadId(id: String) {
@@ -85,7 +79,6 @@ class ReplyRepository @Inject constructor(
         adMap.clear()
         downloadJob?.cancel()
         downloadJob = null
-        emptyPage = MutableLiveData<Boolean>()
     }
 
     /**
@@ -113,34 +106,36 @@ class ReplyRepository @Inject constructor(
         downloadJob = getServerData(page)
     }
 
+    private fun combineFirstPage(
+        liveHead: LiveData<Thread>,
+        livePage: LiveData<List<Reply>>
+    ): List<Reply> {
+        val head = liveHead.value
+        val page = livePage.value
+        head?.let {
+            maxReply = it.replyCount.toInt()
+            po = it.userid
+        }
+        // Don't send a success until we have both results
+        if (head == null || page == null) {
+            return emptyList()
+        }
+
+        return listOf(head.toReply()).plus(page)
+    }
+
     /**
      * insert Header to first page
      */
     private fun getLiveFirstPage(head: LiveData<Thread>, livePage: LiveData<List<Reply>>) =
         MediatorLiveData<List<Reply>>().apply {
-            var header: Reply? = null
-            var page: List<Reply>? = null
             addSource(head) {
-                // catch pending value (null DB query result)
-                if (it == null) return@addSource
-                if (it.replyCount.toInt() > maxReply) maxReply = it.replyCount.toInt()
-                po = it.userid
-                header = it.toReply()
-                // wait for other source finish loading and set together
-                page?.let { list -> if (list.isNotEmpty()) value = listOf(header!!).plus(list) }
+                val res = combineFirstPage(head, livePage)
+                if (res.isNotEmpty() && !value.equalsExceptTimestamp(res)) value = res
             }
-            addSource(livePage) { list ->
-                // catch pending value (null DB query result)
-                if (list == null) return@addSource
-                page = list
-                // wait for other source finish loading and set together
-                header?.let { if (list.isNotEmpty()) value = listOf(it).plus(list) }
-            }
-            addSource(emptyPage) {
-                value = mutableListOf<Reply>().apply {
-                    header?.let { head -> add(head) }
-                    page?.let { list -> addAll(list) }
-                }
+            addSource(livePage) {
+                val res = combineFirstPage(head, livePage)
+                if (res.isNotEmpty() && !value.equalsExceptTimestamp(res)) value = res
             }
         }
 
@@ -186,10 +181,6 @@ class ReplyRepository @Inject constructor(
             adMap[page] = it
         }
         val noAd = data.replys.filter { it.isNotAd() }
-        if (page == 1 && noAd.isEmpty()) {
-            emptyPage.postValue(true)
-            return
-        }
         /**
          *  On the first or last page, show NO DATA to indicate footer load end;
          *  When entering to a thread with cached data, refresh header is showing,
@@ -198,7 +189,7 @@ class ReplyRepository @Inject constructor(
         if (noAd.isEmpty() || replyMap[page]?.value.equalsExceptTimestamp(noAd) ||
             (page == 1 && replyMap[page]?.value?.drop(1).equalsExceptTimestamp(noAd))
         ) {
-            if (page == maxPage) setLoadingStatus(LoadingStatus.NODATA)
+            if (page == maxPage || page == 1) setLoadingStatus(LoadingStatus.NODATA)
             else setLoadingStatus(LoadingStatus.SUCCESS)
             return
         }

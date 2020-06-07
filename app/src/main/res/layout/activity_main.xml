@@ -16,7 +16,6 @@
             android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#F8F8F9"
             app:defaultNavHost="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -34,13 +33,11 @@
 
         <ImageView
             android:id="@+id/forumHeaderImageView"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="160dp"
             android:clickable="true"
             android:focusable="true"
             android:scaleType="centerCrop"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/drawer_head"
             tools:ignore="ContentDescription" />

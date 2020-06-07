@@ -97,7 +97,7 @@
 
     <string name="sage_text" translatable="false">本串已被sage</string>
     <string name="sample_ref_id" translatable="false">23333333</string>
-    <string name="sample_user_id" translatable="false">sAMPlEUserID</string>
+    <string name="sample_user_id" translatable="false">UserId</string>
     <string name="sample_reply_content" translatable="false">测试测试测试</string>
     <string name="sample_timestamp_plain" translatable="false">2/7 23:23:12</string>
     <string name="sample_title_and_name" translatable="false">标题：哈哈哈\n作者：咩咩咩</string>
@@ -121,7 +121,7 @@
     <string name="cookie_hash" translatable="false">饼干序列</string>
     <string name="cookie_slots" translatable="false">饼干槽:</string>
     <string name="saves_reading_progress" translatable="false">是否保存阅读进度</string>
-    <string name="reading_progress_on" translatable="false">打开串回跳转到上次看到的页面</string>
+    <string name="reading_progress_on" translatable="false">打开串会跳转到上次看到的页面</string>
     <string name="reading_progress_off" translatable="false">打开串会在首页</string>
     <string name="reply_filter_off" translatable="false">回复过滤关闭</string>
     <string name="reply_filter_on" translatable="false">回复过滤开启。新的回复将被过滤</string>

@@ -6,67 +6,53 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/toolbarLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:paddingTop="30dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="@id/toolbar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/appbar"
+        tools:ignore="ContentDescription" />
 
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:paddingTop="30dp"
-            android:scaleType="centerCrop"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/appbar"
-            tools:ignore="ContentDescription" />
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:focusable="false"
+        app:layout_constraintTop_toTopOf="parent"
+        app:subtitle="adnmb.com"
+        app:subtitleTextColor="#FFFFFF"
+        app:title="时间线"
+        app:titleTextColor="#FFFFFF" />
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:focusable="false"
-            android:theme="@style/Theme.MaterialComponents.DayNight.DarkActionBar"
-            app:contentInsetStartWithNavigation="0dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:subtitle="adnmb.com"
-            app:subtitleTextColor="#FFFFFF"
-            app:title="时间线"
-            app:titleTextColor="#FFFFFF" />
+    <com.zhpan.indicator.IndicatorView
+        android:id="@+id/pageIndicatorView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toBottomOf="@id/settings"
+        app:layout_constraintEnd_toStartOf="@id/settings"
+        app:layout_constraintTop_toTopOf="@id/settings" />
 
-        <com.zhpan.indicator.IndicatorView
-            android:id="@+id/pageIndicatorView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            app:layout_constraintBottom_toBottomOf="@id/settings"
-            app:layout_constraintEnd_toStartOf="@id/settings"
-            app:layout_constraintTop_toTopOf="@id/settings" />
-
-        <ImageButton
-            android:id="@+id/settings"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:background="?attr/selectableItemBackground"
-            android:padding="8dp"
-            android:src="@drawable/ic_settings_24px"
-            android:tint="@color/pure_light"
-            app:layout_constraintBottom_toBottomOf="@id/toolbar"
-            app:layout_constraintEnd_toEndOf="@id/toolbar"
-            app:layout_constraintTop_toTopOf="@id/toolbar"
-            tools:ignore="ContentDescription" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <ImageButton
+        android:id="@+id/settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:background="?attr/selectableItemBackground"
+        android:padding="8dp"
+        android:src="@drawable/ic_settings_24px"
+        android:tint="@color/pure_light"
+        app:layout_constraintBottom_toBottomOf="@id/toolbar"
+        app:layout_constraintEnd_toEndOf="@id/toolbar"
+        app:layout_constraintTop_toTopOf="@id/toolbar"
+        tools:ignore="ContentDescription" />
 
     <com.laotoua.dawnislandk.screens.widget.ViewPager2FlingInterceptor
         android:id="@+id/viewPagerInterceptor"
@@ -75,7 +61,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbarLayout">
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewPager2"

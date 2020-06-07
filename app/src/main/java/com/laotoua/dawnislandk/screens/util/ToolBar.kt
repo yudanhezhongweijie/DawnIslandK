@@ -13,12 +13,17 @@ object ToolBar {
         window.statusBarColor = resources.getColor(R.color.colorPrimary, null)
     }
 
+    private var topMargin = 0
+
     // add status bar's height to toolbar content margin
     fun Toolbar.immersiveToolbar(): Toolbar = apply {
-        setOnApplyWindowInsetsListener { _, insets ->
-            setMarginTop(insets.systemWindowInsetTop)
-            insets.consumeSystemWindowInsets()
-        }
+        if (topMargin == 0) {
+            setOnApplyWindowInsetsListener { _, insets ->
+                topMargin = insets.systemWindowInsetTop
+                setMarginTop(topMargin)
+                insets.consumeSystemWindowInsets()
+            }
+        } else setMarginTop(topMargin)
     }
 
     // expand toolbar to status bar

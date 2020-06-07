@@ -5,53 +5,10 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/pagerFragment">
     <fragment
-        android:id="@+id/replyFragment"
-        android:name="com.laotoua.dawnislandk.screens.replys.ReplysFragment"
-        android:label="reply_fragment"
-        tools:layout="@layout/fragment_reply">
-        <action
-            android:id="@+id/action_replyFragment_to_imageViewerFragment"
-            app:destination="@id/imageViewerFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-        <action
-            android:id="@+id/action_replyFragment_to_doodleActivity"
-            app:destination="@id/doodleActivity"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-    </fragment>
-    <fragment
-        android:id="@+id/imageViewerFragment"
-        android:name="com.laotoua.dawnislandk.unused.ImageViewerFragment"
-        android:label="image_viewer_fragment"
-        tools:layout="@layout/fragment_image_viewer">
-        <argument
-            android:name="imgUrl"
-            app:argType="string" />
-    </fragment>
-    <fragment
         android:id="@+id/pagerFragment"
         android:name="com.laotoua.dawnislandk.screens.PagerFragment"
         android:label="pager_fragment"
         tools:layout="@layout/fragment_pager">
-        <action
-            android:id="@+id/action_pagerFragment_to_replyFragment"
-            app:destination="@id/replyFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-        <action
-            android:id="@+id/action_pagerFragment_to_imageViewerFragment"
-            app:destination="@id/imageViewerFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
         <action
             android:id="@+id/action_pagerFragment_to_settingsFragment"
             app:destination="@id/settingsFragment"
@@ -66,6 +23,15 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/imageViewerFragment"
+        android:name="com.laotoua.dawnislandk.unused.ImageViewerFragment"
+        android:label="image_viewer_fragment"
+        tools:layout="@layout/fragment_image_viewer">
+        <argument
+            android:name="imgUrl"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"

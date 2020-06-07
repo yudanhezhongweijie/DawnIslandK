@@ -18,6 +18,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.FragmentPagerBinding
 import com.laotoua.dawnislandk.screens.feeds.FeedsFragment
+import com.laotoua.dawnislandk.screens.replys.ReplysFragment
 import com.laotoua.dawnislandk.screens.threads.ThreadsFragment
 import com.laotoua.dawnislandk.screens.trend.TrendsFragment
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
@@ -82,6 +83,7 @@ class PagerFragment : DaggerFragment() {
          */
         (binding.viewPager2.getChildAt(0) as RecyclerView).overScrollMode = View.OVER_SCROLL_NEVER
 
+
         binding.viewPager2.adapter =
             object : FragmentStateAdapter(childFragmentManager, viewLifecycleOwner.lifecycle) {
                 override fun getItemCount(): Int = 3
@@ -144,10 +146,6 @@ class PagerFragment : DaggerFragment() {
         binding.viewPagerInterceptor.clearPager2()
         _binding = null
         Timber.d("Fragment View Destroyed")
-    }
-
-    fun setTitle(resId: Int) {
-        binding.toolbar.setTitle(resId)
     }
 
     private val slideInLeftAnimation by lazyOnMainOnly {

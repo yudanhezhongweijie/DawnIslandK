@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.Trend
 import com.laotoua.dawnislandk.databinding.FragmentTrendBinding
+import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.PagerFragment
 import com.laotoua.dawnislandk.screens.PagerFragmentDirections
 import com.laotoua.dawnislandk.screens.SharedViewModel
@@ -67,12 +68,7 @@ class TrendsFragment : DaggerFragment() {
             setOnItemClickListener { _, _, position ->
                 val target = getItem(position)
                 sharedVM.setThread(target.toThread(sharedVM.getForumIdByName(target.forum)))
-                val action =
-                    PagerFragmentDirections.actionPagerFragmentToReplyFragment()
-                /**
-                 *  add prefix to finNav won't fail in simultaneous clicks
-                 */
-                this@TrendsFragment.findNavController().navigate(action)
+                (requireActivity() as MainActivity).showReply()
             }
         }
 

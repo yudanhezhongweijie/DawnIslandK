@@ -19,13 +19,13 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.Reply
 import com.laotoua.dawnislandk.databinding.FragmentReplyBinding
+import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
@@ -77,7 +77,7 @@ class ReplysFragment : DaggerFragment() {
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             setNavigationIcon(R.drawable.ic_arrow_back_white_24px)
             setNavigationOnClickListener {
-                findNavController().popBackStack()
+                (requireActivity() as MainActivity).hideReply()
             }
             setOnClickListener(
                 DoubleClickListener(callback = object : DoubleClickListener.DoubleClickCallBack {
@@ -210,6 +210,7 @@ class ReplysFragment : DaggerFragment() {
         })
 
         sharedVM.selectedThreadId.observe(viewLifecycleOwner, Observer {
+            if (it != viewModel.currentThreadId) mAdapter.setList(emptyList())
             viewModel.setThreadId(it)
             updateTitle()
             updateSubtitle()

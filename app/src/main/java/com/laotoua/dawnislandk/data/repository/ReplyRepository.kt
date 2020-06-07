@@ -171,16 +171,15 @@ class ReplyRepository @Inject constructor(
         }
 
         maxReply = data.replyCount.toInt()
+        val noAd = mutableListOf<Reply>()
         data.replys.map {
             it.page = page
             it.parentId = currentThreadId
+            // handle Ad
+            if (it.isAd()) adMap[page] = it
+            else noAd.add(it)
         }
 
-        // handle Ad
-        data.replys.firstOrNull { it.isAd() }?.let {
-            adMap[page] = it
-        }
-        val noAd = data.replys.filter { it.isNotAd() }
         /**
          *  On the first or last page, show NO DATA to indicate footer load end;
          *  When entering to a thread with cached data, refresh header is showing,
@@ -189,7 +188,7 @@ class ReplyRepository @Inject constructor(
         if (noAd.isEmpty() || replyMap[page]?.value.equalsExceptTimestamp(noAd) ||
             (page == 1 && replyMap[page]?.value?.drop(1).equalsExceptTimestamp(noAd))
         ) {
-            if (page == maxPage || page == 1) setLoadingStatus(LoadingStatus.NODATA)
+            if (page == maxPage) setLoadingStatus(LoadingStatus.NODATA)
             else setLoadingStatus(LoadingStatus.SUCCESS)
             return
         }

@@ -10,14 +10,13 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.Thread
 import com.laotoua.dawnislandk.databinding.FragmentThreadBinding
+import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.PagerFragment
-import com.laotoua.dawnislandk.screens.PagerFragmentDirections
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
@@ -80,12 +79,7 @@ class ThreadsFragment : DaggerFragment() {
             setOnItemClickListener { _, _, position ->
                 hideMenu()
                 sharedVM.setThread(getItem(position))
-                val action =
-                    PagerFragmentDirections.actionPagerFragmentToReplyFragment()
-                /**
-                 *  add prefix to finNav won't fail in simultaneous clicks
-                 */
-                this@ThreadsFragment.findNavController().navigate(action)
+                (requireActivity() as MainActivity).showReply()
             }
 
             addChildClickViewIds(R.id.attachedImage)
@@ -153,10 +147,7 @@ class ThreadsFragment : DaggerFragment() {
         })
 
         sharedVM.selectedForumId.observe(viewLifecycleOwner, Observer {
-            if (viewModel.currentFid != null && viewModel.currentFid != it) {
-                Timber.d("Forum has changed to $it. Cleaning old adapter data...")
-                mAdapter.setList(emptyList())
-            }
+            if (viewModel.currentFid != it) mAdapter.setList(emptyList())
             viewModel.setForum(it)
             hideMenu()
         })
@@ -223,5 +214,6 @@ class ThreadsFragment : DaggerFragment() {
             showMenu()
         }
     }
+
 }
 

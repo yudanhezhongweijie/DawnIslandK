@@ -17,6 +17,7 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.Thread
 import com.laotoua.dawnislandk.databinding.FragmentFeedBinding
+import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.PagerFragment
 import com.laotoua.dawnislandk.screens.PagerFragmentDirections
 import com.laotoua.dawnislandk.screens.SharedViewModel
@@ -82,12 +83,7 @@ class FeedsFragment : DaggerFragment() {
 
             setOnItemClickListener { _, _, position ->
                 sharedVM.setThread(getItem(position))
-                val action =
-                    PagerFragmentDirections.actionPagerFragmentToReplyFragment()
-                /**
-                 *  add prefix to finNav won't fail in simultaneous clicks
-                 */
-                this@FeedsFragment.findNavController().navigate(action)
+                (requireActivity() as MainActivity).showReply()
             }
 
             // long click to delete

@@ -15,6 +15,7 @@ import com.laotoua.dawnislandk.data.local.Forum
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
 import com.laotoua.dawnislandk.screens.adapters.QuickNodeAdapter
 import com.laotoua.dawnislandk.screens.replys.QuotePopup
+import com.laotoua.dawnislandk.screens.replys.ReplysFragment
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbarInitialization
 import com.laotoua.dawnislandk.util.LoadingStatus
 import dagger.android.support.DaggerAppCompatActivity
@@ -103,6 +104,8 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
          */
         if (!QuotePopup.ensureQuotePopupDismissal()) return
 
+        if (hideReply()) return
+
         if (binding.drawerLayout.isOpen) {
             binding.drawerLayout.close()
             return
@@ -125,5 +128,34 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
     override fun onDestroy() {
         super.onDestroy()
         mHandler.removeCallbacks(mRunnable)
+    }
+
+    fun showReply() {
+        var replyFrag = supportFragmentManager.findFragmentByTag("reply")
+        if (replyFrag == null) {
+            replyFrag = ReplysFragment()
+            supportFragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
+                .add(R.id.navHostFragment, replyFrag, "reply")
+                .addToBackStack(null).commit()
+        } else {
+            supportFragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
+                .show(replyFrag)
+                .commit()
+        }
+    }
+
+    fun hideReply(): Boolean {
+        supportFragmentManager.findFragmentByTag("reply")?.let {
+            if (!it.isHidden) {
+                supportFragmentManager.beginTransaction()
+                    .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
+                    .hide(it)
+                    .commit()
+                return true
+            }
+        }
+        return false
     }
 }

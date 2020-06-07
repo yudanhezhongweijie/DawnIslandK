@@ -63,12 +63,10 @@ object Layout {
             }
             LoadingStatus.LOADING -> {
                 // show indicator if applicable
-                if (this.isVisible && !mAdapter.loadMoreModule.isLoading && !refreshLayout.isRefreshing) {
+                if (isVisible && !mAdapter.loadMoreModule.isLoading && !refreshLayout.isRefreshing) {
                     refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
                 }
             }
-
         }
-
     }
 }

@@ -9,9 +9,8 @@ import com.laotoua.dawnislandk.data.local.Reply
 import com.laotoua.dawnislandk.data.local.Thread
 import com.laotoua.dawnislandk.data.local.dao.ReplyDao
 import com.laotoua.dawnislandk.data.local.dao.ThreadDao
-import com.laotoua.dawnislandk.data.remote.APISuccessDataResponse
-import com.laotoua.dawnislandk.data.remote.APISuccessMessageResponse
-import com.laotoua.dawnislandk.data.remote.MessageType
+import com.laotoua.dawnislandk.data.remote.APIDataResponse
+import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.LoadingStatus
@@ -159,7 +158,7 @@ class ReplyRepository @Inject constructor(
                 currentThreadId,
                 page
             ).run {
-                if (this is APISuccessDataResponse) convertServerData(data, page)
+                if (this is APIDataResponse.APISuccessDataResponse) convertServerData(data, page)
                 else {
                     if (downloadJob != null) {
                         Timber.e(message)
@@ -221,8 +220,8 @@ class ReplyRepository @Inject constructor(
     suspend fun addFeed(uuid: String, id: String) {
         Timber.i("Adding Feed $id")
         webService.addFeed(uuid, id).run {
-            if (this is APISuccessMessageResponse) {
-                if (messageType == MessageType.String) {
+            if (this is APIMessageResponse.APISuccessMessageResponse) {
+                if (messageType == APIMessageResponse.MessageType.String) {
                     addFeedResponse.postValue(
                         SingleLiveEvent.create(
                             LoadingStatus.SUCCESS,

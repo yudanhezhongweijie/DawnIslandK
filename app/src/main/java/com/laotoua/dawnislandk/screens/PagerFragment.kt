@@ -73,6 +73,7 @@ class PagerFragment : DaggerFragment() {
         /**
          *  fragment navigation within cause memory leak
          *  https://issuetracker.google.com/issues/154751401
+         *  https://issuetracker.google.com/issues/151212195
          */
         binding.viewPagerInterceptor.bindPager2(binding.viewPager2)
         binding.viewPagerInterceptor.bindDrawerListener { drawerLayout.open() }
@@ -81,17 +82,18 @@ class PagerFragment : DaggerFragment() {
          */
         (binding.viewPager2.getChildAt(0) as RecyclerView).overScrollMode = View.OVER_SCROLL_NEVER
 
-        binding.viewPager2.adapter = object : FragmentStateAdapter(this) {
-            override fun getItemCount(): Int = 3
-            override fun createFragment(position: Int): Fragment {
-                return when (position) {
-                    0 -> ThreadsFragment()
-                    1 -> TrendsFragment()
-                    2 -> FeedsFragment()
-                    else -> throw Exception("unhandled pager fragment creation")
+        binding.viewPager2.adapter =
+            object : FragmentStateAdapter(childFragmentManager, viewLifecycleOwner.lifecycle) {
+                override fun getItemCount(): Int = 3
+                override fun createFragment(position: Int): Fragment {
+                    return when (position) {
+                        0 -> ThreadsFragment()
+                        1 -> TrendsFragment()
+                        2 -> FeedsFragment()
+                        else -> throw Exception("unhandled pager fragment creation")
+                    }
                 }
             }
-        }
 
         binding.viewPager2.registerOnPageChangeCallback(titleUpdateCallback)
 //
@@ -140,7 +142,6 @@ class PagerFragment : DaggerFragment() {
         super.onDestroyView()
         binding.viewPager2.unregisterOnPageChangeCallback(titleUpdateCallback)
         binding.viewPagerInterceptor.clearPager2()
-        binding.viewPager2.adapter = null
         _binding = null
         Timber.d("Fragment View Destroyed")
     }

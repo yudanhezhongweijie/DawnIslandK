@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.data.local.Thread
-import com.laotoua.dawnislandk.data.remote.APISuccessMessageResponse
+import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.data.repository.DataResource
 import com.laotoua.dawnislandk.util.EventPayload
@@ -110,7 +110,7 @@ class FeedsViewModel @Inject constructor(private val webService: NMBServiceClien
         viewModelScope.launch(Dispatchers.IO) {
             webService.delFeed(applicationDataStore.feedId, id).run {
                 when (this) {
-                    is APISuccessMessageResponse -> {
+                    is APIMessageResponse.APISuccessMessageResponse -> {
                         feedsList.removeAt(position)
                         feedsIds.remove(id)
                         _delFeedResponse.postValue(

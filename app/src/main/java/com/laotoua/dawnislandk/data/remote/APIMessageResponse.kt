@@ -12,6 +12,29 @@ import timber.log.Timber
 sealed class APIMessageResponse {
     abstract val message: String
 
+    /**
+     * separate class for HTTP 204 responses so that we can make ApiSuccessResponse's body non-null.
+     */
+    class APIEmptyMessageResponse(
+        override val message: String = "EmptyResponse"
+    ) : APIMessageResponse()
+
+    data class APIErrorMessageResponse(
+        override val message: String,
+        val dom: Document? = null
+    ) : APIMessageResponse()
+
+    data class APISuccessMessageResponse(
+        val messageType: MessageType,
+        override val message: String,
+        val dom: Document? = null
+    ) : APIMessageResponse()
+
+    enum class MessageType {
+        HTML,
+        String
+    }
+
     companion object {
         suspend fun create(
             call: Call<ResponseBody>
@@ -65,27 +88,4 @@ sealed class APIMessageResponse {
             }
         }
     }
-}
-
-/**
- * separate class for HTTP 204 responses so that we can make ApiSuccessResponse's body non-null.
- */
-class APIEmptyMessageResponse(
-    override val message: String = "EmptyResponse"
-) : APIMessageResponse()
-
-data class APIErrorMessageResponse(
-    override val message: String,
-    val dom: Document? = null
-) : APIMessageResponse()
-
-data class APISuccessMessageResponse(
-    val messageType: MessageType,
-    override val message: String,
-    val dom: Document? = null
-) : APIMessageResponse()
-
-enum class MessageType {
-    HTML,
-    String
 }

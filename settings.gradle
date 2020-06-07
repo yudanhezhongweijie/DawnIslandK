@@ -1,2 +1,2 @@
 rootProject.name='DawnIslandK'
-include ':app',':libs:Xpopup'
+include ':app'

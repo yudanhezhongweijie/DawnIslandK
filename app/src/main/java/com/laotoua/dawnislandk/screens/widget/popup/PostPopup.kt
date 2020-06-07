@@ -23,8 +23,7 @@ import com.google.android.material.button.MaterialButtonToggleGroup
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.Cookie
-import com.laotoua.dawnislandk.data.remote.APISuccessMessageResponse
-import com.laotoua.dawnislandk.data.remote.MessageType
+import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.util.FragmentIntentUtil
@@ -508,8 +507,8 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
                 userHash
             ).run {
                 val message = when (this) {
-                    is APISuccessMessageResponse -> {
-                        if (this.messageType == MessageType.String) {
+                    is APIMessageResponse.APISuccessMessageResponse -> {
+                        if (this.messageType == APIMessageResponse.MessageType.String) {
                             message
                         } else {
                             dom!!.getElementsByClass("system-message")

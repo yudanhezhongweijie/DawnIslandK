@@ -1,7 +1,6 @@
 package com.laotoua.dawnislandk.data.repository
 
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
-import com.laotoua.dawnislandk.data.remote.APISuccessDataResponse
 
 sealed class DataResource<T>(
     val message: String,
@@ -10,7 +9,10 @@ sealed class DataResource<T>(
     companion object {
         fun <T> create(dataResponse: APIDataResponse<T>): DataResource<T> {
             return when (dataResponse) {
-                is APISuccessDataResponse -> Success(dataResponse.message, dataResponse.data)
+                is APIDataResponse.APISuccessDataResponse -> Success(
+                    dataResponse.message,
+                    dataResponse.data
+                )
                 else -> Error(dataResponse.message, dataResponse.data)
             }
         }

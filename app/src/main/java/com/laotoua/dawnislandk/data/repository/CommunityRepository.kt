@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import com.laotoua.dawnislandk.data.local.Community
 import com.laotoua.dawnislandk.data.local.dao.CommunityDao
-import com.laotoua.dawnislandk.data.remote.APIErrorDataResponse
+import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.LoadingStatus
@@ -33,7 +33,7 @@ class CommunityRepository @Inject constructor(
     private suspend fun getRemoteData(): List<Community> {
         _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.LOADING))
         webService.getCommunities().run {
-            if (this is APIErrorDataResponse) _loadingStatus.postValue(
+            if (this is APIDataResponse.APIErrorDataResponse) _loadingStatus.postValue(
                 SingleLiveEvent.create(
                     LoadingStatus.FAILED,
                     "无法读取板块列表...\n${message}"

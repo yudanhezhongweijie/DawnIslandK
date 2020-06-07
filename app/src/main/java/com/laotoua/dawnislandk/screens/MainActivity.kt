@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -143,12 +144,14 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
                 .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
                 .show(replyFrag)
                 .commit()
+            replyFrag.onResume()
         }
     }
 
     fun hideReply(): Boolean {
         supportFragmentManager.findFragmentByTag("reply")?.let {
             if (!it.isHidden) {
+                it.onPause()
                 supportFragmentManager.beginTransaction()
                     .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
                     .hide(it)

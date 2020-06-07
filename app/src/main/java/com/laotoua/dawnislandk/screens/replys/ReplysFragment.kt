@@ -34,6 +34,8 @@ import com.laotoua.dawnislandk.screens.widget.DoubleClickListener
 import com.laotoua.dawnislandk.screens.widget.popup.ImageLoader
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.screens.widget.popup.PostPopup
+import com.laotoua.dawnislandk.util.EventPayload
+import com.laotoua.dawnislandk.util.SingleLiveEvent
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.interfaces.SimpleCallback
@@ -46,7 +48,6 @@ import javax.inject.Inject
 
 class ReplysFragment : DaggerFragment() {
 
-    //TODO: maintain reply fragment when pressing back, such that progress can be remembered
     private var _binding: FragmentReplyBinding? = null
     private val binding get() = _binding!!
 
@@ -56,6 +57,8 @@ class ReplysFragment : DaggerFragment() {
     private val sharedVM: SharedViewModel by activityViewModels()
 
     private var isFabOpen = false
+    private var _mAdapter: QuickAdapter<Reply>? = null
+    private val mAdapter get() = _mAdapter!!
 
     // last visible item indicates the current page, uses for remembering last read page
     private var currentPage = 0
@@ -92,7 +95,7 @@ class ReplysFragment : DaggerFragment() {
         val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext()) }
         val jumpPopup: JumpPopup by lazyOnMainOnly { JumpPopup(requireContext()) }
 
-        val mAdapter = QuickAdapter<Reply>(R.layout.list_item_reply).apply {
+        _mAdapter = QuickAdapter<Reply>(R.layout.list_item_reply).apply {
             setReferenceClickListener { quote ->
                 // TODO: get Po based on Thread
                 QuotePopup.showQuote(
@@ -187,34 +190,13 @@ class ReplysFragment : DaggerFragment() {
                         }
                     }
 
-                    val lastCompletelyVisiblePos = llm.findLastVisibleItemPosition()
+                    val lastCompletelyVisiblePos = llm.findLastCompletelyVisibleItemPosition()
                     if (lastCompletelyVisiblePos < mAdapter.data.lastIndex) {
                         updateCurrentPage(mAdapter.getItem(lastCompletelyVisiblePos).page)
                     }
                 }
             })
         }
-
-        viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
-            it.getContentIfNotHandled()?.run {
-                updateHeaderAndFooter(binding.refreshLayout, mAdapter, this)
-            }
-        })
-
-        viewModel.replys.observe(viewLifecycleOwner, Observer {
-            if (it.isEmpty()) return@Observer
-            if (mAdapter.data.isEmpty()) updateCurrentPage(it.first().page)
-            mAdapter.setDiffNewData(it.toMutableList())
-            mAdapter.setPo(viewModel.po)
-            Timber.i("${this.javaClass.simpleName} Adapter will have ${mAdapter.data.size} threads")
-        })
-
-        sharedVM.selectedThreadId.observe(viewLifecycleOwner, Observer {
-            if (it != viewModel.currentThreadId) mAdapter.setList(emptyList())
-            viewModel.setThreadId(it)
-            updateTitle()
-            updateSubtitle()
-        })
 
         binding.filter.setOnClickListener {
             binding.filter.apply {
@@ -279,12 +261,57 @@ class ReplysFragment : DaggerFragment() {
             hideMenu()
             viewModel.addFeed(applicationDataStore.feedId, viewModel.currentThreadId!!)
         }
+    }
 
-        viewModel.addFeedResponse.observe(viewLifecycleOwner, Observer {
-            it.getContentIfNotHandled()?.let { eventPayload ->
-                Toast.makeText(context, eventPayload.message, Toast.LENGTH_SHORT).show()
-            }
-        })
+    private val addFeedObs = Observer<SingleLiveEvent<EventPayload<Nothing>>> {
+        it.getContentIfNotHandled()?.let { eventPayload ->
+            Toast.makeText(context, eventPayload.message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private val selectedThreadIdObs = Observer<String> {
+        if (it != viewModel.currentThreadId) mAdapter.setList(emptyList())
+        viewModel.setThreadId(it)
+        updateTitle()
+        updateSubtitle()
+    }
+
+    private val loadingStatusObs = Observer<SingleLiveEvent<EventPayload<Nothing>>> {
+        it.getContentIfNotHandled()?.run {
+            updateHeaderAndFooter(binding.refreshLayout, mAdapter, this)
+        }
+    }
+
+    private val replysObs = Observer<MutableList<Reply>> {
+        if (it.isEmpty()) return@Observer
+        if (mAdapter.data.isEmpty()) updateCurrentPage(it.first().page)
+        mAdapter.setDiffNewData(it.toMutableList())
+        mAdapter.setPo(viewModel.po)
+        Timber.i("${this.javaClass.simpleName} Adapter will have ${mAdapter.data.size} threads")
+    }
+
+    private fun subscribeUI() {
+        viewModel.addFeedResponse.observe(viewLifecycleOwner, addFeedObs)
+        sharedVM.selectedThreadId.observe(viewLifecycleOwner, selectedThreadIdObs)
+        viewModel.loadingStatus.observe(viewLifecycleOwner, loadingStatusObs)
+        viewModel.replys.observe(viewLifecycleOwner, replysObs)
+    }
+
+    private fun unsubscribeUI() {
+        viewModel.addFeedResponse.removeObserver(addFeedObs)
+        sharedVM.selectedThreadId.removeObserver(selectedThreadIdObs)
+        viewModel.loadingStatus.removeObserver(loadingStatusObs)
+        viewModel.replys.removeObserver(replysObs)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        unsubscribeUI()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        subscribeUI()
     }
 
     private fun copyId(text: String) {
@@ -300,7 +327,7 @@ class ReplysFragment : DaggerFragment() {
 
     private fun getCurrentPage(adapter: QuickAdapter<Reply>): Int {
         val pos = (binding.recyclerView.layoutManager as LinearLayoutManager)
-            .findLastCompletelyVisibleItemPosition()
+            .findLastVisibleItemPosition()
             .coerceAtLeast(0)
             .coerceAtMost(adapter.data.lastIndex)
         return adapter.getItem(pos).page
@@ -308,6 +335,7 @@ class ReplysFragment : DaggerFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        _mAdapter = null
         _binding = null
         Timber.d("Fragment View Destroyed")
     }

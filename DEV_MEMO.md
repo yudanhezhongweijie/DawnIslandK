@@ -1,9 +1,8 @@
 # Known Bugs
-- ~~`ActivityResultContracts.TakePicture() ` `<Uri, Bitmap?>` cannot gurantee result of a bitmap(i.e. default camera), I reported [here](https://issuetracker.google.com/issues/154302879)~~ Fixed on `Activity 1.2.0-alpha05` by changed result to a boolean for succesful save
-
+- ~~`ActivityResultContracts.TakePicture() ` `<Uri, Bitmap?>` cannot guarantee result of a bitmap(i.e. default camera), I reported [here](https://issuetracker.google.com/issues/154302879)~~ Fixed on `Activity 1.2.0-alpha05` by changed result to a boolean for successful save
 - ~~[VP2 memory leak]~~(https://issuetracker.google.com/issues/154751401). ~~Fragment Navigation in a fragment within a VP2, which hosted by a Fragment causes memory leak~~. [Fixed here](https://issuetracker.google.com/issues/151212195)
 - ~~[VP2 same direction nested scrolling](https://issuetracker.google.com/issues/123006042)~~ Currently solved by wrapping VP2 with a outer Frame and intercepts from parent
-
+- Too much measurement in RecyclerView Items, causing janks on some devices
 # Notes
 
 ## Saving image in Scoped Storage 

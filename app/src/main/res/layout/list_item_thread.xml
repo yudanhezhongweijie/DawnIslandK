@@ -17,7 +17,8 @@
         android:id="@+id/cardContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="15dp">
+        android:padding="15dp"
+        app:layout_optimizationLevel="standard|dimensions">
 
         <TextView
             android:id="@+id/userId"
@@ -54,6 +55,12 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="userId,timestamp,forumAndReplyCount"  />
         <TextView
             android:id="@+id/content"
             android:layout_width="0dp"
@@ -67,7 +74,7 @@
             android:textSize="16sp"
             app:layout_constraintEnd_toStartOf="@id/attachedImage"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/userId" />
+            app:layout_constraintTop_toBottomOf="@id/barrier" />
 
         <ImageView
             android:id="@+id/attachedImage"
@@ -77,7 +84,7 @@
             android:contentDescription="@string/image_description"
             android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/forumAndReplyCount" />
+            app:layout_constraintTop_toBottomOf="@id/barrier" />
 
         <TextView
             android:id="@+id/sage"
@@ -90,7 +97,7 @@
             android:textStyle="bold"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="@id/content"
+            app:layout_constraintTop_toTopOf="@id/barrier"
             tools:layout_editor_absoluteX="15dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

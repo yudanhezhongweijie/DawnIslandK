@@ -16,7 +16,8 @@
         android:id="@+id/cardContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="15dp">
+        android:padding="15dp"
+        app:layout_optimizationLevel="standard|dimensions">
 
         <View
             android:id="@+id/trendDivider"

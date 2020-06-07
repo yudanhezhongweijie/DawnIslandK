@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".screens.replys.ReplysFragment">
+    tools:context=".screens.replys.ReplysFragment"
+    app:layout_optimizationLevel="standard|dimensions">
 
     <ImageView
         android:id="@+id/imageView"

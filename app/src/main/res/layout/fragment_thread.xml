@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".screens.threads.ThreadsFragment">
+    tools:context=".screens.threads.ThreadsFragment"
+    app:layout_optimizationLevel="standard|dimensions">
 
     <me.dkzwm.widget.srl.MaterialSmoothRefreshLayout
         android:id="@+id/refreshLayout"

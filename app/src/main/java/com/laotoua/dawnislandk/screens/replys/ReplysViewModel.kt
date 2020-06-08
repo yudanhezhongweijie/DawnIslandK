@@ -41,7 +41,7 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
     }
 
     private fun loadLandingPage() {
-        getNextPage(false, replyRepo.landingPage)
+        getNextPage(false, replyRepo.getLandingPage())
     }
 
     fun saveReadingProgress(page: Int) {
@@ -72,7 +72,7 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
     private fun List<Reply>.attachHeadAndAd(page: Int) = toMutableList().apply {
         //  insert thread head & Ad below
         replyRepo.getAd(page)?.let { add(0, it) }
-        if (page == 1) add(0, replyRepo.currentThread.toReply())
+        if (page == 1) add(0, replyRepo.getHeaderReply())
     }
 
     private fun listenToNewPage(page: Int, filterIds: List<String>) {

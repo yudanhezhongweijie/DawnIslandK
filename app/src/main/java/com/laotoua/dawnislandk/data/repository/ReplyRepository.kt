@@ -22,20 +22,26 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
-import javax.inject.Singleton
 
 class ReplyRepository @Inject constructor(
     private val webService: NMBServiceClient,
     private val replyDao: ReplyDao,
     private val threadDao: ThreadDao
 ) {
-    var currentThreadId: String = ""
-    private var _currentThread: Thread? = null
-    val currentThread get() = _currentThread!!
-    private val pageMap = SparseArray<LiveData<List<Reply>>>()
-    private val adMap = SparseArray<Reply>()
-    private val maxReply get() = _currentThread?.replyCount?.toInt() ?: 0
-    val po get() = _currentThread?.userid ?: ""
+    var currentThreadId: String = "0"
+    private val currentThreadIdInt get() = currentThreadId.toInt()
+
+    /** remember all pages for last 30 thread, using threadId and page as index
+     * using fifoList to pop the first page
+     */
+    private val cacheCap = 30
+    private val threadMap = SparseArray<Thread>(cacheCap)
+    private val replysMap = SparseArray<SparseArray<LiveData<List<Reply>>>>(cacheCap)
+    private val fifoList = mutableListOf<Int>()
+    private val adMap = SparseArray<SparseArray<Reply>>()
+
+    private val maxReply get() = threadMap[currentThreadIdInt]?.replyCount?.toInt() ?: 0
+    val po get() = threadMap[currentThreadIdInt]?.userid ?: ""
     val maxPage get() = 1.coerceAtLeast(kotlin.math.ceil(maxReply.toDouble() / 19).toInt())
     val loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
     val addFeedResponse = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
@@ -43,34 +49,43 @@ class ReplyRepository @Inject constructor(
     private var downloadJob: Job? = null
     val emptyPage = MutableLiveData<Boolean>()
 
-    fun getAd(page: Int): Reply? = adMap[page]
+    fun getAd(page: Int): Reply? = adMap[currentThreadIdInt]?.get(page)
 
-    var landingPage = 1
     suspend fun setThreadId(id: String) {
         if (id == currentThreadId) return
         setLoadingStatus(LoadingStatus.LOADING)
         clearCachedPages()
         Timber.d("Setting new Thread: $id")
         currentThreadId = id
-        threadDao.findThreadByIdSync(id)?.let {
-            _currentThread = it
-            // set default page
-            if (DawnApp.applicationDataStore.readingProgressStatus) {
-                landingPage = it.readingProgress
+        if (threadMap[currentThreadIdInt] == null) {
+            threadDao.findThreadByIdSync(id)?.let {
+                threadMap.put(currentThreadIdInt, it)
             }
         }
     }
 
-    suspend fun saveReadingProgress(progress: Int) =
+    // set default page
+    fun getLandingPage(): Int {
+        return if (DawnApp.applicationDataStore.readingProgressStatus) {
+            threadMap[currentThreadIdInt]?.readingProgress ?: 1
+        } else 1
+    }
+
+    fun getHeaderReply(): Reply = threadMap[currentThreadIdInt]!!.toReply()
+
+    suspend fun saveReadingProgress(progress: Int) {
+        threadMap[currentThreadIdInt].readingProgress = progress
         threadDao.updateReadingProgressWithTimestampById(currentThreadId, progress)
+    }
 
     private fun clearCachedPages() {
-        Timber.d("Clearing cache on ${_currentThread?.id}...")
-        _currentThread = null
-        landingPage = 1
+        Timber.d("Clearing cache on ${threadMap[currentThreadIdInt]?.id}...")
         emptyPage.value = false
-        pageMap.clear()
-        adMap.clear()
+        for (i in 0 until (replysMap.size() - cacheCap)) {
+            replysMap.delete(fifoList.first())
+            threadMap.delete(fifoList.first())
+            fifoList.removeAt(0)
+        }
         downloadJob?.cancel()
         downloadJob = null
     }
@@ -80,21 +95,28 @@ class ReplyRepository @Inject constructor(
      *  w/o cookie, always have 20 reply w. ad
      *  *** here DB only store nonAd data
      */
-    fun checkFullPage(page: Int): Boolean = (pageMap[page]?.value?.size == 19)
+    fun checkFullPage(page: Int): Boolean =
+        (replysMap[currentThreadIdInt]?.get(page)?.value?.size == 19)
 
     fun setLoadingStatus(status: LoadingStatus, message: String? = null) =
         loadingStatus.postValue(SingleLiveEvent.create(status, message))
 
     fun getLivePage(page: Int): LiveData<List<Reply>> {
-        if (pageMap[page] == null) {
-            pageMap.put(page, liveData<List<Reply>>(Dispatchers.IO) {
-                Timber.d("Querying data for Thread $currentThreadId on #$page")
-                setLoadingStatus(LoadingStatus.LOADING)
-                emitSource(getLocalData(page))
-                downloadJob = getServerData(page)
-            })
+        if (replysMap[currentThreadIdInt] == null) {
+            replysMap.append(currentThreadIdInt, SparseArray<LiveData<List<Reply>>>())
+            fifoList.add(currentThreadIdInt)
         }
-        return pageMap[page]
+        replysMap[currentThreadIdInt]!!.let {
+            if (it[page] == null) {
+                it.append(page, liveData<List<Reply>>(Dispatchers.IO) {
+                    Timber.d("Querying data for Thread $currentThreadId on $page")
+                    setLoadingStatus(LoadingStatus.LOADING)
+                    emitSource(getLocalData(page))
+                    downloadJob = getServerData(page)
+                })
+            }
+            return it[page]
+        }
     }
 
     private fun getLocalData(page: Int): LiveData<List<Reply>> =
@@ -121,7 +143,7 @@ class ReplyRepository @Inject constructor(
 
     private suspend fun convertServerData(data: Thread, page: Int) {
         // update current thread with latest info
-        if (!data.equalsWithServerData(_currentThread)) {
+        if (!data.equalsWithServerData(threadMap[currentThreadIdInt])) {
             saveThread(data)
         }
         val noAd = mutableListOf<Reply>()
@@ -129,8 +151,12 @@ class ReplyRepository @Inject constructor(
             it.page = page
             it.parentId = currentThreadId
             // handle Ad
-            if (it.isAd()) adMap.put(page, it)
-            else noAd.add(it)
+            if (it.isAd()) {
+                if (adMap[currentThreadIdInt] == null) {
+                    adMap.append(currentThreadIdInt, SparseArray<Reply>())
+                }
+                adMap[currentThreadIdInt]!!.append(page, it)
+            } else noAd.add(it)
         }
         /**
          *  On the first or last page, show NO DATA to indicate footer load end;
@@ -143,7 +169,7 @@ class ReplyRepository @Inject constructor(
             return
         }
 
-        if (pageMap[page]?.value.equalsExceptTimestamp(noAd) && page == maxPage) {
+        if (replysMap[currentThreadIdInt]!![page]?.value.equalsExceptTimestamp(noAd) && page == maxPage) {
             setLoadingStatus(LoadingStatus.NODATA)
             return
         }
@@ -155,10 +181,10 @@ class ReplyRepository @Inject constructor(
     private suspend fun saveReplys(replys: List<Reply>) = replyDao.insertAllWithTimeStamp(replys)
 
     private suspend fun saveThread(thread: Thread) {
-        _currentThread?.run {
-            thread.readingProgress = this.readingProgress
+        threadMap[currentThreadIdInt]?.run {
+            thread.readingProgress = readingProgress
         }
-        _currentThread = thread
+        threadMap.put(currentThreadIdInt, thread.stripCopy())
         threadDao.insertWithTimeStamp(thread)
     }
 

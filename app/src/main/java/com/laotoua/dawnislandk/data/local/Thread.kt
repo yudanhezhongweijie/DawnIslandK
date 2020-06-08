@@ -105,4 +105,26 @@ data class Thread(
     fun setUpdatedTimestamp(time: Long? = null) {
         lastUpdatedAt = time ?: Date().time
     }
+
+    fun stripCopy():Thread =
+        copy(
+            id = id,
+            fid = fid,
+            category = category,
+            img = img,
+            ext = ext,
+            now = now,
+            userid = userid,
+            name = name,
+            email = email,
+            title = title,
+            content = content,
+            sage = sage,
+            admin = admin,
+            status = status,
+            replys = emptyList(),
+            replyCount = replyCount,
+            readingProgress = readingProgress,
+            lastUpdatedAt = lastUpdatedAt)
+
 }

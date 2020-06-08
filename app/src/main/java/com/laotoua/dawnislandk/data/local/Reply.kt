@@ -29,24 +29,8 @@ data class Reply(
     @Ignore
     var visible: Boolean = true
 
-    @Ignore
-    var mTitleAndName: String? = null
-
-    fun getTitleAndName(): String {
-        if (mTitleAndName == null) {
-            mTitleAndName = ""
-            if (title != "" && title != "无标题") {
-                mTitleAndName += "标题：$title"
-            }
-            if (name != "" && name != "无名氏") {
-                if (mTitleAndName!!.isNotEmpty()) {
-                    mTitleAndName += "\n"
-                }
-                mTitleAndName += "作者：$name"
-            }
-        }
-        return mTitleAndName!!
-    }
+    fun getSimplifiedTitle(): String = if (title.isNotBlank() && title != "无标题") "标题：$title" else ""
+    fun getSimplifiedName(): String = if (name.isNotBlank() && name != "无名氏") "作者：$name" else ""
 
     fun getImgUrl(): String = (img + ext)
     fun isNotAd(): Boolean = (id != "9999999")

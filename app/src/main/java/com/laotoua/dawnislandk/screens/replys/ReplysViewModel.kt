@@ -14,7 +14,7 @@ import javax.inject.Inject
 import kotlin.collections.set
 
 class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository) : ViewModel() {
-    val currentThreadId: String? get() = replyRepo.currentThreadId
+    val currentThreadId: String get() = replyRepo.currentThreadId
     val po get() = replyRepo.po
 
     private val replyList = mutableListOf<Reply>()
@@ -33,16 +33,19 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
 
     fun setThreadId(id: String) {
         if (id != currentThreadId) clearCache(true)
-        replyRepo.setThreadId(id)
-        viewModelScope.launch { if (replyList.isEmpty()) loadReadingProgress(id) }
+        viewModelScope.launch {
+            replyRepo.setThreadId(id)
+            if (replyList.isEmpty()) loadLandingPage()
+        }
     }
 
-    private suspend fun loadReadingProgress(id: String) {
-        getNextPage(false, replyRepo.getReadingProgress(id))
+    private fun loadLandingPage() {
+        getNextPage(false, replyRepo.landingPage)
     }
 
-    fun saveReadingProgress(page: Int) =
+    fun saveReadingProgress(page: Int) {
         viewModelScope.launch { replyRepo.saveReadingProgress(page) }
+    }
 
     /** sometimes VM is KILLED but repo IS ALIVE, cache in Repo
      *  may show current page is full so should get next page,
@@ -65,18 +68,29 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
         listenToNewPage(lastPage, filterIds)
     }
 
-    private fun List<Reply>.attachAd(page: Int) = toMutableList().apply {
-        //  insert Ad below thread head or as first
-        replyRepo.getAd(page)?.let { add(if (page == 1) 1 else 0, it) }
+    private fun List<Reply>.attachHeadAndAd(page: Int) = toMutableList().apply {
+        //  insert thread head & Ad below
+        replyRepo.getAd(page)?.let { add(0, it) }
+        if (page == 1) add(0, replyRepo.currentThread.toReply())
     }
 
     private fun listenToNewPage(page: Int, filterIds: List<String>) {
-        val newPage = replyRepo.getLiveDataOnPage(page)
+        val newPage = replyRepo.getLivePage(page)
         if (listeningPages[page] != newPage) {
             listeningPages[page] = newPage
             replys.addSource(newPage) {
                 if (!it.isNullOrEmpty()) {
-                    handleNewPageData(it.attachAd(page), filterIds)
+                    mergeNewPage(it.attachHeadAndAd(page), filterIds)
+                    replys.value = replyList
+                    replyRepo.setLoadingStatus(LoadingStatus.SUCCESS)
+                }
+            }
+            if (page == 1){
+                replys.addSource(replyRepo.emptyPage){
+                    if (it == true){
+                        mergeNewPage(emptyList<Reply>().attachHeadAndAd(page), filterIds)
+                        replys.value = replyList
+                    }
                 }
             }
         } else {
@@ -103,14 +117,9 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
         }
     }
 
-    private fun handleNewPageData(list: MutableList<Reply>, filterIds: List<String>) {
-        mergeNewPage(list, filterIds)
-        replys.postValue(replyList)
-        replyRepo.setLoadingStatus(LoadingStatus.SUCCESS)
-    }
-
     private fun clearCache(clearFilter: Boolean) {
         listeningPages.values.map { replys.removeSource(it) }
+        if (listeningPages.keys.contains(1)) replys.removeSource(replyRepo.emptyPage)
         listeningPages.clear()
         replyList.clear()
         if (clearFilter) clearFilter()

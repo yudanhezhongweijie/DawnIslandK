@@ -115,6 +115,8 @@ class QuickAdapter<T>(private val layoutResId: Int) :
 
     private fun BaseViewHolder.convertThread(item: Thread, forumDisplayName: String) {
         convertUserId(item.userid, item.admin)
+        convertTitleAndName(item.getSimplifiedTitle(), item.getSimplifiedName())
+        convertRefId(item.id)
         convertTimeStamp(item.now)
         convertForumAndReply(item.replyCount, forumDisplayName)
         convertSage(item.sage)
@@ -126,6 +128,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
         payload: Payload.ThreadPayload, forumDisplayName: String
     ) {
         convertTimeStamp(payload.now)
+        convertTitleAndName(payload.title, payload.name)
         convertForumAndReply(payload.replyCount, forumDisplayName)
         convertSage(payload.sage)
         convertContent(payload.content)
@@ -138,7 +141,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
         convertRefId(item.id)
         convertImage(item.getImgUrl(), item.visible)
         convertContent(item.content, referenceClickListener, item.visible)
-        convertTitleAndName(item.getTitleAndName(), item.visible)
+        convertTitleAndName(item.getSimplifiedTitle(), item.getSimplifiedName(), item.visible)
         convertExpandSummary(item.visible)
     }
 
@@ -149,7 +152,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
         convertSage(payload.sage)
         convertContent(payload.content, referenceClickListener, payload.visible)
         convertImage(payload.imgUrl, payload.visible)
-        convertTitleAndName(payload.titleAndName, payload.visible)
+        convertTitleAndName(payload.title, payload.name, payload.visible)
         convertExpandSummary(payload.visible)
     }
 
@@ -205,15 +208,25 @@ class QuickAdapter<T>(private val layoutResId: Int) :
 
     private fun BaseViewHolder.convertRefId(id: String) {
         // TODO: handle ads
-        setText(R.id.refId, id)
+        setText(R.id.refId, "No.$id")
     }
 
-    private fun BaseViewHolder.convertTitleAndName(titleAndName: String, visible: Boolean = true) {
-        if (titleAndName.isNotBlank() && visible) {
-            setText(R.id.titleAndName, titleAndName)
-            setVisible(R.id.titleAndName, true)
+    private fun BaseViewHolder.convertTitleAndName(
+        title: String,
+        name: String,
+        visible: Boolean = true
+    ) {
+        if (title.isNotBlank() && visible) {
+            setText(R.id.title, title)
+            setVisible(R.id.title, true)
         } else {
-            setGone(R.id.titleAndName, true)
+            setGone(R.id.title, true)
+        }
+        if (name.isNotBlank() && visible) {
+            setText(R.id.name, name)
+            setVisible(R.id.name, true)
+        } else {
+            setGone(R.id.name, true)
         }
     }
 
@@ -295,6 +308,8 @@ class QuickAdapter<T>(private val layoutResId: Int) :
                             && oldItem.sage == newItem.sage
                             && oldItem.replyCount == newItem.replyCount
                             && oldItem.content == newItem.content
+                            && oldItem.title == newItem.title
+                            && oldItem.name == newItem.name
                 }
                 (oldItem is Reply && newItem is Reply) -> {
                     if (oldItem.isAd() && newItem.isAd()) true
@@ -302,6 +317,8 @@ class QuickAdapter<T>(private val layoutResId: Int) :
                             && oldItem.sage == newItem.sage
                             && oldItem.content == newItem.content
                             && oldItem.visible == newItem.visible
+                            && oldItem.title == newItem.title
+                            && oldItem.name == newItem.name
                 }
                 (oldItem is Trend && newItem is Trend) -> true
                 else -> throw Exception("Unhandled type comparison")
@@ -315,7 +332,9 @@ class QuickAdapter<T>(private val layoutResId: Int) :
                         newItem.now,
                         newItem.content,
                         newItem.sage,
-                        newItem.replyCount
+                        newItem.replyCount,
+                        newItem.getSimplifiedTitle(),
+                        newItem.getSimplifiedName()
                     )
                 }
                 (oldItem is Reply && newItem is Reply) -> {
@@ -325,7 +344,8 @@ class QuickAdapter<T>(private val layoutResId: Int) :
                         newItem.sage,
                         newItem.visible,
                         newItem.getImgUrl(),
-                        newItem.getTitleAndName()
+                        newItem.getSimplifiedTitle(),
+                        newItem.getSimplifiedName()
                     )
                 }
                 (oldItem is Trend && newItem is Trend) -> {
@@ -341,7 +361,9 @@ class QuickAdapter<T>(private val layoutResId: Int) :
             val now: String,
             val content: String,
             val sage: String,
-            val replyCount: String
+            val replyCount: String,
+            val title: String,
+            val name: String
         )
 
         class ReplyPayload(
@@ -350,7 +372,8 @@ class QuickAdapter<T>(private val layoutResId: Int) :
             val sage: String,
             val visible: Boolean,
             val imgUrl: String,
-            val titleAndName: String
+            val title: String,
+            val name: String
         )
     }
 }

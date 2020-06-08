@@ -28,7 +28,7 @@ fun List<Thread>?.equalsExceptTimeStampAndReply(targetList: List<Thread>?): Bool
     else if (this.size != targetList.size) false
     else {
         this.zip(targetList).all { (t1, t2) ->
-            t1.equalsExceptTimestampAndReply(t2)
+            t1.equalsWithServerData(t2)
         }
     }
 }

@@ -88,8 +88,10 @@ data class Thread(
     fun isDataComplete(): Boolean = (userid.isNotBlank() && now.isNotBlank())
 
     fun getImgUrl() = (img + ext)
+    fun getSimplifiedTitle(): String = if (title.isNotBlank() && title != "无标题") "标题：$title" else ""
+    fun getSimplifiedName(): String = if (name.isNotBlank() && name != "无名氏") "作者：$name" else ""
 
-    fun equalsExceptTimestampAndReply(target: Thread?): Boolean =
+    fun equalsWithServerData(target: Thread?): Boolean =
         if (target == null) false
         else id == target.id && fid == target.fid
                 && category == target.category && img == target.img
@@ -98,7 +100,7 @@ data class Thread(
                 && email == target.email && title == target.title
                 && content == target.content && sage == target.sage
                 && admin == target.admin && status == target.status
-                && replyCount == target.replyCount && readingProgress == target.readingProgress
+                && replyCount == target.replyCount
 
     fun setUpdatedTimestamp(time: Long? = null) {
         lastUpdatedAt = time ?: Date().time

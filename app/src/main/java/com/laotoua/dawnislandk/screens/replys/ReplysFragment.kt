@@ -190,9 +190,9 @@ class ReplysFragment : DaggerFragment() {
                         }
                     }
 
-                    val lastCompletelyVisiblePos = llm.findLastCompletelyVisibleItemPosition()
-                    if (lastCompletelyVisiblePos < mAdapter.data.lastIndex) {
-                        updateCurrentPage(mAdapter.getItem(lastCompletelyVisiblePos).page)
+                    val lastVisiblePos = llm.findLastVisibleItemPosition()
+                    if (lastVisiblePos < mAdapter.data.lastIndex) {
+                        updateCurrentPage(mAdapter.getItem(lastVisiblePos).page)
                     }
                 }
             })
@@ -259,7 +259,7 @@ class ReplysFragment : DaggerFragment() {
 
         binding.addFeed.setOnClickListener {
             hideMenu()
-            viewModel.addFeed(applicationDataStore.feedId, viewModel.currentThreadId!!)
+            viewModel.addFeed(applicationDataStore.feedId, viewModel.currentThreadId)
         }
     }
 
@@ -270,7 +270,11 @@ class ReplysFragment : DaggerFragment() {
     }
 
     private val selectedThreadIdObs = Observer<String> {
-        if (it != viewModel.currentThreadId) mAdapter.setList(emptyList())
+        if (it != viewModel.currentThreadId) {
+            mAdapter.setList(emptyList())
+            binding.pageCounter.text = ""
+            currentPage = 0
+        }
         viewModel.setThreadId(it)
         updateTitle()
         updateSubtitle()
@@ -390,9 +394,9 @@ class ReplysFragment : DaggerFragment() {
     private fun updateCurrentPage(page: Int) {
         if (page != currentPage) {
             viewModel.saveReadingProgress(page)
-            binding.pageCounter.text = page.toString().toSpannable().apply {
-                setSpan(UnderlineSpan(), 0, this.length, 0)
-            }
+            binding.pageCounter.text =
+                (page.toString() + " / " + viewModel.maxPage.toString()).toSpannable()
+                    .apply { setSpan(UnderlineSpan(), 0, length, 0) }
 
             currentPage = page
         }

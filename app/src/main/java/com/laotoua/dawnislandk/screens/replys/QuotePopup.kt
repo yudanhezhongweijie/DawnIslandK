@@ -114,10 +114,20 @@ class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterP
             }
         }
 
-        val titleAndName = quote!!.getTitleAndName()
-        findViewById<TextView>(R.id.titleAndName).run {
-            if (titleAndName != "") {
-                text = titleAndName
+        val title = quote!!.getSimplifiedTitle()
+        findViewById<TextView>(R.id.title).run {
+            if (title.isNotBlank()) {
+                text = title
+                visibility = View.VISIBLE
+            } else {
+                visibility = View.GONE
+            }
+        }
+
+        val name = quote!!.getSimplifiedName()
+        findViewById<TextView>(R.id.name).run {
+            if (name.isNotBlank()) {
+                text = title
                 visibility = View.VISIBLE
             } else {
                 visibility = View.GONE

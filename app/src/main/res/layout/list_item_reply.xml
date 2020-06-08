@@ -28,6 +28,7 @@
         android:textAppearance="@style/ContentBarText"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -61,18 +62,27 @@
         android:text="@string/sample_timestamp_plain"
         android:textAppearance="@style/ContentBarText"
         android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="@id/refId"
-        app:layout_constraintStart_toStartOf="@id/userId"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/titleAndName"
+        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/sample_title_and_name"
         android:textSize="14sp"
         android:visibility="gone"
+        android:textAppearance="@style/ContentBarText"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sage" />
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textAppearance="@style/ContentBarText"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/sage" />
 
     <androidx.constraintlayout.widget.Barrier
@@ -80,17 +90,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:constraint_referenced_ids="userId,sage,titleAndName" />
-
-    <TextView
-        android:id="@+id/numberPrefix"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/number_prefix"
-        android:textAppearance="@style/ContentBarText"
-        android:textSize="14sp"
-        app:layout_constraintEnd_toStartOf="@id/refId"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:constraint_referenced_ids="userId,sage,title, name" />
 
     <ImageView
         android:id="@+id/attachedImage"

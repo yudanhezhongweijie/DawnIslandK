@@ -26,6 +26,7 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@android:color/transparent"
         android:focusable="false"
+        app:contentInsetStartWithNavigation="0dp"
         app:layout_constraintTop_toTopOf="parent"
         app:subtitle="adnmb.com"
         app:subtitleTextColor="#FFFFFF"

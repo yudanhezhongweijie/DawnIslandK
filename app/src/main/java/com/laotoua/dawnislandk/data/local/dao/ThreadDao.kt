@@ -31,6 +31,13 @@ interface ThreadDao {
     @Update
     suspend fun updateThreads(vararg threads: Thread)
 
+    @Query("UPDATE Thread SET readingProgress=:progress, lastUpdatedAt=:timestamp WHERE id=:id")
+    suspend fun updateReadingProgressById(id: String, progress: Int, timestamp: Long)
+
+    suspend fun updateReadingProgressWithTimestampById(id: String, progress: Int) {
+        updateReadingProgressById(id, progress, Date().time)
+    }
+
     @Update
     suspend fun updateThreadsWithTimeStamp(vararg threads: Thread) {
         val timestamp = Date().time

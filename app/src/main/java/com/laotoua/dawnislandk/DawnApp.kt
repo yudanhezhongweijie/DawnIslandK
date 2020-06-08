@@ -2,6 +2,7 @@ package com.laotoua.dawnislandk
 
 import com.laotoua.dawnislandk.data.local.ApplicationDataStore
 import com.laotoua.dawnislandk.data.local.dao.CookieDao
+import com.laotoua.dawnislandk.data.local.dao.ReplyDao
 import com.laotoua.dawnislandk.di.DaggerDawnAppComponent
 import com.laotoua.dawnislandk.util.ReadableTime
 import com.tencent.mmkv.MMKV
@@ -27,6 +28,9 @@ class DawnApp : DaggerApplication() {
     @Inject
     lateinit var cookieDao: CookieDao
 
+    @Inject
+    lateinit var replyDao: ReplyDao
+
     override fun onCreate() {
         super.onCreate()
         Timber.plant(Timber.DebugTree())
@@ -35,7 +39,7 @@ class DawnApp : DaggerApplication() {
         MMKV.initialize(this)
         MMKV.registerHandler(handler)
 
-        applicationDataStore = ApplicationDataStore(cookieDao)
+        applicationDataStore = ApplicationDataStore(cookieDao,replyDao)
 
         // Time
         ReadableTime.initialize(this)

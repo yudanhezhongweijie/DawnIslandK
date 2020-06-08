@@ -1,13 +1,13 @@
 package com.laotoua.dawnislandk.data.local
 
 import com.laotoua.dawnislandk.data.local.dao.CookieDao
+import com.laotoua.dawnislandk.data.local.dao.ReplyDao
 import com.laotoua.dawnislandk.util.Constants
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.tencent.mmkv.MMKV
 import java.util.*
-import javax.inject.Inject
 
-class ApplicationDataStore @Inject constructor(private val cookieDao: CookieDao) {
+class ApplicationDataStore(private val cookieDao: CookieDao, private val replyDao: ReplyDao) {
 
     private var mCookies = mutableListOf<Cookie>()
     val cookies get() = mCookies
@@ -64,5 +64,9 @@ class ApplicationDataStore @Inject constructor(private val cookieDao: CookieDao)
         cookies.first { it.cookieHash == cookie.cookieHash }.cookieName =
             cookie.cookieName
         cookieDao.updateCookie(cookie)
+    }
+
+    suspend fun nukeReplyTable() {
+        replyDao.nukeTable()
     }
 }

@@ -128,4 +128,8 @@
     <string name="checked_filtered_reply" translatable="false">查看%dcm小秘密</string>
     <string name="transparent_white" translatable="false">(*´∀`)简约黑白</string>
     <string name="colorful" translatable="false">炫酷全彩(つд⊂)</string>
+    <string name="clear_reply_cache" translatable="false">清除本地回复缓存</string>
+    <string name="clear_reply_cache_confirm_message" translatable="false">将要清除串回复的缓存，不会清除阅读进度和饼干。清除后数据不能回复！确认清除吗？</string>
+    <string name="cleared_reply_cache_message" translatable="false">串回复的缓存已经清除</string>
+    <string name="acknowledge" translatable="false">我知道了</string>
 </resources>

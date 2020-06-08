@@ -17,6 +17,8 @@ import androidx.navigation.fragment.findNavController
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.WhichButton
 import com.afollestad.materialdialogs.actions.getActionButton
+import com.afollestad.materialdialogs.actions.setActionButtonEnabled
+import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.input.input
 import com.afollestad.materialdialogs.list.listItems
@@ -32,6 +34,7 @@ import com.laotoua.dawnislandk.util.Constants
 import com.laotoua.dawnislandk.util.FragmentIntentUtil
 import com.laotoua.dawnislandk.util.ImageUtil
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import timber.log.Timber
@@ -237,6 +240,32 @@ class SettingsFragment : Fragment() {
                 val action =
                     SettingsFragmentDirections.actionSettingsFragmentToSizeCustomizationFragment()
                 findNavController().navigate(action)
+            }
+        }
+
+        binding.clearReplyCache.apply {
+            key.setText(R.string.clear_reply_cache)
+            root.setOnClickListener {
+                MaterialDialog(requireContext()).show {
+                    title(R.string.clear_reply_cache)
+                    message(R.string.clear_reply_cache_confirm_message)
+                    cornerRadius(res = R.dimen.dialog_radius)
+                    setActionButtonEnabled(WhichButton.POSITIVE, false)
+                    checkBoxPrompt(R.string.acknowledge) { checked ->
+                        setActionButtonEnabled(WhichButton.POSITIVE, checked)
+                    }
+                    positiveButton(R.string.submit) {
+                        GlobalScope.launch {
+                            applicationDataStore.nukeReplyTable()
+                            Toast.makeText(
+                                context,
+                                R.string.cleared_reply_cache_message,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                    negativeButton(R.string.cancel)
+                }
             }
         }
     }

@@ -34,5 +34,5 @@ interface ReplyDao {
     suspend fun delete(reply: Reply)
 
     @Query("DELETE FROM Reply")
-    fun nukeTable()
+    suspend fun nukeTable()
 }

@@ -31,9 +31,7 @@ object ContentTransformation {
         }
     }
 
-    fun transformForumName(forumName: String): Spanned {
-        return htmlToSpanned(forumName)
-    }
+    fun transformForumName(forumName: String) = htmlToSpanned(forumName)
 
     fun transformCookie(userId: String, admin: String, po: String = ""): Spannable {
         /**
@@ -57,52 +55,44 @@ object ContentTransformation {
         return cookie
     }
 
-    fun transformTime(now: String): String {
-        return ReadableTime.getDisplayTime(now)
-    }
+    fun transformTime(now: String): String = ReadableTime.getDisplayTime(now)
 
     fun transformContent(
         content: String,
         lineHeight: Int = DawnApp.applicationDataStore.lineHeight,
         segGap: Int = DawnApp.applicationDataStore.lineHeight,
-        referenceClickListener: ((String) -> Unit)? = null
+        referenceClickListener: ReferenceSpan.ReferenceClickHandler? = null
     ): SpannableStringBuilder {
-        return SpannableStringBuilder(htmlToSpanned(content)).apply {
-            handleTextUrl(this)
-            handleReference(this, referenceClickListener)
-            handleAcUrl(this)
-            handleHideTag(this)
-            handleLineHeightAndSegGap(this, lineHeight, segGap)
+        return SpannableStringBuilder(htmlToSpanned(content))
+            .handleTextUrl()
+            .handleReference(referenceClickListener)
+            .handleAcUrl()
+            .handleHideTag()
+            .handleLineHeightAndSegGap(lineHeight, segGap)
+    }
+
+    private fun SpannableStringBuilder.handleLineHeightAndSegGap(lineHeight: Int, segGap: Int) =
+        apply {
+            // apply segGap if no clear newline in content
+            val mSegGap = if (contains("\n\n")) lineHeight else segGap
+            setSpan(
+                SegmentSpacingSpan(lineHeight, mSegGap),
+                0,
+                length,
+                Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+            )
         }
-    }
 
-    private fun handleLineHeightAndSegGap(
-        content: SpannableStringBuilder,
-        lineHeight: Int,
-        segGap: Int
-    ) {
-        // apply segGap if no clear newline in content
-        val mSegGap = if (content.contains("\n\n")) lineHeight else segGap
-        content.setSpan(
-            SegmentSpacingSpan(lineHeight, mSegGap),
-            0,
-            content.length,
-            Spanned.SPAN_INCLUSIVE_EXCLUSIVE
-        )
-
-    }
-
-    private fun handleReference(
-        content: SpannableStringBuilder,
-        referenceClickListener: ((id: String) -> Unit)? = null
-    ): SpannableStringBuilder {
+    private fun SpannableStringBuilder.handleReference(
+        referenceClickListener: ReferenceSpan.ReferenceClickHandler? = null
+    ) = apply {
         if (referenceClickListener != null) {
-            val m: Matcher = REFERENCE_PATTERN.matcher(content)
+            val m: Matcher = REFERENCE_PATTERN.matcher(this)
             while (m.find()) {
                 val start = m.start()
                 val end = m.end()
                 val referenceSpan = ReferenceSpan(m.group(1)!!, referenceClickListener)
-                content.setSpan(
+                setSpan(
                     referenceSpan,
                     start,
                     end,
@@ -110,76 +100,55 @@ object ContentTransformation {
                 )
             }
         }
-        return content
     }
 
-    private fun handleTextUrl(content: SpannableStringBuilder): SpannableStringBuilder {
-        val m: Matcher = URL_PATTERN.matcher(content)
+    private fun SpannableStringBuilder.handleTextUrl() = apply {
+        val m: Matcher = URL_PATTERN.matcher(this)
         while (m.find()) {
             val start = m.start()
             val end = m.end()
-            val links: Array<URLSpan> =
-                content.getSpans(
-                    start, end,
-                    URLSpan::class.java
-                )
+            val links: Array<URLSpan> = getSpans(start, end, URLSpan::class.java)
             if (links.isNotEmpty()) {
                 // There has been URLSpan already, leave it alone
                 continue
             }
             val urlSpan = URLSpan(m.group(0))
-            content.setSpan(
-                urlSpan,
-                start,
-                end,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
+            setSpan(urlSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
-        return content
     }
 
-    private fun handleAcUrl(content: SpannableStringBuilder): SpannableStringBuilder {
-        val m: Matcher = AC_PATTERN.matcher(content)
+    private fun SpannableStringBuilder.handleAcUrl() = apply {
+        val m: Matcher = AC_PATTERN.matcher(this)
         while (m.find()) {
             val start = m.start()
             val end = m.end()
-            val links =
-                content.getSpans(
-                    start, end,
-                    URLSpan::class.java
-                )
+            val links = this.getSpans(start, end, URLSpan::class.java)
             if (links.isNotEmpty()) {
                 // There has been URLSpan already, leave it alone
                 continue
             }
-            val urlSpan =
-                URLSpan("http://www.acfun.cn/v/" + m.group(0))
-            content.setSpan(urlSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            val urlSpan = URLSpan("http://www.acfun.cn/v/" + m.group(0))
+            this.setSpan(urlSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
-        return content
     }
 
-    private fun handleHideTag(content: SpannableStringBuilder): SpannableStringBuilder {
-        val m: Matcher = HIDE_PATTERN.matcher(content)
+    private fun SpannableStringBuilder.handleHideTag() = apply {
+        val m: Matcher = HIDE_PATTERN.matcher(this)
         var matchCount = 0
         while (m.find()) {
             val start = m.start() - 7 * matchCount
             val end = m.end() - 7 * matchCount
-            /**
-             *  remove surrounding [h][/h]
-             */
-            content.replace(start, end, content.subSequence(start + 3, end - 4))
+            //  remove surrounding [h][/h]
+            replace(start, end, this.subSequence(start + 3, end - 4))
             // Don't hide if there are clickable spans already
-            if (content.getSpans(start + 3, end - 4, URLSpan::class.java).isNotEmpty() ||
-                content.getSpans(start + 3, end - 4, ReferenceSpan::class.java).isNotEmpty()
-            ) {
-                continue
-            }
+            if (getSpans(start + 3, end - 4, URLSpan::class.java).isNotEmpty() ||
+                getSpans(start + 3, end - 4, ReferenceSpan::class.java).isNotEmpty()
+            ) continue
+
             val hideSpan = HideSpan(start, end - 7)
-            content.setSpan(hideSpan, start, end - 7, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-            hideSpan.hideSecret(content, start, end - 7)
+            setSpan(hideSpan, start, end - 7, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            hideSpan.hideSecret(this, start, end - 7)
             matchCount += 1
         }
-        return content
     }
 }

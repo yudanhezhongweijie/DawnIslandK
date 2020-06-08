@@ -18,6 +18,7 @@ import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformCooki
 import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformTime
 import com.laotoua.dawnislandk.screens.widget.popup.ImageLoader
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
+import com.laotoua.dawnislandk.screens.widget.span.ReferenceSpan
 import com.laotoua.dawnislandk.util.Constants
 import com.laotoua.dawnislandk.util.GlideApp
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
@@ -103,7 +104,7 @@ class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterP
             transformTime(quote!!.now)
 
         // TODO: handle ads
-        findViewById<TextView>(R.id.refId).text = quote!!.id
+        findViewById<TextView>(R.id.refId).text = context.resources.getString(R.string.ref_id_formatted, quote!!.id)
 
         // TODO: add sage transformation
         findViewById<TextView>(R.id.sage).run {
@@ -162,14 +163,15 @@ class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterP
             }
         }
 
-        val referenceClickListener: (id: String) -> Unit = { id ->
-            // TODO: get Po based on Thread
-            showQuote(
-                caller,
-                context,
-                id,
-                mPo
-            )
+        val referenceClickListener = object : ReferenceSpan.ReferenceClickHandler {
+            override fun handleReference(id: String) {
+                showQuote(
+                    caller,
+                    context,
+                    id,
+                    mPo
+                )
+            }
         }
 
         findViewById<TextView>(R.id.content).run {

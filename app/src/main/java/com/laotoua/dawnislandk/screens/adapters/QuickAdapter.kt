@@ -21,6 +21,7 @@ import com.laotoua.dawnislandk.data.local.Trend
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.threads.ThreadCardFactory
 import com.laotoua.dawnislandk.screens.util.ContentTransformation
+import com.laotoua.dawnislandk.screens.widget.span.ReferenceSpan
 import com.laotoua.dawnislandk.screens.widget.span.RoundBackgroundColorSpan
 import com.laotoua.dawnislandk.util.Constants
 import com.laotoua.dawnislandk.util.GlideApp
@@ -32,7 +33,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
     LoadMoreModule {
 
     private lateinit var sharedViewModel: SharedViewModel
-    private lateinit var referenceClickListener: (String) -> Unit
+    private lateinit var referenceClickListener: ReferenceSpan.ReferenceClickHandler
 
     // TODO: support multiple Po
     private var po: String = ""
@@ -59,7 +60,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
         this.po = po
     }
 
-    fun setReferenceClickListener(referenceClickListener: (String) -> Unit) {
+    fun setReferenceClickListener(referenceClickListener: ReferenceSpan.ReferenceClickHandler) {
         this.referenceClickListener = referenceClickListener
     }
 
@@ -145,9 +146,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
         convertExpandSummary(item.visible)
     }
 
-    private fun BaseViewHolder.convertReplyWithPayload(
-        payload: Payload.ReplyPayload
-    ) {
+    private fun BaseViewHolder.convertReplyWithPayload(payload: Payload.ReplyPayload) {
         convertTimeStamp(payload.now)
         convertSage(payload.sage)
         convertContent(payload.content, referenceClickListener, payload.visible)
@@ -177,11 +176,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
     }
 
 
-    private fun BaseViewHolder.convertUserId(
-        userId: String,
-        admin: String,
-        po: String = ""
-    ) {
+    private fun BaseViewHolder.convertUserId(userId: String, admin: String, po: String = "") {
         setText(R.id.userId, ContentTransformation.transformCookie(userId, admin, po))
     }
 
@@ -189,10 +184,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
         setText(R.id.timestamp, ContentTransformation.transformTime(now))
     }
 
-    private fun BaseViewHolder.convertForumAndReply(
-        replyCount: String,
-        forumDisplayName: String
-    ) {
+    private fun BaseViewHolder.convertForumAndReply(replyCount: String, forumDisplayName: String) {
         val suffix = if (replyCount.isNotBlank()) " • $replyCount" else ""
         val spannableString = SpannableString(forumDisplayName + suffix)
         spannableString.setSpan(
@@ -208,7 +200,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
 
     private fun BaseViewHolder.convertRefId(id: String) {
         // TODO: handle ads
-        setText(R.id.refId, "No.$id")
+        setText(R.id.refId, context.resources.getString(R.string.ref_id_formatted, id))
     }
 
     private fun BaseViewHolder.convertTitleAndName(
@@ -253,7 +245,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
 
     private fun BaseViewHolder.convertContent(
         content: String,
-        referenceClickListener: ((String) -> Unit)? = null,
+        referenceClickListener: ReferenceSpan.ReferenceClickHandler? = null,
         visible: Boolean = true
     ) {
         val res = ContentTransformation.transformContent(
@@ -285,7 +277,6 @@ class QuickAdapter<T>(private val layoutResId: Int) :
             if (clickable) movementMethod = LinkMovementMethod.getInstance()
             textSize = DawnApp.applicationDataStore.textSize
             letterSpacing = DawnApp.applicationDataStore.letterSpace
-
         }
     }
 
@@ -376,4 +367,5 @@ class QuickAdapter<T>(private val layoutResId: Int) :
             val name: String
         )
     }
+
 }

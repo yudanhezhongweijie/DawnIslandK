@@ -34,6 +34,7 @@ import com.laotoua.dawnislandk.screens.widget.DoubleClickListener
 import com.laotoua.dawnislandk.screens.widget.popup.ImageLoader
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.screens.widget.popup.PostPopup
+import com.laotoua.dawnislandk.screens.widget.span.ReferenceSpan
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.SingleLiveEvent
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
@@ -96,15 +97,11 @@ class ReplysFragment : DaggerFragment() {
         val jumpPopup: JumpPopup by lazyOnMainOnly { JumpPopup(requireContext()) }
 
         _mAdapter = QuickAdapter<Reply>(R.layout.list_item_reply).apply {
-            setReferenceClickListener { quote ->
-                // TODO: get Po based on Thread
-                QuotePopup.showQuote(
-                    this@ReplysFragment,
-                    requireContext(),
-                    quote,
-                    viewModel.po
-                )
-            }
+            setReferenceClickListener(object : ReferenceSpan.ReferenceClickHandler {
+                override fun handleReference(id: String) {
+                    QuotePopup.showQuote(this@ReplysFragment, requireContext(), id, viewModel.po)
+                }
+            })
             /*** connect SharedVm and adapter
              *  may have better way of getting runtime data
              */

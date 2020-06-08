@@ -22,14 +22,12 @@ sealed class APIDataResponse<out T> {
     data class APIBlankDataResponse<T>(
         override val message: String,
         override val data: Nothing? = null
-    ) :
-        APIDataResponse<T>()
+    ) : APIDataResponse<T>()
 
     data class APIErrorDataResponse<T>(
         override val message: String,
         override val data: Nothing? = null
-    ) :
-        APIDataResponse<T>()
+    ) : APIDataResponse<T>()
 
     data class APISuccessDataResponse<T>(override val message: String, override val data: T) :
         APIDataResponse<T>()

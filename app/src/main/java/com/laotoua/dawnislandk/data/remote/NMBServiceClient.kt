@@ -92,11 +92,7 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
         image: File?, userhash: String
     ): APIMessageResponse {
         return withContext(Dispatchers.IO) {
-            if (newPost) {
-                Timber.i("Posting New Thread to $targetId...")
-            } else {
-                Timber.i("Positing Reply to $targetId...")
-            }
+            Timber.d("Posting to $targetId...")
             var imagePart: MultipartBody.Part? = null
             image?.run {
                 asRequestBody(("image/${image.extension}").toMediaTypeOrNull()).run {

@@ -169,6 +169,12 @@ object ContentTransformation {
              *  remove surrounding [h][/h]
              */
             content.replace(start, end, content.subSequence(start + 3, end - 4))
+            // Don't hide if there are clickable spans already
+            if (content.getSpans(start + 3, end - 4, URLSpan::class.java).isNotEmpty() ||
+                content.getSpans(start + 3, end - 4, ReferenceSpan::class.java).isNotEmpty()
+            ) {
+                continue
+            }
             val hideSpan = HideSpan(start, end - 7)
             content.setSpan(hideSpan, start, end - 7, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
             hideSpan.hideSecret(content, start, end - 7)

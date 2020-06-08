@@ -1,5 +1,6 @@
 package com.laotoua.dawnislandk.data.repository
 
+import android.util.SparseArray
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
@@ -22,10 +23,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.collections.set
 
-// TODO: Singleton creates problem when we want multiple reply fragment exist at the same time
-@Singleton
 class ReplyRepository @Inject constructor(
     private val webService: NMBServiceClient,
     private val replyDao: ReplyDao,
@@ -34,8 +32,8 @@ class ReplyRepository @Inject constructor(
     var currentThreadId: String = ""
     private var _currentThread: Thread? = null
     val currentThread get() = _currentThread!!
-    private val replyMap = sortedMapOf<Int, LiveData<List<Reply>>>()
-    private val adMap = sortedMapOf<Int, Reply>()
+    private val pageMap = SparseArray<LiveData<List<Reply>>>()
+    private val adMap = SparseArray<Reply>()
     private val maxReply get() = _currentThread?.replyCount?.toInt() ?: 0
     val po get() = _currentThread?.userid ?: ""
     val maxPage get() = 1.coerceAtLeast(kotlin.math.ceil(maxReply.toDouble() / 19).toInt())
@@ -71,7 +69,7 @@ class ReplyRepository @Inject constructor(
         _currentThread = null
         landingPage = 1
         emptyPage.value = false
-        replyMap.clear()
+        pageMap.clear()
         adMap.clear()
         downloadJob?.cancel()
         downloadJob = null
@@ -82,21 +80,21 @@ class ReplyRepository @Inject constructor(
      *  w/o cookie, always have 20 reply w. ad
      *  *** here DB only store nonAd data
      */
-    fun checkFullPage(page: Int): Boolean = (replyMap[page]?.value?.size == 19)
+    fun checkFullPage(page: Int): Boolean = (pageMap[page]?.value?.size == 19)
 
     fun setLoadingStatus(status: LoadingStatus, message: String? = null) =
         loadingStatus.postValue(SingleLiveEvent.create(status, message))
 
     fun getLivePage(page: Int): LiveData<List<Reply>> {
-        if (replyMap[page] == null) {
-            replyMap[page] = liveData(Dispatchers.IO) {
+        if (pageMap[page] == null) {
+            pageMap.put(page, liveData<List<Reply>>(Dispatchers.IO) {
                 Timber.d("Querying data for Thread $currentThreadId on #$page")
                 setLoadingStatus(LoadingStatus.LOADING)
                 emitSource(getLocalData(page))
                 downloadJob = getServerData(page)
-            }
+            })
         }
-        return replyMap[page]!!
+        return pageMap[page]
     }
 
     private fun getLocalData(page: Int): LiveData<List<Reply>> =
@@ -131,7 +129,7 @@ class ReplyRepository @Inject constructor(
             it.page = page
             it.parentId = currentThreadId
             // handle Ad
-            if (it.isAd()) adMap[page] = it
+            if (it.isAd()) adMap.put(page, it)
             else noAd.add(it)
         }
         /**
@@ -145,7 +143,7 @@ class ReplyRepository @Inject constructor(
             return
         }
 
-        if (replyMap[page]?.value.equalsExceptTimestamp(noAd) && page == maxPage) {
+        if (pageMap[page]?.value.equalsExceptTimestamp(noAd) && page == maxPage) {
             setLoadingStatus(LoadingStatus.NODATA)
             return
         }

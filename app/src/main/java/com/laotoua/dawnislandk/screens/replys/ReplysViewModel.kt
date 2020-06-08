@@ -1,5 +1,6 @@
 package com.laotoua.dawnislandk.screens.replys
 
+import android.util.SparseArray
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
@@ -11,7 +12,6 @@ import com.laotoua.dawnislandk.util.addOrSet
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
-import kotlin.collections.set
 
 class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository) : ViewModel() {
     val currentThreadId: String get() = replyRepo.currentThreadId
@@ -23,7 +23,8 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
 
     val replys = MediatorLiveData<MutableList<Reply>>()
 
-    private val listeningPages = mutableMapOf<Int, LiveData<List<Reply>>>()
+    private val listeningPages = SparseArray<LiveData<List<Reply>>>()
+    private val listeningPagesIndices = mutableSetOf<Int>()
     val maxPage get() = replyRepo.maxPage
 
     val loadingStatus get() = replyRepo.loadingStatus
@@ -77,7 +78,8 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
     private fun listenToNewPage(page: Int, filterIds: List<String>) {
         val newPage = replyRepo.getLivePage(page)
         if (listeningPages[page] != newPage) {
-            listeningPages[page] = newPage
+            listeningPages.put(page, newPage)
+            listeningPagesIndices.add(page)
             replys.addSource(newPage) {
                 if (!it.isNullOrEmpty()) {
                     mergeNewPage(it.attachHeadAndAd(page), filterIds)
@@ -85,9 +87,9 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
                     replyRepo.setLoadingStatus(LoadingStatus.SUCCESS)
                 }
             }
-            if (page == 1){
-                replys.addSource(replyRepo.emptyPage){
-                    if (it == true){
+            if (page == 1) {
+                replys.addSource(replyRepo.emptyPage) {
+                    if (it == true) {
                         mergeNewPage(emptyList<Reply>().attachHeadAndAd(page), filterIds)
                         replys.value = replyList
                     }
@@ -118,9 +120,10 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
     }
 
     private fun clearCache(clearFilter: Boolean) {
-        listeningPages.values.map { replys.removeSource(it) }
-        if (listeningPages.keys.contains(1)) replys.removeSource(replyRepo.emptyPage)
+        listeningPagesIndices.map { i -> listeningPages[i]?.let { s -> replys.removeSource(s) } }
+        if (listeningPagesIndices.contains(1)) replys.removeSource(replyRepo.emptyPage)
         listeningPages.clear()
+        listeningPagesIndices.clear()
         replyList.clear()
         if (clearFilter) clearFilter()
     }

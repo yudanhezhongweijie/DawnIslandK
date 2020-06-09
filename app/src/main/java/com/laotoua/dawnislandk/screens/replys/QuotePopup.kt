@@ -5,117 +5,97 @@ import android.content.Context
 import android.text.method.LinkMovementMethod
 import android.view.View
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.lifecycle.lifecycleScope
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.Reply
-import com.laotoua.dawnislandk.data.remote.NMBServiceClient
-import com.laotoua.dawnislandk.data.repository.DataResource
 import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformContent
 import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformCookie
 import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformTime
 import com.laotoua.dawnislandk.screens.widget.popup.ImageLoader
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.screens.widget.span.ReferenceSpan
-import com.laotoua.dawnislandk.util.Constants
-import com.laotoua.dawnislandk.util.GlideApp
-import com.laotoua.dawnislandk.util.lazyOnMainOnly
+import com.laotoua.dawnislandk.util.*
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.CenterPopupView
 import com.lxj.xpopup.interfaces.SimpleCallback
 import dagger.android.support.DaggerFragment
-import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
 
 @SuppressLint("ViewConstructor")
-class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterPopupView(context) {
+class QuotePopup(
+    private val caller: DaggerFragment,
+    private val replyVM: ReplysViewModel
+) : CenterPopupView(caller.requireContext()) {
 
     private val imageLoader: ImageLoader by lazyOnMainOnly { ImageLoader() }
 
-    override fun getImplLayoutId(): Int {
-        return R.layout.popup_quote
-    }
+    override fun getImplLayoutId(): Int = R.layout.popup_quote
 
-    init {
-        caller.androidInjector().inject(this)
-    }
-
-    @Inject
-    lateinit var webServiceClient: NMBServiceClient
-
-    enum class DownloadStatus {
-        IDLE,
-        SUCCESS,
-        DOWNLOADING,
-        ERROR
-    }
-
-    private var status: DownloadStatus = DownloadStatus.IDLE
-
-    private var quote: Reply? = null
-
-    private lateinit var errorMsg: String
+    private lateinit var liveQuote: LiveData<Reply>
 
     private var mPo: String = ""
 
-    private fun downloadQuote(id: String, po: String) {
-        caller.lifecycleScope.launch {
-            status = DownloadStatus.DOWNLOADING
-            mPo = po
-            DataResource.create(webServiceClient.getQuote(id)).run {
-                status = when (this) {
-                    is DataResource.Error -> {
-                        errorMsg = message
-                        Toast.makeText(
-                            context,
-                            "$errorMsg...",
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
-                        DownloadStatus.ERROR
-                    }
-                    is DataResource.Success -> {
-                        quote = data!!
-                        DownloadStatus.SUCCESS
-                    }
-                }
-            }
-
-            showAfterDownload()
+    private val liveQuoteObs = Observer<Reply> {
+        if (it != null) {
+            convertQuote(it)
+            findViewById<ProgressBar>(R.id.progressBar).visibility = View.GONE
+            findViewById<ConstraintLayout>(R.id.quote).visibility = View.VISIBLE
+        } else {
+            Timber.d("mes ${(replyVM.quoteLoadingStatus.value as SingleLiveEvent).peekContent().message}")
         }
     }
 
-    private fun convertQuote() {
-        if (status != DownloadStatus.SUCCESS || quote == null) {
-            Timber.e("Quote is not ready")
-            return
+    private val quoteDownloadStatusObs = Observer<SingleLiveEvent<EventPayload<Nothing>>> {
+        it.getContentIfNotHandled()?.run {
+            if (loadingStatus == LoadingStatus.FAILED) {
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            }
         }
+    }
+
+    fun listenToQuote(id: String, po: String) {
+        findViewById<ProgressBar>(R.id.progressBar).visibility = View.VISIBLE
+        findViewById<ConstraintLayout>(R.id.quote).visibility = View.GONE
+        liveQuote = replyVM.getQuote(id)
+        mPo = po
+        liveQuote.observe(caller.viewLifecycleOwner, liveQuoteObs)
+        // observe quote loading Status
+        replyVM.quoteLoadingStatus.observe(caller.viewLifecycleOwner, quoteDownloadStatusObs)
+    }
+
+    private fun convertQuote(quote: Reply) {
+        // remove observer when data has come back
+        liveQuote.removeObserver(liveQuoteObs)
+
         findViewById<TextView>(R.id.userId).text =
             transformCookie(
-                quote!!.userid,
-                quote!!.admin,
+                quote.userid,
+                quote.admin,
                 mPo
             )
 
-        findViewById<TextView>(R.id.timestamp).text =
-            transformTime(quote!!.now)
+        findViewById<TextView>(R.id.timestamp).text = transformTime(quote.now)
 
         // TODO: handle ads
-        findViewById<TextView>(R.id.refId).text = context.resources.getString(R.string.ref_id_formatted, quote!!.id)
+        findViewById<TextView>(R.id.refId).text =
+            context.resources.getString(R.string.ref_id_formatted, quote.id)
 
         // TODO: add sage transformation
         findViewById<TextView>(R.id.sage).run {
-            visibility = if (quote!!.sage == "1") {
+            visibility = if (quote.sage == "1") {
                 View.VISIBLE
             } else {
                 View.GONE
             }
         }
 
-        val title = quote!!.getSimplifiedTitle()
+        val title = quote.getSimplifiedTitle()
         findViewById<TextView>(R.id.title).run {
             if (title.isNotBlank()) {
                 text = title
@@ -125,7 +105,7 @@ class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterP
             }
         }
 
-        val name = quote!!.getSimplifiedName()
+        val name = quote.getSimplifiedName()
         findViewById<TextView>(R.id.name).run {
             if (name.isNotBlank()) {
                 text = title
@@ -137,9 +117,9 @@ class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterP
 
         // load image
         findViewById<ImageView>(R.id.attachedImage).run {
-            visibility = if (quote!!.img != "") {
+            visibility = if (quote.img != "") {
                 GlideApp.with(context)
-                    .load(Constants.thumbCDN + quote!!.img + quote!!.ext)
+                    .load(Constants.thumbCDN + quote.img + quote.ext)
 //                    .override(250, 250)
                     .fitCenter()
                     .into(this)
@@ -148,7 +128,7 @@ class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterP
                 View.GONE
             }
             setOnClickListener { imageView ->
-                val url = quote!!.getImgUrl()
+                val url = quote.getImgUrl()
                 val viewerPopup =
                     ImageViewerPopup(
                         caller,
@@ -167,6 +147,7 @@ class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterP
             override fun handleReference(id: String) {
                 showQuote(
                     caller,
+                    replyVM,
                     context,
                     id,
                     mPo
@@ -182,7 +163,7 @@ class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterP
             scrollY = 0
             movementMethod = LinkMovementMethod.getInstance()
             text = transformContent(
-                quote!!.content,
+                quote.content,
                 DawnApp.applicationDataStore.lineHeight,
                 DawnApp.applicationDataStore.segGap, referenceClickListener
             )
@@ -191,18 +172,9 @@ class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterP
         }
     }
 
-    private fun showAfterDownload() {
-        if (status == DownloadStatus.SUCCESS) {
-            XPopup.Builder(context)
-                .setPopupCallback(object : SimpleCallback() {
-                    override fun beforeShow() {
-                        super.beforeShow()
-                        convertQuote()
-                    }
-                })
-                .asCustom(this)
-                .show()
-        }
+    override fun onDismiss() {
+        super.onDismiss()
+        quotePopupList.remove(this)
     }
 
     companion object {
@@ -220,42 +192,24 @@ class QuotePopup(private val caller: DaggerFragment, context: Context) : CenterP
             quotePopupList.clear()
         }
 
-
-        // TODO Repository for quotes
         fun showQuote(
             caller: DaggerFragment,
+            replyVM: ReplysViewModel,
             context: Context,
             id: String,
             po: String
         ) {
-            var top = quotePopupList.firstOrNull { it.isDismiss }
-            if (top == null) {
-                top = QuotePopup(caller, context)
-                quotePopupList.add(top)
-            }
-            when (top.status) {
-                DownloadStatus.SUCCESS -> {
-                    if (top.quote?.id != id) {
-                        top.downloadQuote(id, po)
-                    } else if (!top.isShow) {
-                        top.showAfterDownload()
+            val top = QuotePopup(caller, replyVM)
+            quotePopupList.add(top)
+            XPopup.Builder(context)
+                .setPopupCallback(object : SimpleCallback() {
+                    override fun beforeShow() {
+                        super.beforeShow()
+                        top.listenToQuote(id, po)
                     }
-                }
-                DownloadStatus.IDLE -> {
-                    top.downloadQuote(id, po)
-                }
-                DownloadStatus.DOWNLOADING -> {
-                    // TODO: add animation
-                    Timber.d("Downloading quote")
-                }
-                // retry
-                DownloadStatus.ERROR -> {
-                    Timber.d("Didn't get quote. Retrying...")
-                    top.downloadQuote(id, po)
-                }
-            }
+                })
+                .asCustom(top)
+                .show()
         }
-
-
     }
 }

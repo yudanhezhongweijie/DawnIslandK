@@ -99,7 +99,7 @@ class ReplysFragment : DaggerFragment() {
         _mAdapter = QuickAdapter<Reply>(R.layout.list_item_reply).apply {
             setReferenceClickListener(object : ReferenceSpan.ReferenceClickHandler {
                 override fun handleReference(id: String) {
-                    QuotePopup.showQuote(this@ReplysFragment, requireContext(), id, viewModel.po)
+                    QuotePopup.showQuote(this@ReplysFragment, viewModel, requireContext(), id, viewModel.po)
                 }
             })
             /*** connect SharedVm and adapter

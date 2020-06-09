@@ -26,11 +26,7 @@ class QuoteRepository @Inject constructor(
     private val cacheCap = 30
     private val quoteMap = SparseArray<LiveData<Reply>>(cacheCap)
     private val fifoQuoteList = mutableListOf<Int>()
-    val loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
-
-    private fun setLoadingStatus(status: LoadingStatus, message: String? = null) {
-        loadingStatus.postValue(SingleLiveEvent.create(status, message))
-    }
+    val quoteLoadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
 
     fun getQuote(id: String): LiveData<Reply> {
         val idInt = id.toInt()
@@ -56,10 +52,10 @@ class QuoteRepository @Inject constructor(
                             if (!data.equalsExceptTimestamp(quoteMap[id.toInt()].value)) {
                                 replyDao.insertWithTimeStamp(data)
                             }
-                            setLoadingStatus(LoadingStatus.SUCCESS)
+                            quoteLoadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))
                         }
                         else -> {
-                            setLoadingStatus(LoadingStatus.FAILED, message)
+                            quoteLoadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.FAILED, message))
                         }
                     }
                 }

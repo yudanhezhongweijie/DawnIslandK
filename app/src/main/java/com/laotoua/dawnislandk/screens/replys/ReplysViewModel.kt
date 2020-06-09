@@ -1,10 +1,7 @@
 package com.laotoua.dawnislandk.screens.replys
 
 import android.util.SparseArray
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.laotoua.dawnislandk.data.local.Reply
 import com.laotoua.dawnislandk.data.repository.QuoteRepository
 import com.laotoua.dawnislandk.data.repository.ReplyRepository
@@ -35,6 +32,9 @@ class ReplysViewModel @Inject constructor(
 
     val addFeedResponse
         get() = replyRepo.addFeedResponse
+
+    val quoteLoadingStatus = quoteRepo.quoteLoadingStatus
+    fun getQuote(id: String) : LiveData<Reply> =  quoteRepo.getQuote(id)
 
     fun setThreadId(id: String) {
         if (id != currentThreadId) clearCache(true)
@@ -168,7 +168,4 @@ class ReplysViewModel @Inject constructor(
             replyRepo.addFeed(uuid, id)
         }
     }
-
-    fun getQuote(id: String) : LiveData<Reply> =  quoteRepo.getQuote(id)
-
 }

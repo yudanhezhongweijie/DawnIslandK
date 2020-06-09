@@ -1,7 +1,6 @@
 package com.laotoua.dawnislandk.di
 
 import android.content.Context
-import androidx.room.Room
 import com.laotoua.dawnislandk.data.local.dao.*
 import dagger.Module
 import dagger.Provides
@@ -14,12 +13,7 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideDawnDB(applicationContext: Context): DawnDatabase {
-        return Room.databaseBuilder(
-            applicationContext,
-            DawnDatabase::class.java, "dawnDB"
-        )
-            .fallbackToDestructiveMigration()
-            .build()
+        return DawnDatabase.getDatabase(applicationContext)
     }
 
     @JvmStatic
@@ -48,5 +42,12 @@ object DatabaseModule {
     @Singleton
     fun provideThreadDao(dawnDatabase: DawnDatabase): ThreadDao {
         return dawnDatabase.threadDao()
+    }
+
+    @JvmStatic
+    @Provides
+    @Singleton
+    fun provideDailyTrendDao(dawnDatabase: DawnDatabase): DailyTrendDao {
+        return dawnDatabase.dailyTrendDao()
     }
 }

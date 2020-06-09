@@ -1,6 +1,6 @@
 package com.laotoua.dawnislandk.data.repository
 
-import android.util.SparseArray
+import android.util.LongSparseArray
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
@@ -11,7 +11,6 @@ import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.LoadingStatus
-import com.laotoua.dawnislandk.util.SingleLiveEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -24,49 +23,52 @@ class QuoteRepository @Inject constructor(
 ) {
     // remember last 30 quote
     private val cacheCap = 30
-    private val quoteMap = SparseArray<LiveData<Reply>>(cacheCap)
-    private val fifoQuoteList = mutableListOf<Int>()
-    val quoteLoadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
+    private val quoteMap = LongSparseArray<LiveData<Reply>>(cacheCap)
+    private val fifoQuoteList = mutableListOf<Long>()
+    val quoteLoadingStatus = MutableLiveData<EventPayload<String>>()
 
     fun getQuote(id: String): LiveData<Reply> {
-        val idInt = id.toInt()
-        if (quoteMap[idInt] == null) {
-            addQuoteToCache(idInt, getLiveQuote(id))
+        val idLong = id.toLong()
+        if (quoteMap[idLong] == null) {
+            addQuoteToCache(idLong, getLiveQuote(id, idLong))
         }
-        return quoteMap[idInt]
+        return quoteMap[idLong]
     }
 
-    private fun getLiveQuote(id: String) = liveData<Reply>(Dispatchers.IO) {
+    private fun getLiveQuote(id: String, idLong: Long) = liveData<Reply>(Dispatchers.IO) {
         val cache = replyDao.findDistinctReplyById(id)
-        addQuoteToCache(id.toInt(), cache)
+        addQuoteToCache(idLong, cache)
         emitSource(cache)
-        getServerData(id)
+        getServerData(id, idLong)
     }
 
-    private suspend fun getServerData(id: String) =
-        coroutineScope {
-            launch {
-                webService.getQuote(id).run {
-                    when (this) {
-                        is APIDataResponse.APISuccessDataResponse -> {
-                            if (!data.equalsExceptTimestamp(quoteMap[id.toInt()].value)) {
-                                replyDao.insertWithTimeStamp(data)
+    private suspend fun getServerData(id: String, idLong: Long) = coroutineScope {
+        launch {
+            webService.getQuote(id).run {
+                if (this is APIDataResponse.APISuccessDataResponse) {
+                    quoteMap[idLong].value.let {
+                        if (!data.equalsWithServerData(it)) {
+                            // if local already has cache, update some fields
+                            // otherwise save new reply cache with default value
+                            it?.let {
+                                data.page = it.page
+                                data.parentId = it.parentId
                             }
-                            quoteLoadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))
-                        }
-                        else -> {
-                            quoteLoadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.FAILED, message))
+                            replyDao.insertWithTimeStamp(data)
                         }
                     }
+
+                } else {
+                    quoteLoadingStatus.postValue(EventPayload(LoadingStatus.FAILED, message, id))
                 }
             }
-
+        }
     }
 
-    private fun addQuoteToCache(idInt:Int, quote : LiveData<Reply>){
-        quoteMap.append(idInt, quote)
-        fifoQuoteList.add(idInt)
-        for ( i in 0 until fifoQuoteList.size - cacheCap){
+    private fun addQuoteToCache(idLong: Long, quote: LiveData<Reply>) {
+        quoteMap.append(idLong, quote)
+        fifoQuoteList.add(idLong)
+        for (i in 0 until fifoQuoteList.size - cacheCap) {
             quoteMap.delete(fifoQuoteList.first())
             fifoQuoteList.removeAt(0)
         }

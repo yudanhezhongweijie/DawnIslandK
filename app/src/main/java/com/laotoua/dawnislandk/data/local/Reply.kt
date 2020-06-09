@@ -36,7 +36,7 @@ data class Reply(
     fun isNotAd(): Boolean = (id != "9999999")
     fun isAd(): Boolean = !isNotAd()
 
-    fun equalsExceptTimestamp(target: Reply?): Boolean =
+    fun equalsWithServerData(target: Reply?): Boolean =
         if (target == null) false
         else id == target.id && userid == target.userid
                 && name == target.name && sage == target.sage
@@ -44,7 +44,6 @@ data class Reply(
                 && title == target.title && email == target.email
                 && now == target.now && content == target.content
                 && img == target.img && ext == target.ext
-                && page == target.page && parentId == target.parentId
 
     fun setUpdatedTimestamp(time: Long? = null) {
         lastUpdatedAt = time ?: Date().time

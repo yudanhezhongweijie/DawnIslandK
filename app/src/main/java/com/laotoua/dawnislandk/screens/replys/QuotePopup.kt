@@ -25,59 +25,54 @@ import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.CenterPopupView
 import com.lxj.xpopup.interfaces.SimpleCallback
 import dagger.android.support.DaggerFragment
-import timber.log.Timber
 
 @SuppressLint("ViewConstructor")
+// uses caller fragment's context, should not live without fragment
 class QuotePopup(
     private val caller: DaggerFragment,
-    private val replyVM: ReplysViewModel
+    private val replyVM: ReplysViewModel,
+    private val quoteId: String,
+    private val po: String
 ) : CenterPopupView(caller.requireContext()) {
-
     private val imageLoader: ImageLoader by lazyOnMainOnly { ImageLoader() }
 
     override fun getImplLayoutId(): Int = R.layout.popup_quote
 
-    private lateinit var liveQuote: LiveData<Reply>
-
-    private var mPo: String = ""
+    private val liveQuote: LiveData<Reply> = replyVM.getQuote(quoteId)
 
     private val liveQuoteObs = Observer<Reply> {
         if (it != null) {
-            convertQuote(it)
+            convertQuote(it, po)
             findViewById<ProgressBar>(R.id.progressBar).visibility = View.GONE
             findViewById<ConstraintLayout>(R.id.quote).visibility = View.VISIBLE
-        } else {
-            Timber.d("mes ${(replyVM.quoteLoadingStatus.value as SingleLiveEvent).peekContent().message}")
         }
     }
 
-    private val quoteDownloadStatusObs = Observer<SingleLiveEvent<EventPayload<Nothing>>> {
-        it.getContentIfNotHandled()?.run {
-            if (loadingStatus == LoadingStatus.FAILED) {
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-            }
+    private val quoteDownloadStatusObs = Observer<EventPayload<String>> {
+        if (it.loadingStatus == LoadingStatus.FAILED && it.payload == quoteId) {
+            ensureQuotePopupDismissal()
+            Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
         }
     }
 
-    fun listenToQuote(id: String, po: String) {
+    fun listenToLiveQuote() {
         findViewById<ProgressBar>(R.id.progressBar).visibility = View.VISIBLE
         findViewById<ConstraintLayout>(R.id.quote).visibility = View.GONE
-        liveQuote = replyVM.getQuote(id)
-        mPo = po
+        // observe quote live quote, loading Status
         liveQuote.observe(caller.viewLifecycleOwner, liveQuoteObs)
-        // observe quote loading Status
         replyVM.quoteLoadingStatus.observe(caller.viewLifecycleOwner, quoteDownloadStatusObs)
     }
 
-    private fun convertQuote(quote: Reply) {
-        // remove observer when data has come back
+    private fun convertQuote(quote: Reply, po: String) {
+        // remove observers when data has come back
         liveQuote.removeObserver(liveQuoteObs)
+        replyVM.quoteLoadingStatus.removeObserver(quoteDownloadStatusObs)
 
         findViewById<TextView>(R.id.userId).text =
             transformCookie(
                 quote.userid,
                 quote.admin,
-                mPo
+                po
             )
 
         findViewById<TextView>(R.id.timestamp).text = transformTime(quote.now)
@@ -150,7 +145,7 @@ class QuotePopup(
                     replyVM,
                     context,
                     id,
-                    mPo
+                    po
                 )
             }
         }
@@ -199,13 +194,13 @@ class QuotePopup(
             id: String,
             po: String
         ) {
-            val top = QuotePopup(caller, replyVM)
+            val top = QuotePopup(caller, replyVM, id, po)
             quotePopupList.add(top)
             XPopup.Builder(context)
                 .setPopupCallback(object : SimpleCallback() {
                     override fun beforeShow() {
                         super.beforeShow()
-                        top.listenToQuote(id, po)
+                        top.listenToLiveQuote()
                     }
                 })
                 .asCustom(top)

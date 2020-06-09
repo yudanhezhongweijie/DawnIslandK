@@ -14,10 +14,7 @@ import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.screens.replys.QuotePopup
-import com.laotoua.dawnislandk.util.EventPayload
-import com.laotoua.dawnislandk.util.LoadingStatus
-import com.laotoua.dawnislandk.util.SingleLiveEvent
-import com.laotoua.dawnislandk.util.equalsExceptTimestamp
+import com.laotoua.dawnislandk.util.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
@@ -171,7 +168,7 @@ class ReplyRepository @Inject constructor(
             return
         }
 
-        if (replysMap[currentThreadIdInt]!![page]?.value.equalsExceptTimestamp(noAd)) {
+        if (replysMap[currentThreadIdInt]!![page]?.value.equalsWithServerReplys(noAd)) {
             if (page == maxPage) setLoadingStatus(LoadingStatus.NODATA)
             return
         }

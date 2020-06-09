@@ -13,17 +13,17 @@ fun <E> MutableList<E>.addOrSet(ind: Int, element: E): Boolean {
     else set(ind, element) == element
 }
 
-fun List<Reply>?.equalsExceptTimestamp(targetList: List<Reply>?): Boolean {
+fun List<Reply>?.equalsWithServerReplys(targetList: List<Reply>?): Boolean {
     return if (this == null || targetList == null) false
     else if (this.size != targetList.size) false
     else {
         this.zip(targetList).all { (r1, r2) ->
-            r1.equalsExceptTimestamp(r2)
+            r1.equalsWithServerData(r2)
         }
     }
 }
 
-fun List<Thread>?.equalsExceptTimeStampAndReply(targetList: List<Thread>?): Boolean {
+fun List<Thread>?.equalsWithServerThreads(targetList: List<Thread>?): Boolean {
     return if (this == null || targetList == null) false
     else if (this.size != targetList.size) false
     else {

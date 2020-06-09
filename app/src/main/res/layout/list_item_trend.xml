@@ -68,20 +68,12 @@
             app:layout_constraintTop_toBottomOf="@+id/trendForum" />
 
         <TextView
-            android:id="@+id/refIdPrefix"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="@string/number_prefix"
-            app:layout_constraintStart_toEndOf="@+id/trendDivider"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
             android:id="@+id/refId"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:text="@string/sample_ref_id"
-            app:layout_constraintStart_toEndOf="@+id/refIdPrefix"
+            app:layout_constraintStart_toEndOf="@id/trendDivider"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView

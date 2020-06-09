@@ -6,6 +6,7 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.local.Reply
+import com.laotoua.dawnislandk.data.repository.QuoteRepository
 import com.laotoua.dawnislandk.data.repository.ReplyRepository
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.addOrSet
@@ -13,7 +14,10 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
-class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository) : ViewModel() {
+class ReplysViewModel @Inject constructor(
+    private val replyRepo: ReplyRepository,
+    private val quoteRepo: QuoteRepository
+) : ViewModel() {
     val currentThreadId: String get() = replyRepo.currentThreadId
     val po get() = replyRepo.po
 
@@ -164,4 +168,7 @@ class ReplysViewModel @Inject constructor(private val replyRepo: ReplyRepository
             replyRepo.addFeed(uuid, id)
         }
     }
+
+    fun getQuote(id: String) : LiveData<Reply> =  quoteRepo.getQuote(id)
+
 }

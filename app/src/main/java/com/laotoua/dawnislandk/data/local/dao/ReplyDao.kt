@@ -22,6 +22,9 @@ interface ReplyDao {
             LiveData<List<Reply>> = findPageByParentId(parentId, page).distinctUntilChanged()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(reply: Reply)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(replyList: List<Reply>)
 
     suspend fun insertAllWithTimeStamp(replyList: List<Reply>) {
@@ -29,6 +32,17 @@ interface ReplyDao {
         val listWithTimeStamps = replyList.apply { map { it.setUpdatedTimestamp(timestamp) } }
         insertAll(listWithTimeStamps)
     }
+
+    suspend fun insertWithTimeStamp(reply: Reply) {
+        reply.setUpdatedTimestamp(Date().time)
+        insert(reply)
+    }
+
+    @Query("SELECT * FROM Reply WHERE id=:id LIMIT 1")
+    fun findReplyById(id: String): LiveData<Reply>
+
+    fun findDistinctReplyById(id: String): LiveData<Reply> =
+        findReplyById(id).distinctUntilChanged()
 
     @Delete
     suspend fun delete(reply: Reply)

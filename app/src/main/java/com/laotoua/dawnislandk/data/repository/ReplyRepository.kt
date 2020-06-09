@@ -1,6 +1,7 @@
 package com.laotoua.dawnislandk.data.repository
 
 import android.util.SparseArray
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
@@ -12,6 +13,7 @@ import com.laotoua.dawnislandk.data.local.dao.ThreadDao
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
+import com.laotoua.dawnislandk.screens.replys.QuotePopup
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.SingleLiveEvent
@@ -32,12 +34,12 @@ class ReplyRepository @Inject constructor(
     private val currentThreadIdInt get() = currentThreadId.toInt()
 
     /** remember all pages for last 30 thread, using threadId and page as index
-     * using fifoList to pop the first page
+     * using fifoList to pop the first thread
      */
     private val cacheCap = 30
     private val threadMap = SparseArray<Thread>(cacheCap)
     private val replysMap = SparseArray<SparseArray<LiveData<List<Reply>>>>(cacheCap)
-    private val fifoList = mutableListOf<Int>()
+    private val fifoThreadList = mutableListOf<Int>()
     private val adMap = SparseArray<SparseArray<Reply>>()
 
     private val maxReply get() = threadMap[currentThreadIdInt]?.replyCount?.toInt() ?: 0
@@ -46,7 +48,7 @@ class ReplyRepository @Inject constructor(
     val loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
     val addFeedResponse = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
 
-    private var downloadJob: Job? = null
+    private var pageDownloadJob: Job? = null
     val emptyPage = MutableLiveData<Boolean>()
 
     fun getAd(page: Int): Reply? = adMap[currentThreadIdInt]?.get(page)
@@ -82,12 +84,12 @@ class ReplyRepository @Inject constructor(
         Timber.d("Clearing cache on ${threadMap[currentThreadIdInt]?.id}...")
         emptyPage.value = false
         for (i in 0 until (replysMap.size() - cacheCap)) {
-            replysMap.delete(fifoList.first())
-            threadMap.delete(fifoList.first())
-            fifoList.removeAt(0)
+            replysMap.delete(fifoThreadList.first())
+            threadMap.delete(fifoThreadList.first())
+            fifoThreadList.removeAt(0)
         }
-        downloadJob?.cancel()
-        downloadJob = null
+        pageDownloadJob?.cancel()
+        pageDownloadJob = null
     }
 
     /**
@@ -104,7 +106,7 @@ class ReplyRepository @Inject constructor(
     fun getLivePage(page: Int): LiveData<List<Reply>> {
         if (replysMap[currentThreadIdInt] == null) {
             replysMap.append(currentThreadIdInt, SparseArray<LiveData<List<Reply>>>())
-            fifoList.add(currentThreadIdInt)
+            fifoThreadList.add(currentThreadIdInt)
         }
         replysMap[currentThreadIdInt]!!.let {
             if (it[page] == null) {
@@ -112,7 +114,7 @@ class ReplyRepository @Inject constructor(
                     Timber.d("Querying data for Thread $currentThreadId on $page")
                     setLoadingStatus(LoadingStatus.LOADING)
                     emitSource(getLocalData(page))
-                    downloadJob = getServerData(page)
+                    pageDownloadJob = getServerData(page)
                 })
             }
             return it[page]
@@ -132,7 +134,7 @@ class ReplyRepository @Inject constructor(
             ).run {
                 if (this is APIDataResponse.APISuccessDataResponse) convertServerData(data, page)
                 else {
-                    if (downloadJob != null) {
+                    if (pageDownloadJob != null) {
                         Timber.e(message)
                         setLoadingStatus(LoadingStatus.FAILED, "无法读取串回复...\n$message")
                     }

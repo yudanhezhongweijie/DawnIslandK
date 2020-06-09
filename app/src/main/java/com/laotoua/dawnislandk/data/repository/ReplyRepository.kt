@@ -169,8 +169,8 @@ class ReplyRepository @Inject constructor(
             return
         }
 
-        if (replysMap[currentThreadIdInt]!![page]?.value.equalsExceptTimestamp(noAd) && page == maxPage) {
-            setLoadingStatus(LoadingStatus.NODATA)
+        if (replysMap[currentThreadIdInt]!![page]?.value.equalsExceptTimestamp(noAd)) {
+            if (page == maxPage) setLoadingStatus(LoadingStatus.NODATA)
             return
         }
         Timber.d("Updating ${noAd.size} rows for $currentThreadId on $page")

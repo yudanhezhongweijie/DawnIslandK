@@ -74,7 +74,7 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
             if (it.isNullOrEmpty()) return@Observer
             mAdapter.setData(it)
             Timber.i("Loaded ${it.size} communities to Adapter")
-            sharedVM.setForumNameMapping(communityVM.getForumNameMapping())
+            sharedVM.setForumMappings(communityVM.getForums())
             // TODO: set default forum
             sharedVM.setForum(it[0].forums[0])
         })
@@ -102,6 +102,7 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
         applicationDataStore.initializeFeedId()
         applicationDataStore.getNotice()?.let { notice ->
             MaterialDialog(this).show {
+                cornerRadius(res = R.dimen.dialog_radius)
                 checkBoxPrompt(R.string.acknowledge) {}
                 message(text = htmlToSpanned(notice.content))
                 positiveButton(R.string.close) {

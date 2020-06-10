@@ -68,7 +68,7 @@ class ThreadsFragment : DaggerFragment() {
         }
 
         val imageLoader = ImageLoader()
-        val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext()) }
+        val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext(), sharedVM) }
 
         val mAdapter = QuickAdapter<Thread>(R.layout.list_item_thread).apply {
             /*** connect SharedVm and adapter

@@ -14,7 +14,8 @@ class SharedViewModel : ViewModel() {
     val selectedThreadId: LiveData<String> get() = _selectedThreadId
     private var selectedThreadFid: String = "-1"
 
-    private var forumNameMapping = mapOf<String, String>()
+    private lateinit var forumNameMapping:Map<String, String>
+    private lateinit var forumMsgMapping:Map<String, String>
 
     private var toolbarTitle = "A岛"
 
@@ -30,11 +31,18 @@ class SharedViewModel : ViewModel() {
         _selectedThreadId.value = t.id
     }
 
-    fun setForumNameMapping(map: Map<String, String>) {
-        forumNameMapping = map
+    fun setForumMappings(list: List<Forum>) {
+        forumNameMapping = list.associateBy(
+            keySelector = { it.id },
+            valueTransform = { it.name })
+
+        forumMsgMapping = list.associateBy(keySelector = { it.id },
+            valueTransform = { it.msg })
     }
 
     fun getForumNameMapping(): Map<String, String> = forumNameMapping
+
+    fun getForumMsg(id: String): String = forumMsgMapping[id] ?: ""
 
     fun getForumDisplayName(id: String): String = forumNameMapping[id] ?: ""
 

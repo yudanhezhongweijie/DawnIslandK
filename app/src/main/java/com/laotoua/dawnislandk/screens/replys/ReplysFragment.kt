@@ -93,7 +93,7 @@ class ReplysFragment : DaggerFragment() {
         }
 
         val imageLoader = ImageLoader()
-        val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext()) }
+        val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext(), sharedVM) }
         val jumpPopup: JumpPopup by lazyOnMainOnly { JumpPopup(requireContext()) }
 
         _mAdapter = QuickAdapter<Reply>(R.layout.list_item_reply).apply {

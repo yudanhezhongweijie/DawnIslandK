@@ -104,7 +104,12 @@ class ApplicationDataStore @Inject constructor(
     }
 
     suspend fun readNMBNotice(notice: NMBNotice) {
-        NMBNoticeDao.updateNMBNoticeWithTimestamp(notice.content, notice.enable, notice.read, notice.date)
+        NMBNoticeDao.updateNMBNoticeWithTimestamp(
+            notice.content,
+            notice.enable,
+            notice.read,
+            notice.date
+        )
     }
 
     suspend fun getLuweiNotice(): LuweiNotice? {
@@ -120,5 +125,13 @@ class ApplicationDataStore @Inject constructor(
             }
         }
         return _luweiNotice
+    }
+
+    fun checkAcknowledgementPostingRule(): Boolean {
+        return mmkv.getBoolean(Constants.ACKNOWLEDGE_POSTING_RULES, false)
+    }
+
+    fun acknowledgementPostingRule() {
+        mmkv.putBoolean(Constants.ACKNOWLEDGE_POSTING_RULES, true)
     }
 }

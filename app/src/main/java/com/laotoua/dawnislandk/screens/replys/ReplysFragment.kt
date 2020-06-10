@@ -108,7 +108,7 @@ class ReplysFragment : DaggerFragment() {
             setSharedVM(sharedVM)
 
             setOnItemClickListener { _, _, _ ->
-                hideMenu()
+                hideFabMenu()
             }
 
             addChildClickViewIds(
@@ -120,7 +120,7 @@ class ReplysFragment : DaggerFragment() {
             setOnItemChildClickListener { _, view, position ->
                 when (view.id) {
                     R.id.attachedImage -> {
-                        hideMenu()
+                        hideFabMenu()
                         val url = getItem(position).getImgUrl()
                         // TODO support multiple image
                         val viewerPopup =
@@ -176,12 +176,9 @@ class ReplysFragment : DaggerFragment() {
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     if (dy > 0) {
-                        binding.fabMenu.hide()
-                        hideMenu()
-                        binding.fabMenu.isClickable = false
+                        hideFab()
                     } else if (dy < 0) {
-                        binding.fabMenu.show()
-                        binding.fabMenu.isClickable = true
+                        showFab()
                         if (llm.findFirstVisibleItemPosition() <= 2 && !binding.refreshLayout.isRefreshing) {
                             viewModel.getPreviousPage()
                         }
@@ -219,11 +216,11 @@ class ReplysFragment : DaggerFragment() {
 
         binding.copyId.setOnClickListener {
             copyId(">>No.${viewModel.currentThreadId}")
-            hideMenu()
+            hideFabMenu()
         }
 
         binding.post.setOnClickListener {
-            hideMenu()
+            hideFabMenu()
             val page = getCurrentPage(mAdapter)
             postPopup.setupAndShow(viewModel.currentThreadId) {
                 if (page == viewModel.maxPage) {
@@ -233,7 +230,7 @@ class ReplysFragment : DaggerFragment() {
         }
 
         binding.jump.setOnClickListener {
-            hideMenu()
+            hideFabMenu()
             val page = getCurrentPage(mAdapter)
             XPopup.Builder(context)
                 .setPopupCallback(object : SimpleCallback() {
@@ -255,7 +252,7 @@ class ReplysFragment : DaggerFragment() {
         }
 
         binding.addFeed.setOnClickListener {
-            hideMenu()
+            hideFabMenu()
             viewModel.addFeed(applicationDataStore.feedId, viewModel.currentThreadId)
         }
     }
@@ -307,11 +304,13 @@ class ReplysFragment : DaggerFragment() {
 
     override fun onPause() {
         super.onPause()
+        hideFab()
         unsubscribeUI()
     }
 
     override fun onResume() {
         super.onResume()
+        showFab()
         subscribeUI()
     }
 
@@ -346,7 +345,18 @@ class ReplysFragment : DaggerFragment() {
         QuotePopup.clearQuotePopups()
     }
 
-    private fun hideMenu() {
+    private fun hideFab(){
+        binding.fabMenu.hide()
+        hideFabMenu()
+        binding.fabMenu.isClickable = false
+    }
+
+    private fun showFab(){
+        binding.fabMenu.show()
+        binding.fabMenu.isClickable = true
+    }
+
+    private fun hideFabMenu() {
         val rotateBackward = AnimationUtils.loadAnimation(
             requireContext(),
             R.anim.rotate_backward
@@ -359,7 +369,7 @@ class ReplysFragment : DaggerFragment() {
         isFabOpen = false
     }
 
-    private fun showMenu() {
+    private fun showFabMenu() {
         val rotateForward = AnimationUtils.loadAnimation(
             requireContext(),
             R.anim.rotate_forward
@@ -374,9 +384,9 @@ class ReplysFragment : DaggerFragment() {
 
     private fun toggleMenu() {
         if (isFabOpen) {
-            hideMenu()
+            hideFabMenu()
         } else {
-            showMenu()
+            showFabMenu()
         }
     }
 

@@ -10,7 +10,9 @@ data class NoticeForum(
     val name: String,
     val showName: String = "",
     val fgroup: String,
-    val rule: String = "请遵守总版规" // default rule
+    val rule: String = "" // default rule
 ){
     fun getDisplayName():String = if (showName.isNotBlank()) showName else name
+
+    fun getPostRule():String = if (rule.isNotBlank()) rule else "请遵守总版规"
 }

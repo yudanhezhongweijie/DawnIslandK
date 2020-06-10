@@ -127,7 +127,7 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
             }//去除时间线
         }.onDismiss {
             postContent!!.hint =
-                applicationDataStore.luweiNotice?.nmbForums?.firstOrNull { f -> f.id == targetId!! }?.rule
+                applicationDataStore.luweiNotice?.nmbForums?.firstOrNull { f -> f.id == targetId!! }?.getPostRule()
             if (postForum!!.text == "值班室") {
                 reportReasonPopup.show()
             }

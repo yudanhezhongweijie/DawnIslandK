@@ -133,7 +133,7 @@ class ReplysFragment : DaggerFragment() {
                             .show()
                     }
                     R.id.refId -> {
-                        val content = ">>No.${(view as TextView).text}\n"
+                        val content = "${(view as TextView).text}\n"
                         postPopup.setupAndShow(
                             viewModel.currentThreadId,
                             quote = content

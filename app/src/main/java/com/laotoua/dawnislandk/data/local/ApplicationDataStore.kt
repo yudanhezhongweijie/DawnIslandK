@@ -21,6 +21,8 @@ class ApplicationDataStore @Inject constructor(
     private var mCookies = mutableListOf<Cookie>()
     val cookies get() = mCookies
     val firstCookieHash get() = cookies.firstOrNull()?.cookieHash
+    private var _luweiNotice: LuweiNotice? = null
+    val luweiNotice: LuweiNotice? get() = _luweiNotice
 
     private var mFeedId: String? = null
     val feedId get() = mFeedId!!
@@ -99,5 +101,17 @@ class ApplicationDataStore @Inject constructor(
 
     suspend fun readNotice(NMBNotice: NMBNotice) {
         noticeDao.updateNotice(NMBNotice.content, NMBNotice.enable, NMBNotice.read, NMBNotice.date)
+    }
+
+    suspend fun getLuweiNotice(): LuweiNotice? {
+        webService.getLuweiNotice().run {
+            if (this is APIDataResponse.APISuccessDataResponse) {
+                _luweiNotice = data
+                return data
+            } else {
+                Timber.e(message)
+            }
+        }
+        return null
     }
 }

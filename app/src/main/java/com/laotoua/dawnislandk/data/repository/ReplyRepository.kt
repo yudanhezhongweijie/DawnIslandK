@@ -1,7 +1,6 @@
 package com.laotoua.dawnislandk.data.repository
 
 import android.util.SparseArray
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
@@ -13,8 +12,10 @@ import com.laotoua.dawnislandk.data.local.dao.ThreadDao
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
-import com.laotoua.dawnislandk.screens.replys.QuotePopup
-import com.laotoua.dawnislandk.util.*
+import com.laotoua.dawnislandk.util.EventPayload
+import com.laotoua.dawnislandk.util.LoadingStatus
+import com.laotoua.dawnislandk.util.SingleLiveEvent
+import com.laotoua.dawnislandk.util.equalsWithServerReplys
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
@@ -131,10 +132,8 @@ class ReplyRepository @Inject constructor(
             ).run {
                 if (this is APIDataResponse.APISuccessDataResponse) convertServerData(data, page)
                 else {
-                    if (pageDownloadJob != null) {
-                        Timber.e(message)
-                        setLoadingStatus(LoadingStatus.FAILED, "无法读取串回复...\n$message")
-                    }
+                    Timber.e(message)
+                    setLoadingStatus(LoadingStatus.FAILED, "无法读取串回复...\n$message")
                 }
             }
         }

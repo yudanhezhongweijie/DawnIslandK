@@ -1,17 +1,32 @@
 package com.laotoua.dawnislandk.data.local
 
 import com.laotoua.dawnislandk.data.local.dao.CookieDao
+import com.laotoua.dawnislandk.data.local.dao.LuweiNoticeDao
+import com.laotoua.dawnislandk.data.local.dao.NMBNoticeDao
 import com.laotoua.dawnislandk.data.local.dao.ReplyDao
+import com.laotoua.dawnislandk.data.remote.APIDataResponse
+import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.util.Constants
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.tencent.mmkv.MMKV
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.*
+import javax.inject.Inject
 
-class ApplicationDataStore(private val cookieDao: CookieDao, private val replyDao: ReplyDao) {
+class ApplicationDataStore @Inject constructor(
+    private val cookieDao: CookieDao, private val replyDao: ReplyDao,
+    private val NMBNoticeDao: NMBNoticeDao,
+    private val luweiNoticeDao: LuweiNoticeDao,
+    private val webService: NMBServiceClient
+) {
 
     private var mCookies = mutableListOf<Cookie>()
     val cookies get() = mCookies
     val firstCookieHash get() = cookies.firstOrNull()?.cookieHash
+    private var _luweiNotice: LuweiNotice? = null
+    val luweiNotice: LuweiNotice? get() = _luweiNotice
 
     private var mFeedId: String? = null
     val feedId get() = mFeedId!!
@@ -68,5 +83,42 @@ class ApplicationDataStore(private val cookieDao: CookieDao, private val replyDa
 
     suspend fun nukeReplyTable() {
         replyDao.nukeTable()
+    }
+
+    suspend fun getNotice(): NMBNotice? {
+        var cache = NMBNoticeDao.getLatestNMBNotice()
+        webService.getNotice().run {
+            if (this is APIDataResponse.APISuccessDataResponse) {
+                if (cache == null || data.date > cache!!.date) {
+                    coroutineScope { launch { NMBNoticeDao.insertNMBNoticeWithTimestamp(data) } }
+                    cache = data
+                }
+            } else {
+                Timber.e(message)
+            }
+        }
+        if (cache?.read != true) {
+            return cache
+        }
+        return null
+    }
+
+    suspend fun readNMBNotice(notice: NMBNotice) {
+        NMBNoticeDao.updateNMBNoticeWithTimestamp(notice.content, notice.enable, notice.read, notice.date)
+    }
+
+    suspend fun getLuweiNotice(): LuweiNotice? {
+        _luweiNotice = luweiNoticeDao.getLatestLuweiNotice()
+        webService.getLuweiNotice().run {
+            if (this is APIDataResponse.APISuccessDataResponse) {
+                if (_luweiNotice != data) {
+                    _luweiNotice = data
+                    coroutineScope { launch { luweiNoticeDao.insertNoticeWithTimestamp(data) } }
+                }
+            } else {
+                Timber.e(message)
+            }
+        }
+        return _luweiNotice
     }
 }

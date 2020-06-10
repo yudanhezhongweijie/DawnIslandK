@@ -1,8 +1,6 @@
 package com.laotoua.dawnislandk.data.remote
 
-import com.laotoua.dawnislandk.data.local.Community
-import com.laotoua.dawnislandk.data.local.Reply
-import com.laotoua.dawnislandk.data.local.Thread
+import com.laotoua.dawnislandk.data.local.*
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import kotlinx.coroutines.Dispatchers
@@ -18,6 +16,14 @@ import javax.inject.Inject
 class NMBServiceClient @Inject constructor(private val service: NMBService) {
 
     private val moshi: Moshi = Moshi.Builder().build()
+
+    private val parseNMBNotice: (String) -> NMBNotice = { response ->
+        moshi.adapter(NMBNotice::class.java).fromJson(response)!!
+    }
+
+    private val parseLuweiNotice: (String) -> LuweiNotice = { response ->
+        moshi.adapter(LuweiNotice::class.java).fromJson(response)!!
+    }
 
     private val parseCommunities: (String) -> List<Community> = { response ->
         moshi.adapter<List<Community>>(
@@ -44,6 +50,17 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
     private val parseQuote: (String) -> Reply = { response ->
         moshi.adapter(Reply::class.java).fromJson(response)!!
     }
+
+    suspend fun getNotice(): APIDataResponse<NMBNotice> {
+        Timber.i("Downloading Notice...")
+        return APIDataResponse.create(service.getNMBNotice(), parseNMBNotice)
+    }
+
+    suspend fun getLuweiNotice(): APIDataResponse<LuweiNotice>{
+        Timber.i("Downloading LuWeiNotice...")
+        return APIDataResponse.create(service.getLuweiNotice(), parseLuweiNotice)
+    }
+
 
     suspend fun getCommunities(): APIDataResponse<List<Community>> {
         Timber.i("Downloading Communities and Forums...")

@@ -50,4 +50,19 @@ object DatabaseModule {
     fun provideDailyTrendDao(dawnDatabase: DawnDatabase): DailyTrendDao {
         return dawnDatabase.dailyTrendDao()
     }
+
+    @JvmStatic
+    @Provides
+    @Singleton
+    fun provideNMBNoticeDao(dawnDatabase: DawnDatabase): NMBNoticeDao {
+        return dawnDatabase.nmbNoticeDao()
+    }
+
+    @JvmStatic
+    @Provides
+    @Singleton
+    fun provideLuweiNoticeDao(dawnDatabase: DawnDatabase): LuweiNoticeDao {
+        return dawnDatabase.luweiNoticeDao()
+    }
+
 }

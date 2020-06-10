@@ -23,7 +23,7 @@ object ContentTransformation {
     private val HIDE_PATTERN = Pattern.compile("\\[h](.+?)\\[/h]")
 
     @Suppress("DEPRECATION")
-    private fun htmlToSpanned(string: String): Spanned {
+    fun htmlToSpanned(string: String): Spanned {
         return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             Html.fromHtml(string)
         } else {

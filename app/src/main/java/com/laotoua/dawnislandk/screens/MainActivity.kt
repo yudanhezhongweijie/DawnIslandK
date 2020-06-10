@@ -4,12 +4,14 @@ import android.os.Bundle
 import android.os.Handler
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
+import com.afollestad.materialdialogs.checkbox.isCheckPromptChecked
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.Forum
@@ -17,6 +19,7 @@ import com.laotoua.dawnislandk.databinding.ActivityMainBinding
 import com.laotoua.dawnislandk.screens.adapters.QuickNodeAdapter
 import com.laotoua.dawnislandk.screens.replys.QuotePopup
 import com.laotoua.dawnislandk.screens.replys.ReplysFragment
+import com.laotoua.dawnislandk.screens.util.ContentTransformation.htmlToSpanned
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbarInitialization
 import com.laotoua.dawnislandk.util.LoadingStatus
 import dagger.android.support.DaggerAppCompatActivity
@@ -97,6 +100,20 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
     private suspend fun loadResources() {
         applicationDataStore.loadCookies()
         applicationDataStore.initializeFeedId()
+        applicationDataStore.getNotice()?.let { notice ->
+            MaterialDialog(this).show {
+                checkBoxPrompt(R.string.acknowledge) {}
+                message(text = htmlToSpanned(notice.content))
+                positiveButton(R.string.close) {
+                    notice.read = isCheckPromptChecked()
+                    if (notice.read) lifecycleScope.launch { applicationDataStore.readNMBNotice(notice) }
+                }
+            }
+        }
+
+        applicationDataStore.getLuweiNotice()?.let {luweiNotice ->
+            Timber.d(" use luweiNotice")
+        }
     }
 
     override fun onBackPressed() {

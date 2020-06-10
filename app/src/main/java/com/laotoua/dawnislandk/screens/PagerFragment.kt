@@ -77,7 +77,7 @@ class PagerFragment : DaggerFragment() {
          *  https://issuetracker.google.com/issues/151212195
          */
         binding.viewPagerInterceptor.bindPager2(binding.viewPager2)
-        binding.viewPagerInterceptor.bindDrawerListener { drawerLayout.open() }
+        binding.viewPagerInterceptor.bindDrawerListener { drawerLayout.openDrawer(GravityCompat.START)}
         /** workaround for https://issuetracker.google.com/issues/134912610
          *  programmatically remove over scroll edge effect
          */

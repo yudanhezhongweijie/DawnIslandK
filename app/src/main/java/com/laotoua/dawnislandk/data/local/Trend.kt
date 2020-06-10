@@ -1,5 +1,8 @@
 package com.laotoua.dawnislandk.data.local
 
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
 data class Trend(
     val rank: String,
     val hits: String,

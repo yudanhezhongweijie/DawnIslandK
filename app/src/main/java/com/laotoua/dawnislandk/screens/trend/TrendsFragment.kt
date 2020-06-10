@@ -39,7 +39,7 @@ class TrendsFragment : DaggerFragment() {
 
     private var mHandler: Handler? = null
     private val mDelayedLoad = Runnable {
-        viewModel.refresh()
+        viewModel.getLatestTrend()
     }
     private var delayedLoading = false
 
@@ -75,7 +75,7 @@ class TrendsFragment : DaggerFragment() {
         binding.refreshLayout.apply {
             setOnRefreshListener(object : RefreshingListenerAdapter() {
                 override fun onRefreshing() {
-                    viewModel.refresh()
+                    viewModel.getLatestTrend()
                     mAdapter.setList(emptyList())
                 }
             })

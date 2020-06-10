@@ -11,7 +11,4 @@ internal abstract class CustomViewModule {
     @ContributesAndroidInjector
     abstract fun bindPostPopup(): PostPopup
 
-    @ContributesAndroidInjector
-    abstract fun bindQuotePopup(): QuotePopup
-
 }

@@ -53,10 +53,13 @@ object ReadableTime {
     private val sCalendarLock = Any()
     private val DATE_FORMAT_WITHOUT_YEAR =
         SimpleDateFormat("MM/dd", Locale.getDefault())
-    private val DATE_FORMAT_WIT_YEAR =
-        SimpleDateFormat("yyy/MM/dd", Locale.getDefault())
+    val DATE_FORMAT_WITH_YEAR =
+        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     private val DATE_FORMAT =
         SimpleDateFormat("yy/MM/dd HH:mm", Locale.getDefault())
+    private val BASIC_DATE_FORMAT =
+        SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+
     private val sDateFormatLock1 = Any()
     private val FILENAMABLE_DATE_FORMAT =
         SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.getDefault())
@@ -70,16 +73,14 @@ object ReadableTime {
         )
     }
 
-    fun string2Time(str: String): Long {
+    fun string2Time(str: String, dateFormat: SimpleDateFormat = BASIC_DATE_FORMAT): Long {
         var s = str
         if (s.contains("(")) {
             s = s.substring(0, 10) + " " + s.substring(13)
         }
-        val sdf =
-            SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         var date: Date? = null
         try {
-            date = sdf.parse(s)
+            date = dateFormat.parse(s)
         } catch (e: ParseException) {
             e.printStackTrace()
         }
@@ -142,7 +143,7 @@ object ReadableTime {
                 return if (nowYear == timeYear) {
                     DATE_FORMAT_WITHOUT_YEAR.format(timeDate)
                 } else {
-                    DATE_FORMAT_WIT_YEAR.format(timeDate)
+                    DATE_FORMAT_WITH_YEAR.format(timeDate)
                 }
             }
         }

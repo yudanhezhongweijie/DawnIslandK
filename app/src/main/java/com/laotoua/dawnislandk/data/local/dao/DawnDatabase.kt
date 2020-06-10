@@ -15,8 +15,9 @@ import com.laotoua.dawnislandk.data.local.*
         Reply::class,
         Thread::class,
         DailyTrend::class,
-    NMBNotice::class],
-    version = 2,
+        NMBNotice::class,
+        LuweiNotice::class],
+    version = 3,
     exportSchema = true
 )
 @TypeConverters(Converter::class)
@@ -26,7 +27,8 @@ abstract class DawnDatabase : RoomDatabase() {
     abstract fun replyDao(): ReplyDao
     abstract fun threadDao(): ThreadDao
     abstract fun dailyTrendDao(): DailyTrendDao
-    abstract fun noticeDao(): NoticeDao
+    abstract fun nmbNoticeDao(): NMBNoticeDao
+    abstract fun luweiNoticeDao(): LuweiNoticeDao
 
     companion object {
         // Singleton prevents multiple instances of database opening at the
@@ -46,7 +48,7 @@ abstract class DawnDatabase : RoomDatabase() {
                     DawnDatabase::class.java,
                     "dawnDB"
                 )
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                     .build()
                 INSTANCE = instance
                 return instance
@@ -57,11 +59,18 @@ abstract class DawnDatabase : RoomDatabase() {
          *  DATABASE MIGRATIONS
          */
 
-        // adds trends table
+        // adds trends
         private val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("CREATE TABLE IF NOT EXISTS `DailyTrend` (`id` TEXT NOT NULL, `po` TEXT NOT NULL, `date` INTEGER NOT NULL, `trends` TEXT NOT NULL,`lastReplyCount` INTEGER NOT NULL, `lastUpdatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))")
+            }
+        }
+
+        // adds NMBNotice, LuweiNotice
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("CREATE TABLE IF NOT EXISTS `NMBNotice` (`content` TEXT NOT NULL, `date` INTEGER NOT NULL, `enable` INTEGER NOT NULL, PRIMARY KEY(`date`))")
+                database.execSQL("CREATE TABLE IF NOT EXISTS `LuweiNotice` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `appVersion` TEXT NOT NULL, `beitaiForums` TEXT NOT NULL, `nmbForums` TEXT NOT NULL, `loadingMsgs` TEXT NOT NULL, `clientsInfo` TEXT NOT NULL, `whitelist` TEXT NOT NULL)")
             }
         }
     }

@@ -106,9 +106,13 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
                 message(text = htmlToSpanned(notice.content))
                 positiveButton(R.string.close) {
                     notice.read = isCheckPromptChecked()
-                    if (notice.read) lifecycleScope.launch { applicationDataStore.readNotice(notice) }
+                    if (notice.read) lifecycleScope.launch { applicationDataStore.readNMBNotice(notice) }
                 }
             }
+        }
+
+        applicationDataStore.getLuweiNotice()?.let {luweiNotice ->
+            Timber.d(" use luweiNotice")
         }
     }
 

@@ -73,7 +73,7 @@
             android:hint="@string/edit_text_hint"
             android:inputType="textMultiLine"
             android:maxLines="15"
-            android:minLines="4"
+            android:minLines="6"
             android:padding="6dp"
             android:textSize="15sp"
             app:layout_constraintBottom_toTopOf="@id/attachmentContainer"

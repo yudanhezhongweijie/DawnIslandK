@@ -1,7 +1,6 @@
 package com.laotoua.dawnislandk.di
 
 import android.content.Context
-import com.laotoua.dawnislandk.data.local.ApplicationDataStore
 import com.laotoua.dawnislandk.data.local.dao.*
 import dagger.Module
 import dagger.Provides
@@ -55,8 +54,15 @@ object DatabaseModule {
     @JvmStatic
     @Provides
     @Singleton
-    fun provideNoticeDao(dawnDatabase: DawnDatabase): NoticeDao {
-        return dawnDatabase.noticeDao()
+    fun provideNMBNoticeDao(dawnDatabase: DawnDatabase): NMBNoticeDao {
+        return dawnDatabase.nmbNoticeDao()
+    }
+
+    @JvmStatic
+    @Provides
+    @Singleton
+    fun provideLuweiNoticeDao(dawnDatabase: DawnDatabase): LuweiNoticeDao {
+        return dawnDatabase.luweiNoticeDao()
     }
 
 }

@@ -7,6 +7,12 @@ import retrofit2.Call
 import retrofit2.http.*
 
 interface NMBService {
+    @GET("https://cover.acfunwiki.org/nmb-notice.json")
+    fun getNMBNotice(): Call<ResponseBody>
+
+    @GET("https://cover.acfunwiki.org/luwei.json")
+    fun getLuweiNotice(): Call<ResponseBody>
+
     @GET("Api/getForumList")
     fun getNMBForumList(): Call<ResponseBody>
 

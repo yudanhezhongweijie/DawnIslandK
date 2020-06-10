@@ -26,20 +26,17 @@ class DawnApp : DaggerApplication() {
     }
 
     @Inject
-    lateinit var cookieDao: CookieDao
-
-    @Inject
-    lateinit var replyDao: ReplyDao
+    lateinit var mApplicationDataStore: ApplicationDataStore
 
     override fun onCreate() {
         super.onCreate()
         Timber.plant(Timber.DebugTree())
 
+        applicationDataStore = mApplicationDataStore
+
         // MMKV
         MMKV.initialize(this)
         MMKV.registerHandler(handler)
-
-        applicationDataStore = ApplicationDataStore(cookieDao,replyDao)
 
         // Time
         ReadableTime.initialize(this)

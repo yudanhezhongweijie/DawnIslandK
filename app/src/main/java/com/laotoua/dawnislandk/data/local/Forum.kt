@@ -4,6 +4,7 @@ import androidx.annotation.Keep
 import androidx.room.PrimaryKey
 import com.squareup.moshi.JsonClass
 
+// from api/getForumList, differs from NoticeForum
 @JsonClass(generateAdapter = true)
 @Keep
 data class Forum(
@@ -19,7 +20,5 @@ data class Forum(
     val updateAt: String = "",
     val status: String = ""
 ) {
-    fun getDisplayName(): String {
-        return if (showName.isNotBlank()) showName else name
-    }
+    fun getDisplayName(): String =  if (showName.isNotBlank()) showName else name
 }

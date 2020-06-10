@@ -14,7 +14,8 @@ import com.laotoua.dawnislandk.data.local.*
         Cookie::class,
         Reply::class,
         Thread::class,
-        DailyTrend::class],
+        DailyTrend::class,
+    NMBNotice::class],
     version = 2,
     exportSchema = true
 )
@@ -25,6 +26,7 @@ abstract class DawnDatabase : RoomDatabase() {
     abstract fun replyDao(): ReplyDao
     abstract fun threadDao(): ThreadDao
     abstract fun dailyTrendDao(): DailyTrendDao
+    abstract fun noticeDao(): NoticeDao
 
     companion object {
         // Singleton prevents multiple instances of database opening at the
@@ -59,6 +61,7 @@ abstract class DawnDatabase : RoomDatabase() {
         private val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("CREATE TABLE IF NOT EXISTS `DailyTrend` (`id` TEXT NOT NULL, `po` TEXT NOT NULL, `date` INTEGER NOT NULL, `trends` TEXT NOT NULL,`lastReplyCount` INTEGER NOT NULL, `lastUpdatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))")
+                database.execSQL("CREATE TABLE IF NOT EXISTS `NMBNotice` (`content` TEXT NOT NULL, `date` INTEGER NOT NULL, `enable` INTEGER NOT NULL, PRIMARY KEY(`date`))")
             }
         }
     }

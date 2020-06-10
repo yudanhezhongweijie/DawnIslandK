@@ -1,13 +1,22 @@
 package com.laotoua.dawnislandk.data.local
 
 import com.laotoua.dawnislandk.data.local.dao.CookieDao
+import com.laotoua.dawnislandk.data.local.dao.NoticeDao
 import com.laotoua.dawnislandk.data.local.dao.ReplyDao
+import com.laotoua.dawnislandk.data.remote.APIDataResponse
+import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.util.Constants
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.tencent.mmkv.MMKV
+import timber.log.Timber
 import java.util.*
+import javax.inject.Inject
 
-class ApplicationDataStore(private val cookieDao: CookieDao, private val replyDao: ReplyDao) {
+class ApplicationDataStore @Inject constructor(
+    private val cookieDao: CookieDao, private val replyDao: ReplyDao,
+    private val noticeDao: NoticeDao,
+    private val webService: NMBServiceClient
+) {
 
     private var mCookies = mutableListOf<Cookie>()
     val cookies get() = mCookies
@@ -68,5 +77,27 @@ class ApplicationDataStore(private val cookieDao: CookieDao, private val replyDa
 
     suspend fun nukeReplyTable() {
         replyDao.nukeTable()
+    }
+
+    suspend fun getNotice(): NMBNotice? {
+        var cacheNotice = noticeDao.getLatestNotice()
+        webService.getNotice().run {
+            if (this is APIDataResponse.APISuccessDataResponse) {
+                if (cacheNotice == null || data.date > cacheNotice!!.date) {
+                    noticeDao.insertNotice(data)
+                    cacheNotice = data
+                }
+            } else {
+                Timber.e(message)
+            }
+        }
+        if (cacheNotice?.read != true) {
+            return cacheNotice
+        }
+        return null
+    }
+
+    suspend fun readNotice(NMBNotice: NMBNotice) {
+        noticeDao.updateNotice(NMBNotice.content, NMBNotice.enable, NMBNotice.read, NMBNotice.date)
     }
 }

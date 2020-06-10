@@ -1,6 +1,7 @@
 package com.laotoua.dawnislandk.di
 
 import android.content.Context
+import com.laotoua.dawnislandk.data.local.ApplicationDataStore
 import com.laotoua.dawnislandk.data.local.dao.*
 import dagger.Module
 import dagger.Provides
@@ -50,4 +51,12 @@ object DatabaseModule {
     fun provideDailyTrendDao(dawnDatabase: DawnDatabase): DailyTrendDao {
         return dawnDatabase.dailyTrendDao()
     }
+
+    @JvmStatic
+    @Provides
+    @Singleton
+    fun provideNoticeDao(dawnDatabase: DawnDatabase): NoticeDao {
+        return dawnDatabase.noticeDao()
+    }
+
 }

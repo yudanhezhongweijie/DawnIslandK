@@ -31,6 +31,7 @@
     <string name="submit" translatable="false">确认</string>
     <string name="delete" translatable="false">删除</string>
     <string name="cancel" translatable="false">取消</string>
+    <string name="close" translatable="false">关闭</string>
     <string name="save" translatable="false">保存</string>
     <string name="do_not_save" translatable="false">不保存</string>
     <string name="select_picture" translatable="false">选择图片</string>

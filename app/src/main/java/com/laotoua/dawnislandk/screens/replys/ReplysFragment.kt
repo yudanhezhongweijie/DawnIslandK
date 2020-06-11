@@ -55,7 +55,7 @@ class ReplysFragment : DaggerFragment() {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel: ReplysViewModel by viewModels { viewModelFactory }
-    private val sharedVM: SharedViewModel by activityViewModels()
+    private val sharedVM: SharedViewModel by activityViewModels{ viewModelFactory }
 
     private var isFabOpen = false
     private var _mAdapter: QuickAdapter<Reply>? = null

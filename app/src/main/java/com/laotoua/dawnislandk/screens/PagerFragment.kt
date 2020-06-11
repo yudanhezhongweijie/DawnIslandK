@@ -39,7 +39,7 @@ class PagerFragment : DaggerFragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
-    private val sharedVM: SharedViewModel by activityViewModels()
+    private val sharedVM: SharedViewModel by activityViewModels{ viewModelFactory }
     private var mForumId: String? = null
 
     private val titleUpdateCallback = object : ViewPager2.OnPageChangeCallback() {

@@ -35,7 +35,7 @@ class TrendsFragment : DaggerFragment() {
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
     private val viewModel: TrendsViewModel by viewModels { viewModelFactory }
-    private val sharedVM: SharedViewModel by activityViewModels()
+    private val sharedVM: SharedViewModel by activityViewModels{ viewModelFactory }
 
     private var mHandler: Handler? = null
     private val mDelayedLoad = Runnable {

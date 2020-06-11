@@ -37,7 +37,7 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
 
     private val communityVM: CommunityViewModel by viewModels { viewModelFactory }
 
-    private val sharedVM: SharedViewModel by viewModels()
+    private val sharedVM: SharedViewModel by viewModels{ viewModelFactory }
 
     private var doubleBackToExitPressedOnce = false
     private val mHandler = Handler()

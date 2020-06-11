@@ -17,7 +17,8 @@ class SharedViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
     val selectedForumId: LiveData<String> get() = _selectedForumId
     private var _selectedThreadId = MutableLiveData<String>()
     val selectedThreadId: LiveData<String> get() = _selectedThreadId
-    private var selectedThreadFid: String = "-1"
+    private var _selectedThreadFid: String = "-1"
+    val selectedThreadFid get() = _selectedThreadFid
 
     private lateinit var forumNameMapping: Map<String, String>
     private lateinit var forumMsgMapping: Map<String, String>
@@ -32,7 +33,7 @@ class SharedViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
 
     fun setThread(t: Thread) {
         Timber.d("Setting thread to ${t.id} and its fid to ${t.fid}")
-        selectedThreadFid = t.fid
+        _selectedThreadFid = t.fid
         _selectedThreadId.value = t.id
     }
 
@@ -51,7 +52,7 @@ class SharedViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
 
     fun getForumDisplayName(id: String): String = forumNameMapping[id] ?: ""
 
-    fun getSelectedThreadForumName(): String = getForumDisplayName(selectedThreadFid)
+    fun getSelectedThreadForumName(): String = getForumDisplayName(_selectedThreadFid)
 
     fun getToolbarTitle(): String = toolbarTitle
 
@@ -65,8 +66,8 @@ class SharedViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
         email: String?, title: String?,
         content: String?, waterMark: String?,
         imageFile: File?, userHash: String
-    ): Pair<Boolean, String> {
-        val response = webNMBServiceClient.sendPost(
+    ): String {
+        return webNMBServiceClient.sendPost(
             newPost,
             targetId,
             name,
@@ -76,20 +77,18 @@ class SharedViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
             waterMark,
             imageFile,
             userHash
-        )
-
-        return if (response is APIMessageResponse.APISuccessMessageResponse) {
-            if (response.messageType == APIMessageResponse.MessageType.String) {
-                Pair(true, response.message)
-            } else {
-                Pair(
-                    false, response.dom!!.getElementsByClass("system-message")
+        ).run {
+            if (this is APIMessageResponse.APISuccessMessageResponse) {
+                if (messageType == APIMessageResponse.MessageType.String) {
+                    message
+                } else {
+                    dom!!.getElementsByClass("system-message")
                         .first().children().not(".jump").text()
-                )
+                }
+            } else {
+                Timber.e(message)
+                message
             }
-        } else {
-            Timber.e(response.message)
-            Pair(false, response.message)
         }
     }
 

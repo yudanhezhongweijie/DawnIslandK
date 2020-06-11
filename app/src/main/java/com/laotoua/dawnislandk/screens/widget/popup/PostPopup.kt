@@ -27,8 +27,6 @@ import com.google.android.material.button.MaterialButtonToggleGroup
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.Cookie
-import com.laotoua.dawnislandk.data.remote.APIMessageResponse
-import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.ContentTransformation
@@ -43,7 +41,6 @@ import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
-import javax.inject.Inject
 
 
 @SuppressLint("ViewConstructor")
@@ -457,14 +454,15 @@ class PostPopup(
         findViewById<Button>(R.id.forumRule).setOnClickListener {
             MaterialDialog(context).show {
                 cornerRadius(res = R.dimen.dialog_radius)
-                val biId = if (targetId!!.toInt() > 0) targetId!!.toInt() else 1
+                val fid = if (newPost) targetId!! else sharedVM.selectedThreadFid
+                val biId = if (fid.toInt() > 0) fid.toInt() else 1
                 val resourceId: Int = context.resources.getIdentifier(
                     "bi_$biId", "drawable",
                     context.packageName
                 )
                 icon(resourceId)
-                title(text = sharedVM.getForumDisplayName(targetId!!))
-                message(text = ContentTransformation.htmlToSpanned(sharedVM.getForumMsg(targetId!!)))
+                title(text = sharedVM.getForumDisplayName(fid))
+                message(text = ContentTransformation.htmlToSpanned(sharedVM.getForumMsg(fid)))
                 positiveButton(R.string.acknowledge)
             }
         }
@@ -545,12 +543,10 @@ class PostPopup(
                 waterMark,
                 imageFile,
                 userHash
-            ).run {
-                val success = first
-                val message = second
+            ).let {message ->
                 postProgress.dismiss()
                 dismissWith {
-                    if (success) {
+                    if (message.substring(0, 2) == ":)") {
                         clearEntries()
                         afterPostTask?.invoke()
                     }

@@ -40,7 +40,7 @@ class ThreadsFragment : DaggerFragment() {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel: ThreadsViewModel by viewModels { viewModelFactory }
-    private val sharedVM: SharedViewModel by activityViewModels()
+    private val sharedVM: SharedViewModel by activityViewModels{ viewModelFactory }
 
     private var isFabOpen = false
 

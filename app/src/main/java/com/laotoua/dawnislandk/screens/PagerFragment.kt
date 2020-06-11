@@ -1,7 +1,7 @@
 package com.laotoua.dawnislandk.screens
 
 import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
+import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.core.view.GravityCompat
-import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -21,6 +20,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.afollestad.materialdialogs.MaterialDialog
 import com.google.android.material.animation.AnimationUtils.FAST_OUT_LINEAR_IN_INTERPOLATOR
+import com.google.android.material.animation.AnimationUtils.LINEAR_OUT_SLOW_IN_INTERPOLATOR
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.FragmentPagerBinding
 import com.laotoua.dawnislandk.screens.feeds.FeedsFragment
@@ -44,8 +44,16 @@ class PagerFragment : DaggerFragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
-    private val sharedVM: SharedViewModel by activityViewModels{ viewModelFactory }
+    private val sharedVM: SharedViewModel by activityViewModels { viewModelFactory }
     private var mForumId: String? = null
+
+    enum class SCROLL_STATE {
+        UP,
+        DOWN
+    }
+
+    private var currentState: SCROLL_STATE? = null
+    private var currentAnimatorSet: AnimatorSet? = null
 
     private val titleUpdateCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
@@ -84,7 +92,7 @@ class PagerFragment : DaggerFragment() {
          *  https://issuetracker.google.com/issues/151212195
          */
         binding.viewPagerInterceptor.bindPager2(binding.viewPager2)
-        binding.viewPagerInterceptor.bindDrawerListener { drawerLayout.openDrawer(GravityCompat.START)}
+        binding.viewPagerInterceptor.bindDrawerListener { drawerLayout.openDrawer(GravityCompat.START) }
         /** workaround for https://issuetracker.google.com/issues/134912610
          *  programmatically remove over scroll edge effect
          */
@@ -196,28 +204,73 @@ class PagerFragment : DaggerFragment() {
         }
     }
 
+    private val slideOutBottom by lazyOnMainOnly {
+        ObjectAnimator.ofFloat(
+            binding.bottomToolbar,
+            "TranslationY",
+            binding.bottomToolbar.height.toFloat()
+        )
+    }
+
+    private val alphaOut by lazyOnMainOnly {
+        ObjectAnimator.ofFloat(binding.bottomToolbar, "alpha", 0f)
+    }
+
+    private val slideInBottom by lazyOnMainOnly {
+        ObjectAnimator.ofFloat(
+            binding.bottomToolbar,
+            "TranslationY",
+            0f
+        )
+    }
+
+    private val alphaIn by lazyOnMainOnly {
+        ObjectAnimator.ofFloat(binding.bottomToolbar, "alpha", 1f)
+    }
 
     fun hideMenu() {
-        binding.bottomToolbar.animate()
-            .alpha(0f)
-            .setInterpolator(FAST_OUT_LINEAR_IN_INTERPOLATOR)
-            .setDuration(250)
-            .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    binding.bottomToolbar.visibility = View.GONE
+        if (currentState == SCROLL_STATE.DOWN) return
+        if (currentAnimatorSet != null) {
+            currentAnimatorSet!!.cancel()
+        }
+        currentState = SCROLL_STATE.DOWN
+        currentAnimatorSet = AnimatorSet().apply {
+            duration = 250
+            interpolator = FAST_OUT_LINEAR_IN_INTERPOLATOR
+            addListener(object : Animator.AnimatorListener {
+                override fun onAnimationRepeat(animation: Animator?) {}
+                override fun onAnimationEnd(animation: Animator?) {
+                    currentAnimatorSet = null
                 }
+
+                override fun onAnimationCancel(animation: Animator?) {}
+                override fun onAnimationStart(animation: Animator?) {}
             })
+            playTogether(slideOutBottom, alphaOut)
+            start()
+        }
     }
 
     fun showMenu() {
-        binding.bottomToolbar.animate()
-            .alpha(1f)
-            .setDuration(150)
-            .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    binding.bottomToolbar.visibility = View.VISIBLE
+        if (currentState == SCROLL_STATE.UP) return
+        if (currentAnimatorSet != null) {
+            currentAnimatorSet!!.cancel()
+        }
+        currentState = SCROLL_STATE.UP
+        currentAnimatorSet = AnimatorSet().apply {
+            duration = 250
+            interpolator = LINEAR_OUT_SLOW_IN_INTERPOLATOR
+            addListener(object : Animator.AnimatorListener {
+                override fun onAnimationRepeat(animation: Animator?) {}
+                override fun onAnimationEnd(animation: Animator?) {
+                    currentAnimatorSet = null
                 }
-            })
-    }
 
+                override fun onAnimationCancel(animation: Animator?) {}
+                override fun onAnimationStart(animation: Animator?) {}
+            })
+            playTogether(slideInBottom, alphaIn)
+            start()
+        }
+    }
 }

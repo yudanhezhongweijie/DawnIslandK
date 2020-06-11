@@ -53,13 +53,6 @@ class PostPopup(
 ) :
     BottomPopupView(context) {
 
-    init {
-        caller.androidInjector().inject(this)
-    }
-
-    @Inject
-    lateinit var webServiceClient: NMBServiceClient
-
     var newPost = false
     var targetId: String? = null
     var name = ""
@@ -542,7 +535,7 @@ class PostPopup(
         postProgress.show()
         Timber.i("Sending...")
         caller.lifecycleScope.launch {
-            webServiceClient.sendPost(
+            sharedVM.sendPost(
                 newPost,
                 targetId!!,
                 name,
@@ -553,24 +546,11 @@ class PostPopup(
                 imageFile,
                 userHash
             ).run {
-                val message = when (this) {
-                    is APIMessageResponse.APISuccessMessageResponse -> {
-                        if (this.messageType == APIMessageResponse.MessageType.String) {
-                            message
-                        } else {
-                            dom!!.getElementsByClass("system-message")
-                                .first().children().not(".jump").text()
-                        }
-                    }
-                    else -> {
-                        Timber.e(message)
-                        message
-                    }
-                }
-
+                val success = first
+                val message = second
                 postProgress.dismiss()
                 dismissWith {
-                    if (message.substring(0, 2) == ":)") {
+                    if (success) {
                         clearEntries()
                         afterPostTask?.invoke()
                     }

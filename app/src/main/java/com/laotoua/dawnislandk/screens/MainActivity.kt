@@ -86,6 +86,11 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
             }
         })
 
+        binding.settings.setOnClickListener {
+            val action = PagerFragmentDirections.actionPagerFragmentToSettingsFragment()
+            findNavController(R.id.navHostFragment).navigate(action)
+        }
+
     }
 
     // Forum Click
@@ -107,13 +112,17 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
                 message(text = htmlToSpanned(notice.content))
                 positiveButton(R.string.close) {
                     notice.read = isCheckPromptChecked()
-                    if (notice.read) lifecycleScope.launch { applicationDataStore.readNMBNotice(notice) }
+                    if (notice.read) lifecycleScope.launch {
+                        applicationDataStore.readNMBNotice(
+                            notice
+                        )
+                    }
                 }
             }
         }
 
-        applicationDataStore.getLuweiNotice()?.let {luweiNotice ->
-            Timber.d(" use luweiNotice")
+        applicationDataStore.getLuweiNotice()?.let { luweiNotice ->
+            Timber.e(" use luweiNotice")
         }
     }
 

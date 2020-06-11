@@ -408,7 +408,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:text="@string/check_forum_msg"
-            app:icon="@drawable/info_24px"
+            app:icon="@drawable/ic_info_24px"
             app:iconGravity="textEnd"
             app:layout_constraintBottom_toTopOf="@id/postContent"
             app:layout_constraintStart_toEndOf="@id/postTitle"

@@ -5,17 +5,22 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.laotoua.dawnislandk.data.local.Forum
 import com.laotoua.dawnislandk.data.local.Thread
+import com.laotoua.dawnislandk.data.remote.APIMessageResponse
+import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import timber.log.Timber
+import java.io.File
+import javax.inject.Inject
 
-class SharedViewModel : ViewModel() {
+class SharedViewModel @Inject constructor(private val webNMBServiceClient: NMBServiceClient) :
+    ViewModel() {
     private var _selectedForumId = MutableLiveData<String>()
     val selectedForumId: LiveData<String> get() = _selectedForumId
     private var _selectedThreadId = MutableLiveData<String>()
     val selectedThreadId: LiveData<String> get() = _selectedThreadId
     private var selectedThreadFid: String = "-1"
 
-    private lateinit var forumNameMapping:Map<String, String>
-    private lateinit var forumMsgMapping:Map<String, String>
+    private lateinit var forumNameMapping: Map<String, String>
+    private lateinit var forumMsgMapping: Map<String, String>
 
     private var toolbarTitle = "A岛"
 
@@ -54,5 +59,38 @@ class SharedViewModel : ViewModel() {
         return forumNameMapping.filterValues { it == name }.keys.first()
     }
 
+    suspend fun sendPost(
+        newPost: Boolean,
+        targetId: String, name: String?,
+        email: String?, title: String?,
+        content: String?, waterMark: String?,
+        imageFile: File?, userHash: String
+    ): Pair<Boolean, String> {
+        val response = webNMBServiceClient.sendPost(
+            newPost,
+            targetId,
+            name,
+            email,
+            title,
+            content,
+            waterMark,
+            imageFile,
+            userHash
+        )
+
+        return if (response is APIMessageResponse.APISuccessMessageResponse) {
+            if (response.messageType == APIMessageResponse.MessageType.String) {
+                Pair(true, response.message)
+            } else {
+                Pair(
+                    false, response.dom!!.getElementsByClass("system-message")
+                        .first().children().not(".jump").text()
+                )
+            }
+        } else {
+            Timber.e(response.message)
+            Pair(false, response.message)
+        }
+    }
 
 }

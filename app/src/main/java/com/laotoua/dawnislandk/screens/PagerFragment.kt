@@ -8,6 +8,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -19,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.customview.customView
 import com.google.android.material.animation.AnimationUtils.FAST_OUT_LINEAR_IN_INTERPOLATOR
 import com.google.android.material.animation.AnimationUtils.LINEAR_OUT_SLOW_IN_INTERPOLATOR
 import com.laotoua.dawnislandk.R
@@ -206,7 +209,29 @@ class PagerFragment : DaggerFragment() {
         }
 
         binding.search.setOnClickListener {
-            Toast.makeText(context, "no search yet", Toast.LENGTH_SHORT).show()
+            MaterialDialog(requireContext()).show {
+                cornerRadius(res = R.dimen.dialog_radius)
+                title(R.string.search)
+                customView(R.layout.dialog_search, noVerticalPadding = true).apply {
+                    findViewById<Button>(R.id.search).setOnClickListener {
+                        Toast.makeText(context, "还没做。。。", Toast.LENGTH_SHORT).show()
+                    }
+
+                    findViewById<Button>(R.id.jumpToThread).setOnClickListener {
+                        val threadId = findViewById<TextView>(R.id.searchInputText).text.filter { it.isDigit() }
+                        if (threadId.isNotEmpty()) {
+                            Toast.makeText(context, threadId, Toast.LENGTH_SHORT).show()
+                            dismiss()
+                        } else {
+                            Toast.makeText(
+                                context,
+                                R.string.please_input_valid_text,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+            }
         }
     }
 

@@ -158,6 +158,7 @@ class QuotePopup(
             scrollY = 0
             movementMethod = LinkMovementMethod.getInstance()
             text = transformContent(
+                context,
                 quote.content,
                 DawnApp.applicationDataStore.lineHeight,
                 DawnApp.applicationDataStore.segGap, referenceClickListener

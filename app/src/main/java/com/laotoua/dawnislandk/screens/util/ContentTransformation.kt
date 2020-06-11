@@ -1,5 +1,6 @@
 package com.laotoua.dawnislandk.screens.util
 
+import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Build
@@ -8,6 +9,7 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import android.text.style.URLSpan
 import com.laotoua.dawnislandk.DawnApp
+import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.screens.widget.span.HideSpan
 import com.laotoua.dawnislandk.screens.widget.span.ReferenceSpan
 import com.laotoua.dawnislandk.screens.widget.span.SegmentSpacingSpan
@@ -58,6 +60,7 @@ object ContentTransformation {
     fun transformTime(now: String): String = ReadableTime.getDisplayTime(now)
 
     fun transformContent(
+        context: Context,
         content: String,
         lineHeight: Int = DawnApp.applicationDataStore.lineHeight,
         segGap: Int = DawnApp.applicationDataStore.lineHeight,
@@ -65,7 +68,7 @@ object ContentTransformation {
     ): SpannableStringBuilder {
         return SpannableStringBuilder(htmlToSpanned(content))
             .handleTextUrl()
-            .handleReference(referenceClickListener)
+            .handleReference(context, referenceClickListener)
             .handleAcUrl()
             .handleHideTag()
             .handleLineHeightAndSegGap(lineHeight, segGap)
@@ -83,7 +86,7 @@ object ContentTransformation {
             )
         }
 
-    private fun SpannableStringBuilder.handleReference(
+    private fun SpannableStringBuilder.handleReference(context: Context,
         referenceClickListener: ReferenceSpan.ReferenceClickHandler? = null
     ) = apply {
         if (referenceClickListener != null) {
@@ -94,6 +97,12 @@ object ContentTransformation {
                 val referenceSpan = ReferenceSpan(m.group(1)!!, referenceClickListener)
                 setSpan(
                     referenceSpan,
+                    start,
+                    end,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+                setSpan(
+                    ForegroundColorSpan(context.resources.getColor(R.color.colorPrimary, null)),
                     start,
                     end,
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE

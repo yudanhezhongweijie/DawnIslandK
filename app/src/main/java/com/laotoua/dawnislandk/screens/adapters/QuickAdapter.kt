@@ -249,6 +249,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
         visible: Boolean = true
     ) {
         val res = ContentTransformation.transformContent(
+            context = context,
             content = content,
             referenceClickListener = referenceClickListener
         )

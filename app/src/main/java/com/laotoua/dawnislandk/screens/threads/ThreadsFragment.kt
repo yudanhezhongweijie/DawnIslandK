@@ -42,8 +42,6 @@ class ThreadsFragment : DaggerFragment() {
     private val viewModel: ThreadsViewModel by viewModels { viewModelFactory }
     private val sharedVM: SharedViewModel by activityViewModels{ viewModelFactory }
 
-    private var isFabOpen = false
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -68,7 +66,6 @@ class ThreadsFragment : DaggerFragment() {
         }
 
         val imageLoader = ImageLoader()
-        val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext(), sharedVM) }
 
         val mAdapter = QuickAdapter<Thread>(R.layout.list_item_thread).apply {
             /*** connect SharedVm and adapter
@@ -77,7 +74,6 @@ class ThreadsFragment : DaggerFragment() {
             setSharedVM(sharedVM)
 
             setOnItemClickListener { _, _, position ->
-                hideMenu()
                 sharedVM.setThread(getItem(position))
                 (requireActivity() as MainActivity).showReply()
             }
@@ -85,7 +81,6 @@ class ThreadsFragment : DaggerFragment() {
             addChildClickViewIds(R.id.attachedImage)
             setOnItemChildClickListener { _, view, position ->
                 if (view.id == R.id.attachedImage) {
-                    hideMenu()
                     val url = getItem(position).getImgUrl()
 
                     // TODO support multiple image
@@ -124,12 +119,9 @@ class ThreadsFragment : DaggerFragment() {
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     if (dy > 0) {
-                        hideMenu()
-                        binding.fabMenu.hide()
-                        binding.fabMenu.isClickable = false
+                        (parentFragment as PagerFragment).hideMenu()
                     } else if (dy < 0) {
-                        binding.fabMenu.show()
-                        binding.fabMenu.isClickable = true
+                        (parentFragment as PagerFragment).showMenu()
                     }
                 }
             })
@@ -149,70 +141,21 @@ class ThreadsFragment : DaggerFragment() {
         sharedVM.selectedForumId.observe(viewLifecycleOwner, Observer {
             if (viewModel.currentFid != it) mAdapter.setList(emptyList())
             viewModel.setForum(it)
-            hideMenu()
         })
 
-        binding.fabMenu.setOnClickListener {
-            toggleMenu()
-        }
-
-        binding.post.setOnClickListener {
-            hideMenu()
-            postPopup.setupAndShow(
-                sharedVM.selectedForumId.value,
-                true,
-                sharedVM.getForumNameMapping()
-            )
-        }
     }
 
     override fun onResume() {
         super.onResume()
-        binding.fabMenu.show()
         (parentFragment as PagerFragment).setToolbarClickListener {
             binding.recyclerView.layoutManager?.scrollToPosition(0)
         }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        hideMenu()
-        binding.fabMenu.hide()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
         Timber.d("Fragment View Destroyed")
-    }
-
-    private fun hideMenu() {
-        val rotateBackward = loadAnimation(
-            requireContext(),
-            R.anim.rotate_backward
-        )
-        binding.fabMenu.startAnimation(rotateBackward)
-        binding.post.hide()
-        isFabOpen = false
-    }
-
-    private fun showMenu() {
-        val rotateForward = loadAnimation(
-            requireContext(),
-            R.anim.rotate_forward
-        )
-        binding.fabMenu.startAnimation(rotateForward)
-
-        binding.post.show()
-        isFabOpen = true
-    }
-
-    private fun toggleMenu() {
-        if (isFabOpen) {
-            hideMenu()
-        } else {
-            showMenu()
-        }
     }
 
 }

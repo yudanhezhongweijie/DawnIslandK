@@ -79,9 +79,9 @@ class ReplyRepository @Inject constructor(
     }
 
     private fun clearCachedPages() {
-        Timber.d("Clearing cache on ${threadMap[currentThreadIdInt]?.id}...")
         emptyPage.value = false
         for (i in 0 until (replysMap.size() - cacheCap)) {
+            Timber.d("Reached cache Cap. Clearing ${fifoThreadList.first()}...")
             replysMap.delete(fifoThreadList.first())
             threadMap.delete(fifoThreadList.first())
             fifoThreadList.removeAt(0)

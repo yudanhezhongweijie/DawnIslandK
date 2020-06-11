@@ -48,6 +48,7 @@
     <string name="name" translatable="false">名称</string>
     <string name="need_cookie_to_read" translatable="false">没有饼干! 不能看99页以后的内容...</string>
     <string name="post" translatable="false">发布</string>
+    <string name="search" translatable="false">搜索</string>
     <string name="post_new_thread" translatable="false">发布新串</string>
     <string name="please_comply_rules" translatable="false">请遵守A岛版规</string>
     <string name="acknowledge_post_rules" translatable="false">我已阅读理解并同意遵守全部版规和免责声明</string>

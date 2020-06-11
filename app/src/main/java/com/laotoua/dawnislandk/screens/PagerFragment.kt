@@ -15,12 +15,14 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.afollestad.materialdialogs.MaterialDialog
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.FragmentPagerBinding
 import com.laotoua.dawnislandk.screens.feeds.FeedsFragment
 import com.laotoua.dawnislandk.screens.replys.ReplysFragment
 import com.laotoua.dawnislandk.screens.threads.ThreadsFragment
 import com.laotoua.dawnislandk.screens.trend.TrendsFragment
+import com.laotoua.dawnislandk.screens.util.ContentTransformation
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.zhpan.indicator.enums.IndicatorSlideMode
@@ -37,7 +39,7 @@ class PagerFragment : DaggerFragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
-    private val sharedVM: SharedViewModel by activityViewModels()
+    private val sharedVM: SharedViewModel by activityViewModels{ viewModelFactory }
     private var mForumId: String? = null
 
     private val titleUpdateCallback = object : ViewPager2.OnPageChangeCallback() {
@@ -112,10 +114,20 @@ class PagerFragment : DaggerFragment() {
 //            }
 //        }
 
-        binding.settings.setOnClickListener {
-            val action =
-                PagerFragmentDirections.actionPagerFragmentToSettingsFragment()
-            findNavController().navigate(action)
+        binding.forumRule.setOnClickListener {
+            MaterialDialog(requireContext()).show {
+                cornerRadius(res = R.dimen.dialog_radius)
+                val forumId = sharedVM.selectedForumId.value!!
+                val biId = if (forumId.toInt() > 0) forumId.toInt() else 1
+                val resourceId: Int = context.resources.getIdentifier(
+                    "bi_$biId", "drawable",
+                    context.packageName
+                )
+                icon(resourceId)
+                title(text = sharedVM.getForumDisplayName(forumId))
+                message(text = ContentTransformation.htmlToSpanned(sharedVM.getForumMsg(forumId)))
+                positiveButton(R.string.acknowledge)
+            }
         }
 
         binding.pageIndicatorView

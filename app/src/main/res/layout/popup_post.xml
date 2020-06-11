@@ -28,12 +28,13 @@
             android:id="@+id/postTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginEnd="16dp"
             android:text="@string/reply"
-            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-            android:textSize="18sp"
-            app:layout_constraintStart_toStartOf="@+id/postContent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textSize="14sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/forumRule"
+            app:layout_constraintEnd_toStartOf="@+id/forumRule"
+            app:layout_constraintStart_toStartOf="@+id/postContent" />
 
         <Button
             android:id="@+id/postForum"
@@ -47,17 +48,19 @@
             app:layout_constraintEnd_toStartOf="@+id/postCookie"
             app:layout_constraintStart_toStartOf="@+id/postContent" />
 
-        <ImageButton
+        <Button
             android:id="@+id/postClose"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackground"
-            android:tint="@color/colorAccent"
-            app:layout_constraintBottom_toBottomOf="@id/postTitle"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:text="@string/close"
+            app:icon="@drawable/ic_close_24px"
+            app:iconGravity="textEnd"
+            app:layout_constraintBottom_toBottomOf="@id/forumRule"
             app:layout_constraintEnd_toEndOf="@id/postContent"
-            app:layout_constraintTop_toTopOf="@id/postTitle"
-            app:srcCompat="@drawable/ic_close_24px"
-            tools:ignore="ContentDescription" />
+            app:layout_constraintTop_toTopOf="@id/forumRule" />
 
         <EditText
             android:id="@+id/postContent"
@@ -122,7 +125,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/drawer_head" />
+                app:srcCompat="@drawable/drawer_head"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -397,6 +400,20 @@
                 app:layout_constraintStart_toStartOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <Button
+            android:id="@+id/forumRule"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:text="@string/check_forum_msg"
+            app:icon="@drawable/ic_info_24px"
+            app:iconGravity="textEnd"
+            app:layout_constraintBottom_toTopOf="@id/postContent"
+            app:layout_constraintStart_toEndOf="@id/postTitle"
+            app:layout_constraintTop_toTopOf="parent"
+            app:strokeWidth="0dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

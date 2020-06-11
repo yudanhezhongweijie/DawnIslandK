@@ -156,6 +156,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
 
     override fun onBackPressed() {
         MaterialDialog(this).show {
+            cornerRadius(res = R.dimen.dialog_radius)
             message(R.string.save_image_selection)
             positiveButton(R.string.save) {
                 saveDoodle()
@@ -241,6 +242,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
     private fun showPickColorDialog() {
         defaultColors[0] = binding.doodleView.paintColor
         MaterialDialog(this).show {
+            cornerRadius(res = R.dimen.dialog_radius)
             title(R.string.pick_color)
             colorChooser(
                 colors = defaultColors.toIntArray(),
@@ -256,7 +258,9 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
 
     private fun showThicknessDialog() {
         if (dialogThickness == null) {
-            dialogThickness = MaterialDialog(this).customView(R.layout.dialog_thickness)
+            dialogThickness = MaterialDialog(this)
+                .apply { cornerRadius(res = R.dimen.dialog_radius) }
+                .customView(R.layout.dialog_thickness)
             var thickness = binding.doodleView.paintThickness
             dialogThickness!!.getCustomView().apply {
                 val previewView = findViewById<ThicknessPreviewView>(R.id.thicknessPreviewView)
@@ -300,6 +304,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
     private fun saveDoodle() {
         if (mExitWaitingDialog == null) {
             mExitWaitingDialog = MaterialDialog(this).apply {
+                cornerRadius(res = R.dimen.dialog_radius)
                 customView(R.layout.dialog_progress)
                 cancelable(false)
                 title(R.string.saving_image)

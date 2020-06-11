@@ -42,7 +42,7 @@ class FeedsFragment : DaggerFragment() {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel: FeedsViewModel by viewModels { viewModelFactory }
-    private val sharedVM: SharedViewModel by activityViewModels()
+    private val sharedVM: SharedViewModel by activityViewModels{ viewModelFactory }
 
     private var mHandler: Handler? = null
     private val mDelayedLoad = Runnable {
@@ -90,6 +90,7 @@ class FeedsFragment : DaggerFragment() {
             setOnItemLongClickListener { _, _, position ->
                 val id = getItem(position).id
                 MaterialDialog(requireContext()).show {
+                    cornerRadius(res = R.dimen.dialog_radius)
                     title(text = "删除订阅 $id?")
                     positiveButton(R.string.delete) {
                         viewModel.deleteFeed(id, position)

@@ -3,6 +3,7 @@ package com.laotoua.dawnislandk.screens
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.laotoua.dawnislandk.data.local.Forum
 import com.laotoua.dawnislandk.data.repository.CommunityRepository
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.SingleLiveEvent
@@ -17,10 +18,8 @@ class CommunityViewModel @Inject constructor(private val communityRepository: Co
     val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>> =
         communityRepository.loadingStatus
 
-    fun getForumNameMapping(): Map<String, String> {
-        return communityList.value?.flatMap { it.forums }?.associateBy(
-            keySelector = { it.id },
-            valueTransform = { it.name }) ?: mapOf()
+    fun getForums(): List<Forum> {
+        return communityList.value?.flatMap { it.forums } ?: emptyList()
     }
 
     fun refresh() {

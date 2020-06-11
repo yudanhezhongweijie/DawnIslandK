@@ -37,7 +37,7 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
 
     private val communityVM: CommunityViewModel by viewModels { viewModelFactory }
 
-    private val sharedVM: SharedViewModel by viewModels()
+    private val sharedVM: SharedViewModel by viewModels{ viewModelFactory }
 
     private var doubleBackToExitPressedOnce = false
     private val mHandler = Handler()
@@ -74,7 +74,7 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
             if (it.isNullOrEmpty()) return@Observer
             mAdapter.setData(it)
             Timber.i("Loaded ${it.size} communities to Adapter")
-            sharedVM.setForumNameMapping(communityVM.getForumNameMapping())
+            sharedVM.setForumMappings(communityVM.getForums())
             // TODO: set default forum
             sharedVM.setForum(it[0].forums[0])
         })
@@ -85,6 +85,11 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
                     .show()
             }
         })
+
+        binding.settings.setOnClickListener {
+            val action = PagerFragmentDirections.actionPagerFragmentToSettingsFragment()
+            findNavController(R.id.navHostFragment).navigate(action)
+        }
 
     }
 
@@ -102,17 +107,22 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
         applicationDataStore.initializeFeedId()
         applicationDataStore.getNotice()?.let { notice ->
             MaterialDialog(this).show {
+                cornerRadius(res = R.dimen.dialog_radius)
                 checkBoxPrompt(R.string.acknowledge) {}
                 message(text = htmlToSpanned(notice.content))
                 positiveButton(R.string.close) {
                     notice.read = isCheckPromptChecked()
-                    if (notice.read) lifecycleScope.launch { applicationDataStore.readNMBNotice(notice) }
+                    if (notice.read) lifecycleScope.launch {
+                        applicationDataStore.readNMBNotice(
+                            notice
+                        )
+                    }
                 }
             }
         }
 
-        applicationDataStore.getLuweiNotice()?.let {luweiNotice ->
-            Timber.d(" use luweiNotice")
+        applicationDataStore.getLuweiNotice()?.let { luweiNotice ->
+            Timber.e(" use luweiNotice")
         }
     }
 

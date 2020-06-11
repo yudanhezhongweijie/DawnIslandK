@@ -38,18 +38,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        app:layout_constraintBottom_toBottomOf="@id/settings"
-        app:layout_constraintEnd_toStartOf="@id/settings"
-        app:layout_constraintTop_toTopOf="@id/settings" />
+        app:layout_constraintBottom_toBottomOf="@id/forumRule"
+        app:layout_constraintEnd_toStartOf="@id/forumRule"
+        app:layout_constraintTop_toTopOf="@id/forumRule" />
 
     <ImageButton
-        android:id="@+id/settings"
+        android:id="@+id/forumRule"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:background="?attr/selectableItemBackground"
         android:padding="8dp"
-        android:src="@drawable/ic_settings_24px"
+        android:src="@drawable/ic_info_24px"
         android:tint="@color/pure_light"
         app:layout_constraintBottom_toBottomOf="@id/toolbar"
         app:layout_constraintEnd_toEndOf="@id/toolbar"

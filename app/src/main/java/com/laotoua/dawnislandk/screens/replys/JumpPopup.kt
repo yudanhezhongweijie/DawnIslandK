@@ -56,6 +56,7 @@ class JumpPopup(context: Context) : CenterPopupView(context) {
             targetPage = pageInput.text.toString().toInt()
             if (applicationDataStore.firstCookieHash == null && targetPage > 99) {
                 MaterialDialog(context).show {
+                    cornerRadius(res = R.dimen.dialog_radius)
                     message(R.string.need_cookie_to_read)
                 }
             } else {

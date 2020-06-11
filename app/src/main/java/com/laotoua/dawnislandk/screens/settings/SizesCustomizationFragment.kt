@@ -66,6 +66,16 @@ class SizesCustomizationFragment : Fragment() {
 
         ThreadCardFactory.applySettings(demoCard)
 
+        demoCard.findViewById<TextView>(R.id.title).apply {
+            visibility = View.VISIBLE
+            text = "标题： 无标题"
+        }
+        demoCard.findViewById<TextView>(R.id.name).apply {
+            visibility = View.VISIBLE
+            text = "名称： 无名氏"
+        }
+        demoCard.findViewById<ImageView>(R.id.attachedImage).setImageResource(R.mipmap.ic_launcher)
+
         val threadForumAndReplyCount = SpannableString(demoCard.forumAndReplyCount.text)
         threadForumAndReplyCount.setSpan(
             RoundBackgroundColorSpan(
@@ -73,6 +83,9 @@ class SizesCustomizationFragment : Fragment() {
                 Color.parseColor("#FFFFFF")
             ), 0, threadForumAndReplyCount.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE
         )
+
+        demoCard.findViewById<TextView>(R.id.forumAndReplyCount)
+            .setText(threadForumAndReplyCount, TextView.BufferType.SPANNABLE)
 
         val threadContent = SpannableString(demoCard.content.text)
         threadContent.setSpan(

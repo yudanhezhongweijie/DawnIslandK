@@ -85,6 +85,7 @@ class SettingsFragment : Fragment() {
             MaterialDialog(requireContext()).apply {
                 title(R.string.add_cookie)
                 customView(R.layout.dialog_cookie_addition)
+                cornerRadius(res = R.dimen.dialog_radius)
                 positiveButton(R.string.submit) {
                     val cookieName = findViewById<EditText>(R.id.cookieNameText).text
                     val cookieHash = findViewById<EditText>(R.id.cookieHashText).text
@@ -276,6 +277,7 @@ class SettingsFragment : Fragment() {
         view.edit.setOnClickListener {
             MaterialDialog(requireContext()).show {
                 title(R.string.edit_cookie_remark)
+                cornerRadius(res = R.dimen.dialog_radius)
                 input(prefill = cookie.cookieName) { _, text ->
                     // Text submitted with the action button
                     cookie.cookieName = text.toString()
@@ -328,6 +330,7 @@ class SettingsFragment : Fragment() {
         val cookieHash = JSONObject(cookieJson).getString("cookie")
         MaterialDialog(requireContext()).show {
             title(R.string.edit_cookie_remark)
+            cornerRadius(res = R.dimen.dialog_radius)
             cancelable(false)
             input(hint = cookieHash) { _, text ->
                 addCookie(

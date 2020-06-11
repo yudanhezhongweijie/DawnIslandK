@@ -5,16 +5,23 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.laotoua.dawnislandk.data.local.Forum
 import com.laotoua.dawnislandk.data.local.Thread
+import com.laotoua.dawnislandk.data.remote.APIMessageResponse
+import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import timber.log.Timber
+import java.io.File
+import javax.inject.Inject
 
-class SharedViewModel : ViewModel() {
+class SharedViewModel @Inject constructor(private val webNMBServiceClient: NMBServiceClient) :
+    ViewModel() {
     private var _selectedForumId = MutableLiveData<String>()
     val selectedForumId: LiveData<String> get() = _selectedForumId
     private var _selectedThreadId = MutableLiveData<String>()
     val selectedThreadId: LiveData<String> get() = _selectedThreadId
-    private var selectedThreadFid: String = "-1"
+    private var _selectedThreadFid: String = "-1"
+    val selectedThreadFid get() = _selectedThreadFid
 
-    private var forumNameMapping = mapOf<String, String>()
+    private lateinit var forumNameMapping: Map<String, String>
+    private lateinit var forumMsgMapping: Map<String, String>
 
     private var toolbarTitle = "A岛"
 
@@ -26,19 +33,26 @@ class SharedViewModel : ViewModel() {
 
     fun setThread(t: Thread) {
         Timber.d("Setting thread to ${t.id} and its fid to ${t.fid}")
-        selectedThreadFid = t.fid
+        _selectedThreadFid = t.fid
         _selectedThreadId.value = t.id
     }
 
-    fun setForumNameMapping(map: Map<String, String>) {
-        forumNameMapping = map
+    fun setForumMappings(list: List<Forum>) {
+        forumNameMapping = list.associateBy(
+            keySelector = { it.id },
+            valueTransform = { it.name })
+
+        forumMsgMapping = list.associateBy(keySelector = { it.id },
+            valueTransform = { it.msg })
     }
 
     fun getForumNameMapping(): Map<String, String> = forumNameMapping
 
+    fun getForumMsg(id: String): String = forumMsgMapping[id] ?: ""
+
     fun getForumDisplayName(id: String): String = forumNameMapping[id] ?: ""
 
-    fun getSelectedThreadForumName(): String = getForumDisplayName(selectedThreadFid)
+    fun getSelectedThreadForumName(): String = getForumDisplayName(_selectedThreadFid)
 
     fun getToolbarTitle(): String = toolbarTitle
 
@@ -46,5 +60,36 @@ class SharedViewModel : ViewModel() {
         return forumNameMapping.filterValues { it == name }.keys.first()
     }
 
+    suspend fun sendPost(
+        newPost: Boolean,
+        targetId: String, name: String?,
+        email: String?, title: String?,
+        content: String?, waterMark: String?,
+        imageFile: File?, userHash: String
+    ): String {
+        return webNMBServiceClient.sendPost(
+            newPost,
+            targetId,
+            name,
+            email,
+            title,
+            content,
+            waterMark,
+            imageFile,
+            userHash
+        ).run {
+            if (this is APIMessageResponse.APISuccessMessageResponse) {
+                if (messageType == APIMessageResponse.MessageType.String) {
+                    message
+                } else {
+                    dom!!.getElementsByClass("system-message")
+                        .first().children().not(".jump").text()
+                }
+            } else {
+                Timber.e(message)
+                message
+            }
+        }
+    }
 
 }

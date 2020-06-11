@@ -16,16 +16,20 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.WhichButton
+import com.afollestad.materialdialogs.actions.getActionButton
 import com.afollestad.materialdialogs.callbacks.onDismiss
+import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
+import com.afollestad.materialdialogs.checkbox.isCheckPromptChecked
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.Cookie
-import com.laotoua.dawnislandk.data.remote.APIMessageResponse
-import com.laotoua.dawnislandk.data.remote.NMBServiceClient
+import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
+import com.laotoua.dawnislandk.screens.util.ContentTransformation
 import com.laotoua.dawnislandk.util.FragmentIntentUtil
 import com.laotoua.dawnislandk.util.ImageUtil
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
@@ -37,19 +41,14 @@ import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
-import javax.inject.Inject
 
 
 @SuppressLint("ViewConstructor")
-class PostPopup(private val caller: DaggerFragment, context: Context) :
+class PostPopup(
+    private val caller: DaggerFragment, context: Context,
+    private val sharedVM: SharedViewModel
+) :
     BottomPopupView(context) {
-
-    init {
-        caller.androidInjector().inject(this)
-    }
-
-    @Inject
-    lateinit var webServiceClient: NMBServiceClient
 
     var newPost = false
     var targetId: String? = null
@@ -92,6 +91,7 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
 
     private val postProgress by lazyOnMainOnly {
         MaterialDialog(context).apply {
+            cornerRadius(res = R.dimen.dialog_radius)
             title(R.string.sending)
             customView(R.layout.dialog_progress)
             cancelable(false)
@@ -100,6 +100,7 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
 
     private val reportReasonPopup by lazyOnMainOnly {
         MaterialDialog(context).apply {
+            cornerRadius(res = R.dimen.dialog_radius)
             title(R.string.report_reasons)
             listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
                 postContent!!.append("\n${context.getString(R.string.report_reasons)}: $text")
@@ -110,6 +111,7 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
 
     private val cookiePopup by lazyOnMainOnly {
         MaterialDialog(context).apply {
+            cornerRadius(res = R.dimen.dialog_radius)
             title(R.string.select_cookie)
             listItemsSingleChoice(items = cookies.map { c -> c.cookieName }) { _, ind, text ->
                 selectedCookie = cookies[ind]
@@ -120,6 +122,7 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
 
     private val targetForumPopup by lazyOnMainOnly {
         MaterialDialog(context).show {
+            cornerRadius(res = R.dimen.dialog_radius)
             title(R.string.select_target_forum)
             listItemsSingleChoice(items = forumNameMap!!.values.drop(1)) { _, index, text ->
                 targetId = forumNameMap!!.keys.drop(1).toList()[index]
@@ -127,7 +130,8 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
             }//去除时间线
         }.onDismiss {
             postContent!!.hint =
-                applicationDataStore.luweiNotice?.nmbForums?.firstOrNull { f -> f.id == targetId!! }?.getPostRule()
+                applicationDataStore.luweiNotice?.nmbForums?.firstOrNull { f -> f.id == targetId!! }
+                    ?.getPostRule()
             if (postForum!!.text == "值班室") {
                 reportReasonPopup.show()
             }
@@ -447,11 +451,27 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
             }
         }
 
+        findViewById<Button>(R.id.forumRule).setOnClickListener {
+            MaterialDialog(context).show {
+                cornerRadius(res = R.dimen.dialog_radius)
+                val fid = if (newPost) targetId!! else sharedVM.selectedThreadFid
+                val biId = if (fid.toInt() > 0) fid.toInt() else 1
+                val resourceId: Int = context.resources.getIdentifier(
+                    "bi_$biId", "drawable",
+                    context.packageName
+                )
+                icon(resourceId)
+                title(text = sharedVM.getForumDisplayName(fid))
+                message(text = ContentTransformation.htmlToSpanned(sharedVM.getForumMsg(fid)))
+                positiveButton(R.string.acknowledge)
+            }
+        }
+
         findViewById<CheckBox>(R.id.postWater).setOnClickListener {
             waterMark = if ((it as CheckBox).isChecked) "true" else null
         }
 
-        findViewById<ImageView>(R.id.postClose).setOnClickListener {
+        findViewById<Button>(R.id.postClose).setOnClickListener {
             KeyboardUtils.hideSoftInput(postContent!!)
             dismiss()
 //            dismissWith {
@@ -474,6 +494,22 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
     }
 
     private fun send() {
+        if (!applicationDataStore.checkAcknowledgementPostingRule()) {
+            MaterialDialog(context).show {
+                title(R.string.please_comply_rules)
+                cornerRadius(res = R.dimen.dialog_radius)
+                cancelOnTouchOutside(false)
+                checkBoxPrompt(R.string.acknowledge_post_rules) {
+                    getActionButton(WhichButton.POSITIVE).isEnabled = isCheckPromptChecked()
+                }
+                positiveButton(R.string.acknowledge) {
+                    applicationDataStore.acknowledgementPostingRule()
+                }
+                getActionButton(WhichButton.POSITIVE).isEnabled = false
+            }
+            return
+        }
+
         if (selectedCookie == null) {
             Toast.makeText(caller.context, R.string.need_cookie_to_post, Toast.LENGTH_SHORT).show()
             return
@@ -497,7 +533,7 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
         postProgress.show()
         Timber.i("Sending...")
         caller.lifecycleScope.launch {
-            webServiceClient.sendPost(
+            sharedVM.sendPost(
                 newPost,
                 targetId!!,
                 name,
@@ -507,22 +543,7 @@ class PostPopup(private val caller: DaggerFragment, context: Context) :
                 waterMark,
                 imageFile,
                 userHash
-            ).run {
-                val message = when (this) {
-                    is APIMessageResponse.APISuccessMessageResponse -> {
-                        if (this.messageType == APIMessageResponse.MessageType.String) {
-                            message
-                        } else {
-                            dom!!.getElementsByClass("system-message")
-                                .first().children().not(".jump").text()
-                        }
-                    }
-                    else -> {
-                        Timber.e(message)
-                        message
-                    }
-                }
-
+            ).let {message ->
                 postProgress.dismiss()
                 dismissWith {
                     if (message.substring(0, 2) == ":)") {

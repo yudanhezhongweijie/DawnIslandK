@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.laotoua.dawnislandk.screens.CommunityViewModel
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.PagerFragment
+import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.feeds.FeedsFragment
 import com.laotoua.dawnislandk.screens.feeds.FeedsViewModel
 import com.laotoua.dawnislandk.screens.replys.ReplysFragment
@@ -62,5 +63,10 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(TrendsViewModel::class)
     abstract fun bindTrendsViewModel(viewModel: TrendsViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(SharedViewModel::class)
+    abstract fun bindSharedViewModel(viewModel: SharedViewModel): ViewModel
 
 }

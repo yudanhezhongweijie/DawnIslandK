@@ -77,6 +77,7 @@ class ReplysFragment : DaggerFragment() {
 
         binding.toolbar.apply {
             immersiveToolbar()
+            setSubtitle(R.string.toolbar_subtitle)
             val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             setNavigationIcon(R.drawable.ic_arrow_back_white_24px)
@@ -271,7 +272,6 @@ class ReplysFragment : DaggerFragment() {
         }
         viewModel.setThreadId(it)
         updateTitle()
-        updateSubtitle()
     }
 
     private val loadingStatusObs = Observer<SingleLiveEvent<EventPayload<Nothing>>> {
@@ -391,11 +391,7 @@ class ReplysFragment : DaggerFragment() {
     }
 
     private fun updateTitle() {
-        binding.toolbar.title = "A岛 • ${sharedVM.getSelectedThreadForumName()}"
-    }
-
-    private fun updateSubtitle() {
-        binding.toolbar.subtitle = "No.${viewModel.currentThreadId} • adnmb.com"
+        binding.toolbar.title = "${sharedVM.getSelectedThreadForumName()} • ${viewModel.currentThreadId}"
     }
 
     private fun updateCurrentPage(page: Int) {

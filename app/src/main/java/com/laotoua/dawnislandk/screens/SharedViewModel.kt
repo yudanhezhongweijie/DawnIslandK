@@ -27,7 +27,7 @@ class SharedViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
 
     fun setForum(f: Forum) {
         Timber.d("Setting forum to id: ${f.id}")
-        toolbarTitle = "A岛 • ${forumNameMapping[f.id]}"
+        toolbarTitle = forumNameMapping[f.id] ?: ""
         _selectedForumId.value = f.id
     }
 

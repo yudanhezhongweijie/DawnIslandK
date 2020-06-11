@@ -66,8 +66,8 @@
     <string name="settings" translatable="false">设置</string>
     <string name="general_settings" translatable="false">通用设置</string>
     <string name="size_customization_settings" translatable="false">设置串卡片布局</string>
-    <string name="trend" translatable="false">A岛热榜</string>
-    <string name="adnmb" translatable="false">adnmb.com</string>
+    <string name="trend" translatable="false">昨日热榜</string>
+    <string name="toolbar_subtitle" translatable="false">A岛 · adnmb.com</string>
     <string name="need_cookie_to_post" translatable="false">没有饼干不能发串哦。。</string>
     <string name="need_content_to_post" translatable="false">:(没有上传的内容或文件</string>
     <string name="need_read_storage_permission" translatable="false">需要读取外部存储权限</string>

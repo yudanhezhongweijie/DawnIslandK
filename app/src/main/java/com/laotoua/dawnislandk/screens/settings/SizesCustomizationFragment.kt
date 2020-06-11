@@ -220,7 +220,7 @@ class SizesCustomizationFragment : Fragment() {
             findViewById<Toolbar>(R.id.toolbar).apply {
                 immersiveToolbar()
                 setTitle(R.string.size_customization_settings)
-                setSubtitle(R.string.adnmb)
+                setSubtitle(R.string.toolbar_subtitle)
                 val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
                 setNavigationIcon(R.drawable.ic_arrow_back_white_24px)

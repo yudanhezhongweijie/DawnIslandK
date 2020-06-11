@@ -121,6 +121,7 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
             }
         }
 
+        // TODO: use luweiNotice. i.e. footer loading text
         applicationDataStore.getLuweiNotice()?.let { luweiNotice ->
             Timber.e(" use luweiNotice")
         }

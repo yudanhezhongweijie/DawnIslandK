@@ -66,7 +66,7 @@ class PagerFragment : DaggerFragment() {
         val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
         binding.toolbar.apply {
             immersiveToolbar()
-            setSubtitle(R.string.adnmb)
+            setSubtitle(R.string.toolbar_subtitle)
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
             setNavigationIcon(R.drawable.ic_menu_white_24px)
             setNavigationOnClickListener {

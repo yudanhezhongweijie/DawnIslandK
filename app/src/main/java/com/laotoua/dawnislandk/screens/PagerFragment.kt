@@ -66,6 +66,39 @@ class PagerFragment : DaggerFragment() {
         }
     }
 
+
+    private val slideOutBottom by lazyOnMainOnly {
+        ObjectAnimator.ofFloat(
+            binding.bottomToolbar,
+            "TranslationY",
+            binding.bottomToolbar.height.toFloat()
+        )
+    }
+
+    private val alphaOut by lazyOnMainOnly {
+        ObjectAnimator.ofFloat(binding.bottomToolbar, "alpha", 0f)
+    }
+
+    private val slideInBottom by lazyOnMainOnly {
+        ObjectAnimator.ofFloat(
+            binding.bottomToolbar,
+            "TranslationY",
+            0f
+        )
+    }
+
+    private val alphaIn by lazyOnMainOnly {
+        ObjectAnimator.ofFloat(binding.bottomToolbar, "alpha", 1f)
+    }
+
+
+    private val slideInLeftAnimation by lazyOnMainOnly {
+        AnimationUtils.loadAnimation(
+            requireContext(),
+            R.anim.slide_in_left
+        )
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -185,12 +218,6 @@ class PagerFragment : DaggerFragment() {
         Timber.d("Fragment View Destroyed")
     }
 
-    private val slideInLeftAnimation by lazyOnMainOnly {
-        AnimationUtils.loadAnimation(
-            requireContext(),
-            R.anim.slide_in_left
-        )
-    }
 
     fun updateTitle(resId: Int? = null) {
         binding.toolbar.startAnimation(slideInLeftAnimation)
@@ -204,29 +231,6 @@ class PagerFragment : DaggerFragment() {
         }
     }
 
-    private val slideOutBottom by lazyOnMainOnly {
-        ObjectAnimator.ofFloat(
-            binding.bottomToolbar,
-            "TranslationY",
-            binding.bottomToolbar.height.toFloat()
-        )
-    }
-
-    private val alphaOut by lazyOnMainOnly {
-        ObjectAnimator.ofFloat(binding.bottomToolbar, "alpha", 0f)
-    }
-
-    private val slideInBottom by lazyOnMainOnly {
-        ObjectAnimator.ofFloat(
-            binding.bottomToolbar,
-            "TranslationY",
-            0f
-        )
-    }
-
-    private val alphaIn by lazyOnMainOnly {
-        ObjectAnimator.ofFloat(binding.bottomToolbar, "alpha", 1f)
-    }
 
     fun hideMenu() {
         if (currentState == SCROLL_STATE.DOWN) return

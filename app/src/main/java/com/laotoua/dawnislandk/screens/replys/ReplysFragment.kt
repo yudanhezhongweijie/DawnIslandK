@@ -1,6 +1,9 @@
 package com.laotoua.dawnislandk.screens.replys
 
 
+import android.animation.Animator
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.os.Bundle
@@ -8,7 +11,6 @@ import android.text.style.UnderlineSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -21,6 +23,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.animation.AnimationUtils
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.Reply
@@ -55,14 +58,45 @@ class ReplysFragment : DaggerFragment() {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel: ReplysViewModel by viewModels { viewModelFactory }
-    private val sharedVM: SharedViewModel by activityViewModels{ viewModelFactory }
+    private val sharedVM: SharedViewModel by activityViewModels { viewModelFactory }
 
-    private var isFabOpen = false
     private var _mAdapter: QuickAdapter<Reply>? = null
     private val mAdapter get() = _mAdapter!!
 
     // last visible item indicates the current page, uses for remembering last read page
     private var currentPage = 0
+
+    enum class SCROLL_STATE {
+        UP,
+        DOWN
+    }
+
+    private var currentState: SCROLL_STATE? = null
+    private var currentAnimatorSet: AnimatorSet? = null
+
+    private val slideOutBottom by lazyOnMainOnly {
+        ObjectAnimator.ofFloat(
+            binding.bottomToolbar,
+            "TranslationY",
+            binding.bottomToolbar.height.toFloat()
+        )
+    }
+
+    private val alphaOut by lazyOnMainOnly {
+        ObjectAnimator.ofFloat(binding.bottomToolbar, "alpha", 0f)
+    }
+
+    private val slideInBottom by lazyOnMainOnly {
+        ObjectAnimator.ofFloat(
+            binding.bottomToolbar,
+            "TranslationY",
+            0f
+        )
+    }
+
+    private val alphaIn by lazyOnMainOnly {
+        ObjectAnimator.ofFloat(binding.bottomToolbar, "alpha", 1f)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -100,7 +134,13 @@ class ReplysFragment : DaggerFragment() {
         _mAdapter = QuickAdapter<Reply>(R.layout.list_item_reply).apply {
             setReferenceClickListener(object : ReferenceSpan.ReferenceClickHandler {
                 override fun handleReference(id: String) {
-                    QuotePopup.showQuote(this@ReplysFragment, viewModel, requireContext(), id, viewModel.po)
+                    QuotePopup.showQuote(
+                        this@ReplysFragment,
+                        viewModel,
+                        requireContext(),
+                        id,
+                        viewModel.po
+                    )
                 }
             })
             /*** connect SharedVm and adapter
@@ -109,7 +149,6 @@ class ReplysFragment : DaggerFragment() {
             setSharedVM(sharedVM)
 
             setOnItemClickListener { _, _, _ ->
-                hideFabMenu()
             }
 
             addChildClickViewIds(
@@ -121,7 +160,6 @@ class ReplysFragment : DaggerFragment() {
             setOnItemChildClickListener { _, view, position ->
                 when (view.id) {
                     R.id.attachedImage -> {
-                        hideFabMenu()
                         val url = getItem(position).getImgUrl()
                         // TODO support multiple image
                         val viewerPopup =
@@ -177,9 +215,9 @@ class ReplysFragment : DaggerFragment() {
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     if (dy > 0) {
-                        hideFab()
+                        hideMenu()
                     } else if (dy < 0) {
-                        showFab()
+                        showMenu()
                         if (llm.findFirstVisibleItemPosition() <= 2 && !binding.refreshLayout.isRefreshing) {
                             viewModel.getPreviousPage()
                         }
@@ -211,17 +249,11 @@ class ReplysFragment : DaggerFragment() {
             }
         }
 
-        binding.fabMenu.setOnClickListener {
-            toggleMenu()
-        }
-
         binding.copyId.setOnClickListener {
             copyId(">>No.${viewModel.currentThreadId}")
-            hideFabMenu()
         }
 
         binding.post.setOnClickListener {
-            hideFabMenu()
             val page = getCurrentPage(mAdapter)
             postPopup.setupAndShow(viewModel.currentThreadId) {
                 if (page == viewModel.maxPage) {
@@ -231,7 +263,6 @@ class ReplysFragment : DaggerFragment() {
         }
 
         binding.jump.setOnClickListener {
-            hideFabMenu()
             val page = getCurrentPage(mAdapter)
             XPopup.Builder(context)
                 .setPopupCallback(object : SimpleCallback() {
@@ -253,7 +284,6 @@ class ReplysFragment : DaggerFragment() {
         }
 
         binding.addFeed.setOnClickListener {
-            hideFabMenu()
             viewModel.addFeed(applicationDataStore.feedId, viewModel.currentThreadId)
         }
     }
@@ -304,13 +334,11 @@ class ReplysFragment : DaggerFragment() {
 
     override fun onPause() {
         super.onPause()
-        hideFab()
         unsubscribeUI()
     }
 
     override fun onResume() {
         super.onResume()
-        showFab()
         subscribeUI()
     }
 
@@ -345,53 +373,55 @@ class ReplysFragment : DaggerFragment() {
         QuotePopup.clearQuotePopups()
     }
 
-    private fun hideFab(){
-        binding.fabMenu.hide()
-        hideFabMenu()
-        binding.fabMenu.isClickable = false
+    fun hideMenu() {
+        if (currentState == SCROLL_STATE.DOWN) return
+        if (currentAnimatorSet != null) {
+            currentAnimatorSet!!.cancel()
+        }
+        currentState = SCROLL_STATE.DOWN
+        currentAnimatorSet = AnimatorSet().apply {
+            duration = 250
+            interpolator = AnimationUtils.FAST_OUT_LINEAR_IN_INTERPOLATOR
+            addListener(object : Animator.AnimatorListener {
+                override fun onAnimationRepeat(animation: Animator?) {}
+                override fun onAnimationEnd(animation: Animator?) {
+                    currentAnimatorSet = null
+                }
+
+                override fun onAnimationCancel(animation: Animator?) {}
+                override fun onAnimationStart(animation: Animator?) {}
+            })
+            playTogether(slideOutBottom, alphaOut)
+            start()
+        }
     }
 
-    private fun showFab(){
-        binding.fabMenu.show()
-        binding.fabMenu.isClickable = true
-    }
+    fun showMenu() {
+        if (currentState == SCROLL_STATE.UP) return
+        if (currentAnimatorSet != null) {
+            currentAnimatorSet!!.cancel()
+        }
+        currentState = SCROLL_STATE.UP
+        currentAnimatorSet = AnimatorSet().apply {
+            duration = 250
+            interpolator = AnimationUtils.LINEAR_OUT_SLOW_IN_INTERPOLATOR
+            addListener(object : Animator.AnimatorListener {
+                override fun onAnimationRepeat(animation: Animator?) {}
+                override fun onAnimationEnd(animation: Animator?) {
+                    currentAnimatorSet = null
+                }
 
-    private fun hideFabMenu() {
-        val rotateBackward = AnimationUtils.loadAnimation(
-            requireContext(),
-            R.anim.rotate_backward
-        )
-        binding.fabMenu.startAnimation(rotateBackward)
-        binding.post.hide()
-        binding.jump.hide()
-        binding.copyId.hide()
-        binding.addFeed.hide()
-        isFabOpen = false
-    }
-
-    private fun showFabMenu() {
-        val rotateForward = AnimationUtils.loadAnimation(
-            requireContext(),
-            R.anim.rotate_forward
-        )
-        binding.fabMenu.startAnimation(rotateForward)
-        binding.post.show()
-        binding.jump.show()
-        binding.copyId.show()
-        binding.addFeed.show()
-        isFabOpen = true
-    }
-
-    private fun toggleMenu() {
-        if (isFabOpen) {
-            hideFabMenu()
-        } else {
-            showFabMenu()
+                override fun onAnimationCancel(animation: Animator?) {}
+                override fun onAnimationStart(animation: Animator?) {}
+            })
+            playTogether(slideInBottom, alphaIn)
+            start()
         }
     }
 
     private fun updateTitle() {
-        binding.toolbar.title = "${sharedVM.getSelectedThreadForumName()} • ${viewModel.currentThreadId}"
+        binding.toolbar.title =
+            "${sharedVM.getSelectedThreadForumName()} • ${viewModel.currentThreadId}"
     }
 
     private fun updateCurrentPage(page: Int) {
@@ -400,7 +430,6 @@ class ReplysFragment : DaggerFragment() {
             binding.pageCounter.text =
                 (page.toString() + " / " + viewModel.maxPage.toString()).toSpannable()
                     .apply { setSpan(UnderlineSpan(), 0, length, 0) }
-
             currentPage = page
         }
     }

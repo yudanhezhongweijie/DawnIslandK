@@ -11,6 +11,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.Trend
 import com.laotoua.dawnislandk.databinding.FragmentTrendBinding
@@ -85,6 +86,15 @@ class TrendsFragment : DaggerFragment() {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             adapter = mAdapter
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    if (dy > 0) {
+                        (parentFragment as PagerFragment).hideMenu()
+                    } else if (dy < 0) {
+                        (parentFragment as PagerFragment).showMenu()
+                    }
+                }
+            })
         }
 
         viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {

@@ -87,6 +87,8 @@
         android:id="@+id/bottomToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
         android:background="#FFFFFF"
         android:clickable="true"
         android:focusable="true"
@@ -105,7 +107,7 @@
         <Button
             android:id="@+id/post"
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/post"
             app:icon="@drawable/ic_edit_24px"
@@ -119,7 +121,7 @@
         <Button
             android:id="@+id/search"
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/search"
             app:icon="@drawable/ic_search_24px"

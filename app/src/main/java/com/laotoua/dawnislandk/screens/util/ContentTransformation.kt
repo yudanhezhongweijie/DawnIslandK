@@ -6,6 +6,7 @@ import android.graphics.Typeface
 import android.os.Build
 import android.text.*
 import android.text.style.ForegroundColorSpan
+import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
 import android.text.style.URLSpan
 import com.laotoua.dawnislandk.DawnApp
@@ -51,8 +52,7 @@ object ContentTransformation {
             cookie.setSpan(poColor, 0, cookie.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
         }
         if (userId == po) {
-            val styleSpanBold = StyleSpan(Typeface.BOLD)
-            cookie.setSpan(styleSpanBold, 0, cookie.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
+            cookie.setSpan(StyleSpan(Typeface.BOLD), 0, cookie.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
         }
         return cookie
     }
@@ -103,6 +103,18 @@ object ContentTransformation {
                 )
                 setSpan(
                     ForegroundColorSpan(context.resources.getColor(R.color.colorPrimary, null)),
+                    start,
+                    end,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+                setSpan(
+                    RelativeSizeSpan(1.1f),
+                    start,
+                    end,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+                setSpan(
+                    StyleSpan(Typeface.BOLD),
                     start,
                     end,
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE

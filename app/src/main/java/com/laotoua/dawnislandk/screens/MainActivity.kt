@@ -37,7 +37,7 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
 
     private val communityVM: CommunityViewModel by viewModels { viewModelFactory }
 
-    private val sharedVM: SharedViewModel by viewModels{ viewModelFactory }
+    private val sharedVM: SharedViewModel by viewModels { viewModelFactory }
 
     private var doubleBackToExitPressedOnce = false
     private val mHandler = Handler()
@@ -171,8 +171,8 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
             supportFragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
                 .show(replyFrag)
+                .runOnCommit { replyFrag.onResume() }
                 .commit()
-            replyFrag.onResume()
         }
     }
 

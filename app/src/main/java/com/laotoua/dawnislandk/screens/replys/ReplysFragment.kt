@@ -339,17 +339,13 @@ class ReplysFragment : DaggerFragment() {
 
     override fun onResume() {
         super.onResume()
+        showMenu()
         subscribeUI()
     }
 
     private fun copyId(text: String) {
-        val clipboard = getSystemService(
-            requireContext(),
-            ClipboardManager::class.java
-        )
-        val clip: ClipData =
-            ClipData.newPlainText("currentThreadId", text)
-        clipboard?.setPrimaryClip(clip)
+        getSystemService(requireContext(), ClipboardManager::class.java)
+            ?.setPrimaryClip(ClipData.newPlainText("currentThreadId", text))
         Toast.makeText(context, R.string.thread_id_copied, Toast.LENGTH_SHORT).show()
     }
 

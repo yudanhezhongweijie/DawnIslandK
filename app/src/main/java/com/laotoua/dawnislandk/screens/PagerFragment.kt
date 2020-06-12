@@ -173,7 +173,7 @@ class PagerFragment : DaggerFragment() {
                 )
                 icon(resourceId)
                 title(text = sharedVM.getForumDisplayName(forumId))
-                message(text = sharedVM.getForumMsg(forumId)){html()}
+                message(text = sharedVM.getForumMsg(forumId)) { html() }
                 positiveButton(R.string.acknowledge)
             }
         }
@@ -217,10 +217,10 @@ class PagerFragment : DaggerFragment() {
 
                     findViewById<Button>(R.id.jumpToThread).setOnClickListener {
                         val threadId = findViewById<TextView>(R.id.searchInputText).text
+                            .filter { it.isDigit() }.toString()
                         if (threadId.isNotEmpty()) {
-                            Toast.makeText(context, threadId, Toast.LENGTH_SHORT).show()
                             // Does not have fid here. fid will be generated when data comes back in reply
-                            sharedVM.setThread(threadId.filter { it.isDigit() }.toString())
+                            sharedVM.setThread(threadId)
                             dismiss()
                             (requireActivity() as MainActivity).showReply()
                         } else {

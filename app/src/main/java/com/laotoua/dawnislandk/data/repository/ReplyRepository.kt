@@ -28,7 +28,10 @@ class ReplyRepository @Inject constructor(
     private val replyDao: ReplyDao,
     private val threadDao: ThreadDao
 ) {
-    var currentThreadId: String = "0"
+    private var _currentThreadId: String = "0"
+    val currentThreadId get() = _currentThreadId
+    private var _currentThreadFid: String = "-1"
+    val currentThreadFid get() = _currentThreadFid
     private val currentThreadIdInt get() = currentThreadId.toInt()
 
     /** remember all pages for last 30 thread, using threadId and page as index
@@ -56,10 +59,11 @@ class ReplyRepository @Inject constructor(
         setLoadingStatus(LoadingStatus.LOADING)
         clearCachedPages()
         Timber.d("Setting new Thread: $id")
-        currentThreadId = id
+        _currentThreadId = id
         if (threadMap[currentThreadIdInt] == null) {
             threadDao.findThreadByIdSync(id)?.let {
                 threadMap.put(currentThreadIdInt, it)
+                _currentThreadFid = it.fid
             }
         }
     }
@@ -141,6 +145,7 @@ class ReplyRepository @Inject constructor(
 
     private suspend fun convertServerData(data: Thread, page: Int) {
         // update current thread with latest info
+        _currentThreadFid = data.fid
         if (!data.equalsWithServerData(threadMap[currentThreadIdInt])) {
             saveThread(data)
         }

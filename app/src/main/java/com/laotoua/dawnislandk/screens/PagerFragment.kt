@@ -218,10 +218,13 @@ class PagerFragment : DaggerFragment() {
                     }
 
                     findViewById<Button>(R.id.jumpToThread).setOnClickListener {
-                        val threadId = findViewById<TextView>(R.id.searchInputText).text.filter { it.isDigit() }
+                        val threadId = findViewById<TextView>(R.id.searchInputText).text
                         if (threadId.isNotEmpty()) {
                             Toast.makeText(context, threadId, Toast.LENGTH_SHORT).show()
+                            // Does not have fid here. fid will be generated when data comes back in reply
+                            sharedVM.setThread(threadId.filter { it.isDigit() }.toString())
                             dismiss()
+                            (requireActivity() as MainActivity).showReply()
                         } else {
                             Toast.makeText(
                                 context,

@@ -16,6 +16,7 @@ class ReplysViewModel @Inject constructor(
     private val quoteRepo: QuoteRepository
 ) : ViewModel() {
     val currentThreadId: String get() = replyRepo.currentThreadId
+    val currentThreadFid: String get() = replyRepo.currentThreadFid
     val po get() = replyRepo.po
 
     private val replyList = mutableListOf<Reply>()

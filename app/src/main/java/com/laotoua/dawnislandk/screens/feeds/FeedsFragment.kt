@@ -83,7 +83,9 @@ class FeedsFragment : DaggerFragment() {
             setSharedVM(sharedVM)
 
             setOnItemClickListener { _, _, position ->
-                sharedVM.setThread(getItem(position))
+                getItem(position).run {
+                    sharedVM.setThread(id,fid)
+                }
                 (requireActivity() as MainActivity).showReply()
             }
 

@@ -31,10 +31,15 @@ class SharedViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
         _selectedForumId.value = f.id
     }
 
-    fun setThread(t: Thread) {
-        Timber.d("Setting thread to ${t.id} and its fid to ${t.fid}")
-        _selectedThreadFid = t.fid
-        _selectedThreadId.value = t.id
+    fun setThread(id: String, fid:String? = null) {
+        Timber.d("Setting thread to $id and fid to $fid")
+        fid?.let { _selectedThreadFid = it}
+        _selectedThreadId.value = id
+    }
+
+    fun setThreadFid(fid: String){
+        Timber.d("Setting missing fid to $fid for thread $selectedThreadId")
+        _selectedThreadFid = fid
     }
 
     fun setForumMappings(list: List<Forum>) {

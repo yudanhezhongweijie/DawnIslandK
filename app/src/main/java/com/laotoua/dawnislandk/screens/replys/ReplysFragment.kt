@@ -313,6 +313,10 @@ class ReplysFragment : DaggerFragment() {
     private val replysObs = Observer<MutableList<Reply>> {
         if (it.isEmpty()) return@Observer
         if (mAdapter.data.isEmpty()) updateCurrentPage(it.first().page)
+        if (sharedVM.selectedThreadFid != viewModel.currentThreadFid) {
+            sharedVM.setThreadFid(viewModel.currentThreadFid)
+            updateTitle()
+        }
         mAdapter.setDiffNewData(it.toMutableList())
         mAdapter.setPo(viewModel.po)
         Timber.i("${this.javaClass.simpleName} Adapter will have ${mAdapter.data.size} threads")

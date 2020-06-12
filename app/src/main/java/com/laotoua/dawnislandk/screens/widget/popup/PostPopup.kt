@@ -50,8 +50,8 @@ class PostPopup(
 ) :
     BottomPopupView(context) {
 
-    var newPost = false
-    var targetId: String? = null
+    private var newPost = false
+    private var targetId: String? = null
     var name = ""
     private var email = ""
     var title = ""
@@ -90,12 +90,22 @@ class PostPopup(
 
     private fun updateTitle(targetId: String?, newPost: Boolean) {
         findViewById<TextView>(R.id.postTitle).text =
-            if (newPost) context.getString(R.string.post_new_thread)
+            if (newPost) "${context.getString(R.string.post_new_thread)} > ${getForumTitle(targetId!!)}"
             else "${context.getString(R.string.reply)} > $targetId"
     }
 
-    private fun updateForumButton() {
-        findViewById<Button>(R.id.postForum).visibility = if (!newPost) View.GONE else View.VISIBLE
+    private fun getForumTitle(targetId: String): String {
+        return if (targetId == "-1") ""
+        else sharedVM.getForumNameMapping()[targetId] ?: ""
+    }
+
+    private fun updateForumButton(targetId: String?, newPost: Boolean) {
+        findViewById<Button>(R.id.postForum).apply {
+            visibility = if (!newPost) View.GONE else View.VISIBLE
+            if (newPost && targetId != null && targetId != "-1") {
+                text = getForumTitle(targetId)
+            }
+        }
     }
 
     private fun updateCookies() {
@@ -116,10 +126,12 @@ class PostPopup(
         afterPostTask = task
     }
 
-    fun updateView(quote: String?) {
+    fun updateView(targetId: String?, newPost: Boolean, quote: String?) {
+        if (targetId != "-1") this.targetId = targetId // cannot post to timeline
+        this.newPost = newPost
         updateTitle(targetId, newPost)
         updateCookies()
-        updateForumButton()
+        updateForumButton(targetId, newPost)
         quote?.run {
             postContent!!.text.insert(
                 0,
@@ -132,22 +144,20 @@ class PostPopup(
         targetId: String?,
         newPost: Boolean = false,
         quote: String? = null,
-        task: (() -> Unit)? = null
+        afterPostTask: (() -> Unit)? = null
     ) {
         XPopup.Builder(context)
             .setPopupCallback(object : SimpleCallback() {
                 override fun beforeShow() {
-                    this@PostPopup.targetId = targetId
-                    this@PostPopup.newPost = newPost
-                    this@PostPopup.updateView(quote)
-                    task?.run { this@PostPopup.bindAfterPostTask(this) }
+                    updateView(targetId, newPost, quote)
+                    afterPostTask?.run { bindAfterPostTask(this) }
                     super.beforeShow()
                 }
 
             })
             .enableDrag(false)
 //            .moveUpToKeyboard(false)
-            .asCustom(this@PostPopup)
+            .asCustom(this)
             .show()
     }
 
@@ -281,6 +291,7 @@ class PostPopup(
                         postContent!!.hint =
                             applicationDataStore.luweiNotice?.nmbForums?.firstOrNull { f -> f.id == targetId!! }
                                 ?.getPostRule()
+                        updateTitle(targetId, newPost)
                         if (postForum!!.text == "值班室") {
                             MaterialDialog(context).show {
                                 cornerRadius(res = R.dimen.dp_10)

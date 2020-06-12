@@ -13,8 +13,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.text.toSpannable
 import androidx.core.view.isVisible
@@ -25,6 +25,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.google.android.material.animation.AnimationUtils
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
@@ -33,7 +35,6 @@ import com.laotoua.dawnislandk.databinding.FragmentReplyBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
-import com.laotoua.dawnislandk.screens.util.Layout
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widget.DoubleClickListener
@@ -155,7 +156,9 @@ class ReplysFragment : DaggerFragment() {
             addChildClickViewIds(
                 R.id.attachedImage,
                 R.id.refId,
-                R.id.expandSummary
+                R.id.expandSummary,
+                R.id.reply,
+                R.id.report
             )
 
             setOnItemChildClickListener { _, view, position ->
@@ -174,11 +177,28 @@ class ReplysFragment : DaggerFragment() {
                     }
                     R.id.refId -> {
                         toggleReplyMenuOnPos(position)
-//                        val content = "${(view as TextView).text}\n"
-//                        postPopup.setupAndShow(
-//                            viewModel.currentThreadId,
-//                            quote = content
-//                        )
+
+                    }
+                    R.id.reply -> {
+                        val content = ">>No.${getItem(position).id}\n"
+                        postPopup.setupAndShow(
+                            viewModel.currentThreadId,
+                            quote = content
+                        )
+                    }
+                    R.id.report -> {
+                        MaterialDialog(requireContext()).show {
+                            cornerRadius(res = R.dimen.dp_10)
+                            title(R.string.report_reasons)
+                            listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
+                                postPopup.setupAndShow(
+                                    "18",//值班室
+                                    newPost = true,
+                                    quote = "\n>>No.${getItem(position).id}\n${context.getString(R.string.report_reasons)}: $text"
+                                )
+                            }
+                            cancelOnTouchOutside(false)
+                        }
                     }
                     R.id.expandSummary -> {
                         data[position].visible = true
@@ -450,7 +470,7 @@ class ReplysFragment : DaggerFragment() {
     }
 
     private fun hideReplyMenuOnPos(pos: Int) {
-        if (menuPos <0) return
+        if (menuPos < 0) return
         mAdapter.getViewByPosition(pos, R.id.replyMenu)?.apply {
             animate()
                 .alpha(0f)
@@ -465,9 +485,9 @@ class ReplysFragment : DaggerFragment() {
 
     private fun toggleReplyMenuOnPos(pos: Int) {
         mAdapter.getViewByPosition(pos, R.id.replyMenu)?.apply {
-            if (isVisible){
+            if (isVisible) {
                 hideReplyMenuOnPos(pos)
-            } else{
+            } else {
                 hideReplyMenuOnPos(menuPos)
                 showReplyMenuOnPos(pos)
             }

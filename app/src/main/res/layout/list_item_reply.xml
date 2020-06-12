@@ -134,7 +134,7 @@
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/reply"
+            android:text="@string/quote_and_reply"
             app:icon="@drawable/ic_edit_24px"
             app:layout_constraintEnd_toStartOf="@+id/report"
             app:layout_constraintHorizontal_bias="0.5"

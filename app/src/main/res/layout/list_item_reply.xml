@@ -89,7 +89,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:constraint_referenced_ids="name"/>
+        app:constraint_referenced_ids="name" />
 
     <ImageView
         android:id="@+id/attachedImage"
@@ -113,11 +113,46 @@
         android:visibility="gone"
         app:icon="@drawable/ic_expand_more_24px"
         app:iconPadding="0dp"
-        app:layout_constraintBottom_toBottomOf="@id/bottomBorder"
         app:layout_constraintEnd_toEndOf="@id/timestamp"
         app:layout_constraintStart_toStartOf="@id/userId"
         app:layout_constraintTop_toBottomOf="@id/attachedImage"
         tools:ignore="RtlSymmetry" />
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/replyMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="2dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@id/timestamp"
+        app:layout_constraintStart_toStartOf="@id/userId"
+        app:layout_constraintTop_toBottomOf="@id/expandSummary">
+
+        <Button
+            android:id="@+id/reply"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/reply"
+            app:icon="@drawable/ic_edit_24px"
+            app:layout_constraintEnd_toStartOf="@+id/report"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/report"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/report"
+            app:icon="@drawable/ic_report_24px"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/reply"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <View
         android:id="@+id/bottomBorder"
@@ -125,7 +160,8 @@
         android:layout_height="1.2dp"
         android:layout_marginTop="2dp"
         android:background="#E0E0E0"
-        app:layout_constraintTop_toBottomOf="@id/expandSummary"/>
+        app:layout_constraintTop_toBottomOf="@id/replyMenu" />
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,6 +2,7 @@ package com.laotoua.dawnislandk.screens.replys
 
 
 import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.content.ClipData
@@ -12,10 +13,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.text.toSpannable
+import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -31,6 +33,7 @@ import com.laotoua.dawnislandk.databinding.FragmentReplyBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
+import com.laotoua.dawnislandk.screens.util.Layout
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widget.DoubleClickListener
@@ -144,8 +147,10 @@ class ReplysFragment : DaggerFragment() {
                 }
             })
 
-            setOnItemClickListener { _, _, _ ->
-            }
+//            setOnItemClickListener { _, view, pos ->
+//                Timber.d("tracked item clicked!")
+//                toggleReplyMenuOnPos(pos)
+//            }
 
             addChildClickViewIds(
                 R.id.attachedImage,
@@ -168,11 +173,12 @@ class ReplysFragment : DaggerFragment() {
                             .show()
                     }
                     R.id.refId -> {
-                        val content = "${(view as TextView).text}\n"
-                        postPopup.setupAndShow(
-                            viewModel.currentThreadId,
-                            quote = content
-                        )
+                        toggleReplyMenuOnPos(position)
+//                        val content = "${(view as TextView).text}\n"
+//                        postPopup.setupAndShow(
+//                            viewModel.currentThreadId,
+//                            quote = content
+//                        )
                     }
                     R.id.expandSummary -> {
                         data[position].visible = true
@@ -427,6 +433,44 @@ class ReplysFragment : DaggerFragment() {
                 (page.toString() + " / " + viewModel.maxPage.toString()).toSpannable()
                     .apply { setSpan(UnderlineSpan(), 0, length, 0) }
             currentPage = page
+        }
+    }
+
+    private var menuPos = -1
+
+    private fun showReplyMenuOnPos(pos: Int) {
+        menuPos = pos
+        mAdapter.getViewByPosition(pos, R.id.replyMenu)?.apply {
+            visibility = View.VISIBLE
+            animate()
+                .alpha(1f)
+                .setDuration(150)
+                .setListener(null)
+        }
+    }
+
+    private fun hideReplyMenuOnPos(pos: Int) {
+        if (menuPos <0) return
+        mAdapter.getViewByPosition(pos, R.id.replyMenu)?.apply {
+            animate()
+                .alpha(0f)
+                .setDuration(150)
+                .setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        visibility = View.GONE
+                    }
+                })
+        }
+    }
+
+    private fun toggleReplyMenuOnPos(pos: Int) {
+        mAdapter.getViewByPosition(pos, R.id.replyMenu)?.apply {
+            if (isVisible){
+                hideReplyMenuOnPos(pos)
+            } else{
+                hideReplyMenuOnPos(menuPos)
+                showReplyMenuOnPos(pos)
+            }
         }
     }
 }

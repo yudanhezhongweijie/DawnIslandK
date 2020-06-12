@@ -67,12 +67,7 @@ class ThreadsFragment : DaggerFragment() {
 
         val imageLoader = ImageLoader()
 
-        val mAdapter = QuickAdapter<Thread>(R.layout.list_item_thread).apply {
-            /*** connect SharedVm and adapter
-             *  may have better way of getting runtime data
-             */
-            setSharedVM(sharedVM)
-
+        val mAdapter = QuickAdapter<Thread>(R.layout.list_item_thread, sharedVM).apply {
             setOnItemClickListener { _, _, position ->
                 getItem(position).run {
                     sharedVM.setThread(id,fid)

@@ -64,7 +64,7 @@ class TrendsFragment : DaggerFragment() {
             mHandler = mHandler ?: Handler()
             delayedLoading = mHandler!!.postDelayed(mDelayedLoad, 500)
         }
-        val mAdapter = QuickAdapter<Trend>(R.layout.list_item_trend).apply {
+        val mAdapter = QuickAdapter<Trend>(R.layout.list_item_trend,sharedVM).apply {
             loadMoreModule.isEnableLoadMore = false
             setOnItemClickListener { _, _, position ->
                 val target = getItem(position)

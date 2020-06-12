@@ -85,7 +85,7 @@ class SettingsFragment : Fragment() {
             MaterialDialog(requireContext()).apply {
                 title(R.string.add_cookie)
                 customView(R.layout.dialog_cookie_addition)
-                cornerRadius(res = R.dimen.dialog_radius)
+                cornerRadius(res = R.dimen.dp_10)
                 positiveButton(R.string.submit) {
                     val cookieName = findViewById<EditText>(R.id.cookieNameText).text
                     val cookieHash = findViewById<EditText>(R.id.cookieHashText).text
@@ -126,7 +126,7 @@ class SettingsFragment : Fragment() {
             root.setOnClickListener {
                 MaterialDialog(requireContext()).show {
                     title(R.string.feedId)
-                    cornerRadius(res = R.dimen.dialog_radius)
+                    cornerRadius(res = R.dimen.dp_10)
                     input(hint = feedId, prefill = feedId) { _, text ->
                         feedId = text.toString()
                         applicationDataStore.setFeedId(feedId)
@@ -158,7 +158,7 @@ class SettingsFragment : Fragment() {
             root.setOnClickListener {
                 MaterialDialog(requireContext()).show {
                     title(R.string.time_display_format)
-                    cornerRadius(res = R.dimen.dialog_radius)
+                    cornerRadius(res = R.dimen.dp_10)
                     listItems(R.array.time_format_entries) { _, index, text ->
                         applicationDataStore.mmkv.putString(mmkvKey, values[index])
                         summary.text = text
@@ -210,7 +210,7 @@ class SettingsFragment : Fragment() {
             setOnClickListener {
                 MaterialDialog(context).show {
                     title(R.string.add_cookie)
-                    cornerRadius(res = R.dimen.dialog_radius)
+                    cornerRadius(res = R.dimen.dp_10)
                     listItems(R.array.cookie_addition_options) { _, index, _ ->
                         when (index) {
                             0 -> getCookieImage.launch("image/*")
@@ -250,7 +250,7 @@ class SettingsFragment : Fragment() {
                 MaterialDialog(requireContext()).show {
                     title(R.string.clear_reply_cache)
                     message(R.string.clear_reply_cache_confirm_message)
-                    cornerRadius(res = R.dimen.dialog_radius)
+                    cornerRadius(res = R.dimen.dp_10)
                     setActionButtonEnabled(WhichButton.POSITIVE, false)
                     checkBoxPrompt(R.string.acknowledge) { checked ->
                         setActionButtonEnabled(WhichButton.POSITIVE, checked)
@@ -277,7 +277,7 @@ class SettingsFragment : Fragment() {
         view.edit.setOnClickListener {
             MaterialDialog(requireContext()).show {
                 title(R.string.edit_cookie_remark)
-                cornerRadius(res = R.dimen.dialog_radius)
+                cornerRadius(res = R.dimen.dp_10)
                 input(prefill = cookie.cookieName) { _, text ->
                     // Text submitted with the action button
                     cookie.cookieName = text.toString()
@@ -330,7 +330,7 @@ class SettingsFragment : Fragment() {
         val cookieHash = JSONObject(cookieJson).getString("cookie")
         MaterialDialog(requireContext()).show {
             title(R.string.edit_cookie_remark)
-            cornerRadius(res = R.dimen.dialog_radius)
+            cornerRadius(res = R.dimen.dp_10)
             cancelable(false)
             input(hint = cookieHash) { _, text ->
                 addCookie(

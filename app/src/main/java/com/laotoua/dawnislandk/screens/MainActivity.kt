@@ -19,7 +19,6 @@ import com.laotoua.dawnislandk.databinding.ActivityMainBinding
 import com.laotoua.dawnislandk.screens.adapters.QuickNodeAdapter
 import com.laotoua.dawnislandk.screens.replys.QuotePopup
 import com.laotoua.dawnislandk.screens.replys.ReplysFragment
-import com.laotoua.dawnislandk.screens.util.ContentTransformation.htmlToSpanned
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbarInitialization
 import com.laotoua.dawnislandk.util.LoadingStatus
 import dagger.android.support.DaggerAppCompatActivity
@@ -107,7 +106,7 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
         applicationDataStore.initializeFeedId()
         applicationDataStore.getNMBNotice()?.let { notice ->
             MaterialDialog(this).show {
-                cornerRadius(res = R.dimen.dialog_radius)
+                cornerRadius(res = R.dimen.dp_10)
                 checkBoxPrompt(R.string.acknowledge) {}
                 message(text = notice.content){html()}
                 positiveButton(R.string.close) {
@@ -121,9 +120,8 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
             }
         }
 
-        // TODO: use luweiNotice. i.e. footer loading text
         applicationDataStore.getLuweiNotice()?.let { luweiNotice ->
-            Timber.e(" use luweiNotice")
+            sharedVM.setLuweiLoadingBible(luweiNotice.loadingMsgs)
         }
     }
 

@@ -269,7 +269,7 @@ class PostPopup(
                     KeyboardUtils.hideSoftInput(postContent!!)
 
                     MaterialDialog(context).show {
-                        cornerRadius(res = R.dimen.dialog_radius)
+                        cornerRadius(res = R.dimen.dp_10)
                         title(R.string.select_target_forum)
                         val mapping = sharedVM.getForumNameMapping()
                         //去除时间线
@@ -283,7 +283,7 @@ class PostPopup(
                                 ?.getPostRule()
                         if (postForum!!.text == "值班室") {
                             MaterialDialog(context).show {
-                                cornerRadius(res = R.dimen.dialog_radius)
+                                cornerRadius(res = R.dimen.dp_10)
                                 title(R.string.report_reasons)
                                 listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
                                     postContent!!.append("\n${context.getString(R.string.report_reasons)}: $text")
@@ -357,7 +357,7 @@ class PostPopup(
                 if (!cookies.isNullOrEmpty()) {
                     KeyboardUtils.hideSoftInput(postContent!!)
                     MaterialDialog(context).show {
-                        cornerRadius(res = R.dimen.dialog_radius)
+                        cornerRadius(res = R.dimen.dp_10)
                         title(R.string.select_cookie)
                         listItemsSingleChoice(items = cookies.map { c -> c.cookieName }) { _, ind, text ->
                             selectedCookie = cookies[ind]
@@ -429,7 +429,7 @@ class PostPopup(
 
         findViewById<Button>(R.id.forumRule).setOnClickListener {
             MaterialDialog(context).show {
-                cornerRadius(res = R.dimen.dialog_radius)
+                cornerRadius(res = R.dimen.dp_10)
                 val fid = if (newPost) targetId!! else sharedVM.selectedThreadFid
                 val biId = if (fid.toInt() > 0) fid.toInt() else 1
                 val resourceId: Int = context.resources.getIdentifier(
@@ -473,7 +473,7 @@ class PostPopup(
         if (!applicationDataStore.checkAcknowledgementPostingRule()) {
             MaterialDialog(context).show {
                 title(R.string.please_comply_rules)
-                cornerRadius(res = R.dimen.dialog_radius)
+                cornerRadius(res = R.dimen.dp_10)
                 cancelOnTouchOutside(false)
                 checkBoxPrompt(R.string.acknowledge_post_rules) {
                     getActionButton(WhichButton.POSITIVE).isEnabled = isCheckPromptChecked()
@@ -507,7 +507,7 @@ class PostPopup(
         userHash = selectedCookie?.cookieHash ?: ""
 
         val postProgressDialog = MaterialDialog(context).show {
-            cornerRadius(res = R.dimen.dialog_radius)
+            cornerRadius(res = R.dimen.dp_10)
             title(R.string.sending)
             customView(R.layout.dialog_progress)
             cancelable(false)

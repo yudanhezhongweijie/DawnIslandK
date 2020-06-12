@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.laotoua.dawnislandk.data.local.Forum
-import com.laotoua.dawnislandk.data.local.Thread
 import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import timber.log.Timber
@@ -22,6 +21,7 @@ class SharedViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
 
     private lateinit var forumNameMapping: Map<String, String>
     private lateinit var forumMsgMapping: Map<String, String>
+    private lateinit var loadingBible: List<String>
 
     private var toolbarTitle = "A岛"
 
@@ -31,13 +31,13 @@ class SharedViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
         _selectedForumId.value = f.id
     }
 
-    fun setThread(id: String, fid:String? = null) {
+    fun setThread(id: String, fid: String? = null) {
         Timber.d("Setting thread to $id and fid to $fid")
-        fid?.let { _selectedThreadFid = it}
+        fid?.let { _selectedThreadFid = it }
         _selectedThreadId.value = id
     }
 
-    fun setThreadFid(fid: String){
+    fun setThreadFid(fid: String) {
         Timber.d("Setting missing fid to $fid for thread $selectedThreadId")
         _selectedThreadFid = fid
     }
@@ -50,6 +50,14 @@ class SharedViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
         forumMsgMapping = list.associateBy(keySelector = { it.id },
             valueTransform = { it.msg })
     }
+
+    fun setLuweiLoadingBible(bible: List<String>) {
+        loadingBible = bible
+    }
+
+    fun getRandomLoadingBible(): String =
+        if (this::loadingBible.isInitialized) loadingBible.random()
+        else "正在加载中..."
 
     fun getForumNameMapping(): Map<String, String> = forumNameMapping
 

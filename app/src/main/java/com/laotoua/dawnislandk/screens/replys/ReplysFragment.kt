@@ -131,7 +131,7 @@ class ReplysFragment : DaggerFragment() {
         val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext(), sharedVM) }
         val jumpPopup: JumpPopup by lazyOnMainOnly { JumpPopup(requireContext()) }
 
-        _mAdapter = QuickAdapter<Reply>(R.layout.list_item_reply).apply {
+        _mAdapter = QuickAdapter<Reply>(R.layout.list_item_reply, sharedVM).apply {
             setReferenceClickListener(object : ReferenceSpan.ReferenceClickHandler {
                 override fun handleReference(id: String) {
                     QuotePopup.showQuote(
@@ -143,10 +143,6 @@ class ReplysFragment : DaggerFragment() {
                     )
                 }
             })
-            /*** connect SharedVm and adapter
-             *  may have better way of getting runtime data
-             */
-            setSharedVM(sharedVM)
 
             setOnItemClickListener { _, _, _ ->
             }

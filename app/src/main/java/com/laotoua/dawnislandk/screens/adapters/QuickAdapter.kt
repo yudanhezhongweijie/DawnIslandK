@@ -4,11 +4,14 @@ import android.graphics.Color
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.method.LinkMovementMethod
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import com.chad.library.adapter.base.BaseQuickAdapter
+import com.chad.library.adapter.base.loadmore.BaseLoadMoreView
 import com.chad.library.adapter.base.module.LoadMoreModule
 import com.chad.library.adapter.base.util.getItemView
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
@@ -28,11 +31,10 @@ import com.laotoua.dawnislandk.util.GlideApp
 
 
 // TODO: handle no new data exception
-class QuickAdapter<T>(private val layoutResId: Int) :
+class QuickAdapter<T>(private val layoutResId: Int , private val sharedViewModel: SharedViewModel?=null) :
     BaseQuickAdapter<T, BaseViewHolder>(layoutResId, mutableListOf<T>()),
     LoadMoreModule {
 
-    private lateinit var sharedViewModel: SharedViewModel
     private lateinit var referenceClickListener: ReferenceSpan.ReferenceClickHandler
 
     // TODO: support multiple Po
@@ -50,10 +52,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
             isAnimationFirstOnly = false
         }
         setDiffCallback(DiffItemCallback())
-    }
-
-    fun setSharedVM(vm: SharedViewModel) {
-        this.sharedViewModel = vm
+        loadMoreModule.loadMoreView = DawnLoadMoreView()
     }
 
     fun setPo(po: String) {
@@ -69,7 +68,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
      */
     override fun convert(holder: BaseViewHolder, item: T) {
         if (layoutResId == R.layout.list_item_thread && item is Thread) {
-            holder.convertThread(item, sharedViewModel.getForumDisplayName(item.fid))
+            holder.convertThread(item, sharedViewModel!!.getForumDisplayName(item.fid))
         } else if (layoutResId == R.layout.list_item_reply && item is Reply) {
             holder.convertReply(item, po)
         } else if (layoutResId == R.layout.list_item_trend && item is Trend) {
@@ -87,7 +86,7 @@ class QuickAdapter<T>(private val layoutResId: Int) :
         if (layoutResId == R.layout.list_item_thread && item is Thread) {
             holder.convertThreadWithPayload(
                 payloads.first() as Payload.ThreadPayload,
-                sharedViewModel.getForumDisplayName(item.fid)
+                sharedViewModel!!.getForumDisplayName(item.fid)
             )
         } else if (layoutResId == R.layout.list_item_reply && item is Reply) {
             holder.convertReplyWithPayload(payloads.first() as Payload.ReplyPayload)
@@ -367,6 +366,31 @@ class QuickAdapter<T>(private val layoutResId: Int) :
             val title: String,
             val name: String
         )
+    }
+
+    inner class DawnLoadMoreView: BaseLoadMoreView(){
+        override fun getLoadComplete(holder: BaseViewHolder): View {
+            return holder.getView(R.id.load_more_load_complete_view)
+        }
+
+        override fun getLoadEndView(holder: BaseViewHolder): View {
+            return holder.getView(R.id.load_more_load_end_view)
+        }
+
+        override fun getLoadFailView(holder: BaseViewHolder): View {
+            return holder.getView(R.id.load_more_load_fail_view)
+        }
+
+        override fun getLoadingView(holder: BaseViewHolder): View {
+            return holder.getView<LinearLayout>(R.id.load_more_loading_view).apply {
+                findViewById<TextView>(R.id.loading_text).text = sharedViewModel!!.getRandomLoadingBible()
+            }
+        }
+
+        override fun getRootView(parent: ViewGroup): View {
+            return LayoutInflater.from(parent.context).inflate(R.layout.adapter_load_more, parent, false)
+        }
+
     }
 
 }

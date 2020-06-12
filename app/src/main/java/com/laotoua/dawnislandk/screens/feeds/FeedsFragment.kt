@@ -11,7 +11,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
@@ -20,7 +19,6 @@ import com.laotoua.dawnislandk.data.local.Thread
 import com.laotoua.dawnislandk.databinding.FragmentFeedBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.PagerFragment
-import com.laotoua.dawnislandk.screens.PagerFragmentDirections
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
@@ -75,13 +73,7 @@ class FeedsFragment : DaggerFragment() {
 
         val imageLoader = ImageLoader()
 
-        val mAdapter = QuickAdapter<Thread>(R.layout.list_item_thread).apply {
-
-            /*** connect SharedVm and adapter
-             *  may have better way of getting runtime data
-             */
-            setSharedVM(sharedVM)
-
+        val mAdapter = QuickAdapter<Thread>(R.layout.list_item_thread, sharedVM).apply {
             setOnItemClickListener { _, _, position ->
                 getItem(position).run {
                     sharedVM.setThread(id,fid)
@@ -93,7 +85,7 @@ class FeedsFragment : DaggerFragment() {
             setOnItemLongClickListener { _, _, position ->
                 val id = getItem(position).id
                 MaterialDialog(requireContext()).show {
-                    cornerRadius(res = R.dimen.dialog_radius)
+                    cornerRadius(res = R.dimen.dp_10)
                     title(text = "删除订阅 $id?")
                     positiveButton(R.string.delete) {
                         viewModel.deleteFeed(id, position)

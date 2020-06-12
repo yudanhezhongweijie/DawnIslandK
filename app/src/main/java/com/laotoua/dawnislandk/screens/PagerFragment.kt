@@ -29,7 +29,6 @@ import com.laotoua.dawnislandk.databinding.FragmentPagerBinding
 import com.laotoua.dawnislandk.screens.feeds.FeedsFragment
 import com.laotoua.dawnislandk.screens.threads.ThreadsFragment
 import com.laotoua.dawnislandk.screens.trend.TrendsFragment
-import com.laotoua.dawnislandk.screens.util.ContentTransformation
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widget.popup.PostPopup
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
@@ -165,7 +164,7 @@ class PagerFragment : DaggerFragment() {
 
         binding.forumRule.setOnClickListener {
             MaterialDialog(requireContext()).show {
-                cornerRadius(res = R.dimen.dialog_radius)
+                cornerRadius(res = R.dimen.dp_10)
                 val forumId = sharedVM.selectedForumId.value!!
                 val biId = if (forumId.toInt() > 0) forumId.toInt() else 1
                 val resourceId: Int = context.resources.getIdentifier(
@@ -184,9 +183,9 @@ class PagerFragment : DaggerFragment() {
                 requireContext().getColor(R.color.lime_500),
                 requireContext().getColor(R.color.pure_light)
             )
-            .setSliderWidth(requireContext().resources.getDimension(R.dimen.vp2_indicator_width))
-            .setSliderHeight(requireContext().resources.getDimension(R.dimen.vp2_indicator_height))
-            .setSliderGap(requireContext().resources.getDimension(R.dimen.vp2_indicator_gap))
+            .setSliderWidth(requireContext().resources.getDimension(R.dimen.dp_10))
+            .setSliderHeight(requireContext().resources.getDimension(R.dimen.dp_10))
+            .setSliderGap(requireContext().resources.getDimension(R.dimen.dp_8))
             .setSlideMode(IndicatorSlideMode.WORM)
             .setIndicatorStyle(IndicatorStyle.CIRCLE)
             .setupWithViewPager(binding.viewPager2)
@@ -209,7 +208,7 @@ class PagerFragment : DaggerFragment() {
 
         binding.search.setOnClickListener {
             MaterialDialog(requireContext()).show {
-                cornerRadius(res = R.dimen.dialog_radius)
+                cornerRadius(res = R.dimen.dp_10)
                 title(R.string.search)
                 customView(R.layout.dialog_search, noVerticalPadding = true).apply {
                     findViewById<Button>(R.id.search).setOnClickListener {

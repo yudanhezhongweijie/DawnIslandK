@@ -11,11 +11,17 @@
         android:gravity="center"
         android:orientation="horizontal">
 
-        <ProgressBar
-            android:id="@+id/loading_progress"
+<!--        <ProgressBar-->
+<!--            android:id="@+id/loading_progress"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            style="?android:attr/progressBarStyleSmall"-->
+<!--            android:layout_marginEnd="@dimen/dp_4"/>-->
+
+        <pl.droidsonroids.gif.GifImageView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="?android:attr/progressBarStyleSmall"
+            android:layout_height="match_parent"
+            android:src="@drawable/loading_gif_1"
             android:layout_marginEnd="@dimen/dp_4"/>
 
         <TextView
@@ -23,9 +29,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/dp_4"
+            android:layout_marginEnd="@dimen/dp_4"
             android:text="@string/brvah_loading"
             android:textColor="@android:color/black"
             android:textSize="@dimen/sp_14"/>
+
+        <pl.droidsonroids.gif.GifImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/dp_4"
+            android:src="@drawable/loading_gif_2"/>
     </LinearLayout>
 
     <FrameLayout

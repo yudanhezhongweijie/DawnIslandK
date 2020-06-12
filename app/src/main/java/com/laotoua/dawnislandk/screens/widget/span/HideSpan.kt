@@ -28,7 +28,7 @@ class HideSpan(val start: Int, val end: Int) : ClickableSpan() {
     override fun updateDrawState(ds: TextPaint) {
     }
 
-    fun toggle(widget: TextView) {
+    private fun toggle(widget: TextView) {
         val charSequence = widget.text
         if (charSequence is Spannable) {
             hidden = !hidden

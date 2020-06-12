@@ -19,7 +19,7 @@ import com.laotoua.dawnislandk.screens.SharedViewModel
 class ImageViewerFragment : Fragment() {
     var toolbar: Toolbar? = null
     private var _binding: FragmentImageViewerBinding? = null
-    val binding: FragmentImageViewerBinding get() = _binding!!
+    private val binding: FragmentImageViewerBinding get() = _binding!!
     private val sharedVM: SharedViewModel by activityViewModels()
     private val viewModel: ImageViewerViewModel by viewModels()
     private val args: ImageViewerFragmentArgs by navArgs()

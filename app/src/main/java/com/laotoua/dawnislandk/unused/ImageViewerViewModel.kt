@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.graphics.Bitmap
 import android.graphics.Bitmap.CompressFormat
+import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import androidx.fragment.app.Fragment
@@ -57,7 +58,9 @@ class ImageViewerViewModel : ViewModel() {
                     val newImageDetails = ContentValues()
                     newImageDetails.put(MediaStore.MediaColumns.DISPLAY_NAME, "$name.$ext")
                     newImageDetails.put(MediaStore.MediaColumns.MIME_TYPE, "image/$ext")
-                    newImageDetails.put(MediaStore.MediaColumns.RELATIVE_PATH, relativeLocation)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        newImageDetails.put(MediaStore.MediaColumns.RELATIVE_PATH, relativeLocation)
+                    }
                     val contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                     val image: Bitmap =
                         Glide.with(caller).asBitmap().load(cdn + imgUrl).submit().get()

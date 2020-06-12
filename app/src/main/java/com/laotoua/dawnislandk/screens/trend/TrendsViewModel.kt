@@ -1,8 +1,8 @@
 package com.laotoua.dawnislandk.screens.trend
 
-import androidx.lifecycle.*
-import com.laotoua.dawnislandk.data.local.DailyTrend
-import com.laotoua.dawnislandk.data.local.Trend
+import androidx.lifecycle.Transformations
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.repository.TrendRepository
 import kotlinx.coroutines.launch
 import timber.log.Timber

@@ -1,8 +1,6 @@
 package com.laotoua.dawnislandk
 
 import com.laotoua.dawnislandk.data.local.ApplicationDataStore
-import com.laotoua.dawnislandk.data.local.dao.CookieDao
-import com.laotoua.dawnislandk.data.local.dao.ReplyDao
 import com.laotoua.dawnislandk.di.DaggerDawnAppComponent
 import com.laotoua.dawnislandk.util.ReadableTime
 import com.tencent.mmkv.MMKV

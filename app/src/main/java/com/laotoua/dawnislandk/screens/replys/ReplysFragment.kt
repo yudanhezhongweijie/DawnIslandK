@@ -295,6 +295,7 @@ class ReplysFragment : DaggerFragment() {
             mAdapter.setList(emptyList())
             binding.pageCounter.text = ""
             currentPage = 0
+            showMenu()
         }
         viewModel.setThreadId(it)
         updateTitle()
@@ -339,7 +340,6 @@ class ReplysFragment : DaggerFragment() {
 
     override fun onResume() {
         super.onResume()
-        showMenu()
         subscribeUI()
     }
 

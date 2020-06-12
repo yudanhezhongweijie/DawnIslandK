@@ -56,7 +56,6 @@ class PostPopup(
     private var email = ""
     var title = ""
     var content = ""
-    var forumNameMap: Map<String, String>? = null
 
     private var waterMark: String? = null
     private var imageFile: File? = null
@@ -89,59 +88,10 @@ class PostPopup(
     private var keyboardHolder: LinearLayout? = null
     private var afterPostTask: (() -> Unit)? = null
 
-    private val postProgress by lazyOnMainOnly {
-        MaterialDialog(context).apply {
-            cornerRadius(res = R.dimen.dialog_radius)
-            title(R.string.sending)
-            customView(R.layout.dialog_progress)
-            cancelable(false)
-        }
-    }
-
-    private val reportReasonPopup by lazyOnMainOnly {
-        MaterialDialog(context).apply {
-            cornerRadius(res = R.dimen.dialog_radius)
-            title(R.string.report_reasons)
-            listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
-                postContent!!.append("\n${context.getString(R.string.report_reasons)}: $text")
-            }
-            cancelOnTouchOutside(false)
-        }
-    }
-
-    private val cookiePopup by lazyOnMainOnly {
-        MaterialDialog(context).apply {
-            cornerRadius(res = R.dimen.dialog_radius)
-            title(R.string.select_cookie)
-            listItemsSingleChoice(items = cookies.map { c -> c.cookieName }) { _, ind, text ->
-                selectedCookie = cookies[ind]
-                postCookie!!.text = text
-            }
-        }
-    }
-
-    private val targetForumPopup by lazyOnMainOnly {
-        MaterialDialog(context).show {
-            cornerRadius(res = R.dimen.dialog_radius)
-            title(R.string.select_target_forum)
-            listItemsSingleChoice(items = forumNameMap!!.values.drop(1)) { _, index, text ->
-                targetId = forumNameMap!!.keys.drop(1).toList()[index]
-                postForum!!.text = text
-            }//去除时间线
-        }.onDismiss {
-            postContent!!.hint =
-                applicationDataStore.luweiNotice?.nmbForums?.firstOrNull { f -> f.id == targetId!! }
-                    ?.getPostRule()
-            if (postForum!!.text == "值班室") {
-                reportReasonPopup.show()
-            }
-        }
-    }
-
     private fun updateTitle(targetId: String?, newPost: Boolean) {
         findViewById<TextView>(R.id.postTitle).text =
             if (newPost) context.getString(R.string.post_new_thread)
-            else "${context.getString(R.string.reply)} >> No. $targetId"
+            else "${context.getString(R.string.reply)} > $targetId"
     }
 
     private fun updateForumButton() {
@@ -181,7 +131,6 @@ class PostPopup(
     fun setupAndShow(
         targetId: String?,
         newPost: Boolean = false,
-        forumNameMap: Map<String, String>? = null,
         quote: String? = null,
         task: (() -> Unit)? = null
     ) {
@@ -190,7 +139,6 @@ class PostPopup(
                 override fun beforeShow() {
                     this@PostPopup.targetId = targetId
                     this@PostPopup.newPost = newPost
-                    this@PostPopup.forumNameMap = forumNameMap
                     this@PostPopup.updateView(quote)
                     task?.run { this@PostPopup.bindAfterPostTask(this) }
                     super.beforeShow()
@@ -247,17 +195,14 @@ class PostPopup(
 
     override fun onCreate() {
         super.onCreate()
-        postContent = findViewById<EditText>(R.id.postContent)
-            .apply {
-                KeyboardUtils.showSoftInput(this)
-                setOnClickListener { view -> KeyboardUtils.showSoftInput(view) }
-            }
+        postContent = findViewById<EditText>(R.id.postContent).apply {
+            KeyboardUtils.showSoftInput(this)
+            setOnClickListener { view -> KeyboardUtils.showSoftInput(view) }
+        }
 
         toggleContainers = findViewById<ConstraintLayout>(R.id.toggleContainers).also {
             expansionContainer = findViewById(R.id.expansionContainer)
-
             keyboardHolder = findViewById(R.id.keyboardHolder)
-            // add emoji
             emojiContainer = findViewById(R.id.emojiContainer)
             emojiContainer!!.layoutManager = GridLayoutManager(context, 3)
             emojiContainer!!.adapter = emojiAdapter.also { adapter ->
@@ -322,7 +267,31 @@ class PostPopup(
             if (visibility == View.VISIBLE) {
                 setOnClickListener {
                     KeyboardUtils.hideSoftInput(postContent!!)
-                    targetForumPopup.show()
+
+                    MaterialDialog(context).show {
+                        cornerRadius(res = R.dimen.dialog_radius)
+                        title(R.string.select_target_forum)
+                        val mapping = sharedVM.getForumNameMapping()
+                        //去除时间线
+                        listItemsSingleChoice(items = mapping.values.drop(1)) { _, index, text ->
+                            targetId = mapping.keys.drop(1).toList()[index]
+                            postForum!!.text = text
+                        }
+                    }.onDismiss {
+                        postContent!!.hint =
+                            applicationDataStore.luweiNotice?.nmbForums?.firstOrNull { f -> f.id == targetId!! }
+                                ?.getPostRule()
+                        if (postForum!!.text == "值班室") {
+                            MaterialDialog(context).show {
+                                cornerRadius(res = R.dimen.dialog_radius)
+                                title(R.string.report_reasons)
+                                listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
+                                    postContent!!.append("\n${context.getString(R.string.report_reasons)}: $text")
+                                }
+                                cancelOnTouchOutside(false)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -387,7 +356,14 @@ class PostPopup(
             setOnClickListener {
                 if (!cookies.isNullOrEmpty()) {
                     KeyboardUtils.hideSoftInput(postContent!!)
-                    cookiePopup.show()
+                    MaterialDialog(context).show {
+                        cornerRadius(res = R.dimen.dialog_radius)
+                        title(R.string.select_cookie)
+                        listItemsSingleChoice(items = cookies.map { c -> c.cookieName }) { _, ind, text ->
+                            selectedCookie = cookies[ind]
+                            postCookie!!.text = text
+                        }
+                    }
                 } else {
                     Toast.makeText(caller.context, R.string.missing_cookie, Toast.LENGTH_SHORT)
                         .show()
@@ -530,8 +506,13 @@ class PostPopup(
 
         userHash = selectedCookie?.cookieHash ?: ""
 
-        postProgress.show()
-        Timber.i("Sending...")
+        val postProgressDialog = MaterialDialog(context).show {
+            cornerRadius(res = R.dimen.dialog_radius)
+            title(R.string.sending)
+            customView(R.layout.dialog_progress)
+            cancelable(false)
+        }
+        Timber.i("Posting...")
         caller.lifecycleScope.launch {
             sharedVM.sendPost(
                 newPost,
@@ -543,8 +524,8 @@ class PostPopup(
                 waterMark,
                 imageFile,
                 userHash
-            ).let {message ->
-                postProgress.dismiss()
+            ).let { message ->
+                postProgressDialog.dismiss()
                 dismissWith {
                     if (message.substring(0, 2) == ":)") {
                         clearEntries()

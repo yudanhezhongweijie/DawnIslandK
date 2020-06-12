@@ -105,11 +105,11 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
     private suspend fun loadResources() {
         applicationDataStore.loadCookies()
         applicationDataStore.initializeFeedId()
-        applicationDataStore.getNotice()?.let { notice ->
+        applicationDataStore.getNMBNotice()?.let { notice ->
             MaterialDialog(this).show {
                 cornerRadius(res = R.dimen.dialog_radius)
                 checkBoxPrompt(R.string.acknowledge) {}
-                message(text = htmlToSpanned(notice.content))
+                message(text = notice.content){html()}
                 positiveButton(R.string.close) {
                     notice.read = isCheckPromptChecked()
                     if (notice.read) lifecycleScope.launch {

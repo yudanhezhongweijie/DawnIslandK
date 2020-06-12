@@ -85,9 +85,9 @@ class ApplicationDataStore @Inject constructor(
         replyDao.nukeTable()
     }
 
-    suspend fun getNotice(): NMBNotice? {
+    suspend fun getNMBNotice(): NMBNotice? {
         var cache = NMBNoticeDao.getLatestNMBNotice()
-        webService.getNotice().run {
+        webService.getNMBNotice().run {
             if (this is APIDataResponse.APISuccessDataResponse) {
                 if (cache == null || data.date > cache!!.date) {
                     coroutineScope { launch { NMBNoticeDao.insertNMBNoticeWithTimestamp(data) } }

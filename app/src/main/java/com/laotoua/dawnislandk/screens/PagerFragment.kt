@@ -174,7 +174,7 @@ class PagerFragment : DaggerFragment() {
                 )
                 icon(resourceId)
                 title(text = sharedVM.getForumDisplayName(forumId))
-                message(text = ContentTransformation.htmlToSpanned(sharedVM.getForumMsg(forumId)))
+                message(text = sharedVM.getForumMsg(forumId)){html()}
                 positiveButton(R.string.acknowledge)
             }
         }
@@ -203,8 +203,7 @@ class PagerFragment : DaggerFragment() {
         binding.post.setOnClickListener {
             postPopup.setupAndShow(
                 sharedVM.selectedForumId.value,
-                true,
-                sharedVM.getForumNameMapping()
+                true
             )
         }
 

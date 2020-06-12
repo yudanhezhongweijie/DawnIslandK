@@ -51,7 +51,7 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
         moshi.adapter(Reply::class.java).fromJson(response)!!
     }
 
-    suspend fun getNotice(): APIDataResponse<NMBNotice> {
+    suspend fun getNMBNotice(): APIDataResponse<NMBNotice> {
         Timber.i("Downloading Notice...")
         return APIDataResponse.create(service.getNMBNotice(), parseNMBNotice)
     }

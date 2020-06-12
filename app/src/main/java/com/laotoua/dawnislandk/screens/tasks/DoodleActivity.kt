@@ -20,7 +20,6 @@ import com.afollestad.materialdialogs.WhichButton
 import com.afollestad.materialdialogs.actions.getActionButton
 import com.afollestad.materialdialogs.color.colorChooser
 import com.afollestad.materialdialogs.customview.customView
-import com.afollestad.materialdialogs.customview.getCustomView
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.ActivityDoodleBinding
 import com.laotoua.dawnislandk.screens.util.Layout
@@ -258,11 +257,10 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
 
     private fun showThicknessDialog() {
         if (dialogThickness == null) {
-            dialogThickness = MaterialDialog(this)
-                .apply { cornerRadius(res = R.dimen.dialog_radius) }
-                .customView(R.layout.dialog_thickness)
-            var thickness = binding.doodleView.paintThickness
-            dialogThickness!!.getCustomView().apply {
+            dialogThickness = MaterialDialog(this).show {
+                cornerRadius(res = R.dimen.dialog_radius)
+                customView(R.layout.dialog_thickness)
+                var thickness = binding.doodleView.paintThickness
                 val previewView = findViewById<ThicknessPreviewView>(R.id.thicknessPreviewView)
                 previewView.setColor(binding.doodleView.paintColor)
                 previewView.setThickness(thickness)
@@ -293,9 +291,9 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
                         }
                     })
                 }
-            }
-            dialogThickness!!.positiveButton(R.string.submit) {
-                binding.doodleView.paintThickness = thickness
+                positiveButton(R.string.submit) {
+                    binding.doodleView.paintThickness = thickness
+                }
             }
         }
         dialogThickness!!.show()

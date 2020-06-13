@@ -3,7 +3,6 @@ package com.laotoua.dawnislandk.screens.adapters
 import android.graphics.Color
 import android.text.SpannableString
 import android.text.Spanned
-import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +23,7 @@ import com.laotoua.dawnislandk.data.local.Trend
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.threads.ThreadCardFactory
 import com.laotoua.dawnislandk.screens.util.ContentTransformation
+import com.laotoua.dawnislandk.screens.widget.ClickableMovementMethod
 import com.laotoua.dawnislandk.screens.widget.span.ReferenceSpan
 import com.laotoua.dawnislandk.screens.widget.span.RoundBackgroundColorSpan
 import com.laotoua.dawnislandk.util.Constants
@@ -31,7 +31,10 @@ import com.laotoua.dawnislandk.util.GlideApp
 
 
 // TODO: handle no new data exception
-class QuickAdapter<T>(private val layoutResId: Int , private val sharedViewModel: SharedViewModel?=null) :
+class QuickAdapter<T>(
+    private val layoutResId: Int,
+    private val sharedViewModel: SharedViewModel? = null
+) :
     BaseQuickAdapter<T, BaseViewHolder>(layoutResId, mutableListOf<T>()),
     LoadMoreModule {
 
@@ -274,7 +277,7 @@ class QuickAdapter<T>(private val layoutResId: Int , private val sharedViewModel
 
     private fun View.applyTextSizeAndLetterSpacing(clickable: Boolean = false) = apply {
         findViewById<TextView>(R.id.content).apply {
-            if (clickable) movementMethod = LinkMovementMethod.getInstance()
+            if (clickable) movementMethod = ClickableMovementMethod.getInstance()
             textSize = DawnApp.applicationDataStore.textSize
             letterSpacing = DawnApp.applicationDataStore.letterSpace
         }
@@ -368,7 +371,7 @@ class QuickAdapter<T>(private val layoutResId: Int , private val sharedViewModel
         )
     }
 
-    inner class DawnLoadMoreView: BaseLoadMoreView(){
+    inner class DawnLoadMoreView : BaseLoadMoreView() {
         override fun getLoadComplete(holder: BaseViewHolder): View {
             return holder.getView(R.id.load_more_load_complete_view)
         }
@@ -383,14 +386,14 @@ class QuickAdapter<T>(private val layoutResId: Int , private val sharedViewModel
 
         override fun getLoadingView(holder: BaseViewHolder): View {
             return holder.getView<LinearLayout>(R.id.load_more_loading_view).apply {
-                findViewById<TextView>(R.id.loading_text).text = sharedViewModel!!.getRandomLoadingBible()
+                findViewById<TextView>(R.id.loading_text).text =
+                    sharedViewModel!!.getRandomLoadingBible()
             }
         }
 
         override fun getRootView(parent: ViewGroup): View {
-            return LayoutInflater.from(parent.context).inflate(R.layout.adapter_load_more, parent, false)
+            return LayoutInflater.from(parent.context)
+                .inflate(R.layout.adapter_load_more, parent, false)
         }
-
     }
-
 }

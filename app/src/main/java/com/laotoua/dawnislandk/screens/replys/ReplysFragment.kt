@@ -7,14 +7,15 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.graphics.Canvas
 import android.os.Bundle
 import android.text.style.UnderlineSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.text.toSpannable
 import androidx.core.view.isVisible
@@ -23,10 +24,12 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
+import com.chad.library.adapter.base.listener.OnItemSwipeListener
 import com.google.android.material.animation.AnimationUtils
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
@@ -148,14 +151,12 @@ class ReplysFragment : DaggerFragment() {
                 }
             })
 
-//            setOnItemClickListener { _, view, pos ->
-//                Timber.d("tracked item clicked!")
-//                toggleReplyMenuOnPos(pos)
-//            }
+            setOnItemClickListener { _, _, pos ->
+                toggleReplyMenuOnPos(pos)
+            }
 
             addChildClickViewIds(
                 R.id.attachedImage,
-                R.id.refId,
                 R.id.expandSummary,
                 R.id.reply,
                 R.id.report
@@ -174,10 +175,6 @@ class ReplysFragment : DaggerFragment() {
                         XPopup.Builder(context)
                             .asCustom(viewerPopup)
                             .show()
-                    }
-                    R.id.refId -> {
-                        toggleReplyMenuOnPos(position)
-
                     }
                     R.id.reply -> {
                         val content = ">>No.${getItem(position).id}\n"

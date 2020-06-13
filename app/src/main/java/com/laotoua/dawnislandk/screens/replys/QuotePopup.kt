@@ -103,7 +103,7 @@ class QuotePopup(
         val name = quote.getSimplifiedName()
         findViewById<TextView>(R.id.name).run {
             if (name.isNotBlank()) {
-                text = title
+                text = name
                 visibility = View.VISIBLE
             } else {
                 visibility = View.GONE

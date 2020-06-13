@@ -15,7 +15,7 @@
     android:gravity="center"
     android:padding="8dp"
     android:textAlignment="center"
-    android:textAppearance="@style/ExpandSubTitle"
+    android:textSize="16sp"
     tools:layout_alignSelf="center"
     tools:text="face" />
 

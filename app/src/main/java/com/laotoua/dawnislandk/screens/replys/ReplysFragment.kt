@@ -156,6 +156,7 @@ class ReplysFragment : DaggerFragment() {
                 R.id.attachedImage,
                 R.id.expandSummary,
                 R.id.reply,
+                R.id.copy,
                 R.id.report
             )
 
@@ -181,8 +182,9 @@ class ReplysFragment : DaggerFragment() {
                         )
                     }
                     R.id.copy -> {
-                        val content = view.findViewById<TextView>(R.id.content).text.toString()
-                        copyText("评论", content)
+                        mAdapter.getViewByPosition(position,R.id.content)?.let {
+                            copyText("评论", (it as TextView).text.toString())
+                        }
                     }
                     R.id.report -> {
                         MaterialDialog(requireContext()).show {

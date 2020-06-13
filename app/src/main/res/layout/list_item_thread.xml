@@ -105,8 +105,7 @@
             android:ellipsize="end"
             android:maxLines="8"
             android:text="@string/sample_thread_content"
-            android:textColor="@color/mainContentTextColor"
-            android:textSize="16sp"
+            android:textAppearance="@style/PrimaryText"
             app:layout_constraintEnd_toStartOf="@id/attachedImage"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/barrier2" />

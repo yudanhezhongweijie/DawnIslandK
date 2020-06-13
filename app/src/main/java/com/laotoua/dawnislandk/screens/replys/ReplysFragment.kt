@@ -7,15 +7,14 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.graphics.Canvas
 import android.os.Bundle
 import android.text.style.UnderlineSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.text.toSpannable
 import androidx.core.view.isVisible
@@ -24,12 +23,10 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
-import com.chad.library.adapter.base.listener.OnItemSwipeListener
 import com.google.android.material.animation.AnimationUtils
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
@@ -183,6 +180,10 @@ class ReplysFragment : DaggerFragment() {
                             quote = content
                         )
                     }
+                    R.id.copy -> {
+                        val content = view.findViewById<TextView>(R.id.content).text.toString()
+                        copyText("评论", content)
+                    }
                     R.id.report -> {
                         MaterialDialog(requireContext()).show {
                             cornerRadius(res = R.dimen.dp_10)
@@ -269,7 +270,7 @@ class ReplysFragment : DaggerFragment() {
         }
 
         binding.copyId.setOnClickListener {
-            copyId(">>No.${viewModel.currentThreadId}")
+            copyText("串号", ">>No.${viewModel.currentThreadId}")
         }
 
         binding.post.setOnClickListener {
@@ -366,10 +367,12 @@ class ReplysFragment : DaggerFragment() {
         subscribeUI()
     }
 
-    private fun copyId(text: String) {
+    private fun copyText(label: String, text: String) {
         getSystemService(requireContext(), ClipboardManager::class.java)
-            ?.setPrimaryClip(ClipData.newPlainText("currentThreadId", text))
-        Toast.makeText(context, R.string.thread_id_copied, Toast.LENGTH_SHORT).show()
+            ?.setPrimaryClip(ClipData.newPlainText(label, text))
+        if (label == "串号") Toast.makeText(context, R.string.thread_id_copied, Toast.LENGTH_SHORT)
+            .show()
+        else Toast.makeText(context, R.string.comment_copied, Toast.LENGTH_SHORT).show()
     }
 
     private fun getCurrentPage(adapter: QuickAdapter<Reply>): Int {

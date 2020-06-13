@@ -145,16 +145,36 @@
         app:layout_constraintStart_toStartOf="@id/userId"
         app:layout_constraintTop_toBottomOf="@id/expandSummary">
 
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="1dp"
+            android:background="@color/colorPrimary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <Button
             android:id="@+id/reply"
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/quote_and_reply"
+            android:text="@string/reply_comment"
             app:icon="@drawable/ic_edit_24px"
-            app:layout_constraintEnd_toStartOf="@+id/report"
+            app:layout_constraintEnd_toStartOf="@id/copy"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/copy"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/reply_comment"
+            app:icon="@drawable/ic_text_snippet_24px"
+            app:layout_constraintEnd_toStartOf="@id/report"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/reply"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
@@ -166,7 +186,7 @@
             app:icon="@drawable/ic_report_24px"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/reply"
+            app:layout_constraintStart_toEndOf="@+id/copy"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 

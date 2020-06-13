@@ -55,7 +55,8 @@
     <string name="please_comply_rules" translatable="false">请遵守A岛版规</string>
     <string name="acknowledge_post_rules" translatable="false">我已阅读理解并同意遵守全部版规和免责声明</string>
     <string name="reply" translatable="false">回复</string>
-    <string name="quote_and_reply" translatable="false">引用并回复</string>
+    <string name="reply_comment" translatable="false">回复评论</string>
+    <string name="copy_comment" translatable="false">复制评论</string>
     <string name="my_feed" translatable="false">我的订阅</string>
     <string name="feedId" translatable="false">订阅ID</string>
     <string name="edit_cookie_remark" translatable="false">编辑饼干备注</string>
@@ -78,6 +79,7 @@
     <string name="need_write_storage_permission" translatable="false">需要写入外部存储权限</string>
     <string name="need_take_picture_permission" translatable="false">需要拍照权限</string>
     <string name="thread_id_copied" translatable="false">串号已复制</string>
+    <string name="comment_copied" translatable="false">评论已复制</string>
     <string name="restart_to_apply_setting" translatable="false">设置将在重启后生效</string>
     <string name="save_image_selection" translatable="false">要保存图片吗?</string>
     <string name="cant_create_image_file" translatable="false">无法生成图片文件</string>

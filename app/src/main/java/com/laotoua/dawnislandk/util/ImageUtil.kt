@@ -4,13 +4,16 @@ import android.app.Activity
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.util.Size
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.laotoua.dawnislandk.R
 import timber.log.Timber
 import java.io.*
 
@@ -158,27 +161,48 @@ object ImageUtil {
         uri: Uri
     ): File? {
         val caller = fragment?.requireActivity() ?: activity!!
-        val parcelFileDescriptor =
-            caller.contentResolver.openFileDescriptor(uri, "r", null)
-
-        parcelFileDescriptor?.let {
-            val inputStream = FileInputStream(parcelFileDescriptor.fileDescriptor)
-            val file = File(
-                caller.cacheDir,
-                caller.contentResolver.getFileName(uri)
-            )
+        caller.contentResolver.openFileDescriptor(uri, "r", null)?.use { pfd ->
+            val filename = caller.contentResolver.getFileName(uri)
+            val file = File(caller.cacheDir, filename)
             if (file.exists()) {
-                Timber.i("File exists..Reusing the old file")
+                Timber.i("File exists. Reusing the old file")
                 return file
             }
-            Timber.i("File not found. Making a new one...")
-            val outputStream = FileOutputStream(file)
-            inputStream.copyTo(outputStream)
-            inputStream.close()
-            outputStream.close()
+            Timber.d("File not found. Making a new one...")
+            // TODO: image compression may cause lag on main thread
+            if (pfd.statSize >= Constants.SERVER_FILE_SIZE_LIMIT) {
+                Timber.d("Image is oversize: ${pfd.statSize}. Compressing...")
+                val ratio = (Constants.SERVER_FILE_SIZE_LIMIT * 100 / pfd.statSize).toInt()
+                Toast.makeText(caller, R.string.compressed_oversize_image, Toast.LENGTH_SHORT)
+                    .show()
+                compressImage(ratio, pfd.fileDescriptor)
+            } else {
+                FileInputStream(pfd.fileDescriptor)
+            }.use { inputStream ->
+                FileOutputStream(file).use { outputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+            }
             return file
         }
         return null
+    }
+
+    // compression runs on a different thread
+    private fun compressImage(ratio: Int, fileDescriptor: FileDescriptor): InputStream {
+        val pipedInputStream = PipedInputStream()
+        Thread(Runnable {
+            try {
+                PipedOutputStream(pipedInputStream).use {
+                    val bmp = BitmapFactory.decodeFileDescriptor(fileDescriptor)
+                    bmp.compress(Bitmap.CompressFormat.JPEG, ratio, it)
+                }
+            } catch (e: IOException) {
+                // logging and exception handling should go here
+                Timber.e(e, "Failed to compress image")
+            }
+        }).start()
+        return pipedInputStream
     }
 
     fun getFileFromDrawable(caller: Fragment, fileName: String, resId: Int): File {

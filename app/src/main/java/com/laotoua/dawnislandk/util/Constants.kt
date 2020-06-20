@@ -29,5 +29,5 @@ object Constants {
     const val thumbCDN = "${imgCDN}thumb/"
     const val imageCDN = "${imgCDN}image/"
 
-    const val APP_VERSION = "v0.6.0"
+    const val APP_VERSION = "v0.7.0"
 }

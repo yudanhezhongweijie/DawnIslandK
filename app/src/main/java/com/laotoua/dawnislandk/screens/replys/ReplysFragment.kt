@@ -15,6 +15,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.text.toSpannable
 import androidx.core.view.isVisible
@@ -38,6 +39,7 @@ import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widget.DoubleClickListener
+import com.laotoua.dawnislandk.screens.widget.LinkifyTextView
 import com.laotoua.dawnislandk.screens.widget.popup.ImageLoader
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.screens.widget.popup.PostPopup
@@ -156,6 +158,7 @@ class ReplysFragment : DaggerFragment() {
                 R.id.attachedImage,
                 R.id.expandSummary,
                 R.id.reply,
+                R.id.content,
                 R.id.copy,
                 R.id.report
             )
@@ -182,7 +185,7 @@ class ReplysFragment : DaggerFragment() {
                         )
                     }
                     R.id.copy -> {
-                        mAdapter.getViewByPosition(position,R.id.content)?.let {
+                        mAdapter.getViewByPosition(position, R.id.content)?.let {
                             copyText("评论", (it as TextView).text.toString())
                         }
                     }
@@ -198,6 +201,13 @@ class ReplysFragment : DaggerFragment() {
                                 )
                             }
                             cancelOnTouchOutside(false)
+                        }
+                    }
+                    R.id.content -> {
+                        val ltv = view as LinkifyTextView
+                        // TODO: add ripple effect
+                        if (ltv.currentSpan == null) {
+                            mAdapter.getOnItemClickListener()?.onItemClick(mAdapter, view, position)
                         }
                     }
                     R.id.expandSummary -> {

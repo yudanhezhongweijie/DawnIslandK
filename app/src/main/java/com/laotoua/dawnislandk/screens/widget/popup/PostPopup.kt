@@ -9,7 +9,7 @@ import android.graphics.LinearGradient
 import android.graphics.Shader
 import android.net.Uri
 import android.view.View
-import android.view.ViewGroup
+import android.view.Window
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.lifecycleScope
@@ -153,7 +153,6 @@ class PostPopup(
                     afterPostTask?.run { bindAfterPostTask(this) }
                     super.beforeShow()
                 }
-
             })
             .enableDrag(false)
 //            .moveUpToKeyboard(false)
@@ -165,12 +164,10 @@ class PostPopup(
         return R.layout.popup_post
     }
 
-    override fun show(): BottomPopupView {
-        if (parent != null) return this
-        val activity = context as Activity
-        popupInfo.decorView = activity.window.decorView as ViewGroup
+    override fun onShow() {
+        super.onShow()
         KeyboardUtils.registerSoftInputChangedListener(
-            activity,
+            (context as Activity).window,
             this
         ) { height ->
             if (height > 0 && keyboardHeight != height) {
@@ -185,22 +182,6 @@ class PostPopup(
             lp.height = height
             keyboardHolder!!.layoutParams = lp
         }
-        // 1. add PopupView to its decorView after measured.
-        popupInfo.decorView.post {
-            if (parent != null) {
-                (parent as ViewGroup).removeView(this)
-            }
-            popupInfo.decorView.addView(
-                this, LayoutParams(
-                    LayoutParams.MATCH_PARENT,
-                    LayoutParams.MATCH_PARENT
-                )
-            )
-
-            //2. do init，game start.
-            init()
-        }
-        return this
     }
 
     override fun onCreate() {

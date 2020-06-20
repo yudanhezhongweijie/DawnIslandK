@@ -24,6 +24,7 @@ import com.laotoua.dawnislandk.util.*
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.CenterPopupView
 import com.lxj.xpopup.interfaces.SimpleCallback
+import com.lxj.xpopup.util.XPopupUtils
 import dagger.android.support.DaggerFragment
 
 @SuppressLint("ViewConstructor")
@@ -37,6 +38,8 @@ class QuotePopup(
     private val imageLoader: ImageLoader by lazyOnMainOnly { ImageLoader() }
 
     override fun getImplLayoutId(): Int = R.layout.popup_quote
+
+    override fun getMaxWidth(): Int = (XPopupUtils.getWindowWidth(context) * .9f).toInt()
 
     private val liveQuote: LiveData<Reply> = replyVM.getQuote(quoteId)
 

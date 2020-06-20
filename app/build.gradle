@@ -18,7 +18,7 @@ android {
                 storePassword store_password
                 keyAlias key_alias
                 keyPassword key_password
-//                v1SigningEnabled true
+                v1SigningEnabled true
                 v2SigningEnabled true
             }
         }

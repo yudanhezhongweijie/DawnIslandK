@@ -65,4 +65,11 @@ object DatabaseModule {
         return dawnDatabase.luweiNoticeDao()
     }
 
+    @JvmStatic
+    @Provides
+    @Singleton
+    fun provideReleaseDao(dawnDatabase: DawnDatabase): ReleaseDao {
+        return dawnDatabase.releaseDao()
+    }
+
 }

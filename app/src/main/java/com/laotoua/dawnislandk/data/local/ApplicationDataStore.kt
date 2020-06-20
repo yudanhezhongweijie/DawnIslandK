@@ -1,9 +1,6 @@
 package com.laotoua.dawnislandk.data.local
 
-import com.laotoua.dawnislandk.data.local.dao.CookieDao
-import com.laotoua.dawnislandk.data.local.dao.LuweiNoticeDao
-import com.laotoua.dawnislandk.data.local.dao.NMBNoticeDao
-import com.laotoua.dawnislandk.data.local.dao.ReplyDao
+import com.laotoua.dawnislandk.data.local.dao.*
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.util.Constants
@@ -19,6 +16,7 @@ class ApplicationDataStore @Inject constructor(
     private val cookieDao: CookieDao, private val replyDao: ReplyDao,
     private val NMBNoticeDao: NMBNoticeDao,
     private val luweiNoticeDao: LuweiNoticeDao,
+    private val releaseDao: ReleaseDao,
     private val webService: NMBServiceClient
 ) {
 
@@ -133,5 +131,26 @@ class ApplicationDataStore @Inject constructor(
 
     fun acknowledgementPostingRule() {
         mmkv.putBoolean(Constants.ACKNOWLEDGE_POSTING_RULES, true)
+    }
+
+    suspend fun getLatestRelease(): Release? {
+        val currentVersion = releaseDao.getLatestRelease()
+        val currentVersionCode = currentVersion?.versionCode
+            ?: Constants.APP_VERSION.filter { it.isDigit() }.toInt()
+        if (currentVersion == null){
+            val currentRelease = Release(1,Constants.APP_VERSION, "", "default entry")
+            coroutineScope { launch { releaseDao.insertRelease(currentRelease) } }
+        }
+        val latest = webService.getLatestRelease().run {
+            if (this is APIDataResponse.APISuccessDataResponse) data
+            else {
+                Timber.e(message)
+                null
+            }
+        }
+        if (latest != null && latest.versionCode > currentVersionCode) {
+            return latest
+        }
+        return null
     }
 }

@@ -144,4 +144,6 @@
     <string name="cleared_reply_cache_message" translatable="false">串回复的缓存已经清除</string>
     <string name="acknowledge" translatable="false">我知道了</string>
     <string name="report">举报</string>
+    <string name="found_new_version">检测到新版本</string>
+    <string name="download_latest_version">下载最新版本</string>
 </resources>

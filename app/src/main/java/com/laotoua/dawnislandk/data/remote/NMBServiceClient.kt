@@ -9,6 +9,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
@@ -16,6 +17,17 @@ import javax.inject.Inject
 class NMBServiceClient @Inject constructor(private val service: NMBService) {
 
     private val moshi: Moshi = Moshi.Builder().build()
+
+    private val parseLatestRelease: (String) -> Release = { response ->
+        JSONObject(response).run {
+            Release(
+                1,
+                optString("tag_name"),
+                optString("html_url"),
+                optString("body")
+            )
+        }
+    }
 
     private val parseNMBNotice: (String) -> NMBNotice = { response ->
         moshi.adapter(NMBNotice::class.java).fromJson(response)!!
@@ -51,12 +63,17 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
         moshi.adapter(Reply::class.java).fromJson(response)!!
     }
 
+
+    suspend fun getLatestRelease(): APIDataResponse<Release> {
+        return APIDataResponse.create(service.getLatestRelease(), parseLatestRelease)
+    }
+
     suspend fun getNMBNotice(): APIDataResponse<NMBNotice> {
         Timber.i("Downloading Notice...")
         return APIDataResponse.create(service.getNMBNotice(), parseNMBNotice)
     }
 
-    suspend fun getLuweiNotice(): APIDataResponse<LuweiNotice>{
+    suspend fun getLuweiNotice(): APIDataResponse<LuweiNotice> {
         Timber.i("Downloading LuWeiNotice...")
         return APIDataResponse.create(service.getLuweiNotice(), parseLuweiNotice)
     }

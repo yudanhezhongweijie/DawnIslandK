@@ -1,5 +1,7 @@
 package com.laotoua.dawnislandk.screens
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.widget.Toast
@@ -94,7 +96,7 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
 
     // Forum Click
     override fun onForumClick(forum: Forum) {
-        Timber.i("Clicked on Forum ${forum.name}")
+        Timber.d("Clicked on Forum ${forum.name}")
         sharedVM.setForum(forum)
         binding.drawerLayout.closeDrawers()
     }
@@ -102,13 +104,30 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
 
     // initialize Global resources
     private suspend fun loadResources() {
+        applicationDataStore.getLatestRelease()?.let { release ->
+            MaterialDialog(this).show {
+                cornerRadius(res = R.dimen.dp_10)
+                title(R.string.found_new_version)
+                message(text = release.message) { html() }
+                positiveButton(R.string.download_latest_version) {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(release.downloadUrl))
+                    if (intent.resolveActivity(packageManager) != null) {
+                        startActivity(intent)
+                    }
+                }
+                negativeButton(R.string.acknowledge){
+                    dismiss()
+                }
+            }
+        }
+
         applicationDataStore.loadCookies()
         applicationDataStore.initializeFeedId()
         applicationDataStore.getNMBNotice()?.let { notice ->
             MaterialDialog(this).show {
                 cornerRadius(res = R.dimen.dp_10)
                 checkBoxPrompt(R.string.acknowledge) {}
-                message(text = notice.content){html()}
+                message(text = notice.content) { html() }
                 positiveButton(R.string.close) {
                     notice.read = isCheckPromptChecked()
                     if (notice.read) lifecycleScope.launch {

@@ -12,11 +12,11 @@ import java.io.File
 
 class ImageLoader :
     XPopupImageLoader {
-    private val cdn = Constants.imageCDN
 
     override fun getImageFile(context: Context, uri: Any): File? {
+        val imgUrl = if (uri.toString().startsWith("http")) uri else Constants.imageCDN + uri
         try {
-            return Glide.with(context).downloadOnly().load(cdn + uri).submit().get()
+            return Glide.with(context).downloadOnly().load(imgUrl).submit().get()
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -24,7 +24,8 @@ class ImageLoader :
     }
 
     override fun loadImage(position: Int, uri: Any, imageView: ImageView) {
-        GlideApp.with(imageView).load(cdn + uri)
+        val imgUrl = if (uri.toString().startsWith("http")) uri else Constants.imageCDN + uri
+        GlideApp.with(imageView).load(imgUrl)
             .apply(
                 RequestOptions().override(
                     Target.SIZE_ORIGINAL,

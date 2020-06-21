@@ -80,9 +80,8 @@ class ThreadsFragment : DaggerFragment() {
                     // TODO support multiple image
                     val viewerPopup =
                         ImageViewerPopup(
-                            this@ThreadsFragment,
-                            requireContext(),
-                            url
+                            imgUrl = url,
+                            fragment = this@ThreadsFragment
                         )
                     viewerPopup.setXPopupImageLoader(imageLoader)
                     viewerPopup.setSingleSrcView(view as ImageView?, url)

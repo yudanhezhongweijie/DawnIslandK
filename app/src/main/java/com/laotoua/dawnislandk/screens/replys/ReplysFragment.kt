@@ -169,7 +169,7 @@ class ReplysFragment : DaggerFragment() {
                         val url = getItem(position).getImgUrl()
                         // TODO support multiple image
                         val viewerPopup =
-                            ImageViewerPopup(this@ReplysFragment, requireContext(), url)
+                            ImageViewerPopup(url, fragment = this@ReplysFragment)
                         viewerPopup.setXPopupImageLoader(imageLoader)
                         viewerPopup.setSingleSrcView(view as ImageView?, url)
 

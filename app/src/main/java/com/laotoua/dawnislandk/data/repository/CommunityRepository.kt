@@ -27,6 +27,8 @@ class CommunityRepository @Inject constructor(
         matchRemoteData(local)
     }
 
+    val reedPictureUrl = MutableLiveData<String>()
+
     private val _loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
     val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>> get() = _loadingStatus
 
@@ -57,6 +59,14 @@ class CommunityRepository @Inject constructor(
 
     suspend fun refresh() {
         matchRemoteData(communityList, true)
+    }
+
+    suspend fun getRandomReedPicture() {
+        webService.getRandomReedPicture().run {
+            if (this is APIDataResponse.APISuccessDataResponse) {
+                reedPictureUrl.postValue(data)
+            }
+        }
     }
 
 }

@@ -104,9 +104,8 @@ class FeedsFragment : DaggerFragment() {
                     // TODO support multiple image
                     val viewerPopup =
                         ImageViewerPopup(
-                            this@FeedsFragment,
-                            requireContext(),
-                            url
+                            url,
+                            fragment = this@FeedsFragment
                         )
                     viewerPopup.setXPopupImageLoader(imageLoader)
                     viewerPopup.setSingleSrcView(view as ImageView?, url)

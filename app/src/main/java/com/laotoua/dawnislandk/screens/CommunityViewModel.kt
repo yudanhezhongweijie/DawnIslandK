@@ -14,7 +14,7 @@ class CommunityViewModel @Inject constructor(private val communityRepository: Co
     ViewModel() {
 
     val communityList get() = communityRepository.communityList
-
+    val reedPictureUrl: LiveData<String> get() = communityRepository.reedPictureUrl
     val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>> =
         communityRepository.loadingStatus
 
@@ -24,6 +24,15 @@ class CommunityViewModel @Inject constructor(private val communityRepository: Co
 
     fun refresh() {
         viewModelScope.launch { communityRepository.refresh() }
+    }
+
+
+    init {
+        getRandomReedPicture()
+    }
+
+    fun getRandomReedPicture() {
+        viewModelScope.launch { communityRepository.getRandomReedPicture() }
     }
 
 }

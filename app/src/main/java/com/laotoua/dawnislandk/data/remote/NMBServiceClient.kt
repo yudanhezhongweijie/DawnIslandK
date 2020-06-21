@@ -63,8 +63,13 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
         moshi.adapter(Reply::class.java).fromJson(response)!!
     }
 
+    suspend fun getRandomReedPicture(): APIDataResponse<String> {
+        Timber.d("Getting Random Reed Picture...")
+        return APIDataResponse.create(service.getRandomReedPicture()) { it }
+    }
 
     suspend fun getLatestRelease(): APIDataResponse<Release> {
+        Timber.d("Checking Latest Version...")
         return APIDataResponse.create(service.getLatestRelease(), parseLatestRelease)
     }
 

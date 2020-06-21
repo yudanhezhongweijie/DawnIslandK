@@ -8,6 +8,10 @@ import retrofit2.Response
 import retrofit2.http.*
 
 interface NMBService {
+
+    @GET("https://reed.mfweb.top/Functions/Pictures/GetRandomPicture")
+    fun getRandomReedPicture(): Call<ResponseBody>
+
     @GET("https://api.github.com/repos/fishballzzz/DawnIslandK/releases/latest")
     fun getLatestRelease(): Call<ResponseBody>
 

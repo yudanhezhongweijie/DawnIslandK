@@ -4,6 +4,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.view.View
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.Observer
@@ -22,7 +24,11 @@ import com.laotoua.dawnislandk.screens.adapters.QuickNodeAdapter
 import com.laotoua.dawnislandk.screens.replys.QuotePopup
 import com.laotoua.dawnislandk.screens.replys.ReplysFragment
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbarInitialization
+import com.laotoua.dawnislandk.screens.widget.popup.ImageLoader
+import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
+import com.laotoua.dawnislandk.util.GlideApp
 import com.laotoua.dawnislandk.util.LoadingStatus
+import com.lxj.xpopup.XPopup
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -67,6 +73,25 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
             mAdapter.setData(emptyList())
             communityVM.refresh()
         }
+        val imageLoader = ImageLoader()
+        binding.reedImageView.setOnClickListener {
+            val url = communityVM.reedPictureUrl.value!!
+            val viewerPopup =
+                ImageViewerPopup(
+                    url,
+                    activity = this
+                )
+            viewerPopup.setXPopupImageLoader(imageLoader)
+            viewerPopup.setSingleSrcView(binding.reedImageView, url)
+            XPopup.Builder(this)
+                .asCustom(viewerPopup)
+                .show()
+        }
+
+        binding.ReedPictureRefresh.setOnClickListener {
+            binding.reedImageView.setImageResource(R.drawable.drawer_placeholder)
+            communityVM.getRandomReedPicture()
+        }
 
         binding.forumContainer.layoutManager = LinearLayoutManager(this)
         binding.forumContainer.adapter = mAdapter
@@ -78,6 +103,13 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
             sharedVM.setForumMappings(communityVM.getForums())
             // TODO: set default forum
             sharedVM.setForum(it[0].forums[0])
+        })
+
+        communityVM.reedPictureUrl.observe(this, Observer {
+            GlideApp.with(binding.reedImageView)
+                .load(it)
+                .fitCenter()
+                .into(binding.reedImageView)
         })
 
         communityVM.loadingStatus.observe(this, Observer {
@@ -115,7 +147,7 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
                         startActivity(intent)
                     }
                 }
-                negativeButton(R.string.acknowledge){
+                negativeButton(R.string.acknowledge) {
                     dismiss()
                 }
             }

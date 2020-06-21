@@ -129,9 +129,8 @@ class QuotePopup(
                 val url = quote.getImgUrl()
                 val viewerPopup =
                     ImageViewerPopup(
-                        caller,
-                        context,
-                        url
+                        url,
+                        fragment = caller
                     )
                 viewerPopup.setXPopupImageLoader(imageLoader)
                 viewerPopup.setSingleSrcView(imageView as ImageView?, url)

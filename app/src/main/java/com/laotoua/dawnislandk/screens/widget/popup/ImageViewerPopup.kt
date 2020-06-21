@@ -1,11 +1,13 @@
 package com.laotoua.dawnislandk.screens.widget.popup
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.os.Environment
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
@@ -24,12 +26,13 @@ import java.io.File
 
 @SuppressLint("ViewConstructor")
 class ImageViewerPopup(
-    private val caller: Fragment,
-    context: Context,
-    private val imgUrl: String
+    private val imgUrl: String,
+    fragment: Fragment? = null,
+    activity: Activity? = null
 ) :
-    ImageViewerPopupView(context) {
+    ImageViewerPopupView(fragment?.requireContext() ?: activity!!) {
 
+    private val caller = activity ?: fragment!!.requireActivity()
     private val toastMsg = MutableLiveData<Int>()
     private var saveShown = true
     private val saveButton by lazyOnMainOnly { findViewById<FloatingActionButton>(R.id.save) }
@@ -47,18 +50,18 @@ class ImageViewerPopup(
         super.onAttachedToWindow()
         this.isShowSaveBtn = false
         saveButton.setOnClickListener { addPicToGallery(context, imgUrl) }
-        toastMsg.observe(caller, Observer {
-            Toast.makeText(caller.requireContext(), it, Toast.LENGTH_SHORT).show()
+        toastMsg.observe(caller as LifecycleOwner, Observer {
+            Toast.makeText(caller, it, Toast.LENGTH_SHORT).show()
         })
     }
 
     private fun addPicToGallery(context: Context, imgUrl: String) {
-        caller.lifecycleScope.launch(Dispatchers.IO) {
+        (caller as LifecycleOwner).lifecycleScope.launch(Dispatchers.IO) {
             Timber.i("Saving image $imgUrl to Gallery... ")
             val relativeLocation = Environment.DIRECTORY_PICTURES + File.separator + "Dawn"
             var fileName = imgUrl.substringAfter("/")
             val fileExist = ImageUtil.imageExistInGalleryBasedOnFilenameAndExt(
-                caller.requireActivity(),
+                caller,
                 fileName,
                 relativeLocation
             )
@@ -70,7 +73,7 @@ class ImageViewerPopup(
                     "${name}_${ReadableTime.getFilenamableTime(System.currentTimeMillis())}.$ext"
             }
             val saved = ImageUtil.copyImageFileToGallery(
-                caller.requireActivity(),
+                caller,
                 fileName,
                 relativeLocation,
                 imageLoader.getImageFile(context, imgUrl)

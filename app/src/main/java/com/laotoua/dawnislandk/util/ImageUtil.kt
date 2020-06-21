@@ -13,7 +13,11 @@ import android.util.Size
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.laotoua.dawnislandk.R
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.*
 
@@ -160,10 +164,10 @@ object ImageUtil {
         activity: Activity? = null,
         uri: Uri
     ): File? {
-        val caller = fragment?.requireActivity() ?: activity!!
-        caller.contentResolver.openFileDescriptor(uri, "r", null)?.use { pfd ->
-            val filename = caller.contentResolver.getFileName(uri)
-            val file = File(caller.cacheDir, filename)
+        val callerActivity = fragment?.requireActivity() ?: activity!!
+        callerActivity.contentResolver.openFileDescriptor(uri, "r", null)?.use { pfd ->
+            val filename = callerActivity.contentResolver.getFileName(uri)
+            val file = File(callerActivity.cacheDir, filename)
             if (file.exists()) {
                 Timber.i("File exists. Reusing the old file")
                 return file
@@ -173,9 +177,9 @@ object ImageUtil {
             if (pfd.statSize >= Constants.SERVER_FILE_SIZE_LIMIT) {
                 Timber.d("Image is oversize: ${pfd.statSize}. Compressing...")
                 val ratio = (Constants.SERVER_FILE_SIZE_LIMIT * 100 / pfd.statSize).toInt()
-                Toast.makeText(caller, R.string.compressed_oversize_image, Toast.LENGTH_SHORT)
+                Toast.makeText(callerActivity, R.string.compressed_oversize_image, Toast.LENGTH_SHORT)
                     .show()
-                compressImage(ratio, pfd.fileDescriptor)
+                compressImage(callerActivity, ratio, pfd.fileDescriptor)
             } else {
                 FileInputStream(pfd.fileDescriptor)
             }.use { inputStream ->
@@ -189,9 +193,9 @@ object ImageUtil {
     }
 
     // compression runs on a different thread
-    private fun compressImage(ratio: Int, fileDescriptor: FileDescriptor): InputStream {
+    private fun compressImage(callerActivity: Activity, ratio: Int, fileDescriptor: FileDescriptor): InputStream {
         val pipedInputStream = PipedInputStream()
-        Thread(Runnable {
+        (callerActivity as LifecycleOwner).lifecycleScope.launch(Dispatchers.IO) {
             try {
                 PipedOutputStream(pipedInputStream).use {
                     val bmp = BitmapFactory.decodeFileDescriptor(fileDescriptor)
@@ -201,7 +205,7 @@ object ImageUtil {
                 // logging and exception handling should go here
                 Timber.e(e, "Failed to compress image")
             }
-        }).start()
+        }
         return pipedInputStream
     }
 

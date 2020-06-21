@@ -294,6 +294,10 @@ class CommentsFragment : DaggerFragment() {
         }
 
         binding.jump.setOnClickListener {
+            if (binding.refreshLayout.isRefreshing || mAdapter.loadMoreModule.isLoading){
+                Timber.d("Loading data...Holding on jump...")
+                return@setOnClickListener
+            }
             val page = getCurrentPage(mAdapter)
             XPopup.Builder(context)
                 .setPopupCallback(object : SimpleCallback() {
@@ -301,17 +305,18 @@ class CommentsFragment : DaggerFragment() {
                         super.beforeShow()
                         jumpPopup.updatePages(page, viewModel.maxPage)
                     }
+                    override fun onDismiss() {
+                        super.onDismiss()
+                        if (jumpPopup.submit) {
+                            binding.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
+                            mAdapter.setList(emptyList())
+                            Timber.i("Jumping to ${jumpPopup.targetPage}...")
+                            viewModel.jumpTo(jumpPopup.targetPage)
+                        }
+                    }
                 })
                 .asCustom(jumpPopup)
                 .show()
-                .dismissWith {
-                    if (jumpPopup.submit) {
-                        binding.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
-                        mAdapter.setList(emptyList())
-                        Timber.i("Jumping to ${jumpPopup.targetPage}...")
-                        viewModel.jumpTo(jumpPopup.targetPage)
-                    }
-                }
         }
 
         binding.addFeed.setOnClickListener {

@@ -220,7 +220,7 @@ class PagerFragment : DaggerFragment() {
                             .filter { it.isDigit() }.toString()
                         if (threadId.isNotEmpty()) {
                             // Does not have fid here. fid will be generated when data comes back in reply
-                            sharedVM.setPost(threadId)
+                            sharedVM.setPost(threadId, "")
                             dismiss()
                             (requireActivity() as MainActivity).showComment()
                         } else {

@@ -26,7 +26,7 @@ import com.afollestad.materialdialogs.list.listItems
 import com.king.zxing.util.CodeUtils
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.data.local.Cookie
+import com.laotoua.dawnislandk.data.local.entity.Cookie
 import com.laotoua.dawnislandk.databinding.FragmentSettingsBinding
 import com.laotoua.dawnislandk.databinding.ListItemCookieBinding
 import com.laotoua.dawnislandk.databinding.ListItemPreferenceBinding

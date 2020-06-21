@@ -1,10 +1,10 @@
 package com.laotoua.dawnislandk.data.local.dao
 
 import androidx.room.TypeConverter
-import com.laotoua.dawnislandk.data.local.Forum
-import com.laotoua.dawnislandk.data.local.LuweiNotice
-import com.laotoua.dawnislandk.data.local.NoticeForum
-import com.laotoua.dawnislandk.data.local.Trend
+import com.laotoua.dawnislandk.data.local.entity.Forum
+import com.laotoua.dawnislandk.data.local.entity.LuweiNotice
+import com.laotoua.dawnislandk.data.local.entity.NoticeForum
+import com.laotoua.dawnislandk.data.local.entity.Trend
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import java.util.*
@@ -148,12 +148,22 @@ class Converter {
     }
 
     @TypeConverter
+    fun integerSetToString(set: MutableSet<Int>): String {
+        return set.toString().removeSurrounding("[","]")
+    }
+
+    @TypeConverter
+    fun stringToIntegerSet(s: String): MutableSet<Int> {
+        return s.trim().splitToSequence(",").map { it.toInt() }.toMutableSet()
+    }
+
+    @TypeConverter
     fun longToDate(dateLong: Long?): Date? {
         return dateLong?.let { Date(it) }
     }
 
     @TypeConverter
-    fun dateTolOng(date: Date?): Long? {
+    fun dateToLong(date: Date?): Long? {
         return date?.let { date.time }
     }
 

@@ -25,7 +25,7 @@ import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.data.local.Cookie
+import com.laotoua.dawnislandk.data.local.entity.Cookie
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.ContentTransformation

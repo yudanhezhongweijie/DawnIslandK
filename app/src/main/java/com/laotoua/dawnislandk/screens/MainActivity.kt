@@ -16,7 +16,7 @@ import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
 import com.afollestad.materialdialogs.checkbox.isCheckPromptChecked
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.data.local.Forum
+import com.laotoua.dawnislandk.data.local.entity.Forum
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
 import com.laotoua.dawnislandk.screens.adapters.QuickNodeAdapter
 import com.laotoua.dawnislandk.screens.comments.QuotePopup

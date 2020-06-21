@@ -1,7 +1,7 @@
 package com.laotoua.dawnislandk.data.local.dao
 
 import androidx.room.*
-import com.laotoua.dawnislandk.data.local.Cookie
+import com.laotoua.dawnislandk.data.local.entity.Cookie
 
 
 @Dao

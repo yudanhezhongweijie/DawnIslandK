@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.laotoua.dawnislandk.data.local.Post
+import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.data.repository.DataResource
 import com.laotoua.dawnislandk.util.EventPayload

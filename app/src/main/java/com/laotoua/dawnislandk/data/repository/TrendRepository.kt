@@ -3,10 +3,10 @@ package com.laotoua.dawnislandk.data.repository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.laotoua.dawnislandk.DawnApp
-import com.laotoua.dawnislandk.data.local.DailyTrend
-import com.laotoua.dawnislandk.data.local.Post
-import com.laotoua.dawnislandk.data.local.Trend
 import com.laotoua.dawnislandk.data.local.dao.DailyTrendDao
+import com.laotoua.dawnislandk.data.local.entity.DailyTrend
+import com.laotoua.dawnislandk.data.local.entity.Post
+import com.laotoua.dawnislandk.data.local.entity.Trend
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.util.EventPayload

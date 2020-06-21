@@ -12,7 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.data.local.Trend
+import com.laotoua.dawnislandk.data.local.entity.Trend
 import com.laotoua.dawnislandk.databinding.FragmentTrendBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.PagerFragment

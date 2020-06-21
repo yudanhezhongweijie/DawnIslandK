@@ -1,7 +1,7 @@
 package com.laotoua.dawnislandk.data.local.dao
 
 import androidx.room.*
-import com.laotoua.dawnislandk.data.local.Release
+import com.laotoua.dawnislandk.data.local.entity.Release
 
 @Dao
 interface ReleaseDao {

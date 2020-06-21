@@ -30,7 +30,7 @@ import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.google.android.material.animation.AnimationUtils
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.data.local.Comment
+import com.laotoua.dawnislandk.data.local.entity.Comment
 import com.laotoua.dawnislandk.databinding.FragmentCommentBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
@@ -337,7 +337,7 @@ class CommentsFragment : DaggerFragment() {
             currentPage = 0
             showMenu()
         }
-        viewModel.setPostId(it)
+        viewModel.setPost(it,sharedVM.selectedPostFid)
         updateTitle()
     }
 

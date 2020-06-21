@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.data.local.dao
+package com.laotoua.dawnislandk.data.local
 
 import android.content.ContentValues
 import android.content.Context
@@ -9,7 +9,8 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.laotoua.dawnislandk.data.local.*
+import com.laotoua.dawnislandk.data.local.dao.*
+import com.laotoua.dawnislandk.data.local.entity.*
 import com.laotoua.dawnislandk.util.Constants
 
 @Database(
@@ -21,9 +22,9 @@ import com.laotoua.dawnislandk.util.Constants
         NMBNotice::class,
         LuweiNotice::class,
         Release::class,
-        ReadingPage::class],
-    version = 5,
-    exportSchema = true
+        ReadingPage::class,
+        BrowsedPost::class],
+    version = 6
 )
 @TypeConverters(Converter::class)
 abstract class DawnDatabase : RoomDatabase() {
@@ -36,6 +37,7 @@ abstract class DawnDatabase : RoomDatabase() {
     abstract fun luweiNoticeDao(): LuweiNoticeDao
     abstract fun releaseDao(): ReleaseDao
     abstract fun readingPageDao(): ReadingPageDao
+    abstract fun browsedPostDao(): BrowsedPostDao
 
     companion object {
         // Singleton prevents multiple instances of database opening at the
@@ -55,7 +57,13 @@ abstract class DawnDatabase : RoomDatabase() {
                     DawnDatabase::class.java,
                     "dawnDB"
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                    .addMigrations(
+                        MIGRATION_1_2,
+                        MIGRATION_2_3,
+                        MIGRATION_3_4,
+                        MIGRATION_4_5,
+                        MIGRATION_5_6
+                    )
                     .build()
                 INSTANCE = instance
                 return instance
@@ -106,6 +114,15 @@ abstract class DawnDatabase : RoomDatabase() {
                 database.execSQL("DROP Table Thread")
             }
         }
+
+        // adds Browsing History
+        private val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("CREATE TABLE IF NOT EXISTS BrowsedPost (`date` INTEGER NOT NULL, `postId` TEXT NOT NULL, `postFid` TEXT NOT NULL, `pages` TEXT NOT NULL, PRIMARY KEY(`date`, `postId`))")
+            }
+        }
+
+
     }
 }
 

@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.data.local
+package com.laotoua.dawnislandk.data.local.entity
 
 import androidx.annotation.Keep
 import androidx.room.PrimaryKey

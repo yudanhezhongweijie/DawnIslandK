@@ -3,7 +3,7 @@ package com.laotoua.dawnislandk.screens
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.laotoua.dawnislandk.data.local.Forum
+import com.laotoua.dawnislandk.data.local.entity.Forum
 import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import timber.log.Timber

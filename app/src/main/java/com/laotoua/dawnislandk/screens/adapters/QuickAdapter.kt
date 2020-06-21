@@ -17,9 +17,9 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.data.local.Comment
-import com.laotoua.dawnislandk.data.local.Post
-import com.laotoua.dawnislandk.data.local.Trend
+import com.laotoua.dawnislandk.data.local.entity.Comment
+import com.laotoua.dawnislandk.data.local.entity.Post
+import com.laotoua.dawnislandk.data.local.entity.Trend
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.posts.PostCardFactory
 import com.laotoua.dawnislandk.screens.util.ContentTransformation

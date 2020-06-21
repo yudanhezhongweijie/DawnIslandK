@@ -4,8 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.laotoua.dawnislandk.data.local.ReadingPage
-import com.laotoua.dawnislandk.data.local.Release
+import com.laotoua.dawnislandk.data.local.entity.ReadingPage
 
 @Dao
 interface ReadingPageDao {

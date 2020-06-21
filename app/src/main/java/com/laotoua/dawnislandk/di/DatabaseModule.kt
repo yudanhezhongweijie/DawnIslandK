@@ -1,6 +1,7 @@
 package com.laotoua.dawnislandk.di
 
 import android.content.Context
+import com.laotoua.dawnislandk.data.local.DawnDatabase
 import com.laotoua.dawnislandk.data.local.dao.*
 import dagger.Module
 import dagger.Provides
@@ -77,5 +78,12 @@ object DatabaseModule {
     @Singleton
     fun provideReadingPageDao(dawnDatabase: DawnDatabase): ReadingPageDao {
         return dawnDatabase.readingPageDao()
+    }
+
+    @JvmStatic
+    @Provides
+    @Singleton
+    fun provideBrowsedPostDao(dawnDatabase: DawnDatabase): BrowsedPostDao {
+        return dawnDatabase.browsedPostDao()
     }
 }

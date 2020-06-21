@@ -2,7 +2,7 @@ package com.laotoua.dawnislandk.data.local.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import com.laotoua.dawnislandk.data.local.Community
+import com.laotoua.dawnislandk.data.local.entity.Community
 
 @Dao
 interface CommunityDao {

@@ -5,19 +5,18 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import com.laotoua.dawnislandk.DawnApp
-import com.laotoua.dawnislandk.data.local.Comment
-import com.laotoua.dawnislandk.data.local.Post
-import com.laotoua.dawnislandk.data.local.ReadingPage
+import com.laotoua.dawnislandk.data.local.dao.BrowsedPostDao
 import com.laotoua.dawnislandk.data.local.dao.CommentDao
 import com.laotoua.dawnislandk.data.local.dao.PostDao
 import com.laotoua.dawnislandk.data.local.dao.ReadingPageDao
+import com.laotoua.dawnislandk.data.local.entity.BrowsedPost
+import com.laotoua.dawnislandk.data.local.entity.Comment
+import com.laotoua.dawnislandk.data.local.entity.Post
+import com.laotoua.dawnislandk.data.local.entity.ReadingPage
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
-import com.laotoua.dawnislandk.util.EventPayload
-import com.laotoua.dawnislandk.util.LoadingStatus
-import com.laotoua.dawnislandk.util.SingleLiveEvent
-import com.laotoua.dawnislandk.util.equalsWithServerComments
+import com.laotoua.dawnislandk.util.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
@@ -29,7 +28,8 @@ class CommentRepository @Inject constructor(
     private val webService: NMBServiceClient,
     private val commentDao: CommentDao,
     private val postDao: PostDao,
-    private val readingPageDao: ReadingPageDao
+    private val readingPageDao: ReadingPageDao,
+    private val browsedPostDao: BrowsedPostDao
 ) {
     private var _currentPostId: String = "0"
     val currentPostId get() = _currentPostId
@@ -44,6 +44,7 @@ class CommentRepository @Inject constructor(
     private val postMap = SparseArray<Post>(cacheCap)
     private val commentsMap = SparseArray<SparseArray<LiveData<List<Comment>>>>(cacheCap)
     private val readingPageMap = SparseArray<ReadingPage>(cacheCap)
+    private val browsedPostMap = SparseArray<BrowsedPost>(cacheCap)
     private val fifoPostList = mutableListOf<Int>()
     private val adMap = SparseArray<SparseArray<Comment>>()
 
@@ -58,12 +59,13 @@ class CommentRepository @Inject constructor(
 
     fun getAd(page: Int): Comment? = adMap[currentPostIdInt]?.get(page)
 
-    suspend fun setPostId(id: String) {
+    suspend fun setPost(id: String, fid: String) {
         if (id == currentPostId) return
         setLoadingStatus(LoadingStatus.LOADING)
         clearCachedPages()
         Timber.d("Setting new Thread: $id")
         _currentPostId = id
+        _currentPostFid = fid
         if (postMap[currentPostIdInt] == null) {
             postDao.findPostByIdSync(id)?.let {
                 postMap.put(currentPostIdInt, it)
@@ -72,6 +74,19 @@ class CommentRepository @Inject constructor(
             readingPageDao.getReadingPageById(id).let {
                 readingPageMap.put(currentPostIdInt, it ?: ReadingPage(currentPostId, 1))
             }
+
+            browsedPostDao.getBrowsedPostByDateAndIdSync(ReadableTime.todayDateLong, currentPostId)
+                .let {
+                    browsedPostMap.put(
+                        currentPostIdInt,
+                        it ?: BrowsedPost(
+                            ReadableTime.todayDateLong,
+                            currentPostId,
+                            currentPostFid,
+                            mutableSetOf()
+                        )
+                    )
+                }
         }
     }
 
@@ -92,9 +107,13 @@ class CommentRepository @Inject constructor(
     private fun clearCachedPages() {
         emptyPage.value = false
         for (i in 0 until (commentsMap.size() - cacheCap)) {
-            Timber.d("Reached cache Cap. Clearing ${fifoPostList.first()}...")
-            commentsMap.delete(fifoPostList.first())
-            postMap.delete(fifoPostList.first())
+            fifoPostList.first().run {
+                Timber.d("Reached cache Cap. Clearing ${this}...")
+                commentsMap.delete(this)
+                postMap.delete(this)
+                readingPageMap.delete(this)
+                browsedPostMap.delete(this)
+            }
             fifoPostList.removeAt(0)
         }
         pageDownloadJob?.cancel()
@@ -112,18 +131,21 @@ class CommentRepository @Inject constructor(
     fun setLoadingStatus(status: LoadingStatus, message: String? = null) =
         loadingStatus.postValue(SingleLiveEvent.create(status, message))
 
+    // also saved page browsing history
     fun getLivePage(page: Int): LiveData<List<Comment>> {
         if (commentsMap[currentPostIdInt] == null) {
-            commentsMap.append(currentPostIdInt, SparseArray<LiveData<List<Comment>>>())
+            commentsMap.append(currentPostIdInt, SparseArray())
             fifoPostList.add(currentPostIdInt)
         }
         commentsMap[currentPostIdInt]!!.let {
             if (it[page] == null) {
-                it.append(page, liveData<List<Comment>>(Dispatchers.IO) {
+                it.append(page, liveData(Dispatchers.IO) {
                     Timber.d("Querying data for Thread $currentPostId on $page")
                     setLoadingStatus(LoadingStatus.LOADING)
                     emitSource(getLocalData(page))
                     pageDownloadJob = getServerData(page)
+                    browsedPostMap[currentPostIdInt].pages.add(page)
+                    browsedPostDao.insertBrowsedPost(browsedPostMap[currentPostIdInt])
                 })
             }
             return it[page]
@@ -153,6 +175,14 @@ class CommentRepository @Inject constructor(
     private suspend fun convertServerData(data: Post, page: Int) {
         // update current thread with latest info
         _currentPostFid = data.fid
+        // update postFid for browse history(search jump does not have fid)
+        browsedPostMap[currentPostIdInt].run {
+            if (postFid != currentPostFid) {
+                postFid = currentPostFid
+                browsedPostDao.insertBrowsedPost(this)
+            }
+        }
+
         if (data != postMap[currentPostIdInt]) {
             savePost(data)
         }
@@ -163,7 +193,7 @@ class CommentRepository @Inject constructor(
             // handle Ad
             if (it.isAd()) {
                 if (adMap[currentPostIdInt] == null) {
-                    adMap.append(currentPostIdInt, SparseArray<Comment>())
+                    adMap.append(currentPostIdInt, SparseArray())
                 }
                 adMap[currentPostIdInt]!!.append(page, it)
             } else noAd.add(it)

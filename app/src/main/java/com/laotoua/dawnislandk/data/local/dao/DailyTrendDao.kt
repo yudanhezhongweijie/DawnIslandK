@@ -3,7 +3,7 @@ package com.laotoua.dawnislandk.data.local.dao
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.distinctUntilChanged
 import androidx.room.*
-import com.laotoua.dawnislandk.data.local.DailyTrend
+import com.laotoua.dawnislandk.data.local.entity.DailyTrend
 import java.util.*
 
 @Dao

@@ -2,7 +2,7 @@ package com.laotoua.dawnislandk.screens.comments
 
 import android.util.SparseArray
 import androidx.lifecycle.*
-import com.laotoua.dawnislandk.data.local.Comment
+import com.laotoua.dawnislandk.data.local.entity.Comment
 import com.laotoua.dawnislandk.data.repository.QuoteRepository
 import com.laotoua.dawnislandk.data.repository.CommentRepository
 import com.laotoua.dawnislandk.util.LoadingStatus
@@ -37,10 +37,10 @@ class CommentsViewModel @Inject constructor(
     val quoteLoadingStatus = quoteRepo.quoteLoadingStatus
     fun getQuote(id: String) : LiveData<Comment> =  quoteRepo.getQuote(id)
 
-    fun setPostId(id: String) {
+    fun setPost(id: String, fid:String) {
         if (id != currentPostId) clearCache(true)
         viewModelScope.launch {
-            commentRepo.setPostId(id)
+            commentRepo.setPost(id,fid)
             if (commentList.isEmpty()) loadLandingPage()
         }
     }

@@ -13,7 +13,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.data.local.Comment
+import com.laotoua.dawnislandk.data.local.entity.Comment
 import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformContent
 import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformCookie
 import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformTime

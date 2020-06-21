@@ -1,6 +1,10 @@
 package com.laotoua.dawnislandk.data.local
 
 import com.laotoua.dawnislandk.data.local.dao.*
+import com.laotoua.dawnislandk.data.local.entity.Cookie
+import com.laotoua.dawnislandk.data.local.entity.LuweiNotice
+import com.laotoua.dawnislandk.data.local.entity.NMBNotice
+import com.laotoua.dawnislandk.data.local.entity.Release
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.util.Constants
@@ -137,8 +141,8 @@ class ApplicationDataStore @Inject constructor(
         val currentVersion = releaseDao.getLatestRelease()
         val currentVersionCode = currentVersion?.versionCode
             ?: Constants.APP_VERSION.filter { it.isDigit() }.toInt()
-        if (currentVersion == null){
-            val currentRelease = Release(1,Constants.APP_VERSION, "", "default entry")
+        if (currentVersion == null) {
+            val currentRelease = Release(1, Constants.APP_VERSION, "", "default entry")
             coroutineScope { launch { releaseDao.insertRelease(currentRelease) } }
         }
         val latest = webService.getLatestRelease().run {

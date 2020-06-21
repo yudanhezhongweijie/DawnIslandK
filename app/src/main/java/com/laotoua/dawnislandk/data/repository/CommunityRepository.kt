@@ -3,7 +3,7 @@ package com.laotoua.dawnislandk.data.repository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
-import com.laotoua.dawnislandk.data.local.Community
+import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.data.local.dao.CommunityDao
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient

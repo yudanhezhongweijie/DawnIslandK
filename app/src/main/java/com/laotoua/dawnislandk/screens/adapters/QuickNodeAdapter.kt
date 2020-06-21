@@ -10,8 +10,8 @@ import com.chad.library.adapter.base.entity.node.BaseNode
 import com.chad.library.adapter.base.provider.BaseNodeProvider
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.data.local.Community
-import com.laotoua.dawnislandk.data.local.Forum
+import com.laotoua.dawnislandk.data.local.entity.Community
+import com.laotoua.dawnislandk.data.local.entity.Forum
 import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformForumName
 
 

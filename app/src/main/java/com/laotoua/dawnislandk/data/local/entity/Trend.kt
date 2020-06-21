@@ -1,5 +1,6 @@
-package com.laotoua.dawnislandk.data.local
+package com.laotoua.dawnislandk.data.local.entity
 
+import com.laotoua.dawnislandk.data.local.entity.Post
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)

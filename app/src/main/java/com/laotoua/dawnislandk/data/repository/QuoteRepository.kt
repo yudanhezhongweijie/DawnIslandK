@@ -4,7 +4,7 @@ import android.util.LongSparseArray
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
-import com.laotoua.dawnislandk.data.local.Comment
+import com.laotoua.dawnislandk.data.local.entity.Comment
 import com.laotoua.dawnislandk.data.local.dao.CommentDao
 import com.laotoua.dawnislandk.data.local.dao.PostDao
 import com.laotoua.dawnislandk.data.remote.APIDataResponse

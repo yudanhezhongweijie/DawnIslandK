@@ -65,6 +65,9 @@ object ReadableTime {
         SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.getDefault())
     private val sDateFormatLock2 = Any()
 
+    val todayDateString = DATE_FORMAT_WITH_YEAR.format(Date())
+    val todayDateLong = string2Time(todayDateString,DATE_FORMAT_WITH_YEAR)
+
     fun initialize(context: Context) {
         sResources = context.applicationContext.resources
         timeFormat = DawnApp.applicationDataStore.mmkv.getString(

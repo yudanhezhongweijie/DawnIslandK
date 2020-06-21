@@ -1,7 +1,6 @@
 package com.laotoua.dawnislandk.util
 
-import com.laotoua.dawnislandk.data.local.Comment
-import com.laotoua.dawnislandk.data.local.Post
+import com.laotoua.dawnislandk.data.local.entity.Comment
 
 fun <T> lazyOnMainOnly(initializer: () -> T): Lazy<T> = lazy(LazyThreadSafetyMode.NONE, initializer)
 

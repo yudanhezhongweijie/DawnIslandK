@@ -146,6 +146,11 @@ class QuickAdapter<T>(
         convertContent(item.content, referenceClickListener, item.visible)
         convertTitleAndName(item.getSimplifiedTitle(), item.getSimplifiedName(), item.visible)
         convertExpandSummary(item.visible)
+        hideReplyMenu()
+    }
+
+    private fun BaseViewHolder.hideReplyMenu(){
+        setGone(R.id.replyMenu,true)
     }
 
     private fun BaseViewHolder.convertReplyWithPayload(payload: Payload.ReplyPayload) {

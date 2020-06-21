@@ -148,6 +148,15 @@
         app:layout_constraintStart_toEndOf="@+id/guidelineStart"
         app:layout_constraintTop_toBottomOf="@id/sizeCustomization" />
 
+    <include
+        android:id="@+id/appFeedback"
+        layout="@layout/list_item_preference"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toStartOf="@+id/guidelineEnd"
+        app:layout_constraintStart_toEndOf="@+id/guidelineStart"
+        app:layout_constraintTop_toBottomOf="@id/clearReplyCache" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
 
 

@@ -45,7 +45,7 @@
     <string name="missing_cookie" translatable="false">没有饼干</string>
     <string name="cookie_count" translatable="false">%d / 5</string>
     <string name="title" translatable="false">标题</string>
-    <string name="email" translatable="false">邮箱</string>
+    <string name="email_address" translatable="false">邮箱</string>
     <string name="name" translatable="false">名称</string>
     <string name="need_cookie_to_read" translatable="false">没有饼干! 不能看99页以后的内容...</string>
     <string name="post" translatable="false">发布</string>
@@ -148,4 +148,7 @@
     <string name="found_new_version">检测到新版本</string>
     <string name="download_latest_version">下载最新版本</string>
     <string name="compressed_oversize_image">已压缩超大图片</string>
+    <string name="app_feed_back" translatable="false">客户端反馈</string>
+    <string name="github" translatable="false">Github</string>
+    <string name="email_author" translatable="false">发邮件给作者</string>
 </resources>

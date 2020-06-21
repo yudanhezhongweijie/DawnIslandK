@@ -272,7 +272,8 @@
                     android:hint="@string/title"
                     android:inputType="none"
                     android:textSize="15sp"
-                    android:visibility="visible" />
+                    android:visibility="visible"
+                    android:importantForAutofill="noExcludeDescendants" />
 
                 <View
                     android:id="@+id/borderline_2"
@@ -291,10 +292,11 @@
                     android:layout_marginBottom="8dp"
                     android:background="@null"
                     android:ems="10"
-                    android:hint="@string/email"
+                    android:hint="@string/email_address"
                     android:inputType="textEmailAddress"
                     android:textSize="15sp"
-                    android:visibility="visible" />
+                    android:visibility="visible"
+                    android:importantForAutofill="noExcludeDescendants" />
 
                 <View
                     android:id="@+id/borderline_3"
@@ -311,13 +313,13 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
                     android:layout_marginBottom="8dp"
-
                     android:background="@null"
                     android:ems="10"
                     android:hint="@string/name"
                     android:inputType="textPersonName"
                     android:textSize="15sp"
-                    android:visibility="visible" />
+                    android:visibility="visible"
+                    android:importantForAutofill="noExcludeDescendants" />
 
                 <View
                     android:id="@+id/borderline_4"

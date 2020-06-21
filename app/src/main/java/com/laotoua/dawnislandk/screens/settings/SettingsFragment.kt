@@ -1,6 +1,7 @@
 package com.laotoua.dawnislandk.screens.settings
 
 import android.Manifest
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -266,6 +267,39 @@ class SettingsFragment : Fragment() {
                         }
                     }
                     negativeButton(R.string.cancel)
+                }
+            }
+        }
+
+        binding.appFeedback.apply {
+            key.setText(R.string.app_feed_back)
+            root.setOnClickListener {
+                MaterialDialog(requireContext()).show {
+                    title(R.string.app_feed_back)
+                    cornerRadius(res = R.dimen.dp_10)
+                    val items = listOf(
+                        context.resources.getString(R.string.github),
+                        context.resources.getString(R.string.email_author)
+                    )
+                    listItems(items = items) { _, index, _ ->
+                        if (index == 0) {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(Constants.GITHUB_ADDRESS))
+                            if (intent.resolveActivity(requireActivity().packageManager) != null) {
+                                startActivity(intent)
+                            }
+                        } else {
+                            val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                type = "*/*"
+                                data = Uri.parse("mailto:")
+                                putExtra(Intent.EXTRA_EMAIL, arrayOf(Constants.AUTHOR_EMAIL))
+                                putExtra(Intent.EXTRA_SUBJECT, context.resources.getString(R.string.app_feed_back))
+                            }
+                            if (intent.resolveActivity(requireActivity().packageManager) != null) {
+                                startActivity(intent)
+                            }
+
+                        }
+                    }
                 }
             }
         }

@@ -9,7 +9,6 @@ import android.graphics.LinearGradient
 import android.graphics.Shader
 import android.net.Uri
 import android.view.View
-import android.view.Window
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.lifecycleScope
@@ -90,8 +89,8 @@ class PostPopup(
 
     private fun updateTitle(targetId: String?, newPost: Boolean) {
         findViewById<TextView>(R.id.postTitle).text =
-            if (newPost) "${context.getString(R.string.post_new_thread)} > ${getForumTitle(targetId!!)}"
-            else "${context.getString(R.string.reply)} > $targetId"
+            if (newPost) "${context.getString(R.string.new_post)} > ${getForumTitle(targetId!!)}"
+            else "${context.getString(R.string.new_comment)} > $targetId"
     }
 
     private fun getForumTitle(targetId: String): String {
@@ -422,7 +421,7 @@ class PostPopup(
         findViewById<Button>(R.id.forumRule).setOnClickListener {
             MaterialDialog(context).show {
                 cornerRadius(res = R.dimen.dp_10)
-                val fid = if (newPost && targetId != null) targetId!! else sharedVM.selectedThreadFid
+                val fid = if (newPost && targetId != null) targetId!! else sharedVM.selectedPostFid
                 val biId = if (fid.toInt() > 0) fid.toInt() else 1
                 val resourceId: Int = context.resources.getIdentifier(
                     "bi_$biId", "drawable",

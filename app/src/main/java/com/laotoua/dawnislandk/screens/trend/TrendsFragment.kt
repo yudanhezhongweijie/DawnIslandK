@@ -66,10 +66,10 @@ class TrendsFragment : DaggerFragment() {
             loadMoreModule.isEnableLoadMore = false
             setOnItemClickListener { _, _, position ->
                 val target = getItem(position)
-                target.toThread(sharedVM.getForumIdByName(target.forum)).run {
-                    sharedVM.setThread(id, fid)
+                target.toPost(sharedVM.getForumIdByName(target.forum)).run {
+                    sharedVM.setPost(id, fid)
                 }
-                (requireActivity() as MainActivity).showReply()
+                (requireActivity() as MainActivity).showComment()
             }
         }
 

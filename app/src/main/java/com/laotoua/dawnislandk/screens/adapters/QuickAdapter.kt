@@ -17,11 +17,11 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.data.local.Reply
-import com.laotoua.dawnislandk.data.local.Thread
+import com.laotoua.dawnislandk.data.local.Comment
+import com.laotoua.dawnislandk.data.local.Post
 import com.laotoua.dawnislandk.data.local.Trend
 import com.laotoua.dawnislandk.screens.SharedViewModel
-import com.laotoua.dawnislandk.screens.threads.ThreadCardFactory
+import com.laotoua.dawnislandk.screens.posts.PostCardFactory
 import com.laotoua.dawnislandk.screens.util.ContentTransformation
 import com.laotoua.dawnislandk.screens.widget.ClickableMovementMethod
 import com.laotoua.dawnislandk.screens.widget.span.ReferenceSpan
@@ -70,10 +70,10 @@ class QuickAdapter<T>(
      *
      */
     override fun convert(holder: BaseViewHolder, item: T) {
-        if (layoutResId == R.layout.list_item_thread && item is Thread) {
-            holder.convertThread(item, sharedViewModel!!.getForumDisplayName(item.fid))
-        } else if (layoutResId == R.layout.list_item_reply && item is Reply) {
-            holder.convertReply(item, po)
+        if (layoutResId == R.layout.list_item_post && item is Post) {
+            holder.convertPost(item, sharedViewModel!!.getForumDisplayName(item.fid))
+        } else if (layoutResId == R.layout.list_item_comment && item is Comment) {
+            holder.convertComment(item, po)
         } else if (layoutResId == R.layout.list_item_trend && item is Trend) {
             holder.convertTrend(item)
         } else if (layoutResId == R.layout.grid_item_emoji && item is String) {
@@ -86,13 +86,13 @@ class QuickAdapter<T>(
     }
 
     override fun convert(holder: BaseViewHolder, item: T, payloads: List<Any>) {
-        if (layoutResId == R.layout.list_item_thread && item is Thread) {
-            holder.convertThreadWithPayload(
-                payloads.first() as Payload.ThreadPayload,
+        if (layoutResId == R.layout.list_item_post && item is Post) {
+            holder.convertPostWithPayload(
+                payloads.first() as Payload.PostPayload,
                 sharedViewModel!!.getForumDisplayName(item.fid)
             )
-        } else if (layoutResId == R.layout.list_item_reply && item is Reply) {
-            holder.convertReplyWithPayload(payloads.first() as Payload.ReplyPayload)
+        } else if (layoutResId == R.layout.list_item_comment && item is Comment) {
+            holder.convertCommentWithPayload(payloads.first() as Payload.CommentPayload)
         } else {
             throw Exception("unhandled payload conversion")
         }
@@ -100,12 +100,12 @@ class QuickAdapter<T>(
 
     override fun onCreateDefViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         return when (layoutResId) {
-            R.layout.list_item_thread, R.layout.list_item_trend -> {
+            R.layout.list_item_post, R.layout.list_item_trend -> {
                 val view = parent.getItemView(layoutResId).applyTextSizeAndLetterSpacing()
-                ThreadCardFactory.applySettings(view as MaterialCardView)
+                PostCardFactory.applySettings(view as MaterialCardView)
                 createBaseViewHolder(view)
             }
-            R.layout.list_item_reply -> {
+            R.layout.list_item_comment -> {
                 val view = parent.getItemView(layoutResId).applyTextSizeAndLetterSpacing(true)
                 createBaseViewHolder(view)
             }
@@ -116,28 +116,28 @@ class QuickAdapter<T>(
     }
 
 
-    private fun BaseViewHolder.convertThread(item: Thread, forumDisplayName: String) {
+    private fun BaseViewHolder.convertPost(item: Post, forumDisplayName: String) {
         convertUserId(item.userid, item.admin)
         convertTitleAndName(item.getSimplifiedTitle(), item.getSimplifiedName())
         convertRefId(item.id)
         convertTimeStamp(item.now)
-        convertForumAndReply(item.replyCount, forumDisplayName)
+        convertForumAndReplyCount(item.replyCount, forumDisplayName)
         convertSage(item.sage)
         convertImage(item.getImgUrl())
         convertContent(item.content)
     }
 
-    private fun BaseViewHolder.convertThreadWithPayload(
-        payload: Payload.ThreadPayload, forumDisplayName: String
+    private fun BaseViewHolder.convertPostWithPayload(
+        payload: Payload.PostPayload, forumDisplayName: String
     ) {
         convertTimeStamp(payload.now)
         convertTitleAndName(payload.title, payload.name)
-        convertForumAndReply(payload.replyCount, forumDisplayName)
+        convertForumAndReplyCount(payload.replyCount, forumDisplayName)
         convertSage(payload.sage)
         convertContent(payload.content)
     }
 
-    private fun BaseViewHolder.convertReply(item: Reply, po: String) {
+    private fun BaseViewHolder.convertComment(item: Comment, po: String) {
         convertUserId(item.userid, item.admin, po)
         convertTimeStamp(item.now)
         convertSage(item.sage)
@@ -146,14 +146,14 @@ class QuickAdapter<T>(
         convertContent(item.content, referenceClickListener, item.visible)
         convertTitleAndName(item.getSimplifiedTitle(), item.getSimplifiedName(), item.visible)
         convertExpandSummary(item.visible)
-        hideReplyMenu()
+        hideCommentMenu()
     }
 
-    private fun BaseViewHolder.hideReplyMenu(){
-        setGone(R.id.replyMenu,true)
+    private fun BaseViewHolder.hideCommentMenu(){
+        setGone(R.id.commentMenu,true)
     }
 
-    private fun BaseViewHolder.convertReplyWithPayload(payload: Payload.ReplyPayload) {
+    private fun BaseViewHolder.convertCommentWithPayload(payload: Payload.CommentPayload) {
         convertTimeStamp(payload.now)
         convertSage(payload.sage)
         convertContent(payload.content, referenceClickListener, payload.visible)
@@ -191,7 +191,7 @@ class QuickAdapter<T>(
         setText(R.id.timestamp, ContentTransformation.transformTime(now))
     }
 
-    private fun BaseViewHolder.convertForumAndReply(replyCount: String, forumDisplayName: String) {
+    private fun BaseViewHolder.convertForumAndReplyCount(replyCount: String, forumDisplayName: String) {
         val suffix = if (replyCount.isNotBlank()) " • $replyCount" else ""
         val spannableString = SpannableString(forumDisplayName + suffix)
         spannableString.setSpan(
@@ -270,7 +270,7 @@ class QuickAdapter<T>(
             setText(
                 R.id.expandSummary,
                 context.resources.getString(
-                    R.string.checked_filtered_reply,
+                    R.string.checked_filtered_comment,
                     getView<TextView>(R.id.content).text.count()
                 )
             )
@@ -291,8 +291,8 @@ class QuickAdapter<T>(
     private class DiffItemCallback<T> : DiffUtil.ItemCallback<T>() {
         override fun areItemsTheSame(oldItem: T, newItem: T): Boolean {
             return when {
-                (oldItem is Thread && newItem is Thread) -> oldItem.id == newItem.id && oldItem.fid == newItem.fid
-                (oldItem is Reply && newItem is Reply) -> oldItem.id == newItem.id && oldItem.content == newItem.content
+                (oldItem is Post && newItem is Post) -> oldItem.id == newItem.id && oldItem.fid == newItem.fid
+                (oldItem is Comment && newItem is Comment) -> oldItem.id == newItem.id && oldItem.content == newItem.content
                         && oldItem.visible == newItem.visible
                 (oldItem is Trend && newItem is Trend) -> oldItem.id == newItem.id
                 (oldItem is String && newItem is String) -> oldItem == newItem
@@ -302,7 +302,7 @@ class QuickAdapter<T>(
 
         override fun areContentsTheSame(oldItem: T, newItem: T): Boolean {
             return when {
-                (oldItem is Thread && newItem is Thread) -> {
+                (oldItem is Post && newItem is Post) -> {
                     oldItem.now == newItem.now
                             && oldItem.sage == newItem.sage
                             && oldItem.replyCount == newItem.replyCount
@@ -310,7 +310,7 @@ class QuickAdapter<T>(
                             && oldItem.title == newItem.title
                             && oldItem.name == newItem.name
                 }
-                (oldItem is Reply && newItem is Reply) -> {
+                (oldItem is Comment && newItem is Comment) -> {
                     if (oldItem.isAd() && newItem.isAd()) true
                     else oldItem.now == newItem.now
                             && oldItem.sage == newItem.sage
@@ -326,8 +326,8 @@ class QuickAdapter<T>(
 
         override fun getChangePayload(oldItem: T, newItem: T): Any? {
             return when {
-                (oldItem is Thread && newItem is Thread) -> {
-                    Payload.ThreadPayload(
+                (oldItem is Post && newItem is Post) -> {
+                    Payload.PostPayload(
                         newItem.now,
                         newItem.content,
                         newItem.sage,
@@ -336,8 +336,8 @@ class QuickAdapter<T>(
                         newItem.getSimplifiedName()
                     )
                 }
-                (oldItem is Reply && newItem is Reply) -> {
-                    Payload.ReplyPayload(
+                (oldItem is Comment && newItem is Comment) -> {
+                    Payload.CommentPayload(
                         newItem.now,
                         newItem.content,
                         newItem.sage,
@@ -356,7 +356,7 @@ class QuickAdapter<T>(
     }
 
     internal sealed class Payload {
-        class ThreadPayload(
+        class PostPayload(
             val now: String,
             val content: String,
             val sage: String,
@@ -365,7 +365,7 @@ class QuickAdapter<T>(
             val name: String
         )
 
-        class ReplyPayload(
+        class CommentPayload(
             val now: String,
             val content: String,
             val sage: String,

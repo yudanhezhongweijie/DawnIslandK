@@ -27,7 +27,7 @@ import com.google.android.material.animation.AnimationUtils.LINEAR_OUT_SLOW_IN_I
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.FragmentPagerBinding
 import com.laotoua.dawnislandk.screens.feeds.FeedsFragment
-import com.laotoua.dawnislandk.screens.threads.ThreadsFragment
+import com.laotoua.dawnislandk.screens.posts.PostsFragment
 import com.laotoua.dawnislandk.screens.trend.TrendsFragment
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widget.popup.PostPopup
@@ -139,7 +139,7 @@ class PagerFragment : DaggerFragment() {
                 override fun getItemCount(): Int = 3
                 override fun createFragment(position: Int): Fragment {
                     return when (position) {
-                        0 -> ThreadsFragment()
+                        0 -> PostsFragment()
                         1 -> TrendsFragment()
                         2 -> FeedsFragment()
                         else -> throw Exception("unhandled pager fragment creation")
@@ -215,14 +215,14 @@ class PagerFragment : DaggerFragment() {
                         Toast.makeText(context, "还没做。。。", Toast.LENGTH_SHORT).show()
                     }
 
-                    findViewById<Button>(R.id.jumpToThread).setOnClickListener {
+                    findViewById<Button>(R.id.jumpToPost).setOnClickListener {
                         val threadId = findViewById<TextView>(R.id.searchInputText).text
                             .filter { it.isDigit() }.toString()
                         if (threadId.isNotEmpty()) {
                             // Does not have fid here. fid will be generated when data comes back in reply
-                            sharedVM.setThread(threadId)
+                            sharedVM.setPost(threadId)
                             dismiss()
-                            (requireActivity() as MainActivity).showReply()
+                            (requireActivity() as MainActivity).showComment()
                         } else {
                             Toast.makeText(
                                 context,

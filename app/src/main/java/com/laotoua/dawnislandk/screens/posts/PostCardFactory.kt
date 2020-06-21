@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.screens.threads
+package com.laotoua.dawnislandk.screens.posts
 
 import android.view.ViewGroup
 import android.widget.TextView
@@ -9,7 +9,7 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.util.Constants
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 
-object ThreadCardFactory {
+object PostCardFactory {
 
     private var defaultCardViewPadding = 15
     private var defaultCardViewMarginStart = 10

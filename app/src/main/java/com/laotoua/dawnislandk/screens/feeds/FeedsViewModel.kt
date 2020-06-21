@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
-import com.laotoua.dawnislandk.data.local.Thread
+import com.laotoua.dawnislandk.data.local.Post
 import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.data.repository.DataResource
@@ -18,10 +18,10 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class FeedsViewModel @Inject constructor(private val webService: NMBServiceClient) : ViewModel() {
-    private val feedsList = mutableListOf<Thread>()
+    private val feedsList = mutableListOf<Post>()
     private val feedsIds = mutableSetOf<String>()
-    private var _feeds = MutableLiveData<List<Thread>>()
-    val feeds: LiveData<List<Thread>> get() = _feeds
+    private var _feeds = MutableLiveData<List<Post>>()
+    val feeds: LiveData<List<Post>> get() = _feeds
     private var nextPage = 1
     private var _loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
     val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>>
@@ -81,7 +81,7 @@ class FeedsViewModel @Inject constructor(private val webService: NMBServiceClien
         }
     }
 
-    private fun convertFeedData(data: List<Thread>): Boolean {
+    private fun convertFeedData(data: List<Post>): Boolean {
         if (data.isEmpty()) {
             if (nextPage > 1) {
                 nextPage -= 1

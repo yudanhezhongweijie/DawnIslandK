@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.screens.replys
+package com.laotoua.dawnislandk.screens.comments
 
 import android.content.Context
 import android.widget.Button

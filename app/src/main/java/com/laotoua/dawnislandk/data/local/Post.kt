@@ -3,12 +3,13 @@ package com.laotoua.dawnislandk.data.local
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import java.util.*
 
 @JsonClass(generateAdapter = true)
 @Entity
-data class Thread(
+data class Post(
     @PrimaryKey val id: String, //	该串的id
     var fid: String = "", //	该串的fid, 非时间线的串会被设置
     var category: String = "",
@@ -23,9 +24,8 @@ data class Thread(
     val sage: String = "", // sage
     val admin: String = "0", //admin 	是否是酷炫红名，如果是酷炫红名则userid为红名id
     val status: String = "", //
-    @Ignore var replys: List<Reply> = emptyList(), //replys 	主页展示回复的帖子
+    @Json(name = "replys") @Ignore var comments: List<Comment> = emptyList(), //replys 	主页展示回复的帖子
     val replyCount: String = "", //replyCount 	总共有多少个回复
-    var readingProgress: Int = 1, // 记录上次看到的进度
     var lastUpdatedAt: Long = 0
 ) {
     // Room uses this
@@ -45,7 +45,6 @@ data class Thread(
         admin: String,
         status: String,
         replyCount: String,
-        readingProgress: Int,
         lastUpdatedAt: Long
     ) : this(
         id,
@@ -64,12 +63,11 @@ data class Thread(
         status,
         emptyList(),
         replyCount,
-        readingProgress,
         lastUpdatedAt
     )
 
     // convert threadList to Reply
-    fun toReply() = Reply(
+    fun toComment() = Comment(
         id = id,
         userid = userid,
         name = name,
@@ -89,22 +87,42 @@ data class Thread(
     fun getSimplifiedTitle(): String = if (title.isNotBlank() && title != "无标题") "标题：$title" else ""
     fun getSimplifiedName(): String = if (name.isNotBlank() && name != "无名氏") "名称：$name" else ""
 
-    fun equalsWithServerData(target: Thread?): Boolean =
-        if (target == null) false
-        else id == target.id && fid == target.fid
-                && category == target.category && img == target.img
-                && ext == target.ext && now == target.now
-                && userid == target.userid && name == target.name
-                && email == target.email && title == target.title
-                && content == target.content && sage == target.sage
-                && admin == target.admin && status == target.status
-                && replyCount == target.replyCount
+    override fun equals(other: Any?) =
+        if (other is Post) {
+            id == other.id && fid == other.fid
+                    && category == other.category && img == other.img
+                    && ext == other.ext && now == other.now
+                    && userid == other.userid && name == other.name
+                    && email == other.email && title == other.title
+                    && content == other.content && sage == other.sage
+                    && admin == other.admin && status == other.status
+                    && replyCount == other.replyCount
+        } else false
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + fid.hashCode()
+        result = 31 * result + category.hashCode()
+        result = 31 * result + img.hashCode()
+        result = 31 * result + ext.hashCode()
+        result = 31 * result + now.hashCode()
+        result = 31 * result + userid.hashCode()
+        result = 31 * result + name.hashCode()
+        result = 31 * result + email.hashCode()
+        result = 31 * result + title.hashCode()
+        result = 31 * result + content.hashCode()
+        result = 31 * result + sage.hashCode()
+        result = 31 * result + admin.hashCode()
+        result = 31 * result + status.hashCode()
+        result = 31 * result + replyCount.hashCode()
+        return result
+    }
 
     fun setUpdatedTimestamp(time: Long? = null) {
         lastUpdatedAt = time ?: Date().time
     }
 
-    fun stripCopy():Thread =
+    fun stripCopy(): Post =
         copy(
             id = id,
             fid = fid,
@@ -120,9 +138,9 @@ data class Thread(
             sage = sage,
             admin = admin,
             status = status,
-            replys = emptyList(),
+            comments = emptyList(),
             replyCount = replyCount,
-            readingProgress = readingProgress,
-            lastUpdatedAt = lastUpdatedAt)
+            lastUpdatedAt = lastUpdatedAt
+        )
 
 }

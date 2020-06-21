@@ -4,8 +4,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
-import android.view.View
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.Observer
@@ -21,8 +19,8 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.Forum
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
 import com.laotoua.dawnislandk.screens.adapters.QuickNodeAdapter
-import com.laotoua.dawnislandk.screens.replys.QuotePopup
-import com.laotoua.dawnislandk.screens.replys.ReplysFragment
+import com.laotoua.dawnislandk.screens.comments.QuotePopup
+import com.laotoua.dawnislandk.screens.comments.CommentsFragment
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbarInitialization
 import com.laotoua.dawnislandk.screens.widget.popup.ImageLoader
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
@@ -182,7 +180,7 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
          */
         if (!QuotePopup.ensureQuotePopupDismissal()) return
 
-        if (hideReply()) return
+        if (hideComment()) return
 
         if (binding.drawerLayout.isOpen) {
             binding.drawerLayout.close()
@@ -208,25 +206,25 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
         mHandler.removeCallbacks(mRunnable)
     }
 
-    fun showReply() {
-        var replyFrag = supportFragmentManager.findFragmentByTag("reply")
-        if (replyFrag == null) {
-            replyFrag = ReplysFragment()
+    fun showComment() {
+        var commentFrag = supportFragmentManager.findFragmentByTag("comment")
+        if (commentFrag == null) {
+            commentFrag = CommentsFragment()
             supportFragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
-                .add(R.id.navHostFragment, replyFrag, "reply")
+                .add(R.id.navHostFragment, commentFrag, "comment")
                 .addToBackStack(null).commit()
         } else {
             supportFragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
-                .show(replyFrag)
-                .runOnCommit { replyFrag.onResume() }
+                .show(commentFrag)
+                .runOnCommit { commentFrag.onResume() }
                 .commit()
         }
     }
 
-    fun hideReply(): Boolean {
-        supportFragmentManager.findFragmentByTag("reply")?.let {
+    fun hideComment(): Boolean {
+        supportFragmentManager.findFragmentByTag("comment")?.let {
             if (!it.isHidden) {
                 it.onPause()
                 supportFragmentManager.beginTransaction()

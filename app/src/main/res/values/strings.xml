@@ -50,11 +50,11 @@
     <string name="need_cookie_to_read" translatable="false">没有饼干! 不能看99页以后的内容...</string>
     <string name="post" translatable="false">发布</string>
     <string name="search" translatable="false">搜索</string>
-    <string name="jump_to_thread" translatable="false">跳转至串</string>
-    <string name="post_new_thread" translatable="false">发布新串</string>
+    <string name="jump_to_post" translatable="false">跳转至串</string>
+    <string name="new_post" translatable="false">发布新串</string>
     <string name="please_comply_rules" translatable="false">请遵守A岛版规</string>
     <string name="acknowledge_post_rules" translatable="false">我已阅读理解并同意遵守全部版规和免责声明</string>
-    <string name="reply" translatable="false">回复</string>
+    <string name="new_comment" translatable="false">回复</string>
     <string name="reply_comment" translatable="false">回复评论</string>
     <string name="copy_comment" translatable="false">复制评论</string>
     <string name="my_feed" translatable="false">我的订阅</string>
@@ -79,7 +79,7 @@
     <string name="need_read_storage_permission" translatable="false">需要读取外部存储权限</string>
     <string name="need_write_storage_permission" translatable="false">需要写入外部存储权限</string>
     <string name="need_take_picture_permission" translatable="false">需要拍照权限</string>
-    <string name="thread_id_copied" translatable="false">串号已复制</string>
+    <string name="post_id_copied" translatable="false">串号已复制</string>
     <string name="comment_copied" translatable="false">评论已复制</string>
     <string name="restart_to_apply_setting" translatable="false">设置将在重启后生效</string>
     <string name="save_image_selection" translatable="false">要保存图片吗?</string>
@@ -89,7 +89,7 @@
     <string name="something_went_wrong" translatable="false">发生未知错误...</string>
     <string name="image_saved" translatable="false">图片保存在Pictures/Dawn</string>
     <string name="image_already_exists_in_picture" translatable="false">已保存图片，同时检测到图库中有相同名字的图片。默认图库可能不会显示新图片，但是在文件管理器下可见，请勿重复保存</string>
-    <string name="didnt_get_cookie_from_image" translatable="false">没有读取到饼干。。请检查图片</string>
+    <string name="did_not_get_cookie_from_image" translatable="false">没有读取到饼干。。请检查图片</string>
     <string name="press_again_to_exit" translatable="false">再按一次以退出应用</string>
     <string name="radius" translatable="false">圆角</string>
     <string name="elevation" translatable="false">阴影</string>
@@ -110,13 +110,13 @@
     <string name="sample_ref_id" translatable="false">No.23333333</string>
     <string name="ref_id_formatted" translatable="false">No.%s</string>
     <string name="sample_user_id" translatable="false">UserId</string>
-    <string name="sample_reply_content" translatable="false">测试测试测试</string>
+    <string name="sample_comment_content" translatable="false">测试测试测试</string>
     <string name="sample_timestamp_plain" translatable="false">2/7 23:23:12</string>
     <string name="sample_title_and_name" translatable="false">标题：哈哈哈\n作者：咩咩咩</string>
     <string name="number_prefix" translatable="false">No.</string>
     <string name="sample_timestamp_simplified" translatable="false">2小时前</string>
-    <string name="sample_forum_and_reply" translatable="false">欢乐恶搞 · 12</string>
-    <string name="sample_thread_content" translatable="false">北分则易红在保，干品政两报米术，料询容保美。\n该府术没也例空解，法露作长心录。 六深事会部青目传向市始，西法医很呀体近数片。\n活林变须阶候业精六只团起已市，下头却广局正支。</string>
+    <string name="sample_forum_and_reply_count" translatable="false">欢乐恶搞 · 12</string>
+    <string name="sample_post_content" translatable="false">北分则易红在保，干品政两报米术，料询容保美。\n该府术没也例空解，法露作长心录。 六深事会部青目传向市始，西法医很呀体近数片。\n活林变须阶候业精六只团起已市，下头却广局正支。</string>
     <string name="image_description" translatable="false">图片</string>
     <string name="sample_trend_rank" translatable="false">13</string>
     <string name="sample_forum" translatable="false">欢乐恶搞</string>
@@ -127,7 +127,7 @@
     <string name="page_jump" translatable="false">跳页</string>
     <string name="subscribe" translatable="false">收藏</string>
     <string name="see_po_only" translatable="false">只看Po</string>
-    <string name="copy_thread_id" translatable="false">复制串号</string>
+    <string name="copy_post_id" translatable="false">复制串号</string>
     <string name="please_select_target_forum" translatable="false">请选择发布板块</string>
     <string name="cookie_name" translatable="false">饼干名字</string>
     <string name="cookie_hash" translatable="false">饼干序列</string>
@@ -135,14 +135,14 @@
     <string name="saves_reading_progress" translatable="false">是否保存阅读进度</string>
     <string name="reading_progress_on" translatable="false">打开串会跳转到上次看到的页面</string>
     <string name="reading_progress_off" translatable="false">打开串会在首页</string>
-    <string name="reply_filter_off" translatable="false">回复过滤关闭</string>
-    <string name="reply_filter_on" translatable="false">回复过滤开启。新的回复将被过滤</string>
-    <string name="checked_filtered_reply" translatable="false">查看%dcm小秘密</string>
+    <string name="comment_filter_off" translatable="false">评论过滤关闭</string>
+    <string name="comment_filter_on" translatable="false">评论过滤开启。新的评论将被过滤</string>
+    <string name="checked_filtered_comment" translatable="false">查看隐藏%dcm</string>
     <string name="transparent_white" translatable="false">(*´∀`)简约黑白</string>
     <string name="colorful" translatable="false">炫酷全彩(つд⊂)</string>
-    <string name="clear_reply_cache" translatable="false">清除本地回复缓存</string>
-    <string name="clear_reply_cache_confirm_message" translatable="false">将要清除串回复的缓存，不会清除阅读进度和饼干。清除后数据不能回复！确认清除吗？</string>
-    <string name="cleared_reply_cache_message" translatable="false">串回复的缓存已经清除</string>
+    <string name="clear_comment_cache" translatable="false">清除本地回复缓存</string>
+    <string name="clear_comment_cache_confirm_message" translatable="false">将要清除串回复的缓存，不会清除阅读进度和饼干。清除后数据不能恢复！确认清除吗？</string>
+    <string name="cleared_comment_cache_message" translatable="false">串回复的缓存已经清除</string>
     <string name="acknowledge" translatable="false">我知道了</string>
     <string name="report">举报</string>
     <string name="found_new_version">检测到新版本</string>

@@ -10,8 +10,8 @@ data class Trend(
     val id: String,
     val content: String
 ) {
-    fun toThread(fid: String): Thread {
-        return Thread(
+    fun toPost(fid: String): Post {
+        return Post(
             id = id,
             fid = fid,
             img = "",

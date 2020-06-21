@@ -1,10 +1,10 @@
-package com.laotoua.dawnislandk.screens.threads
+package com.laotoua.dawnislandk.screens.posts
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.laotoua.dawnislandk.data.local.Thread
+import com.laotoua.dawnislandk.data.local.Post
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.data.repository.DataResource
 import com.laotoua.dawnislandk.util.EventPayload
@@ -14,11 +14,11 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
-class ThreadsViewModel @Inject constructor(private val webService: NMBServiceClient) : ViewModel() {
-    private val threadList = mutableListOf<Thread>()
-    private val threadIds = mutableSetOf<String>()
-    private var _threads = MutableLiveData<MutableList<Thread>>()
-    val threads: LiveData<MutableList<Thread>> get() = _threads
+class PostsViewModel @Inject constructor(private val webService: NMBServiceClient) : ViewModel() {
+    private val postList = mutableListOf<Post>()
+    private val postIds = mutableSetOf<String>()
+    private var _posts = MutableLiveData<MutableList<Post>>()
+    val posts: LiveData<MutableList<Post>> get() = _posts
     private var _currentFid: String? = null
     val currentFid: String? get() = _currentFid
     private var pageCount = 1
@@ -27,7 +27,7 @@ class ThreadsViewModel @Inject constructor(private val webService: NMBServiceCli
     val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>>
         get() = _loadingStatus
 
-    fun getThreads() {
+    fun getPosts() {
         viewModelScope.launch {
             _loadingStatus.postValue(
                 SingleLiveEvent.create(
@@ -36,7 +36,7 @@ class ThreadsViewModel @Inject constructor(private val webService: NMBServiceCli
             )
             val fid = _currentFid ?: "-1"
             Timber.d("Getting threads from $fid on page $pageCount")
-            DataResource.create(webService.getThreads(fid, pageCount)).run {
+            DataResource.create(webService.getPosts(fid, pageCount)).run {
                 when (this) {
                     is DataResource.Error -> {
                         Timber.e(message)
@@ -55,18 +55,18 @@ class ThreadsViewModel @Inject constructor(private val webService: NMBServiceCli
         }
     }
 
-    private fun convertServerData(data: List<Thread>, fid: String) {
+    private fun convertServerData(data: List<Post>, fid: String) {
         // assign fid if not timeline
         if (fid != "-1") data.map { it.fid = fid }
-        val noDuplicates = data.filterNot { threadIds.contains(it.id) }
+        val noDuplicates = data.filterNot { postIds.contains(it.id) }
         pageCount += 1
         if (noDuplicates.isNotEmpty()) {
-            threadIds.addAll(noDuplicates.map { it.id })
-            threadList.addAll(noDuplicates)
+            postIds.addAll(noDuplicates.map { it.id })
+            postList.addAll(noDuplicates)
             Timber.d(
-                "New thread + ads has size of ${noDuplicates.size}, threadIds size ${threadIds.size}, Forum $currentFid now have ${threadList.size} threads"
+                "New thread + ads has size of ${noDuplicates.size}, threadIds size ${postIds.size}, Forum $currentFid now have ${postList.size} threads"
             )
-            _threads.postValue(threadList)
+            _posts.postValue(postList)
             _loadingStatus.postValue(
                 SingleLiveEvent.create(
                     LoadingStatus.SUCCESS
@@ -75,26 +75,26 @@ class ThreadsViewModel @Inject constructor(private val webService: NMBServiceCli
             // possible page X+1's data is identical page X's data when server updates too quickly
         } else {
             Timber.d("Last page were all duplicates. Making new request")
-            getThreads()
+            getPosts()
         }
     }
 
     fun setForum(fid: String) {
         if (fid == currentFid) return
         Timber.i("Forum has changed. Cleaning old threads...")
-        threadList.clear()
-        threadIds.clear()
+        postList.clear()
+        postIds.clear()
         Timber.d("Setting new forum: $fid")
         _currentFid = fid
         pageCount = 1
-        getThreads()
+        getPosts()
     }
 
     fun refresh() {
         Timber.d("Refreshing forum $currentFid...")
-        threadList.clear()
-        threadIds.clear()
+        postList.clear()
+        postIds.clear()
         pageCount = 1
-        getThreads()
+        getPosts()
     }
 }

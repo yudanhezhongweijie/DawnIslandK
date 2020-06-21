@@ -40,7 +40,7 @@ class QRCookieActivity : CaptureActivity() {
                     } else {
                         Toast.makeText(
                             this@QRCookieActivity,
-                            R.string.didnt_get_cookie_from_image,
+                            R.string.did_not_get_cookie_from_image,
                             Toast.LENGTH_SHORT
                         ).show()
                     }

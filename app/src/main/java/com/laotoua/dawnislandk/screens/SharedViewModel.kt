@@ -14,10 +14,10 @@ class SharedViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
     ViewModel() {
     private var _selectedForumId = MutableLiveData<String>()
     val selectedForumId: LiveData<String> get() = _selectedForumId
-    private var _selectedThreadId = MutableLiveData<String>()
-    val selectedThreadId: LiveData<String> get() = _selectedThreadId
-    private var _selectedThreadFid: String = "-1"
-    val selectedThreadFid get() = _selectedThreadFid
+    private var _selectedPostId = MutableLiveData<String>()
+    val selectedPostId: LiveData<String> get() = _selectedPostId
+    private var _selectedPostFid: String = "-1"
+    val selectedPostFid get() = _selectedPostFid
 
     private lateinit var forumNameMapping: Map<String, String>
     private lateinit var forumMsgMapping: Map<String, String>
@@ -31,15 +31,15 @@ class SharedViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
         _selectedForumId.value = f.id
     }
 
-    fun setThread(id: String, fid: String? = null) {
+    fun setPost(id: String, fid: String? = null) {
         Timber.d("Setting thread to $id and fid to $fid")
-        fid?.let { _selectedThreadFid = it }
-        _selectedThreadId.value = id
+        fid?.let { _selectedPostFid = it }
+        _selectedPostId.value = id
     }
 
-    fun setThreadFid(fid: String) {
-        Timber.d("Setting missing fid to $fid for thread $selectedThreadId")
-        _selectedThreadFid = fid
+    fun setPostFid(fid: String) {
+        Timber.d("Setting missing fid to $fid for thread $selectedPostId")
+        _selectedPostFid = fid
     }
 
     fun setForumMappings(list: List<Forum>) {
@@ -65,7 +65,7 @@ class SharedViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
 
     fun getForumDisplayName(id: String): String = forumNameMapping[id] ?: ""
 
-    fun getSelectedThreadForumName(): String = getForumDisplayName(_selectedThreadFid)
+    fun getSelectedPostForumName(): String = getForumDisplayName(_selectedPostFid)
 
     fun getToolbarTitle(): String = toolbarTitle
 

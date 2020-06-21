@@ -57,5 +57,5 @@ data class LuweiNotice(
     )
 
     @JsonClass(generateAdapter = true)
-    data class WhiteList(val date: Long, val threads: List<String>)
+    data class WhiteList(val date: Long, @Json(name = "threads") val posts: List<String>)
 }

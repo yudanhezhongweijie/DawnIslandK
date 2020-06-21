@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.data.local.Thread
+import com.laotoua.dawnislandk.data.local.Post
 import com.laotoua.dawnislandk.databinding.FragmentFeedBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.PagerFragment
@@ -73,12 +73,12 @@ class FeedsFragment : DaggerFragment() {
 
         val imageLoader = ImageLoader()
 
-        val mAdapter = QuickAdapter<Thread>(R.layout.list_item_thread, sharedVM).apply {
+        val mAdapter = QuickAdapter<Post>(R.layout.list_item_post, sharedVM).apply {
             setOnItemClickListener { _, _, position ->
                 getItem(position).run {
-                    sharedVM.setThread(id,fid)
+                    sharedVM.setPost(id,fid)
                 }
-                (requireActivity() as MainActivity).showReply()
+                (requireActivity() as MainActivity).showComment()
             }
 
             // long click to delete

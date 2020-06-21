@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.screens.replys
+package com.laotoua.dawnislandk.screens.comments
 
 
 import android.animation.Animator
@@ -15,7 +15,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.text.toSpannable
 import androidx.core.view.isVisible
@@ -31,8 +30,8 @@ import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.google.android.material.animation.AnimationUtils
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.data.local.Reply
-import com.laotoua.dawnislandk.databinding.FragmentReplyBinding
+import com.laotoua.dawnislandk.data.local.Comment
+import com.laotoua.dawnislandk.databinding.FragmentCommentBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
@@ -56,17 +55,17 @@ import timber.log.Timber
 import javax.inject.Inject
 
 
-class ReplysFragment : DaggerFragment() {
+class CommentsFragment : DaggerFragment() {
 
-    private var _binding: FragmentReplyBinding? = null
+    private var _binding: FragmentCommentBinding? = null
     private val binding get() = _binding!!
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
-    private val viewModel: ReplysViewModel by viewModels { viewModelFactory }
+    private val viewModel: CommentsViewModel by viewModels { viewModelFactory }
     private val sharedVM: SharedViewModel by activityViewModels { viewModelFactory }
 
-    private var _mAdapter: QuickAdapter<Reply>? = null
+    private var _mAdapter: QuickAdapter<Comment>? = null
     private val mAdapter get() = _mAdapter!!
 
     // last visible item indicates the current page, uses for remembering last read page
@@ -108,7 +107,7 @@ class ReplysFragment : DaggerFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentReplyBinding.inflate(inflater, container, false)
+        _binding = FragmentCommentBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -122,7 +121,7 @@ class ReplysFragment : DaggerFragment() {
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             setNavigationIcon(R.drawable.ic_arrow_back_white_24px)
             setNavigationOnClickListener {
-                (requireActivity() as MainActivity).hideReply()
+                (requireActivity() as MainActivity).hideComment()
             }
             setOnClickListener(
                 DoubleClickListener(callback = object : DoubleClickListener.DoubleClickCallBack {
@@ -137,11 +136,11 @@ class ReplysFragment : DaggerFragment() {
         val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext(), sharedVM) }
         val jumpPopup: JumpPopup by lazyOnMainOnly { JumpPopup(requireContext()) }
 
-        _mAdapter = QuickAdapter<Reply>(R.layout.list_item_reply, sharedVM).apply {
+        _mAdapter = QuickAdapter<Comment>(R.layout.list_item_comment, sharedVM).apply {
             setReferenceClickListener(object : ReferenceSpan.ReferenceClickHandler {
                 override fun handleReference(id: String) {
                     QuotePopup.showQuote(
-                        this@ReplysFragment,
+                        this@CommentsFragment,
                         viewModel,
                         requireContext(),
                         id,
@@ -151,13 +150,13 @@ class ReplysFragment : DaggerFragment() {
             })
 
             setOnItemClickListener { _, _, pos ->
-                toggleReplyMenuOnPos(pos)
+                toggleCommentMenuOnPos(pos)
             }
 
             addChildClickViewIds(
                 R.id.attachedImage,
                 R.id.expandSummary,
-                R.id.reply,
+                R.id.comment,
                 R.id.content,
                 R.id.copy,
                 R.id.report
@@ -169,7 +168,7 @@ class ReplysFragment : DaggerFragment() {
                         val url = getItem(position).getImgUrl()
                         // TODO support multiple image
                         val viewerPopup =
-                            ImageViewerPopup(url, fragment = this@ReplysFragment)
+                            ImageViewerPopup(url, fragment = this@CommentsFragment)
                         viewerPopup.setXPopupImageLoader(imageLoader)
                         viewerPopup.setSingleSrcView(view as ImageView?, url)
 
@@ -177,10 +176,10 @@ class ReplysFragment : DaggerFragment() {
                             .asCustom(viewerPopup)
                             .show()
                     }
-                    R.id.reply -> {
+                    R.id.comment -> {
                         val content = ">>No.${getItem(position).id}\n"
                         postPopup.setupAndShow(
-                            viewModel.currentThreadId,
+                            viewModel.currentPostId,
                             quote = content
                         )
                     }
@@ -268,10 +267,10 @@ class ReplysFragment : DaggerFragment() {
                 isActivated = isActivated.not()
                 if (!isActivated) {
                     viewModel.clearFilter()
-                    Toast.makeText(context, R.string.reply_filter_off, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, R.string.comment_filter_off, Toast.LENGTH_SHORT).show()
                 } else {
                     viewModel.onlyPo()
-                    Toast.makeText(context, R.string.reply_filter_on, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, R.string.comment_filter_on, Toast.LENGTH_SHORT).show()
                 }
                 (binding.recyclerView.layoutManager as LinearLayoutManager).run {
                     val startPos = findFirstVisibleItemPosition()
@@ -282,12 +281,12 @@ class ReplysFragment : DaggerFragment() {
         }
 
         binding.copyId.setOnClickListener {
-            copyText("串号", ">>No.${viewModel.currentThreadId}")
+            copyText("串号", ">>No.${viewModel.currentPostId}")
         }
 
         binding.post.setOnClickListener {
             val page = getCurrentPage(mAdapter)
-            postPopup.setupAndShow(viewModel.currentThreadId) {
+            postPopup.setupAndShow(viewModel.currentPostId) {
                 if (page == viewModel.maxPage) {
                     mAdapter.loadMoreModule.loadMoreToLoading()
                 }
@@ -316,7 +315,7 @@ class ReplysFragment : DaggerFragment() {
         }
 
         binding.addFeed.setOnClickListener {
-            viewModel.addFeed(applicationDataStore.feedId, viewModel.currentThreadId)
+            viewModel.addFeed(applicationDataStore.feedId, viewModel.currentPostId)
         }
     }
 
@@ -326,14 +325,14 @@ class ReplysFragment : DaggerFragment() {
         }
     }
 
-    private val selectedThreadIdObs = Observer<String> {
-        if (it != viewModel.currentThreadId) {
+    private val selectedPostIdObs = Observer<String> {
+        if (it != viewModel.currentPostId) {
             mAdapter.setList(emptyList())
             binding.pageCounter.text = ""
             currentPage = 0
             showMenu()
         }
-        viewModel.setThreadId(it)
+        viewModel.setPostId(it)
         updateTitle()
     }
 
@@ -343,11 +342,11 @@ class ReplysFragment : DaggerFragment() {
         }
     }
 
-    private val replysObs = Observer<MutableList<Reply>> {
+    private val commentsObs = Observer<MutableList<Comment>> {
         if (it.isEmpty()) return@Observer
         if (mAdapter.data.isEmpty()) updateCurrentPage(it.first().page)
-        if (sharedVM.selectedThreadFid != viewModel.currentThreadFid) {
-            sharedVM.setThreadFid(viewModel.currentThreadFid)
+        if (sharedVM.selectedPostFid != viewModel.currentPostFid) {
+            sharedVM.setPostFid(viewModel.currentPostFid)
             updateTitle()
         }
         mAdapter.setDiffNewData(it.toMutableList())
@@ -357,16 +356,16 @@ class ReplysFragment : DaggerFragment() {
 
     private fun subscribeUI() {
         viewModel.addFeedResponse.observe(viewLifecycleOwner, addFeedObs)
-        sharedVM.selectedThreadId.observe(viewLifecycleOwner, selectedThreadIdObs)
+        sharedVM.selectedPostId.observe(viewLifecycleOwner, selectedPostIdObs)
         viewModel.loadingStatus.observe(viewLifecycleOwner, loadingStatusObs)
-        viewModel.replys.observe(viewLifecycleOwner, replysObs)
+        viewModel.comments.observe(viewLifecycleOwner, commentsObs)
     }
 
     private fun unsubscribeUI() {
         viewModel.addFeedResponse.removeObserver(addFeedObs)
-        sharedVM.selectedThreadId.removeObserver(selectedThreadIdObs)
+        sharedVM.selectedPostId.removeObserver(selectedPostIdObs)
         viewModel.loadingStatus.removeObserver(loadingStatusObs)
-        viewModel.replys.removeObserver(replysObs)
+        viewModel.comments.removeObserver(commentsObs)
     }
 
     override fun onPause() {
@@ -382,12 +381,12 @@ class ReplysFragment : DaggerFragment() {
     private fun copyText(label: String, text: String) {
         getSystemService(requireContext(), ClipboardManager::class.java)
             ?.setPrimaryClip(ClipData.newPlainText(label, text))
-        if (label == "串号") Toast.makeText(context, R.string.thread_id_copied, Toast.LENGTH_SHORT)
+        if (label == "串号") Toast.makeText(context, R.string.post_id_copied, Toast.LENGTH_SHORT)
             .show()
         else Toast.makeText(context, R.string.comment_copied, Toast.LENGTH_SHORT).show()
     }
 
-    private fun getCurrentPage(adapter: QuickAdapter<Reply>): Int {
+    private fun getCurrentPage(adapter: QuickAdapter<Comment>): Int {
         val pos = (binding.recyclerView.layoutManager as LinearLayoutManager)
             .findLastVisibleItemPosition()
             .coerceAtLeast(0)
@@ -455,7 +454,7 @@ class ReplysFragment : DaggerFragment() {
 
     private fun updateTitle() {
         binding.toolbar.title =
-            "${sharedVM.getSelectedThreadForumName()} • ${viewModel.currentThreadId}"
+            "${sharedVM.getSelectedPostForumName()} • ${viewModel.currentPostId}"
     }
 
     private fun updateCurrentPage(page: Int) {
@@ -470,9 +469,9 @@ class ReplysFragment : DaggerFragment() {
 
     private var menuPos = -1
 
-    private fun showReplyMenuOnPos(pos: Int) {
+    private fun showCommentMenuOnPos(pos: Int) {
         menuPos = pos
-        mAdapter.getViewByPosition(pos, R.id.replyMenu)?.apply {
+        mAdapter.getViewByPosition(pos, R.id.commentMenu)?.apply {
             visibility = View.VISIBLE
             animate()
                 .alpha(1f)
@@ -481,9 +480,9 @@ class ReplysFragment : DaggerFragment() {
         }
     }
 
-    private fun hideReplyMenuOnPos(pos: Int) {
+    private fun hideCommentMenuOnPos(pos: Int) {
         if (menuPos < 0) return
-        mAdapter.getViewByPosition(pos, R.id.replyMenu)?.apply {
+        mAdapter.getViewByPosition(pos, R.id.commentMenu)?.apply {
             animate()
                 .alpha(0f)
                 .setDuration(150)
@@ -495,13 +494,13 @@ class ReplysFragment : DaggerFragment() {
         }
     }
 
-    private fun toggleReplyMenuOnPos(pos: Int) {
-        mAdapter.getViewByPosition(pos, R.id.replyMenu)?.apply {
+    private fun toggleCommentMenuOnPos(pos: Int) {
+        mAdapter.getViewByPosition(pos, R.id.commentMenu)?.apply {
             if (isVisible) {
-                hideReplyMenuOnPos(pos)
+                hideCommentMenuOnPos(pos)
             } else {
-                hideReplyMenuOnPos(menuPos)
-                showReplyMenuOnPos(pos)
+                hideCommentMenuOnPos(menuPos)
+                showCommentMenuOnPos(pos)
             }
         }
     }

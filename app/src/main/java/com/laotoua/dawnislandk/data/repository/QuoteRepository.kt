@@ -4,9 +4,9 @@ import android.util.LongSparseArray
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
-import com.laotoua.dawnislandk.data.local.Reply
-import com.laotoua.dawnislandk.data.local.dao.ReplyDao
-import com.laotoua.dawnislandk.data.local.dao.ThreadDao
+import com.laotoua.dawnislandk.data.local.Comment
+import com.laotoua.dawnislandk.data.local.dao.CommentDao
+import com.laotoua.dawnislandk.data.local.dao.PostDao
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.util.EventPayload
@@ -18,16 +18,16 @@ import javax.inject.Inject
 
 class QuoteRepository @Inject constructor(
     private val webService: NMBServiceClient,
-    private val replyDao: ReplyDao,
-    private val threadDao: ThreadDao
+    private val commentDao: CommentDao,
+    private val postDao: PostDao
 ) {
     // remember last 30 quote
     private val cacheCap = 30
-    private val quoteMap = LongSparseArray<LiveData<Reply>>(cacheCap)
+    private val quoteMap = LongSparseArray<LiveData<Comment>>(cacheCap)
     private val fifoQuoteList = mutableListOf<Long>()
     val quoteLoadingStatus = MutableLiveData<EventPayload<String>>()
 
-    fun getQuote(id: String): LiveData<Reply> {
+    fun getQuote(id: String): LiveData<Comment> {
         val idLong = id.toLong()
         if (quoteMap[idLong] == null) {
             addQuoteToCache(idLong, getLiveQuote(id, idLong))
@@ -35,8 +35,8 @@ class QuoteRepository @Inject constructor(
         return quoteMap[idLong]
     }
 
-    private fun getLiveQuote(id: String, idLong: Long) = liveData<Reply>(Dispatchers.IO) {
-        val cache = replyDao.findDistinctReplyById(id)
+    private fun getLiveQuote(id: String, idLong: Long) = liveData<Comment>(Dispatchers.IO) {
+        val cache = commentDao.findDistinctCommentById(id)
         addQuoteToCache(idLong, cache)
         emitSource(cache)
         getServerData(id, idLong)
@@ -54,7 +54,7 @@ class QuoteRepository @Inject constructor(
                                 data.page = it.page
                                 data.parentId = it.parentId
                             }
-                            replyDao.insertWithTimeStamp(data)
+                            commentDao.insertWithTimeStamp(data)
                         }
                     }
 
@@ -65,7 +65,7 @@ class QuoteRepository @Inject constructor(
         }
     }
 
-    private fun addQuoteToCache(idLong: Long, quote: LiveData<Reply>) {
+    private fun addQuoteToCache(idLong: Long, quote: LiveData<Comment>) {
         quoteMap.append(idLong, quote)
         fifoQuoteList.add(idLong)
         for (i in 0 until fifoQuoteList.size - cacheCap) {

@@ -5,17 +5,19 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import com.laotoua.dawnislandk.DawnApp
-import com.laotoua.dawnislandk.data.local.Reply
-import com.laotoua.dawnislandk.data.local.Thread
-import com.laotoua.dawnislandk.data.local.dao.ReplyDao
-import com.laotoua.dawnislandk.data.local.dao.ThreadDao
+import com.laotoua.dawnislandk.data.local.Comment
+import com.laotoua.dawnislandk.data.local.Post
+import com.laotoua.dawnislandk.data.local.ReadingPage
+import com.laotoua.dawnislandk.data.local.dao.CommentDao
+import com.laotoua.dawnislandk.data.local.dao.PostDao
+import com.laotoua.dawnislandk.data.local.dao.ReadingPageDao
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.SingleLiveEvent
-import com.laotoua.dawnislandk.util.equalsWithServerReplys
+import com.laotoua.dawnislandk.util.equalsWithServerComments
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
@@ -23,47 +25,52 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
-class ReplyRepository @Inject constructor(
+class CommentRepository @Inject constructor(
     private val webService: NMBServiceClient,
-    private val replyDao: ReplyDao,
-    private val threadDao: ThreadDao
+    private val commentDao: CommentDao,
+    private val postDao: PostDao,
+    private val readingPageDao: ReadingPageDao
 ) {
-    private var _currentThreadId: String = "0"
-    val currentThreadId get() = _currentThreadId
-    private var _currentThreadFid: String = "-1"
-    val currentThreadFid get() = _currentThreadFid
-    private val currentThreadIdInt get() = currentThreadId.toInt()
+    private var _currentPostId: String = "0"
+    val currentPostId get() = _currentPostId
+    private var _currentPostFid: String = "-1"
+    val currentPostFid get() = _currentPostFid
+    private val currentPostIdInt get() = currentPostId.toInt()
 
     /** remember all pages for last 30 thread, using threadId and page as index
      * using fifoList to pop the first thread
      */
     private val cacheCap = 30
-    private val threadMap = SparseArray<Thread>(cacheCap)
-    private val replysMap = SparseArray<SparseArray<LiveData<List<Reply>>>>(cacheCap)
-    private val fifoThreadList = mutableListOf<Int>()
-    private val adMap = SparseArray<SparseArray<Reply>>()
+    private val postMap = SparseArray<Post>(cacheCap)
+    private val commentsMap = SparseArray<SparseArray<LiveData<List<Comment>>>>(cacheCap)
+    private val readingPageMap = SparseArray<ReadingPage>(cacheCap)
+    private val fifoPostList = mutableListOf<Int>()
+    private val adMap = SparseArray<SparseArray<Comment>>()
 
-    private val maxReply get() = threadMap[currentThreadIdInt]?.replyCount?.toInt() ?: 0
-    val po get() = threadMap[currentThreadIdInt]?.userid ?: ""
-    val maxPage get() = 1.coerceAtLeast(kotlin.math.ceil(maxReply.toDouble() / 19).toInt())
+    private val replyCount get() = postMap[currentPostIdInt]?.replyCount?.toInt() ?: 0
+    val po get() = postMap[currentPostIdInt]?.userid ?: ""
+    val maxPage get() = 1.coerceAtLeast(kotlin.math.ceil(replyCount.toDouble() / 19).toInt())
     val loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
     val addFeedResponse = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
 
     private var pageDownloadJob: Job? = null
     val emptyPage = MutableLiveData<Boolean>()
 
-    fun getAd(page: Int): Reply? = adMap[currentThreadIdInt]?.get(page)
+    fun getAd(page: Int): Comment? = adMap[currentPostIdInt]?.get(page)
 
-    suspend fun setThreadId(id: String) {
-        if (id == currentThreadId) return
+    suspend fun setPostId(id: String) {
+        if (id == currentPostId) return
         setLoadingStatus(LoadingStatus.LOADING)
         clearCachedPages()
         Timber.d("Setting new Thread: $id")
-        _currentThreadId = id
-        if (threadMap[currentThreadIdInt] == null) {
-            threadDao.findThreadByIdSync(id)?.let {
-                threadMap.put(currentThreadIdInt, it)
-                _currentThreadFid = it.fid
+        _currentPostId = id
+        if (postMap[currentPostIdInt] == null) {
+            postDao.findPostByIdSync(id)?.let {
+                postMap.put(currentPostIdInt, it)
+                _currentPostFid = it.fid
+            }
+            readingPageDao.getReadingPageById(id).let {
+                readingPageMap.put(currentPostIdInt, it ?: ReadingPage(currentPostId, 1))
             }
         }
     }
@@ -71,24 +78,24 @@ class ReplyRepository @Inject constructor(
     // set default page
     fun getLandingPage(): Int {
         return if (DawnApp.applicationDataStore.readingProgressStatus) {
-            threadMap[currentThreadIdInt]?.readingProgress ?: 1
+            readingPageMap[currentPostIdInt]?.page ?: 1
         } else 1
     }
 
-    fun getHeaderReply(): Reply = threadMap[currentThreadIdInt]!!.toReply()
+    fun getHeaderPost(): Comment = postMap[currentPostIdInt]!!.toComment()
 
     suspend fun saveReadingProgress(progress: Int) {
-        threadMap[currentThreadIdInt].readingProgress = progress
-        threadDao.updateReadingProgressWithTimestampById(currentThreadId, progress)
+        readingPageMap[currentPostIdInt].page = progress
+        readingPageDao.insertReadingPageWithTimeStamp(readingPageMap[currentPostIdInt])
     }
 
     private fun clearCachedPages() {
         emptyPage.value = false
-        for (i in 0 until (replysMap.size() - cacheCap)) {
-            Timber.d("Reached cache Cap. Clearing ${fifoThreadList.first()}...")
-            replysMap.delete(fifoThreadList.first())
-            threadMap.delete(fifoThreadList.first())
-            fifoThreadList.removeAt(0)
+        for (i in 0 until (commentsMap.size() - cacheCap)) {
+            Timber.d("Reached cache Cap. Clearing ${fifoPostList.first()}...")
+            commentsMap.delete(fifoPostList.first())
+            postMap.delete(fifoPostList.first())
+            fifoPostList.removeAt(0)
         }
         pageDownloadJob?.cancel()
         pageDownloadJob = null
@@ -100,20 +107,20 @@ class ReplyRepository @Inject constructor(
      *  *** here DB only store nonAd data
      */
     fun checkFullPage(page: Int): Boolean =
-        (replysMap[currentThreadIdInt]?.get(page)?.value?.size == 19)
+        (commentsMap[currentPostIdInt]?.get(page)?.value?.size == 19)
 
     fun setLoadingStatus(status: LoadingStatus, message: String? = null) =
         loadingStatus.postValue(SingleLiveEvent.create(status, message))
 
-    fun getLivePage(page: Int): LiveData<List<Reply>> {
-        if (replysMap[currentThreadIdInt] == null) {
-            replysMap.append(currentThreadIdInt, SparseArray<LiveData<List<Reply>>>())
-            fifoThreadList.add(currentThreadIdInt)
+    fun getLivePage(page: Int): LiveData<List<Comment>> {
+        if (commentsMap[currentPostIdInt] == null) {
+            commentsMap.append(currentPostIdInt, SparseArray<LiveData<List<Comment>>>())
+            fifoPostList.add(currentPostIdInt)
         }
-        replysMap[currentThreadIdInt]!!.let {
+        commentsMap[currentPostIdInt]!!.let {
             if (it[page] == null) {
-                it.append(page, liveData<List<Reply>>(Dispatchers.IO) {
-                    Timber.d("Querying data for Thread $currentThreadId on $page")
+                it.append(page, liveData<List<Comment>>(Dispatchers.IO) {
+                    Timber.d("Querying data for Thread $currentPostId on $page")
                     setLoadingStatus(LoadingStatus.LOADING)
                     emitSource(getLocalData(page))
                     pageDownloadJob = getServerData(page)
@@ -123,15 +130,15 @@ class ReplyRepository @Inject constructor(
         }
     }
 
-    private fun getLocalData(page: Int): LiveData<List<Reply>> =
-        replyDao.findDistinctPageByParentId(currentThreadId, page)
+    private fun getLocalData(page: Int): LiveData<List<Comment>> =
+        commentDao.findDistinctPageByParentId(currentPostId, page)
 
     suspend fun getServerData(page: Int): Job = coroutineScope {
         launch {
-            Timber.d("Querying remote data for Thread $currentThreadId on $page")
-            webService.getReplys(
+            Timber.d("Querying remote data for Thread $currentPostId on $page")
+            webService.getComments(
                 DawnApp.applicationDataStore.firstCookieHash,
-                currentThreadId,
+                currentPostId,
                 page
             ).run {
                 if (this is APIDataResponse.APISuccessDataResponse) convertServerData(data, page)
@@ -143,22 +150,22 @@ class ReplyRepository @Inject constructor(
         }
     }
 
-    private suspend fun convertServerData(data: Thread, page: Int) {
+    private suspend fun convertServerData(data: Post, page: Int) {
         // update current thread with latest info
-        _currentThreadFid = data.fid
-        if (!data.equalsWithServerData(threadMap[currentThreadIdInt])) {
-            saveThread(data)
+        _currentPostFid = data.fid
+        if (data != postMap[currentPostIdInt]) {
+            savePost(data)
         }
-        val noAd = mutableListOf<Reply>()
-        data.replys.map {
+        val noAd = mutableListOf<Comment>()
+        data.comments.map {
             it.page = page
-            it.parentId = currentThreadId
+            it.parentId = currentPostId
             // handle Ad
             if (it.isAd()) {
-                if (adMap[currentThreadIdInt] == null) {
-                    adMap.append(currentThreadIdInt, SparseArray<Reply>())
+                if (adMap[currentPostIdInt] == null) {
+                    adMap.append(currentPostIdInt, SparseArray<Comment>())
                 }
-                adMap[currentThreadIdInt]!!.append(page, it)
+                adMap[currentPostIdInt]!!.append(page, it)
             } else noAd.add(it)
         }
         /**
@@ -172,23 +179,21 @@ class ReplyRepository @Inject constructor(
             return
         }
 
-        if (replysMap[currentThreadIdInt]!![page]?.value.equalsWithServerReplys(noAd)) {
+        if (commentsMap[currentPostIdInt]!![page]?.value.equalsWithServerComments(noAd)) {
             if (page == maxPage) setLoadingStatus(LoadingStatus.NODATA)
             return
         }
-        Timber.d("Updating ${noAd.size} rows for $currentThreadId on $page")
-        saveReplys(noAd)
+        Timber.d("Updating ${noAd.size} rows for $currentPostId on $page")
+        saveComments(noAd)
     }
 
     // DO NOT SAVE ADS
-    private suspend fun saveReplys(replys: List<Reply>) = replyDao.insertAllWithTimeStamp(replys)
+    private suspend fun saveComments(comments: List<Comment>) =
+        commentDao.insertAllWithTimeStamp(comments)
 
-    private suspend fun saveThread(thread: Thread) {
-        threadMap[currentThreadIdInt]?.run {
-            thread.readingProgress = readingProgress
-        }
-        threadMap.put(currentThreadIdInt, thread.stripCopy())
-        threadDao.insertWithTimeStamp(thread)
+    private suspend fun savePost(post: Post) {
+        postMap.put(currentPostIdInt, post.stripCopy())
+        postDao.insertWithTimeStamp(post)
     }
 
     // TODO: do not send request if subscribe already

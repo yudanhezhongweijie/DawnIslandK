@@ -11,30 +11,31 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.laotoua.dawnislandk.data.local.*
 import com.laotoua.dawnislandk.util.Constants
-import timber.log.Timber
 
 @Database(
     entities = [Community::class,
         Cookie::class,
-        Reply::class,
-        Thread::class,
+        Comment::class,
+        Post::class,
         DailyTrend::class,
         NMBNotice::class,
         LuweiNotice::class,
-        Release::class],
-    version = 4,
+        Release::class,
+        ReadingPage::class],
+    version = 5,
     exportSchema = true
 )
 @TypeConverters(Converter::class)
 abstract class DawnDatabase : RoomDatabase() {
     abstract fun cookieDao(): CookieDao
     abstract fun communityDao(): CommunityDao
-    abstract fun replyDao(): ReplyDao
-    abstract fun threadDao(): ThreadDao
+    abstract fun commentDao(): CommentDao
+    abstract fun postDao(): PostDao
     abstract fun dailyTrendDao(): DailyTrendDao
     abstract fun nmbNoticeDao(): NMBNoticeDao
     abstract fun luweiNoticeDao(): LuweiNoticeDao
     abstract fun releaseDao(): ReleaseDao
+    abstract fun readingPageDao(): ReadingPageDao
 
     companion object {
         // Singleton prevents multiple instances of database opening at the
@@ -54,7 +55,7 @@ abstract class DawnDatabase : RoomDatabase() {
                     DawnDatabase::class.java,
                     "dawnDB"
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                     .build()
                 INSTANCE = instance
                 return instance
@@ -91,6 +92,18 @@ abstract class DawnDatabase : RoomDatabase() {
                     put("message", "default entry")
                 }
                 database.insert("Release", SQLiteDatabase.CONFLICT_REPLACE, contentValue)
+            }
+        }
+
+        // renamed Thread,Reply, moved readingProgress to its own table
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE Reply RENAME TO Comment")
+                database.execSQL("CREATE TABLE IF NOT EXISTS Post (`id` TEXT NOT NULL, `fid` TEXT NOT NULL, `category` TEXT NOT NULL, `img` TEXT NOT NULL, `ext` TEXT NOT NULL, `now` TEXT NOT NULL, `userid` TEXT NOT NULL, `name` TEXT NOT NULL, `email` TEXT NOT NULL, `title` TEXT NOT NULL, `content` TEXT NOT NULL, `sage` TEXT NOT NULL, `admin` TEXT NOT NULL, `status` TEXT NOT NULL, `replyCount` TEXT NOT NULL, `lastUpdatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))")
+                database.execSQL("INSERT INTO Post SELECT id, fid, category, img, ext, now, userid, name, email, title, content, sage, admin, status, replyCount, lastUpdatedAt FROM Thread")
+                database.execSQL("CREATE TABLE IF NOT EXISTS ReadingPage (`id` TEXT NOT NULL, `page` INTEGER NOT NULL, `lastUpdatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))")
+                database.execSQL("INSERT INTO ReadingPage (id,page,lastUpdatedAt) SELECT id,readingProgress,lastUpdatedAt FROM Thread")
+                database.execSQL("DROP Table Thread")
             }
         }
     }

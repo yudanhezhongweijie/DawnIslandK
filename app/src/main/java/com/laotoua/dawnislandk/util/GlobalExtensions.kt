@@ -1,7 +1,7 @@
 package com.laotoua.dawnislandk.util
 
-import com.laotoua.dawnislandk.data.local.Reply
-import com.laotoua.dawnislandk.data.local.Thread
+import com.laotoua.dawnislandk.data.local.Comment
+import com.laotoua.dawnislandk.data.local.Post
 
 fun <T> lazyOnMainOnly(initializer: () -> T): Lazy<T> = lazy(LazyThreadSafetyMode.NONE, initializer)
 
@@ -13,22 +13,12 @@ fun <E> MutableList<E>.addOrSet(ind: Int, element: E): Boolean {
     else set(ind, element) == element
 }
 
-fun List<Reply>?.equalsWithServerReplys(targetList: List<Reply>?): Boolean {
+fun List<Comment>?.equalsWithServerComments(targetList: List<Comment>?): Boolean {
     return if (this == null || targetList == null) false
     else if (this.size != targetList.size) false
     else {
         this.zip(targetList).all { (r1, r2) ->
             r1.equalsWithServerData(r2)
-        }
-    }
-}
-
-fun List<Thread>?.equalsWithServerThreads(targetList: List<Thread>?): Boolean {
-    return if (this == null || targetList == null) false
-    else if (this.size != targetList.size) false
-    else {
-        this.zip(targetList).all { (t1, t2) ->
-            t1.equalsWithServerData(t2)
         }
     }
 }

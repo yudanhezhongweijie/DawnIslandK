@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.DailyTrend
-import com.laotoua.dawnislandk.data.local.Thread
+import com.laotoua.dawnislandk.data.local.Post
 import com.laotoua.dawnislandk.data.local.Trend
 import com.laotoua.dawnislandk.data.local.dao.DailyTrendDao
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
@@ -46,7 +46,7 @@ class TrendRepository @Inject constructor(
     }
 
     private suspend fun getRemoteTrend() {
-        webService.getReplys(DawnApp.applicationDataStore.firstCookieHash, trendId, page).run {
+        webService.getComments(DawnApp.applicationDataStore.firstCookieHash, trendId, page).run {
             if (this is APIDataResponse.APISuccessDataResponse) {
                 if (page == 1) {
                     page = ceil(data.replyCount.toDouble() / 19).toInt()
@@ -66,8 +66,8 @@ class TrendRepository @Inject constructor(
         }
     }
 
-    private fun extractLatestTrend(data: Thread): DailyTrend? {
-        for (reply in data.replys.reversed()) {
+    private fun extractLatestTrend(data: Post): DailyTrend? {
+        for (reply in data.comments.reversed()) {
             if (reply.userid == po) {
                 val list = reply.content.split(trendDelimiter, ignoreCase = true)
                 if (list.size == trendLength) {
@@ -86,7 +86,7 @@ class TrendRepository @Inject constructor(
         return null
     }
 
-    private suspend fun convertLatestTrend(data: Thread) {
+    private suspend fun convertLatestTrend(data: Post) {
         val newDailyTrend: DailyTrend? = extractLatestTrend(data)
         if (newDailyTrend != null) {
             if (newDailyTrend.trends != dailyTrend.value?.trends) {

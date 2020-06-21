@@ -56,7 +56,7 @@ class SettingsFragment : Fragment() {
                     } else {
                         Toast.makeText(
                             context,
-                            R.string.didnt_get_cookie_from_image,
+                            R.string.did_not_get_cookie_from_image,
                             Toast.LENGTH_SHORT
                         ).show()
                     }
@@ -245,12 +245,12 @@ class SettingsFragment : Fragment() {
             }
         }
 
-        binding.clearReplyCache.apply {
-            key.setText(R.string.clear_reply_cache)
+        binding.clearCommentCache.apply {
+            key.setText(R.string.clear_comment_cache)
             root.setOnClickListener {
                 MaterialDialog(requireContext()).show {
-                    title(R.string.clear_reply_cache)
-                    message(R.string.clear_reply_cache_confirm_message)
+                    title(R.string.clear_comment_cache)
+                    message(R.string.clear_comment_cache_confirm_message)
                     cornerRadius(res = R.dimen.dp_10)
                     setActionButtonEnabled(WhichButton.POSITIVE, false)
                     checkBoxPrompt(R.string.acknowledge) { checked ->
@@ -258,10 +258,10 @@ class SettingsFragment : Fragment() {
                     }
                     positiveButton(R.string.submit) {
                         GlobalScope.launch {
-                            applicationDataStore.nukeReplyTable()
+                            applicationDataStore.nukeCommentTable()
                             Toast.makeText(
                                 context,
-                                R.string.cleared_reply_cache_message,
+                                R.string.cleared_comment_cache_message,
                                 Toast.LENGTH_SHORT
                             ).show()
                         }

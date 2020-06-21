@@ -46,21 +46,21 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
         ).fromJson(response)!!
     }
 
-    private val parseThreads: (String) -> List<Thread> = { response ->
-        moshi.adapter<List<Thread>>(
+    private val parsePosts: (String) -> List<Post> = { response ->
+        moshi.adapter<List<Post>>(
             Types.newParameterizedType(
                 List::class.java,
-                Thread::class.java
+                Post::class.java
             )
         ).fromJson(response)!!
     }
 
-    private val parseReplys: (String) -> Thread = { response ->
-        moshi.adapter(Thread::class.java).fromJson(response)!!
+    private val parseComments: (String) -> Post = { response ->
+        moshi.adapter(Post::class.java).fromJson(response)!!
     }
 
-    private val parseQuote: (String) -> Reply = { response ->
-        moshi.adapter(Reply::class.java).fromJson(response)!!
+    private val parseQuote: (String) -> Comment = { response ->
+        moshi.adapter(Comment::class.java).fromJson(response)!!
     }
 
     suspend fun getRandomReedPicture(): APIDataResponse<String> {
@@ -89,26 +89,26 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
         return APIDataResponse.create(service.getNMBForumList(), parseCommunities)
     }
 
-    suspend fun getThreads(fid: String, page: Int): APIDataResponse<List<Thread>> {
-        Timber.i("Downloading Threads on Forum $fid...")
+    suspend fun getPosts(fid: String, page: Int): APIDataResponse<List<Post>> {
+        Timber.i("Downloading Posts on Forum $fid...")
         val call =
             if (fid == "-1") service.getNMBTimeLine(page)
-            else service.getNMBThreads(fid, page)
-        return APIDataResponse.create(call, parseThreads)
+            else service.getNMBPosts(fid, page)
+        return APIDataResponse.create(call, parsePosts)
     }
 
-    suspend fun getReplys(userhash: String?, id: String, page: Int): APIDataResponse<Thread> {
-        Timber.i("Downloading Replys on Thread $id on Page $page...")
+    suspend fun getComments(userhash: String?, id: String, page: Int): APIDataResponse<Post> {
+        Timber.i("Downloading Comments on Post $id on Page $page...")
         val hash = userhash?.let { "userhash=$it" }
-        return APIDataResponse.create(service.getNMBReplys(hash, id, page), parseReplys)
+        return APIDataResponse.create(service.getNMBComments(hash, id, page), parseComments)
     }
 
-    suspend fun getFeeds(uuid: String, page: Int): APIDataResponse<List<Thread>> {
+    suspend fun getFeeds(uuid: String, page: Int): APIDataResponse<List<Post>> {
         Timber.i("Downloading Feeds on Page $page...")
-        return APIDataResponse.create(service.getNMBFeeds(uuid, page), parseThreads)
+        return APIDataResponse.create(service.getNMBFeeds(uuid, page), parsePosts)
     }
 
-    suspend fun getQuote(id: String): APIDataResponse<Reply> {
+    suspend fun getQuote(id: String): APIDataResponse<Comment> {
         Timber.i("Downloading Quote $id...")
         return APIDataResponse.create(service.getNMBQuote(id), parseQuote)
     }
@@ -139,7 +139,7 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
                 }
             }
             val call = if (newPost) {
-                service.postThread(
+                service.postNewPost(
                     targetId.toRequestBody(), name?.toRequestBody(),
                     email?.toRequestBody(), title?.toRequestBody(),
                     content?.toRequestBody(), water?.toRequestBody(),
@@ -147,7 +147,7 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
                     "userhash=$userhash"
                 )
             } else {
-                service.postReply(
+                service.postComment(
                     targetId.toRequestBody(), name?.toRequestBody(),
                     email?.toRequestBody(), title?.toRequestBody(),
                     content?.toRequestBody(), water?.toRequestBody(),

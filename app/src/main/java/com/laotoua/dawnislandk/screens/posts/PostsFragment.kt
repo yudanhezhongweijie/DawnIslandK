@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.screens.threads
+package com.laotoua.dawnislandk.screens.posts
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,8 +12,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.data.local.Thread
-import com.laotoua.dawnislandk.databinding.FragmentThreadBinding
+import com.laotoua.dawnislandk.data.local.Post
+import com.laotoua.dawnislandk.databinding.FragmentPostBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.PagerFragment
 import com.laotoua.dawnislandk.screens.SharedViewModel
@@ -29,21 +29,21 @@ import timber.log.Timber
 import javax.inject.Inject
 
 
-class ThreadsFragment : DaggerFragment() {
+class PostsFragment : DaggerFragment() {
 
-    private var _binding: FragmentThreadBinding? = null
+    private var _binding: FragmentPostBinding? = null
     private val binding get() = _binding!!
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
-    private val viewModel: ThreadsViewModel by viewModels { viewModelFactory }
+    private val viewModel: PostsViewModel by viewModels { viewModelFactory }
     private val sharedVM: SharedViewModel by activityViewModels{ viewModelFactory }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentThreadBinding.inflate(inflater, container, false)
+        _binding = FragmentPostBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -55,7 +55,7 @@ class ThreadsFragment : DaggerFragment() {
         }
 
         // initial load
-        if (viewModel.threads.value.isNullOrEmpty()) {
+        if (viewModel.posts.value.isNullOrEmpty()) {
             binding.refreshLayout.autoRefresh(
                 Constants.ACTION_NOTHING,
                 false
@@ -64,12 +64,12 @@ class ThreadsFragment : DaggerFragment() {
 
         val imageLoader = ImageLoader()
 
-        val mAdapter = QuickAdapter<Thread>(R.layout.list_item_thread, sharedVM).apply {
+        val mAdapter = QuickAdapter<Post>(R.layout.list_item_post, sharedVM).apply {
             setOnItemClickListener { _, _, position ->
                 getItem(position).run {
-                    sharedVM.setThread(id,fid)
+                    sharedVM.setPost(id,fid)
                 }
-                (requireActivity() as MainActivity).showReply()
+                (requireActivity() as MainActivity).showComment()
             }
 
             addChildClickViewIds(R.id.attachedImage)
@@ -81,7 +81,7 @@ class ThreadsFragment : DaggerFragment() {
                     val viewerPopup =
                         ImageViewerPopup(
                             imgUrl = url,
-                            fragment = this@ThreadsFragment
+                            fragment = this@PostsFragment
                         )
                     viewerPopup.setXPopupImageLoader(imageLoader)
                     viewerPopup.setSingleSrcView(view as ImageView?, url)
@@ -93,7 +93,7 @@ class ThreadsFragment : DaggerFragment() {
             }
 
             loadMoreModule.setOnLoadMoreListener {
-                viewModel.getThreads()
+                viewModel.getPosts()
             }
         }
 
@@ -126,7 +126,7 @@ class ThreadsFragment : DaggerFragment() {
             }
         })
 
-        viewModel.threads.observe(viewLifecycleOwner, Observer {
+        viewModel.posts.observe(viewLifecycleOwner, Observer {
             mAdapter.setDiffNewData(it.toMutableList())
             Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
         })

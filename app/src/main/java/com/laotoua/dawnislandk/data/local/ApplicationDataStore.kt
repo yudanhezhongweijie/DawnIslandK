@@ -13,7 +13,7 @@ import java.util.*
 import javax.inject.Inject
 
 class ApplicationDataStore @Inject constructor(
-    private val cookieDao: CookieDao, private val replyDao: ReplyDao,
+    private val cookieDao: CookieDao, private val commentDao: CommentDao,
     private val NMBNoticeDao: NMBNoticeDao,
     private val luweiNoticeDao: LuweiNoticeDao,
     private val releaseDao: ReleaseDao,
@@ -44,7 +44,7 @@ class ApplicationDataStore @Inject constructor(
     val readingProgressStatus by lazyOnMainOnly {
         mmkv.getBoolean(
             Constants.READING_PROGRESS,
-            false
+            true
         )
     }
 
@@ -79,8 +79,8 @@ class ApplicationDataStore @Inject constructor(
         cookieDao.updateCookie(cookie)
     }
 
-    suspend fun nukeReplyTable() {
-        replyDao.nukeTable()
+    suspend fun nukeCommentTable() {
+        commentDao.nukeTable()
     }
 
     suspend fun getNMBNotice(): NMBNotice? {

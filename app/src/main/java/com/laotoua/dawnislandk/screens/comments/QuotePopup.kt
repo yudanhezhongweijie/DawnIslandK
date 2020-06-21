@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.screens.replys
+package com.laotoua.dawnislandk.screens.comments
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -13,7 +13,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.data.local.Reply
+import com.laotoua.dawnislandk.data.local.Comment
 import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformContent
 import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformCookie
 import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformTime
@@ -31,7 +31,7 @@ import dagger.android.support.DaggerFragment
 // uses caller fragment's context, should not live without fragment
 class QuotePopup(
     private val caller: DaggerFragment,
-    private val replyVM: ReplysViewModel,
+    private val commentVM: CommentsViewModel,
     private val quoteId: String,
     private val po: String
 ) : CenterPopupView(caller.requireContext()) {
@@ -41,9 +41,9 @@ class QuotePopup(
 
     override fun getMaxWidth(): Int = (XPopupUtils.getWindowWidth(context) * .9f).toInt()
 
-    private val liveQuote: LiveData<Reply> = replyVM.getQuote(quoteId)
+    private val liveQuote: LiveData<Comment> = commentVM.getQuote(quoteId)
 
-    private val liveQuoteObs = Observer<Reply> {
+    private val liveQuoteObs = Observer<Comment> {
         if (it != null) {
             convertQuote(it, po)
             findViewById<ProgressBar>(R.id.progressBar).visibility = View.GONE
@@ -63,13 +63,13 @@ class QuotePopup(
         findViewById<ConstraintLayout>(R.id.quote).visibility = View.GONE
         // observe quote live quote, loading Status
         liveQuote.observe(caller.viewLifecycleOwner, liveQuoteObs)
-        replyVM.quoteLoadingStatus.observe(caller.viewLifecycleOwner, quoteDownloadStatusObs)
+        commentVM.quoteLoadingStatus.observe(caller.viewLifecycleOwner, quoteDownloadStatusObs)
     }
 
-    private fun convertQuote(quote: Reply, po: String) {
+    private fun convertQuote(quote: Comment, po: String) {
         // remove observers when data has come back
         liveQuote.removeObserver(liveQuoteObs)
-        replyVM.quoteLoadingStatus.removeObserver(quoteDownloadStatusObs)
+        commentVM.quoteLoadingStatus.removeObserver(quoteDownloadStatusObs)
 
         findViewById<TextView>(R.id.userId).text =
             transformCookie(
@@ -144,7 +144,7 @@ class QuotePopup(
             override fun handleReference(id: String) {
                 showQuote(
                     caller,
-                    replyVM,
+                    commentVM,
                     context,
                     id,
                     po
@@ -192,7 +192,7 @@ class QuotePopup(
 
         fun showQuote(
             caller: DaggerFragment,
-            replyVM: ReplysViewModel,
+            replyVM: CommentsViewModel,
             context: Context,
             id: String,
             po: String

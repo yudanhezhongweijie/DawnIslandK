@@ -56,7 +56,7 @@
         android:focusable="false"
         android:paddingBottom="2dp"
         android:scrollbars="vertical"
-        android:text="@string/sample_reply_content"
+        android:text="@string/sample_comment_content"
         android:textAppearance="@style/PrimaryText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -131,7 +131,7 @@
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/replyMenu"
+        android:id="@+id/commentMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
@@ -150,7 +150,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:id="@+id/reply"
+            android:id="@+id/comment"
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -170,7 +170,7 @@
             app:icon="@drawable/ic_text_snippet_24px"
             app:layout_constraintEnd_toStartOf="@id/report"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/reply"
+            app:layout_constraintStart_toEndOf="@+id/comment"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
@@ -192,7 +192,7 @@
         android:layout_height="1.2dp"
         android:layout_marginTop="2dp"
         android:background="#E0E0E0"
-        app:layout_constraintTop_toBottomOf="@id/replyMenu"
+        app:layout_constraintTop_toBottomOf="@id/commentMenu"
         tools:layout_editor_absoluteX="12dp" />
 
 

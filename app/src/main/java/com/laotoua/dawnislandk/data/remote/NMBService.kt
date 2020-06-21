@@ -25,7 +25,7 @@ interface NMBService {
     fun getNMBForumList(): Call<ResponseBody>
 
     @GET("Api/showf")
-    fun getNMBThreads(@Query("id") fid: String, @Query("page") page: Int): Call<ResponseBody>
+    fun getNMBPosts(@Query("id") fid: String, @Query("page") page: Int): Call<ResponseBody>
 
     @GET("Api/feed")
     fun getNMBFeeds(@Query("uuid") uuid: String, @Query("page") page: Int): Call<ResponseBody>
@@ -40,7 +40,7 @@ interface NMBService {
     fun getNMBTimeLine(@Query("page") page: Int): Call<ResponseBody>
 
     @GET("Api/thread")
-    fun getNMBReplys(
+    fun getNMBComments(
         @Header("Cookie") hash: String?,
         @Query("id") id: String,
         @Query("page") page: Int
@@ -51,7 +51,7 @@ interface NMBService {
 
     @Multipart
     @POST("Home/Forum/doReplyThread.html")
-    fun postReply(
+    fun postComment(
         @Part("resto") resto: RequestBody, @Part("name") name: RequestBody?,
         @Part("email") email: RequestBody?, @Part("title") title: RequestBody?,
         @Part("content") content: RequestBody?, @Part("water") water: RequestBody?,
@@ -60,7 +60,7 @@ interface NMBService {
 
     @Multipart
     @POST("Home/Forum/doPostThread.html")
-    fun postThread(
+    fun postNewPost(
         @Part("fid") fid: RequestBody, @Part("name") name: RequestBody?,
         @Part("email") email: RequestBody?, @Part("title") title: RequestBody?,
         @Part("content") content: RequestBody?, @Part("water") water: RequestBody?,

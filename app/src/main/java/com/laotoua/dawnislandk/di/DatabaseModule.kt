@@ -33,15 +33,15 @@ object DatabaseModule {
     @JvmStatic
     @Provides
     @Singleton
-    fun provideReplyDao(dawnDatabase: DawnDatabase): ReplyDao {
-        return dawnDatabase.replyDao()
+    fun provideCommentDao(dawnDatabase: DawnDatabase): CommentDao {
+        return dawnDatabase.commentDao()
     }
 
     @JvmStatic
     @Provides
     @Singleton
-    fun provideThreadDao(dawnDatabase: DawnDatabase): ThreadDao {
-        return dawnDatabase.threadDao()
+    fun providePostDao(dawnDatabase: DawnDatabase): PostDao {
+        return dawnDatabase.postDao()
     }
 
     @JvmStatic
@@ -72,4 +72,10 @@ object DatabaseModule {
         return dawnDatabase.releaseDao()
     }
 
+    @JvmStatic
+    @Provides
+    @Singleton
+    fun provideReadingPageDao(dawnDatabase: DawnDatabase): ReadingPageDao {
+        return dawnDatabase.readingPageDao()
+    }
 }

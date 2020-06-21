@@ -7,10 +7,10 @@ import com.laotoua.dawnislandk.screens.PagerFragment
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.feeds.FeedsFragment
 import com.laotoua.dawnislandk.screens.feeds.FeedsViewModel
-import com.laotoua.dawnislandk.screens.replys.ReplysFragment
-import com.laotoua.dawnislandk.screens.replys.ReplysViewModel
-import com.laotoua.dawnislandk.screens.threads.ThreadsFragment
-import com.laotoua.dawnislandk.screens.threads.ThreadsViewModel
+import com.laotoua.dawnislandk.screens.comments.CommentsFragment
+import com.laotoua.dawnislandk.screens.comments.CommentsViewModel
+import com.laotoua.dawnislandk.screens.posts.PostsFragment
+import com.laotoua.dawnislandk.screens.posts.PostsViewModel
 import com.laotoua.dawnislandk.screens.trend.TrendsFragment
 import com.laotoua.dawnislandk.screens.trend.TrendsViewModel
 import dagger.Binds
@@ -28,13 +28,13 @@ abstract class ViewModelModule {
     internal abstract fun pagerFragment(): PagerFragment
 
     @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
-    internal abstract fun threadsFragment(): ThreadsFragment
+    internal abstract fun postsFragment(): PostsFragment
 
     @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
     internal abstract fun feedsFragment(): FeedsFragment
 
     @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
-    internal abstract fun replysFragment(): ReplysFragment
+    internal abstract fun commentsFragment(): CommentsFragment
 
     @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
     internal abstract fun trendsFragment(): TrendsFragment
@@ -46,8 +46,8 @@ abstract class ViewModelModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(ThreadsViewModel::class)
-    abstract fun bindThreadsViewModel(viewModel: ThreadsViewModel): ViewModel
+    @ViewModelKey(PostsViewModel::class)
+    abstract fun bindPostsViewModel(viewModel: PostsViewModel): ViewModel
 
     @Binds
     @IntoMap
@@ -56,8 +56,8 @@ abstract class ViewModelModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(ReplysViewModel::class)
-    abstract fun bindReplysViewModel(viewModel: ReplysViewModel): ViewModel
+    @ViewModelKey(CommentsViewModel::class)
+    abstract fun bindCommentsViewModel(viewModel: CommentsViewModel): ViewModel
 
     @Binds
     @IntoMap

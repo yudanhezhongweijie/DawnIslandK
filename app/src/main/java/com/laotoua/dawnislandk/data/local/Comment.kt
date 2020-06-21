@@ -8,7 +8,7 @@ import java.util.*
 
 @JsonClass(generateAdapter = true)
 @Entity
-data class Reply(
+data class Comment(
     @PrimaryKey val id: String,
     val userid: String,
     val name: String = "",
@@ -36,7 +36,7 @@ data class Reply(
     fun isNotAd(): Boolean = (id != "9999999")
     fun isAd(): Boolean = !isNotAd()
 
-    fun equalsWithServerData(target: Reply?): Boolean =
+    fun equalsWithServerData(target: Comment?): Boolean =
         if (target == null) false
         else id == target.id && userid == target.userid
                 && name == target.name && sage == target.sage

@@ -29,8 +29,6 @@ object Constants {
     const val thumbCDN = "${imgCDN}thumb/"
     const val imageCDN = "${imgCDN}image/"
 
-    const val APP_VERSION = "v0.7.0"
-
     const val SERVER_FILE_SIZE_LIMIT = 2097152 // 2MB
 
     const val AUTHOR_EMAIL="aliaseasy98@gmail.com"

@@ -22,6 +22,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.*
 import javax.inject.Inject
 
 class CommentRepository @Inject constructor(
@@ -53,6 +54,13 @@ class CommentRepository @Inject constructor(
     val maxPage get() = 1.coerceAtLeast(kotlin.math.ceil(replyCount.toDouble() / 19).toInt())
     val loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
     val addFeedResponse = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
+    private val todayDateLong = ReadableTime.string2Time(
+        ReadableTime.getDateString(
+            Date(),
+            ReadableTime.DATE_FORMAT_WITH_YEAR
+        ),
+        ReadableTime.DATE_FORMAT_WITH_YEAR
+    )
 
     private var pageDownloadJob: Job? = null
     val emptyPage = MutableLiveData<Boolean>()
@@ -75,12 +83,12 @@ class CommentRepository @Inject constructor(
                 readingPageMap.put(currentPostIdInt, it ?: ReadingPage(currentPostId, 1))
             }
 
-            browsedPostDaoBrowsing.getBrowsingHistoryByDateAndIdSync(ReadableTime.todayDateLong, currentPostId)
+            browsedPostDaoBrowsing.getBrowsingHistoryByDateAndIdSync(todayDateLong, currentPostId)
                 .let {
                     browsedPostMap.put(
                         currentPostIdInt,
                         it ?: BrowsingHistory(
-                            ReadableTime.todayDateLong,
+                            todayDateLong,
                             currentPostId,
                             currentPostFid,
                             mutableSetOf()

@@ -154,7 +154,7 @@ class Converter {
 
     @TypeConverter
     fun stringToIntegerSet(s: String): MutableSet<Int> {
-        return s.trim().splitToSequence(",").map { it.toInt() }.toMutableSet()
+        return s.splitToSequence(",").map { it.trim().toInt() }.toMutableSet()
     }
 
     @TypeConverter

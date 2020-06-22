@@ -1,5 +1,6 @@
 package com.laotoua.dawnislandk.data.local
 
+import com.laotoua.dawnislandk.BuildConfig
 import com.laotoua.dawnislandk.data.local.dao.*
 import com.laotoua.dawnislandk.data.local.entity.Cookie
 import com.laotoua.dawnislandk.data.local.entity.LuweiNotice
@@ -140,9 +141,9 @@ class ApplicationDataStore @Inject constructor(
     suspend fun getLatestRelease(): Release? {
         val currentVersion = releaseDao.getLatestRelease()
         val currentVersionCode = currentVersion?.versionCode
-            ?: Constants.APP_VERSION.filter { it.isDigit() }.toInt()
+            ?: BuildConfig.VERSION_NAME.filter { it.isDigit() }.toInt()
         if (currentVersion == null) {
-            val currentRelease = Release(1, Constants.APP_VERSION, "", "default entry")
+            val currentRelease = Release(1, BuildConfig.VERSION_NAME, "", "default entry")
             coroutineScope { launch { releaseDao.insertRelease(currentRelease) } }
         }
         val latest = webService.getLatestRelease().run {

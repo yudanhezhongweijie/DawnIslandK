@@ -1,8 +1,5 @@
 package com.laotoua.dawnislandk.screens.adapters
 
-import android.graphics.Color
-import android.text.SpannableString
-import android.text.Spanned
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,12 +19,7 @@ import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.data.local.entity.Trend
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.posts.PostCardFactory
-import com.laotoua.dawnislandk.screens.util.ContentTransformation
-import com.laotoua.dawnislandk.screens.widget.ClickableMovementMethod
 import com.laotoua.dawnislandk.screens.widget.span.ReferenceSpan
-import com.laotoua.dawnislandk.screens.widget.span.RoundBackgroundColorSpan
-import com.laotoua.dawnislandk.util.Constants
-import com.laotoua.dawnislandk.util.GlideApp
 
 
 // TODO: handle no new data exception
@@ -119,12 +111,12 @@ class QuickAdapter<T>(
     private fun BaseViewHolder.convertPost(item: Post, forumDisplayName: String) {
         convertUserId(item.userid, item.admin)
         convertTitleAndName(item.getSimplifiedTitle(), item.getSimplifiedName())
-        convertRefId(item.id)
+        convertRefId(context, item.id)
         convertTimeStamp(item.now)
         convertForumAndReplyCount(item.replyCount, forumDisplayName)
         convertSage(item.sage)
         convertImage(item.getImgUrl())
-        convertContent(item.content)
+        convertContent(context, item.content)
     }
 
     private fun BaseViewHolder.convertPostWithPayload(
@@ -134,40 +126,40 @@ class QuickAdapter<T>(
         convertTitleAndName(payload.title, payload.name)
         convertForumAndReplyCount(payload.replyCount, forumDisplayName)
         convertSage(payload.sage)
-        convertContent(payload.content)
+        convertContent(context, payload.content)
     }
 
     private fun BaseViewHolder.convertComment(item: Comment, po: String) {
         convertUserId(item.userid, item.admin, po)
         convertTimeStamp(item.now)
         convertSage(item.sage)
-        convertRefId(item.id)
+        convertRefId(context, item.id)
         convertImage(item.getImgUrl(), item.visible)
-        convertContent(item.content, referenceClickListener, item.visible)
+        convertContent(context, item.content, referenceClickListener, item.visible)
         convertTitleAndName(item.getSimplifiedTitle(), item.getSimplifiedName(), item.visible)
-        convertExpandSummary(item.visible)
+        convertExpandSummary(context, item.visible)
         hideCommentMenu()
     }
 
-    private fun BaseViewHolder.hideCommentMenu(){
-        setGone(R.id.commentMenu,true)
+    private fun BaseViewHolder.hideCommentMenu() {
+        setGone(R.id.commentMenu, true)
     }
 
     private fun BaseViewHolder.convertCommentWithPayload(payload: Payload.CommentPayload) {
         convertTimeStamp(payload.now)
         convertSage(payload.sage)
-        convertContent(payload.content, referenceClickListener, payload.visible)
+        convertContent(context, payload.content, referenceClickListener, payload.visible)
         convertImage(payload.imgUrl, payload.visible)
         convertTitleAndName(payload.title, payload.name, payload.visible)
-        convertExpandSummary(payload.visible)
+        convertExpandSummary(context, payload.visible)
     }
 
     private fun BaseViewHolder.convertTrend(item: Trend) {
         setText(R.id.trendRank, item.rank)
-        convertRefId(item.id)
+        convertRefId(context, item.id)
         setText(R.id.trendForum, item.forum)
         setText(R.id.hits, item.hits)
-        convertContent(item.content)
+        convertContent(context, item.content)
     }
 
     private fun BaseViewHolder.convertEmoji(item: String) {
@@ -180,112 +172,6 @@ class QuickAdapter<T>(
             context.packageName
         )
         setImageResource(R.id.luweiSticker, resourceId)
-    }
-
-
-    private fun BaseViewHolder.convertUserId(userId: String, admin: String, po: String = "") {
-        setText(R.id.userId, ContentTransformation.transformCookie(userId, admin, po))
-    }
-
-    private fun BaseViewHolder.convertTimeStamp(now: String) {
-        setText(R.id.timestamp, ContentTransformation.transformTime(now))
-    }
-
-    private fun BaseViewHolder.convertForumAndReplyCount(replyCount: String, forumDisplayName: String) {
-        val suffix = if (replyCount.isNotBlank()) " • $replyCount" else ""
-        val spannableString = SpannableString(forumDisplayName + suffix)
-        spannableString.setSpan(
-            RoundBackgroundColorSpan(
-                Color.parseColor("#12DBD1"),
-                Color.parseColor("#FFFFFF")
-            ), 0, spannableString.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE
-        )
-
-        getView<TextView>(R.id.forumAndReplyCount)
-            .setText(spannableString, TextView.BufferType.SPANNABLE)
-    }
-
-    private fun BaseViewHolder.convertRefId(id: String) {
-        // TODO: handle ads
-        setText(R.id.refId, context.resources.getString(R.string.ref_id_formatted, id))
-    }
-
-    private fun BaseViewHolder.convertTitleAndName(
-        title: String,
-        name: String,
-        visible: Boolean = true
-    ) {
-        if (title.isNotBlank() && visible) {
-            setText(R.id.title, title)
-            setVisible(R.id.title, true)
-        } else {
-            setGone(R.id.title, true)
-        }
-        if (name.isNotBlank() && visible) {
-            setText(R.id.name, name)
-            setVisible(R.id.name, true)
-        } else {
-            setGone(R.id.name, true)
-        }
-    }
-
-    private fun BaseViewHolder.convertSage(sage: String?) {
-        if (sage == "1") {
-            setVisible(R.id.sage, true)
-        } else {
-            setGone(R.id.sage, true)
-        }
-    }
-
-    private fun BaseViewHolder.convertImage(imgUrl: String, visible: Boolean = true) {
-        if (imgUrl.isNotBlank() && visible) {
-            GlideApp.with(context)
-                .load(Constants.thumbCDN + imgUrl)
-//                .override(400, 400)
-                .fitCenter()
-                .into(getView(R.id.attachedImage))
-            setVisible(R.id.attachedImage, true)
-        } else {
-            setGone(R.id.attachedImage, true)
-        }
-    }
-
-    private fun BaseViewHolder.convertContent(
-        content: String,
-        referenceClickListener: ReferenceSpan.ReferenceClickHandler? = null,
-        visible: Boolean = true
-    ) {
-        val res = ContentTransformation.transformContent(
-            context = context,
-            content = content,
-            referenceClickListener = referenceClickListener
-        )
-        if (res.isNotBlank()) setText(R.id.content, res)
-        if (res.isBlank() || !visible) setGone(R.id.content, true)
-        else setVisible(R.id.content, true)
-    }
-
-    private fun BaseViewHolder.convertExpandSummary(visible: Boolean) {
-        if (!visible) {
-            setText(
-                R.id.expandSummary,
-                context.resources.getString(
-                    R.string.checked_filtered_comment,
-                    getView<TextView>(R.id.content).text.count()
-                )
-            )
-            setVisible(R.id.expandSummary, true)
-        } else {
-            setGone(R.id.expandSummary, true)
-        }
-    }
-
-    private fun View.applyTextSizeAndLetterSpacing(clickable: Boolean = false) = apply {
-        findViewById<TextView>(R.id.content).apply {
-            if (clickable) movementMethod = ClickableMovementMethod.getInstance()
-            textSize = DawnApp.applicationDataStore.textSize
-            letterSpacing = DawnApp.applicationDataStore.letterSpace
-        }
     }
 
     private class DiffItemCallback<T> : DiffUtil.ItemCallback<T>() {

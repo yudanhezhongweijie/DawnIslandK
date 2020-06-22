@@ -9,9 +9,9 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.laotoua.dawnislandk.BuildConfig
 import com.laotoua.dawnislandk.data.local.dao.*
 import com.laotoua.dawnislandk.data.local.entity.*
-import com.laotoua.dawnislandk.util.Constants
 
 @Database(
     entities = [Community::class,
@@ -95,7 +95,7 @@ abstract class DawnDatabase : RoomDatabase() {
                 database.execSQL("CREATE TABLE IF NOT EXISTS `Release` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `version` TEXT NOT NULL, `downloadUrl` TEXT NOT NULL, `message` TEXT NOT NULL)")
                 val contentValue = ContentValues().apply {
                     put("id", 1)
-                    put("version", Constants.APP_VERSION)
+                    put("version", BuildConfig.VERSION_NAME)
                     put("downloadUrl", "")
                     put("message", "default entry")
                 }

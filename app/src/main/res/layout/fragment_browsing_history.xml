@@ -4,8 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".screens.history.BrowsingHistoryFragment"
-    app:layout_optimizationLevel="standard|dimensions">
+    app:layout_optimizationLevel="standard|dimensions"
+    tools:context=".screens.history.BrowsingHistoryFragment">
+
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
@@ -32,17 +33,11 @@
         app:title="时间线"
         app:titleTextColor="#FFFFFF" />
 
-    <me.dkzwm.widget.srl.MaterialSmoothRefreshLayout
-        android:id="@+id/refreshLayout"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:scrollbars="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scrollbars="vertical" />
-    </me.dkzwm.widget.srl.MaterialSmoothRefreshLayout>
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
 </androidx.constraintlayout.widget.ConstraintLayout>

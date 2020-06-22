@@ -4,25 +4,26 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import com.chad.library.adapter.base.BaseBinderAdapter
+import com.chad.library.adapter.base.binder.QuickItemBinder
+import com.chad.library.adapter.base.util.getItemView
+import com.chad.library.adapter.base.viewholder.BaseViewHolder
+import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.databinding.FragmentBrowsingHistoryBinding
 import com.laotoua.dawnislandk.screens.MainActivity
-import com.laotoua.dawnislandk.screens.PagerFragment
 import com.laotoua.dawnislandk.screens.SharedViewModel
-import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
+import com.laotoua.dawnislandk.screens.adapters.*
+import com.laotoua.dawnislandk.screens.posts.PostCardFactory
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
-import com.laotoua.dawnislandk.screens.widget.popup.ImageLoader
-import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
-import com.lxj.xpopup.XPopup
+import com.laotoua.dawnislandk.util.ReadableTime
 import dagger.android.support.DaggerFragment
 import timber.log.Timber
 import javax.inject.Inject
@@ -36,7 +37,7 @@ class BrowsingHistoryFragment : DaggerFragment() {
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
     private val viewModel: BrowsingHistoryViewModel by viewModels { viewModelFactory }
-    private val sharedVM: SharedViewModel by activityViewModels{ viewModelFactory }
+    private val sharedVM: SharedViewModel by activityViewModels { viewModelFactory }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -59,67 +60,72 @@ class BrowsingHistoryFragment : DaggerFragment() {
             }
         }
 
-        val imageLoader = ImageLoader()
-        val mAdapter = QuickAdapter<Post>(R.layout.list_item_post, sharedVM).apply {
-            setOnItemClickListener { _, _, position ->
-                getItem(position).run {
-                    sharedVM.setPost(id, fid)
-                }
-                (requireActivity() as MainActivity).showComment()
-            }
-
-            addChildClickViewIds(R.id.attachedImage)
-            setOnItemChildClickListener { _, view, position ->
-                if (view.id == R.id.attachedImage) {
-                    val url = getItem(position).getImgUrl()
-
-                    val viewerPopup =
-                        ImageViewerPopup(
-                            url,
-                            fragment = this@BrowsingHistoryFragment
-                        )
-                    viewerPopup.setXPopupImageLoader(imageLoader)
-                    viewerPopup.setSingleSrcView(view as ImageView?, url)
-
-                    XPopup.Builder(context)
-                        .asCustom(viewerPopup)
-                        .show()
-                }
-            }
-
-            // load more
-            loadMoreModule.setOnLoadMoreListener {
-//                viewModel.getNextPage()
-            }
+        val mAdapter = BaseBinderAdapter().apply {
+            addItemBinder(DateStringBinder())
+            addItemBinder(PostBinder(sharedVM))
         }
 
         binding.recyclerView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             adapter = mAdapter
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    if (dy > 0) {
-                        (parentFragment as PagerFragment).hideMenu()
-                    } else if (dy < 0) {
-                        (parentFragment as PagerFragment).showMenu()
-                    }
+        }
+        viewModel.browsingHistoryList.observe(viewLifecycleOwner, Observer { list ->
+            var lastDate: Long? = null
+            val data: MutableList<Any> = ArrayList()
+            list.map {
+                if (lastDate == null || it.browsingHistory.date != lastDate) {
+                    data.add(
+                        ReadableTime.getDateString(
+                            it.browsingHistory.date,
+                            ReadableTime.DATE_FORMAT_WITH_YEAR
+                        )
+                    )
                 }
-            })
+                data.add(it.post)
+                lastDate = it.browsingHistory.date
+
+            }
+            mAdapter.setDiffNewData(data)
+            Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} threads")
+        })
+    }
+
+    private class DateStringBinder : QuickItemBinder<String>() {
+        override fun convert(holder: BaseViewHolder, data: String) {
+            holder.setText(R.id.date, data)
         }
 
-//        binding.refreshLayout.apply {
-//            setOnRefreshListener(object : RefreshingListenerAdapter() {
-//                override fun onRefreshing() {
-//                    viewModel.refresh()
-//                }
-//            })
-//        }
+        override fun getLayoutId(): Int = R.layout.list_item_browsing_history_date
+    }
 
+    private class PostBinder(private val sharedViewModel: SharedViewModel) :
+        QuickItemBinder<Post>() {
+        override fun convert(holder: BaseViewHolder, data: Post) {
+            holder.convertUserId(data.userid, data.admin)
+            holder.convertTitleAndName(data.getSimplifiedTitle(), data.getSimplifiedName())
+            holder.convertRefId(context, data.id)
+            holder.convertTimeStamp(data.now)
+            holder.convertForumAndReplyCount(
+                data.replyCount,
+                sharedViewModel.getForumDisplayName(data.fid)
+            )
+            holder.convertSage(data.sage)
+            holder.convertImage(data.getImgUrl())
+            holder.convertContent(context, data.content)
+        }
 
-        viewModel.browsingHistoryList.observe(viewLifecycleOwner, Observer {
-//            mAdapter.setDiffNewData(it.toMutableList())
-            Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
-        })
+        override fun getLayoutId(): Int = R.layout.list_item_post
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
+            val view = parent.getItemView(getLayoutId()).applyTextSizeAndLetterSpacing()
+            PostCardFactory.applySettings(view as MaterialCardView)
+            return BaseViewHolder(view)
+        }
+
+        override fun onClick(holder: BaseViewHolder, view: View, data: Post, position: Int) {
+            sharedViewModel.setPost(data.id,data.fid)
+            (context as MainActivity).showComment()
+        }
     }
 }

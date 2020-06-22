@@ -19,7 +19,7 @@ import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Forum
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
-import com.laotoua.dawnislandk.screens.adapters.QuickNodeAdapter
+import com.laotoua.dawnislandk.screens.adapters.CommunityNodeAdapter
 import com.laotoua.dawnislandk.screens.comments.CommentsFragment
 import com.laotoua.dawnislandk.screens.comments.QuotePopup
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbarInitialization
@@ -34,7 +34,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 
-class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListener {
+class MainActivity : DaggerAppCompatActivity(), CommunityNodeAdapter.ForumClickListener {
 
     private lateinit var binding: ActivityMainBinding
 
@@ -67,7 +67,7 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
     // left forum drawer
     private fun setUpForumDrawer() {
 
-        val mAdapter = QuickNodeAdapter(this)
+        val mAdapter = CommunityNodeAdapter(this)
         binding.forumRefresh.setOnClickListener {
             mAdapter.setData(emptyList())
             communityVM.refresh()

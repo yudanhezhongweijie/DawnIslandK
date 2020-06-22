@@ -15,7 +15,7 @@ import com.laotoua.dawnislandk.data.local.entity.Forum
 import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformForumName
 
 
-class QuickNodeAdapter(val clickListener: ForumClickListener) : BaseNodeAdapter() {
+class CommunityNodeAdapter(val clickListener: ForumClickListener) : BaseNodeAdapter() {
 
     companion object {
         const val EXPAND_COLLAPSE_PAYLOAD = 110

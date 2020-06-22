@@ -73,12 +73,16 @@ object ReadableTime {
         )
     }
 
-    fun getDateString(time: Long, format: SimpleDateFormat?=null):String {
-        return format?.format(Date(time)) ?: BASIC_DATE_FORMAT.format(Date(time))
+    fun getTodayDateLong(): Long {
+        return string2Time(getDateString(Date(), DATE_FORMAT_WITH_YEAR), DATE_FORMAT_WITH_YEAR)
     }
 
-    fun getDateString(date: Date, format: SimpleDateFormat?=null):String {
-        return format?.format(date) ?: BASIC_DATE_FORMAT.format(date)
+    fun getDateString(time: Long, format: SimpleDateFormat? = null): String {
+        return format?.format(Date(time)) ?: DATE_FORMAT_WITH_YEAR.format(Date(time))
+    }
+
+    fun getDateString(date: Date, format: SimpleDateFormat? = null): String {
+        return format?.format(date) ?: DATE_FORMAT_WITH_YEAR.format(date)
     }
 
     fun string2Time(str: String, dateFormat: SimpleDateFormat = BASIC_DATE_FORMAT): Long {

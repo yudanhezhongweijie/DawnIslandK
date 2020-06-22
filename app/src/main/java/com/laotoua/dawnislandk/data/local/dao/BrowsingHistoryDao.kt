@@ -11,6 +11,9 @@ interface BrowsingHistoryDao {
     @Query("SELECT * From BrowsingHistory ORDER BY date DESC")
     fun getAllBrowsingHistoryAndPost(): LiveData<List<BrowsingHistoryAndPost>>
 
+    @Transaction
+    @Query("SELECT * From BrowsingHistory WHERE date>=:startDate AND date<=:endDate ORDER BY date DESC ")
+    fun getAllBrowsingHistoryAndPostInDateRange(startDate:Long, endDate:Long): LiveData<List<BrowsingHistoryAndPost>>
 
     @Query("SELECT * From BrowsingHistory ORDER BY date DESC")
     suspend fun getAllBrowsingHistory(): List<BrowsingHistory>

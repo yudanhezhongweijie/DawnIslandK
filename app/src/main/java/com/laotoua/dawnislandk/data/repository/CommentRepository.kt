@@ -22,7 +22,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.*
 import javax.inject.Inject
 
 class CommentRepository @Inject constructor(
@@ -54,13 +53,7 @@ class CommentRepository @Inject constructor(
     val maxPage get() = 1.coerceAtLeast(kotlin.math.ceil(replyCount.toDouble() / 19).toInt())
     val loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
     val addFeedResponse = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
-    private val todayDateLong = ReadableTime.string2Time(
-        ReadableTime.getDateString(
-            Date(),
-            ReadableTime.DATE_FORMAT_WITH_YEAR
-        ),
-        ReadableTime.DATE_FORMAT_WITH_YEAR
-    )
+    private val todayDateLong = ReadableTime.getTodayDateLong()
 
     private var pageDownloadJob: Job? = null
     val emptyPage = MutableLiveData<Boolean>()

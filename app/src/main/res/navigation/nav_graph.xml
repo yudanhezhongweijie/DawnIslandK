@@ -23,6 +23,9 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_pagerFragment_to_browsingHistoryFragment"
+            app:destination="@id/browsingHistoryFragment" />
     </fragment>
     <fragment
         android:id="@+id/imageViewerFragment"
@@ -53,4 +56,9 @@
         android:id="@+id/doodleActivity"
         android:name="com.laotoua.dawnislandk.screens.tasks.DoodleActivity"
         android:label="DoodleActivity" />
+    <fragment
+        android:id="@+id/browsingHistoryFragment"
+        android:name="com.laotoua.dawnislandk.screens.history.BrowsingHistoryFragment"
+        android:label="fragment_browsing_history"
+        tools:layout="@layout/fragment_browsing_history" />
 </navigation>

@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.core.view.GravityCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -19,8 +20,8 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Forum
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
 import com.laotoua.dawnislandk.screens.adapters.QuickNodeAdapter
-import com.laotoua.dawnislandk.screens.comments.QuotePopup
 import com.laotoua.dawnislandk.screens.comments.CommentsFragment
+import com.laotoua.dawnislandk.screens.comments.QuotePopup
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbarInitialization
 import com.laotoua.dawnislandk.screens.widget.popup.ImageLoader
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
@@ -119,6 +120,12 @@ class MainActivity : DaggerAppCompatActivity(), QuickNodeAdapter.ForumClickListe
 
         binding.settings.setOnClickListener {
             val action = PagerFragmentDirections.actionPagerFragmentToSettingsFragment()
+            findNavController(R.id.navHostFragment).navigate(action)
+        }
+
+        binding.browsingHistory.setOnClickListener {
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            val action = PagerFragmentDirections.actionPagerFragmentToBrowsingHistoryFragment()
             findNavController(R.id.navHostFragment).navigate(action)
         }
 

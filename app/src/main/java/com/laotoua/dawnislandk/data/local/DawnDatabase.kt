@@ -23,7 +23,7 @@ import com.laotoua.dawnislandk.util.Constants
         LuweiNotice::class,
         Release::class,
         ReadingPage::class,
-        BrowsedPost::class],
+        BrowsingHistory::class],
     version = 6
 )
 @TypeConverters(Converter::class)
@@ -37,7 +37,7 @@ abstract class DawnDatabase : RoomDatabase() {
     abstract fun luweiNoticeDao(): LuweiNoticeDao
     abstract fun releaseDao(): ReleaseDao
     abstract fun readingPageDao(): ReadingPageDao
-    abstract fun browsedPostDao(): BrowsedPostDao
+    abstract fun browsedPostDao(): BrowsingHistoryDao
 
     companion object {
         // Singleton prevents multiple instances of database opening at the

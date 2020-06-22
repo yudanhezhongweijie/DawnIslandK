@@ -101,7 +101,6 @@ class FeedsFragment : DaggerFragment() {
                 if (view.id == R.id.attachedImage) {
                     val url = getItem(position).getImgUrl()
 
-                    // TODO support multiple image
                     val viewerPopup =
                         ImageViewerPopup(
                             url,

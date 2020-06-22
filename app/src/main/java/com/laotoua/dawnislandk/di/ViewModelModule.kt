@@ -5,10 +5,12 @@ import com.laotoua.dawnislandk.screens.CommunityViewModel
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.PagerFragment
 import com.laotoua.dawnislandk.screens.SharedViewModel
-import com.laotoua.dawnislandk.screens.feeds.FeedsFragment
-import com.laotoua.dawnislandk.screens.feeds.FeedsViewModel
 import com.laotoua.dawnislandk.screens.comments.CommentsFragment
 import com.laotoua.dawnislandk.screens.comments.CommentsViewModel
+import com.laotoua.dawnislandk.screens.feeds.FeedsFragment
+import com.laotoua.dawnislandk.screens.feeds.FeedsViewModel
+import com.laotoua.dawnislandk.screens.history.BrowsingHistoryFragment
+import com.laotoua.dawnislandk.screens.history.BrowsingHistoryViewModel
 import com.laotoua.dawnislandk.screens.posts.PostsFragment
 import com.laotoua.dawnislandk.screens.posts.PostsViewModel
 import com.laotoua.dawnislandk.screens.trend.TrendsFragment
@@ -39,6 +41,9 @@ abstract class ViewModelModule {
     @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
     internal abstract fun trendsFragment(): TrendsFragment
 
+    @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
+    internal abstract fun historyFragment(): BrowsingHistoryFragment
+
     @Binds
     @IntoMap
     @ViewModelKey(CommunityViewModel::class)
@@ -66,7 +71,11 @@ abstract class ViewModelModule {
 
     @Binds
     @IntoMap
+    @ViewModelKey(BrowsingHistoryViewModel::class)
+    abstract fun bindHistoryViewModel(viewModelBrowsing: BrowsingHistoryViewModel): ViewModel
+
+    @Binds
+    @IntoMap
     @ViewModelKey(SharedViewModel::class)
     abstract fun bindSharedViewModel(viewModel: SharedViewModel): ViewModel
-
 }

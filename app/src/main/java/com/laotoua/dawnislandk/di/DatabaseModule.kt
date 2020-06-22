@@ -83,7 +83,7 @@ object DatabaseModule {
     @JvmStatic
     @Provides
     @Singleton
-    fun provideBrowsedPostDao(dawnDatabase: DawnDatabase): BrowsedPostDao {
+    fun provideBrowsedPostDao(dawnDatabase: DawnDatabase): BrowsingHistoryDao {
         return dawnDatabase.browsedPostDao()
     }
 }

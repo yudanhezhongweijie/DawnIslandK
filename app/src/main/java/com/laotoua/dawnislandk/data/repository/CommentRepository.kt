@@ -5,11 +5,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import com.laotoua.dawnislandk.DawnApp
-import com.laotoua.dawnislandk.data.local.dao.BrowsedPostDao
+import com.laotoua.dawnislandk.data.local.dao.BrowsingHistoryDao
 import com.laotoua.dawnislandk.data.local.dao.CommentDao
 import com.laotoua.dawnislandk.data.local.dao.PostDao
 import com.laotoua.dawnislandk.data.local.dao.ReadingPageDao
-import com.laotoua.dawnislandk.data.local.entity.BrowsedPost
+import com.laotoua.dawnislandk.data.local.entity.BrowsingHistory
 import com.laotoua.dawnislandk.data.local.entity.Comment
 import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.data.local.entity.ReadingPage
@@ -29,7 +29,7 @@ class CommentRepository @Inject constructor(
     private val commentDao: CommentDao,
     private val postDao: PostDao,
     private val readingPageDao: ReadingPageDao,
-    private val browsedPostDao: BrowsedPostDao
+    private val browsedPostDaoBrowsing: BrowsingHistoryDao
 ) {
     private var _currentPostId: String = "0"
     val currentPostId get() = _currentPostId
@@ -44,7 +44,7 @@ class CommentRepository @Inject constructor(
     private val postMap = SparseArray<Post>(cacheCap)
     private val commentsMap = SparseArray<SparseArray<LiveData<List<Comment>>>>(cacheCap)
     private val readingPageMap = SparseArray<ReadingPage>(cacheCap)
-    private val browsedPostMap = SparseArray<BrowsedPost>(cacheCap)
+    private val browsedPostMap = SparseArray<BrowsingHistory>(cacheCap)
     private val fifoPostList = mutableListOf<Int>()
     private val adMap = SparseArray<SparseArray<Comment>>()
 
@@ -75,11 +75,11 @@ class CommentRepository @Inject constructor(
                 readingPageMap.put(currentPostIdInt, it ?: ReadingPage(currentPostId, 1))
             }
 
-            browsedPostDao.getBrowsedPostByDateAndIdSync(ReadableTime.todayDateLong, currentPostId)
+            browsedPostDaoBrowsing.getBrowsingHistoryByDateAndIdSync(ReadableTime.todayDateLong, currentPostId)
                 .let {
                     browsedPostMap.put(
                         currentPostIdInt,
-                        it ?: BrowsedPost(
+                        it ?: BrowsingHistory(
                             ReadableTime.todayDateLong,
                             currentPostId,
                             currentPostFid,
@@ -145,7 +145,7 @@ class CommentRepository @Inject constructor(
                     emitSource(getLocalData(page))
                     pageDownloadJob = getServerData(page)
                     browsedPostMap[currentPostIdInt].pages.add(page)
-                    browsedPostDao.insertBrowsedPost(browsedPostMap[currentPostIdInt])
+                    browsedPostDaoBrowsing.insertBrowsingHistory(browsedPostMap[currentPostIdInt])
                 })
             }
             return it[page]
@@ -179,7 +179,7 @@ class CommentRepository @Inject constructor(
         browsedPostMap[currentPostIdInt].run {
             if (postFid != currentPostFid) {
                 postFid = currentPostFid
-                browsedPostDao.insertBrowsedPost(this)
+                browsedPostDaoBrowsing.insertBrowsingHistory(this)
             }
         }
 

@@ -55,7 +55,20 @@
             app:layout_constraintBottom_toTopOf="@id/BottomContainer"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/reedImageView" />
+            app:layout_constraintTop_toBottomOf="@id/reedImageView" >
+
+        </androidx.recyclerview.widget.RecyclerView>
+
+        <Button
+            android:id="@+id/forumRefresh"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/forum_refresh"
+            app:icon="@drawable/ic_refresh_24px"
+            app:iconGravity="textEnd"
+            app:layout_constraintBottom_toBottomOf="@id/forumContainer"
+            app:layout_constraintEnd_toEndOf="@id/forumContainer" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/BottomContainer"
@@ -74,15 +87,15 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <Button
-                android:id="@+id/forumRefresh"
+                android:id="@+id/browsingHistory"
                 style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/forum_refresh"
-                app:icon="@drawable/ic_refresh_24px"
+                android:text="@string/browsing_history"
+                app:icon="@drawable/ic_history_24px"
                 app:iconGravity="textEnd"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/settings"/>
+                app:layout_constraintEnd_toStartOf="@id/settings" />
 
             <Button
                 android:id="@+id/settings"

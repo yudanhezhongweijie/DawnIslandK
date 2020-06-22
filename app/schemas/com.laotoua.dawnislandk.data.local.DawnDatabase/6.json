@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 6,
-    "identityHash": "3197ee91052752797698d15808fbbe09",
+    "identityHash": "827d8d682ee1a2e753cf3830021b58a6",
     "entities": [
       {
         "tableName": "Community",
@@ -521,7 +521,7 @@
         "foreignKeys": []
       },
       {
-        "tableName": "BrowsedPost",
+        "tableName": "BrowsingHistory",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`date` INTEGER NOT NULL, `postId` TEXT NOT NULL, `postFid` TEXT NOT NULL, `pages` TEXT NOT NULL, PRIMARY KEY(`date`, `postId`))",
         "fields": [
           {
@@ -563,7 +563,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3197ee91052752797698d15808fbbe09')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '827d8d682ee1a2e753cf3830021b58a6')"
     ]
   }
 }

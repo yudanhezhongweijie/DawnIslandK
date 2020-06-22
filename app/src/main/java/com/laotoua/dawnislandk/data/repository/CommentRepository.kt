@@ -37,10 +37,10 @@ class CommentRepository @Inject constructor(
     val currentPostFid get() = _currentPostFid
     private val currentPostIdInt get() = currentPostId.toInt()
 
-    /** remember all pages for last 30 thread, using threadId and page as index
+    /** remember all pages for last 15 thread, using threadId and page as index
      * using fifoList to pop the first thread
      */
-    private val cacheCap = 30
+    private val cacheCap = 15
     private val postMap = SparseArray<Post>(cacheCap)
     private val commentsMap = SparseArray<SparseArray<LiveData<List<Comment>>>>(cacheCap)
     private val readingPageMap = SparseArray<ReadingPage>(cacheCap)

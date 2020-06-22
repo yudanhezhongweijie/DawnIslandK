@@ -294,7 +294,7 @@ class CommentsFragment : DaggerFragment() {
         }
 
         binding.jump.setOnClickListener {
-            if (binding.refreshLayout.isRefreshing || mAdapter.loadMoreModule.isLoading){
+            if (binding.refreshLayout.isRefreshing || mAdapter.loadMoreModule.isLoading) {
                 Timber.d("Loading data...Holding on jump...")
                 return@setOnClickListener
             }
@@ -305,6 +305,7 @@ class CommentsFragment : DaggerFragment() {
                         super.beforeShow()
                         jumpPopup.updatePages(page, viewModel.maxPage)
                     }
+
                     override fun onDismiss() {
                         super.onDismiss()
                         if (jumpPopup.submit) {
@@ -337,7 +338,7 @@ class CommentsFragment : DaggerFragment() {
             currentPage = 0
             showMenu()
         }
-        viewModel.setPost(it,sharedVM.selectedPostFid)
+        viewModel.setPost(it, sharedVM.selectedPostFid)
         updateTitle()
     }
 
@@ -348,7 +349,11 @@ class CommentsFragment : DaggerFragment() {
     }
 
     private val commentsObs = Observer<MutableList<Comment>> {
-        if (it.isEmpty()) return@Observer
+        if (it.isEmpty()) {
+            if (!mAdapter.hasEmptyView()) mAdapter.setEmptyView(R.layout.view_no_data)
+            mAdapter.setDiffNewData(null)
+            return@Observer
+        }
         if (mAdapter.data.isEmpty()) updateCurrentPage(it.first().page)
         if (sharedVM.selectedPostFid != viewModel.currentPostFid) {
             sharedVM.setPostFid(viewModel.currentPostFid)

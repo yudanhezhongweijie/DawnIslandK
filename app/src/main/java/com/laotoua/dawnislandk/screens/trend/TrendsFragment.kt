@@ -105,6 +105,11 @@ class TrendsFragment : DaggerFragment() {
         })
 
         viewModel.trends.observe(viewLifecycleOwner, Observer { list ->
+            if (list.isEmpty()) {
+                if (!mAdapter.hasEmptyView()) mAdapter.setEmptyView(R.layout.view_no_data)
+                mAdapter.setDiffNewData(null)
+                return@Observer
+            }
             mAdapter.setDiffNewData(list.toMutableList())
         })
 

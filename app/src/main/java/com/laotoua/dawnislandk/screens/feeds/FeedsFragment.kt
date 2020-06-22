@@ -161,6 +161,11 @@ class FeedsFragment : DaggerFragment() {
         })
 
         viewModel.feeds.observe(viewLifecycleOwner, Observer {
+            if (it.isEmpty()) {
+                if (!mAdapter.hasEmptyView()) mAdapter.setEmptyView(R.layout.view_no_data)
+                mAdapter.setDiffNewData(null)
+                return@Observer
+            }
             mAdapter.setDiffNewData(it.toMutableList())
             Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
         })

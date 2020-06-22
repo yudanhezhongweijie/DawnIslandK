@@ -91,18 +91,13 @@ class FeedsViewModel @Inject constructor(private val webService: NMBServiceClien
         }
         tryAgain = false
         val noDuplicates = data.filterNot { feedsIds.contains(it.id) }
-        return if (noDuplicates.isNotEmpty()) {
+        if (noDuplicates.isNotEmpty()) {
             feedsIds.addAll(noDuplicates.map { it.id })
             feedsList.addAll(noDuplicates)
-            Timber.i(
-                "feedsList now has ${feedsList.size} feeds"
-            )
+            Timber.i("feedsList now has ${feedsList.size} feeds")
             nextPage += 1
-            true
-        } else {
-            false
         }
-
+        return true
     }
 
     fun deleteFeed(id: String, position: Int) {

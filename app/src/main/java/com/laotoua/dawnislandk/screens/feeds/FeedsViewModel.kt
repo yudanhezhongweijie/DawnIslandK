@@ -6,9 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.data.local.entity.Post
+import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
-import com.laotoua.dawnislandk.data.repository.DataResource
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.SingleLiveEvent
@@ -38,41 +38,26 @@ class FeedsViewModel @Inject constructor(private val webService: NMBServiceClien
 
     private fun getFeedOnPage(page: Int) {
         viewModelScope.launch {
-            _loadingStatus.postValue(
-                SingleLiveEvent.create(
-                    LoadingStatus.LOADING
-                )
-            )
+            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.LOADING))
             Timber.i("Downloading Feeds on page $page...")
-            DataResource.create(webService.getFeeds(applicationDataStore.feedId, page)).run {
+            webService.getFeeds(applicationDataStore.feedId, page).run {
                 when (this) {
-                    is DataResource.Error -> {
+                    is APIDataResponse.APIErrorDataResponse -> {
                         Timber.e(message)
                         _loadingStatus.postValue(
-                            SingleLiveEvent.create(
-                                LoadingStatus.FAILED,
-                                "无法读取订阅...\n$message"
-                            )
+                            SingleLiveEvent.create(LoadingStatus.FAILED, "无法读取订阅...\n$message")
                         )
                     }
-                    is DataResource.Success -> {
-                        val res = convertFeedData(data!!)
+                    is APIDataResponse.APISuccessDataResponse -> {
+                        val res = convertFeedData(data)
                         if (res) {
                             _feeds.postValue(feedsList)
-                            _loadingStatus.postValue(
-                                SingleLiveEvent.create(
-                                    LoadingStatus.SUCCESS
-                                )
-                            )
+                            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))
                         } else {
                             if (tryAgain) {
                                 getFeedOnPage(nextPage)
                             } else {
-                                _loadingStatus.postValue(
-                                    SingleLiveEvent.create(
-                                        LoadingStatus.NODATA
-                                    )
-                                )
+                                _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.NODATA))
                             }
                         }
                     }

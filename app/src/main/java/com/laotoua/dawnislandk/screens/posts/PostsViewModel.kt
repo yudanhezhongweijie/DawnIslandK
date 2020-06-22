@@ -5,8 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.local.entity.Post
+import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
-import com.laotoua.dawnislandk.data.repository.DataResource
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.SingleLiveEvent
@@ -29,27 +29,17 @@ class PostsViewModel @Inject constructor(private val webService: NMBServiceClien
 
     fun getPosts() {
         viewModelScope.launch {
-            _loadingStatus.postValue(
-                SingleLiveEvent.create(
-                    LoadingStatus.LOADING
-                )
-            )
+            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.LOADING))
             val fid = _currentFid ?: "-1"
             Timber.d("Getting threads from $fid on page $pageCount")
-            DataResource.create(webService.getPosts(fid, pageCount)).run {
-                when (this) {
-                    is DataResource.Error -> {
-                        Timber.e(message)
-                        _loadingStatus.postValue(
-                            SingleLiveEvent.create(
-                                LoadingStatus.FAILED,
-                                "无法读取串列表...\n$message"
-                            )
-                        )
-                    }
-                    is DataResource.Success -> {
-                        convertServerData(data!!, fid)
-                    }
+            webService.getPosts(fid, pageCount).run {
+                if (this is APIDataResponse.APIErrorDataResponse) {
+                    Timber.e(message)
+                    _loadingStatus.postValue(
+                        SingleLiveEvent.create(LoadingStatus.FAILED, "无法读取串列表...\n$message")
+                    )
+                } else if (this is APIDataResponse.APISuccessDataResponse) {
+                    convertServerData(data, fid)
                 }
             }
         }

@@ -1,7 +1,6 @@
 package com.laotoua.dawnislandk.di
 
 import androidx.lifecycle.ViewModel
-import com.laotoua.dawnislandk.screens.CommunityViewModel
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.PagerFragment
 import com.laotoua.dawnislandk.screens.SharedViewModel
@@ -43,11 +42,6 @@ abstract class ViewModelModule {
 
     @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
     internal abstract fun historyFragment(): BrowsingHistoryFragment
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(CommunityViewModel::class)
-    abstract fun bindCommunityViewModel(viewModel: CommunityViewModel): ViewModel
 
     @Binds
     @IntoMap

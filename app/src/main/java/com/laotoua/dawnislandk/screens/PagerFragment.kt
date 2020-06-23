@@ -11,8 +11,6 @@ import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -111,15 +109,9 @@ class PagerFragment : DaggerFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
         binding.toolbar.apply {
             immersiveToolbar()
             setSubtitle(R.string.toolbar_subtitle)
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-            setNavigationIcon(R.drawable.ic_menu_white_24px)
-            setNavigationOnClickListener {
-                drawerLayout.openDrawer(GravityCompat.START)
-            }
         }
         /**
          *  fragment navigation within cause memory leak
@@ -127,7 +119,7 @@ class PagerFragment : DaggerFragment() {
          *  https://issuetracker.google.com/issues/151212195
          */
         binding.viewPagerInterceptor.bindPager2(binding.viewPager2)
-        binding.viewPagerInterceptor.bindDrawerListener { drawerLayout.openDrawer(GravityCompat.START) }
+//        binding.viewPagerInterceptor.bindDrawerListener { drawerLayout.openDrawer(GravityCompat.START) }
         /** workaround for https://issuetracker.google.com/issues/134912610
          *  programmatically remove over scroll edge effect
          */

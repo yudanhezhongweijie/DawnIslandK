@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -12,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.laotoua.dawnislandk.R
+import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.databinding.FragmentPostBinding
 import com.laotoua.dawnislandk.screens.MainActivity
@@ -19,9 +21,16 @@ import com.laotoua.dawnislandk.screens.PagerFragment
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
+import com.laotoua.dawnislandk.screens.widget.popup.ForumDrawerPopup
 import com.laotoua.dawnislandk.screens.widget.popup.ImageLoader
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
+import com.laotoua.dawnislandk.util.EventPayload
+import com.laotoua.dawnislandk.util.LoadingStatus
+import com.laotoua.dawnislandk.util.SingleLiveEvent
+import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
+import com.lxj.xpopup.enums.PopupPosition
+import com.lxj.xpopup.interfaces.SimpleCallback
 import dagger.android.support.DaggerFragment
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import me.dkzwm.widget.srl.config.Constants
@@ -37,7 +46,14 @@ class PostsFragment : DaggerFragment() {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel: PostsViewModel by viewModels { viewModelFactory }
-    private val sharedVM: SharedViewModel by activityViewModels{ viewModelFactory }
+    private val sharedVM: SharedViewModel by activityViewModels { viewModelFactory }
+
+    private val forumDrawer by lazyOnMainOnly {
+        ForumDrawerPopup(
+            requireContext(),
+            sharedVM
+        )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -67,7 +83,7 @@ class PostsFragment : DaggerFragment() {
         val mAdapter = QuickAdapter<Post>(R.layout.list_item_post, sharedVM).apply {
             setOnItemClickListener { _, _, position ->
                 getItem(position).run {
-                    sharedVM.setPost(id,fid)
+                    sharedVM.setPost(id, fid)
                 }
                 (requireActivity() as MainActivity).showComment()
             }
@@ -139,7 +155,13 @@ class PostsFragment : DaggerFragment() {
             if (viewModel.currentFid != it) mAdapter.setList(emptyList())
             viewModel.setForum(it)
         })
+        showDrawer()
+    }
 
+    private val communityListObs = Observer<List<Community>> {
+        if (it.isNullOrEmpty()) return@Observer
+        forumDrawer.setData(it)
+        Timber.i("Loaded ${it.size} communities to Adapter")
     }
 
     override fun onResume() {
@@ -147,6 +169,51 @@ class PostsFragment : DaggerFragment() {
         (parentFragment as PagerFragment).setToolbarClickListener {
             binding.recyclerView.layoutManager?.scrollToPosition(0)
         }
+
+    }
+
+    private val reedPictureUrlObs = Observer<String> {
+        forumDrawer.setReedPicture(it)
+    }
+
+    private val communityListLoadingStatusObs = Observer<SingleLiveEvent<EventPayload<Nothing>>> {
+        if (it.getContentIfNotHandled()?.loadingStatus == LoadingStatus.FAILED) {
+            Toast.makeText(context, it.peekContent().message, Toast.LENGTH_LONG)
+                .show()
+        }
+    }
+
+    private fun subscribeForumDrawerUI() {
+        sharedVM.communityList.observe(viewLifecycleOwner, communityListObs)
+        sharedVM.reedPictureUrl.observe(viewLifecycleOwner, reedPictureUrlObs)
+        sharedVM.communityListLoadingStatus.observe(
+            viewLifecycleOwner,
+            communityListLoadingStatusObs
+        )
+    }
+
+    private fun unsubscribeForumDrawerUI() {
+        sharedVM.communityList.removeObserver(communityListObs)
+        sharedVM.reedPictureUrl.removeObserver(reedPictureUrlObs)
+        sharedVM.communityListLoadingStatus.removeObserver(communityListLoadingStatusObs)
+    }
+
+    private fun showDrawer() {
+        XPopup.Builder(context)
+            .setPopupCallback(object : SimpleCallback() {
+                override fun beforeShow() {
+                    super.beforeShow()
+                    subscribeForumDrawerUI()
+                }
+
+                override fun onDismiss() {
+                    super.onDismiss()
+                    unsubscribeForumDrawerUI()
+                }
+            })
+            .popupPosition(PopupPosition.Left)
+            .asCustom(forumDrawer)
+            .show()
     }
 
     override fun onDestroyView() {
@@ -154,6 +221,5 @@ class PostsFragment : DaggerFragment() {
         _binding = null
         Timber.d("Fragment View Destroyed")
     }
-
 }
 

@@ -20,7 +20,6 @@ import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
-import com.laotoua.dawnislandk.screens.widget.popup.ImageLoader
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.lxj.xpopup.XPopup
@@ -69,8 +68,6 @@ class FeedsFragment : DaggerFragment() {
             delayedLoading = mHandler!!.postDelayed(mDelayedLoad, 500)
         }
 
-        val imageLoader = ImageLoader()
-
         val mAdapter = QuickAdapter<Post>(R.layout.list_item_post, sharedVM).apply {
             setOnItemClickListener { _, _, position ->
                 getItem(position).run {
@@ -104,7 +101,6 @@ class FeedsFragment : DaggerFragment() {
                             url,
                             fragment = this@FeedsFragment
                         )
-                    viewerPopup.setXPopupImageLoader(imageLoader)
                     viewerPopup.setSingleSrcView(view as ImageView?, url)
 
                     XPopup.Builder(context)

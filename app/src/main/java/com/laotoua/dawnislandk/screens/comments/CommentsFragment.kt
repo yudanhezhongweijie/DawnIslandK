@@ -39,7 +39,6 @@ import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widget.DoubleClickListener
 import com.laotoua.dawnislandk.screens.widget.LinkifyTextView
-import com.laotoua.dawnislandk.screens.widget.popup.ImageLoader
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.screens.widget.popup.PostPopup
 import com.laotoua.dawnislandk.screens.widget.span.ReferenceSpan
@@ -132,7 +131,6 @@ class CommentsFragment : DaggerFragment() {
             )
         }
 
-        val imageLoader = ImageLoader()
         val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext(), sharedVM) }
         val jumpPopup: JumpPopup by lazyOnMainOnly { JumpPopup(requireContext()) }
 
@@ -169,7 +167,6 @@ class CommentsFragment : DaggerFragment() {
                         // TODO support multiple image
                         val viewerPopup =
                             ImageViewerPopup(url, fragment = this@CommentsFragment)
-                        viewerPopup.setXPopupImageLoader(imageLoader)
                         viewerPopup.setSingleSrcView(view as ImageView?, url)
 
                         XPopup.Builder(context)

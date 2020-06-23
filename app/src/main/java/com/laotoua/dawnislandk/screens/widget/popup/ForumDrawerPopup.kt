@@ -24,34 +24,34 @@ class ForumDrawerPopup(
     context: Context,
     private val sharedVM: SharedViewModel
 ) : DrawerPopupView(context) {
-    override fun getImplLayoutId(): Int =R.layout.drawer_forum
+    override fun getImplLayoutId(): Int = R.layout.drawer_forum
 
-    private val forumListAdapter = CommunityNodeAdapter(object : CommunityNodeAdapter.ForumClickListener {
-        override fun onForumClick(forum: Forum) {
-            Timber.d("Clicked on Forum ${forum.name}")
-            sharedVM.setForum(forum)
-            dismiss()
-        }
-    })
+    private val forumListAdapter =
+        CommunityNodeAdapter(object : CommunityNodeAdapter.ForumClickListener {
+            override fun onForumClick(forum: Forum) {
+                Timber.d("Clicked on Forum ${forum.name}")
+                sharedVM.setForum(forum)
+                dismiss()
+            }
+        })
 
-    private lateinit var reedImageView:ImageView
+    private var reedImageUrl: String = ""
+    private lateinit var reedImageView: ImageView
 
-    fun setData(list:List<Community>){
+    fun setData(list: List<Community>) {
         forumListAdapter.setData(list)
     }
 
-    override fun focusAndProcessBackPress() {
-        super.focusAndProcessBackPress()
-// TODO: make sure back pressed works
-//        if (binding.drawerLayout.isOpen) {
-//            binding.drawerLayout.close()
-//            return
-//        }
+    fun setReedPicture(url: String) {
+        reedImageUrl = url
+        if (isShow) {
+            loadReedPicture()
+        }
     }
 
-    fun setReedPicture(url:String){
+    private fun loadReedPicture() {
         GlideApp.with(reedImageView)
-            .load(url)
+            .load(reedImageUrl)
             .fitCenter()
             .into(reedImageView)
     }
@@ -63,25 +63,21 @@ class ForumDrawerPopup(
             forumListAdapter.setData(emptyList())
             sharedVM.forumRefresh()
         }
-        val imageLoader = ImageLoader()
         reedImageView = findViewById(R.id.reedImageView)
+        if (reedImageUrl.isNotBlank()) loadReedPicture()
         reedImageView.setOnClickListener {
-            val url = sharedVM.reedPictureUrl.value!!
-            val viewerPopup =
-                ImageViewerPopup(
-                    url,
-                    activity = context as Activity
-                )
-            viewerPopup.setXPopupImageLoader(imageLoader)
-            viewerPopup.setSingleSrcView(reedImageView, url)
+            if (reedImageUrl.isBlank()) return@setOnClickListener
+            val viewerPopup = ImageViewerPopup(reedImageUrl, activity = context as Activity)
+            viewerPopup.setSingleSrcView(reedImageView, reedImageUrl)
             XPopup.Builder(context)
                 .asCustom(viewerPopup)
                 .show()
         }
-//
+
         findViewById<Button>(R.id.ReedPictureRefresh).setOnClickListener {
             reedImageView.setImageResource(R.drawable.drawer_placeholder)
             sharedVM.getRandomReedPicture()
+            reedImageUrl = ""
         }
 
         findViewById<RecyclerView>(R.id.forumContainer).apply {
@@ -92,12 +88,6 @@ class ForumDrawerPopup(
         findViewById<Button>(R.id.settings).setOnClickListener {
             dismiss()
             val action = PagerFragmentDirections.actionPagerFragmentToSettingsFragment()
-            findNavController().navigate(action)
-        }
-
-        findViewById<Button>(R.id.browsingHistory).setOnClickListener {
-            dismiss()
-            val action = PagerFragmentDirections.actionPagerFragmentToBrowsingHistoryFragment()
             findNavController().navigate(action)
         }
     }

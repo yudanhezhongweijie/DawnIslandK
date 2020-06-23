@@ -5,14 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.databinding.FragmentPostBinding
 import com.laotoua.dawnislandk.screens.MainActivity
@@ -20,16 +18,8 @@ import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widget.BaseNavFragment
-import com.laotoua.dawnislandk.screens.widget.popup.ForumDrawerPopup
-import com.laotoua.dawnislandk.screens.widget.popup.ImageLoader
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
-import com.laotoua.dawnislandk.util.EventPayload
-import com.laotoua.dawnislandk.util.LoadingStatus
-import com.laotoua.dawnislandk.util.SingleLiveEvent
-import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
-import com.lxj.xpopup.enums.PopupPosition
-import com.lxj.xpopup.interfaces.SimpleCallback
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import me.dkzwm.widget.srl.config.Constants
 import timber.log.Timber
@@ -42,12 +32,6 @@ class PostsFragment : BaseNavFragment() {
 
     private val viewModel: PostsViewModel by viewModels { viewModelFactory }
 
-    private val forumDrawer by lazyOnMainOnly {
-        ForumDrawerPopup(
-            requireContext(),
-            sharedVM
-        )
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -73,8 +57,6 @@ class PostsFragment : BaseNavFragment() {
             )
         }
 
-        val imageLoader = ImageLoader()
-
         val mAdapter = QuickAdapter<Post>(R.layout.list_item_post, sharedVM).apply {
             setOnItemClickListener { _, _, position ->
                 getItem(position).run {
@@ -93,7 +75,6 @@ class PostsFragment : BaseNavFragment() {
                             imgUrl = url,
                             fragment = this@PostsFragment
                         )
-                    viewerPopup.setXPopupImageLoader(imageLoader)
                     viewerPopup.setSingleSrcView(view as ImageView?, url)
 
                     XPopup.Builder(context)
@@ -167,57 +148,6 @@ class PostsFragment : BaseNavFragment() {
             if (viewModel.currentFid != it) mAdapter.setList(emptyList())
             viewModel.setForum(it)
         })
-//        showDrawer()
-    }
-
-    private val communityListObs = Observer<List<Community>> {
-        if (it.isNullOrEmpty()) return@Observer
-        forumDrawer.setData(it)
-        Timber.i("Loaded ${it.size} communities to Adapter")
-    }
-
-    private val reedPictureUrlObs = Observer<String> {
-        forumDrawer.setReedPicture(it)
-    }
-
-    private val communityListLoadingStatusObs = Observer<SingleLiveEvent<EventPayload<Nothing>>> {
-        if (it.getContentIfNotHandled()?.loadingStatus == LoadingStatus.FAILED) {
-            Toast.makeText(context, it.peekContent().message, Toast.LENGTH_LONG)
-                .show()
-        }
-    }
-
-    private fun subscribeForumDrawerUI() {
-        sharedVM.communityList.observe(viewLifecycleOwner, communityListObs)
-        sharedVM.reedPictureUrl.observe(viewLifecycleOwner, reedPictureUrlObs)
-        sharedVM.communityListLoadingStatus.observe(
-            viewLifecycleOwner,
-            communityListLoadingStatusObs
-        )
-    }
-
-    private fun unsubscribeForumDrawerUI() {
-        sharedVM.communityList.removeObserver(communityListObs)
-        sharedVM.reedPictureUrl.removeObserver(reedPictureUrlObs)
-        sharedVM.communityListLoadingStatus.removeObserver(communityListLoadingStatusObs)
-    }
-
-    private fun showDrawer() {
-        XPopup.Builder(context)
-            .setPopupCallback(object : SimpleCallback() {
-                override fun beforeShow() {
-                    super.beforeShow()
-                    subscribeForumDrawerUI()
-                }
-
-                override fun onDismiss() {
-                    super.onDismiss()
-                    unsubscribeForumDrawerUI()
-                }
-            })
-            .popupPosition(PopupPosition.Left)
-            .asCustom(forumDrawer)
-            .show()
     }
 
     override fun onDestroyView() {

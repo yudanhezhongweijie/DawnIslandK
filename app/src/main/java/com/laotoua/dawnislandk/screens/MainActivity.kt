@@ -7,8 +7,10 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
@@ -18,18 +20,25 @@ import com.afollestad.materialdialogs.checkbox.isCheckPromptChecked
 import com.google.android.material.animation.AnimationUtils
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
+import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
 import com.laotoua.dawnislandk.screens.comments.CommentsFragment
 import com.laotoua.dawnislandk.screens.comments.QuotePopup
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbarInitialization
+import com.laotoua.dawnislandk.screens.widget.popup.ForumDrawerPopup
+import com.laotoua.dawnislandk.util.EventPayload
+import com.laotoua.dawnislandk.util.LoadingStatus
+import com.laotoua.dawnislandk.util.SingleLiveEvent
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
+import com.lxj.xpopup.XPopup
+import com.lxj.xpopup.enums.PopupPosition
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
 
-class MainActivity : DaggerAppCompatActivity(){
+class MainActivity : DaggerAppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
@@ -41,13 +50,23 @@ class MainActivity : DaggerAppCompatActivity(){
     private var doubleBackToExitPressedOnce = false
     private val mHandler = Handler()
     private val mRunnable = Runnable { doubleBackToExitPressedOnce = false }
+
     enum class NavScrollSate {
         UP,
         DOWN
     }
+
     private var currentState: NavScrollSate? = null
     private var currentAnimatorSet: AnimatorSet? = null
-    
+
+
+    private val forumDrawer by lazyOnMainOnly {
+        ForumDrawerPopup(
+            this,
+            sharedVM
+        )
+    }
+
     init {
         // load Resources
         lifecycleScope.launch { loadResources() }
@@ -63,7 +82,7 @@ class MainActivity : DaggerAppCompatActivity(){
         var currentNavId = R.id.forum
         binding.bottomNavigation.setOnNavigationItemSelectedListener { item ->
             if (currentNavId == item.itemId) return@setOnNavigationItemSelectedListener true
-            when(item.itemId) {
+            when (item.itemId) {
                 R.id.forum -> {
                     Timber.d("clicked on forum")
                     currentNavId = R.id.forum
@@ -91,8 +110,34 @@ class MainActivity : DaggerAppCompatActivity(){
                 else -> false
             }
         }
+
+        binding.bottomNavigation.setOnNavigationItemReselectedListener { item: MenuItem ->
+            if (item.itemId == R.id.forum) {
+                showDrawer()
+            }
+        }
+        sharedVM.communityList.observe(this, Observer<List<Community>> {
+            if (it.isNullOrEmpty()) return@Observer
+            forumDrawer.setData(it)
+            Timber.i("Loaded ${it.size} communities to Adapter")
+        })
+        sharedVM.reedPictureUrl.observe(this, Observer<String> {
+            forumDrawer.setReedPicture(it)
+        })
+        sharedVM.communityListLoadingStatus.observe(this, Observer<SingleLiveEvent<EventPayload<Nothing>>> {
+            if (it.getContentIfNotHandled()?.loadingStatus == LoadingStatus.FAILED) {
+                Toast.makeText(this, it.peekContent().message, Toast.LENGTH_LONG)
+                    .show()
+            }
+        })
     }
 
+    private fun showDrawer() {
+        XPopup.Builder(this)
+            .popupPosition(PopupPosition.Left)
+            .asCustom(forumDrawer)
+            .show()
+    }
 
     // initialize Global resources
     private suspend fun loadResources() {
@@ -217,7 +262,7 @@ class MainActivity : DaggerAppCompatActivity(){
     private val navAlphaInAnim by lazyOnMainOnly {
         ObjectAnimator.ofFloat(binding.bottomNavigation, "alpha", 1f)
     }
-    
+
     fun hideNav() {
         if (currentState == NavScrollSate.DOWN) return
         if (currentAnimatorSet != null) {

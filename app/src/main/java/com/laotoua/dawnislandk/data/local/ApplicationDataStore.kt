@@ -139,13 +139,13 @@ class ApplicationDataStore @Inject constructor(
     }
 
     suspend fun getLatestRelease(): Release? {
-        val currentVersion = releaseDao.getLatestRelease()
-        val currentVersionCode = currentVersion?.versionCode
-            ?: BuildConfig.VERSION_NAME.filter { it.isDigit() }.toInt()
-        if (currentVersion == null) {
-            val currentRelease = Release(1, BuildConfig.VERSION_NAME, "", "default entry")
-            coroutineScope { launch { releaseDao.insertRelease(currentRelease) } }
-        }
+        // TODO: add update check frequency
+//        val currentVersion = releaseDao.getLatestRelease()
+//        if (currentVersion == null) {
+//            val currentRelease = Release(1, BuildConfig.VERSION_NAME, "", "default entry",Date().time)
+//            coroutineScope { launch { releaseDao.insertRelease(currentRelease) } }
+//        }
+        val currentVersionCode = BuildConfig.VERSION_NAME.filter { it.isDigit() }.toInt()
         val latest = webService.getLatestRelease().run {
             if (this is APIDataResponse.APISuccessDataResponse) data
             else {
@@ -154,6 +154,7 @@ class ApplicationDataStore @Inject constructor(
             }
         }
         if (latest != null && latest.versionCode > currentVersionCode) {
+            coroutineScope { launch { releaseDao.insertRelease(latest) } }
             return latest
         }
         return null

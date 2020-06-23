@@ -8,7 +8,8 @@ data class Release(
     @PrimaryKey val id: Int = 1,
     val version: String,
     val downloadUrl: String,
-    val message: String
+    val message: String,
+    val lastUpdatedAt:Long
 ){
     val versionCode get() = version.filter { it.isDigit() }.toInt()
 }

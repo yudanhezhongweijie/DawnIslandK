@@ -12,6 +12,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import timber.log.Timber
 import java.io.File
+import java.util.*
 import javax.inject.Inject
 
 class NMBServiceClient @Inject constructor(private val service: NMBService) {
@@ -24,7 +25,8 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
                 1,
                 optString("tag_name"),
                 optString("html_url"),
-                optString("body")
+                optString("body"),
+                Date().time
             )
         }
     }

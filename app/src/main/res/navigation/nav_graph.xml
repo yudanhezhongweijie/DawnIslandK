@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/pagerFragment">
+    app:startDestination="@id/postsFragment">
     <fragment
         android:id="@+id/pagerFragment"
         android:name="com.laotoua.dawnislandk.screens.PagerFragment"
@@ -65,4 +65,45 @@
         android:name="com.laotoua.dawnislandk.screens.history.BrowsingHistoryFragment"
         android:label="fragment_browsing_history"
         tools:layout="@layout/fragment_browsing_history" />
+    <fragment
+        android:id="@+id/feedsFragment"
+        android:name="com.laotoua.dawnislandk.screens.feeds.FeedsFragment"
+        android:label="fragment_feed"
+        tools:layout="@layout/fragment_feed" />
+    <fragment
+        android:id="@+id/postsFragment"
+        android:name="com.laotoua.dawnislandk.screens.posts.PostsFragment"
+        android:label="fragment_post"
+        tools:layout="@layout/fragment_post" />
+    <action
+        android:id="@+id/action_global_postsFragment"
+        app:destination="@id/postsFragment"
+        app:enterAnim="@anim/fragment_open_enter"
+        app:exitAnim="@anim/fragment_open_exit"
+        app:popEnterAnim="@anim/fragment_close_enter"
+        app:popExitAnim="@anim/fragment_close_exit" />
+
+    <action
+        android:id="@+id/action_global_feedsFragment"
+        app:destination="@id/feedsFragment"
+        app:enterAnim="@anim/fragment_open_enter"
+        app:exitAnim="@anim/fragment_open_exit"
+        app:popEnterAnim="@anim/fragment_close_enter"
+        app:popExitAnim="@anim/fragment_close_exit" />
+
+    <action
+        android:id="@+id/action_global_browsingHistoryFragment"
+        app:destination="@id/browsingHistoryFragment"
+        app:enterAnim="@anim/fragment_open_enter"
+        app:exitAnim="@anim/fragment_open_exit"
+        app:popEnterAnim="@anim/fragment_close_enter"
+        app:popExitAnim="@anim/fragment_close_exit" />
+
+    <action
+        android:id="@+id/action_global_settingsFragment"
+        app:destination="@id/settingsFragment"
+        app:enterAnim="@anim/fragment_open_enter"
+        app:exitAnim="@anim/fragment_open_exit"
+        app:popEnterAnim="@anim/fragment_close_enter"
+        app:popExitAnim="@anim/fragment_close_exit" />
 </navigation>

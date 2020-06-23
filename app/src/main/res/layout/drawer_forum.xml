@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:layout_gravity="start"
     android:background="#FFFFFF"
-    app:layout_optimizationLevel="standard|dimensions">
+    app:layout_optimizationLevel="standard|dimensions"
+    tools:viewBindingIgnore="true">
 
     <ImageView
         android:id="@+id/reedImageView"

@@ -11,7 +11,6 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.widget.doOnTextChanged
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -108,16 +107,10 @@ class SettingsFragment : Fragment() {
             }
         }
 
-        binding.toolbarLayout.toolbar.apply {
+        binding.toolbar.apply {
             immersiveToolbar()
             setTitle(R.string.settings)
             setSubtitle(R.string.toolbar_subtitle)
-            val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-            setNavigationIcon(R.drawable.ic_arrow_back_white_24px)
-            setNavigationOnClickListener {
-                findNavController().popBackStack()
-            }
         }
 
         binding.feedId.apply {

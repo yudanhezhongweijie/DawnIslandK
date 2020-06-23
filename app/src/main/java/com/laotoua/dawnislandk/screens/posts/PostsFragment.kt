@@ -6,21 +6,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.afollestad.materialdialogs.MaterialDialog
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.databinding.FragmentPostBinding
 import com.laotoua.dawnislandk.screens.MainActivity
-import com.laotoua.dawnislandk.screens.PagerFragment
-import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
+import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
+import com.laotoua.dawnislandk.screens.widget.BaseNavFragment
 import com.laotoua.dawnislandk.screens.widget.popup.ForumDrawerPopup
 import com.laotoua.dawnislandk.screens.widget.popup.ImageLoader
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
@@ -31,22 +30,17 @@ import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.enums.PopupPosition
 import com.lxj.xpopup.interfaces.SimpleCallback
-import dagger.android.support.DaggerFragment
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import me.dkzwm.widget.srl.config.Constants
 import timber.log.Timber
-import javax.inject.Inject
 
 
-class PostsFragment : DaggerFragment() {
+class PostsFragment : BaseNavFragment() {
 
     private var _binding: FragmentPostBinding? = null
     private val binding get() = _binding!!
 
-    @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel: PostsViewModel by viewModels { viewModelFactory }
-    private val sharedVM: SharedViewModel by activityViewModels { viewModelFactory }
 
     private val forumDrawer by lazyOnMainOnly {
         ForumDrawerPopup(
@@ -66,10 +60,11 @@ class PostsFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        (parentFragment as PagerFragment).setToolbarClickListener {
-            binding.recyclerView.layoutManager?.scrollToPosition(0)
+        binding.toolbar.apply {
+            immersiveToolbar()
+            setSubtitle(R.string.toolbar_subtitle)
+            setOnClickListener { binding.recyclerView.layoutManager?.scrollToPosition(0) }
         }
-
         // initial load
         if (viewModel.posts.value.isNullOrEmpty()) {
             binding.refreshLayout.autoRefresh(
@@ -127,12 +122,29 @@ class PostsFragment : DaggerFragment() {
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     if (dy > 0) {
-                        (parentFragment as PagerFragment).hideMenu()
+//                        (parentFragment as PagerFragment).hideMenu()
                     } else if (dy < 0) {
-                        (parentFragment as PagerFragment).showMenu()
+//                        (parentFragment as PagerFragment).showMenu()
                     }
                 }
             })
+        }
+
+
+        binding.forumRule.setOnClickListener {
+            MaterialDialog(requireContext()).show {
+                cornerRadius(res = R.dimen.dp_10)
+                val forumId = sharedVM.selectedForumId.value!!
+                val biId = if (forumId.toInt() > 0) forumId.toInt() else 1
+                val resourceId: Int = context.resources.getIdentifier(
+                    "bi_$biId", "drawable",
+                    context.packageName
+                )
+                icon(resourceId)
+                title(text = sharedVM.getForumDisplayName(forumId))
+                message(text = sharedVM.getForumMsg(forumId)) { html() }
+                positiveButton(R.string.acknowledge)
+            }
         }
 
         viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
@@ -155,21 +167,13 @@ class PostsFragment : DaggerFragment() {
             if (viewModel.currentFid != it) mAdapter.setList(emptyList())
             viewModel.setForum(it)
         })
-        showDrawer()
+//        showDrawer()
     }
 
     private val communityListObs = Observer<List<Community>> {
         if (it.isNullOrEmpty()) return@Observer
         forumDrawer.setData(it)
         Timber.i("Loaded ${it.size} communities to Adapter")
-    }
-
-    override fun onResume() {
-        super.onResume()
-        (parentFragment as PagerFragment).setToolbarClickListener {
-            binding.recyclerView.layoutManager?.scrollToPosition(0)
-        }
-
     }
 
     private val reedPictureUrlObs = Observer<String> {

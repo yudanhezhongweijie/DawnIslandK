@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/full_round_corner_background">
+    android:background="@drawable/full_round_corner_background"
+    tools:viewBindingIgnore="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/pageCountContainer"
@@ -91,8 +92,8 @@
         android:id="@+id/firstPage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:tint="@color/colorPrimary"
         android:background="?attr/selectableItemBackground"
+        android:tint="@color/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/pageInput"
         app:layout_constraintHorizontal_weight="1"
@@ -118,15 +119,15 @@
         android:id="@+id/lastPage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:tint="@color/colorPrimary"
         android:background="?attr/selectableItemBackground"
+        android:tint="@color/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/pageInput"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_last_page_black_48px"
-        tools:layout_constraintHorizontal_weight="1"
-        tools:ignore="ContentDescription" />
+        tools:ignore="ContentDescription"
+        tools:layout_constraintHorizontal_weight="1" />
 
     <Button
         android:id="@+id/submit"

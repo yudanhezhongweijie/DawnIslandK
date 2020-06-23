@@ -1,5 +1,8 @@
 package com.laotoua.dawnislandk.screens
 
+import android.animation.Animator
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -12,14 +15,17 @@ import androidx.navigation.findNavController
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
 import com.afollestad.materialdialogs.checkbox.isCheckPromptChecked
+import com.google.android.material.animation.AnimationUtils
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
 import com.laotoua.dawnislandk.screens.comments.CommentsFragment
 import com.laotoua.dawnislandk.screens.comments.QuotePopup
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbarInitialization
+import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -35,7 +41,13 @@ class MainActivity : DaggerAppCompatActivity(){
     private var doubleBackToExitPressedOnce = false
     private val mHandler = Handler()
     private val mRunnable = Runnable { doubleBackToExitPressedOnce = false }
-
+    enum class NavScrollSate {
+        UP,
+        DOWN
+    }
+    private var currentState: NavScrollSate? = null
+    private var currentAnimatorSet: AnimatorSet? = null
+    
     init {
         // load Resources
         lifecycleScope.launch { loadResources() }
@@ -47,6 +59,38 @@ class MainActivity : DaggerAppCompatActivity(){
         binding = ActivityMainBinding.inflate(layoutInflater)
         immersiveToolbarInitialization()
         setContentView(binding.root)
+
+        var currentNavId = R.id.forum
+        binding.bottomNavigation.setOnNavigationItemSelectedListener { item ->
+            if (currentNavId == item.itemId) return@setOnNavigationItemSelectedListener true
+            when(item.itemId) {
+                R.id.forum -> {
+                    Timber.d("clicked on forum")
+                    currentNavId = R.id.forum
+                    findNavController(R.id.navHostFragment).navigate(R.id.action_global_postsFragment)
+                    true
+                }
+                R.id.feed -> {
+                    Timber.d("clicked on feed")
+                    currentNavId = R.id.feed
+                    findNavController(R.id.navHostFragment).navigate(R.id.action_global_feedsFragment)
+                    true
+                }
+                R.id.history -> {
+                    Timber.d("clicked on history")
+                    currentNavId = R.id.history
+                    findNavController(R.id.navHostFragment).navigate(R.id.action_global_browsingHistoryFragment)
+                    true
+                }
+                R.id.profile -> {
+                    Timber.d("clicked on profile")
+                    currentNavId = R.id.profile
+                    findNavController(R.id.navHostFragment).navigate(R.id.action_global_settingsFragment)
+                    true
+                }
+                else -> false
+            }
+        }
     }
 
 
@@ -148,5 +192,75 @@ class MainActivity : DaggerAppCompatActivity(){
             }
         }
         return false
+    }
+
+    private val navSlideOutBottomAnimAnim by lazyOnMainOnly {
+        ObjectAnimator.ofFloat(
+            binding.bottomNavigation,
+            "TranslationY",
+            binding.bottomNavigation.height.toFloat()
+        )
+    }
+
+    private val navAlphaOutAnim by lazyOnMainOnly {
+        ObjectAnimator.ofFloat(binding.bottomNavigation, "alpha", 0f)
+    }
+
+    private val navSlideInBottomAnim by lazyOnMainOnly {
+        ObjectAnimator.ofFloat(
+            binding.bottomNavigation,
+            "TranslationY",
+            0f
+        )
+    }
+
+    private val navAlphaInAnim by lazyOnMainOnly {
+        ObjectAnimator.ofFloat(binding.bottomNavigation, "alpha", 1f)
+    }
+    
+    fun hideNav() {
+        if (currentState == NavScrollSate.DOWN) return
+        if (currentAnimatorSet != null) {
+            currentAnimatorSet!!.cancel()
+        }
+        currentState = NavScrollSate.DOWN
+        currentAnimatorSet = AnimatorSet().apply {
+            duration = 250
+            interpolator = AnimationUtils.FAST_OUT_LINEAR_IN_INTERPOLATOR
+            addListener(object : Animator.AnimatorListener {
+                override fun onAnimationRepeat(animation: Animator?) {}
+                override fun onAnimationEnd(animation: Animator?) {
+                    currentAnimatorSet = null
+                }
+
+                override fun onAnimationCancel(animation: Animator?) {}
+                override fun onAnimationStart(animation: Animator?) {}
+            })
+            playTogether(navSlideOutBottomAnimAnim, navAlphaOutAnim)
+            start()
+        }
+    }
+
+    fun showNav() {
+        if (currentState == NavScrollSate.UP) return
+        if (currentAnimatorSet != null) {
+            currentAnimatorSet!!.cancel()
+        }
+        currentState = NavScrollSate.UP
+        currentAnimatorSet = AnimatorSet().apply {
+            duration = 250
+            interpolator = AnimationUtils.LINEAR_OUT_SLOW_IN_INTERPOLATOR
+            addListener(object : Animator.AnimatorListener {
+                override fun onAnimationRepeat(animation: Animator?) {}
+                override fun onAnimationEnd(animation: Animator?) {
+                    currentAnimatorSet = null
+                }
+
+                override fun onAnimationCancel(animation: Animator?) {}
+                override fun onAnimationStart(animation: Animator?) {}
+            })
+            playTogether(navSlideInBottomAnim, navAlphaInAnim)
+            start()
+        }
     }
 }

@@ -1,6 +1,9 @@
 package com.laotoua.dawnislandk.screens
 
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.local.dao.PostHistoryDao
 import com.laotoua.dawnislandk.data.local.entity.Forum
 import com.laotoua.dawnislandk.data.local.entity.PostHistory
@@ -27,30 +30,13 @@ class SharedViewModel @Inject constructor(
     val communityListLoadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>> =
         communityRepository.loadingStatus
 
-    private var _selectedForumId = MutableLiveData<String>()
+    // TODO: set default forum
+    private var _selectedForumId = MutableLiveData<String>("-1")
     val selectedForumId: LiveData<String> get() = _selectedForumId
     private var _selectedPostId = MutableLiveData<String>()
     val selectedPostId: LiveData<String> get() = _selectedPostId
     private var _selectedPostFid: String = "-1"
     val selectedPostFid get() = _selectedPostFid
-
-    private val forumNameMapping = Transformations.map(communityList) { list ->
-        val flattenForums = list.flatMap { it.forums }
-        // TODO: set default forum
-        _selectedForumId.value = flattenForums.first().id
-        toolbarTitle = flattenForums.first().name
-
-        flattenForums.associateBy(
-            keySelector = { it.id },
-            valueTransform = { it.name })
-
-    }
-
-    private val forumMsgMapping = Transformations.map(communityList) { list ->
-        val flattenForums = list.flatMap { it.forums }
-        flattenForums.associateBy(keySelector = { it.id },
-            valueTransform = { it.msg })
-    }
 
     private lateinit var loadingBible: List<String>
 
@@ -71,7 +57,7 @@ class SharedViewModel @Inject constructor(
 
     fun setForum(f: Forum) {
         Timber.d("Setting forum to id: ${f.id}")
-        toolbarTitle = forumNameMapping.value?.get(f.id) ?: ""
+        toolbarTitle = communityRepository.forumNameMapping[f.id] ?: ""
         _selectedForumId.value = f.id
     }
 
@@ -95,18 +81,18 @@ class SharedViewModel @Inject constructor(
         if (this::loadingBible.isInitialized) loadingBible.random()
         else "正在加载中..."
 
-    fun getForumNameMapping(): Map<String, String> = forumNameMapping.value ?: emptyMap()
+    fun getForumNameMapping(): Map<String, String> = communityRepository.forumNameMapping
 
-    fun getForumMsg(id: String): String = forumMsgMapping.value?.get(id) ?: ""
+    fun getForumMsg(id: String): String = communityRepository.forumMsgMapping[id] ?: ""
 
-    fun getForumDisplayName(id: String): String = forumNameMapping.value?.get(id) ?: ""
+    fun getForumDisplayName(id: String): String = communityRepository.forumNameMapping[id] ?: ""
 
     fun getSelectedPostForumName(): String = getForumDisplayName(_selectedPostFid)
 
     fun getToolbarTitle(): String = toolbarTitle
 
     fun getForumIdByName(name: String): String {
-        return forumNameMapping.value!!.filterValues { it == name }.keys.first()
+        return communityRepository.forumNameMapping.filterValues { it == name }.keys.first()
     }
 
     suspend fun sendPost(

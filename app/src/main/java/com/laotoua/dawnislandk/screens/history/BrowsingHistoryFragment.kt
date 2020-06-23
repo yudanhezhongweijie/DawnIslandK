@@ -12,7 +12,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
@@ -100,10 +99,6 @@ class BrowsingHistoryFragment : DaggerFragment() {
             immersiveToolbar()
             setTitle(R.string.browsing_history)
             setSubtitle(R.string.toolbar_subtitle)
-            setNavigationIcon(R.drawable.ic_arrow_back_white_24px)
-            setNavigationOnClickListener {
-                findNavController().popBackStack()
-            }
         }
 
         val mAdapter = BaseBinderAdapter().apply {
@@ -274,5 +269,10 @@ class BrowsingHistoryFragment : DaggerFragment() {
             sharedViewModel.setPost(data.id, data.fid)
             (context as MainActivity).showComment()
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

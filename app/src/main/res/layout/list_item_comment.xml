@@ -8,7 +8,8 @@
     android:paddingLeft="12dp"
     android:paddingTop="4dp"
     android:paddingRight="12dp"
-    app:layout_optimizationLevel="standard|dimensions">
+    app:layout_optimizationLevel="standard|dimensions"
+    tools:viewBindingIgnore="true">
 
     <TextView
         android:id="@+id/sage"

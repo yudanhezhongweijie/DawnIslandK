@@ -12,13 +12,11 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.databinding.FragmentFeedBinding
 import com.laotoua.dawnislandk.screens.MainActivity
-import com.laotoua.dawnislandk.screens.PagerFragment
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
@@ -125,15 +123,6 @@ class FeedsFragment : DaggerFragment() {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             adapter = mAdapter
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    if (dy > 0) {
-                        (parentFragment as PagerFragment).hideMenu()
-                    } else if (dy < 0) {
-                        (parentFragment as PagerFragment).showMenu()
-                    }
-                }
-            })
         }
 
         binding.refreshLayout.apply {
@@ -173,9 +162,9 @@ class FeedsFragment : DaggerFragment() {
 
     override fun onResume() {
         super.onResume()
-        (parentFragment as PagerFragment).setToolbarClickListener {
-            binding.recyclerView.layoutManager?.scrollToPosition(0)
-        }
+//        (parentFragment as PagerFragment).setToolbarClickListener {
+//            binding.recyclerView.layoutManager?.scrollToPosition(0)
+//        }
     }
 
     override fun onPause() {

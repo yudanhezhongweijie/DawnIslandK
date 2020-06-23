@@ -3,8 +3,8 @@ package com.laotoua.dawnislandk.data.repository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
-import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.data.local.dao.CommunityDao
+import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.util.EventPayload
@@ -23,14 +23,31 @@ class CommunityRepository @Inject constructor(
     val communityList: LiveData<List<Community>> = liveData(Dispatchers.IO) {
         Timber.d("Loading communities")
         val local = dao.getAll()
+        local.value?.run {
+            setMappings(this)
+        }
         emitSource(local)
         matchRemoteData(local)
     }
+    var forumNameMapping = mapOf<String, String>()
+        private set
+
+    var forumMsgMapping = mapOf<String, String>()
+        private set
 
     val reedPictureUrl = MutableLiveData<String>()
 
     private val _loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
     val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>> get() = _loadingStatus
+
+    private fun setMappings(list: List<Community>) {
+        forumNameMapping = list.associateBy(
+            keySelector = { it.id },
+            valueTransform = { it.name })
+
+        forumMsgMapping = list.flatMap { it.forums }.associateBy(keySelector = { it.id },
+            valueTransform = { it.msg })
+    }
 
     private suspend fun getRemoteData(): List<Community> {
         _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.LOADING))
@@ -52,6 +69,7 @@ class CommunityRepository @Inject constructor(
         val remote = getRemoteData()
         if (remote.isNotEmpty() && (remote != local.value || remoteDataOnly)) {
             Timber.d("Remote data differs from local data or forced refresh. Updating...")
+            setMappings(remote)
             dao.insertAll(remote)
         }
         _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))

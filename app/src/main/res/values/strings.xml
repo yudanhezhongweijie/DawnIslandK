@@ -152,6 +152,10 @@
     <string name="app_feed_back" translatable="false">客户端反馈</string>
     <string name="github" translatable="false">Github</string>
     <string name="email_author" translatable="false">发邮件给作者</string>
-    <string name="data_range_selection_error">选择日期范围出错</string>
-    <string name="no_data_dots">没有数据。。。</string>
+    <string name="data_range_selection_error" translatable="false">选择日期范围出错</string>
+    <string name="no_data_dots" translatable="false">没有数据。。。</string>
+    <string name="forum" translatable="false">板块</string>
+    <string name="feed" translatable="false">订阅</string>
+    <string name="history" translatable="false">历史</string>
+    <string name="my_profile" translatable="false">个人</string>
 </resources>

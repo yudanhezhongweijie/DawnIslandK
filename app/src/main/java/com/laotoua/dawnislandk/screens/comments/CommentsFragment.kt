@@ -180,6 +180,8 @@ class CommentsFragment : DaggerFragment() {
                         val content = ">>No.${getItem(position).id}\n"
                         postPopup.setupAndShow(
                             viewModel.currentPostId,
+                            viewModel.currentPostFid,
+                            targetPage = viewModel.maxPage,
                             quote = content
                         )
                     }
@@ -195,6 +197,7 @@ class CommentsFragment : DaggerFragment() {
                             listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
                                 postPopup.setupAndShow(
                                     "18",//值班室
+                                    "18",
                                     newPost = true,
                                     quote = "\n>>No.${getItem(position).id}\n${context.getString(R.string.report_reasons)}: $text"
                                 )
@@ -286,7 +289,11 @@ class CommentsFragment : DaggerFragment() {
 
         binding.post.setOnClickListener {
             val page = getCurrentPage(mAdapter)
-            postPopup.setupAndShow(viewModel.currentPostId) {
+            postPopup.setupAndShow(
+                viewModel.currentPostId,
+                viewModel.currentPostFid,
+                targetPage = viewModel.maxPage
+            ) {
                 if (page == viewModel.maxPage) {
                     mAdapter.loadMoreModule.loadMoreToLoading()
                 }

@@ -202,6 +202,7 @@ class PagerFragment : DaggerFragment() {
         binding.post.setOnClickListener {
             postPopup.setupAndShow(
                 sharedVM.selectedForumId.value,
+                sharedVM.selectedForumId.value!!,
                 true
             )
         }

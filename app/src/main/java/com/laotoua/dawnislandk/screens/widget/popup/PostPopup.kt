@@ -58,7 +58,9 @@ class PostPopup(
 
     private var waterMark: String? = null
     private var imageFile: File? = null
-    private var userHash = ""
+    private var cookieHash = ""
+    private var targetPage = 1
+    private var targetFid = ""
 
     private var cookies = listOf<Cookie>()
 
@@ -141,13 +143,17 @@ class PostPopup(
 
     fun setupAndShow(
         targetId: String?,
+        targetFid: String,
         newPost: Boolean = false,
+        targetPage: Int = 1,
         quote: String? = null,
         afterPostTask: (() -> Unit)? = null
     ) {
         XPopup.Builder(context)
             .setPopupCallback(object : SimpleCallback() {
                 override fun beforeShow() {
+                    this@PostPopup.targetPage = targetPage
+                    this@PostPopup.targetFid = targetFid
                     updateView(targetId, newPost, quote)
                     afterPostTask?.run { bindAfterPostTask(this) }
                     super.beforeShow()
@@ -265,11 +271,13 @@ class PostPopup(
                         //去除时间线
                         listItemsSingleChoice(items = mapping.values.drop(1)) { _, index, text ->
                             targetId = mapping.keys.drop(1).toList()[index]
+                            targetFid = targetId!!
                             postForum!!.text = text
                         }
                     }.onDismiss {
+                        if (targetId == null) return@onDismiss
                         postContent!!.hint =
-                            applicationDataStore.luweiNotice?.nmbForums?.firstOrNull { f -> f.id == targetId!! }
+                            applicationDataStore.luweiNotice?.nmbForums?.firstOrNull { f -> f.id == targetId }
                                 ?.getPostRule()
                         updateTitle(targetId, newPost)
                         if (postForum!!.text == "值班室") {
@@ -495,7 +503,7 @@ class PostPopup(
             return
         }
 
-        userHash = selectedCookie?.cookieHash ?: ""
+        cookieHash = selectedCookie?.cookieHash ?: ""
 
         val postProgressDialog = MaterialDialog(context).show {
             cornerRadius(res = R.dimen.dp_10)
@@ -514,13 +522,22 @@ class PostPopup(
                 content,
                 waterMark,
                 imageFile,
-                userHash
+                cookieHash
             ).let { message ->
                 postProgressDialog.dismiss()
                 dismissWith {
                     if (message.substring(0, 2) == ":)") {
-                        clearEntries()
+                        sharedVM.savePost(
+                            selectedCookie?.cookieName ?: "",
+                            targetId!!,
+                            targetPage,
+                            targetFid,
+                            newPost,
+                            imageFile?.path ?: "",
+                            content
+                        )
                         afterPostTask?.invoke()
+                        clearEntries()
                     }
                 }
                 Toast.makeText(caller.context, message, Toast.LENGTH_LONG).show()

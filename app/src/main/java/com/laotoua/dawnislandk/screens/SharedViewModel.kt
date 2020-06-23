@@ -3,14 +3,22 @@ package com.laotoua.dawnislandk.screens
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.laotoua.dawnislandk.data.local.dao.PostHistoryDao
 import com.laotoua.dawnislandk.data.local.entity.Forum
+import com.laotoua.dawnislandk.data.local.entity.PostHistory
 import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
+import java.util.*
 import javax.inject.Inject
 
-class SharedViewModel @Inject constructor(private val webNMBServiceClient: NMBServiceClient) :
+class SharedViewModel @Inject constructor(
+    private val webNMBServiceClient: NMBServiceClient,
+    private val postHistoryDao: PostHistoryDao
+) :
     ViewModel() {
     private var _selectedForumId = MutableLiveData<String>()
     val selectedForumId: LiveData<String> get() = _selectedForumId
@@ -78,7 +86,7 @@ class SharedViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
         targetId: String, name: String?,
         email: String?, title: String?,
         content: String?, waterMark: String?,
-        imageFile: File?, userHash: String
+        imageFile: File?, cookieHash: String
     ): String {
         return webNMBServiceClient.sendPost(
             newPost,
@@ -89,7 +97,7 @@ class SharedViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
             content,
             waterMark,
             imageFile,
-            userHash
+            cookieHash
         ).run {
             if (this is APIMessageResponse.APISuccessMessageResponse) {
                 if (messageType == APIMessageResponse.MessageType.String) {
@@ -102,6 +110,32 @@ class SharedViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
                 Timber.e(message)
                 message
             }
+        }
+    }
+
+    fun savePost(
+        postCookieName: String,
+        postTargetId: String, // do not have this when sending a newPost
+        postTargetPage: Int,
+        postTargetFid: String,
+        newPost: Boolean,// false if replying
+        imgPath: String,
+        content: String //content
+    ) {
+        viewModelScope.launch {
+            postHistoryDao.insertPostHistory(
+                PostHistory(
+                    null,
+                    postCookieName,
+                    postTargetId,
+                    postTargetPage,
+                    postTargetFid,
+                    newPost,
+                    imgPath,
+                    content,
+                    Date().time
+                )
+            )
         }
     }
 

@@ -10,7 +10,7 @@ interface CookieDao {
     suspend fun getAll(): List<Cookie>
 
     @Query("SELECT * FROM Cookie WHERE cookieHash=:cookieHash")
-    suspend fun getCookieByUserHash(cookieHash: String): Cookie
+    suspend fun getCookieByHash(cookieHash: String): Cookie
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(cookie: Cookie)

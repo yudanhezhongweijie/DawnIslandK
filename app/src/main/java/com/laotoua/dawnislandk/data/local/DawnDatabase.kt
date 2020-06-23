@@ -23,8 +23,9 @@ import com.laotoua.dawnislandk.data.local.entity.*
         LuweiNotice::class,
         Release::class,
         ReadingPage::class,
-        BrowsingHistory::class],
-    version = 6
+        BrowsingHistory::class,
+        PostHistory::class],
+    version = 7
 )
 @TypeConverters(Converter::class)
 abstract class DawnDatabase : RoomDatabase() {
@@ -37,7 +38,8 @@ abstract class DawnDatabase : RoomDatabase() {
     abstract fun luweiNoticeDao(): LuweiNoticeDao
     abstract fun releaseDao(): ReleaseDao
     abstract fun readingPageDao(): ReadingPageDao
-    abstract fun browsedPostDao(): BrowsingHistoryDao
+    abstract fun browsingHistoryDao(): BrowsingHistoryDao
+    abstract fun postHistoryDao(): PostHistoryDao
 
     companion object {
         // Singleton prevents multiple instances of database opening at the
@@ -62,7 +64,8 @@ abstract class DawnDatabase : RoomDatabase() {
                         MIGRATION_2_3,
                         MIGRATION_3_4,
                         MIGRATION_4_5,
-                        MIGRATION_5_6
+                        MIGRATION_5_6,
+                        MIGRATION_6_7
                     )
                     .build()
                 INSTANCE = instance
@@ -122,7 +125,12 @@ abstract class DawnDatabase : RoomDatabase() {
             }
         }
 
-
+        // adds Browsing History
+        private val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("CREATE TABLE IF NOT EXISTS PostHistory (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `postCookieName` TEXT NOT NULL, `postTargetId` TEXT NOT NULL, `postTargetPage` INTEGER NOT NULL, `postTargetFid` TEXT NOT NULL, `newPost` INTEGER NOT NULL, `imgPath` TEXT NOT NULL, `content` TEXT NOT NULL, `postDate` INTEGER NOT NULL)")
+            }
+        }
     }
 }
 

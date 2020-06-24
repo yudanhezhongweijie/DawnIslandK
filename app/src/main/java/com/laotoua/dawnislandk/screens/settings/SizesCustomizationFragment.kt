@@ -16,6 +16,7 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
+import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.posts.PostCardFactory
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widget.span.RoundBackgroundColorSpan
@@ -59,6 +60,9 @@ class SizesCustomizationFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        // hide NavBar
+        (requireActivity() as MainActivity).hideNav()
 
         rootView.setPaddingRelative(10, 10, 10, 10)
         rootView.orientation = LinearLayout.VERTICAL
@@ -391,5 +395,8 @@ class SizesCustomizationFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         Toast.makeText(context, R.string.restart_to_apply_setting, Toast.LENGTH_SHORT).show()
+
+        // showNav
+        (requireActivity() as MainActivity).showNav()
     }
 }

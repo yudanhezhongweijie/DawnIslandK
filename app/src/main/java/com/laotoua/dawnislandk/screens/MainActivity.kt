@@ -85,16 +85,7 @@ class MainActivity : DaggerAppCompatActivity() {
         immersiveToolbarInitialization()
         setContentView(binding.root)
 
-        val navHostFragment = supportFragmentManager
-            .findFragmentById(R.id.navHostFragment) as NavHostFragment
-        val navController = navHostFragment.navController
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            currentFragmentId = destination.id
-        }
-        binding.bottomNavBar.setupWithNavController(navController)
-        binding.bottomNavBar.setOnNavigationItemReselectedListener { item: MenuItem ->
-            if (item.itemId == R.id.postsFragment) showDrawer()
-        }
+        bindNavBarAndNavController()
 
         sharedVM.communityList.observe(this, Observer<List<Community>> {
             if (it.isNullOrEmpty()) return@Observer
@@ -171,6 +162,20 @@ class MainActivity : DaggerAppCompatActivity() {
         applicationDataStore.getLatestLuweiNotice()?.let { luweiNotice ->
             sharedVM.setLuweiLoadingBible(luweiNotice.loadingMsgs)
         }
+    }
+
+    private fun bindNavBarAndNavController() {
+        val navHostFragment = supportFragmentManager
+            .findFragmentById(R.id.navHostFragment) as NavHostFragment
+        val navController = navHostFragment.navController
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            currentFragmentId = destination.id
+        }
+        binding.bottomNavBar.setupWithNavController(navController)
+        binding.bottomNavBar.setOnNavigationItemReselectedListener { item: MenuItem ->
+            if (item.itemId == R.id.postsFragment) showDrawer()
+        }
+
     }
 
     override fun onBackPressed() {

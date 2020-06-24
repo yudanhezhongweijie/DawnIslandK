@@ -214,7 +214,6 @@ class PostsFragment : BaseNavFragment() {
         })
     }
 
-
     private fun hideFabMenu() {
         val rotateBackward = AnimationUtils.loadAnimation(
             requireContext(),

@@ -223,6 +223,7 @@ class MainActivity : DaggerAppCompatActivity() {
                 .runOnCommit { commentFrag.onResume() }
                 .commit()
         }
+        hideNav()
     }
 
     fun hideComment(): Boolean {
@@ -233,6 +234,7 @@ class MainActivity : DaggerAppCompatActivity() {
                     .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
                     .hide(it)
                     .commit()
+                showNav()
                 return true
             }
         }

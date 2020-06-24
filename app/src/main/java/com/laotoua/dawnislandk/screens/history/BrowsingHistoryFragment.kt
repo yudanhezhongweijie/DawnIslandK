@@ -1,88 +1,43 @@
 package com.laotoua.dawnislandk.screens.history
 
-import android.animation.Animator
-import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.datetime.datePicker
 import com.chad.library.adapter.base.BaseBinderAdapter
 import com.chad.library.adapter.base.binder.QuickItemBinder
 import com.chad.library.adapter.base.util.getItemView
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
-import com.google.android.material.animation.AnimationUtils
 import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.databinding.FragmentBrowsingHistoryBinding
-import com.laotoua.dawnislandk.di.DaggerViewModelFactory
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.*
 import com.laotoua.dawnislandk.screens.posts.PostCardFactory
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
+import com.laotoua.dawnislandk.screens.widget.BaseNavFragment
 import com.laotoua.dawnislandk.util.ReadableTime
-import com.laotoua.dawnislandk.util.lazyOnMainOnly
-import dagger.android.support.DaggerFragment
 import timber.log.Timber
 import java.util.*
-import javax.inject.Inject
 import kotlin.collections.ArrayList
 
-class BrowsingHistoryFragment : DaggerFragment() {
+class BrowsingHistoryFragment : BaseNavFragment() {
 
     private var _binding: FragmentBrowsingHistoryBinding? = null
     private val binding: FragmentBrowsingHistoryBinding get() = _binding!!
 
-    @Inject
-    lateinit var viewModelFactory: DaggerViewModelFactory
-
     private val viewModel: BrowsingHistoryViewModel by viewModels { viewModelFactory }
-    private val sharedVM: SharedViewModel by activityViewModels { viewModelFactory }
 
     private var endDate = Calendar.getInstance()
     private var startDate = Calendar.getInstance().apply { add(Calendar.WEEK_OF_YEAR, -1) }
-
-    enum class SCROLL_STATE {
-        UP,
-        DOWN
-    }
-
-    private var currentState: SCROLL_STATE? = null
-    private var currentAnimatorSet: AnimatorSet? = null
-
-    private val slideOutBottom by lazyOnMainOnly {
-        ObjectAnimator.ofFloat(
-            binding.bottomToolbar,
-            "TranslationY",
-            binding.bottomToolbar.height.toFloat()
-        )
-    }
-
-    private val alphaOut by lazyOnMainOnly {
-        ObjectAnimator.ofFloat(binding.bottomToolbar, "alpha", 0f)
-    }
-
-    private val slideInBottom by lazyOnMainOnly {
-        ObjectAnimator.ofFloat(
-            binding.bottomToolbar,
-            "TranslationY",
-            0f
-        )
-    }
-
-    private val alphaIn by lazyOnMainOnly {
-        ObjectAnimator.ofFloat(binding.bottomToolbar, "alpha", 1f)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -110,15 +65,6 @@ class BrowsingHistoryFragment : DaggerFragment() {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             adapter = mAdapter
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    if (dy > 0) {
-                        hideMenu()
-                    } else if (dy < 0) {
-                        showMenu()
-                    }
-                }
-            })
         }
 
         viewModel.browsingHistoryList.observe(viewLifecycleOwner, Observer { list ->
@@ -185,52 +131,6 @@ class BrowsingHistoryFragment : DaggerFragment() {
         endDate = date
         viewModel.setEndDate(date.time)
         binding.endDate.text = ReadableTime.getDateString(date.time)
-    }
-
-    fun hideMenu() {
-        if (currentState == SCROLL_STATE.DOWN) return
-        if (currentAnimatorSet != null) {
-            currentAnimatorSet!!.cancel()
-        }
-        currentState = SCROLL_STATE.DOWN
-        currentAnimatorSet = AnimatorSet().apply {
-            duration = 250
-            interpolator = AnimationUtils.FAST_OUT_LINEAR_IN_INTERPOLATOR
-            addListener(object : Animator.AnimatorListener {
-                override fun onAnimationRepeat(animation: Animator?) {}
-                override fun onAnimationEnd(animation: Animator?) {
-                    currentAnimatorSet = null
-                }
-
-                override fun onAnimationCancel(animation: Animator?) {}
-                override fun onAnimationStart(animation: Animator?) {}
-            })
-            playTogether(slideOutBottom, alphaOut)
-            start()
-        }
-    }
-
-    fun showMenu() {
-        if (currentState == SCROLL_STATE.UP) return
-        if (currentAnimatorSet != null) {
-            currentAnimatorSet!!.cancel()
-        }
-        currentState = SCROLL_STATE.UP
-        currentAnimatorSet = AnimatorSet().apply {
-            duration = 250
-            interpolator = AnimationUtils.LINEAR_OUT_SLOW_IN_INTERPOLATOR
-            addListener(object : Animator.AnimatorListener {
-                override fun onAnimationRepeat(animation: Animator?) {}
-                override fun onAnimationEnd(animation: Animator?) {
-                    currentAnimatorSet = null
-                }
-
-                override fun onAnimationCancel(animation: Animator?) {}
-                override fun onAnimationStart(animation: Animator?) {}
-            })
-            playTogether(slideInBottom, alphaIn)
-            start()
-        }
     }
 
     private class DateStringBinder : QuickItemBinder<String>() {

@@ -6,29 +6,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.FragmentFeedPagerBinding
-import com.laotoua.dawnislandk.di.DaggerViewModelFactory
-import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.zhpan.indicator.enums.IndicatorSlideMode
 import com.zhpan.indicator.enums.IndicatorStyle
 import dagger.android.support.DaggerFragment
 import timber.log.Timber
-import javax.inject.Inject
 
 class FeedPagerFragment : DaggerFragment() {
     private var _binding: FragmentFeedPagerBinding? = null
     private val binding: FragmentFeedPagerBinding get() = _binding!!
-
-    @Inject
-    lateinit var viewModelFactory:DaggerViewModelFactory
-    private val sharedVM:SharedViewModel by activityViewModels{viewModelFactory}
 
     private val titleUpdateCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
@@ -103,11 +95,10 @@ class FeedPagerFragment : DaggerFragment() {
         )
     }
 
-    fun updateTitle(resId: Int? = null) {
+    fun updateTitle(resId: Int) {
         binding.toolbar.run {
             startAnimation(slideInLeftAnimation)
-            if (resId != null) setTitle(resId)
-            else title = sharedVM.getToolbarTitle()
+            setTitle(resId)
         }
     }
 

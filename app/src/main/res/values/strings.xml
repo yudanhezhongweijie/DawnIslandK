@@ -155,6 +155,8 @@
     <string name="data_range_selection_error" translatable="false">选择日期范围出错</string>
     <string name="no_data_dots" translatable="false">没有数据。。。</string>
     <string name="forum" translatable="false">板块</string>
+    <string name="announcement" translatable="false">通知</string>
+    <string name="forum_rules" translatable="false">板规</string>
     <string name="feed" translatable="false">订阅</string>
     <string name="history" translatable="false">历史</string>
     <string name="my_profile" translatable="false">个人</string>

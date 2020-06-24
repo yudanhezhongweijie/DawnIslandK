@@ -4,12 +4,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
+import android.widget.Button
 import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.customview.customView
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.databinding.FragmentPostBinding
@@ -19,6 +25,8 @@ import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widget.BaseNavFragment
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
+import com.laotoua.dawnislandk.screens.widget.popup.PostPopup
+import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import me.dkzwm.widget.srl.config.Constants
@@ -29,9 +37,8 @@ class PostsFragment : BaseNavFragment() {
 
     private var _binding: FragmentPostBinding? = null
     private val binding get() = _binding!!
-
     private val viewModel: PostsViewModel by viewModels { viewModelFactory }
-
+    private var isFabOpen = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -103,14 +110,18 @@ class PostsFragment : BaseNavFragment() {
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     if (dy > 0) {
-//                        (parentFragment as PagerFragment).hideMenu()
+                        hideFabMenu()
+                        binding.fabMenu.hide()
                     } else if (dy < 0) {
-//                        (parentFragment as PagerFragment).showMenu()
+                        binding.fabMenu.show()
                     }
                 }
             })
         }
 
+        binding.fabMenu.setOnClickListener {
+            toggleFabMenu()
+        }
 
         binding.forumRule.setOnClickListener {
             MaterialDialog(requireContext()).show {
@@ -125,6 +136,58 @@ class PostsFragment : BaseNavFragment() {
                 title(text = sharedVM.getForumDisplayName(forumId))
                 message(text = sharedVM.getForumMsg(forumId)) { html() }
                 positiveButton(R.string.acknowledge)
+            }
+        }
+
+        val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext(), sharedVM) }
+        binding.post.setOnClickListener {
+            hideFabMenu()
+            postPopup.setupAndShow(
+                sharedVM.selectedForumId.value,
+                sharedVM.selectedForumId.value!!,
+                true
+            )
+        }
+
+        binding.search.setOnClickListener {
+            hideFabMenu()
+            MaterialDialog(requireContext()).show {
+                cornerRadius(res = R.dimen.dp_10)
+                title(R.string.search)
+                customView(R.layout.dialog_search, noVerticalPadding = true).apply {
+                    findViewById<Button>(R.id.search).setOnClickListener {
+                        Toast.makeText(context, "还没做。。。", Toast.LENGTH_SHORT).show()
+                    }
+
+                    findViewById<Button>(R.id.jumpToPost).setOnClickListener {
+                        val threadId = findViewById<TextView>(R.id.searchInputText).text
+                            .filter { it.isDigit() }.toString()
+                        if (threadId.isNotEmpty()) {
+                            // Does not have fid here. fid will be generated when data comes back in reply
+                            sharedVM.setPost(threadId, "")
+                            dismiss()
+                            (requireActivity() as MainActivity).showComment()
+                        } else {
+                            Toast.makeText(
+                                context,
+                                R.string.please_input_valid_text,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+            }
+        }
+
+        binding.announcement.setOnClickListener {
+            hideFabMenu()
+            DawnApp.applicationDataStore.nmbNotice?.let { notice ->
+                MaterialDialog(requireContext()).show {
+                    cornerRadius(res = R.dimen.dp_10)
+                    title(res = R.string.announcement)
+                    message(text = notice.content) { html() }
+                    positiveButton(R.string.close)
+                }
             }
         }
 
@@ -147,7 +210,41 @@ class PostsFragment : BaseNavFragment() {
         sharedVM.selectedForumId.observe(viewLifecycleOwner, Observer {
             if (viewModel.currentFid != it) mAdapter.setList(emptyList())
             viewModel.setForum(it)
+            binding.toolbar.title = sharedVM.getToolbarTitle()
         })
+    }
+
+
+    private fun hideFabMenu() {
+        val rotateBackward = AnimationUtils.loadAnimation(
+            requireContext(),
+            R.anim.rotate_backward
+        )
+        binding.fabMenu.startAnimation(rotateBackward)
+        binding.announcement.hide()
+        binding.search.hide()
+        binding.post.hide()
+        isFabOpen = false
+    }
+
+    private fun showFabMenu() {
+        val rotateForward = AnimationUtils.loadAnimation(
+            requireContext(),
+            R.anim.rotate_forward
+        )
+        binding.fabMenu.startAnimation(rotateForward)
+        binding.announcement.show()
+        binding.search.show()
+        binding.post.show()
+        isFabOpen = true
+    }
+
+    private fun toggleFabMenu() {
+        if (isFabOpen) {
+            hideFabMenu()
+        } else {
+            showFabMenu()
+        }
     }
 
     override fun onDestroyView() {

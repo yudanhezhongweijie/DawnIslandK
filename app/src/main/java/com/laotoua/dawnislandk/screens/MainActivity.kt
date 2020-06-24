@@ -114,10 +114,10 @@ class MainActivity : DaggerAppCompatActivity() {
         }
         sharedVM.communityList.observe(this, Observer<List<Community>> {
             if (it.isNullOrEmpty()) return@Observer
+            forumDrawer.setData(it)
+            sharedVM.setForumMappings(it)
             // TODO: set default forum
             sharedVM.setForum(it.first().forums.first())
-            sharedVM.setForumMappings(it)
-            forumDrawer.setData(it)
             Timber.i("Loaded ${it.size} communities to Adapter")
         })
         sharedVM.reedPictureUrl.observe(this, Observer<String> {
@@ -159,9 +159,10 @@ class MainActivity : DaggerAppCompatActivity() {
 
         applicationDataStore.loadCookies()
         applicationDataStore.initializeFeedId()
-        applicationDataStore.getNMBNotice()?.let { notice ->
+        applicationDataStore.getLatestNMBNotice()?.let { notice ->
             MaterialDialog(this).show {
                 cornerRadius(res = R.dimen.dp_10)
+                title(res = R.string.announcement)
                 checkBoxPrompt(R.string.acknowledge) {}
                 message(text = notice.content) { html() }
                 positiveButton(R.string.close) {
@@ -175,7 +176,7 @@ class MainActivity : DaggerAppCompatActivity() {
             }
         }
 
-        applicationDataStore.getLuweiNotice()?.let { luweiNotice ->
+        applicationDataStore.getLatestLuweiNotice()?.let { luweiNotice ->
             sharedVM.setLuweiLoadingBible(luweiNotice.loadingMsgs)
         }
     }

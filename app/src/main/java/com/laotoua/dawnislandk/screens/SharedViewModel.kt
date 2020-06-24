@@ -90,7 +90,6 @@ class SharedViewModel @Inject constructor(
         _selectedPostFid = fid
     }
 
-
     fun setLuweiLoadingBible(bible: List<String>) {
         loadingBible = bible
     }

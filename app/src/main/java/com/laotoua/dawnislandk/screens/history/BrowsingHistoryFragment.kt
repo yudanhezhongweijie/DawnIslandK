@@ -11,7 +11,6 @@ import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
@@ -25,6 +24,7 @@ import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.databinding.FragmentBrowsingHistoryBinding
+import com.laotoua.dawnislandk.di.DaggerViewModelFactory
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.*
@@ -44,7 +44,7 @@ class BrowsingHistoryFragment : DaggerFragment() {
     private val binding: FragmentBrowsingHistoryBinding get() = _binding!!
 
     @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
+    lateinit var viewModelFactory: DaggerViewModelFactory
 
     private val viewModel: BrowsingHistoryViewModel by viewModels { viewModelFactory }
     private val sharedVM: SharedViewModel by activityViewModels { viewModelFactory }

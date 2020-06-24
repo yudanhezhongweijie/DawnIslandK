@@ -11,7 +11,6 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.afollestad.materialdialogs.MaterialDialog
@@ -22,6 +21,7 @@ import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
+import com.laotoua.dawnislandk.di.DaggerViewModelFactory
 import com.laotoua.dawnislandk.screens.comments.CommentsFragment
 import com.laotoua.dawnislandk.screens.comments.QuotePopup
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbarInitialization
@@ -43,7 +43,7 @@ class MainActivity : DaggerAppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
+    lateinit var viewModelFactory: DaggerViewModelFactory
 
     private val sharedVM: SharedViewModel by viewModels { viewModelFactory }
 
@@ -84,25 +84,21 @@ class MainActivity : DaggerAppCompatActivity() {
             if (currentNavId == item.itemId) return@setOnNavigationItemSelectedListener true
             when (item.itemId) {
                 R.id.forum -> {
-                    Timber.d("clicked on forum")
                     currentNavId = R.id.forum
                     findNavController(R.id.navHostFragment).navigate(R.id.action_global_postsFragment)
                     true
                 }
                 R.id.feed -> {
-                    Timber.d("clicked on feed")
                     currentNavId = R.id.feed
                     findNavController(R.id.navHostFragment).navigate(R.id.action_global_feedPagerFragment)
                     true
                 }
                 R.id.history -> {
-                    Timber.d("clicked on history")
                     currentNavId = R.id.history
                     findNavController(R.id.navHostFragment).navigate(R.id.action_global_browsingHistoryFragment)
                     true
                 }
                 R.id.profile -> {
-                    Timber.d("clicked on profile")
                     currentNavId = R.id.profile
                     findNavController(R.id.navHostFragment).navigate(R.id.action_global_settingsFragment)
                     true
@@ -118,6 +114,9 @@ class MainActivity : DaggerAppCompatActivity() {
         }
         sharedVM.communityList.observe(this, Observer<List<Community>> {
             if (it.isNullOrEmpty()) return@Observer
+            // TODO: set default forum
+            sharedVM.setForum(it.first().forums.first())
+            sharedVM.setForumMappings(it)
             forumDrawer.setData(it)
             Timber.i("Loaded ${it.size} communities to Adapter")
         })

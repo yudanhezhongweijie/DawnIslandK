@@ -97,7 +97,7 @@ class PostPopup(
 
     private fun getForumTitle(targetId: String): String {
         return if (targetId == "-1") ""
-        else sharedVM.getForumNameMapping()[targetId] ?: ""
+        else sharedVM.forumMsgMapping[targetId] ?: ""
     }
 
     private fun updateForumButton(targetId: String?, newPost: Boolean) {
@@ -267,7 +267,7 @@ class PostPopup(
                     MaterialDialog(context).show {
                         cornerRadius(res = R.dimen.dp_10)
                         title(R.string.select_target_forum)
-                        val mapping = sharedVM.getForumNameMapping()
+                        val mapping = sharedVM.forumNameMapping
                         //去除时间线
                         listItemsSingleChoice(items = mapping.values.drop(1)) { _, index, text ->
                             targetId = mapping.keys.drop(1).toList()[index]

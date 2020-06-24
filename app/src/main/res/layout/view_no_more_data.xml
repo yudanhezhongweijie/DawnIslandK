@@ -11,8 +11,8 @@
     tools:viewBindingIgnore="true">
 
     <ImageView
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
         app:srcCompat="@drawable/lec_0032_033"
         tools:ignore="ContentDescription" />
 
@@ -21,12 +21,12 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:text="@string/reached_data_end"
+        android:text="@string/no_more_data"
         android:textSize="14sp" />
 
     <ImageView
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
         app:srcCompat="@drawable/lec_0049_050"
         tools:ignore="ContentDescription" />
 

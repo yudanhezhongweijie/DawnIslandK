@@ -154,7 +154,7 @@
     <string name="email_author" translatable="false">发邮件给作者</string>
     <string name="data_range_selection_error" translatable="false">选择日期范围出错</string>
     <string name="no_data_dots" translatable="false">没有数据。。。</string>
-    <string name="reached_data_end" translatable="false">已经看完啦</string>
+    <string name="no_more_data" translatable="false">没有更多数据</string>
     <string name="forum" translatable="false">板块</string>
     <string name="announcement" translatable="false">通知</string>
     <string name="forum_rules" translatable="false">板规</string>

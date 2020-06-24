@@ -90,7 +90,7 @@ class BrowsingHistoryFragment : BaseNavFragment() {
             mAdapter.setDiffNewData(data)
             mAdapter.setFooterView(
                 layoutInflater.inflate(
-                    R.layout.view_adapter_footer,
+                    R.layout.view_no_more_data,
                     binding.recyclerView,
                     false
                 )

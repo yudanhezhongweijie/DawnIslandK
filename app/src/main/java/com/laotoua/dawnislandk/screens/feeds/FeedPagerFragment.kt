@@ -14,8 +14,9 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.databinding.FragmentFeedPagerBinding
+import com.laotoua.dawnislandk.databinding.FragmentBasePagerBinding
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
+import com.laotoua.dawnislandk.screens.widget.DoubleClickListener
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.zhpan.indicator.enums.IndicatorSlideMode
 import com.zhpan.indicator.enums.IndicatorStyle
@@ -23,8 +24,8 @@ import dagger.android.support.DaggerFragment
 import timber.log.Timber
 
 class FeedPagerFragment : DaggerFragment() {
-    private var _binding: FragmentFeedPagerBinding? = null
-    private val binding: FragmentFeedPagerBinding get() = _binding!!
+    private var _binding: FragmentBasePagerBinding? = null
+    private val binding: FragmentBasePagerBinding get() = _binding!!
 
     private val pageIndices = DawnApp.applicationDataStore.getFeedPagerPageIndices()
     private val titleUpdateCallback = object : ViewPager2.OnPageChangeCallback() {
@@ -42,7 +43,7 @@ class FeedPagerFragment : DaggerFragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        _binding = FragmentFeedPagerBinding.inflate(inflater, container, false)
+        _binding = FragmentBasePagerBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -122,10 +123,14 @@ class FeedPagerFragment : DaggerFragment() {
         }
     }
 
-    fun setToolbarClickListener(listener: (View) -> Unit) {
-        binding.toolbar.setOnClickListener {
-            listener.invoke(it)
-        }
+    fun setToolbarClickListener(listener: () -> Unit) {
+        binding.toolbar.setOnClickListener(
+            DoubleClickListener(callback = object : DoubleClickListener.DoubleClickCallBack {
+                override fun doubleClicked() {
+                    listener.invoke()
+                }
+            })
+        )
     }
 
 }

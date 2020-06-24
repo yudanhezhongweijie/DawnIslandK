@@ -24,6 +24,7 @@ import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widget.BaseNavFragment
+import com.laotoua.dawnislandk.screens.widget.DoubleClickListener
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.screens.widget.popup.PostPopup
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
@@ -54,7 +55,13 @@ class PostsFragment : BaseNavFragment() {
         binding.toolbar.apply {
             immersiveToolbar()
             setSubtitle(R.string.toolbar_subtitle)
-            setOnClickListener { binding.srlAndRv.recyclerView.layoutManager?.scrollToPosition(0) }
+            setOnClickListener(
+                DoubleClickListener(callback = object : DoubleClickListener.DoubleClickCallBack {
+                    override fun doubleClicked() {
+                        binding.srlAndRv.recyclerView.layoutManager?.scrollToPosition(0)
+                    }
+                })
+            )
         }
         // initial load
         if (viewModel.posts.value.isNullOrEmpty()) {

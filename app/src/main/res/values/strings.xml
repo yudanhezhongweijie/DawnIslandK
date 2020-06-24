@@ -70,6 +70,7 @@
     <string name="select_target_forum" translatable="false">选择发布板块</string>
     <string name="settings" translatable="false">设置</string>
     <string name="browsing_history" translatable="false">浏览历史</string>
+    <string name="post_history" translatable="false">发布历史</string>
     <string name="forum_refresh" translatable="false">刷新板块</string>
     <string name="general_settings" translatable="false">通用设置</string>
     <string name="size_customization_settings" translatable="false">设置串卡片布局</string>

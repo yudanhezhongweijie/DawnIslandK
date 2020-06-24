@@ -174,4 +174,16 @@ class ApplicationDataStore @Inject constructor(
             mmkv.getInt(Constants.FEEDS_FRAG_PAGER_INDEX, 1)
         )
     }
+
+    fun setHistoryPagerDefaultPage(browseIndex: Int, postIndex: Int) {
+        mmkv.putInt(Constants.BROWSING_HISTORY_FRAG_PAGER_INDEX, browseIndex)
+        mmkv.putInt(Constants.POST_HISTORY_FRAG_PAGER_INDEX, postIndex)
+    }
+
+    fun getHistoryPagerPageIndices(): Pair<Int, Int> {
+        return Pair(
+            mmkv.getInt(Constants.BROWSING_HISTORY_FRAG_PAGER_INDEX, 0),
+            mmkv.getInt(Constants.POST_HISTORY_FRAG_PAGER_INDEX, 1)
+        )
+    }
 }

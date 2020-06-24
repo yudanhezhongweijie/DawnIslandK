@@ -25,6 +25,8 @@ object Constants {
     const val ACKNOWLEDGE_POSTING_RULES = "acknowledge_posting_rules"
     const val FEEDS_FRAG_PAGER_INDEX = "feeds_frag_page_index"
     const val TRENDS_FRAG_PAGER_INDEX = "trends_frag_pager_index"
+    const val BROWSING_HISTORY_FRAG_PAGER_INDEX = "browsing_history_frag_page_index"
+    const val POST_HISTORY_FRAG_PAGER_INDEX = "post_history_frag_pager_index"
 
     const val baseCDN = "https://nmb.fastmirror.org/"
     private const val imgCDN = "https://nmbimg.fastmirror.org/"

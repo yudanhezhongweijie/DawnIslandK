@@ -51,18 +51,19 @@ object ReadableTime {
     private val sCalendar =
         Calendar.getInstance(TimeZone.getTimeZone("GMT+08:00"))
     private val sCalendarLock = Any()
+    private val localInstance get() = Locale.getDefault()
     private val DATE_FORMAT_WITHOUT_YEAR =
-        SimpleDateFormat("MM/dd", Locale.getDefault())
+        SimpleDateFormat("MM/dd", localInstance)
     val DATE_FORMAT_WITH_YEAR =
-        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        SimpleDateFormat("yyyy-MM-dd", localInstance)
     private val DATE_FORMAT =
-        SimpleDateFormat("yy/MM/dd HH:mm", Locale.getDefault())
+        SimpleDateFormat("yy/MM/dd HH:mm", localInstance)
     private val BASIC_DATE_FORMAT =
-        SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        SimpleDateFormat("yyyy-MM-dd HH:mm:ss", localInstance)
 
     private val sDateFormatLock1 = Any()
     private val FILENAMABLE_DATE_FORMAT =
-        SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.getDefault())
+        SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", localInstance)
     private val sDateFormatLock2 = Any()
 
     fun initialize(context: Context) {
@@ -101,23 +102,31 @@ object ReadableTime {
 
     fun getDisplayTime(time: String): String {
         return when (timeFormat) {
-            "simplified" -> getTimeAgo(
+            "simplified" -> getDisplayTimeAgo(
                 string2Time(time)
             )
-            "original" -> getPlainTime(
+            "original" -> getPlainDisplayTime(
                 string2Time(time)
             )
             else -> throw Exception("Unhandled time format")
         }
     }
 
-    fun getPlainTime(time: Long): String {
+    private fun getPlainDisplayTime(time: Long): String {
         synchronized(
             sDateFormatLock1
         ) { return DATE_FORMAT.format(Date(time)) }
     }
 
-    fun getTimeAgo(time: Long): String {
+    fun getTimeAgo(time: Long):Long{
+        var now = System.currentTimeMillis()
+        val timeZoneShift = (TimeZone.getTimeZone("GMT+08:00").getOffset(now)
+                - TimeZone.getDefault().getOffset(now)).toLong()
+        now = System.currentTimeMillis() + timeZoneShift
+        return now - time
+    }
+
+    private fun getDisplayTimeAgo(time: Long): String {
         val resources = sResources
         var now = System.currentTimeMillis()
         val timeZoneShift = (TimeZone.getTimeZone("GMT+08:00").getOffset(now)

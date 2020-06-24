@@ -52,7 +52,7 @@ class TrendsFragment : BaseNavFragment() {
             mHandler = mHandler ?: Handler()
             delayedLoading = mHandler!!.postDelayed(mDelayedLoad, 500)
         }
-        val mAdapter = QuickAdapter<Trend>(R.layout.list_item_trend,sharedVM).apply {
+        val mAdapter = QuickAdapter<Trend>(R.layout.list_item_trend, sharedVM).apply {
             loadMoreModule.isEnableLoadMore = false
             setOnItemClickListener { _, _, position ->
                 val target = getItem(position)
@@ -67,7 +67,6 @@ class TrendsFragment : BaseNavFragment() {
             setOnRefreshListener(object : RefreshingListenerAdapter() {
                 override fun onRefreshing() {
                     viewModel.getLatestTrend()
-                    mAdapter.setList(emptyList())
                 }
             })
         }

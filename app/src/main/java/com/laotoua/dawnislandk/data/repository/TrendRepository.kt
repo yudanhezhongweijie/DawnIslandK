@@ -37,12 +37,21 @@ class TrendRepository @Inject constructor(
     val dailyTrend = MutableLiveData<DailyTrend>()
 
     suspend fun getLatestTrend() {
+        var getRemoteData = true
         dailyTrendDao.findLatestDailyTrendSync()?.let {
             dailyTrend.value = it
             page = ceil(it.lastReplyCount.toDouble() / 19).toInt()
+            // trends updates daily at 1AM
+            val diff = ReadableTime.getTimeAgo(it.date)
+            val dayTime = ReadableTime.DAY_MILLIS
+            if (diff - dayTime < 0) {
+                getRemoteData = false
+                _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))
+            }
         }
-        // TODO: update only if today is different from cache's data or refresh
-        getRemoteTrend()
+        if (getRemoteData) {
+            getRemoteTrend()
+        }
     }
 
     private suspend fun getRemoteTrend() {
@@ -72,7 +81,7 @@ class TrendRepository @Inject constructor(
                 val list = reply.content.split(trendDelimiter, ignoreCase = true)
                 if (list.size == trendLength) {
                     // keep only date in DB, e.g 2018-10-18 for "2018-10-18(四)17:55:01"
-                    val dateString = data.now.substringBefore("(")
+                    val dateString = reply.now.substringBefore("(")
                     return DailyTrend(
                         trendId,
                         po,
@@ -89,7 +98,7 @@ class TrendRepository @Inject constructor(
     private suspend fun convertLatestTrend(data: Post) {
         val newDailyTrend: DailyTrend? = extractLatestTrend(data)
         if (newDailyTrend != null) {
-            if (newDailyTrend.trends != dailyTrend.value?.trends) {
+            if (newDailyTrend != dailyTrend.value) {
                 dailyTrend.postValue(newDailyTrend)
                 dailyTrendDao.insertWithTimeStamp(newDailyTrend)
             }

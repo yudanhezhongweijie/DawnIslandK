@@ -19,6 +19,7 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
 import com.afollestad.materialdialogs.checkbox.isCheckPromptChecked
 import com.google.android.material.animation.AnimationUtils
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Community
@@ -75,6 +76,8 @@ class MainActivity : DaggerAppCompatActivity() {
         lifecycleScope.launch { loadResources() }
     }
 
+    // uses to display fab menu if it exists
+    private var currentFragmentId: Int = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -85,11 +88,12 @@ class MainActivity : DaggerAppCompatActivity() {
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.navHostFragment) as NavHostFragment
         val navController = navHostFragment.navController
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            currentFragmentId = destination.id
+        }
         binding.bottomNavBar.setupWithNavController(navController)
         binding.bottomNavBar.setOnNavigationItemReselectedListener { item: MenuItem ->
-            if (item.itemId == R.id.postsFragment) {
-                showDrawer()
-            }
+            if (item.itemId == R.id.postsFragment) showDrawer()
         }
 
         sharedVM.communityList.observe(this, Observer<List<Community>> {
@@ -115,7 +119,7 @@ class MainActivity : DaggerAppCompatActivity() {
 
     private fun showDrawer() {
         XPopup.Builder(this)
-            .setPopupCallback(object: SimpleCallback(){
+            .setPopupCallback(object : SimpleCallback() {
                 override fun beforeShow() {
                     super.beforeShow()
                     forumDrawer.loadReedPicture()
@@ -223,6 +227,9 @@ class MainActivity : DaggerAppCompatActivity() {
                     .hide(it)
                     .commit()
                 showNav()
+                if (currentFragmentId == R.id.postsFragment) {
+                    findViewById<FloatingActionButton>(R.id.fabMenu).show()
+                }
                 return true
             }
         }

@@ -51,7 +51,7 @@ class FeedPagerFragment : DaggerFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.toolbarLayout.toolbar.apply {
+        binding.toolbar.apply {
             immersiveToolbar()
             setSubtitle(R.string.toolbar_subtitle)
         }
@@ -104,15 +104,15 @@ class FeedPagerFragment : DaggerFragment() {
     }
 
     fun updateTitle(resId: Int? = null) {
-        binding.toolbarLayout.run {
-            toolbar.startAnimation(slideInLeftAnimation)
-            if (resId != null) toolbar.setTitle(resId)
-            else toolbar.title = sharedVM.getToolbarTitle()
+        binding.toolbar.run {
+            startAnimation(slideInLeftAnimation)
+            if (resId != null) setTitle(resId)
+            else title = sharedVM.getToolbarTitle()
         }
     }
 
     fun setToolbarClickListener(listener: (View) -> Unit) {
-        binding.toolbarLayout.toolbar.setOnClickListener {
+        binding.toolbar.setOnClickListener {
             listener.invoke(it)
         }
     }

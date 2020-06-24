@@ -7,20 +7,41 @@
     android:layout_height="match_parent"
     app:layout_optimizationLevel="standard|dimensions">
 
-    <include
-        android:id="@+id/toolbarLayout"
-        layout="@layout/widget_toolbar"
+    <ImageView
+        android:id="@+id/imageView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="0dp"
+        android:paddingTop="30dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="@id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/appbar"
+        tools:ignore="ContentDescription" />
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:focusable="false"
+        android:theme="@style/Theme.MaterialComponents.DayNight.DarkActionBar"
+        app:contentInsetStartWithNavigation="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:subtitle="adnmb.com"
+        app:subtitleTextColor="#FFFFFF"
+        app:title="时间线"
+        app:titleTextColor="#FFFFFF" />
 
     <com.zhpan.indicator.IndicatorView
         android:id="@+id/pageIndicatorView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        app:layout_constraintBottom_toBottomOf="@id/toolbarLayout"
-        app:layout_constraintEnd_toEndOf="@id/toolbarLayout"
-        app:layout_constraintTop_toTopOf="@id/toolbarLayout" />
+        app:layout_constraintBottom_toBottomOf="@id/toolbar"
+        app:layout_constraintEnd_toEndOf="@id/toolbar"
+        app:layout_constraintTop_toTopOf="@id/toolbar" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager2"
@@ -29,7 +50,7 @@
         android:overScrollMode="never"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbarLayout"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
         tools:context=".screens.PagerFragment" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

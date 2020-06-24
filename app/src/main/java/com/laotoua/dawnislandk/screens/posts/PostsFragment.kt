@@ -44,7 +44,7 @@ class PostsFragment : BaseNavFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.toolbarLayout.toolbar.apply {
+        binding.toolbar.apply {
             immersiveToolbar()
             setSubtitle(R.string.toolbar_subtitle)
             setOnClickListener { binding.srlAndRv.recyclerView.layoutManager?.scrollToPosition(0) }

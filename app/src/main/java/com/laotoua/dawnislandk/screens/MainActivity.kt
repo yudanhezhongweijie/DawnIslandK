@@ -92,7 +92,7 @@ class MainActivity : DaggerAppCompatActivity() {
                 R.id.feed -> {
                     Timber.d("clicked on feed")
                     currentNavId = R.id.feed
-                    findNavController(R.id.navHostFragment).navigate(R.id.action_global_feedsFragment)
+                    findNavController(R.id.navHostFragment).navigate(R.id.action_global_feedPagerFragment)
                     true
                 }
                 R.id.history -> {

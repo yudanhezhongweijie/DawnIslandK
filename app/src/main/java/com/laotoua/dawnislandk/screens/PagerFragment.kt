@@ -25,8 +25,8 @@ import com.google.android.material.animation.AnimationUtils.LINEAR_OUT_SLOW_IN_I
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.FragmentPagerBinding
 import com.laotoua.dawnislandk.screens.feeds.FeedsFragment
+import com.laotoua.dawnislandk.screens.feeds.TrendsFragment
 import com.laotoua.dawnislandk.screens.posts.PostsFragment
-import com.laotoua.dawnislandk.screens.trend.TrendsFragment
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widget.popup.PostPopup
 import com.laotoua.dawnislandk.util.lazyOnMainOnly

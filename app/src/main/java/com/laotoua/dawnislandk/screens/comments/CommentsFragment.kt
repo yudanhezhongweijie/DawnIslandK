@@ -18,7 +18,6 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.text.toSpannable
 import androidx.core.view.isVisible
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -113,11 +112,9 @@ class CommentsFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.toolbar.apply {
+        binding.toolbarLayout.toolbar.apply {
             immersiveToolbar()
             setSubtitle(R.string.toolbar_subtitle)
-            val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             setNavigationIcon(R.drawable.ic_arrow_back_white_24px)
             setNavigationOnClickListener {
                 (requireActivity() as MainActivity).hideComment()
@@ -125,7 +122,7 @@ class CommentsFragment : DaggerFragment() {
             setOnClickListener(
                 DoubleClickListener(callback = object : DoubleClickListener.DoubleClickCallBack {
                     override fun doubleClicked() {
-                        binding.recyclerView.layoutManager?.scrollToPosition(0)
+                        binding.srlAndRv.recyclerView.layoutManager?.scrollToPosition(0)
                     }
                 })
             )
@@ -222,11 +219,11 @@ class CommentsFragment : DaggerFragment() {
             }
         }
 
-        binding.refreshLayout.apply {
+        binding.srlAndRv.refreshLayout.apply {
             setOnRefreshListener(object : RefreshingListenerAdapter() {
                 override fun onRefreshing() {
                     if (mAdapter.getItem(
-                            (binding.recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                            (binding.srlAndRv.recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
                         ).page == 1
                     ) {
                         Toast.makeText(context, "没有上一页了。。。", Toast.LENGTH_SHORT).show()
@@ -238,7 +235,7 @@ class CommentsFragment : DaggerFragment() {
             })
         }
 
-        binding.recyclerView.apply {
+        binding.srlAndRv.recyclerView.apply {
             val llm = LinearLayoutManager(context)
             layoutManager = llm
             adapter = mAdapter
@@ -249,7 +246,7 @@ class CommentsFragment : DaggerFragment() {
                         hideMenu()
                     } else if (dy < 0) {
                         showMenu()
-                        if (llm.findFirstVisibleItemPosition() <= 2 && !binding.refreshLayout.isRefreshing) {
+                        if (llm.findFirstVisibleItemPosition() <= 2 && !binding.srlAndRv.refreshLayout.isRefreshing) {
                             viewModel.getPreviousPage()
                         }
                     }
@@ -272,7 +269,7 @@ class CommentsFragment : DaggerFragment() {
                     viewModel.onlyPo()
                     Toast.makeText(context, R.string.comment_filter_on, Toast.LENGTH_SHORT).show()
                 }
-                (binding.recyclerView.layoutManager as LinearLayoutManager).run {
+                (binding.srlAndRv.recyclerView.layoutManager as LinearLayoutManager).run {
                     val startPos = findFirstVisibleItemPosition()
                     val itemCount = findLastVisibleItemPosition() - startPos
                     mAdapter.notifyItemRangeChanged(startPos, itemCount + initialPrefetchItemCount)
@@ -298,7 +295,7 @@ class CommentsFragment : DaggerFragment() {
         }
 
         binding.jump.setOnClickListener {
-            if (binding.refreshLayout.isRefreshing || mAdapter.loadMoreModule.isLoading) {
+            if (binding.srlAndRv.refreshLayout.isRefreshing || mAdapter.loadMoreModule.isLoading) {
                 Timber.d("Loading data...Holding on jump...")
                 return@setOnClickListener
             }
@@ -313,7 +310,7 @@ class CommentsFragment : DaggerFragment() {
                     override fun onDismiss() {
                         super.onDismiss()
                         if (jumpPopup.submit) {
-                            binding.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
+                            binding.srlAndRv.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
                             mAdapter.setList(emptyList())
                             Timber.i("Jumping to ${jumpPopup.targetPage}...")
                             viewModel.jumpTo(jumpPopup.targetPage)
@@ -348,7 +345,7 @@ class CommentsFragment : DaggerFragment() {
 
     private val loadingStatusObs = Observer<SingleLiveEvent<EventPayload<Nothing>>> {
         it.getContentIfNotHandled()?.run {
-            updateHeaderAndFooter(binding.refreshLayout, mAdapter, this)
+            updateHeaderAndFooter(binding.srlAndRv.refreshLayout, mAdapter, this)
         }
     }
 
@@ -401,7 +398,7 @@ class CommentsFragment : DaggerFragment() {
     }
 
     private fun getCurrentPage(adapter: QuickAdapter<Comment>): Int {
-        val pos = (binding.recyclerView.layoutManager as LinearLayoutManager)
+        val pos = (binding.srlAndRv.recyclerView.layoutManager as LinearLayoutManager)
             .findLastVisibleItemPosition()
             .coerceAtLeast(0)
             .coerceAtMost(adapter.data.lastIndex)
@@ -467,7 +464,7 @@ class CommentsFragment : DaggerFragment() {
     }
 
     private fun updateTitle() {
-        binding.toolbar.title =
+        binding.toolbarLayout.toolbar.title =
             "${sharedVM.getSelectedPostForumName()} • ${viewModel.currentPostId}"
     }
 

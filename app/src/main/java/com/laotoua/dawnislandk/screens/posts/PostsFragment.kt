@@ -44,14 +44,14 @@ class PostsFragment : BaseNavFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.toolbar.apply {
+        binding.toolbarLayout.toolbar.apply {
             immersiveToolbar()
             setSubtitle(R.string.toolbar_subtitle)
-            setOnClickListener { binding.recyclerView.layoutManager?.scrollToPosition(0) }
+            setOnClickListener { binding.srlAndRv.recyclerView.layoutManager?.scrollToPosition(0) }
         }
         // initial load
         if (viewModel.posts.value.isNullOrEmpty()) {
-            binding.refreshLayout.autoRefresh(
+            binding.srlAndRv.refreshLayout.autoRefresh(
                 Constants.ACTION_NOTHING,
                 false
             )
@@ -88,7 +88,7 @@ class PostsFragment : BaseNavFragment() {
             }
         }
 
-        binding.refreshLayout.apply {
+        binding.srlAndRv.refreshLayout.apply {
             setOnRefreshListener(object : RefreshingListenerAdapter() {
                 override fun onRefreshing() {
                     viewModel.refresh()
@@ -96,7 +96,7 @@ class PostsFragment : BaseNavFragment() {
             })
         }
 
-        binding.recyclerView.apply {
+        binding.srlAndRv.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = mAdapter
             setHasFixedSize(true)
@@ -130,7 +130,7 @@ class PostsFragment : BaseNavFragment() {
 
         viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.run {
-                updateHeaderAndFooter(binding.refreshLayout, mAdapter, this)
+                updateHeaderAndFooter(binding.srlAndRv.refreshLayout, mAdapter, this)
             }
         })
 

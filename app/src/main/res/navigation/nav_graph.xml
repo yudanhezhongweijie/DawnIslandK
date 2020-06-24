@@ -5,33 +5,6 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/postsFragment">
     <fragment
-        android:id="@+id/pagerFragment"
-        android:name="com.laotoua.dawnislandk.screens.PagerFragment"
-        android:label="pager_fragment"
-        tools:layout="@layout/fragment_pager">
-        <action
-            android:id="@+id/action_pagerFragment_to_settingsFragment"
-            app:destination="@id/settingsFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-        <action
-            android:id="@+id/action_pagerFragment_to_doodleActivity"
-            app:destination="@id/doodleActivity"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-        <action
-            android:id="@+id/action_pagerFragment_to_browsingHistoryFragment"
-            app:destination="@id/browsingHistoryFragment"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_left"/>
-    </fragment>
-    <fragment
         android:id="@+id/imageViewerFragment"
         android:name="com.laotoua.dawnislandk.unused.ImageViewerFragment"
         android:label="image_viewer_fragment"
@@ -66,11 +39,6 @@
         android:label="fragment_browsing_history"
         tools:layout="@layout/fragment_browsing_history" />
     <fragment
-        android:id="@+id/feedsFragment"
-        android:name="com.laotoua.dawnislandk.screens.feeds.FeedsFragment"
-        android:label="fragment_feed"
-        tools:layout="@layout/fragment_feed" />
-    <fragment
         android:id="@+id/postsFragment"
         android:name="com.laotoua.dawnislandk.screens.posts.PostsFragment"
         android:label="fragment_post"
@@ -78,14 +46,6 @@
     <action
         android:id="@+id/action_global_postsFragment"
         app:destination="@id/postsFragment"
-        app:enterAnim="@anim/fragment_open_enter"
-        app:exitAnim="@anim/fragment_open_exit"
-        app:popEnterAnim="@anim/fragment_close_enter"
-        app:popExitAnim="@anim/fragment_close_exit" />
-
-    <action
-        android:id="@+id/action_global_feedsFragment"
-        app:destination="@id/feedsFragment"
         app:enterAnim="@anim/fragment_open_enter"
         app:exitAnim="@anim/fragment_open_exit"
         app:popEnterAnim="@anim/fragment_close_enter"
@@ -106,4 +66,11 @@
         app:exitAnim="@anim/fragment_open_exit"
         app:popEnterAnim="@anim/fragment_close_enter"
         app:popExitAnim="@anim/fragment_close_exit" />
+    <fragment
+        android:id="@+id/feedPagerFragment"
+        android:name="com.laotoua.dawnislandk.screens.feeds.FeedPagerFragment"
+        android:label="FeedPagerFragment" />
+    <action
+        android:id="@+id/action_global_feedPagerFragment"
+        app:destination="@id/feedPagerFragment" />
 </navigation>

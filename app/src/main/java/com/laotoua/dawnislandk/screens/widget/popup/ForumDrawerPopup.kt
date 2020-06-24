@@ -5,13 +5,11 @@ import android.app.Activity
 import android.content.Context
 import android.widget.Button
 import android.widget.ImageView
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.data.local.entity.Forum
-import com.laotoua.dawnislandk.screens.PagerFragmentDirections
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.CommunityNodeAdapter
 import com.laotoua.dawnislandk.util.GlideApp
@@ -83,12 +81,6 @@ class ForumDrawerPopup(
         findViewById<RecyclerView>(R.id.forumContainer).apply {
             layoutManager = LinearLayoutManager(context)
             adapter = forumListAdapter
-        }
-
-        findViewById<Button>(R.id.settings).setOnClickListener {
-            dismiss()
-            val action = PagerFragmentDirections.actionPagerFragmentToSettingsFragment()
-            findNavController().navigate(action)
         }
     }
 }

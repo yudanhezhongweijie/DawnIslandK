@@ -4,17 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".screens.feeds.FeedsFragment">
-
-    <me.dkzwm.widget.srl.MaterialSmoothRefreshLayout
-        android:id="@+id/refreshLayout"
+    <include
+        android:id="@+id/srlAndRv"
+        layout="@layout/widget_srl_and_rv"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scrollbars="vertical" />
-    </me.dkzwm.widget.srl.MaterialSmoothRefreshLayout>
+        android:layout_height="match_parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_optimizationLevel="standard|dimensions"
-    tools:context=".screens.posts.PostsFragment">
+    app:layout_optimizationLevel="standard|dimensions">
 
     <include
         android:id="@+id/toolbarLayout"
@@ -13,27 +13,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <ImageButton
-        android:id="@+id/forumRule"
+    <com.zhpan.indicator.IndicatorView
+        android:id="@+id/pageIndicatorView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:background="?attr/selectableItemBackground"
-        android:padding="8dp"
-        android:src="@drawable/ic_info_24px"
-        android:tint="@color/pure_light"
+        android:layout_marginEnd="16dp"
         app:layout_constraintBottom_toBottomOf="@id/toolbarLayout"
         app:layout_constraintEnd_toEndOf="@id/toolbarLayout"
-        app:layout_constraintTop_toTopOf="@id/toolbarLayout"
-        tools:ignore="ContentDescription" />
+        app:layout_constraintTop_toTopOf="@id/toolbarLayout" />
 
-    <include
-        android:id="@+id/srlAndRv"
-        layout="@layout/widget_srl_and_rv"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager2"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:overScrollMode="never"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbarLayout" />
+        app:layout_constraintTop_toBottomOf="@id/toolbarLayout"
+        tools:context=".screens.PagerFragment" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

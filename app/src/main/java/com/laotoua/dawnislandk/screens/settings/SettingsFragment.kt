@@ -107,7 +107,7 @@ class SettingsFragment : Fragment() {
             }
         }
 
-        binding.toolbar.apply {
+        binding.toolbarLayout.toolbar.apply {
             immersiveToolbar()
             setTitle(R.string.settings)
             setSubtitle(R.string.toolbar_subtitle)

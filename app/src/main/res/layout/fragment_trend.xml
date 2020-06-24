@@ -4,21 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".screens.trend.TrendsFragment"
+    tools:context=".screens.feeds.TrendsFragment"
     app:layout_optimizationLevel="standard|dimensions">
 
-    <me.dkzwm.widget.srl.MaterialSmoothRefreshLayout
-        android:id="@+id/refreshLayout"
+    <include
+        android:id="@+id/srlAndRv"
+        layout="@layout/widget_srl_and_rv"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scrollbars="vertical">
-
-        </androidx.recyclerview.widget.RecyclerView>
-    </me.dkzwm.widget.srl.MaterialSmoothRefreshLayout>
+        android:layout_height="match_parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

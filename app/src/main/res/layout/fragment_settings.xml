@@ -3,35 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     app:layout_optimizationLevel="standard|dimensions">
 
-    <ImageView
-        android:id="@+id/imageView"
+    <include
+        android:id="@+id/toolbarLayout"
+        layout="@layout/widget_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:paddingTop="30dp"
-        android:scaleType="centerCrop"
-        app:layout_constraintBottom_toBottomOf="@id/toolbar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/appbar"
-        tools:ignore="ContentDescription" />
-
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:focusable="false"
-        android:theme="@style/Theme.MaterialComponents.DayNight.DarkActionBar"
-        app:contentInsetStartWithNavigation="0dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:subtitle="adnmb.com"
-        app:subtitleTextColor="#FFFFFF"
-        app:title="时间线"
-        app:titleTextColor="#FFFFFF" />
+        android:layout_height="wrap_content" />
 
 
     <androidx.constraintlayout.widget.Guideline
@@ -57,7 +35,7 @@
         android:text="@string/cookie_management"
         app:layout_constraintEnd_toStartOf="@+id/guidelineEnd"
         app:layout_constraintStart_toEndOf="@+id/guidelineStart"
-        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+        app:layout_constraintTop_toBottomOf="@id/toolbarLayout" />
 
 
     <LinearLayout

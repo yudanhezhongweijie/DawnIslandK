@@ -162,4 +162,16 @@ class ApplicationDataStore @Inject constructor(
         }
         return null
     }
+
+    fun setFeedPagerDefaultPage(trendsIndex: Int, feedsIndex: Int) {
+        mmkv.putInt(Constants.TRENDS_FRAG_PAGER_INDEX, trendsIndex)
+        mmkv.putInt(Constants.FEEDS_FRAG_PAGER_INDEX, feedsIndex)
+    }
+
+    fun getFeedPagerPageIndices(): Pair<Int, Int> {
+        return Pair(
+            mmkv.getInt(Constants.TRENDS_FRAG_PAGER_INDEX, 0),
+            mmkv.getInt(Constants.FEEDS_FRAG_PAGER_INDEX, 1)
+        )
+    }
 }

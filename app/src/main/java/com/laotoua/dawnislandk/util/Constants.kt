@@ -23,6 +23,8 @@ object Constants {
     const val DEFAULT_TIME_FORMAT = "simplified"
     const val FEED_ID = "feedId"
     const val ACKNOWLEDGE_POSTING_RULES = "acknowledge_posting_rules"
+    const val FEEDS_FRAG_PAGER_INDEX = "feeds_frag_page_index"
+    const val TRENDS_FRAG_PAGER_INDEX = "trends_frag_pager_index"
 
     const val baseCDN = "https://nmb.fastmirror.org/"
     private const val imgCDN = "https://nmbimg.fastmirror.org/"

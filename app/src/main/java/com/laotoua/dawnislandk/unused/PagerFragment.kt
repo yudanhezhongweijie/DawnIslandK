@@ -158,7 +158,6 @@ class PagerFragment : DaggerFragment() {
 
         binding.forumRule.setOnClickListener {
             MaterialDialog(requireContext()).show {
-                cornerRadius(res = R.dimen.dp_10)
                 val forumId = sharedVM.selectedForumId.value!!
                 val biId = if (forumId.toInt() > 0) forumId.toInt() else 1
                 val resourceId: Int = context.resources.getIdentifier(
@@ -203,7 +202,6 @@ class PagerFragment : DaggerFragment() {
 
         binding.search.setOnClickListener {
             MaterialDialog(requireContext()).show {
-                cornerRadius(res = R.dimen.dp_10)
                 title(R.string.search)
                 customView(R.layout.dialog_search, noVerticalPadding = true).apply {
                     findViewById<Button>(R.id.search).setOnClickListener {

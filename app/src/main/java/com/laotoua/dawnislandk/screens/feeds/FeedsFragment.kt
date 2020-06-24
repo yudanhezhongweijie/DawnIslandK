@@ -70,7 +70,6 @@ class FeedsFragment : BaseNavFragment() {
             setOnItemLongClickListener { _, _, position ->
                 val id = getItem(position).id
                 MaterialDialog(requireContext()).show {
-                    cornerRadius(res = R.dimen.dp_10)
                     title(text = "删除订阅 $id?")
                     positiveButton(R.string.delete) {
                         viewModel.deleteFeed(id, position)

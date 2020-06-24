@@ -9,7 +9,7 @@
         android:id="@+id/feedPagerFragment"
         android:enabled="true"
         android:icon="@drawable/ic_favorite_24px"
-        android:title="@string/feed"/>
+        android:title="@string/trend_and_feed"/>
 
     <item
         android:id="@+id/browsingHistoryFragment"

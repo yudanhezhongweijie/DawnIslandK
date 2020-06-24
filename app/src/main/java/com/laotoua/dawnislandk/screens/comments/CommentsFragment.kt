@@ -186,7 +186,6 @@ class CommentsFragment : DaggerFragment() {
                     }
                     R.id.report -> {
                         MaterialDialog(requireContext()).show {
-                            cornerRadius(res = R.dimen.dp_10)
                             title(R.string.report_reasons)
                             listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
                                 postPopup.setupAndShow(

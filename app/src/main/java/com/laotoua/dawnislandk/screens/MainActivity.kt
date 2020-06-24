@@ -125,7 +125,6 @@ class MainActivity : DaggerAppCompatActivity() {
     private suspend fun loadResources() {
         applicationDataStore.getLatestRelease()?.let { release ->
             MaterialDialog(this).show {
-                cornerRadius(res = R.dimen.dp_10)
                 title(R.string.found_new_version)
                 message(text = release.message) { html() }
                 positiveButton(R.string.download_latest_version) {
@@ -144,7 +143,6 @@ class MainActivity : DaggerAppCompatActivity() {
         applicationDataStore.initializeFeedId()
         applicationDataStore.getLatestNMBNotice()?.let { notice ->
             MaterialDialog(this).show {
-                cornerRadius(res = R.dimen.dp_10)
                 title(res = R.string.announcement)
                 checkBoxPrompt(R.string.acknowledge) {}
                 message(text = notice.content) { html() }

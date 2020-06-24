@@ -104,7 +104,6 @@ class BrowsingHistoryFragment : BaseNavFragment() {
         binding.endDate.text = ReadableTime.getDateString(endDate.time)
         binding.startDate.setOnClickListener {
             MaterialDialog(requireContext()).show {
-                cornerRadius(res = R.dimen.dp_10)
                 datePicker(currentDate = startDate) { _, date ->
                     setStartDate(date)
                 }
@@ -113,7 +112,6 @@ class BrowsingHistoryFragment : BaseNavFragment() {
 
         binding.endDate.setOnClickListener {
             MaterialDialog(requireContext()).show {
-                cornerRadius(res = R.dimen.dp_10)
                 datePicker(currentDate = endDate) { _, date ->
                     setEndDate(date)
                 }

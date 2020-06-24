@@ -158,7 +158,8 @@
     <string name="forum" translatable="false">板块</string>
     <string name="announcement" translatable="false">通知</string>
     <string name="forum_rules" translatable="false">板规</string>
-    <string name="feed" translatable="false">订阅</string>
+    <string name="edit_default_page" translatable="false">设置默认页面</string>
+    <string name="trend_and_feed" translatable="false">热榜 · 订阅</string>
     <string name="history" translatable="false">历史</string>
     <string name="my_profile" translatable="false">个人</string>
 </resources>

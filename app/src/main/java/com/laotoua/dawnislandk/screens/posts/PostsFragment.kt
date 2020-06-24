@@ -129,7 +129,6 @@ class PostsFragment : BaseNavFragment() {
 
         binding.forumRule.setOnClickListener {
             MaterialDialog(requireContext()).show {
-                cornerRadius(res = R.dimen.dp_10)
                 val forumId = sharedVM.selectedForumId.value!!
                 val biId = if (forumId.toInt() > 0) forumId.toInt() else 1
                 val resourceId: Int = context.resources.getIdentifier(
@@ -156,7 +155,6 @@ class PostsFragment : BaseNavFragment() {
         binding.search.setOnClickListener {
             hideFabMenu()
             MaterialDialog(requireContext()).show {
-                cornerRadius(res = R.dimen.dp_10)
                 title(R.string.search)
                 customView(R.layout.dialog_search, noVerticalPadding = true).apply {
                     findViewById<Button>(R.id.search).setOnClickListener {
@@ -187,7 +185,6 @@ class PostsFragment : BaseNavFragment() {
             hideFabMenu()
             DawnApp.applicationDataStore.nmbNotice?.let { notice ->
                 MaterialDialog(requireContext()).show {
-                    cornerRadius(res = R.dimen.dp_10)
                     title(res = R.string.announcement)
                     message(text = notice.content) { html() }
                     positiveButton(R.string.close)

@@ -51,14 +51,21 @@
         app:layout_constraintTop_toTopOf="@id/toolbar"
         tools:ignore="ContentDescription" />
 
-    <include
-        android:id="@+id/srlAndRv"
-        layout="@layout/widget_srl_and_rv"
+    <com.laotoua.dawnislandk.screens.widget.FlingInterceptor
+        android:id="@+id/flingInterceptor"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView">
+
+        <include
+            android:id="@+id/srlAndRv"
+            layout="@layout/widget_srl_and_rv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </com.laotoua.dawnislandk.screens.widget.FlingInterceptor>
+
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/announcement"

@@ -108,7 +108,7 @@ class MainActivity : DaggerAppCompatActivity() {
             })
     }
 
-    private fun showDrawer() {
+    fun showDrawer() {
         XPopup.Builder(this)
             .setPopupCallback(object : SimpleCallback() {
                 override fun beforeShow() {

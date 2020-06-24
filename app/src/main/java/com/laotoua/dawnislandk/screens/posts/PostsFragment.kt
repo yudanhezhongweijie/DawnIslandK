@@ -64,6 +64,10 @@ class PostsFragment : BaseNavFragment() {
             )
         }
 
+        binding.flingInterceptor.bindListener {
+            (activity as MainActivity).showDrawer()
+        }
+
         val mAdapter = QuickAdapter<Post>(R.layout.list_item_post, sharedVM).apply {
             setOnItemClickListener { _, _, position ->
                 getItem(position).run {

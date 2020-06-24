@@ -88,6 +88,13 @@ class BrowsingHistoryFragment : BaseNavFragment() {
                 lastDate = it.browsingHistory.date
             }
             mAdapter.setDiffNewData(data)
+            mAdapter.setFooterView(
+                layoutInflater.inflate(
+                    R.layout.view_adapter_footer,
+                    binding.recyclerView,
+                    false
+                )
+            )
             Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} threads")
         })
 

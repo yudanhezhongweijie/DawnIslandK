@@ -120,7 +120,7 @@ class PagerFragment : DaggerFragment() {
          *  https://issuetracker.google.com/issues/154751401
          *  https://issuetracker.google.com/issues/151212195
          */
-        binding.viewPagerInterceptor.bindPager2(binding.viewPager2)
+//        binding.viewPagerInterceptor.bindPager2(binding.viewPager2)
 //        binding.viewPagerInterceptor.bindDrawerListener { drawerLayout.openDrawer(GravityCompat.START) }
         /** workaround for https://issuetracker.google.com/issues/134912610
          *  programmatically remove over scroll edge effect
@@ -234,7 +234,7 @@ class PagerFragment : DaggerFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         binding.viewPager2.unregisterOnPageChangeCallback(titleUpdateCallback)
-        binding.viewPagerInterceptor.clearPager2()
+//        binding.viewPagerInterceptor.clearPager2()
         _binding = null
         Timber.d("Fragment View Destroyed")
     }

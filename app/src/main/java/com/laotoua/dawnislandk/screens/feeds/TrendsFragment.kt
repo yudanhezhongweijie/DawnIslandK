@@ -92,6 +92,13 @@ class TrendsFragment : BaseNavFragment() {
                 return@Observer
             }
             mAdapter.setDiffNewData(list.toMutableList())
+            mAdapter.setFooterView(
+                layoutInflater.inflate(
+                    R.layout.view_adapter_footer,
+                    binding.srlAndRv.recyclerView,
+                    false
+                )
+            )
         })
 
     }

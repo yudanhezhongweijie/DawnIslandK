@@ -4,11 +4,15 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.view.MotionEvent
-import androidx.viewpager.widget.ViewPager
+import android.widget.FrameLayout
 import timber.log.Timber
 import kotlin.math.abs
 
-class DawnViewPager1 : ViewPager {
+/**
+ *  Intercept fling swipes gesture before other listener handles it
+ *  i.e. VP2 consumes events which has the same scroll direction https://issuetracker.google.com/issues/154751401
+ */
+class FlingInterceptor : FrameLayout {
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
 
@@ -24,10 +28,10 @@ class DawnViewPager1 : ViewPager {
     private val swipeSlop: Int = 48
     private var isTouching = false
 
-    private var drawerListener: (() -> Unit)? = null
+    private var listener: (() -> Unit)? = null
 
-    fun bindDrawerListener(func: () -> Unit) {
-        drawerListener = func
+    fun bindListener(func: () -> Unit) {
+        listener = func
     }
 
     override fun onInterceptTouchEvent(event: MotionEvent): Boolean {
@@ -45,13 +49,14 @@ class DawnViewPager1 : ViewPager {
             MotionEvent.ACTION_MOVE -> {
                 val curX = event.x
                 val curY = event.y
-                xDistance = abs(curX - xLast)
+                xDistance = curX - xLast
                 yDistance = abs(curY - yLast)
                 xLast = curX
                 yLast = curY
-                handled = abs(xDistance) >= touchSlop && yDistance * 4 < xDistance * 3
+                handled = xDistance >= touchSlop && yDistance * 4 < xDistance * 3
             }
         }
+
 
         // Fixed: IllegalArgumentException: pointerIndex out of range
         return try {
@@ -64,26 +69,23 @@ class DawnViewPager1 : ViewPager {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(ev: MotionEvent): Boolean {
-        if (currentItem == 0) {
-            val action = ev.action
-            val x = ev.x
-            when (action) {
-                MotionEvent.ACTION_DOWN, MotionEvent.ACTION_CANCEL -> isTouching = true
-                MotionEvent.ACTION_MOVE -> {
-                    isTouching = true
-                    // 如果手指往回收，则取消开启侧栏
-                    swipeCancel = x < swipeLastX
-                    swipeLastX = x
+        val action = ev.action
+        val x = ev.x
+        when (action) {
+            MotionEvent.ACTION_DOWN, MotionEvent.ACTION_CANCEL -> isTouching = true
+            MotionEvent.ACTION_MOVE -> {
+                isTouching = true
+                // 如果手指往回收，则取消开启侧栏
+                swipeCancel = x < swipeLastX
+                swipeLastX = x
+            }
+            MotionEvent.ACTION_UP -> {
+                if (!swipeCancel && (x - swipeStartX) > swipeSlop) {
+                    listener?.invoke()
                 }
-                MotionEvent.ACTION_UP -> {
-                    if (!swipeCancel && (x - swipeStartX) > swipeSlop) {
-                        drawerListener?.invoke()
-                    }
-                    isTouching = false
-                }
+                isTouching = false
             }
         }
         return super.onTouchEvent(ev)
     }
-
 }

@@ -9,5 +9,6 @@ data class BrowsingHistoryAndPost(
         parentColumn = "postId",
         entityColumn = "id"
     )
-    val post: Post
+    // post can be deleted hence not exist in database
+    val post: Post?
 )

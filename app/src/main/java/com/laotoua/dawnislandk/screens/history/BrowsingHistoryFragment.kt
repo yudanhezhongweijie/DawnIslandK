@@ -84,8 +84,10 @@ class BrowsingHistoryFragment : BaseNavFragment() {
                         )
                     )
                 }
-                data.add(it.post)
-                lastDate = it.browsingHistory.date
+                if (it.post != null) {
+                    data.add(it.post)
+                    lastDate = it.browsingHistory.date
+                }
             }
             mAdapter.setDiffNewData(data)
             mAdapter.setFooterView(

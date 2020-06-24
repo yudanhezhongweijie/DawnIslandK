@@ -2,7 +2,6 @@ package com.laotoua.dawnislandk.di
 
 import androidx.lifecycle.ViewModel
 import com.laotoua.dawnislandk.screens.MainActivity
-import com.laotoua.dawnislandk.screens.PagerFragment
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.comments.CommentsFragment
 import com.laotoua.dawnislandk.screens.comments.CommentsViewModel
@@ -11,6 +10,7 @@ import com.laotoua.dawnislandk.screens.history.BrowsingHistoryFragment
 import com.laotoua.dawnislandk.screens.history.BrowsingHistoryViewModel
 import com.laotoua.dawnislandk.screens.posts.PostsFragment
 import com.laotoua.dawnislandk.screens.posts.PostsViewModel
+import com.laotoua.dawnislandk.unused.PagerFragment
 import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector

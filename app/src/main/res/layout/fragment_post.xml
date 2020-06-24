@@ -41,7 +41,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:padding="8dp"
-        android:text="@string/forum"
+        android:text="@string/forum_rules"
         android:textColor="@color/pure_light"
         app:icon="@drawable/ic_info_24px"
         app:iconGravity="start"

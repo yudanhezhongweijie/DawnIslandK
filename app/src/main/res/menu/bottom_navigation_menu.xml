@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/forum"
+        android:id="@+id/postsFragment"
         android:enabled="true"
         android:icon="@drawable/ic_home_24px"
         android:title="@string/forum"/>
     <item
-        android:id="@+id/feed"
+        android:id="@+id/feedPagerFragment"
         android:enabled="true"
         android:icon="@drawable/ic_favorite_24px"
         android:title="@string/feed"/>
 
     <item
-        android:id="@+id/history"
+        android:id="@+id/browsingHistoryFragment"
         android:enabled="true"
         android:icon="@drawable/ic_history_24px"
         android:title="@string/history"/>
 
     <item
-        android:id="@+id/profile"
+        android:id="@+id/settingsFragment"
         android:enabled="true"
         android:icon="@drawable/ic_account_circle_24px"
         android:title="@string/my_profile"/>

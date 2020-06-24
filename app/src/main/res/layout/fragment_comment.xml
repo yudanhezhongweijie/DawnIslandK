@@ -7,6 +7,11 @@
     android:background="@color/pure_light"
     app:layout_optimizationLevel="standard|dimensions">
 
+    <include
+        android:id="@+id/toolbarLayout"
+        layout="@layout/widget_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <TextView
         android:id="@+id/pageCounter"
@@ -32,11 +37,6 @@
         app:layout_constraintEnd_toEndOf="@id/toolbarLayout"
         app:layout_constraintTop_toTopOf="@id/toolbarLayout"
         tools:ignore="ContentDescription" />
-    <include
-        android:id="@+id/toolbarLayout"
-        layout="@layout/widget_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
 
     <include
         android:id="@+id/srlAndRv"
@@ -109,7 +109,7 @@
             android:text="@string/new_comment"
             app:icon="@drawable/ic_edit_24px"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/copyId"
-            app:layout_constraintEnd_toStartOf="@id/jump" />
+            app:layout_constraintEnd_toStartOf="@id/jump"
+            app:layout_constraintStart_toEndOf="@+id/copyId" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

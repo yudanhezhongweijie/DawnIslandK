@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.screens
+package com.laotoua.dawnislandk.unused
 
 import android.animation.Animator
 import android.animation.AnimatorSet
@@ -24,6 +24,8 @@ import com.google.android.material.animation.AnimationUtils.FAST_OUT_LINEAR_IN_I
 import com.google.android.material.animation.AnimationUtils.LINEAR_OUT_SLOW_IN_INTERPOLATOR
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.FragmentPagerBinding
+import com.laotoua.dawnislandk.screens.MainActivity
+import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.feeds.FeedsFragment
 import com.laotoua.dawnislandk.screens.feeds.TrendsFragment
 import com.laotoua.dawnislandk.screens.posts.PostsFragment
@@ -256,7 +258,8 @@ class PagerFragment : DaggerFragment() {
         if (currentAnimatorSet != null) {
             currentAnimatorSet!!.cancel()
         }
-        currentState = SCROLL_STATE.DOWN
+        currentState =
+            SCROLL_STATE.DOWN
         currentAnimatorSet = AnimatorSet().apply {
             duration = 250
             interpolator = FAST_OUT_LINEAR_IN_INTERPOLATOR
@@ -279,7 +282,8 @@ class PagerFragment : DaggerFragment() {
         if (currentAnimatorSet != null) {
             currentAnimatorSet!!.cancel()
         }
-        currentState = SCROLL_STATE.UP
+        currentState =
+            SCROLL_STATE.UP
         currentAnimatorSet = AnimatorSet().apply {
             duration = 250
             interpolator = LINEAR_OUT_SLOW_IN_INTERPOLATOR

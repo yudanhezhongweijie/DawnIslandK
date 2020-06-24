@@ -13,6 +13,8 @@ import androidx.activity.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupWithNavController
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
 import com.afollestad.materialdialogs.checkbox.isCheckPromptChecked
@@ -79,39 +81,16 @@ class MainActivity : DaggerAppCompatActivity() {
         immersiveToolbarInitialization()
         setContentView(binding.root)
 
-        var currentNavId = R.id.forum
-        binding.bottomNavigation.setOnNavigationItemSelectedListener { item ->
-            if (currentNavId == item.itemId) return@setOnNavigationItemSelectedListener true
-            when (item.itemId) {
-                R.id.forum -> {
-                    currentNavId = R.id.forum
-                    findNavController(R.id.navHostFragment).navigate(R.id.action_global_postsFragment)
-                    true
-                }
-                R.id.feed -> {
-                    currentNavId = R.id.feed
-                    findNavController(R.id.navHostFragment).navigate(R.id.action_global_feedPagerFragment)
-                    true
-                }
-                R.id.history -> {
-                    currentNavId = R.id.history
-                    findNavController(R.id.navHostFragment).navigate(R.id.action_global_browsingHistoryFragment)
-                    true
-                }
-                R.id.profile -> {
-                    currentNavId = R.id.profile
-                    findNavController(R.id.navHostFragment).navigate(R.id.action_global_settingsFragment)
-                    true
-                }
-                else -> false
-            }
-        }
-
-        binding.bottomNavigation.setOnNavigationItemReselectedListener { item: MenuItem ->
-            if (item.itemId == R.id.forum) {
+        val navHostFragment = supportFragmentManager
+            .findFragmentById(R.id.navHostFragment) as NavHostFragment
+        val navController = navHostFragment.navController
+        binding.bottomNavBar.setupWithNavController(navController)
+        binding.bottomNavBar.setOnNavigationItemReselectedListener { item: MenuItem ->
+            if (item.itemId == R.id.postsFragment) {
                 showDrawer()
             }
         }
+
         sharedVM.communityList.observe(this, Observer<List<Community>> {
             if (it.isNullOrEmpty()) return@Observer
             forumDrawer.setData(it)
@@ -123,12 +102,14 @@ class MainActivity : DaggerAppCompatActivity() {
         sharedVM.reedPictureUrl.observe(this, Observer<String> {
             forumDrawer.setReedPicture(it)
         })
-        sharedVM.communityListLoadingStatus.observe(this, Observer<SingleLiveEvent<EventPayload<Nothing>>> {
-            if (it.getContentIfNotHandled()?.loadingStatus == LoadingStatus.FAILED) {
-                Toast.makeText(this, it.peekContent().message, Toast.LENGTH_LONG)
-                    .show()
-            }
-        })
+        sharedVM.communityListLoadingStatus.observe(
+            this,
+            Observer<SingleLiveEvent<EventPayload<Nothing>>> {
+                if (it.getContentIfNotHandled()?.loadingStatus == LoadingStatus.FAILED) {
+                    Toast.makeText(this, it.peekContent().message, Toast.LENGTH_LONG)
+                        .show()
+                }
+            })
     }
 
     private fun showDrawer() {
@@ -243,26 +224,26 @@ class MainActivity : DaggerAppCompatActivity() {
 
     private val navSlideOutBottomAnimAnim by lazyOnMainOnly {
         ObjectAnimator.ofFloat(
-            binding.bottomNavigation,
+            binding.bottomNavBar,
             "TranslationY",
-            binding.bottomNavigation.height.toFloat()
+            binding.bottomNavBar.height.toFloat()
         )
     }
 
     private val navAlphaOutAnim by lazyOnMainOnly {
-        ObjectAnimator.ofFloat(binding.bottomNavigation, "alpha", 0f)
+        ObjectAnimator.ofFloat(binding.bottomNavBar, "alpha", 0f)
     }
 
     private val navSlideInBottomAnim by lazyOnMainOnly {
         ObjectAnimator.ofFloat(
-            binding.bottomNavigation,
+            binding.bottomNavBar,
             "TranslationY",
             0f
         )
     }
 
     private val navAlphaInAnim by lazyOnMainOnly {
-        ObjectAnimator.ofFloat(binding.bottomNavigation, "alpha", 1f)
+        ObjectAnimator.ofFloat(binding.bottomNavBar, "alpha", 1f)
     }
 
     fun hideNav() {

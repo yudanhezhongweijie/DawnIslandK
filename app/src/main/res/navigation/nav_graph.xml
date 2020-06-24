@@ -5,15 +5,6 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/postsFragment">
     <fragment
-        android:id="@+id/imageViewerFragment"
-        android:name="com.laotoua.dawnislandk.unused.ImageViewerFragment"
-        android:label="image_viewer_fragment"
-        tools:layout="@layout/fragment_image_viewer">
-        <argument
-            android:name="imgUrl"
-            app:argType="string" />
-    </fragment>
-    <fragment
         android:id="@+id/settingsFragment"
         android:name="com.laotoua.dawnislandk.screens.settings.SettingsFragment"
         android:label="SettingsFragment">
@@ -29,10 +20,6 @@
         android:id="@+id/sizeCustomizationFragment"
         android:name="com.laotoua.dawnislandk.screens.settings.SizesCustomizationFragment"
         android:label="SizeCustomizationFragment" />
-    <activity
-        android:id="@+id/doodleActivity"
-        android:name="com.laotoua.dawnislandk.screens.tasks.DoodleActivity"
-        android:label="DoodleActivity" />
     <fragment
         android:id="@+id/browsingHistoryFragment"
         android:name="com.laotoua.dawnislandk.screens.history.BrowsingHistoryFragment"
@@ -43,34 +30,9 @@
         android:name="com.laotoua.dawnislandk.screens.posts.PostsFragment"
         android:label="fragment_post"
         tools:layout="@layout/fragment_post" />
-    <action
-        android:id="@+id/action_global_postsFragment"
-        app:destination="@id/postsFragment"
-        app:enterAnim="@anim/fragment_open_enter"
-        app:exitAnim="@anim/fragment_open_exit"
-        app:popEnterAnim="@anim/fragment_close_enter"
-        app:popExitAnim="@anim/fragment_close_exit" />
 
-    <action
-        android:id="@+id/action_global_browsingHistoryFragment"
-        app:destination="@id/browsingHistoryFragment"
-        app:enterAnim="@anim/fragment_open_enter"
-        app:exitAnim="@anim/fragment_open_exit"
-        app:popEnterAnim="@anim/fragment_close_enter"
-        app:popExitAnim="@anim/fragment_close_exit" />
-
-    <action
-        android:id="@+id/action_global_settingsFragment"
-        app:destination="@id/settingsFragment"
-        app:enterAnim="@anim/fragment_open_enter"
-        app:exitAnim="@anim/fragment_open_exit"
-        app:popEnterAnim="@anim/fragment_close_enter"
-        app:popExitAnim="@anim/fragment_close_exit" />
     <fragment
         android:id="@+id/feedPagerFragment"
         android:name="com.laotoua.dawnislandk.screens.feeds.FeedPagerFragment"
         android:label="FeedPagerFragment" />
-    <action
-        android:id="@+id/action_global_feedPagerFragment"
-        app:destination="@id/feedPagerFragment" />
 </navigation>

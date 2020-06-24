@@ -70,7 +70,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:overScrollMode="never"
-            tools:context=".screens.PagerFragment" />
+            tools:context=".unused.PagerFragment" />
     </com.laotoua.dawnislandk.screens.widget.ViewPager2FlingInterceptor>
     <!--    <com.laotoua.dawnislandk.screens.widget.DawnViewPager1-->
     <!--        android:id="@+id/viewPager"-->

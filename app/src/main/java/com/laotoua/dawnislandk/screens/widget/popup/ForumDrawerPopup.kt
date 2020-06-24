@@ -47,7 +47,7 @@ class ForumDrawerPopup(
         }
     }
 
-    private fun loadReedPicture() {
+    fun loadReedPicture() {
         GlideApp.with(reedImageView)
             .load(reedImageUrl)
             .placeholder(R.drawable.drawer_placeholder)

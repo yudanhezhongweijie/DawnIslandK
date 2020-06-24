@@ -34,6 +34,7 @@ import com.laotoua.dawnislandk.util.SingleLiveEvent
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.enums.PopupPosition
+import com.lxj.xpopup.interfaces.SimpleCallback
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -114,6 +115,12 @@ class MainActivity : DaggerAppCompatActivity() {
 
     private fun showDrawer() {
         XPopup.Builder(this)
+            .setPopupCallback(object: SimpleCallback(){
+                override fun beforeShow() {
+                    super.beforeShow()
+                    forumDrawer.loadReedPicture()
+                }
+            })
             .popupPosition(PopupPosition.Left)
             .asCustom(forumDrawer)
             .show()

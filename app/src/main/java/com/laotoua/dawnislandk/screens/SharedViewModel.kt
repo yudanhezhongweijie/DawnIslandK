@@ -15,6 +15,7 @@ import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.data.repository.CommunityRepository
+import com.laotoua.dawnislandk.screens.util.ContentTransformation
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.SingleLiveEvent
@@ -170,7 +171,40 @@ class SharedViewModel @Inject constructor(
                 Date().time
             )
             if (!newPost) searchCommentInPost(draft, postTargetPage, false)
-            else TODO()
+            else searchPostInForum(draft, postTargetFid)
+        }
+    }
+
+    private suspend fun searchPostInForum(draft: PostHistory.Draft, targetFid: String) {
+        Timber.d("Searching new Post in the first page of forum $targetFid")
+        var saved = false
+        webNMBServiceClient.getPosts(targetFid, 1).run {
+            if (this is APIDataResponse.APISuccessDataResponse) {
+                for (post in data) {
+                    // content may be formatted to html by server hence compared by unformatted string
+                    val striped = ContentTransformation.htmlToSpanned(post.content).toString()
+                    if (post.userid == draft.cookieName && striped == draft.content) {
+                        postHistoryDao.insertPostHistory(
+                            PostHistory(
+                                post.id,
+                                1,
+                                post.img,
+                                post.ext,
+                                draft
+                            )
+                        )
+                        saved = true
+                        _savePostStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))
+                        Timber.d("Saved new post with id ${post.id}")
+                        break
+                    }
+                }
+                postDao.insertAll(data)
+            }
+            if (!saved) {
+                _savePostStatus.postValue(SingleLiveEvent.create(LoadingStatus.FAILED, message))
+                Timber.d("Failed to save new post")
+            }
         }
     }
 
@@ -219,7 +253,9 @@ class SharedViewModel @Inject constructor(
         targetPageUpperBound: Boolean
     ) {
         for (reply in data.comments.reversed()) {
-            if (reply.userid == draft.cookieName && reply.content == draft.content) {
+            // content may be formatted to html by server hence compared by unformatted string
+            val striped = ContentTransformation.htmlToSpanned(reply.content).toString()
+            if (reply.userid == draft.cookieName && striped == draft.content) {
                 postHistoryDao.insertPostHistory(
                     PostHistory(
                         reply.id,

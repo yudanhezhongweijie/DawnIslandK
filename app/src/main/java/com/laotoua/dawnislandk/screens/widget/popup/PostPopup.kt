@@ -97,7 +97,7 @@ class PostPopup(
 
     private fun getForumTitle(targetId: String): String {
         return if (targetId == "-1") ""
-        else sharedVM.forumMsgMapping[targetId] ?: ""
+        else sharedVM.forumNameMapping[targetId] ?: ""
     }
 
     private fun updateForumButton(targetId: String?, newPost: Boolean) {
@@ -460,6 +460,7 @@ class PostPopup(
         findViewById<TextView>(R.id.formTitle).text = ""
         imageFile = null
         postImagePreview!!.setImageResource(0)
+        attachmentContainer!!.visibility = View.GONE
         findViewById<MaterialButtonToggleGroup>(R.id.toggleButtonGroup).clearChecked()
         findViewById<MaterialButtonToggleGroup>(R.id.luweiStickerToggle).clearChecked()
     }

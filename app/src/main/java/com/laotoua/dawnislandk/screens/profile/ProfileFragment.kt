@@ -31,9 +31,7 @@ import com.laotoua.dawnislandk.databinding.FragmentProfileBinding
 import com.laotoua.dawnislandk.databinding.ListItemCookieBinding
 import com.laotoua.dawnislandk.databinding.ListItemPreferenceBinding
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
-import com.laotoua.dawnislandk.util.Constants
-import com.laotoua.dawnislandk.util.FragmentIntentUtil
-import com.laotoua.dawnislandk.util.ImageUtil
+import com.laotoua.dawnislandk.util.*
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -175,6 +173,28 @@ class ProfileFragment : DaggerFragment() {
             }
         }
 
+        val loadingDialog by lazyOnMainOnly {
+            MaterialDialog(requireContext()).apply {
+                title(R.string.processing)
+                customView(R.layout.dialog_progress)
+            }
+        }
+        viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.run {
+                when (loadingStatus) {
+                    LoadingStatus.LOADING -> {
+                        loadingDialog.show()
+                    }
+                    LoadingStatus.FAILED -> {
+                        loadingDialog.dismiss()
+                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                    }
+                    else -> {
+                        loadingDialog.dismiss()
+                    }
+                }
+            }
+        })
 
         viewModel.cookies.observe(viewLifecycleOwner, Observer { cookies ->
             binding.cookieList.removeAllViews()
@@ -307,12 +327,16 @@ class ProfileFragment : DaggerFragment() {
         view.edit.setOnClickListener {
             MaterialDialog(requireContext()).show {
                 title(R.string.edit_cookie_remark)
-                input(prefill = cookie.cookieName) { _, text ->
+                input(prefill = cookie.cookieName, hint = cookie.cookieName) { _, text ->
                     // Text submitted with the action button
                     cookie.cookieName = text.toString()
-                    viewModel.updateCookie(cookie)
+                    viewModel.addCookie(cookie)
                 }
                 positiveButton(R.string.submit)
+                negativeButton(R.string.default_cookie_name) {
+                    dismiss()
+                    viewModel.getDefaultCookieName(cookie.cookieHash)
+                }
             }
         }
 
@@ -348,6 +372,10 @@ class ProfileFragment : DaggerFragment() {
                 )
             }
             positiveButton(R.string.submit)
+            negativeButton(R.string.default_cookie_name) {
+                dismiss()
+                viewModel.getDefaultCookieName(cookieHash)
+            }
         }
     }
 

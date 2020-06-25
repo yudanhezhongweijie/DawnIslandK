@@ -72,29 +72,18 @@ class ApplicationDataStore @Inject constructor(
     }
 
     suspend fun addCookie(cookie: Cookie) {
-        var newCookie = true
-        for (c in mCookies) {
-            if (c.cookieHash == cookie.cookieHash) {
-                cookieDao.insert(cookie)
-                newCookie = false
-                break
-            }
+        cookies.firstOrNull { it.cookieHash == cookie.cookieHash }?.let {
+            it.cookieName = cookie.cookieName
+            cookieDao.updateCookie(it)
+            return
         }
-        if (newCookie) {
-            mCookies.add(cookie)
-            cookieDao.insert(cookie)
-        }
+        mCookies.add(cookie)
+        cookieDao.insert(cookie)
     }
 
     suspend fun deleteCookies(cookie: Cookie) {
         mCookies.remove(cookie)
         cookieDao.delete(cookie)
-    }
-
-    suspend fun updateCookie(cookie: Cookie) {
-        cookies.first { it.cookieHash == cookie.cookieHash }.cookieName =
-            cookie.cookieName
-        cookieDao.updateCookie(cookie)
     }
 
     suspend fun nukeCommentTable() {

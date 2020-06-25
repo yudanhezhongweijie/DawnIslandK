@@ -60,6 +60,7 @@
     <string name="my_feed" translatable="false">我的订阅</string>
     <string name="feedId" translatable="false">订阅ID</string>
     <string name="edit_cookie_remark" translatable="false">编辑饼干备注</string>
+    <string name="default_cookie_name" translatable="false">默认饼干名称</string>
     <string name="time_display_format" translatable="false">时间显示格式</string>
     <string name="animation_on_off" translatable="false">编辑动画效果</string>
     <string name="animation_on" translatable="false">开启动画效果</string>
@@ -88,6 +89,7 @@
     <string name="cant_create_image_file" translatable="false">无法生成图片文件</string>
     <string name="saving_image" translatable="false">正在保存图片...</string>
     <string name="sending" translatable="false">正在发送中...</string>
+    <string name="processing" translatable="false">正在处理中...</string>
     <string name="something_went_wrong" translatable="false">发生未知错误...</string>
     <string name="image_saved" translatable="false">图片保存在Pictures/Dawn</string>
     <string name="image_already_exists_in_picture" translatable="false">已保存图片，同时检测到图库中有相同名字的图片。默认图库可能不会显示新图片，但是在文件管理器下可见，请勿重复保存</string>

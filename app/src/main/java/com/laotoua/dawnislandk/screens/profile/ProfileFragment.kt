@@ -230,11 +230,9 @@ class ProfileFragment : DaggerFragment() {
                                 val cookieHash =
                                     findViewById<EditText>(R.id.cookieHashText).text
                                 if (cookieHash.toString().isNotBlank()) {
-                                    viewModel.addCookie(
-                                        Cookie(
-                                            cookieHash.toString(),
-                                            cookieName.toString()
-                                        )
+                                    viewModel.addNewCookie(
+                                        cookieHash.toString(),
+                                        cookieName.toString()
                                     )
                                     cookieHash.clear()
                                     cookieName.clear()
@@ -323,19 +321,20 @@ class ProfileFragment : DaggerFragment() {
 
     private fun addCookieToLayout(cookie: Cookie) {
         val view = ListItemCookieBinding.inflate(layoutInflater)
-        view.cookieName.text = cookie.cookieName
+        view.cookieName.text = cookie.cookieDisplayName
         view.edit.setOnClickListener {
             MaterialDialog(requireContext()).show {
                 title(R.string.edit_cookie_remark)
-                input(prefill = cookie.cookieName, hint = cookie.cookieName) { _, text ->
+                input(prefill = cookie.cookieDisplayName, hint = cookie.cookieDisplayName) { _, text ->
                     // Text submitted with the action button
-                    cookie.cookieName = text.toString()
-                    viewModel.addCookie(cookie)
+                    cookie.cookieDisplayName = text.toString()
+                    viewModel.updateCookie(cookie)
                 }
                 positiveButton(R.string.submit)
                 negativeButton(R.string.default_cookie_name) {
                     dismiss()
-                    viewModel.getDefaultCookieName(cookie.cookieHash)
+                    cookie.cookieDisplayName = cookie.cookieName
+                    viewModel.updateCookie(cookie)
                 }
             }
         }
@@ -364,17 +363,12 @@ class ProfileFragment : DaggerFragment() {
             title(R.string.edit_cookie_remark)
             cancelable(false)
             input(hint = cookieHash) { _, text ->
-                viewModel.addCookie(
-                    Cookie(
-                        cookieName = text.toString(),
-                        cookieHash = cookieHash
-                    )
-                )
+                viewModel.addNewCookie(cookieHash, text.toString())
             }
             positiveButton(R.string.submit)
             negativeButton(R.string.default_cookie_name) {
                 dismiss()
-                viewModel.getDefaultCookieName(cookieHash)
+                viewModel.addNewCookie(cookieHash)
             }
         }
     }

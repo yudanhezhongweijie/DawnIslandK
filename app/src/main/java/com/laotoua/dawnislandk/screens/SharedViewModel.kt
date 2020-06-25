@@ -164,6 +164,12 @@ class SharedViewModel @Inject constructor(
         newPost: Boolean,// false if replying
         content: String //content
     ) {
+        if (cookieName.isBlank()){
+            val message = "Trying to save a Post without cookieName"
+            _savePostStatus.postValue(SingleLiveEvent.create(LoadingStatus.FAILED, message))
+            Timber.e(message)
+            return
+        }
         viewModelScope.launch {
             val draft = PostHistory.Draft(
                 cookieName,

@@ -71,9 +71,12 @@ class ApplicationDataStore @Inject constructor(
         mCookies = cookieDao.getAll().toMutableList()
     }
 
+    fun getCookieDisplayName(cookieName: String):String? =
+        cookies.firstOrNull { it.cookieName == cookieName }?.cookieDisplayName
+
     suspend fun addCookie(cookie: Cookie) {
         cookies.firstOrNull { it.cookieHash == cookie.cookieHash }?.let {
-            it.cookieName = cookie.cookieName
+            it.cookieDisplayName = cookie.cookieDisplayName
             cookieDao.updateCookie(it)
             return
         }

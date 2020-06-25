@@ -16,6 +16,7 @@ import com.chad.library.adapter.base.binder.QuickItemBinder
 import com.chad.library.adapter.base.util.getItemView
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.google.android.material.card.MaterialCardView
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.PostHistory
 import com.laotoua.dawnislandk.databinding.FragmentHistoryPostBinding
@@ -166,7 +167,8 @@ class PostHistoryFragment : BaseNavFragment() {
     ) :
         QuickItemBinder<PostHistory>() {
         override fun convert(holder: BaseViewHolder, data: PostHistory) {
-            holder.convertUserId(data.cookieName, "", data.cookieName)
+            val cookieDisplayName = DawnApp.applicationDataStore.getCookieDisplayName(data.cookieName) ?: data.cookieName
+            holder.convertUserId(cookieDisplayName, "", cookieDisplayName)
             holder.convertRefId(context, data.id)
             holder.convertTitleAndName("", "")
             holder.convertTimeStamp(data.postDate)

@@ -34,25 +34,54 @@ class ProfileViewModel @Inject constructor(
     private val charPool = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890"
     private val randomTestLength = 40
 
-    fun getDefaultCookieName(cookieHash: String) {
+
+    fun updateCookie(cookie: Cookie) {
+        viewModelScope.launch {
+            applicationDataStore.addCookie(cookie)
+            _cookies.value = applicationDataStore.cookies
+        }
+    }
+
+    fun addNewCookie(cookieHash: String, cookieDisplayName: String? = null) {
+        viewModelScope.launch {
+            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.LOADING))
+            val cookieName = getDefaultCookieName(cookieHash)
+            if (cookieName.isNotBlank()) {
+                applicationDataStore.addCookie(
+                    Cookie(
+                        cookieHash,
+                        cookieName,
+                        cookieDisplayName ?: cookieName
+                    )
+                )
+                _cookies.value = applicationDataStore.cookies
+                _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))
+            }
+        }
+    }
+
+    fun deleteCookie(cookie: Cookie) {
+        viewModelScope.launch {
+            applicationDataStore.deleteCookies(cookie)
+            _cookies.value = applicationDataStore.cookies
+        }
+    }
+
+    suspend fun getDefaultCookieName(cookieHash: String): String {
         val randomString = (1..randomTestLength)
             .map { Random.nextInt(0, charPool.length) }
             .map(charPool::get)
             .joinToString("")
-        viewModelScope.launch {
-            var targetPage = 1
-            postDao.findPostByIdSync(cookieNameTestPostId)?.let {
-                targetPage = it.getMaxPage()
-            }
-
-            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.LOADING))
-            val message = sendNameTestComment(cookieHash, randomString)
-            if (message.substring(0, 2) != ":)") {
-                _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.FAILED, message))
-                return@launch
-            }
-            findNameInComments(cookieHash, randomString, targetPage, false)
+        var targetPage = 1
+        postDao.findPostByIdSync(cookieNameTestPostId)?.let {
+            targetPage = it.getMaxPage()
         }
+        val message = sendNameTestComment(cookieHash, randomString)
+        if (message.substring(0, 2) != ":)") {
+            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.FAILED, message))
+            return ""
+        }
+        return findNameInComments(cookieHash, randomString, targetPage, false)
     }
 
     private suspend fun sendNameTestComment(cookieHash: String, randomString: String): String {
@@ -79,7 +108,6 @@ class ProfileViewModel @Inject constructor(
                 message
             }
         }
-
     }
 
     private suspend fun findNameInComments(
@@ -87,7 +115,7 @@ class ProfileViewModel @Inject constructor(
         randomString: String,
         targetPage: Int,
         targetPageUpperBound: Boolean
-    ) {
+    ): String {
         if (targetPage < 1) {
             _loadingStatus.postValue(
                 SingleLiveEvent.create(
@@ -95,9 +123,9 @@ class ProfileViewModel @Inject constructor(
                     "无法获取默认饼干名...请联系作者\n"
                 )
             )
-            return
+            return ""
         }
-        webNMBServiceClient.getComments(cookieNameTestPostId, targetPage).run {
+        return webNMBServiceClient.getComments(cookieNameTestPostId, targetPage).run {
             if (this is APIDataResponse.APISuccessDataResponse) {
                 val maxPage = data.getMaxPage()
                 if (targetPage != maxPage && !targetPageUpperBound) {
@@ -108,12 +136,7 @@ class ProfileViewModel @Inject constructor(
                 }
             } else {
                 Timber.e(message)
-                _loadingStatus.postValue(
-                    SingleLiveEvent.create(
-                        LoadingStatus.FAILED,
-                        "无法获取默认饼干名...\n$message"
-                    )
-                )
+                ""
             }
         }
     }
@@ -124,28 +147,13 @@ class ProfileViewModel @Inject constructor(
         randomString: String,
         targetPage: Int,
         targetPageUpperBound: Boolean
-    ) {
+    ): String {
         for (reply in data.comments.reversed()) {
             if (reply.content == randomString) {
-                addCookie(Cookie(cookieHash, reply.userid))
-                _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))
-                return
+                return reply.userid
             }
         }
-        findNameInComments(cookieHash, randomString, targetPage - 1, targetPageUpperBound)
+        return findNameInComments(cookieHash, randomString, targetPage - 1, targetPageUpperBound)
     }
 
-    fun addCookie(cookie: Cookie) {
-        viewModelScope.launch {
-            applicationDataStore.addCookie(cookie)
-            _cookies.value = applicationDataStore.cookies
-        }
-    }
-
-    fun deleteCookie(cookie: Cookie) {
-        viewModelScope.launch {
-            applicationDataStore.deleteCookies(cookie)
-            _cookies.value = applicationDataStore.cookies
-        }
-    }
 }

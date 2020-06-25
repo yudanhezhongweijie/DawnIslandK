@@ -355,7 +355,7 @@ class PostPopup(
                     KeyboardUtils.hideSoftInput(postContent!!)
                     MaterialDialog(context).show {
                         title(R.string.select_cookie)
-                        listItemsSingleChoice(items = cookies.map { c -> c.cookieName }) { _, ind, text ->
+                        listItemsSingleChoice(items = cookies.map { c -> c.cookieDisplayName }) { _, ind, text ->
                             selectedCookie = cookies[ind]
                             postCookie!!.text = text
                         }

@@ -25,7 +25,7 @@ import com.laotoua.dawnislandk.data.local.entity.*
         ReadingPage::class,
         BrowsingHistory::class,
         PostHistory::class],
-    version = 9
+    version = 10
 )
 @TypeConverters(Converter::class)
 abstract class DawnDatabase : RoomDatabase() {
@@ -67,7 +67,8 @@ abstract class DawnDatabase : RoomDatabase() {
                         MIGRATION_5_6,
                         MIGRATION_6_7,
                         MIGRATION_7_8,
-                        MIGRATION_8_9
+                        MIGRATION_8_9,
+                        MIGRATION_9_10
                     )
                     .build()
                 INSTANCE = instance
@@ -148,6 +149,15 @@ abstract class DawnDatabase : RoomDatabase() {
                 database.execSQL("CREATE TABLE IF NOT EXISTS `PostHistory` (`id` TEXT NOT NULL, `cookieName` TEXT NOT NULL, `postTargetId` TEXT NOT NULL, `postTargetPage` INTEGER NOT NULL, `postTargetFid` TEXT NOT NULL, `newPost` INTEGER NOT NULL, `content` TEXT NOT NULL, `img` TEXT NOT NULL, `ext` TEXT NOT NULL, `postDate` INTEGER NOT NULL, PRIMARY KEY(`id`))")
             }
         }
+
+        // updates Cookie Table
+        private val MIGRATION_9_10 = object : Migration(9, 10) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("DROP TABLE Cookie")
+                database.execSQL("CREATE TABLE IF NOT EXISTS `Cookie` (`cookieHash` TEXT NOT NULL, `cookieName` TEXT NOT NULL, `cookieDisplayName` TEXT NOT NULL, PRIMARY KEY(`cookieHash`))")
+            }
+        }
+
     }
 }
 

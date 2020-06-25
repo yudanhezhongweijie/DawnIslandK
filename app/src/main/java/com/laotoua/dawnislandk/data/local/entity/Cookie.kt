@@ -6,5 +6,6 @@ import androidx.room.PrimaryKey
 @Entity
 data class Cookie(
     @PrimaryKey val cookieHash: String,
-    var cookieName: String
+    val cookieName: String,
+    var cookieDisplayName: String
 )

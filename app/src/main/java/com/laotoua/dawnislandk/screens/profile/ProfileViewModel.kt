@@ -32,9 +32,8 @@ class ProfileViewModel @Inject constructor(
     val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>> get() = _loadingStatus
 
     private val cookieNameTestPostId = "26165309"
-    private val charPool = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    private val charPool = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890"
     private val randomTestLength = 40
-    private var targetPage = 1
 
     fun getDefaultCookieName(cookieHash: String) {
         val randomString = (1..randomTestLength)
@@ -42,6 +41,7 @@ class ProfileViewModel @Inject constructor(
             .map(charPool::get)
             .joinToString("")
         viewModelScope.launch {
+            var targetPage = 1
             postDao.findPostByIdSync(cookieNameTestPostId)?.let {
                 targetPage = getMaxPage(it.replyCount)
             }
@@ -52,7 +52,7 @@ class ProfileViewModel @Inject constructor(
                 _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.FAILED, message))
                 return@launch
             }
-            findNameInComments(cookieHash, randomString)
+            findNameInComments(cookieHash, randomString, targetPage, false)
         }
     }
 
@@ -88,7 +88,12 @@ class ProfileViewModel @Inject constructor(
 
     }
 
-    private suspend fun findNameInComments(cookieHash: String, randomString: String) {
+    private suspend fun findNameInComments(
+        cookieHash: String,
+        randomString: String,
+        targetPage: Int,
+        targetPageUpperBound: Boolean
+    ) {
         if (targetPage < 1) {
             _loadingStatus.postValue(
                 SingleLiveEvent.create(
@@ -96,15 +101,16 @@ class ProfileViewModel @Inject constructor(
                     "无法获取默认饼干名...请联系作者\n"
                 )
             )
+            return
         }
         webNMBServiceClient.getComments(cookieHash, cookieNameTestPostId, targetPage).run {
             if (this is APIDataResponse.APISuccessDataResponse) {
-                if (targetPage == 1) {
-                    targetPage = ceil(data.replyCount.toDouble() / 19).toInt()
-                    findNameInComments(cookieHash, randomString)
+                val maxPage = getMaxPage(data.replyCount)
+                if (targetPage != maxPage && !targetPageUpperBound) {
+                    findNameInComments(cookieHash, randomString, maxPage, true)
                 } else {
                     postDao.insert(data)
-                    extractCookieName(data, cookieHash, randomString)
+                    extractCookieName(data, cookieHash, randomString, targetPage, true)
                 }
             } else {
                 Timber.e(message)
@@ -118,7 +124,13 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    private suspend fun extractCookieName(data: Post, cookieHash: String, randomString: String) {
+    private suspend fun extractCookieName(
+        data: Post,
+        cookieHash: String,
+        randomString: String,
+        targetPage: Int,
+        targetPageUpperBound: Boolean
+    ) {
         for (reply in data.comments.reversed()) {
             if (reply.content == randomString) {
                 addCookie(Cookie(cookieHash, reply.userid))
@@ -126,8 +138,7 @@ class ProfileViewModel @Inject constructor(
                 return
             }
         }
-        targetPage -= 1
-        findNameInComments(cookieHash, randomString)
+        findNameInComments(cookieHash, randomString, targetPage - 1, targetPageUpperBound)
     }
 
     fun addCookie(cookie: Cookie) {

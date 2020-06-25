@@ -113,13 +113,21 @@ object ReadableTime {
         }
     }
 
+    fun getDisplayTime(time: Long): String {
+        return when (timeFormat) {
+            "simplified" -> getDisplayTimeAgo(time)
+            "original" -> getPlainDisplayTime(time)
+            else -> throw Exception("Unhandled time format")
+        }
+    }
+
     private fun getPlainDisplayTime(time: Long): String {
         synchronized(
             sDateFormatLock1
         ) { return DATE_FORMAT.format(Date(time)) }
     }
 
-    fun getTimeAgo(time: Long):Long{
+    fun getTimeAgo(time: Long): Long {
         var now = System.currentTimeMillis()
         val timeZoneShift = (TimeZone.getTimeZone("GMT+08:00").getOffset(now)
                 - TimeZone.getDefault().getOffset(now)).toLong()

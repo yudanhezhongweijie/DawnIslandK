@@ -18,15 +18,19 @@ import com.laotoua.dawnislandk.util.Constants
 import com.laotoua.dawnislandk.util.GlideApp
 
 
- fun BaseViewHolder.convertUserId(userId: String, admin: String, po: String = "") {
+fun BaseViewHolder.convertUserId(userId: String, admin: String, po: String = "") {
     setText(R.id.userId, ContentTransformation.transformCookie(userId, admin, po))
 }
 
- fun BaseViewHolder.convertTimeStamp(now: String) {
+fun BaseViewHolder.convertTimeStamp(now: String) {
     setText(R.id.timestamp, ContentTransformation.transformTime(now))
 }
 
- fun BaseViewHolder.convertForumAndReplyCount(replyCount: String, forumDisplayName: String) {
+fun BaseViewHolder.convertTimeStamp(now: Long) {
+    setText(R.id.timestamp, ContentTransformation.transformTime(now))
+}
+
+fun BaseViewHolder.convertForumAndReplyCount(replyCount: String, forumDisplayName: String) {
     val suffix = if (replyCount.isNotBlank()) " • $replyCount" else ""
     val spannableString = SpannableString(forumDisplayName + suffix)
     spannableString.setSpan(
@@ -40,12 +44,12 @@ import com.laotoua.dawnislandk.util.GlideApp
         .setText(spannableString, TextView.BufferType.SPANNABLE)
 }
 
- fun BaseViewHolder.convertRefId(context: Context, id: String) {
+fun BaseViewHolder.convertRefId(context: Context, id: String) {
     // TODO: handle ads
     setText(R.id.refId, context.resources.getString(R.string.ref_id_formatted, id))
 }
 
- fun BaseViewHolder.convertTitleAndName(
+fun BaseViewHolder.convertTitleAndName(
     title: String,
     name: String,
     visible: Boolean = true
@@ -64,7 +68,7 @@ import com.laotoua.dawnislandk.util.GlideApp
     }
 }
 
- fun BaseViewHolder.convertSage(sage: String?) {
+fun BaseViewHolder.convertSage(sage: String?) {
     if (sage == "1") {
         setVisible(R.id.sage, true)
     } else {
@@ -72,7 +76,7 @@ import com.laotoua.dawnislandk.util.GlideApp
     }
 }
 
- fun BaseViewHolder.convertImage(imgUrl: String, visible: Boolean = true) {
+fun BaseViewHolder.convertImage(imgUrl: String, visible: Boolean = true) {
     if (imgUrl.isNotBlank() && visible) {
         val imageView = getView<ImageView>(R.id.attachedImage)
         GlideApp.with(imageView)
@@ -86,7 +90,7 @@ import com.laotoua.dawnislandk.util.GlideApp
     }
 }
 
- fun BaseViewHolder.convertContent(
+fun BaseViewHolder.convertContent(
     context: Context,
     content: String,
     referenceClickListener: ReferenceSpan.ReferenceClickHandler? = null,
@@ -102,7 +106,7 @@ import com.laotoua.dawnislandk.util.GlideApp
     else setVisible(R.id.content, true)
 }
 
- fun BaseViewHolder.convertExpandSummary(context: Context, visible: Boolean) {
+fun BaseViewHolder.convertExpandSummary(context: Context, visible: Boolean) {
     if (!visible) {
         setText(
             R.id.expandSummary,
@@ -117,7 +121,7 @@ import com.laotoua.dawnislandk.util.GlideApp
     }
 }
 
- fun View.applyTextSizeAndLetterSpacing(clickable: Boolean = false) = apply {
+fun View.applyTextSizeAndLetterSpacing(clickable: Boolean = false) = apply {
     findViewById<TextView>(R.id.content).apply {
         if (clickable) movementMethod = ClickableMovementMethod.getInstance()
         textSize = DawnApp.applicationDataStore.textSize

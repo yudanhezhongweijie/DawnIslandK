@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -12,15 +13,20 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.datetime.datePicker
 import com.chad.library.adapter.base.BaseBinderAdapter
 import com.chad.library.adapter.base.binder.QuickItemBinder
+import com.chad.library.adapter.base.util.getItemView
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
+import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.PostHistory
 import com.laotoua.dawnislandk.databinding.FragmentHistoryPostBinding
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.*
+import com.laotoua.dawnislandk.screens.posts.PostCardFactory
 import com.laotoua.dawnislandk.screens.widget.BaseNavFragment
 import com.laotoua.dawnislandk.screens.widget.SectionHeader
+import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.util.ReadableTime
+import com.lxj.xpopup.XPopup
 import timber.log.Timber
 import java.util.*
 
@@ -50,9 +56,13 @@ class PostHistoryFragment : BaseNavFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val mAdapter = BaseBinderAdapter().apply {
-            addItemBinder(PostHistoryBinder(sharedVM))
+            addItemBinder(PostHistoryBinder(sharedVM, this@PostHistoryFragment).apply {
+                addChildClickViewIds(R.id.attachedImage)
+            })
             addItemBinder(DateStringBinder())
-            addItemBinder(SectionHeaderBinder())
+            addItemBinder(SectionHeaderBinder().apply {
+                addChildClickViewIds(R.id.button)
+            })
         }
 
         binding.recyclerView.apply {
@@ -149,17 +159,47 @@ class PostHistoryFragment : BaseNavFragment() {
         binding.endDate.text = ReadableTime.getDateString(date.time)
     }
 
-    private class PostHistoryBinder(private val sharedViewModel: SharedViewModel) :QuickItemBinder<PostHistory>(){
+    private class PostHistoryBinder(
+        private val sharedViewModel: SharedViewModel,
+        private val callerFragment: PostHistoryFragment
+    ) :
+        QuickItemBinder<PostHistory>() {
         override fun convert(holder: BaseViewHolder, data: PostHistory) {
             holder.convertUserId(data.cookieName, "", data.cookieName)
-            holder.convertRefId(context,data.id)
-//            holder.convertTimeStamp(ReadableTime)
-            holder.convertForumAndReplyCount("", sharedViewModel.getForumDisplayName(data.postTargetFid))
-            holder.convertContent(context,data.content)
+            holder.convertRefId(context, data.id)
+            holder.convertTitleAndName("", "")
+            holder.convertTimeStamp(data.postDate)
+            holder.convertForumAndReplyCount(
+                "",
+                sharedViewModel.getForumDisplayName(data.postTargetFid)
+            )
+            holder.convertContent(context, data.content)
             holder.convertImage(data.getImgUrl())
         }
 
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
+            val view = parent.getItemView(getLayoutId()).applyTextSizeAndLetterSpacing()
+            PostCardFactory.applySettings(view as MaterialCardView)
+            return BaseViewHolder(view)
+        }
+
         override fun getLayoutId(): Int = R.layout.list_item_post
+
+        override fun onChildClick(
+            holder: BaseViewHolder,
+            view: View,
+            data: PostHistory,
+            position: Int
+        ) {
+            if (view.id == R.id.attachedImage) {
+                val url = data.getImgUrl()
+                val viewerPopup = ImageViewerPopup(imgUrl = url, fragment = callerFragment)
+                viewerPopup.setSingleSrcView(view as ImageView?, url)
+                XPopup.Builder(context)
+                    .asCustom(viewerPopup)
+                    .show()
+            }
+        }
 
         override fun onClick(holder: BaseViewHolder, view: View, data: PostHistory, position: Int) {
             Timber.d("clicked on post history")
@@ -177,7 +217,12 @@ class PostHistoryFragment : BaseNavFragment() {
             }
         }
 
-        override fun onChildClick(holder: BaseViewHolder, view: View, data: SectionHeader, position: Int) {
+        override fun onChildClick(
+            holder: BaseViewHolder,
+            view: View,
+            data: SectionHeader,
+            position: Int
+        ) {
             if (view.id == R.id.button) data.clickListener?.onClick(view)
         }
 

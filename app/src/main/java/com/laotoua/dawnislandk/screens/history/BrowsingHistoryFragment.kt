@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -23,7 +24,9 @@ import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.*
 import com.laotoua.dawnislandk.screens.posts.PostCardFactory
 import com.laotoua.dawnislandk.screens.widget.BaseNavFragment
+import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.util.ReadableTime
+import com.lxj.xpopup.XPopup
 import timber.log.Timber
 import java.util.*
 import kotlin.collections.ArrayList
@@ -55,7 +58,9 @@ class BrowsingHistoryFragment : BaseNavFragment() {
 
         val mAdapter = BaseBinderAdapter().apply {
             addItemBinder(DateStringBinder())
-            addItemBinder(PostBinder(sharedVM))
+            addItemBinder(PostBinder(sharedVM, this@BrowsingHistoryFragment).apply {
+                addChildClickViewIds(R.id.attachedImage)
+            })
         }
 
         binding.recyclerView.apply {
@@ -145,7 +150,10 @@ class BrowsingHistoryFragment : BaseNavFragment() {
         override fun getLayoutId(): Int = R.layout.list_item_simple_text
     }
 
-    private class PostBinder(private val sharedViewModel: SharedViewModel) :
+    private class PostBinder(
+        private val sharedViewModel: SharedViewModel,
+        private val callerFragment: BrowsingHistoryFragment
+    ) :
         QuickItemBinder<Post>() {
         override fun convert(holder: BaseViewHolder, data: Post) {
             holder.convertUserId(data.userid, data.admin)
@@ -172,6 +180,17 @@ class BrowsingHistoryFragment : BaseNavFragment() {
         override fun onClick(holder: BaseViewHolder, view: View, data: Post, position: Int) {
             sharedViewModel.setPost(data.id, data.fid)
             (context as MainActivity).showComment()
+        }
+
+        override fun onChildClick(holder: BaseViewHolder, view: View, data: Post, position: Int) {
+            if (view.id == R.id.attachedImage) {
+                val url = data.getImgUrl()
+                val viewerPopup = ImageViewerPopup(imgUrl = url, fragment = callerFragment)
+                viewerPopup.setSingleSrcView(view as ImageView?, url)
+                XPopup.Builder(context)
+                    .asCustom(viewerPopup)
+                    .show()
+            }
         }
     }
 

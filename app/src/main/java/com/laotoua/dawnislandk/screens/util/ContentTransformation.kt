@@ -58,6 +58,7 @@ object ContentTransformation {
     }
 
     fun transformTime(now: String): String = ReadableTime.getDisplayTime(now)
+    fun transformTime(now: Long): String = ReadableTime.getDisplayTime(now)
 
     fun transformContent(
         context: Context,

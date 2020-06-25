@@ -17,7 +17,7 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Post
-import com.laotoua.dawnislandk.databinding.FragmentBrowsingHistoryBinding
+import com.laotoua.dawnislandk.databinding.FragmentHistoryBrowsingBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.*
@@ -34,8 +34,8 @@ class BrowsingHistoryFragment : BaseNavFragment() {
         fun newInstance() = BrowsingHistoryFragment()
     }
 
-    private var _binding: FragmentBrowsingHistoryBinding? = null
-    private val binding: FragmentBrowsingHistoryBinding get() = _binding!!
+    private var _binding: FragmentHistoryBrowsingBinding? = null
+    private val binding: FragmentHistoryBrowsingBinding get() = _binding!!
 
     private val viewModel: BrowsingHistoryViewModel by viewModels { viewModelFactory }
 
@@ -46,7 +46,7 @@ class BrowsingHistoryFragment : BaseNavFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentBrowsingHistoryBinding.inflate(inflater, container, false)
+        _binding = FragmentHistoryBrowsingBinding.inflate(inflater, container, false)
         return binding.root
     }
 

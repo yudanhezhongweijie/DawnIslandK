@@ -26,9 +26,9 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.FragmentPagerBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
-import com.laotoua.dawnislandk.screens.feeds.FeedsFragment
-import com.laotoua.dawnislandk.screens.feeds.TrendsFragment
 import com.laotoua.dawnislandk.screens.posts.PostsFragment
+import com.laotoua.dawnislandk.screens.subscriptions.FeedsFragment
+import com.laotoua.dawnislandk.screens.subscriptions.TrendsFragment
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widget.popup.PostPopup
 import com.laotoua.dawnislandk.util.lazyOnMainOnly

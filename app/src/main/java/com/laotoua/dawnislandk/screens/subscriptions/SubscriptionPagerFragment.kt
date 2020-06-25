@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.screens.feeds
+package com.laotoua.dawnislandk.screens.subscriptions
 
 import android.view.View
 import android.widget.Toast
@@ -9,7 +9,7 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.screens.widget.BaseNavFragment
 import com.laotoua.dawnislandk.screens.widget.BasePagerFragment
 
-class FeedPagerFragment : BasePagerFragment() {
+class SubscriptionPagerFragment : BasePagerFragment() {
     private val pageIndices = DawnApp.applicationDataStore.getFeedPagerPageIndices()
     override val pageTitleResIds = mutableMapOf<Int,Int>().apply {
         put(pageIndices.first, R.string.trend)

@@ -6,7 +6,7 @@
         android:icon="@drawable/ic_home_24px"
         android:title="@string/forum"/>
     <item
-        android:id="@+id/feedPagerFragment"
+        android:id="@+id/subscriptionPagerFragment"
         android:enabled="true"
         android:icon="@drawable/ic_favorite_24px"
         android:title="@string/trend_and_feed"/>

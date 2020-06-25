@@ -6,7 +6,7 @@
     app:startDestination="@id/postsFragment">
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.laotoua.dawnislandk.screens.settings.SettingsFragment"
+        android:name="com.laotoua.dawnislandk.screens.profile.ProfileFragment"
         android:label="SettingsFragment">
         <action
             android:id="@+id/action_settingsFragment_to_sizeCustomizationFragment"
@@ -18,13 +18,8 @@
     </fragment>
     <fragment
         android:id="@+id/sizeCustomizationFragment"
-        android:name="com.laotoua.dawnislandk.screens.settings.SizesCustomizationFragment"
+        android:name="com.laotoua.dawnislandk.screens.profile.SizesCustomizationFragment"
         android:label="SizeCustomizationFragment" />
-    <fragment
-        android:id="@+id/browsingHistoryFragment"
-        android:name="com.laotoua.dawnislandk.screens.history.BrowsingHistoryFragment"
-        android:label="fragment_browsing_history"
-        tools:layout="@layout/fragment_browsing_history" />
     <fragment
         android:id="@+id/postsFragment"
         android:name="com.laotoua.dawnislandk.screens.posts.PostsFragment"
@@ -32,11 +27,11 @@
         tools:layout="@layout/fragment_post" />
 
     <fragment
-        android:id="@+id/feedPagerFragment"
-        android:name="com.laotoua.dawnislandk.screens.feeds.FeedPagerFragment"
-        android:label="FeedPagerFragment" />
-    <fragment
         android:id="@+id/historyPagerFragment"
         android:name="com.laotoua.dawnislandk.screens.history.HistoryPagerFragment"
         android:label="HistoryPagerFragment" />
+    <fragment
+        android:id="@+id/subscriptionPagerFragment"
+        android:name="com.laotoua.dawnislandk.screens.subscriptions.SubscriptionPagerFragment"
+        android:label="SubscriptionPagerFragment" />
 </navigation>

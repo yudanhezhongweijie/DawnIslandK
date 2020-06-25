@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.screens.feeds
+package com.laotoua.dawnislandk.screens.subscriptions
 
 import android.os.Bundle
 import android.os.Handler
@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Post
-import com.laotoua.dawnislandk.databinding.FragmentFeedBinding
+import com.laotoua.dawnislandk.databinding.FragmentSubscriptionFeedBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
@@ -32,8 +32,8 @@ class FeedsFragment : BaseNavFragment() {
         fun newInstance() = FeedsFragment()
     }
 
-    private var _binding: FragmentFeedBinding? = null
-    private val binding: FragmentFeedBinding get() = _binding!!
+    private var _binding: FragmentSubscriptionFeedBinding? = null
+    private val binding: FragmentSubscriptionFeedBinding get() = _binding!!
 
     private val viewModel: FeedsViewModel by viewModels { viewModelFactory }
 
@@ -47,7 +47,7 @@ class FeedsFragment : BaseNavFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentFeedBinding.inflate(inflater, container, false)
+        _binding = FragmentSubscriptionFeedBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -151,7 +151,7 @@ class FeedsFragment : BaseNavFragment() {
 
     override fun onResume() {
         super.onResume()
-        (parentFragment as FeedPagerFragment).setToolbarClickListener {
+        (parentFragment as SubscriptionPagerFragment).setToolbarClickListener {
             binding.srlAndRv.recyclerView.layoutManager?.scrollToPosition(0)
         }
     }

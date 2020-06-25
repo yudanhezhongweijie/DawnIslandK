@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.screens.settings
+package com.laotoua.dawnislandk.screens.profile
 
 import android.graphics.Color
 import android.os.Bundle

@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.screens.feeds
+package com.laotoua.dawnislandk.screens.subscriptions
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

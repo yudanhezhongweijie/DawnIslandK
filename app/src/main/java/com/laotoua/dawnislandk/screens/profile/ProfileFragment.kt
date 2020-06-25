@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.screens.settings
+package com.laotoua.dawnislandk.screens.profile
 
 import android.Manifest
 import android.content.Intent
@@ -26,7 +26,7 @@ import com.king.zxing.util.CodeUtils
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Cookie
-import com.laotoua.dawnislandk.databinding.FragmentSettingsBinding
+import com.laotoua.dawnislandk.databinding.FragmentProfileBinding
 import com.laotoua.dawnislandk.databinding.ListItemCookieBinding
 import com.laotoua.dawnislandk.databinding.ListItemPreferenceBinding
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
@@ -39,7 +39,7 @@ import kotlinx.coroutines.launch
 import org.json.JSONObject
 import timber.log.Timber
 
-class SettingsFragment : Fragment() {
+class ProfileFragment : Fragment() {
 
     private val cookies get() = applicationDataStore.cookies
     private val getCookieImage =
@@ -47,7 +47,7 @@ class SettingsFragment : Fragment() {
             uri?.run {
                 try {
                     val file =
-                        ImageUtil.getImageFileFromUri(fragment = this@SettingsFragment, uri = uri)
+                        ImageUtil.getImageFileFromUri(fragment = this@ProfileFragment, uri = uri)
                             ?: return@registerForActivityResult
                     val res = CodeUtils.parseQRCode(file.path)
                     if (res != null) {
@@ -66,7 +66,7 @@ class SettingsFragment : Fragment() {
             }
         }
 
-    private var _binding: FragmentSettingsBinding? = null
+    private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -74,7 +74,7 @@ class SettingsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentSettingsBinding.inflate(inflater, container, false)
+        _binding = FragmentProfileBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -206,12 +206,12 @@ class SettingsFragment : Fragment() {
                             0 -> getCookieImage.launch("image/*")
                             1 -> {
                                 if (FragmentIntentUtil.checkAndRequestSinglePermission(
-                                        this@SettingsFragment,
+                                        this@ProfileFragment,
                                         Manifest.permission.CAMERA,
                                         true
                                     )
                                 ) {
-                                    FragmentIntentUtil.getCookieFromQRCode(this@SettingsFragment) {
+                                    FragmentIntentUtil.getCookieFromQRCode(this@ProfileFragment) {
                                         it?.run {
                                             saveCookieWithInputName(it)
                                         }
@@ -229,7 +229,7 @@ class SettingsFragment : Fragment() {
             key.setText(R.string.size_customization_settings)
             root.setOnClickListener {
                 val action =
-                    SettingsFragmentDirections.actionSettingsFragmentToSizeCustomizationFragment()
+                    ProfileFragmentDirections.actionSettingsFragmentToSizeCustomizationFragment()
                 findNavController().navigate(action)
             }
         }

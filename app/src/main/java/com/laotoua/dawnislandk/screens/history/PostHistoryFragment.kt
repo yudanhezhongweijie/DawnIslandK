@@ -14,7 +14,7 @@ import com.chad.library.adapter.base.BaseBinderAdapter
 import com.chad.library.adapter.base.binder.QuickItemBinder
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.databinding.FragmentPostHistoryBinding
+import com.laotoua.dawnislandk.databinding.FragmentHistoryPostBinding
 import com.laotoua.dawnislandk.screens.widget.BaseNavFragment
 import com.laotoua.dawnislandk.util.ReadableTime
 import java.util.*
@@ -25,8 +25,8 @@ class PostHistoryFragment : BaseNavFragment() {
         fun newInstance() = PostHistoryFragment()
     }
 
-    private var _binding: FragmentPostHistoryBinding? = null
-    private val binding: FragmentPostHistoryBinding get() = _binding!!
+    private var _binding: FragmentHistoryPostBinding? = null
+    private val binding: FragmentHistoryPostBinding get() = _binding!!
 
     private val viewModel: PostHistoryViewModel by viewModels { viewModelFactory }
 
@@ -37,7 +37,7 @@ class PostHistoryFragment : BaseNavFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentPostHistoryBinding.inflate(inflater, container, false)
+        _binding = FragmentHistoryPostBinding.inflate(inflater, container, false)
         return binding.root
     }
 

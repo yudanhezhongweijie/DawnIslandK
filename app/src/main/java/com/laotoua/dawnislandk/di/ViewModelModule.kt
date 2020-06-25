@@ -5,10 +5,10 @@ import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.comments.CommentsFragment
 import com.laotoua.dawnislandk.screens.comments.CommentsViewModel
-import com.laotoua.dawnislandk.screens.feeds.*
 import com.laotoua.dawnislandk.screens.history.*
 import com.laotoua.dawnislandk.screens.posts.PostsFragment
 import com.laotoua.dawnislandk.screens.posts.PostsViewModel
+import com.laotoua.dawnislandk.screens.subscriptions.*
 import com.laotoua.dawnislandk.unused.PagerFragment
 import dagger.Binds
 import dagger.Module
@@ -43,7 +43,7 @@ abstract class ViewModelModule {
     internal abstract fun postHistoryFragment(): PostHistoryFragment
 
     @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
-    internal abstract fun feedPagerFragment(): FeedPagerFragment
+    internal abstract fun feedPagerFragment(): SubscriptionPagerFragment
 
     @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
     internal abstract fun historyPagerFragment(): HistoryPagerFragment

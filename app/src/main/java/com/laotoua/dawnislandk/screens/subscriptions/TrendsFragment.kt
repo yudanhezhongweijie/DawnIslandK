@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.screens.feeds
+package com.laotoua.dawnislandk.screens.subscriptions
 
 import android.os.Bundle
 import android.os.Handler
@@ -10,7 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Trend
-import com.laotoua.dawnislandk.databinding.FragmentTrendBinding
+import com.laotoua.dawnislandk.databinding.FragmentSubscriptionTrendBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
@@ -25,7 +25,7 @@ class TrendsFragment : BaseNavFragment() {
         fun newInstance() = TrendsFragment()
     }
 
-    private var _binding: FragmentTrendBinding? = null
+    private var _binding: FragmentSubscriptionTrendBinding? = null
     private val binding get() = _binding!!
 
     private val viewModel: TrendsViewModel by viewModels { viewModelFactory }
@@ -40,7 +40,7 @@ class TrendsFragment : BaseNavFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentTrendBinding.inflate(inflater, container, false)
+        _binding = FragmentSubscriptionTrendBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -108,7 +108,7 @@ class TrendsFragment : BaseNavFragment() {
 
     override fun onResume() {
         super.onResume()
-        (parentFragment as FeedPagerFragment).setToolbarClickListener {
+        (parentFragment as SubscriptionPagerFragment).setToolbarClickListener {
             binding.srlAndRv.recyclerView.layoutManager?.scrollToPosition(0)
         }
     }

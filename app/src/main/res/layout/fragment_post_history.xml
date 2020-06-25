@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_optimizationLevel="standard|dimensions"
-    tools:context=".screens.history.BrowsingHistoryFragment">
+    tools:context=".screens.history.PostHistoryFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/dateRangeToolbar"

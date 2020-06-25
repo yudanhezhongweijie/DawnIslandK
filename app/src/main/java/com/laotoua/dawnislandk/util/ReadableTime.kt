@@ -32,6 +32,7 @@ object ReadableTime {
     const val HOUR_MILLIS = 60 * MINUTE_MILLIS
     const val DAY_MILLIS = 24 * HOUR_MILLIS
     const val WEEK_MILLIS = 7 * DAY_MILLIS
+    const val LAST_30_DAYS_MILLIS = 30 * DAY_MILLIS
     const val YEAR_MILLIS = 365 * DAY_MILLIS
     const val SIZE = 5
     val MULTIPLES = longArrayOf(

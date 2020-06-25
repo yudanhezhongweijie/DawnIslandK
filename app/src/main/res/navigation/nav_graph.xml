@@ -35,4 +35,8 @@
         android:id="@+id/feedPagerFragment"
         android:name="com.laotoua.dawnislandk.screens.feeds.FeedPagerFragment"
         android:label="FeedPagerFragment" />
+    <fragment
+        android:id="@+id/historyPagerFragment"
+        android:name="com.laotoua.dawnislandk.screens.history.HistoryPagerFragment"
+        android:label="HistoryPagerFragment" />
 </navigation>

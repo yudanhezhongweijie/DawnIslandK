@@ -22,7 +22,6 @@ import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.*
 import com.laotoua.dawnislandk.screens.posts.PostCardFactory
-import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widget.BaseNavFragment
 import com.laotoua.dawnislandk.util.ReadableTime
 import timber.log.Timber
@@ -30,6 +29,10 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class BrowsingHistoryFragment : BaseNavFragment() {
+
+    companion object {
+        fun newInstance() = BrowsingHistoryFragment()
+    }
 
     private var _binding: FragmentBrowsingHistoryBinding? = null
     private val binding: FragmentBrowsingHistoryBinding get() = _binding!!
@@ -49,12 +52,6 @@ class BrowsingHistoryFragment : BaseNavFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        binding.toolbar.apply {
-            immersiveToolbar()
-            setTitle(R.string.browsing_history)
-            setSubtitle(R.string.toolbar_subtitle)
-        }
 
         val mAdapter = BaseBinderAdapter().apply {
             addItemBinder(DateStringBinder())

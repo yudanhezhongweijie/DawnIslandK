@@ -6,8 +6,7 @@ import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.comments.CommentsFragment
 import com.laotoua.dawnislandk.screens.comments.CommentsViewModel
 import com.laotoua.dawnislandk.screens.feeds.*
-import com.laotoua.dawnislandk.screens.history.BrowsingHistoryFragment
-import com.laotoua.dawnislandk.screens.history.BrowsingHistoryViewModel
+import com.laotoua.dawnislandk.screens.history.*
 import com.laotoua.dawnislandk.screens.posts.PostsFragment
 import com.laotoua.dawnislandk.screens.posts.PostsViewModel
 import com.laotoua.dawnislandk.unused.PagerFragment
@@ -32,16 +31,22 @@ abstract class ViewModelModule {
     internal abstract fun feedsFragment(): FeedsFragment
 
     @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
-    internal abstract fun feedPagerFragment(): FeedPagerFragment
-
-    @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
     internal abstract fun commentsFragment(): CommentsFragment
 
     @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
     internal abstract fun trendsFragment(): TrendsFragment
 
     @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
-    internal abstract fun historyFragment(): BrowsingHistoryFragment
+    internal abstract fun browsingHistoryFragment(): BrowsingHistoryFragment
+
+    @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
+    internal abstract fun postHistoryFragment(): PostHistoryFragment
+
+    @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
+    internal abstract fun feedPagerFragment(): FeedPagerFragment
+
+    @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
+    internal abstract fun historyPagerFragment(): HistoryPagerFragment
 
     @Binds
     @IntoMap
@@ -66,7 +71,12 @@ abstract class ViewModelModule {
     @Binds
     @IntoMap
     @ViewModelKey(BrowsingHistoryViewModel::class)
-    abstract fun bindHistoryViewModel(viewModelBrowsing: BrowsingHistoryViewModel): ViewModel
+    abstract fun bindBrowsingHistoryViewModel(viewModel: BrowsingHistoryViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(PostHistoryViewModel::class)
+    abstract fun bindPostHistoryViewModel(viewModel: PostHistoryViewModel): ViewModel
 
     @Binds
     @IntoMap

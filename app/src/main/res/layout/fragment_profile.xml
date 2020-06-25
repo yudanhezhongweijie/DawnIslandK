@@ -10,149 +10,160 @@
         layout="@layout/widget_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="56dp"
+        android:fillViewport="true"
+        android:overScrollMode="never"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbarLayout">
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guidelineStart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="12dp"
+                app:layout_constraintStart_toEndOf="parent" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guidelineStart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_begin="12dp"
-        app:layout_constraintStart_toEndOf="parent" />
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guidelineEnd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_end="12dp" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guidelineEnd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_end="12dp" />
+            <TextView
+                android:id="@+id/cookieManagement"
+                style="@style/PreferenceCategory"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/cookie_management"
+                app:layout_constraintStart_toStartOf="@id/guidelineStart"
+                app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/cookieManagement"
-        style="@style/PreferenceCategory"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/cookie_management"
-        app:layout_constraintEnd_toStartOf="@+id/guidelineEnd"
-        app:layout_constraintStart_toEndOf="@+id/guidelineStart"
-        app:layout_constraintTop_toBottomOf="@id/toolbarLayout" />
+            <LinearLayout
+                android:id="@+id/cookieList"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintStart_toStartOf="@id/guidelineStart"
+                app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+                app:layout_constraintTop_toBottomOf="@id/cookieManagement">
 
+            </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/cookieList"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toStartOf="@+id/guidelineEnd"
-        app:layout_constraintStart_toEndOf="@+id/guidelineStart"
-        app:layout_constraintTop_toBottomOf="@id/cookieManagement">
+            <TextView
+                android:id="@+id/cookieSummaryPrefix"
+                style="@style/PreferenceItemKey"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/cookie_slots"
+                android:textColor="@color/gray_400"
+                app:layout_constraintBaseline_toBaselineOf="@id/addCookie"
+                app:layout_constraintStart_toStartOf="@id/cookieList" />
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/cookieSummary"
+                style="@style/PreferenceItemKey"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:textColor="@color/gray_400"
+                app:layout_constraintStart_toEndOf="@+id/cookieSummaryPrefix"
+                app:layout_constraintTop_toTopOf="@id/cookieSummaryPrefix" />
 
-    <TextView
-        android:id="@+id/cookieSummaryPrefix"
-        style="@style/PreferenceItemKey"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="@string/cookie_slots"
-        android:textColor="@color/gray_400"
-        app:layout_constraintBaseline_toBaselineOf="@id/addCookie"
-        app:layout_constraintStart_toStartOf="@id/cookieList" />
+            <Button
+                android:id="@+id/addCookie"
+                style="@style/DawnOutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/add_cookie"
+                app:icon="@drawable/ic_add_black_48px"
+                app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+                app:layout_constraintTop_toBottomOf="@id/cookieList" />
 
-    <TextView
-        android:id="@+id/cookieSummary"
-        style="@style/PreferenceItemKey"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:textColor="@color/gray_400"
-        app:layout_constraintStart_toEndOf="@+id/cookieSummaryPrefix"
-        app:layout_constraintTop_toTopOf="@id/cookieSummaryPrefix" />
+            <TextView
+                android:id="@+id/generalSettings"
+                style="@style/PreferenceCategory"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="@string/general_settings"
+                app:layout_constraintStart_toStartOf="@id/guidelineStart"
+                app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+                app:layout_constraintTop_toBottomOf="@id/addCookie" />
 
-    <Button
-        android:id="@+id/addCookie"
-        style="@style/DawnOutlinedButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/add_cookie"
-        app:icon="@drawable/ic_add_black_48px"
-        app:layout_constraintEnd_toStartOf="@+id/guidelineEnd"
-        app:layout_constraintTop_toBottomOf="@id/cookieList" />
+            <include
+                android:id="@+id/feedId"
+                layout="@layout/list_item_preference"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="@id/guidelineStart"
+                app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+                app:layout_constraintTop_toBottomOf="@id/generalSettings" />
 
-    <TextView
-        android:id="@+id/generalSettings"
-        style="@style/PreferenceCategory"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:text="@string/general_settings"
-        app:layout_constraintEnd_toStartOf="@+id/guidelineEnd"
-        app:layout_constraintStart_toEndOf="@+id/guidelineStart"
-        app:layout_constraintTop_toBottomOf="@id/addCookie" />
+            <include
+                android:id="@+id/timeFormat"
+                layout="@layout/list_item_preference"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="@id/guidelineStart"
+                app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+                app:layout_constraintTop_toBottomOf="@id/feedId" />
 
-    <include
-        android:id="@+id/feedId"
-        layout="@layout/list_item_preference"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@+id/guidelineEnd"
-        app:layout_constraintStart_toEndOf="@+id/guidelineStart"
-        app:layout_constraintTop_toBottomOf="@id/generalSettings" />
+            <include
+                android:id="@+id/useReadingProgress"
+                layout="@layout/list_item_preference"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="@id/guidelineStart"
+                app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+                app:layout_constraintTop_toBottomOf="@id/timeFormat" />
 
-    <include
-        android:id="@+id/timeFormat"
-        layout="@layout/list_item_preference"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@+id/guidelineEnd"
-        app:layout_constraintStart_toEndOf="@+id/guidelineStart"
-        app:layout_constraintTop_toBottomOf="@id/feedId" />
+            <include
+                android:id="@+id/animationSwitch"
+                layout="@layout/list_item_preference"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="@id/guidelineStart"
+                app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+                app:layout_constraintTop_toBottomOf="@id/useReadingProgress" />
 
-    <include
-        android:id="@+id/useReadingProgress"
-        layout="@layout/list_item_preference"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@+id/guidelineEnd"
-        app:layout_constraintStart_toEndOf="@+id/guidelineStart"
-        app:layout_constraintTop_toBottomOf="@id/timeFormat" />
+            <include
+                android:id="@+id/sizeCustomization"
+                layout="@layout/list_item_preference"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="@id/guidelineStart"
+                app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+                app:layout_constraintTop_toBottomOf="@id/animationSwitch" />
 
-    <include
-        android:id="@+id/animationSwitch"
-        layout="@layout/list_item_preference"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@+id/guidelineEnd"
-        app:layout_constraintStart_toEndOf="@+id/guidelineStart"
-        app:layout_constraintTop_toBottomOf="@id/useReadingProgress" />
+            <include
+                android:id="@+id/clearCommentCache"
+                layout="@layout/list_item_preference"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="@id/guidelineStart"
+                app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+                app:layout_constraintTop_toBottomOf="@id/sizeCustomization" />
 
-    <include
-        android:id="@+id/sizeCustomization"
-        layout="@layout/list_item_preference"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@+id/guidelineEnd"
-        app:layout_constraintStart_toEndOf="@+id/guidelineStart"
-        app:layout_constraintTop_toBottomOf="@id/animationSwitch" />
-
-    <include
-        android:id="@+id/clearCommentCache"
-        layout="@layout/list_item_preference"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@+id/guidelineEnd"
-        app:layout_constraintStart_toEndOf="@+id/guidelineStart"
-        app:layout_constraintTop_toBottomOf="@id/sizeCustomization" />
-
-    <include
-        android:id="@+id/appFeedback"
-        layout="@layout/list_item_preference"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@+id/guidelineEnd"
-        app:layout_constraintStart_toEndOf="@+id/guidelineStart"
-        app:layout_constraintTop_toBottomOf="@id/clearCommentCache" />
+            <include
+                android:id="@+id/appFeedback"
+                layout="@layout/list_item_preference"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="@id/guidelineStart"
+                app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+                app:layout_constraintTop_toBottomOf="@id/clearCommentCache" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -2,7 +2,6 @@ package com.laotoua.dawnislandk.data.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.dao.DailyTrendDao
 import com.laotoua.dawnislandk.data.local.entity.DailyTrend
 import com.laotoua.dawnislandk.data.local.entity.Post
@@ -55,7 +54,7 @@ class TrendRepository @Inject constructor(
     }
 
     private suspend fun getRemoteTrend() {
-        webService.getComments(DawnApp.applicationDataStore.firstCookieHash, trendId, page).run {
+        webService.getComments(trendId, page).run {
             if (this is APIDataResponse.APISuccessDataResponse) {
                 if (page == 1) {
                     page = ceil(data.replyCount.toDouble() / 19).toInt()

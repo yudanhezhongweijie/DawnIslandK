@@ -1,5 +1,6 @@
 package com.laotoua.dawnislandk.data.remote
 
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.entity.*
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
@@ -99,7 +100,11 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
         return APIDataResponse.create(call, parsePosts)
     }
 
-    suspend fun getComments(userhash: String?, id: String, page: Int): APIDataResponse<Post> {
+    suspend fun getComments(
+        id: String,
+        page: Int,
+        userhash: String? = DawnApp.applicationDataStore.firstCookieHash
+    ): APIDataResponse<Post> {
         Timber.i("Downloading Comments on Post $id on Page $page...")
         val hash = userhash?.let { "userhash=$it" }
         return APIDataResponse.create(service.getNMBComments(hash, id, page), parseComments)

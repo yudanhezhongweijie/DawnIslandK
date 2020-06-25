@@ -521,13 +521,12 @@ class PostPopup(
                 postProgressDialog.dismiss()
                 dismissWith {
                     if (message.substring(0, 2) == ":)") {
-                        sharedVM.savePost(
+                        sharedVM.searchAndSavePost(
                             selectedCookie?.cookieName ?: "",
                             targetId!!,
                             targetPage,
                             targetFid,
                             newPost,
-                            imageFile?.path ?: "",
                             content
                         )
                         afterPostTask?.invoke()

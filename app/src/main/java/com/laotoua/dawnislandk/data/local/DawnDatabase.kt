@@ -25,7 +25,7 @@ import com.laotoua.dawnislandk.data.local.entity.*
         ReadingPage::class,
         BrowsingHistory::class,
         PostHistory::class],
-    version = 8
+    version = 9
 )
 @TypeConverters(Converter::class)
 abstract class DawnDatabase : RoomDatabase() {
@@ -66,7 +66,8 @@ abstract class DawnDatabase : RoomDatabase() {
                         MIGRATION_4_5,
                         MIGRATION_5_6,
                         MIGRATION_6_7,
-                        MIGRATION_7_8
+                        MIGRATION_7_8,
+                        MIGRATION_8_9
                     )
                     .build()
                 INSTANCE = instance
@@ -110,26 +111,26 @@ abstract class DawnDatabase : RoomDatabase() {
         // renamed Thread,Reply, moved readingProgress to its own table
         private val MIGRATION_4_5 = object : Migration(4, 5) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE Reply RENAME TO Comment")
-                database.execSQL("CREATE TABLE IF NOT EXISTS Post (`id` TEXT NOT NULL, `fid` TEXT NOT NULL, `category` TEXT NOT NULL, `img` TEXT NOT NULL, `ext` TEXT NOT NULL, `now` TEXT NOT NULL, `userid` TEXT NOT NULL, `name` TEXT NOT NULL, `email` TEXT NOT NULL, `title` TEXT NOT NULL, `content` TEXT NOT NULL, `sage` TEXT NOT NULL, `admin` TEXT NOT NULL, `status` TEXT NOT NULL, `replyCount` TEXT NOT NULL, `lastUpdatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))")
-                database.execSQL("INSERT INTO Post SELECT id, fid, category, img, ext, now, userid, name, email, title, content, sage, admin, status, replyCount, lastUpdatedAt FROM Thread")
-                database.execSQL("CREATE TABLE IF NOT EXISTS ReadingPage (`id` TEXT NOT NULL, `page` INTEGER NOT NULL, `lastUpdatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))")
-                database.execSQL("INSERT INTO ReadingPage (id,page,lastUpdatedAt) SELECT id,readingProgress,lastUpdatedAt FROM Thread")
-                database.execSQL("DROP Table Thread")
+                database.execSQL("ALTER TABLE `Reply` RENAME TO Comment")
+                database.execSQL("CREATE TABLE IF NOT EXISTS `Post` (`id` TEXT NOT NULL, `fid` TEXT NOT NULL, `category` TEXT NOT NULL, `img` TEXT NOT NULL, `ext` TEXT NOT NULL, `now` TEXT NOT NULL, `userid` TEXT NOT NULL, `name` TEXT NOT NULL, `email` TEXT NOT NULL, `title` TEXT NOT NULL, `content` TEXT NOT NULL, `sage` TEXT NOT NULL, `admin` TEXT NOT NULL, `status` TEXT NOT NULL, `replyCount` TEXT NOT NULL, `lastUpdatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))")
+                database.execSQL("INSERT INTO `Post` SELECT id, fid, category, img, ext, now, userid, name, email, title, content, sage, admin, status, replyCount, lastUpdatedAt FROM Thread")
+                database.execSQL("CREATE TABLE IF NOT EXISTS `ReadingPage` (`id` TEXT NOT NULL, `page` INTEGER NOT NULL, `lastUpdatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))")
+                database.execSQL("INSERT INTO `ReadingPage` (id,page,lastUpdatedAt) SELECT id,readingProgress,lastUpdatedAt FROM Thread")
+                database.execSQL("DROP Table `Thread`")
             }
         }
 
         // adds Browsing History
         private val MIGRATION_5_6 = object : Migration(5, 6) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("CREATE TABLE IF NOT EXISTS BrowsingHistory (`date` INTEGER NOT NULL, `postId` TEXT NOT NULL, `postFid` TEXT NOT NULL, `pages` TEXT NOT NULL, PRIMARY KEY(`date`, `postId`))")
+                database.execSQL("CREATE TABLE IF NOT EXISTS `BrowsingHistory` (`date` INTEGER NOT NULL, `postId` TEXT NOT NULL, `postFid` TEXT NOT NULL, `pages` TEXT NOT NULL, PRIMARY KEY(`date`, `postId`))")
             }
         }
 
         // adds Post History
         private val MIGRATION_6_7 = object : Migration(6, 7) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("CREATE TABLE IF NOT EXISTS PostHistory (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `postCookieName` TEXT NOT NULL, `postTargetId` TEXT NOT NULL, `postTargetPage` INTEGER NOT NULL, `postTargetFid` TEXT NOT NULL, `newPost` INTEGER NOT NULL, `imgPath` TEXT NOT NULL, `content` TEXT NOT NULL, `postDate` INTEGER NOT NULL)")
+                database.execSQL("CREATE TABLE IF NOT EXISTS `PostHistory` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `postCookieName` TEXT NOT NULL, `postTargetId` TEXT NOT NULL, `postTargetPage` INTEGER NOT NULL, `postTargetFid` TEXT NOT NULL, `newPost` INTEGER NOT NULL, `imgPath` TEXT NOT NULL, `content` TEXT NOT NULL, `postDate` INTEGER NOT NULL)")
             }
         }
 
@@ -137,6 +138,14 @@ abstract class DawnDatabase : RoomDatabase() {
         private val MIGRATION_7_8 = object : Migration(7, 8) {
             override fun migrate(database: SupportSQLiteDatabase) {
                database.execSQL("ALTER TABLE `Release` ADD COLUMN `lastUpdatedAt` INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        // update Post History Table
+        private val MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("DROP TABLE PostHistory")
+                database.execSQL("CREATE TABLE IF NOT EXISTS `PostHistory` (`id` TEXT NOT NULL, `cookieName` TEXT NOT NULL, `postTargetId` TEXT NOT NULL, `postTargetPage` INTEGER NOT NULL, `postTargetFid` TEXT NOT NULL, `newPost` INTEGER NOT NULL, `content` TEXT NOT NULL, `img` TEXT NOT NULL, `ext` TEXT NOT NULL, `postDate` INTEGER NOT NULL, PRIMARY KEY(`id`))")
             }
         }
     }

@@ -48,9 +48,8 @@ class CommentRepository @Inject constructor(
     private val fifoPostList = mutableListOf<Int>()
     private val adMap = SparseArray<SparseArray<Comment>>()
 
-    private val replyCount get() = postMap[currentPostIdInt]?.replyCount?.toInt() ?: 0
     val po get() = postMap[currentPostIdInt]?.userid ?: ""
-    val maxPage get() = 1.coerceAtLeast(kotlin.math.ceil(replyCount.toDouble() / 19).toInt())
+    val maxPage get() = postMap[currentPostIdInt]?.getMaxPage() ?: 1
     val loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
     val addFeedResponse = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
     private val todayDateLong = ReadableTime.getTodayDateLong()
@@ -159,11 +158,7 @@ class CommentRepository @Inject constructor(
     suspend fun getServerData(page: Int): Job = coroutineScope {
         launch {
             Timber.d("Querying remote data for Thread $currentPostId on $page")
-            webService.getComments(
-                DawnApp.applicationDataStore.firstCookieHash,
-                currentPostId,
-                page
-            ).run {
+            webService.getComments(currentPostId, page).run {
                 if (this is APIDataResponse.APISuccessDataResponse) convertServerData(data, page)
                 else {
                     Timber.e(message)

@@ -4,15 +4,19 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.laotoua.dawnislandk.data.local.dao.CommentDao
+import com.laotoua.dawnislandk.data.local.dao.PostDao
 import com.laotoua.dawnislandk.data.local.dao.PostHistoryDao
 import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.data.local.entity.Forum
+import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.data.local.entity.PostHistory
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.data.repository.CommunityRepository
 import com.laotoua.dawnislandk.util.EventPayload
+import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.SingleLiveEvent
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -22,6 +26,8 @@ import javax.inject.Inject
 
 class SharedViewModel @Inject constructor(
     private val webNMBServiceClient: NMBServiceClient,
+    private val postDao: PostDao,
+    private val commentDao: CommentDao,
     private val postHistoryDao: PostHistoryDao,
     private val communityRepository: CommunityRepository
 ) :
@@ -37,6 +43,9 @@ class SharedViewModel @Inject constructor(
     val selectedPostId: LiveData<String> get() = _selectedPostId
     private var _selectedPostFid: String = "-1"
     val selectedPostFid get() = _selectedPostFid
+
+    private val _savePostStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
+    val savePostStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>> get() = _savePostStatus
 
     private lateinit var loadingBible: List<String>
 
@@ -59,7 +68,8 @@ class SharedViewModel @Inject constructor(
 
     fun setForumMappings(list: List<Community>) {
         val flatten = list.flatMap { it.forums }
-        forumNameMapping = flatten.associateBy(keySelector = { it.id }, valueTransform = { it.name })
+        forumNameMapping =
+            flatten.associateBy(keySelector = { it.id }, valueTransform = { it.name })
         forumMsgMapping = flatten.associateBy(keySelector = { it.id }, valueTransform = { it.msg })
     }
 
@@ -142,30 +152,88 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun savePost(
-        postCookieName: String,
+    fun searchAndSavePost(
+        cookieName: String,
         postTargetId: String, // do not have this when sending a newPost
         postTargetPage: Int,
         postTargetFid: String,
         newPost: Boolean,// false if replying
-        imgPath: String,
         content: String //content
     ) {
         viewModelScope.launch {
-            postHistoryDao.insertPostHistory(
-                PostHistory(
-                    null,
-                    postCookieName,
-                    postTargetId,
-                    postTargetPage,
-                    postTargetFid,
-                    newPost,
-                    imgPath,
-                    content,
-                    Date().time
-                )
+            val draft = PostHistory.Draft(
+                cookieName,
+                postTargetId,
+                postTargetFid,
+                newPost,
+                content,
+                Date().time
             )
+            if (!newPost) searchCommentInPost(draft, postTargetPage, false)
+            else TODO()
         }
     }
 
+    private suspend fun searchCommentInPost(
+        draft: PostHistory.Draft,
+        targetPage: Int,
+        targetPageUpperBound: Boolean
+    ) {
+        if (targetPage < 1) {
+            _savePostStatus.postValue(
+                SingleLiveEvent.create(
+                    LoadingStatus.FAILED,
+                    "无法保存发言历史...请联系作者\n"
+                )
+            )
+            return
+        }
+        Timber.d("Searching posted comment in ${draft.postTargetId} on page $targetPage")
+
+        webNMBServiceClient.getComments(draft.postTargetId, targetPage).run {
+            if (this is APIDataResponse.APISuccessDataResponse) {
+                val maxPage = data.getMaxPage()
+                if (targetPage != maxPage && !targetPageUpperBound) {
+                    searchCommentInPost(draft, maxPage, true)
+                } else {
+                    postDao.insert(data)
+                    extractCommentInPost(data, draft, maxPage, true)
+                }
+                commentDao.insertAllWithTimeStamp(data.comments)
+            } else {
+                Timber.e(message)
+                _savePostStatus.postValue(
+                    SingleLiveEvent.create(
+                        LoadingStatus.FAILED,
+                        "无法保存发言历史...\n$message"
+                    )
+                )
+            }
+        }
+    }
+
+    private suspend fun extractCommentInPost(
+        data: Post,
+        draft: PostHistory.Draft,
+        targetPage: Int,
+        targetPageUpperBound: Boolean
+    ) {
+        for (reply in data.comments.reversed()) {
+            if (reply.userid == draft.cookieName && reply.content == draft.content) {
+                postHistoryDao.insertPostHistory(
+                    PostHistory(
+                        reply.id,
+                        targetPage,
+                        reply.img,
+                        reply.ext,
+                        draft
+                    )
+                )
+                _savePostStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))
+                Timber.d("Saved posted comment with id ${reply.id}")
+                return
+            }
+        }
+        searchCommentInPost(draft, targetPage - 1, targetPageUpperBound)
+    }
 }

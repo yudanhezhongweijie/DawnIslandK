@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import java.util.*
+import kotlin.math.ceil
 
 @JsonClass(generateAdapter = true)
 @Entity
@@ -86,6 +87,7 @@ data class Post(
     fun getImgUrl() = (img + ext)
     fun getSimplifiedTitle(): String = if (title.isNotBlank() && title != "无标题") "标题：$title" else ""
     fun getSimplifiedName(): String = if (name.isNotBlank() && name != "无名氏") "名称：$name" else ""
+    fun getMaxPage() = if (replyCount.isBlank()) 1 else ceil(replyCount.toDouble() / 19).toInt()
 
     override fun equals(other: Any?) =
         if (other is Post) {

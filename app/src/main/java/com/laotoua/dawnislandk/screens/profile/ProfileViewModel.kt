@@ -17,7 +17,6 @@ import com.laotoua.dawnislandk.util.SingleLiveEvent
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
-import kotlin.math.ceil
 import kotlin.random.Random
 
 class ProfileViewModel @Inject constructor(
@@ -43,7 +42,7 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             var targetPage = 1
             postDao.findPostByIdSync(cookieNameTestPostId)?.let {
-                targetPage = getMaxPage(it.replyCount)
+                targetPage = it.getMaxPage()
             }
 
             _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.LOADING))
@@ -55,11 +54,6 @@ class ProfileViewModel @Inject constructor(
             findNameInComments(cookieHash, randomString, targetPage, false)
         }
     }
-
-    private fun getMaxPage(replyCount: String): Int =
-        if (replyCount.isBlank()) 1
-        else ceil(replyCount.toDouble() / 19).toInt()
-
 
     private suspend fun sendNameTestComment(cookieHash: String, randomString: String): String {
         return webNMBServiceClient.sendPost(
@@ -103,9 +97,9 @@ class ProfileViewModel @Inject constructor(
             )
             return
         }
-        webNMBServiceClient.getComments(cookieHash, cookieNameTestPostId, targetPage).run {
+        webNMBServiceClient.getComments(cookieNameTestPostId, targetPage).run {
             if (this is APIDataResponse.APISuccessDataResponse) {
-                val maxPage = getMaxPage(data.replyCount)
+                val maxPage = data.getMaxPage()
                 if (targetPage != maxPage && !targetPageUpperBound) {
                     findNameInComments(cookieHash, randomString, maxPage, true)
                 } else {

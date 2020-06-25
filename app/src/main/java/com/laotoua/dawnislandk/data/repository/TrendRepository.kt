@@ -43,7 +43,7 @@ class TrendRepository @Inject constructor(
             page = ceil(it.lastReplyCount.toDouble() / 19).toInt()
             // trends updates daily at 1AM
             val diff = ReadableTime.getTimeAgo(it.date)
-            val dayTime = ReadableTime.DAY_MILLIS
+            val dayTime = ReadableTime.HOUR_MILLIS * 25
             if (diff - dayTime < 0) {
                 getRemoteData = false
                 _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))

@@ -42,6 +42,8 @@ class SharedViewModel @Inject constructor(
     val selectedForumId: LiveData<String> get() = _selectedForumId
     private var _selectedPostId = MutableLiveData<String>()
     val selectedPostId: LiveData<String> get() = _selectedPostId
+    var selectedPostTargetPage: Int? = null
+        private set
     private var _selectedPostFid: String = "-1"
     val selectedPostFid get() = _selectedPostFid
 
@@ -90,10 +92,11 @@ class SharedViewModel @Inject constructor(
         _selectedForumId.value = f.id
     }
 
-    fun setPost(id: String, fid: String? = null) {
+    fun setPost(id: String, fid: String? = null, selectedPage: Int? = null) {
         Timber.d("Setting thread to $id and fid to $fid")
         fid?.let { _selectedPostFid = it }
         _selectedPostId.value = id
+        selectedPostTargetPage = selectedPage
     }
 
     fun setPostFid(fid: String) {

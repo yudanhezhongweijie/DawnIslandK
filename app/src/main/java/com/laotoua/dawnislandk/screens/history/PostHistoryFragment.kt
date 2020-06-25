@@ -19,6 +19,7 @@ import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.PostHistory
 import com.laotoua.dawnislandk.databinding.FragmentHistoryPostBinding
+import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.*
 import com.laotoua.dawnislandk.screens.posts.PostCardFactory
@@ -202,7 +203,13 @@ class PostHistoryFragment : BaseNavFragment() {
         }
 
         override fun onClick(holder: BaseViewHolder, view: View, data: PostHistory, position: Int) {
-            Timber.d("clicked on post history")
+            if (data.newPost) {
+                sharedViewModel.setPost(data.id, data.postTargetFid)
+                (context as MainActivity).showComment()
+            } else{
+                sharedViewModel.setPost(data.id, data.postTargetFid, data.postTargetPage)
+                (context as MainActivity).showComment()
+            }
         }
     }
 

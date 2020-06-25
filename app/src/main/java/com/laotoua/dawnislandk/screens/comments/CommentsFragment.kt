@@ -341,7 +341,7 @@ class CommentsFragment : DaggerFragment() {
             currentPage = 0
             showMenu()
         }
-        viewModel.setPost(it, sharedVM.selectedPostFid)
+        viewModel.setPost(it, sharedVM.selectedPostFid, sharedVM.selectedPostTargetPage)
         updateTitle()
     }
 

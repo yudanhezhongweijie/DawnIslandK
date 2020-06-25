@@ -1,10 +1,13 @@
 package com.laotoua.dawnislandk.screens.comments
 
 import android.util.SparseArray
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.local.entity.Comment
-import com.laotoua.dawnislandk.data.repository.QuoteRepository
 import com.laotoua.dawnislandk.data.repository.CommentRepository
+import com.laotoua.dawnislandk.data.repository.QuoteRepository
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.addOrSet
 import kotlinx.coroutines.launch
@@ -35,18 +38,18 @@ class CommentsViewModel @Inject constructor(
         get() = commentRepo.addFeedResponse
 
     val quoteLoadingStatus = quoteRepo.quoteLoadingStatus
-    fun getQuote(id: String) : LiveData<Comment> =  quoteRepo.getQuote(id)
+    fun getQuote(id: String): LiveData<Comment> = quoteRepo.getQuote(id)
 
-    fun setPost(id: String, fid:String) {
+    fun setPost(id: String, fid: String, targetPage: Int?) {
         if (id != currentPostId) clearCache(true)
         viewModelScope.launch {
-            commentRepo.setPost(id,fid)
-            if (commentList.isEmpty()) loadLandingPage()
+            commentRepo.setPost(id, fid)
+            if (commentList.isEmpty()) loadLandingPage(targetPage)
         }
     }
 
-    private fun loadLandingPage() {
-        getNextPage(false, commentRepo.getLandingPage())
+    private fun loadLandingPage(targetPage: Int?) {
+        getNextPage(false, targetPage ?: commentRepo.getLandingPage())
     }
 
     fun saveReadingProgress(page: Int) {

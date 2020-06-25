@@ -28,6 +28,10 @@ import timber.log.Timber
 
 class FeedsFragment : BaseNavFragment() {
 
+    companion object {
+        fun newInstance() = FeedsFragment()
+    }
+
     private var _binding: FragmentFeedBinding? = null
     private val binding: FragmentFeedBinding get() = _binding!!
 

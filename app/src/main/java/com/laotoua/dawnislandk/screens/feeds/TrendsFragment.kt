@@ -21,6 +21,10 @@ import timber.log.Timber
 
 class TrendsFragment : BaseNavFragment() {
 
+    companion object {
+        fun newInstance() = TrendsFragment()
+    }
+
     private var _binding: FragmentTrendBinding? = null
     private val binding get() = _binding!!
 

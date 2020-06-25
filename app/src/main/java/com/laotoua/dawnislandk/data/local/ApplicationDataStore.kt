@@ -26,7 +26,7 @@ class ApplicationDataStore @Inject constructor(
 ) {
 
     private var mCookies = mutableListOf<Cookie>()
-    val cookies get() = mCookies
+    val cookies: List<Cookie> get() = mCookies
     val firstCookieHash get() = cookies.firstOrNull()?.cookieHash
     var luweiNotice: LuweiNotice? = null
         private set
@@ -72,8 +72,18 @@ class ApplicationDataStore @Inject constructor(
     }
 
     suspend fun addCookie(cookie: Cookie) {
-        mCookies.add(cookie)
-        cookieDao.insert(cookie)
+        var newCookie = true
+        for (c in mCookies) {
+            if (c.cookieHash == cookie.cookieHash) {
+                cookieDao.insert(cookie)
+                newCookie = false
+                break
+            }
+        }
+        if (newCookie) {
+            mCookies.add(cookie)
+            cookieDao.insert(cookie)
+        }
     }
 
     suspend fun deleteCookies(cookie: Cookie) {

@@ -11,8 +11,9 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.widget.doOnTextChanged
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.WhichButton
@@ -33,15 +34,19 @@ import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.util.Constants
 import com.laotoua.dawnislandk.util.FragmentIntentUtil
 import com.laotoua.dawnislandk.util.ImageUtil
-import com.laotoua.dawnislandk.util.lazyOnMainOnly
+import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import timber.log.Timber
+import javax.inject.Inject
 
-class ProfileFragment : Fragment() {
+class ProfileFragment : DaggerFragment() {
 
-    private val cookies get() = applicationDataStore.cookies
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    private val viewModel: ProfileViewModel by viewModels { viewModelFactory }
+
     private val getCookieImage =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
             uri?.run {
@@ -80,31 +85,6 @@ class ProfileFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        val cookieAdditionPopup: MaterialDialog by lazyOnMainOnly {
-            MaterialDialog(requireContext()).apply {
-                title(R.string.add_cookie)
-                customView(R.layout.dialog_cookie_addition)
-                positiveButton(R.string.submit) {
-                    val cookieName = findViewById<EditText>(R.id.cookieNameText).text
-                    val cookieHash = findViewById<EditText>(R.id.cookieHashText).text
-                    if (cookieHash.toString().isNotBlank()) {
-                        addCookie(
-                            Cookie(
-                                cookieHash.toString(),
-                                cookieName.toString()
-                            )
-                        )
-                        cookieHash.clear()
-                        cookieName.clear()
-                    }
-                }
-                negativeButton(R.string.cancel)
-                findViewById<EditText>(R.id.cookieHashText).doOnTextChanged { text, _, _, _ ->
-                    getActionButton(WhichButton.POSITIVE).isEnabled = !text.isNullOrBlank()
-                }
-            }
-        }
 
         binding.toolbarLayout.toolbar.apply {
             immersiveToolbar()
@@ -195,30 +175,56 @@ class ProfileFragment : Fragment() {
             }
         }
 
-        cookies.map { addCookieToLayout(it) }
 
-        binding.addCookie.apply {
-            setOnClickListener {
-                MaterialDialog(context).show {
-                    title(R.string.add_cookie)
-                    listItems(R.array.cookie_addition_options) { _, index, _ ->
-                        when (index) {
-                            0 -> getCookieImage.launch("image/*")
-                            1 -> {
-                                if (FragmentIntentUtil.checkAndRequestSinglePermission(
-                                        this@ProfileFragment,
-                                        Manifest.permission.CAMERA,
-                                        true
-                                    )
-                                ) {
-                                    FragmentIntentUtil.getCookieFromQRCode(this@ProfileFragment) {
-                                        it?.run {
-                                            saveCookieWithInputName(it)
-                                        }
+        viewModel.cookies.observe(viewLifecycleOwner, Observer { cookies ->
+            binding.cookieList.removeAllViews()
+            cookies.map { addCookieToLayout(it) }
+        })
+
+        binding.addCookie.setOnClickListener {
+            MaterialDialog(requireContext()).show {
+                title(R.string.add_cookie)
+                listItems(R.array.cookie_addition_options) { _, index, _ ->
+                    when (index) {
+                        0 -> getCookieImage.launch("image/*")
+                        1 -> {
+                            if (FragmentIntentUtil.checkAndRequestSinglePermission(
+                                    this@ProfileFragment,
+                                    Manifest.permission.CAMERA,
+                                    true
+                                )
+                            ) {
+                                FragmentIntentUtil.getCookieFromQRCode(this@ProfileFragment) {
+                                    it?.run {
+                                        saveCookieWithInputName(it)
                                     }
                                 }
                             }
-                            2 -> cookieAdditionPopup.show()
+                        }
+                        2 -> MaterialDialog(requireContext()).show {
+                            title(R.string.add_cookie)
+                            customView(R.layout.dialog_cookie_addition)
+                            positiveButton(R.string.submit) {
+                                val cookieName =
+                                    findViewById<EditText>(R.id.cookieNameText).text
+                                val cookieHash =
+                                    findViewById<EditText>(R.id.cookieHashText).text
+                                if (cookieHash.toString().isNotBlank()) {
+                                    viewModel.addCookie(
+                                        Cookie(
+                                            cookieHash.toString(),
+                                            cookieName.toString()
+                                        )
+                                    )
+                                    cookieHash.clear()
+                                    cookieName.clear()
+                                }
+                            }
+                            negativeButton(R.string.cancel)
+                            findViewById<EditText>(R.id.cookieHashText).doOnTextChanged { text, _, _, _ ->
+                                getActionButton(WhichButton.POSITIVE).isEnabled =
+                                    !text.isNullOrBlank()
+                            }
                         }
                     }
                 }
@@ -270,7 +276,8 @@ class ProfileFragment : Fragment() {
                     )
                     listItems(items = items) { _, index, _ ->
                         if (index == 0) {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(Constants.GITHUB_ADDRESS))
+                            val intent =
+                                Intent(Intent.ACTION_VIEW, Uri.parse(Constants.GITHUB_ADDRESS))
                             if (intent.resolveActivity(requireActivity().packageManager) != null) {
                                 startActivity(intent)
                             }
@@ -279,12 +286,14 @@ class ProfileFragment : Fragment() {
                                 type = "*/*"
                                 data = Uri.parse("mailto:")
                                 putExtra(Intent.EXTRA_EMAIL, arrayOf(Constants.AUTHOR_EMAIL))
-                                putExtra(Intent.EXTRA_SUBJECT, context.resources.getString(R.string.app_feed_back))
+                                putExtra(
+                                    Intent.EXTRA_SUBJECT,
+                                    context.resources.getString(R.string.app_feed_back)
+                                )
                             }
                             if (intent.resolveActivity(requireActivity().packageManager) != null) {
                                 startActivity(intent)
                             }
-
                         }
                     }
                 }
@@ -301,16 +310,14 @@ class ProfileFragment : Fragment() {
                 input(prefill = cookie.cookieName) { _, text ->
                     // Text submitted with the action button
                     cookie.cookieName = text.toString()
-                    updateCookie(cookie)
-                    view.cookieName.text = text.toString()
+                    viewModel.updateCookie(cookie)
                 }
                 positiveButton(R.string.submit)
             }
         }
 
         view.remove.setOnClickListener {
-            binding.cookieList.removeView(view.root)
-            deleteCookie(cookie)
+            viewModel.deleteCookie(cookie)
             if (binding.cookieList.childCount < 5) {
                 binding.addCookie.isEnabled = true
             }
@@ -327,32 +334,13 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    private fun updateCookie(cookie: Cookie) {
-        lifecycleScope.launch {
-            applicationDataStore.updateCookie(cookie)
-        }
-    }
-
-    private fun addCookie(cookie: Cookie) {
-        lifecycleScope.launch {
-            applicationDataStore.addCookie(cookie)
-        }
-        addCookieToLayout(cookie)
-    }
-
-    private fun deleteCookie(cookie: Cookie) {
-        lifecycleScope.launch {
-            applicationDataStore.deleteCookies(cookie)
-        }
-    }
-
     private fun saveCookieWithInputName(cookieJson: String) {
         val cookieHash = JSONObject(cookieJson).getString("cookie")
         MaterialDialog(requireContext()).show {
             title(R.string.edit_cookie_remark)
             cancelable(false)
             input(hint = cookieHash) { _, text ->
-                addCookie(
+                viewModel.addCookie(
                     Cookie(
                         cookieName = text.toString(),
                         cookieHash = cookieHash

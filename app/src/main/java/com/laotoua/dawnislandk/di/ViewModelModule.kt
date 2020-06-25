@@ -8,6 +8,8 @@ import com.laotoua.dawnislandk.screens.comments.CommentsViewModel
 import com.laotoua.dawnislandk.screens.history.*
 import com.laotoua.dawnislandk.screens.posts.PostsFragment
 import com.laotoua.dawnislandk.screens.posts.PostsViewModel
+import com.laotoua.dawnislandk.screens.profile.ProfileFragment
+import com.laotoua.dawnislandk.screens.profile.ProfileViewModel
 import com.laotoua.dawnislandk.screens.subscriptions.*
 import com.laotoua.dawnislandk.unused.PagerFragment
 import dagger.Binds
@@ -48,6 +50,9 @@ abstract class ViewModelModule {
     @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
     internal abstract fun historyPagerFragment(): HistoryPagerFragment
 
+    @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
+    internal abstract fun profileFragment(): ProfileFragment
+
     @Binds
     @IntoMap
     @ViewModelKey(PostsViewModel::class)
@@ -77,6 +82,11 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(PostHistoryViewModel::class)
     abstract fun bindPostHistoryViewModel(viewModel: PostHistoryViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(ProfileViewModel::class)
+    abstract fun bindProfileViewModel(viewModel: ProfileViewModel): ViewModel
 
     @Binds
     @IntoMap

@@ -32,7 +32,7 @@ object ToolBar {
             View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
     }
 
-    private fun View.setMarginTop(value: Int) = updateLayoutParams<ViewGroup.MarginLayoutParams> {
+   private fun View.setMarginTop(value: Int = topMargin) = updateLayoutParams<ViewGroup.MarginLayoutParams> {
         topMargin = value
     }
 }

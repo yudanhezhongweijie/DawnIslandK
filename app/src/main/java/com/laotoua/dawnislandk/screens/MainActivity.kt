@@ -1,47 +1,53 @@
 package com.laotoua.dawnislandk.screens
 
+import android.animation.Animator
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.core.view.GravityCompat
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupWithNavController
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
 import com.afollestad.materialdialogs.checkbox.isCheckPromptChecked
+import com.google.android.material.animation.AnimationUtils
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.data.local.entity.Forum
+import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
-import com.laotoua.dawnislandk.screens.adapters.CommunityNodeAdapter
+import com.laotoua.dawnislandk.di.DaggerViewModelFactory
 import com.laotoua.dawnislandk.screens.comments.CommentsFragment
 import com.laotoua.dawnislandk.screens.comments.QuotePopup
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbarInitialization
-import com.laotoua.dawnislandk.screens.widget.popup.ImageLoader
-import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
-import com.laotoua.dawnislandk.util.GlideApp
+import com.laotoua.dawnislandk.screens.widget.popup.ForumDrawerPopup
+import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.LoadingStatus
+import com.laotoua.dawnislandk.util.SingleLiveEvent
+import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
+import com.lxj.xpopup.enums.PopupPosition
+import com.lxj.xpopup.interfaces.SimpleCallback
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
 
-class MainActivity : DaggerAppCompatActivity(), CommunityNodeAdapter.ForumClickListener {
+class MainActivity : DaggerAppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
     @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
-
-    private val communityVM: CommunityViewModel by viewModels { viewModelFactory }
+    lateinit var viewModelFactory: DaggerViewModelFactory
 
     private val sharedVM: SharedViewModel by viewModels { viewModelFactory }
 
@@ -49,101 +55,76 @@ class MainActivity : DaggerAppCompatActivity(), CommunityNodeAdapter.ForumClickL
     private val mHandler = Handler()
     private val mRunnable = Runnable { doubleBackToExitPressedOnce = false }
 
+    enum class NavScrollSate {
+        UP,
+        DOWN
+    }
+
+    private var currentState: NavScrollSate? = null
+    private var currentAnimatorSet: AnimatorSet? = null
+
+
+    private val forumDrawer by lazyOnMainOnly {
+        ForumDrawerPopup(
+            this,
+            sharedVM
+        )
+    }
+
     init {
         // load Resources
         lifecycleScope.launch { loadResources() }
     }
 
+    // uses to display fab menu if it exists
+    private var currentFragmentId: Int = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         immersiveToolbarInitialization()
         setContentView(binding.root)
-        setUpForumDrawer()
-    }
 
+        bindNavBarAndNavController()
 
-    // left forum drawer
-    private fun setUpForumDrawer() {
-
-        val mAdapter = CommunityNodeAdapter(this)
-        binding.forumRefresh.setOnClickListener {
-            mAdapter.setData(emptyList())
-            communityVM.refresh()
-        }
-        val imageLoader = ImageLoader()
-        binding.reedImageView.setOnClickListener {
-            val url = communityVM.reedPictureUrl.value!!
-            val viewerPopup =
-                ImageViewerPopup(
-                    url,
-                    activity = this
-                )
-            viewerPopup.setXPopupImageLoader(imageLoader)
-            viewerPopup.setSingleSrcView(binding.reedImageView, url)
-            XPopup.Builder(this)
-                .asCustom(viewerPopup)
-                .show()
-        }
-
-        binding.ReedPictureRefresh.setOnClickListener {
-            binding.reedImageView.setImageResource(R.drawable.drawer_placeholder)
-            communityVM.getRandomReedPicture()
-        }
-
-        binding.forumContainer.layoutManager = LinearLayoutManager(this)
-        binding.forumContainer.adapter = mAdapter
-
-        communityVM.communityList.observe(this, Observer {
+        sharedVM.communityList.observe(this, Observer<List<Community>> {
             if (it.isNullOrEmpty()) return@Observer
-            mAdapter.setData(it)
-            Timber.i("Loaded ${it.size} communities to Adapter")
-            sharedVM.setForumMappings(communityVM.getForums())
+            forumDrawer.setData(it)
+            sharedVM.setForumMappings(it)
             // TODO: set default forum
-            sharedVM.setForum(it[0].forums[0])
+            sharedVM.setForum(it.first().forums.first())
+            Timber.i("Loaded ${it.size} communities to Adapter")
         })
-
-        communityVM.reedPictureUrl.observe(this, Observer {
-            GlideApp.with(binding.reedImageView)
-                .load(it)
-                .fitCenter()
-                .into(binding.reedImageView)
+        sharedVM.reedPictureUrl.observe(this, Observer<String> {
+            forumDrawer.setReedPicture(it)
         })
-
-        communityVM.loadingStatus.observe(this, Observer {
-            if (it.getContentIfNotHandled()?.loadingStatus == LoadingStatus.FAILED) {
-                Toast.makeText(this, it.peekContent().message, Toast.LENGTH_LONG)
-                    .show()
-            }
-        })
-
-        binding.settings.setOnClickListener {
-            val action = PagerFragmentDirections.actionPagerFragmentToSettingsFragment()
-            findNavController(R.id.navHostFragment).navigate(action)
-        }
-
-        binding.browsingHistory.setOnClickListener {
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
-            val action = PagerFragmentDirections.actionPagerFragmentToBrowsingHistoryFragment()
-            findNavController(R.id.navHostFragment).navigate(action)
-        }
-
+        sharedVM.communityListLoadingStatus.observe(
+            this,
+            Observer<SingleLiveEvent<EventPayload<Nothing>>> {
+                if (it.getContentIfNotHandled()?.loadingStatus == LoadingStatus.FAILED) {
+                    Toast.makeText(this, it.peekContent().message, Toast.LENGTH_LONG)
+                        .show()
+                }
+            })
     }
 
-    // Forum Click
-    override fun onForumClick(forum: Forum) {
-        Timber.d("Clicked on Forum ${forum.name}")
-        sharedVM.setForum(forum)
-        binding.drawerLayout.closeDrawers()
+    fun showDrawer() {
+        XPopup.Builder(this)
+            .setPopupCallback(object : SimpleCallback() {
+                override fun beforeShow() {
+                    super.beforeShow()
+                    forumDrawer.loadReedPicture()
+                }
+            })
+            .popupPosition(PopupPosition.Left)
+            .asCustom(forumDrawer)
+            .show()
     }
-
 
     // initialize Global resources
     private suspend fun loadResources() {
         applicationDataStore.getLatestRelease()?.let { release ->
             MaterialDialog(this).show {
-                cornerRadius(res = R.dimen.dp_10)
                 title(R.string.found_new_version)
                 message(text = release.message) { html() }
                 positiveButton(R.string.download_latest_version) {
@@ -160,9 +141,9 @@ class MainActivity : DaggerAppCompatActivity(), CommunityNodeAdapter.ForumClickL
 
         applicationDataStore.loadCookies()
         applicationDataStore.initializeFeedId()
-        applicationDataStore.getNMBNotice()?.let { notice ->
+        applicationDataStore.getLatestNMBNotice()?.let { notice ->
             MaterialDialog(this).show {
-                cornerRadius(res = R.dimen.dp_10)
+                title(res = R.string.announcement)
                 checkBoxPrompt(R.string.acknowledge) {}
                 message(text = notice.content) { html() }
                 positiveButton(R.string.close) {
@@ -176,9 +157,23 @@ class MainActivity : DaggerAppCompatActivity(), CommunityNodeAdapter.ForumClickL
             }
         }
 
-        applicationDataStore.getLuweiNotice()?.let { luweiNotice ->
+        applicationDataStore.getLatestLuweiNotice()?.let { luweiNotice ->
             sharedVM.setLuweiLoadingBible(luweiNotice.loadingMsgs)
         }
+    }
+
+    private fun bindNavBarAndNavController() {
+        val navHostFragment = supportFragmentManager
+            .findFragmentById(R.id.navHostFragment) as NavHostFragment
+        val navController = navHostFragment.navController
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            currentFragmentId = destination.id
+        }
+        binding.bottomNavBar.setupWithNavController(navController)
+        binding.bottomNavBar.setOnNavigationItemReselectedListener { item: MenuItem ->
+            if (item.itemId == R.id.postsFragment) showDrawer()
+        }
+
     }
 
     override fun onBackPressed() {
@@ -188,11 +183,6 @@ class MainActivity : DaggerAppCompatActivity(), CommunityNodeAdapter.ForumClickL
         if (!QuotePopup.ensureQuotePopupDismissal()) return
 
         if (hideComment()) return
-
-        if (binding.drawerLayout.isOpen) {
-            binding.drawerLayout.close()
-            return
-        }
 
         if (!doubleBackToExitPressedOnce &&
             findNavController(R.id.navHostFragment).previousBackStackEntry == null
@@ -228,6 +218,7 @@ class MainActivity : DaggerAppCompatActivity(), CommunityNodeAdapter.ForumClickL
                 .runOnCommit { commentFrag.onResume() }
                 .commit()
         }
+        hideNav()
     }
 
     fun hideComment(): Boolean {
@@ -238,9 +229,83 @@ class MainActivity : DaggerAppCompatActivity(), CommunityNodeAdapter.ForumClickL
                     .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
                     .hide(it)
                     .commit()
+                showNav()
+                if (currentFragmentId == R.id.postsFragment) {
+                    findViewById<FloatingActionButton>(R.id.fabMenu).show()
+                }
                 return true
             }
         }
         return false
+    }
+
+    private val navSlideOutBottomAnimAnim by lazyOnMainOnly {
+        ObjectAnimator.ofFloat(
+            binding.bottomNavBar,
+            "TranslationY",
+            binding.bottomNavBar.height.toFloat()
+        )
+    }
+
+    private val navAlphaOutAnim by lazyOnMainOnly {
+        ObjectAnimator.ofFloat(binding.bottomNavBar, "alpha", 0f)
+    }
+
+    private val navSlideInBottomAnim by lazyOnMainOnly {
+        ObjectAnimator.ofFloat(
+            binding.bottomNavBar,
+            "TranslationY",
+            0f
+        )
+    }
+
+    private val navAlphaInAnim by lazyOnMainOnly {
+        ObjectAnimator.ofFloat(binding.bottomNavBar, "alpha", 1f)
+    }
+
+    fun hideNav() {
+        if (currentState == NavScrollSate.DOWN) return
+        if (currentAnimatorSet != null) {
+            currentAnimatorSet!!.cancel()
+        }
+        currentState = NavScrollSate.DOWN
+        currentAnimatorSet = AnimatorSet().apply {
+            duration = 250
+            interpolator = AnimationUtils.FAST_OUT_LINEAR_IN_INTERPOLATOR
+            addListener(object : Animator.AnimatorListener {
+                override fun onAnimationRepeat(animation: Animator?) {}
+                override fun onAnimationEnd(animation: Animator?) {
+                    currentAnimatorSet = null
+                }
+
+                override fun onAnimationCancel(animation: Animator?) {}
+                override fun onAnimationStart(animation: Animator?) {}
+            })
+            playTogether(navSlideOutBottomAnimAnim, navAlphaOutAnim)
+            start()
+        }
+    }
+
+    fun showNav() {
+        if (currentState == NavScrollSate.UP) return
+        if (currentAnimatorSet != null) {
+            currentAnimatorSet!!.cancel()
+        }
+        currentState = NavScrollSate.UP
+        currentAnimatorSet = AnimatorSet().apply {
+            duration = 250
+            interpolator = AnimationUtils.LINEAR_OUT_SLOW_IN_INTERPOLATOR
+            addListener(object : Animator.AnimatorListener {
+                override fun onAnimationRepeat(animation: Animator?) {}
+                override fun onAnimationEnd(animation: Animator?) {
+                    currentAnimatorSet = null
+                }
+
+                override fun onAnimationCancel(animation: Animator?) {}
+                override fun onAnimationStart(animation: Animator?) {}
+            })
+            playTogether(navSlideInBottomAnim, navAlphaInAnim)
+            start()
+        }
     }
 }

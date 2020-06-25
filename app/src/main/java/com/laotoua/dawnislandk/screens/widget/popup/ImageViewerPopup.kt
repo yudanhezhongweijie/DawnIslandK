@@ -32,6 +32,10 @@ class ImageViewerPopup(
 ) :
     ImageViewerPopupView(fragment?.requireContext() ?: activity!!) {
 
+    companion object{
+        val universalImageLoader = ImageLoader()
+    }
+
     private val caller = activity ?: fragment!!.requireActivity()
     private val toastMsg = MutableLiveData<Int>()
     private var saveShown = true
@@ -39,6 +43,11 @@ class ImageViewerPopup(
 
     override fun getImplLayoutId(): Int {
         return R.layout.popup_image_viewer
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        setXPopupImageLoader(universalImageLoader)
     }
 
     override fun initPopupContent() {

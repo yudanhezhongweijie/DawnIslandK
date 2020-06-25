@@ -10,7 +10,8 @@
     android:focusable="true"
     android:paddingTop="4dp"
     android:paddingBottom="4dp"
-    app:layout_optimizationLevel="standard|dimensions">
+    app:layout_optimizationLevel="standard|dimensions"
+    tools:viewBindingIgnore="true">
 
     <TextView
         android:id="@+id/communityName"

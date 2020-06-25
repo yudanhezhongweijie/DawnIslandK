@@ -17,10 +17,12 @@ import com.laotoua.dawnislandk.data.local.entity.Comment
 import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformContent
 import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformCookie
 import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformTime
-import com.laotoua.dawnislandk.screens.widget.popup.ImageLoader
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.screens.widget.span.ReferenceSpan
-import com.laotoua.dawnislandk.util.*
+import com.laotoua.dawnislandk.util.Constants
+import com.laotoua.dawnislandk.util.EventPayload
+import com.laotoua.dawnislandk.util.GlideApp
+import com.laotoua.dawnislandk.util.LoadingStatus
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.CenterPopupView
 import com.lxj.xpopup.interfaces.SimpleCallback
@@ -35,7 +37,6 @@ class QuotePopup(
     private val quoteId: String,
     private val po: String
 ) : CenterPopupView(caller.requireContext()) {
-    private val imageLoader: ImageLoader by lazyOnMainOnly { ImageLoader() }
 
     override fun getImplLayoutId(): Int = R.layout.popup_quote
 
@@ -132,7 +133,6 @@ class QuotePopup(
                         url,
                         fragment = caller
                     )
-                viewerPopup.setXPopupImageLoader(imageLoader)
                 viewerPopup.setSingleSrcView(imageView as ImageView?, url)
                 XPopup.Builder(context)
                     .asCustom(viewerPopup)

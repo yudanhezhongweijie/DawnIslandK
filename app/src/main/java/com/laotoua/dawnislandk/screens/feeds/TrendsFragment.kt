@@ -1,40 +1,34 @@
-package com.laotoua.dawnislandk.screens.trend
+package com.laotoua.dawnislandk.screens.feeds
 
 import android.os.Bundle
 import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Trend
 import com.laotoua.dawnislandk.databinding.FragmentTrendBinding
 import com.laotoua.dawnislandk.screens.MainActivity
-import com.laotoua.dawnislandk.screens.PagerFragment
-import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
-import dagger.android.support.DaggerFragment
+import com.laotoua.dawnislandk.screens.widget.BaseNavFragment
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import me.dkzwm.widget.srl.config.Constants
 import timber.log.Timber
-import javax.inject.Inject
 
-class TrendsFragment : DaggerFragment() {
+class TrendsFragment : BaseNavFragment() {
+
+    companion object {
+        fun newInstance() = TrendsFragment()
+    }
 
     private var _binding: FragmentTrendBinding? = null
     private val binding get() = _binding!!
 
-    @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
-
     private val viewModel: TrendsViewModel by viewModels { viewModelFactory }
-    private val sharedVM: SharedViewModel by activityViewModels{ viewModelFactory }
 
     private var mHandler: Handler? = null
     private val mDelayedLoad = Runnable {
@@ -54,7 +48,7 @@ class TrendsFragment : DaggerFragment() {
         super.onViewCreated(view, savedInstanceState)
         // initial load
         if (viewModel.trends.value.isNullOrEmpty() && !delayedLoading) {
-            binding.refreshLayout.autoRefresh(
+            binding.srlAndRv.refreshLayout.autoRefresh(
                 Constants.ACTION_NOTHING,
                 false
             )
@@ -62,7 +56,7 @@ class TrendsFragment : DaggerFragment() {
             mHandler = mHandler ?: Handler()
             delayedLoading = mHandler!!.postDelayed(mDelayedLoad, 500)
         }
-        val mAdapter = QuickAdapter<Trend>(R.layout.list_item_trend,sharedVM).apply {
+        val mAdapter = QuickAdapter<Trend>(R.layout.list_item_trend, sharedVM).apply {
             loadMoreModule.isEnableLoadMore = false
             setOnItemClickListener { _, _, position ->
                 val target = getItem(position)
@@ -73,33 +67,23 @@ class TrendsFragment : DaggerFragment() {
             }
         }
 
-        binding.refreshLayout.apply {
+        binding.srlAndRv.refreshLayout.apply {
             setOnRefreshListener(object : RefreshingListenerAdapter() {
                 override fun onRefreshing() {
                     viewModel.getLatestTrend()
-                    mAdapter.setList(emptyList())
                 }
             })
         }
 
-        binding.recyclerView.apply {
+        binding.srlAndRv.recyclerView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             adapter = mAdapter
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    if (dy > 0) {
-                        (parentFragment as PagerFragment).hideMenu()
-                    } else if (dy < 0) {
-                        (parentFragment as PagerFragment).showMenu()
-                    }
-                }
-            })
         }
 
         viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.run {
-                updateHeaderAndFooter(binding.refreshLayout, mAdapter, this)
+                updateHeaderAndFooter(binding.srlAndRv.refreshLayout, mAdapter, this)
                 delayedLoading = false
             }
         })
@@ -111,14 +95,21 @@ class TrendsFragment : DaggerFragment() {
                 return@Observer
             }
             mAdapter.setDiffNewData(list.toMutableList())
+            mAdapter.setFooterView(
+                layoutInflater.inflate(
+                    R.layout.view_no_more_data,
+                    binding.srlAndRv.recyclerView,
+                    false
+                )
+            )
         })
 
     }
 
     override fun onResume() {
         super.onResume()
-        (parentFragment as PagerFragment).setToolbarClickListener {
-            binding.recyclerView.layoutManager?.scrollToPosition(0)
+        (parentFragment as FeedPagerFragment).setToolbarClickListener {
+            binding.srlAndRv.recyclerView.layoutManager?.scrollToPosition(0)
         }
     }
 

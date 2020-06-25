@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.screens
+package com.laotoua.dawnislandk.unused
 
 import android.animation.Animator
 import android.animation.AnimatorSet
@@ -11,8 +11,6 @@ import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -26,9 +24,11 @@ import com.google.android.material.animation.AnimationUtils.FAST_OUT_LINEAR_IN_I
 import com.google.android.material.animation.AnimationUtils.LINEAR_OUT_SLOW_IN_INTERPOLATOR
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.FragmentPagerBinding
+import com.laotoua.dawnislandk.screens.MainActivity
+import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.feeds.FeedsFragment
+import com.laotoua.dawnislandk.screens.feeds.TrendsFragment
 import com.laotoua.dawnislandk.screens.posts.PostsFragment
-import com.laotoua.dawnislandk.screens.trend.TrendsFragment
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widget.popup.PostPopup
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
@@ -111,23 +111,17 @@ class PagerFragment : DaggerFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
         binding.toolbar.apply {
             immersiveToolbar()
             setSubtitle(R.string.toolbar_subtitle)
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-            setNavigationIcon(R.drawable.ic_menu_white_24px)
-            setNavigationOnClickListener {
-                drawerLayout.openDrawer(GravityCompat.START)
-            }
         }
         /**
          *  fragment navigation within cause memory leak
          *  https://issuetracker.google.com/issues/154751401
          *  https://issuetracker.google.com/issues/151212195
          */
-        binding.viewPagerInterceptor.bindPager2(binding.viewPager2)
-        binding.viewPagerInterceptor.bindDrawerListener { drawerLayout.openDrawer(GravityCompat.START) }
+//        binding.viewPagerInterceptor.bindPager2(binding.viewPager2)
+//        binding.viewPagerInterceptor.bindDrawerListener { drawerLayout.openDrawer(GravityCompat.START) }
         /** workaround for https://issuetracker.google.com/issues/134912610
          *  programmatically remove over scroll edge effect
          */
@@ -164,7 +158,6 @@ class PagerFragment : DaggerFragment() {
 
         binding.forumRule.setOnClickListener {
             MaterialDialog(requireContext()).show {
-                cornerRadius(res = R.dimen.dp_10)
                 val forumId = sharedVM.selectedForumId.value!!
                 val biId = if (forumId.toInt() > 0) forumId.toInt() else 1
                 val resourceId: Int = context.resources.getIdentifier(
@@ -209,7 +202,6 @@ class PagerFragment : DaggerFragment() {
 
         binding.search.setOnClickListener {
             MaterialDialog(requireContext()).show {
-                cornerRadius(res = R.dimen.dp_10)
                 title(R.string.search)
                 customView(R.layout.dialog_search, noVerticalPadding = true).apply {
                     findViewById<Button>(R.id.search).setOnClickListener {
@@ -240,7 +232,7 @@ class PagerFragment : DaggerFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         binding.viewPager2.unregisterOnPageChangeCallback(titleUpdateCallback)
-        binding.viewPagerInterceptor.clearPager2()
+//        binding.viewPagerInterceptor.clearPager2()
         _binding = null
         Timber.d("Fragment View Destroyed")
     }
@@ -264,7 +256,8 @@ class PagerFragment : DaggerFragment() {
         if (currentAnimatorSet != null) {
             currentAnimatorSet!!.cancel()
         }
-        currentState = SCROLL_STATE.DOWN
+        currentState =
+            SCROLL_STATE.DOWN
         currentAnimatorSet = AnimatorSet().apply {
             duration = 250
             interpolator = FAST_OUT_LINEAR_IN_INTERPOLATOR
@@ -287,7 +280,8 @@ class PagerFragment : DaggerFragment() {
         if (currentAnimatorSet != null) {
             currentAnimatorSet!!.cancel()
         }
-        currentState = SCROLL_STATE.UP
+        currentState =
+            SCROLL_STATE.UP
         currentAnimatorSet = AnimatorSet().apply {
             duration = 250
             interpolator = LINEAR_OUT_SLOW_IN_INTERPOLATOR

@@ -22,15 +22,13 @@ class FeedsViewModel @Inject constructor(private val webService: NMBServiceClien
     private val feedsIds = mutableSetOf<String>()
     private var _feeds = MutableLiveData<List<Post>>()
     val feeds: LiveData<List<Post>> get() = _feeds
-    private var nextPage = 1
+    private val nextPage get() = feedsList.size / 10 + 1
     private var _loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
     val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>>
         get() = _loadingStatus
 
     private val _delFeedResponse = MutableLiveData<SingleLiveEvent<EventPayload<Int>>>()
     val delFeedResponse: LiveData<SingleLiveEvent<EventPayload<Int>>> get() = _delFeedResponse
-
-    private var tryAgain = false
 
     fun getNextPage() {
         getFeedOnPage(nextPage)
@@ -49,40 +47,28 @@ class FeedsViewModel @Inject constructor(private val webService: NMBServiceClien
                         )
                     }
                     is APIDataResponse.APISuccessDataResponse -> {
-                        val res = convertFeedData(data)
-                        if (res) {
-                            _feeds.postValue(feedsList)
-                            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))
-                        } else {
-                            if (tryAgain) {
-                                getFeedOnPage(nextPage)
-                            } else {
-                                _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.NODATA))
-                            }
-                        }
+                        convertFeedData(data)
                     }
                 }
             }
         }
     }
 
-    private fun convertFeedData(data: List<Post>): Boolean {
-        if (data.isEmpty()) {
-            if (nextPage > 1) {
-                nextPage -= 1
-                tryAgain = true
-                return false
-            }
-        }
-        tryAgain = false
+    private fun convertFeedData(data: List<Post>) {
         val noDuplicates = data.filterNot { feedsIds.contains(it.id) }
-        if (noDuplicates.isNotEmpty()) {
-            feedsIds.addAll(noDuplicates.map { it.id })
-            feedsList.addAll(noDuplicates)
-            Timber.i("feedsList now has ${feedsList.size} feeds")
-            nextPage += 1
+        if (noDuplicates.isEmpty()) {
+            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.NODATA))
+            return
         }
-        return true
+        feedsIds.addAll(noDuplicates.map { it.id })
+        feedsList.addAll(noDuplicates)
+        Timber.i("feedsList now has ${feedsList.size} feeds")
+        _feeds.postValue(feedsList)
+        if (noDuplicates.size < 10){
+            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.NODATA))
+        }else {
+            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))
+        }
     }
 
     fun deleteFeed(id: String, position: Int) {
@@ -119,7 +105,6 @@ class FeedsViewModel @Inject constructor(private val webService: NMBServiceClien
     fun refresh() {
         feedsList.clear()
         feedsIds.clear()
-        nextPage = 1
         getFeedOnPage(nextPage)
     }
 }

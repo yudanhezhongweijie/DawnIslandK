@@ -3,43 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/pagerFragment">
-    <fragment
-        android:id="@+id/pagerFragment"
-        android:name="com.laotoua.dawnislandk.screens.PagerFragment"
-        android:label="pager_fragment"
-        tools:layout="@layout/fragment_pager">
-        <action
-            android:id="@+id/action_pagerFragment_to_settingsFragment"
-            app:destination="@id/settingsFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-        <action
-            android:id="@+id/action_pagerFragment_to_doodleActivity"
-            app:destination="@id/doodleActivity"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-        <action
-            android:id="@+id/action_pagerFragment_to_browsingHistoryFragment"
-            app:destination="@id/browsingHistoryFragment"
-            app:enterAnim="@anim/slide_in_left"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_left"/>
-    </fragment>
-    <fragment
-        android:id="@+id/imageViewerFragment"
-        android:name="com.laotoua.dawnislandk.unused.ImageViewerFragment"
-        android:label="image_viewer_fragment"
-        tools:layout="@layout/fragment_image_viewer">
-        <argument
-            android:name="imgUrl"
-            app:argType="string" />
-    </fragment>
+    app:startDestination="@id/postsFragment">
     <fragment
         android:id="@+id/settingsFragment"
         android:name="com.laotoua.dawnislandk.screens.settings.SettingsFragment"
@@ -56,13 +20,23 @@
         android:id="@+id/sizeCustomizationFragment"
         android:name="com.laotoua.dawnislandk.screens.settings.SizesCustomizationFragment"
         android:label="SizeCustomizationFragment" />
-    <activity
-        android:id="@+id/doodleActivity"
-        android:name="com.laotoua.dawnislandk.screens.tasks.DoodleActivity"
-        android:label="DoodleActivity" />
     <fragment
         android:id="@+id/browsingHistoryFragment"
         android:name="com.laotoua.dawnislandk.screens.history.BrowsingHistoryFragment"
         android:label="fragment_browsing_history"
         tools:layout="@layout/fragment_browsing_history" />
+    <fragment
+        android:id="@+id/postsFragment"
+        android:name="com.laotoua.dawnislandk.screens.posts.PostsFragment"
+        android:label="fragment_post"
+        tools:layout="@layout/fragment_post" />
+
+    <fragment
+        android:id="@+id/feedPagerFragment"
+        android:name="com.laotoua.dawnislandk.screens.feeds.FeedPagerFragment"
+        android:label="FeedPagerFragment" />
+    <fragment
+        android:id="@+id/historyPagerFragment"
+        android:name="com.laotoua.dawnislandk.screens.history.HistoryPagerFragment"
+        android:label="HistoryPagerFragment" />
 </navigation>

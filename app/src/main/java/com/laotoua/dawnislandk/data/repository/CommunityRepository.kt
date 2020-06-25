@@ -3,8 +3,8 @@ package com.laotoua.dawnislandk.data.repository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
-import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.data.local.dao.CommunityDao
+import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.util.EventPayload
@@ -26,8 +26,6 @@ class CommunityRepository @Inject constructor(
         emitSource(local)
         matchRemoteData(local)
     }
-
-    val reedPictureUrl = MutableLiveData<String>()
 
     private val _loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
     val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>> get() = _loadingStatus
@@ -59,14 +57,6 @@ class CommunityRepository @Inject constructor(
 
     suspend fun refresh() {
         matchRemoteData(communityList, true)
-    }
-
-    suspend fun getRandomReedPicture() {
-        webService.getRandomReedPicture().run {
-            if (this is APIDataResponse.APISuccessDataResponse) {
-                reedPictureUrl.postValue(data)
-            }
-        }
     }
 
 }

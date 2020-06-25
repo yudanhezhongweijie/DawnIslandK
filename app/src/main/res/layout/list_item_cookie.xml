@@ -17,9 +17,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="4dp"
+        android:textAppearance="@style/PreferenceItemKey"
         android:textColor="@color/gray_400"
         android:textStyle="bold"
-        android:textAppearance="@style/PreferenceItemKey"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -31,11 +31,11 @@
         android:layout_marginTop="4dp"
         android:layout_marginBottom="4dp"
         android:background="@android:color/transparent"
+        android:tint="@color/gray_400"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/cookieName"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_create_24px"
-        android:tint="@color/gray_400"
         tools:ignore="ContentDescription" />
 
     <ImageButton

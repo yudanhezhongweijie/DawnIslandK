@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.screens.trend
+package com.laotoua.dawnislandk.screens.feeds
 
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel

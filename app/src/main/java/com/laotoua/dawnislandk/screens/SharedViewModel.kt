@@ -5,10 +5,15 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.local.dao.PostHistoryDao
+import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.data.local.entity.Forum
 import com.laotoua.dawnislandk.data.local.entity.PostHistory
+import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
+import com.laotoua.dawnislandk.data.repository.CommunityRepository
+import com.laotoua.dawnislandk.util.EventPayload
+import com.laotoua.dawnislandk.util.SingleLiveEvent
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
@@ -17,9 +22,15 @@ import javax.inject.Inject
 
 class SharedViewModel @Inject constructor(
     private val webNMBServiceClient: NMBServiceClient,
-    private val postHistoryDao: PostHistoryDao
+    private val postHistoryDao: PostHistoryDao,
+    private val communityRepository: CommunityRepository
 ) :
     ViewModel() {
+    val communityList get() = communityRepository.communityList
+    val reedPictureUrl = MutableLiveData<String>()
+    val communityListLoadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>> =
+        communityRepository.loadingStatus
+
     private var _selectedForumId = MutableLiveData<String>()
     val selectedForumId: LiveData<String> get() = _selectedForumId
     private var _selectedPostId = MutableLiveData<String>()
@@ -27,11 +38,40 @@ class SharedViewModel @Inject constructor(
     private var _selectedPostFid: String = "-1"
     val selectedPostFid get() = _selectedPostFid
 
-    private lateinit var forumNameMapping: Map<String, String>
-    private lateinit var forumMsgMapping: Map<String, String>
     private lateinit var loadingBible: List<String>
 
     private var toolbarTitle = "A岛"
+
+    var forumNameMapping = mapOf<String, String>()
+        private set
+
+    var forumMsgMapping = mapOf<String, String>()
+        private set
+
+
+    init {
+        getRandomReedPicture()
+    }
+
+    fun forumRefresh() {
+        viewModelScope.launch { communityRepository.refresh() }
+    }
+
+    fun setForumMappings(list: List<Community>) {
+        val flatten = list.flatMap { it.forums }
+        forumNameMapping = flatten.associateBy(keySelector = { it.id }, valueTransform = { it.name })
+        forumMsgMapping = flatten.associateBy(keySelector = { it.id }, valueTransform = { it.msg })
+    }
+
+    fun getRandomReedPicture() {
+        viewModelScope.launch {
+            webNMBServiceClient.getRandomReedPicture().run {
+                if (this is APIDataResponse.APISuccessDataResponse) {
+                    reedPictureUrl.postValue(data)
+                }
+            }
+        }
+    }
 
     fun setForum(f: Forum) {
         Timber.d("Setting forum to id: ${f.id}")
@@ -50,15 +90,6 @@ class SharedViewModel @Inject constructor(
         _selectedPostFid = fid
     }
 
-    fun setForumMappings(list: List<Forum>) {
-        forumNameMapping = list.associateBy(
-            keySelector = { it.id },
-            valueTransform = { it.name })
-
-        forumMsgMapping = list.associateBy(keySelector = { it.id },
-            valueTransform = { it.msg })
-    }
-
     fun setLuweiLoadingBible(bible: List<String>) {
         loadingBible = bible
     }
@@ -66,8 +97,6 @@ class SharedViewModel @Inject constructor(
     fun getRandomLoadingBible(): String =
         if (this::loadingBible.isInitialized) loadingBible.random()
         else "正在加载中..."
-
-    fun getForumNameMapping(): Map<String, String> = forumNameMapping
 
     fun getForumMsg(id: String): String = forumMsgMapping[id] ?: ""
 

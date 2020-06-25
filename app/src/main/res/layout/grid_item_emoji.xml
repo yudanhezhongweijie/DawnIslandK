@@ -17,6 +17,7 @@
     android:textAlignment="center"
     android:textSize="16sp"
     tools:layout_alignSelf="center"
-    tools:text="face" />
+    tools:text="face"
+    tools:viewBindingIgnore="true" />
 
 

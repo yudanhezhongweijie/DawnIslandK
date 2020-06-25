@@ -11,12 +11,12 @@ import android.view.ViewGroup.MarginLayoutParams
 import android.widget.*
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
+import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.posts.PostCardFactory
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widget.span.RoundBackgroundColorSpan
@@ -60,6 +60,9 @@ class SizesCustomizationFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        // hide NavBar
+        (requireActivity() as MainActivity).hideNav()
 
         rootView.setPaddingRelative(10, 10, 10, 10)
         rootView.orientation = LinearLayout.VERTICAL
@@ -221,8 +224,6 @@ class SizesCustomizationFragment : Fragment() {
                 immersiveToolbar()
                 setTitle(R.string.size_customization_settings)
                 setSubtitle(R.string.toolbar_subtitle)
-                val drawerLayout = requireActivity().findViewById<DrawerLayout>(R.id.drawerLayout)
-                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
                 setNavigationIcon(R.drawable.ic_arrow_back_white_24px)
                 setNavigationOnClickListener {
                     findNavController().popBackStack()
@@ -394,5 +395,8 @@ class SizesCustomizationFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         Toast.makeText(context, R.string.restart_to_apply_setting, Toast.LENGTH_SHORT).show()
+
+        // showNav
+        (requireActivity() as MainActivity).showNav()
     }
 }

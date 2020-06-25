@@ -7,41 +7,35 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.databinding.FragmentFeedBinding
 import com.laotoua.dawnislandk.screens.MainActivity
-import com.laotoua.dawnislandk.screens.PagerFragment
-import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
-import com.laotoua.dawnislandk.screens.widget.popup.ImageLoader
+import com.laotoua.dawnislandk.screens.widget.BaseNavFragment
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.lxj.xpopup.XPopup
-import dagger.android.support.DaggerFragment
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import me.dkzwm.widget.srl.config.Constants
 import timber.log.Timber
-import javax.inject.Inject
 
 
-class FeedsFragment : DaggerFragment() {
+class FeedsFragment : BaseNavFragment() {
+
+    companion object {
+        fun newInstance() = FeedsFragment()
+    }
 
     private var _binding: FragmentFeedBinding? = null
     private val binding: FragmentFeedBinding get() = _binding!!
 
-    @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel: FeedsViewModel by viewModels { viewModelFactory }
-    private val sharedVM: SharedViewModel by activityViewModels{ viewModelFactory }
 
     private var mHandler: Handler? = null
     private val mDelayedLoad = Runnable {
@@ -62,21 +56,16 @@ class FeedsFragment : DaggerFragment() {
 
         // initial load
         if (viewModel.feeds.value.isNullOrEmpty() && !delayedLoading) {
-            binding.refreshLayout.autoRefresh(
-                Constants.ACTION_NOTHING,
-                false
-            )
+            binding.srlAndRv.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
             // give sometime to skip load if bypassing this fragment
             mHandler = mHandler ?: Handler()
             delayedLoading = mHandler!!.postDelayed(mDelayedLoad, 500)
         }
 
-        val imageLoader = ImageLoader()
-
         val mAdapter = QuickAdapter<Post>(R.layout.list_item_post, sharedVM).apply {
             setOnItemClickListener { _, _, position ->
                 getItem(position).run {
-                    sharedVM.setPost(id,fid)
+                    sharedVM.setPost(id, fid)
                 }
                 (requireActivity() as MainActivity).showComment()
             }
@@ -85,7 +74,6 @@ class FeedsFragment : DaggerFragment() {
             setOnItemLongClickListener { _, _, position ->
                 val id = getItem(position).id
                 MaterialDialog(requireContext()).show {
-                    cornerRadius(res = R.dimen.dp_10)
                     title(text = "删除订阅 $id?")
                     positiveButton(R.string.delete) {
                         viewModel.deleteFeed(id, position)
@@ -106,7 +94,6 @@ class FeedsFragment : DaggerFragment() {
                             url,
                             fragment = this@FeedsFragment
                         )
-                    viewerPopup.setXPopupImageLoader(imageLoader)
                     viewerPopup.setSingleSrcView(view as ImageView?, url)
 
                     XPopup.Builder(context)
@@ -121,22 +108,13 @@ class FeedsFragment : DaggerFragment() {
             }
         }
 
-        binding.recyclerView.apply {
+        binding.srlAndRv.recyclerView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             adapter = mAdapter
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    if (dy > 0) {
-                        (parentFragment as PagerFragment).hideMenu()
-                    } else if (dy < 0) {
-                        (parentFragment as PagerFragment).showMenu()
-                    }
-                }
-            })
         }
 
-        binding.refreshLayout.apply {
+        binding.srlAndRv.refreshLayout.apply {
             setOnRefreshListener(object : RefreshingListenerAdapter() {
                 override fun onRefreshing() {
                     viewModel.refresh()
@@ -155,7 +133,7 @@ class FeedsFragment : DaggerFragment() {
 
         viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.run {
-                updateHeaderAndFooter(binding.refreshLayout, mAdapter, this)
+                updateHeaderAndFooter(binding.srlAndRv.refreshLayout, mAdapter, this)
                 delayedLoading = false
             }
         })
@@ -173,8 +151,8 @@ class FeedsFragment : DaggerFragment() {
 
     override fun onResume() {
         super.onResume()
-        (parentFragment as PagerFragment).setToolbarClickListener {
-            binding.recyclerView.layoutManager?.scrollToPosition(0)
+        (parentFragment as FeedPagerFragment).setToolbarClickListener {
+            binding.srlAndRv.recyclerView.layoutManager?.scrollToPosition(0)
         }
     }
 

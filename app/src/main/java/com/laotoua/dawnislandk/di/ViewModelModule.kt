@@ -1,20 +1,15 @@
 package com.laotoua.dawnislandk.di
 
 import androidx.lifecycle.ViewModel
-import com.laotoua.dawnislandk.screens.CommunityViewModel
 import com.laotoua.dawnislandk.screens.MainActivity
-import com.laotoua.dawnislandk.screens.PagerFragment
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.comments.CommentsFragment
 import com.laotoua.dawnislandk.screens.comments.CommentsViewModel
-import com.laotoua.dawnislandk.screens.feeds.FeedsFragment
-import com.laotoua.dawnislandk.screens.feeds.FeedsViewModel
-import com.laotoua.dawnislandk.screens.history.BrowsingHistoryFragment
-import com.laotoua.dawnislandk.screens.history.BrowsingHistoryViewModel
+import com.laotoua.dawnislandk.screens.feeds.*
+import com.laotoua.dawnislandk.screens.history.*
 import com.laotoua.dawnislandk.screens.posts.PostsFragment
 import com.laotoua.dawnislandk.screens.posts.PostsViewModel
-import com.laotoua.dawnislandk.screens.trend.TrendsFragment
-import com.laotoua.dawnislandk.screens.trend.TrendsViewModel
+import com.laotoua.dawnislandk.unused.PagerFragment
 import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
@@ -42,12 +37,16 @@ abstract class ViewModelModule {
     internal abstract fun trendsFragment(): TrendsFragment
 
     @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
-    internal abstract fun historyFragment(): BrowsingHistoryFragment
+    internal abstract fun browsingHistoryFragment(): BrowsingHistoryFragment
 
-    @Binds
-    @IntoMap
-    @ViewModelKey(CommunityViewModel::class)
-    abstract fun bindCommunityViewModel(viewModel: CommunityViewModel): ViewModel
+    @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
+    internal abstract fun postHistoryFragment(): PostHistoryFragment
+
+    @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
+    internal abstract fun feedPagerFragment(): FeedPagerFragment
+
+    @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
+    internal abstract fun historyPagerFragment(): HistoryPagerFragment
 
     @Binds
     @IntoMap
@@ -72,7 +71,12 @@ abstract class ViewModelModule {
     @Binds
     @IntoMap
     @ViewModelKey(BrowsingHistoryViewModel::class)
-    abstract fun bindHistoryViewModel(viewModelBrowsing: BrowsingHistoryViewModel): ViewModel
+    abstract fun bindBrowsingHistoryViewModel(viewModel: BrowsingHistoryViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(PostHistoryViewModel::class)
+    abstract fun bindPostHistoryViewModel(viewModel: PostHistoryViewModel): ViewModel
 
     @Binds
     @IntoMap

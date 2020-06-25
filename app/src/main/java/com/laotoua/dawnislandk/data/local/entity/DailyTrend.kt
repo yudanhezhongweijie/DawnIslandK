@@ -14,7 +14,21 @@ data class DailyTrend(
     val trends: List<Trend>,
     val lastReplyCount: Int,
     var lastUpdatedAt: Long = 0
-){
+) {
+    override fun equals(other: Any?): Boolean =
+        if (other is DailyTrend) {
+            po == other.po && date == other.date
+                    && trends == other.trends && lastReplyCount == other.lastReplyCount
+        } else false
+
+    override fun hashCode(): Int {
+        var result = po.hashCode()
+        result = 31 * result + date.hashCode()
+        result = 31 * result + trends.hashCode()
+        result = 31 * result + lastReplyCount.hashCode()
+        return result
+    }
+
     fun setUpdatedTimestamp(time: Long? = null) {
         lastUpdatedAt = time ?: Date().time
     }

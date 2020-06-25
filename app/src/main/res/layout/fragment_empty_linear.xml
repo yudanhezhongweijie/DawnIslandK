@@ -6,7 +6,7 @@
 
     <include
         android:id="@+id/toolbarLayout"
-        layout="@layout/toolbar" />
+        layout="@layout/widget_toolbar" />
 
 
 </LinearLayout>

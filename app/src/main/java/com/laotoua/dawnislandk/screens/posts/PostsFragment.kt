@@ -4,40 +4,42 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
+import android.widget.Button
 import android.widget.ImageView
-import androidx.fragment.app.activityViewModels
+import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.customview.customView
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.databinding.FragmentPostBinding
 import com.laotoua.dawnislandk.screens.MainActivity
-import com.laotoua.dawnislandk.screens.PagerFragment
-import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
-import com.laotoua.dawnislandk.screens.widget.popup.ImageLoader
+import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
+import com.laotoua.dawnislandk.screens.widget.BaseNavFragment
+import com.laotoua.dawnislandk.screens.widget.DoubleClickListener
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
+import com.laotoua.dawnislandk.screens.widget.popup.PostPopup
+import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
-import dagger.android.support.DaggerFragment
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import me.dkzwm.widget.srl.config.Constants
 import timber.log.Timber
-import javax.inject.Inject
 
 
-class PostsFragment : DaggerFragment() {
+class PostsFragment : BaseNavFragment() {
 
     private var _binding: FragmentPostBinding? = null
     private val binding get() = _binding!!
-
-    @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel: PostsViewModel by viewModels { viewModelFactory }
-    private val sharedVM: SharedViewModel by activityViewModels{ viewModelFactory }
+    private var isFabOpen = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,24 +52,33 @@ class PostsFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        (parentFragment as PagerFragment).setToolbarClickListener {
-            binding.recyclerView.layoutManager?.scrollToPosition(0)
+        binding.toolbar.apply {
+            immersiveToolbar()
+            setSubtitle(R.string.toolbar_subtitle)
+            setOnClickListener(
+                DoubleClickListener(callback = object : DoubleClickListener.DoubleClickCallBack {
+                    override fun doubleClicked() {
+                        binding.srlAndRv.recyclerView.layoutManager?.scrollToPosition(0)
+                    }
+                })
+            )
         }
-
         // initial load
         if (viewModel.posts.value.isNullOrEmpty()) {
-            binding.refreshLayout.autoRefresh(
+            binding.srlAndRv.refreshLayout.autoRefresh(
                 Constants.ACTION_NOTHING,
                 false
             )
         }
 
-        val imageLoader = ImageLoader()
+        binding.flingInterceptor.bindListener {
+            (activity as MainActivity).showDrawer()
+        }
 
         val mAdapter = QuickAdapter<Post>(R.layout.list_item_post, sharedVM).apply {
             setOnItemClickListener { _, _, position ->
                 getItem(position).run {
-                    sharedVM.setPost(id,fid)
+                    sharedVM.setPost(id, fid)
                 }
                 (requireActivity() as MainActivity).showComment()
             }
@@ -82,7 +93,6 @@ class PostsFragment : DaggerFragment() {
                             imgUrl = url,
                             fragment = this@PostsFragment
                         )
-                    viewerPopup.setXPopupImageLoader(imageLoader)
                     viewerPopup.setSingleSrcView(view as ImageView?, url)
 
                     XPopup.Builder(context)
@@ -96,7 +106,7 @@ class PostsFragment : DaggerFragment() {
             }
         }
 
-        binding.refreshLayout.apply {
+        binding.srlAndRv.refreshLayout.apply {
             setOnRefreshListener(object : RefreshingListenerAdapter() {
                 override fun onRefreshing() {
                     viewModel.refresh()
@@ -104,24 +114,94 @@ class PostsFragment : DaggerFragment() {
             })
         }
 
-        binding.recyclerView.apply {
+        binding.srlAndRv.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = mAdapter
             setHasFixedSize(true)
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     if (dy > 0) {
-                        (parentFragment as PagerFragment).hideMenu()
+                        hideFabMenu()
+                        binding.fabMenu.hide()
                     } else if (dy < 0) {
-                        (parentFragment as PagerFragment).showMenu()
+                        binding.fabMenu.show()
                     }
                 }
             })
         }
 
+        binding.fabMenu.setOnClickListener {
+            toggleFabMenu()
+        }
+
+        binding.forumRule.setOnClickListener {
+            MaterialDialog(requireContext()).show {
+                val forumId = sharedVM.selectedForumId.value!!
+                val biId = if (forumId.toInt() > 0) forumId.toInt() else 1
+                val resourceId: Int = context.resources.getIdentifier(
+                    "bi_$biId", "drawable",
+                    context.packageName
+                )
+                icon(resourceId)
+                title(text = sharedVM.getForumDisplayName(forumId))
+                message(text = sharedVM.getForumMsg(forumId)) { html() }
+                positiveButton(R.string.acknowledge)
+            }
+        }
+
+        val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext(), sharedVM) }
+        binding.post.setOnClickListener {
+            hideFabMenu()
+            postPopup.setupAndShow(
+                sharedVM.selectedForumId.value,
+                sharedVM.selectedForumId.value!!,
+                true
+            )
+        }
+
+        binding.search.setOnClickListener {
+            hideFabMenu()
+            MaterialDialog(requireContext()).show {
+                title(R.string.search)
+                customView(R.layout.dialog_search, noVerticalPadding = true).apply {
+                    findViewById<Button>(R.id.search).setOnClickListener {
+                        Toast.makeText(context, "还没做。。。", Toast.LENGTH_SHORT).show()
+                    }
+
+                    findViewById<Button>(R.id.jumpToPost).setOnClickListener {
+                        val threadId = findViewById<TextView>(R.id.searchInputText).text
+                            .filter { it.isDigit() }.toString()
+                        if (threadId.isNotEmpty()) {
+                            // Does not have fid here. fid will be generated when data comes back in reply
+                            sharedVM.setPost(threadId, "")
+                            dismiss()
+                            (requireActivity() as MainActivity).showComment()
+                        } else {
+                            Toast.makeText(
+                                context,
+                                R.string.please_input_valid_text,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+            }
+        }
+
+        binding.announcement.setOnClickListener {
+            hideFabMenu()
+            DawnApp.applicationDataStore.nmbNotice?.let { notice ->
+                MaterialDialog(requireContext()).show {
+                    title(res = R.string.announcement)
+                    message(text = notice.content) { html() }
+                    positiveButton(R.string.close)
+                }
+            }
+        }
+
         viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.run {
-                updateHeaderAndFooter(binding.refreshLayout, mAdapter, this)
+                updateHeaderAndFooter(binding.srlAndRv.refreshLayout, mAdapter, this)
             }
         })
 
@@ -138,14 +218,39 @@ class PostsFragment : DaggerFragment() {
         sharedVM.selectedForumId.observe(viewLifecycleOwner, Observer {
             if (viewModel.currentFid != it) mAdapter.setList(emptyList())
             viewModel.setForum(it)
+            binding.toolbar.title = sharedVM.getToolbarTitle()
         })
-
     }
 
-    override fun onResume() {
-        super.onResume()
-        (parentFragment as PagerFragment).setToolbarClickListener {
-            binding.recyclerView.layoutManager?.scrollToPosition(0)
+    private fun hideFabMenu() {
+        val rotateBackward = AnimationUtils.loadAnimation(
+            requireContext(),
+            R.anim.rotate_backward
+        )
+        binding.fabMenu.startAnimation(rotateBackward)
+        binding.announcement.hide()
+        binding.search.hide()
+        binding.post.hide()
+        isFabOpen = false
+    }
+
+    private fun showFabMenu() {
+        val rotateForward = AnimationUtils.loadAnimation(
+            requireContext(),
+            R.anim.rotate_forward
+        )
+        binding.fabMenu.startAnimation(rotateForward)
+        binding.announcement.show()
+        binding.search.show()
+        binding.post.show()
+        isFabOpen = true
+    }
+
+    private fun toggleFabMenu() {
+        if (isFabOpen) {
+            hideFabMenu()
+        } else {
+            showFabMenu()
         }
     }
 
@@ -154,6 +259,5 @@ class PostsFragment : DaggerFragment() {
         _binding = null
         Timber.d("Fragment View Destroyed")
     }
-
 }
 

@@ -28,8 +28,11 @@ class ApplicationDataStore @Inject constructor(
     private var mCookies = mutableListOf<Cookie>()
     val cookies get() = mCookies
     val firstCookieHash get() = cookies.firstOrNull()?.cookieHash
-    private var _luweiNotice: LuweiNotice? = null
-    val luweiNotice: LuweiNotice? get() = _luweiNotice
+    var luweiNotice: LuweiNotice? = null
+        private set
+
+    var nmbNotice: NMBNotice? = null
+        private set
 
     private var mFeedId: String? = null
     val feedId get() = mFeedId!!
@@ -88,20 +91,20 @@ class ApplicationDataStore @Inject constructor(
         commentDao.nukeTable()
     }
 
-    suspend fun getNMBNotice(): NMBNotice? {
-        var cache = NMBNoticeDao.getLatestNMBNotice()
+    suspend fun getLatestNMBNotice(): NMBNotice? {
+        nmbNotice = NMBNoticeDao.getLatestNMBNotice()
         webService.getNMBNotice().run {
             if (this is APIDataResponse.APISuccessDataResponse) {
-                if (cache == null || data.date > cache!!.date) {
+                if (nmbNotice == null || data.date > nmbNotice!!.date) {
                     coroutineScope { launch { NMBNoticeDao.insertNMBNoticeWithTimestamp(data) } }
-                    cache = data
+                    nmbNotice = data
                 }
             } else {
                 Timber.e(message)
             }
         }
-        if (cache?.read != true) {
-            return cache
+        if (nmbNotice?.read != true) {
+            return nmbNotice
         }
         return null
     }
@@ -115,19 +118,19 @@ class ApplicationDataStore @Inject constructor(
         )
     }
 
-    suspend fun getLuweiNotice(): LuweiNotice? {
-        _luweiNotice = luweiNoticeDao.getLatestLuweiNotice()
+    suspend fun getLatestLuweiNotice(): LuweiNotice? {
+        luweiNotice = luweiNoticeDao.getLatestLuweiNotice()
         webService.getLuweiNotice().run {
             if (this is APIDataResponse.APISuccessDataResponse) {
-                if (_luweiNotice != data) {
-                    _luweiNotice = data
+                if (luweiNotice != data) {
+                    luweiNotice = data
                     coroutineScope { launch { luweiNoticeDao.insertNoticeWithTimestamp(data) } }
                 }
             } else {
                 Timber.e(message)
             }
         }
-        return _luweiNotice
+        return luweiNotice
     }
 
     fun checkAcknowledgementPostingRule(): Boolean {
@@ -158,5 +161,29 @@ class ApplicationDataStore @Inject constructor(
             return latest
         }
         return null
+    }
+
+    fun setFeedPagerDefaultPage(trendsIndex: Int, feedsIndex: Int) {
+        mmkv.putInt(Constants.TRENDS_FRAG_PAGER_INDEX, trendsIndex)
+        mmkv.putInt(Constants.FEEDS_FRAG_PAGER_INDEX, feedsIndex)
+    }
+
+    fun getFeedPagerPageIndices(): Pair<Int, Int> {
+        return Pair(
+            mmkv.getInt(Constants.TRENDS_FRAG_PAGER_INDEX, 0),
+            mmkv.getInt(Constants.FEEDS_FRAG_PAGER_INDEX, 1)
+        )
+    }
+
+    fun setHistoryPagerDefaultPage(browseIndex: Int, postIndex: Int) {
+        mmkv.putInt(Constants.BROWSING_HISTORY_FRAG_PAGER_INDEX, browseIndex)
+        mmkv.putInt(Constants.POST_HISTORY_FRAG_PAGER_INDEX, postIndex)
+    }
+
+    fun getHistoryPagerPageIndices(): Pair<Int, Int> {
+        return Pair(
+            mmkv.getInt(Constants.BROWSING_HISTORY_FRAG_PAGER_INDEX, 0),
+            mmkv.getInt(Constants.POST_HISTORY_FRAG_PAGER_INDEX, 1)
+        )
     }
 }

@@ -69,12 +69,12 @@ class CommentsFragment : DaggerFragment() {
     // last visible item indicates the current page, uses for remembering last read page
     private var currentPage = 0
 
-    enum class SCROLL_STATE {
+    enum class RVScrollState {
         UP,
         DOWN
     }
 
-    private var currentState: SCROLL_STATE? = null
+    private var currentState: RVScrollState? = null
     private var currentAnimatorSet: AnimatorSet? = null
 
     private val slideOutBottom by lazyOnMainOnly {
@@ -112,7 +112,7 @@ class CommentsFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.toolbarLayout.toolbar.apply {
+        binding.toolbar.apply {
             immersiveToolbar()
             setSubtitle(R.string.toolbar_subtitle)
             setNavigationIcon(R.drawable.ic_arrow_back_white_24px)
@@ -309,7 +309,10 @@ class CommentsFragment : DaggerFragment() {
                     override fun onDismiss() {
                         super.onDismiss()
                         if (jumpPopup.submit) {
-                            binding.srlAndRv.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
+                            binding.srlAndRv.refreshLayout.autoRefresh(
+                                Constants.ACTION_NOTHING,
+                                false
+                            )
                             mAdapter.setList(emptyList())
                             Timber.i("Jumping to ${jumpPopup.targetPage}...")
                             viewModel.jumpTo(jumpPopup.targetPage)
@@ -417,11 +420,11 @@ class CommentsFragment : DaggerFragment() {
     }
 
     fun hideMenu() {
-        if (currentState == SCROLL_STATE.DOWN) return
+        if (currentState == RVScrollState.DOWN) return
         if (currentAnimatorSet != null) {
             currentAnimatorSet!!.cancel()
         }
-        currentState = SCROLL_STATE.DOWN
+        currentState = RVScrollState.DOWN
         currentAnimatorSet = AnimatorSet().apply {
             duration = 250
             interpolator = AnimationUtils.FAST_OUT_LINEAR_IN_INTERPOLATOR
@@ -440,11 +443,11 @@ class CommentsFragment : DaggerFragment() {
     }
 
     fun showMenu() {
-        if (currentState == SCROLL_STATE.UP) return
+        if (currentState == RVScrollState.UP) return
         if (currentAnimatorSet != null) {
             currentAnimatorSet!!.cancel()
         }
-        currentState = SCROLL_STATE.UP
+        currentState = RVScrollState.UP
         currentAnimatorSet = AnimatorSet().apply {
             duration = 250
             interpolator = AnimationUtils.LINEAR_OUT_SLOW_IN_INTERPOLATOR
@@ -463,7 +466,7 @@ class CommentsFragment : DaggerFragment() {
     }
 
     private fun updateTitle() {
-        binding.toolbarLayout.toolbar.title =
+        binding.toolbar.title =
             "${sharedVM.getSelectedPostForumName()} • ${viewModel.currentPostId}"
     }
 

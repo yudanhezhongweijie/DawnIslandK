@@ -10,7 +10,7 @@ import java.util.*
 import javax.inject.Inject
 
 class PostHistoryViewModel @Inject constructor(private val postHistoryDao: PostHistoryDao) : ViewModel() {
-    private var endDate = ReadableTime.getTodayDateLong()
+    private var endDate = Date().time
     private var startDate = endDate - ReadableTime.LAST_30_DAYS_MILLIS
     private var currentList: LiveData<List<PostHistory>>? = null
     val postHistoryList = MediatorLiveData<List<PostHistory>>()

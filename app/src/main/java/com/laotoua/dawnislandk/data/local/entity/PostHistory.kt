@@ -38,4 +38,6 @@ class PostHistory(
         val content: String, //content
         val postDate: Long
     )
+
+    fun getImgUrl() = (img + ext)
 }

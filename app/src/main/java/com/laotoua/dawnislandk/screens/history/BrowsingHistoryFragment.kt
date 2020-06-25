@@ -94,7 +94,7 @@ class BrowsingHistoryFragment : BaseNavFragment() {
                     false
                 )
             )
-            Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} threads")
+            Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} posts")
         })
 
         binding.startDate.text = ReadableTime.getDateString(startDate.time)

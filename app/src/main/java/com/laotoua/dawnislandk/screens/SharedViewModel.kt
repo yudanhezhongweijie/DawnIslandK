@@ -184,6 +184,8 @@ class SharedViewModel @Inject constructor(
                     // content may be formatted to html by server hence compared by unformatted string
                     val striped = ContentTransformation.htmlToSpanned(post.content).toString()
                     if (post.userid == draft.cookieName && striped == draft.content) {
+                        // store server's copy
+                        draft.content = post.content
                         postHistoryDao.insertPostHistory(
                             PostHistory(
                                 post.id,
@@ -256,6 +258,8 @@ class SharedViewModel @Inject constructor(
             // content may be formatted to html by server hence compared by unformatted string
             val striped = ContentTransformation.htmlToSpanned(reply.content).toString()
             if (reply.userid == draft.cookieName && striped == draft.content) {
+                // store server's copy
+                draft.content = reply.content
                 postHistoryDao.insertPostHistory(
                     PostHistory(
                         reply.id,

@@ -35,7 +35,7 @@ class PostHistory(
         val postTargetId: String, // do not have this when sending a newPost
         val postTargetFid: String,
         val newPost: Boolean,// false if replying
-        val content: String, //content
+        var content: String, //content
         val postDate: Long
     )
 

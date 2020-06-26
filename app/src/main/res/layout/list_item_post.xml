@@ -18,7 +18,7 @@
         android:id="@+id/cardContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="15dp"
+        android:padding="10dp"
         app:layout_optimizationLevel="standard|dimensions">
 
         <TextView
@@ -27,6 +27,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:text="@string/sample_user_id"
+            android:textSize="12sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -37,6 +38,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:text="@string/sample_ref_id"
+            android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -67,6 +69,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/sample_timestamp_simplified"
+            android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/barrier" />
 
@@ -106,15 +109,16 @@
             android:ellipsize="end"
             android:maxLines="8"
             android:text="@string/sample_post_content"
-            android:textAppearance="@style/PrimaryText"
+            android:textColor="@color/pure_dark"
+            android:textSize="16sp"
             app:layout_constraintEnd_toStartOf="@id/attachedImage"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/barrier2" />
 
         <ImageView
             android:id="@+id/attachedImage"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
             android:layout_marginTop="8dp"
             android:contentDescription="@string/image_description"
             android:visibility="visible"

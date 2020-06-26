@@ -102,7 +102,6 @@ class SizesCustomizationFragment : Fragment() {
             letterSpacing = PostCardFactory.letterSpace
             textSize = PostCardFactory.mainTextSize
         }
-
         rootView.addView(demoCard)
 
         progressContainer.orientation = LinearLayout.VERTICAL

@@ -33,6 +33,7 @@
         android:focusable="false"
         android:text="@string/sample_ref_id"
         android:textAppearance="@style/SecondaryText"
+        android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -45,23 +46,9 @@
         android:focusable="false"
         android:text="@string/sample_user_id"
         android:textAppearance="@style/SecondaryText"
+        android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <com.laotoua.dawnislandk.screens.widget.LinkifyTextView
-        android:id="@+id/content"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:clickable="false"
-        android:focusable="false"
-        android:paddingBottom="2dp"
-        android:scrollbars="vertical"
-        android:text="@string/sample_comment_content"
-        android:textAppearance="@style/PrimaryText"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/barrier" />
 
     <TextView
         android:id="@+id/timestamp"
@@ -71,8 +58,24 @@
         android:focusable="false"
         android:text="@string/sample_timestamp_plain"
         android:textAppearance="@style/SecondaryText"
+        android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <com.laotoua.dawnislandk.screens.widget.LinkifyTextView
+        android:id="@+id/content"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:clickable="false"
+        android:focusable="false"
+        android:paddingBottom="2dp"
+        android:scrollbars="vertical"
+        android:text="@string/sample_comment_content"
+        android:textColor="@color/pure_dark"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/barrier" />
 
     <TextView
         android:id="@+id/title"
@@ -107,14 +110,13 @@
 
     <ImageView
         android:id="@+id/attachedImage"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginTop="3dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:contentDescription="@string/image_description"
+        android:paddingBottom="4dp"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/content"
-        app:srcCompat="@mipmap/ic_launcher" />
+        app:layout_constraintTop_toBottomOf="@id/content" />
 
     <Button
         android:id="@+id/expandSummary"
@@ -140,7 +142,7 @@
         app:layout_constraintEnd_toEndOf="@id/timestamp"
         app:layout_constraintStart_toStartOf="@id/userId"
         app:layout_constraintTop_toBottomOf="@id/expandSummary"
-        app:layout_goneMarginBottom="2dp">
+        app:layout_goneMarginTop="4dp">
 
         <View
             android:layout_width="wrap_content"
@@ -191,10 +193,10 @@
         android:id="@+id/bottomBorder"
         android:layout_width="match_parent"
         android:layout_height="1.2dp"
-        android:layout_marginTop="2dp"
+        android:layout_marginTop="4dp"
         android:background="#E0E0E0"
-        app:layout_constraintTop_toBottomOf="@id/commentMenu"
-        tools:layout_editor_absoluteX="12dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/commentMenu" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

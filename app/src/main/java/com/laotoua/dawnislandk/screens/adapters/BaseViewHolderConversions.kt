@@ -42,7 +42,7 @@ fun BaseViewHolder.convertForumAndReplyCount(replyCount: String, forumDisplayNam
         RoundBackgroundColorSpan(
             Color.parseColor("#12DBD1"),
             Color.parseColor("#FFFFFF")
-        ), 0, spannableString.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+        ), 0, spannableString.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
     )
     getView<TextView>(R.id.forumAndReplyCount).setText(
         spannableString,

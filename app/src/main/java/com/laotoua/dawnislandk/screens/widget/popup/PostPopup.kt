@@ -28,7 +28,6 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Cookie
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
-import com.laotoua.dawnislandk.screens.util.ContentTransformation
 import com.laotoua.dawnislandk.util.FragmentIntentUtil
 import com.laotoua.dawnislandk.util.ImageUtil
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
@@ -433,7 +432,7 @@ class PostPopup(
                 )
                 icon(resourceId)
                 title(text = sharedVM.getForumDisplayName(fid))
-                message(text = ContentTransformation.htmlToSpanned(sharedVM.getForumMsg(fid)))
+                message(text = sharedVM.getForumMsg(fid)){html()}
                 positiveButton(R.string.acknowledge)
             }
         }

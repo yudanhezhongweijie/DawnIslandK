@@ -148,6 +148,7 @@
     <string name="clear_comment_cache_confirm_message" translatable="false">将要清除串回复的缓存，不会清除阅读进度和饼干。清除后数据不能恢复！确认清除吗？</string>
     <string name="cleared_comment_cache_message" translatable="false">串回复的缓存已经清除</string>
     <string name="acknowledge" translatable="false">我知道了</string>
+    <string name="post_options" translatable="false">串选项</string>
     <string name="report">举报</string>
     <string name="found_new_version">检测到新版本</string>
     <string name="download_latest_version">下载最新版本</string>

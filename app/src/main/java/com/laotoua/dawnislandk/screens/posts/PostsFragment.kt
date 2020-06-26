@@ -15,6 +15,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
+import com.afollestad.materialdialogs.list.listItems
+import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Post
@@ -75,12 +77,35 @@ class PostsFragment : BaseNavFragment() {
             (activity as MainActivity).showDrawer()
         }
 
+        val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext(), sharedVM) }
         val mAdapter = QuickAdapter<Post>(R.layout.list_item_post, sharedVM).apply {
             setOnItemClickListener { _, _, position ->
                 getItem(position).run {
                     sharedVM.setPost(id, fid)
                 }
                 (requireActivity() as MainActivity).showComment()
+            }
+            setOnItemLongClickListener { _, _, position ->
+                MaterialDialog(requireContext()).show {
+                    title(R.string.post_options)
+                    listItems(R.array.post_options) { _, index, _ ->
+                        if (index  == 0){
+                            MaterialDialog(requireContext()).show {
+                                title(R.string.report_reasons)
+                                listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
+                                    postPopup.setupAndShow(
+                                        "18",//值班室
+                                        "18",
+                                        newPost = true,
+                                        quote = "\n>>No.${getItem(position).id}\n${context.getString(R.string.report_reasons)}: $text"
+                                    )
+                                }
+                                cancelOnTouchOutside(false)
+                            }
+                        }
+                    }
+                }
+                true
             }
 
             addChildClickViewIds(R.id.attachedImage)
@@ -149,7 +174,6 @@ class PostsFragment : BaseNavFragment() {
             }
         }
 
-        val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext(), sharedVM) }
         binding.post.setOnClickListener {
             hideFabMenu()
             postPopup.setupAndShow(

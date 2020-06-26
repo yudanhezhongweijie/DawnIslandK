@@ -136,6 +136,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/missing_cookie"
+            android:textAllCaps="false"
             app:icon="@drawable/ic_cookie_black_24px"
             app:iconGravity="start"
             app:layout_constraintBottom_toTopOf="@+id/ButtonGroupContainer"
@@ -271,10 +272,10 @@
                     android:background="@null"
                     android:ems="10"
                     android:hint="@string/title"
+                    android:importantForAutofill="noExcludeDescendants"
                     android:inputType="none"
                     android:textSize="15sp"
-                    android:visibility="visible"
-                    android:importantForAutofill="noExcludeDescendants" />
+                    android:visibility="visible" />
 
                 <View
                     android:id="@+id/borderline_2"
@@ -294,10 +295,10 @@
                     android:background="@null"
                     android:ems="10"
                     android:hint="@string/email_address"
+                    android:importantForAutofill="noExcludeDescendants"
                     android:inputType="textEmailAddress"
                     android:textSize="15sp"
-                    android:visibility="visible"
-                    android:importantForAutofill="noExcludeDescendants" />
+                    android:visibility="visible" />
 
                 <View
                     android:id="@+id/borderline_3"
@@ -317,10 +318,10 @@
                     android:background="@null"
                     android:ems="10"
                     android:hint="@string/name"
+                    android:importantForAutofill="noExcludeDescendants"
                     android:inputType="textPersonName"
                     android:textSize="15sp"
-                    android:visibility="visible"
-                    android:importantForAutofill="noExcludeDescendants" />
+                    android:visibility="visible" />
 
                 <View
                     android:id="@+id/borderline_4"

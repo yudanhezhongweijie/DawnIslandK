@@ -11,7 +11,7 @@ import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.ReadableTime
-import com.laotoua.dawnislandk.util.ReadableTime.DATE_FORMAT_WITH_YEAR
+import com.laotoua.dawnislandk.util.ReadableTime.DATE_ONLY_FORMAT
 import com.laotoua.dawnislandk.util.SingleLiveEvent
 import timber.log.Timber
 import javax.inject.Inject
@@ -41,7 +41,7 @@ class TrendRepository @Inject constructor(
             dailyTrend.value = it
             page = ceil(it.lastReplyCount.toDouble() / 19).toInt()
             // trends updates daily at 1AM
-            val diff = ReadableTime.getTimeAgo(it.date)
+            val diff = ReadableTime.getTimeAgo(System.currentTimeMillis(), it.date)
             val dayTime = ReadableTime.HOUR_MILLIS * 25
             if (diff - dayTime < 0) {
                 getRemoteData = false
@@ -84,7 +84,7 @@ class TrendRepository @Inject constructor(
                     return DailyTrend(
                         trendId,
                         po,
-                        ReadableTime.string2Time(dateString, DATE_FORMAT_WITH_YEAR),
+                        ReadableTime.string2Time(dateString, DATE_ONLY_FORMAT),
                         list.map { convertStringToTrend(it) },
                         data.replyCount.toInt()
                     )

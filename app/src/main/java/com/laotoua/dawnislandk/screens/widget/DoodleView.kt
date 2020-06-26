@@ -366,7 +366,7 @@ class DoodleView : View {
             drawStore(mCanvas, mPaint)
             clearStore()
             Timber.i("Saving Doodle to Gallery... ")
-            val timeStamp: String = ReadableTime.getFilenamableTime(System.currentTimeMillis())
+            val timeStamp: String = ReadableTime.getCurrentTimeFileName()
             val relativeLocation =
                 Environment.DIRECTORY_PICTURES + File.separator + "Dawn"
             val fileName = "Doodle_$timeStamp.png"

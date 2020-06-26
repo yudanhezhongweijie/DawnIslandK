@@ -82,7 +82,7 @@ class BrowsingHistoryFragment : BaseNavFragment() {
                     data.add(
                         ReadableTime.getDateString(
                             it.browsingHistory.date,
-                            ReadableTime.DATE_FORMAT_WITH_YEAR
+                            ReadableTime.DATE_ONLY_FORMAT
                         )
                     )
                 }

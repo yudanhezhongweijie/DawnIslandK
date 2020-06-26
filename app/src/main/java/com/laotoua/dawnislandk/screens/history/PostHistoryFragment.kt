@@ -113,7 +113,7 @@ class PostHistoryFragment : BaseNavFragment() {
                 map {
                     val dateString = ReadableTime.getDateString(
                         it.postDate,
-                        ReadableTime.DATE_FORMAT_WITH_YEAR
+                        ReadableTime.DATE_ONLY_FORMAT
                     )
                     if (lastDate == null || dateString != lastDate) {
                         data.add(dateString)
@@ -128,7 +128,7 @@ class PostHistoryFragment : BaseNavFragment() {
                 map {
                     val dateString = ReadableTime.getDateString(
                         it.postDate,
-                        ReadableTime.DATE_FORMAT_WITH_YEAR
+                        ReadableTime.DATE_ONLY_FORMAT
                     )
                     if (lastDate == null || dateString != lastDate) {
                         data.add(dateString)

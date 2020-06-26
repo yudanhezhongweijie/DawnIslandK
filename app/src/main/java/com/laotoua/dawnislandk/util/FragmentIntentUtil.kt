@@ -96,7 +96,7 @@ object FragmentIntentUtil {
     }
 
     fun getImageFromCamera(caller: Fragment, callback: (Uri) -> Unit) {
-        val timeStamp: String = ReadableTime.getFilenamableTime(System.currentTimeMillis())
+        val timeStamp: String = ReadableTime.getCurrentTimeFileName()
         val relativeLocation = Environment.DIRECTORY_PICTURES + File.separator + "Dawn"
         val fileName = "DawnIsland_$timeStamp.jpg"
         try {

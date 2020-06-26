@@ -32,7 +32,7 @@ class ImageViewerPopup(
 ) :
     ImageViewerPopupView(fragment?.requireContext() ?: activity!!) {
 
-    companion object{
+    companion object {
         val universalImageLoader = ImageLoader()
     }
 
@@ -78,8 +78,7 @@ class ImageViewerPopup(
                 // Inform user and renamed file when the filename is already taken
                 val name = fileName.substringBeforeLast(".")
                 val ext = fileName.substringAfterLast(".")
-                fileName =
-                    "${name}_${ReadableTime.getFilenamableTime(System.currentTimeMillis())}.$ext"
+                fileName = "${name}_${ReadableTime.getCurrentTimeFileName()}.$ext"
             }
             val saved = ImageUtil.copyImageFileToGallery(
                 caller,

@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "351466802425",
+    "firebase_url": "https://dawnislandk.firebaseio.com",
+    "project_id": "dawnislandk",
+    "storage_bucket": "dawnislandk.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:351466802425:android:2ab956538288afb34a6628",
+        "android_client_info": {
+          "package_name": "com.laotoua.dawnislandk"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "351466802425-g8eacf60kl6f528k9o4aqo1u5om7o8sa.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDwTmoJ1Qh_6ocAU1Wg1sCzaTYgd27b1XM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "351466802425-g8eacf60kl6f528k9o4aqo1u5om7o8sa.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

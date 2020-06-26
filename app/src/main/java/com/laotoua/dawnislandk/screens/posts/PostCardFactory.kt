@@ -6,7 +6,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.util.Constants
+import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 
 object PostCardFactory {
@@ -25,67 +25,67 @@ object PostCardFactory {
 
     val cardRadius by lazyOnMainOnly {
         mmkv.getFloat(
-            Constants.CARD_RADIUS,
+            DawnConstants.CARD_RADIUS,
             15f
         )
     }
     val cardElevation by lazyOnMainOnly {
         mmkv.getFloat(
-            Constants.CARD_ELEVATION,
+            DawnConstants.CARD_ELEVATION,
             15f
         )
     }
     val cardMarginTop by lazyOnMainOnly {
         mmkv.getInt(
-            Constants.CARD_MARGIN_TOP,
+            DawnConstants.CARD_MARGIN_TOP,
             defaultCardViewMarginTop
         )
     }
     val cardMarginLeft by lazyOnMainOnly {
         mmkv.getInt(
-            Constants.CARD_MARGIN_LEFT,
+            DawnConstants.CARD_MARGIN_LEFT,
             defaultCardViewMarginStart
         )
     }
     val cardMarginRight by lazyOnMainOnly {
         mmkv.getInt(
-            Constants.CARD_MARGIN_RIGHT,
+            DawnConstants.CARD_MARGIN_RIGHT,
             defaultCardViewMarginEnd
         )
     }
     private val cardMarginBottom by lazyOnMainOnly {
         mmkv.getInt(
-            Constants.CARD_MARGIN_BOTTOM,
+            DawnConstants.CARD_MARGIN_BOTTOM,
             defaultCardViewMarginBottom
         )
     }
     val headBarMarginTop by lazyOnMainOnly {
         mmkv.getInt(
-            Constants.HEAD_BAR_MARGIN_TOP,
+            DawnConstants.HEAD_BAR_MARGIN_TOP,
             defaultCardViewPadding
         )
     }
     val contentMarginTop by lazyOnMainOnly {
         mmkv.getInt(
-            Constants.CONTENT_MARGIN_TOP,
+            DawnConstants.CONTENT_MARGIN_TOP,
             15
         )
     }
     val contentMarginLeft by lazyOnMainOnly {
         mmkv.getInt(
-            Constants.CONTENT_MARGIN_LEFT,
+            DawnConstants.CONTENT_MARGIN_LEFT,
             defaultCardViewPadding
         )
     }
     val contentMarginRight by lazyOnMainOnly {
         mmkv.getInt(
-            Constants.CONTENT_MARGIN_RIGHT,
+            DawnConstants.CONTENT_MARGIN_RIGHT,
             defaultCardViewPadding
         )
     }
     val contentMarginBottom by lazyOnMainOnly {
         mmkv.getInt(
-            Constants.CONTENT_MARGIN_BOTTOM,
+            DawnConstants.CONTENT_MARGIN_BOTTOM,
             defaultCardViewPadding
         )
     }

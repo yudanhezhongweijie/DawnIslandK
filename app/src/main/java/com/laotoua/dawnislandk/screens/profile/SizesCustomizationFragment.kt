@@ -21,7 +21,7 @@ import com.laotoua.dawnislandk.screens.posts.PostCardFactory
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widget.span.RoundBackgroundColorSpan
 import com.laotoua.dawnislandk.screens.widget.span.SegmentSpacingSpan
-import com.laotoua.dawnislandk.util.Constants
+import com.laotoua.dawnislandk.util.DawnConstants
 import kotlinx.android.synthetic.main.list_item_post.view.*
 
 class SizesCustomizationFragment : Fragment() {
@@ -269,33 +269,33 @@ class SizesCustomizationFragment : Fragment() {
             val contentView: View = demoCard.findViewById(R.id.content)
             when (seekBar.id) {
                 mainTextSize -> {
-                    res += Constants.MAIN_TEXT_MIN_SIZE
+                    res += DawnConstants.MAIN_TEXT_MIN_SIZE
                     (contentView as TextView).textSize = res.toFloat()
-                    mmkv.putFloat(Constants.MAIN_TEXT_SIZE, res.toFloat())
+                    mmkv.putFloat(DawnConstants.MAIN_TEXT_SIZE, res.toFloat())
                 }
                 radius -> {
                     demoCard.radius = res.toFloat()
-                    mmkv.putFloat(Constants.CARD_RADIUS, res.toFloat())
+                    mmkv.putFloat(DawnConstants.CARD_RADIUS, res.toFloat())
                 }
                 elevation -> {
                     demoCard.elevation = res.toFloat()
-                    mmkv.putFloat(Constants.CARD_ELEVATION, res.toFloat())
+                    mmkv.putFloat(DawnConstants.CARD_ELEVATION, res.toFloat())
                 }
                 cardMarginTop -> {
                     cardLayoutParams.topMargin = res
                     demoCard.layoutParams = cardLayoutParams
-                    mmkv.putInt(Constants.CARD_MARGIN_TOP, res)
+                    mmkv.putInt(DawnConstants.CARD_MARGIN_TOP, res)
                 }
                 cardMarginLeft -> {
                     cardLayoutParams.marginStart = res
                     demoCard.layoutParams = cardLayoutParams
-                    mmkv.putInt(Constants.CARD_MARGIN_LEFT, res)
+                    mmkv.putInt(DawnConstants.CARD_MARGIN_LEFT, res)
 
                 }
                 cardMarginRight -> {
                     cardLayoutParams.marginEnd = res
                     demoCard.layoutParams = cardLayoutParams
-                    mmkv.putInt(Constants.CARD_MARGIN_RIGHT, res)
+                    mmkv.putInt(DawnConstants.CARD_MARGIN_RIGHT, res)
                 }
                 headBarMarginTop -> {
                     demoCardContainer.setPadding(
@@ -305,14 +305,14 @@ class SizesCustomizationFragment : Fragment() {
                         demoCardContainer.paddingBottom
                     )
 
-                    mmkv.putInt(Constants.HEAD_BAR_MARGIN_TOP, res)
+                    mmkv.putInt(DawnConstants.HEAD_BAR_MARGIN_TOP, res)
                 }
                 contentMarginTop -> {
                     val contentLayoutParams =
                         contentView.layoutParams as ConstraintLayout.LayoutParams
                     contentLayoutParams.topMargin = res
                     contentView.layoutParams = contentLayoutParams
-                    mmkv.putInt(Constants.CONTENT_MARGIN_TOP, res)
+                    mmkv.putInt(DawnConstants.CONTENT_MARGIN_TOP, res)
                 }
                 contentMarginLeft -> {
                     demoCardContainer.setPadding(
@@ -321,7 +321,7 @@ class SizesCustomizationFragment : Fragment() {
                         demoCardContainer.paddingRight,
                         demoCardContainer.paddingBottom
                     )
-                    mmkv.putInt(Constants.CONTENT_MARGIN_LEFT, res)
+                    mmkv.putInt(DawnConstants.CONTENT_MARGIN_LEFT, res)
                 }
                 contentMarginRight -> {
                     demoCardContainer.setPadding(
@@ -330,7 +330,7 @@ class SizesCustomizationFragment : Fragment() {
                         res,
                         demoCardContainer.paddingBottom
                     )
-                    mmkv.putInt(Constants.CONTENT_MARGIN_RIGHT, res)
+                    mmkv.putInt(DawnConstants.CONTENT_MARGIN_RIGHT, res)
                 }
                 contentMarginBottom -> {
                     demoCardContainer.setPadding(
@@ -339,13 +339,13 @@ class SizesCustomizationFragment : Fragment() {
                         demoCardContainer.paddingRight,
                         res
                     )
-                    mmkv.putInt(Constants.CONTENT_MARGIN_BOTTOM, res)
+                    mmkv.putInt(DawnConstants.CONTENT_MARGIN_BOTTOM, res)
                 }
                 letterSpace -> {
                     var i = res * 1.0f
                     i /= 50f
                     (contentView as TextView).letterSpacing = i
-                    mmkv.putFloat(Constants.LETTER_SPACE, i)
+                    mmkv.putFloat(DawnConstants.LETTER_SPACE, i)
                 }
                 lineHeight -> {
                     charSequence = (contentView as TextView).text
@@ -359,7 +359,7 @@ class SizesCustomizationFragment : Fragment() {
                         segmentSpacingSpans[0].setHeight(res)
                     }
                     contentView.requestLayout()
-                    mmkv.putInt(Constants.LINE_HEIGHT, res)
+                    mmkv.putInt(DawnConstants.LINE_HEIGHT, res)
                 }
                 segGap -> {
                     charSequence = (contentView as TextView).text
@@ -372,7 +372,7 @@ class SizesCustomizationFragment : Fragment() {
                         segmentSpacingSpans[0].setSegmentGap(res)
                     }
                     contentView.requestLayout()
-                    mmkv.putInt(Constants.SEG_GAP, res)
+                    mmkv.putInt(DawnConstants.SEG_GAP, res)
                 }
                 else -> {
                 }

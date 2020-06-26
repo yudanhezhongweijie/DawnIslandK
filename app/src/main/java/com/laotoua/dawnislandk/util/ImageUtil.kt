@@ -174,9 +174,9 @@ object ImageUtil {
             }
             Timber.d("File not found. Making a new one...")
             // TODO: image compression may cause lag on main thread
-            if (pfd.statSize >= Constants.SERVER_FILE_SIZE_LIMIT) {
+            if (pfd.statSize >= DawnConstants.SERVER_FILE_SIZE_LIMIT) {
                 Timber.d("Image is oversize: ${pfd.statSize}. Compressing...")
-                val ratio = (Constants.SERVER_FILE_SIZE_LIMIT * 100 / pfd.statSize).toInt()
+                val ratio = (DawnConstants.SERVER_FILE_SIZE_LIMIT * 100 / pfd.statSize).toInt()
                 Toast.makeText(callerActivity, R.string.compressed_oversize_image, Toast.LENGTH_SHORT)
                     .show()
                 compressImage(callerActivity, ratio, pfd.fileDescriptor)

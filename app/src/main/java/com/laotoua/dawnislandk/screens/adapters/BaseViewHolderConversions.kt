@@ -14,7 +14,7 @@ import com.laotoua.dawnislandk.screens.util.ContentTransformation
 import com.laotoua.dawnislandk.screens.widget.ClickableMovementMethod
 import com.laotoua.dawnislandk.screens.widget.span.ReferenceSpan
 import com.laotoua.dawnislandk.screens.widget.span.RoundBackgroundColorSpan
-import com.laotoua.dawnislandk.util.Constants
+import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.GlideApp
 
 
@@ -80,7 +80,7 @@ fun BaseViewHolder.convertImage(imgUrl: String, visible: Boolean = true) {
     if (imgUrl.isNotBlank() && visible) {
         val imageView = getView<ImageView>(R.id.attachedImage)
         GlideApp.with(imageView)
-            .load(Constants.thumbCDN + imgUrl)
+            .load(DawnConstants.thumbCDN + imgUrl)
 //                .override(400, 400)
             .fitCenter()
             .into(imageView)

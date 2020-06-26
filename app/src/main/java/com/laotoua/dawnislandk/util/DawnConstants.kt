@@ -1,6 +1,6 @@
 package com.laotoua.dawnislandk.util
 
-object Constants {
+object DawnConstants {
     const val MAIN_TEXT_SIZE = "main_text_size"
     const val CARD_RADIUS = "card_radius"
     const val CARD_ELEVATION = "card_elevation"
@@ -27,7 +27,7 @@ object Constants {
     const val TRENDS_FRAG_PAGER_INDEX = "trends_frag_pager_index"
     const val BROWSING_HISTORY_FRAG_PAGER_INDEX = "browsing_history_frag_page_index"
     const val POST_HISTORY_FRAG_PAGER_INDEX = "post_history_frag_pager_index"
-
+    const val nmbHost = "https://adnmb2.com"
     const val baseCDN = "https://nmb.fastmirror.org/"
     private const val imgCDN = "https://nmbimg.fastmirror.org/"
     const val thumbCDN = "${imgCDN}thumb/"

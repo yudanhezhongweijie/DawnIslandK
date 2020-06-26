@@ -1,5 +1,7 @@
 package com.laotoua.dawnislandk.screens.posts
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -29,6 +31,7 @@ import com.laotoua.dawnislandk.screens.widget.BaseNavFragment
 import com.laotoua.dawnislandk.screens.widget.DoubleClickListener
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.screens.widget.popup.PostPopup
+import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
@@ -89,7 +92,7 @@ class PostsFragment : BaseNavFragment() {
                 MaterialDialog(requireContext()).show {
                     title(R.string.post_options)
                     listItems(R.array.post_options) { _, index, _ ->
-                        if (index  == 0){
+                        if (index == 0) {
                             MaterialDialog(requireContext()).show {
                                 title(R.string.report_reasons)
                                 listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
@@ -97,7 +100,9 @@ class PostsFragment : BaseNavFragment() {
                                         "18",//值班室
                                         "18",
                                         newPost = true,
-                                        quote = "\n>>No.${getItem(position).id}\n${context.getString(R.string.report_reasons)}: $text"
+                                        quote = "\n>>No.${getItem(position).id}\n${context.getString(
+                                            R.string.report_reasons
+                                        )}: $text"
                                     )
                                 }
                                 cancelOnTouchOutside(false)
@@ -169,7 +174,17 @@ class PostsFragment : BaseNavFragment() {
                 )
                 icon(resourceId)
                 title(text = sharedVM.getForumDisplayName(forumId))
-                message(text = sharedVM.getForumMsg(forumId)) { html() }
+                message(text = sharedVM.getForumMsg(forumId)) {
+                    html { link ->
+                        val uri = if (link.startsWith("/")) {
+                            DawnConstants.nmbHost + link
+                        } else link
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uri))
+                        if (intent.resolveActivity(requireActivity().packageManager) != null) {
+                            startActivity(intent)
+                        }
+                    }
+                }
                 positiveButton(R.string.acknowledge)
             }
         }

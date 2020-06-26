@@ -310,7 +310,7 @@ class ProfileFragment : DaggerFragment() {
                     listItems(items = items) { _, index, _ ->
                         if (index == 0) {
                             val intent =
-                                Intent(Intent.ACTION_VIEW, Uri.parse(Constants.GITHUB_ADDRESS))
+                                Intent(Intent.ACTION_VIEW, Uri.parse(DawnConstants.GITHUB_ADDRESS))
                             if (intent.resolveActivity(requireActivity().packageManager) != null) {
                                 startActivity(intent)
                             }
@@ -318,7 +318,7 @@ class ProfileFragment : DaggerFragment() {
                             val intent = Intent(Intent.ACTION_SENDTO).apply {
                                 type = "*/*"
                                 data = Uri.parse("mailto:")
-                                putExtra(Intent.EXTRA_EMAIL, arrayOf(Constants.AUTHOR_EMAIL))
+                                putExtra(Intent.EXTRA_EMAIL, arrayOf(DawnConstants.AUTHOR_EMAIL))
                                 putExtra(
                                     Intent.EXTRA_SUBJECT,
                                     context.resources.getString(R.string.app_feed_back)

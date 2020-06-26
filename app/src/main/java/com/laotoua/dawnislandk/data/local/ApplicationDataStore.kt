@@ -8,7 +8,7 @@ import com.laotoua.dawnislandk.data.local.entity.NMBNotice
 import com.laotoua.dawnislandk.data.local.entity.Release
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
-import com.laotoua.dawnislandk.util.Constants
+import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.coroutineScope
@@ -40,49 +40,49 @@ class ApplicationDataStore @Inject constructor(
     val mmkv: MMKV by lazyOnMainOnly { MMKV.defaultMMKV() }
 
     // View settings
-    val letterSpace by lazyOnMainOnly { mmkv.getFloat(Constants.LETTER_SPACE, 0f) }
-    val lineHeight by lazyOnMainOnly { mmkv.getInt(Constants.LINE_HEIGHT, 0) }
-    val segGap by lazyOnMainOnly { mmkv.getInt(Constants.SEG_GAP, 0) }
-    val textSize by lazyOnMainOnly { mmkv.getFloat(Constants.MAIN_TEXT_SIZE, 15f) }
+    val letterSpace by lazyOnMainOnly { mmkv.getFloat(DawnConstants.LETTER_SPACE, 0f) }
+    val lineHeight by lazyOnMainOnly { mmkv.getInt(DawnConstants.LINE_HEIGHT, 0) }
+    val segGap by lazyOnMainOnly { mmkv.getInt(DawnConstants.SEG_GAP, 0) }
+    val textSize by lazyOnMainOnly { mmkv.getFloat(DawnConstants.MAIN_TEXT_SIZE, 15f) }
 
     // adapter settings
-    val animationStatus by lazyOnMainOnly { mmkv.getBoolean(Constants.ANIMATION, false) }
+    val animationStatus by lazyOnMainOnly { mmkv.getBoolean(DawnConstants.ANIMATION, false) }
     fun setAnimationStatus(status: Boolean) {
-        mmkv.putBoolean(Constants.ANIMATION, status)
+        mmkv.putBoolean(DawnConstants.ANIMATION, status)
     }
 
     // Reading settings
     val readingProgressStatus by lazyOnMainOnly {
         mmkv.getBoolean(
-            Constants.READING_PROGRESS,
+            DawnConstants.READING_PROGRESS,
             true
         )
     }
 
     fun setReadingProgressStatus(status: Boolean) {
-        mmkv.putBoolean(Constants.READING_PROGRESS, status)
+        mmkv.putBoolean(DawnConstants.READING_PROGRESS, status)
     }
 
     val displayTimeFormat by lazyOnMainOnly {
         mmkv.getString(
-            Constants.TIME_FORMAT,
-            Constants.DEFAULT_TIME_FORMAT
+            DawnConstants.TIME_FORMAT,
+            DawnConstants.DEFAULT_TIME_FORMAT
         )!!
     }
 
     fun setDisplayTimeFormat(format: String) {
-        mmkv.putString(Constants.TIME_FORMAT, format)
+        mmkv.putString(DawnConstants.TIME_FORMAT, format)
     }
 
 
     fun initializeFeedId() {
-        mFeedId = mmkv.getString(Constants.FEED_ID, null)
+        mFeedId = mmkv.getString(DawnConstants.FEED_ID, null)
         if (mFeedId == null) setFeedId(UUID.randomUUID().toString())
     }
 
     fun setFeedId(string: String) {
         mFeedId = string
-        mmkv.putString(Constants.FEED_ID, mFeedId)
+        mmkv.putString(DawnConstants.FEED_ID, mFeedId)
     }
 
     suspend fun loadCookies() {
@@ -154,11 +154,11 @@ class ApplicationDataStore @Inject constructor(
     }
 
     fun checkAcknowledgementPostingRule(): Boolean {
-        return mmkv.getBoolean(Constants.ACKNOWLEDGE_POSTING_RULES, false)
+        return mmkv.getBoolean(DawnConstants.ACKNOWLEDGE_POSTING_RULES, false)
     }
 
     fun acknowledgementPostingRule() {
-        mmkv.putBoolean(Constants.ACKNOWLEDGE_POSTING_RULES, true)
+        mmkv.putBoolean(DawnConstants.ACKNOWLEDGE_POSTING_RULES, true)
     }
 
     suspend fun getLatestRelease(): Release? {
@@ -184,26 +184,26 @@ class ApplicationDataStore @Inject constructor(
     }
 
     fun setFeedPagerDefaultPage(trendsIndex: Int, feedsIndex: Int) {
-        mmkv.putInt(Constants.TRENDS_FRAG_PAGER_INDEX, trendsIndex)
-        mmkv.putInt(Constants.FEEDS_FRAG_PAGER_INDEX, feedsIndex)
+        mmkv.putInt(DawnConstants.TRENDS_FRAG_PAGER_INDEX, trendsIndex)
+        mmkv.putInt(DawnConstants.FEEDS_FRAG_PAGER_INDEX, feedsIndex)
     }
 
     fun getFeedPagerPageIndices(): Pair<Int, Int> {
         return Pair(
-            mmkv.getInt(Constants.TRENDS_FRAG_PAGER_INDEX, 0),
-            mmkv.getInt(Constants.FEEDS_FRAG_PAGER_INDEX, 1)
+            mmkv.getInt(DawnConstants.TRENDS_FRAG_PAGER_INDEX, 0),
+            mmkv.getInt(DawnConstants.FEEDS_FRAG_PAGER_INDEX, 1)
         )
     }
 
     fun setHistoryPagerDefaultPage(browseIndex: Int, postIndex: Int) {
-        mmkv.putInt(Constants.BROWSING_HISTORY_FRAG_PAGER_INDEX, browseIndex)
-        mmkv.putInt(Constants.POST_HISTORY_FRAG_PAGER_INDEX, postIndex)
+        mmkv.putInt(DawnConstants.BROWSING_HISTORY_FRAG_PAGER_INDEX, browseIndex)
+        mmkv.putInt(DawnConstants.POST_HISTORY_FRAG_PAGER_INDEX, postIndex)
     }
 
     fun getHistoryPagerPageIndices(): Pair<Int, Int> {
         return Pair(
-            mmkv.getInt(Constants.BROWSING_HISTORY_FRAG_PAGER_INDEX, 0),
-            mmkv.getInt(Constants.POST_HISTORY_FRAG_PAGER_INDEX, 1)
+            mmkv.getInt(DawnConstants.BROWSING_HISTORY_FRAG_PAGER_INDEX, 0),
+            mmkv.getInt(DawnConstants.POST_HISTORY_FRAG_PAGER_INDEX, 1)
         )
     }
 }

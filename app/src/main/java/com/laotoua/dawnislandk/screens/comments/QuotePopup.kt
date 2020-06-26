@@ -19,7 +19,7 @@ import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformCooki
 import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformTime
 import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
 import com.laotoua.dawnislandk.screens.widget.span.ReferenceSpan
-import com.laotoua.dawnislandk.util.Constants
+import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.GlideApp
 import com.laotoua.dawnislandk.util.LoadingStatus
@@ -118,7 +118,7 @@ class QuotePopup(
         findViewById<ImageView>(R.id.attachedImage).run {
             visibility = if (quote.img != "") {
                 GlideApp.with(context)
-                    .load(Constants.thumbCDN + quote.img + quote.ext)
+                    .load(DawnConstants.thumbCDN + quote.img + quote.ext)
 //                    .override(250, 250)
                     .fitCenter()
                     .into(this)

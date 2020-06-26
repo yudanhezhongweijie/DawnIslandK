@@ -2,7 +2,7 @@ package com.laotoua.dawnislandk.di
 
 import com.laotoua.dawnislandk.data.remote.NMBService
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
-import com.laotoua.dawnislandk.util.Constants
+import com.laotoua.dawnislandk.util.DawnConstants
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
@@ -23,7 +23,7 @@ object NMBNetworkModule {
             .writeTimeout(30, TimeUnit.SECONDS)
             .build()
         return Retrofit.Builder()
-            .baseUrl(Constants.baseCDN)
+            .baseUrl(DawnConstants.baseCDN)
             .client(okHttpClient)
             .build()
             .create(NMBService::class.java)

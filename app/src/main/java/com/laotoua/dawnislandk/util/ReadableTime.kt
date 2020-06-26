@@ -20,7 +20,6 @@ import android.content.Context
 import android.content.res.Resources
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
-import timber.log.Timber
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -56,7 +55,7 @@ object ReadableTime {
     val DATE_ONLY_FORMAT = SimpleDateFormat("yyyy-MM-dd", localInstance)
     private val SERVER_DATETIME_FORMAT = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", localInstance)
     private val DATETIME_FORMAT = SimpleDateFormat("yy/MM/dd HH:mm", localInstance)
-    private val DATETIME_FORMAT_WITHOUT_YEAR = SimpleDateFormat("MM/dd HH:mm:ss", localInstance)
+    private val DATETIME_FORMAT_WITHOUT_YEAR = SimpleDateFormat("MM/dd HH:mm", localInstance)
     private val TIME_FORMAT = SimpleDateFormat("HH:mm:ss", localInstance)
     private val FILENAME_DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", localInstance)
     private val sCalendarLock = Any()
@@ -129,9 +128,13 @@ object ReadableTime {
             val timeDate = Date(time)
             sCalendar.time = nowDate
             val nowYear = sCalendar[Calendar.YEAR]
+            val nowDayOfYear = sCalendar[Calendar.DAY_OF_YEAR]
             sCalendar.time = timeDate
             val timeYear = sCalendar[Calendar.YEAR]
-            return if (nowYear == timeYear) {
+            val timeDayOfYear = sCalendar[Calendar.DAY_OF_YEAR]
+            return if (nowYear == timeYear && nowDayOfYear == timeDayOfYear) {
+                TIME_FORMAT.format(timeDate)
+            } else if (nowYear == timeYear) {
                 DATETIME_FORMAT_WITHOUT_YEAR.format(timeDate)
             } else {
                 DATETIME_FORMAT.format(timeDate)
@@ -159,54 +162,57 @@ object ReadableTime {
         if (time > now + 2 * MINUTE_MILLIS || time <= 0) {
             return resources.getString(R.string.from_the_future)
         }
-        return if (diff < MINUTE_MILLIS) {
+        val diffInterval = getTimeInterval(diff)
+        return if (diffInterval.sameMinute) {
             resources.getString(R.string.just_now)
-        } else if (diff < 2 * MINUTE_MILLIS) {
-            resources.getQuantityString(R.plurals.some_minutes_ago, 1, 1)
-        } else if (diff < 50 * MINUTE_MILLIS) {
-            val minutes = (diff / MINUTE_MILLIS).toInt()
-            resources.getQuantityString(R.plurals.some_minutes_ago, minutes, minutes)
-        } else if (diff < 90 * MINUTE_MILLIS) {
-            resources.getQuantityString(R.plurals.some_hours_ago, 1, 1)
-        } else if (diff < 24 * HOUR_MILLIS) {
-            val hours = (diff / HOUR_MILLIS).toInt()
-            resources.getQuantityString(R.plurals.some_hours_ago, hours, hours)
-        } else if (diff < 48 * HOUR_MILLIS) {
+        } else if (diffInterval.sameHour) {
+            resources.getString(R.string.some_minutes_ago, diffInterval.minuteDiff)
+        } else if (diffInterval.sameDay) {
+            resources.getString(R.string.some_hours_ago, diffInterval.hourDiff)
+        } else if (diffInterval.sameYear && diffInterval.dayDiff < 2) {
             resources.getString(R.string.yesterday)
-        } else if (diff < WEEK_MILLIS) {
-            val days = (diff / DAY_MILLIS).toInt()
-            resources.getString(R.string.some_days_ago, days)
+        } else if (diffInterval.sameYear && diffInterval.dayDiff < 7) {
+            resources.getString(R.string.some_days_ago, diffInterval.dayDiff)
         } else {
             getPlainDisplayTime(time)
         }
     }
 
-    fun getTimeInterval(time: Long): String {
-        val sb = StringBuilder()
-        val resources = sResources
+    private fun getTimeInterval(time: Long): TimeDiffInterval {
         var leftover = time
-        var start = false
+        val intervals = mutableListOf<Int>()
         for (i in 0 until SIZE) {
             val multiple = MULTIPLES[i]
             val quotient = leftover / multiple
             val remainder = leftover % multiple
-            if (start || quotient != 0L || i == SIZE - 1) {
-                if (start) {
-                    sb.append(" ")
-                }
-                sb.append(quotient)
-                    .append(" ")
-                    .append(resources!!.getQuantityString(UNITS[i], quotient.toInt()))
-                start = true
-            }
+            intervals.add(quotient.toInt())
             leftover = remainder
         }
-        return sb.toString()
+        return TimeDiffInterval(
+            intervals[0],
+            intervals[1],
+            intervals[2],
+            intervals[3],
+            intervals[4]
+        )
     }
 
     fun getCurrentTimeFileName(): String {
         synchronized(
             sDateFormatLock2
         ) { return FILENAME_DATE_FORMAT.format(Date(System.currentTimeMillis())) }
+    }
+
+    private class TimeDiffInterval(
+        val yearDiff: Int,
+        val dayDiff: Int,
+        val hourDiff: Int,
+        val minuteDiff: Int,
+        val secondDiff: Int
+    ) {
+        val sameYear: Boolean = yearDiff == 0
+        val sameDay: Boolean = sameYear && dayDiff == 0
+        val sameHour: Boolean = sameDay && hourDiff == 0
+        val sameMinute: Boolean = sameHour && minuteDiff == 0
     }
 }

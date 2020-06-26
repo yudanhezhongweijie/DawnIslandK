@@ -29,7 +29,11 @@ data class Comment(
     @Ignore
     var visible: Boolean = true
 
-    fun getSimplifiedTitle(): String = if (title.isNotBlank() && title != "无标题") "标题：$title" else ""
+    fun getSimplifiedTitle(): String =
+        if (isAd()) "广告"
+        else if (title.isNotBlank() && title != "无标题") "标题：$title"
+        else ""
+
     fun getSimplifiedName(): String = if (name.isNotBlank() && name != "无名氏") "作者：$name" else ""
 
     fun getImgUrl(): String = (img + ext)

@@ -2,8 +2,12 @@ package com.laotoua.dawnislandk.screens.adapters
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.Typeface
+import android.text.Spannable
 import android.text.SpannableString
 import android.text.Spanned
+import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -22,8 +26,9 @@ fun BaseViewHolder.convertUserId(userId: String, admin: String, po: String = "")
     setText(R.id.userId, ContentTransformation.transformCookie(userId, admin, po))
 }
 
-fun BaseViewHolder.convertTimeStamp(now: String) {
+fun BaseViewHolder.convertTimeStamp(now: String, isAd: Boolean = false) {
     setText(R.id.timestamp, ContentTransformation.transformTime(now))
+    setGone(R.id.timestamp, isAd)
 }
 
 fun BaseViewHolder.convertTimeStamp(now: Long) {
@@ -39,41 +44,47 @@ fun BaseViewHolder.convertForumAndReplyCount(replyCount: String, forumDisplayNam
             Color.parseColor("#FFFFFF")
         ), 0, spannableString.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE
     )
-
-    getView<TextView>(R.id.forumAndReplyCount)
-        .setText(spannableString, TextView.BufferType.SPANNABLE)
+    getView<TextView>(R.id.forumAndReplyCount).setText(
+        spannableString,
+        TextView.BufferType.SPANNABLE
+    )
 }
 
-fun BaseViewHolder.convertRefId(context: Context, id: String) {
-    // TODO: handle ads
+fun BaseViewHolder.convertRefId(context: Context, id: String, isAd: Boolean = false) {
     setText(R.id.refId, context.resources.getString(R.string.ref_id_formatted, id))
+    setGone(R.id.refId, isAd)
 }
 
 fun BaseViewHolder.convertTitleAndName(
     title: String,
     name: String,
-    visible: Boolean = true
+    visible: Boolean = true,
+    isAd: Boolean = false
 ) {
     if (title.isNotBlank() && visible) {
-        setText(R.id.title, title)
-        setVisible(R.id.title, true)
-    } else {
-        setGone(R.id.title, true)
+        val span = SpannableString(title)
+        if (isAd) {
+            val adminColor = ForegroundColorSpan(Color.parseColor("#FF0F0F"))
+            span.setSpan(adminColor, 0, span.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            span.setSpan(
+                StyleSpan(Typeface.BOLD),
+                0,
+                span.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+        getView<TextView>(R.id.title).setText(span, TextView.BufferType.SPANNABLE)
     }
+    setGone(R.id.title, title.isBlank() || !visible)
+
     if (name.isNotBlank() && visible) {
         setText(R.id.name, name)
-        setVisible(R.id.name, true)
-    } else {
-        setGone(R.id.name, true)
     }
+    setGone(R.id.name, name.isBlank() || !visible)
 }
 
 fun BaseViewHolder.convertSage(sage: String?) {
-    if (sage == "1") {
-        setVisible(R.id.sage, true)
-    } else {
-        setGone(R.id.sage, true)
-    }
+    setGone(R.id.sage, sage != "1")
 }
 
 fun BaseViewHolder.convertImage(imgUrl: String, visible: Boolean = true) {
@@ -102,8 +113,7 @@ fun BaseViewHolder.convertContent(
         referenceClickListener = referenceClickListener
     )
     if (res.isNotBlank()) setText(R.id.content, res)
-    if (res.isBlank() || !visible) setGone(R.id.content, true)
-    else setVisible(R.id.content, true)
+    setGone(R.id.content, res.isBlank() || !visible)
 }
 
 fun BaseViewHolder.convertExpandSummary(context: Context, visible: Boolean) {
@@ -115,10 +125,8 @@ fun BaseViewHolder.convertExpandSummary(context: Context, visible: Boolean) {
                 getView<TextView>(R.id.content).text.count()
             )
         )
-        setVisible(R.id.expandSummary, true)
-    } else {
-        setGone(R.id.expandSummary, true)
     }
+    setGone(R.id.expandSummary, visible)
 }
 
 fun View.applyTextSizeAndLetterSpacing(clickable: Boolean = false) = apply {

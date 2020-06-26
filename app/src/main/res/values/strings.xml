@@ -2,15 +2,10 @@
     <string name="app_name" translatable="false">黎明岛K</string>
 
     <string name="just_now" translatable="false">刚刚</string>
-    <plurals name="some_minutes_ago">
-        <item quantity="other">%d 分钟前</item>
-    </plurals>
-    <plurals name="some_hours_ago">
-        <item quantity="other">%d 小时前</item>
-    </plurals>
+    <string name="some_minutes_ago">%d 分钟前</string>
+    <string name="some_hours_ago">%d 小时前</string>
     <string name="yesterday" translatable="false">昨天</string>
     <string name="some_days_ago" translatable="false">%d 天前</string>
-
     <string name="from_the_future" translatable="false">来自未来</string>
     <plurals name="second">
         <item quantity="other">秒</item>

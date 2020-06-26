@@ -131,12 +131,12 @@ class QuickAdapter<T>(
 
     private fun BaseViewHolder.convertComment(item: Comment, po: String) {
         convertUserId(item.userid, item.admin, po)
-        convertTimeStamp(item.now)
+        convertTimeStamp(item.now, item.isAd())
         convertSage(item.sage)
-        convertRefId(context, item.id)
+        convertRefId(context, item.id,item.isAd())
         convertImage(item.getImgUrl(), item.visible)
         convertContent(context, item.content, referenceClickListener, item.visible)
-        convertTitleAndName(item.getSimplifiedTitle(), item.getSimplifiedName(), item.visible)
+        convertTitleAndName(item.getSimplifiedTitle(), item.getSimplifiedName(), item.visible, item.isAd())
         convertExpandSummary(context, item.visible)
         hideCommentMenu()
     }

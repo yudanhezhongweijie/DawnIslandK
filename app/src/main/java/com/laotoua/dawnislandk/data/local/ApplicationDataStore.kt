@@ -47,6 +47,9 @@ class ApplicationDataStore @Inject constructor(
 
     // adapter settings
     val animationStatus by lazyOnMainOnly { mmkv.getBoolean(Constants.ANIMATION, false) }
+    fun setAnimationStatus(status: Boolean) {
+        mmkv.putBoolean(Constants.ANIMATION, status)
+    }
 
     // Reading settings
     val readingProgressStatus by lazyOnMainOnly {
@@ -54,6 +57,21 @@ class ApplicationDataStore @Inject constructor(
             Constants.READING_PROGRESS,
             true
         )
+    }
+
+    fun setReadingProgressStatus(status: Boolean) {
+        mmkv.putBoolean(Constants.READING_PROGRESS, status)
+    }
+
+    val displayTimeFormat by lazyOnMainOnly {
+        mmkv.getString(
+            Constants.TIME_FORMAT,
+            Constants.DEFAULT_TIME_FORMAT
+        )!!
+    }
+
+    fun setDisplayTimeFormat(format: String) {
+        mmkv.putString(Constants.TIME_FORMAT, format)
     }
 
 
@@ -71,7 +89,7 @@ class ApplicationDataStore @Inject constructor(
         mCookies = cookieDao.getAll().toMutableList()
     }
 
-    fun getCookieDisplayName(cookieName: String):String? =
+    fun getCookieDisplayName(cookieName: String): String? =
         cookies.firstOrNull { it.cookieName == cookieName }?.cookieDisplayName
 
     suspend fun addCookie(cookie: Cookie) {

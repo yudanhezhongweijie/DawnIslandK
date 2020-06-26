@@ -69,10 +69,7 @@ object ReadableTime {
 
     fun initialize(context: Context) {
         sResources = context.applicationContext.resources
-        timeFormat = DawnApp.applicationDataStore.mmkv.getString(
-            Constants.TIME_FORMAT,
-            Constants.DEFAULT_TIME_FORMAT
-        )
+        timeFormat = DawnApp.applicationDataStore.displayTimeFormat
     }
 
     fun getTodayDateLong(): Long {

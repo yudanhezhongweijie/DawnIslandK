@@ -114,12 +114,11 @@ class ProfileFragment : DaggerFragment() {
         }
 
         binding.timeFormat.apply {
-            val mmkvKey = Constants.TIME_FORMAT
             key.setText(R.string.time_display_format)
             val entries = resources.getStringArray(R.array.time_format_entries)
             val values = resources.getStringArray(R.array.time_format_values)
             summary.text =
-                if (values.first() == applicationDataStore.mmkv.getString(mmkvKey, "")) {
+                if (values.first() == applicationDataStore.displayTimeFormat) {
                     entries.first()
                 } else {
                     entries.last()
@@ -129,7 +128,7 @@ class ProfileFragment : DaggerFragment() {
                 MaterialDialog(requireContext()).show {
                     title(R.string.time_display_format)
                     listItems(R.array.time_format_entries) { _, index, text ->
-                        applicationDataStore.mmkv.putString(mmkvKey, values[index])
+                        applicationDataStore.setDisplayTimeFormat(values[index])
                         summary.text = text
                         Toast.makeText(
                             context,
@@ -142,13 +141,16 @@ class ProfileFragment : DaggerFragment() {
         }
 
         binding.useReadingProgress.apply {
-            val mmkvKey = Constants.READING_PROGRESS
             key.setText(R.string.saves_reading_progress)
             preferenceSwitch.visibility = View.VISIBLE
-            preferenceSwitch.isChecked = applicationDataStore.mmkv.getBoolean(mmkvKey, false)
+            preferenceSwitch.isChecked = applicationDataStore.readingProgressStatus
             updateSwitchSummary(R.string.reading_progress_on, R.string.reading_progress_off)
             root.setOnClickListener {
-                toggleSwitch(mmkvKey, R.string.reading_progress_on, R.string.reading_progress_off)
+                toggleSwitch(
+                    applicationDataStore::setReadingProgressStatus,
+                    R.string.reading_progress_on,
+                    R.string.reading_progress_off
+                )
                 Toast.makeText(
                     context,
                     R.string.restart_to_apply_setting,
@@ -158,13 +160,16 @@ class ProfileFragment : DaggerFragment() {
         }
 
         binding.animationSwitch.apply {
-            val mmkvKey = Constants.ANIMATION
             key.setText(R.string.animation_on_off)
             preferenceSwitch.visibility = View.VISIBLE
-            preferenceSwitch.isChecked = applicationDataStore.mmkv.getBoolean(mmkvKey, false)
+            preferenceSwitch.isChecked = applicationDataStore.animationStatus
             updateSwitchSummary(R.string.animation_on, R.string.animation_off)
             root.setOnClickListener {
-                toggleSwitch(mmkvKey, R.string.animation_on, R.string.animation_off)
+                toggleSwitch(
+                    applicationDataStore::setAnimationStatus,
+                    R.string.animation_on,
+                    R.string.animation_off
+                )
                 Toast.makeText(
                     context,
                     R.string.restart_to_apply_setting,
@@ -239,10 +244,12 @@ class ProfileFragment : DaggerFragment() {
                             }
                             negativeButton(R.string.cancel)
                             cookieName.doOnTextChanged { text, _, _, _ ->
-                                submitButton.isEnabled = !text.isNullOrBlank() && !cookieHash.text.isNullOrBlank()
+                                submitButton.isEnabled =
+                                    !text.isNullOrBlank() && !cookieHash.text.isNullOrBlank()
                             }
                             cookieHash.doOnTextChanged { text, _, _, _ ->
-                                submitButton.isEnabled = !text.isNullOrBlank() && !cookieName.text.isNullOrBlank()
+                                submitButton.isEnabled =
+                                    !text.isNullOrBlank() && !cookieName.text.isNullOrBlank()
                                 neuralButton.isEnabled = !text.isNullOrBlank()
                             }
                             neutralButton(R.string.default_cookie_name) {
@@ -384,12 +391,12 @@ class ProfileFragment : DaggerFragment() {
     }
 
     private fun ListItemPreferenceBinding.toggleSwitch(
-        mmkvKey: String,
+        toggleFunc: (Boolean) -> Unit,
         summaryOn: Int,
         summaryOff: Int
     ) {
         preferenceSwitch.toggle()
-        applicationDataStore.mmkv.putBoolean(mmkvKey, preferenceSwitch.isChecked)
+        toggleFunc(preferenceSwitch.isChecked)
         updateSwitchSummary(summaryOn, summaryOff)
     }
 

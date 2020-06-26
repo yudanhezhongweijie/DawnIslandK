@@ -43,6 +43,10 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun addNewCookie(cookieHash: String, cookieDisplayName: String? = null) {
+        if (cookieHash.isBlank()) {
+            Timber.e("Trying to add empty cookie")
+            return
+        }
         viewModelScope.launch {
             _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.LOADING))
             val cookieName = getDefaultCookieName(cookieHash)
@@ -67,7 +71,7 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    suspend fun getDefaultCookieName(cookieHash: String): String {
+    private suspend fun getDefaultCookieName(cookieHash: String): String {
         val randomString = (1..randomTestLength)
             .map { Random.nextInt(0, charPool.length) }
             .map(charPool::get)

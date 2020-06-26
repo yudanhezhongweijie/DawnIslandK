@@ -224,24 +224,32 @@ class ProfileFragment : DaggerFragment() {
                         2 -> MaterialDialog(requireContext()).show {
                             title(R.string.add_cookie)
                             customView(R.layout.dialog_cookie_addition)
+                            val submitButton = getActionButton(WhichButton.POSITIVE)
+                            val neuralButton = getActionButton(WhichButton.NEUTRAL)
+                            val cookieName = findViewById<EditText>(R.id.cookieNameText)
+                            val cookieHash = findViewById<EditText>(R.id.cookieHashText)
+                            submitButton.isEnabled = false
+                            neuralButton.isEnabled = false
                             positiveButton(R.string.submit) {
-                                val cookieName =
-                                    findViewById<EditText>(R.id.cookieNameText).text
-                                val cookieHash =
-                                    findViewById<EditText>(R.id.cookieHashText).text
-                                if (cookieHash.toString().isNotBlank()) {
-                                    viewModel.addNewCookie(
-                                        cookieHash.toString(),
-                                        cookieName.toString()
-                                    )
-                                    cookieHash.clear()
-                                    cookieName.clear()
+                                val cookieNameText = cookieName.text.toString()
+                                val cookieHashText = cookieHash.text.toString()
+                                if (cookieHashText.isNotBlank() && cookieNameText.isNotBlank()) {
+                                    viewModel.addNewCookie(cookieHashText, cookieNameText)
                                 }
                             }
                             negativeButton(R.string.cancel)
-                            findViewById<EditText>(R.id.cookieHashText).doOnTextChanged { text, _, _, _ ->
-                                getActionButton(WhichButton.POSITIVE).isEnabled =
-                                    !text.isNullOrBlank()
+                            cookieName.doOnTextChanged { text, _, _, _ ->
+                                submitButton.isEnabled = !text.isNullOrBlank() && !cookieHash.text.isNullOrBlank()
+                            }
+                            cookieHash.doOnTextChanged { text, _, _, _ ->
+                                submitButton.isEnabled = !text.isNullOrBlank() && !cookieName.text.isNullOrBlank()
+                                neuralButton.isEnabled = !text.isNullOrBlank()
+                            }
+                            neutralButton(R.string.default_cookie_name) {
+                                val cookieHashText = cookieHash.text.toString()
+                                if (cookieHashText.isNotBlank()) {
+                                    viewModel.addNewCookie(cookieHashText)
+                                }
                             }
                         }
                     }
@@ -325,7 +333,10 @@ class ProfileFragment : DaggerFragment() {
         view.edit.setOnClickListener {
             MaterialDialog(requireContext()).show {
                 title(R.string.edit_cookie_remark)
-                input(prefill = cookie.cookieDisplayName, hint = cookie.cookieDisplayName) { _, text ->
+                input(
+                    prefill = cookie.cookieDisplayName,
+                    hint = cookie.cookieDisplayName
+                ) { _, text ->
                     // Text submitted with the action button
                     cookie.cookieDisplayName = text.toString()
                     viewModel.updateCookie(cookie)
@@ -367,7 +378,6 @@ class ProfileFragment : DaggerFragment() {
             }
             positiveButton(R.string.submit)
             negativeButton(R.string.default_cookie_name) {
-                dismiss()
                 viewModel.addNewCookie(cookieHash)
             }
         }

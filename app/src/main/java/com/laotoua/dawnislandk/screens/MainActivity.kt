@@ -87,6 +87,16 @@ class MainActivity : DaggerAppCompatActivity() {
 
         bindNavBarAndNavController()
 
+        val action: String? = intent?.action
+        val data: Uri? = intent?.data
+        if (action == Intent.ACTION_VIEW && data != null) {
+            val threadId = data.toString().substringAfterLast("/")
+            if (threadId.isNotBlank()) {
+                sharedVM.setPost(threadId, "")
+                showComment()
+            }
+        }
+
         sharedVM.communityList.observe(this, Observer<List<Community>> {
             if (it.isNullOrEmpty()) return@Observer
             forumDrawer.setData(it)
@@ -164,16 +174,17 @@ class MainActivity : DaggerAppCompatActivity() {
 
     private fun bindNavBarAndNavController() {
         val navHostFragment = supportFragmentManager
-            .findFragmentById(R.id.navHostFragment) as NavHostFragment
-        val navController = navHostFragment.navController
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            currentFragmentId = destination.id
+            .findFragmentById(R.id.navHostFragment)
+        if (navHostFragment is NavHostFragment) {
+            val navController = navHostFragment.navController
+            navController.addOnDestinationChangedListener { _, destination, _ ->
+                currentFragmentId = destination.id
+            }
+            binding.bottomNavBar.setupWithNavController(navController)
+            binding.bottomNavBar.setOnNavigationItemReselectedListener { item: MenuItem ->
+                if (item.itemId == R.id.postsFragment) showDrawer()
+            }
         }
-        binding.bottomNavBar.setupWithNavController(navController)
-        binding.bottomNavBar.setOnNavigationItemReselectedListener { item: MenuItem ->
-            if (item.itemId == R.id.postsFragment) showDrawer()
-        }
-
     }
 
     override fun onBackPressed() {

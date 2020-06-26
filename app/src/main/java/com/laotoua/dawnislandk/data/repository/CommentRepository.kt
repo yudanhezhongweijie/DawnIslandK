@@ -161,8 +161,10 @@ class CommentRepository @Inject constructor(
             webService.getComments(currentPostId, page).run {
                 if (this is APIDataResponse.APISuccessDataResponse) convertServerData(data, page)
                 else {
-                    Timber.e(message)
-                    setLoadingStatus(LoadingStatus.FAILED, "无法读取串回复...\n$message")
+                    if (pageDownloadJob?.isCompleted == true) {
+                        Timber.e(message)
+                        setLoadingStatus(LoadingStatus.FAILED, "无法读取串回复...\n$message")
+                    }
                 }
             }
         }

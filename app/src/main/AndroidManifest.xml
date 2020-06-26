@@ -20,17 +20,30 @@
         android:name=".DawnApp"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:allowBackup="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/DawnTheme">
+        android:theme="@style/DawnTheme"
+        android:fullBackupContent="@xml/backup_descriptor">
         <activity
             android:name=".screens.MainActivity"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="adnmb.com" />
+                <data android:host="adnmb1.com" />
+                <data android:host="adnmb2.com" />
+                <data android:pathPrefix="/t/" />
+            </intent-filter>
+
         </activity>
         <activity android:name="com.laotoua.dawnislandk.screens.tasks.DoodleActivity" />
         <activity android:name="com.laotoua.dawnislandk.screens.tasks.QRCookieActivity" />

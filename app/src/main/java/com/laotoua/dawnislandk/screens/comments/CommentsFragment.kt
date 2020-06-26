@@ -337,6 +337,7 @@ class CommentsFragment : DaggerFragment() {
     private val selectedPostIdObs = Observer<String> {
         if (it != viewModel.currentPostId) {
             mAdapter.setList(emptyList())
+            binding.filter.isActivated = false
             binding.pageCounter.text = ""
             currentPage = 0
             showMenu()

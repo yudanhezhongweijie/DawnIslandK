@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">A岛黎明版K</string>
+    <string name="app_name" translatable="false">黎明岛K</string>
 
     <string name="just_now" translatable="false">刚刚</string>
     <plurals name="some_minutes_ago">

@@ -74,6 +74,7 @@ class MainActivity : DaggerAppCompatActivity() {
     init {
         // load Resources
         lifecycleScope.launch { loadResources() }
+        applicationDataStore.initializeFeedId()
     }
 
     // uses to display fab menu if it exists
@@ -150,7 +151,6 @@ class MainActivity : DaggerAppCompatActivity() {
         }
 
         applicationDataStore.loadCookies()
-        applicationDataStore.initializeFeedId()
         applicationDataStore.getLatestNMBNotice()?.let { notice ->
             MaterialDialog(this).show {
                 title(res = R.string.announcement)

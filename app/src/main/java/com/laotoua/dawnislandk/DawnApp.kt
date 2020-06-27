@@ -28,14 +28,15 @@ class DawnApp : DaggerApplication() {
 
     override fun onCreate() {
         super.onCreate()
-        Timber.plant(Timber.DebugTree())
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
 
         applicationDataStore = mApplicationDataStore
 
         // MMKV
         MMKV.initialize(this)
         MMKV.registerHandler(handler)
-
         // Time
         ReadableTime.initialize(this)
     }
@@ -77,7 +78,6 @@ class DawnApp : DaggerApplication() {
         override fun onMMKVFileLengthError(p0: String?): MMKVRecoverStrategic {
             throw Exception("onMMKVFileLengthError $p0")
         }
-
     }
 }
 

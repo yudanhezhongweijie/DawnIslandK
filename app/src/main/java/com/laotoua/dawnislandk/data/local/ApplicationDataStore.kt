@@ -34,10 +34,10 @@ class ApplicationDataStore @Inject constructor(
     var nmbNotice: NMBNotice? = null
         private set
 
-    private var mFeedId: String? = null
-    val feedId get() = mFeedId!!
-
     val mmkv: MMKV by lazyOnMainOnly { MMKV.defaultMMKV() }
+
+    var feedId: String = ""
+        private set
 
     // View settings
     val letterSpace by lazyOnMainOnly { mmkv.getFloat(DawnConstants.LETTER_SPACE, 0f) }
@@ -51,8 +51,14 @@ class ApplicationDataStore @Inject constructor(
         mmkv.putInt(DawnConstants.ANIMATION_OPTION, option)
     }
 
-    val animationFirstOnly by lazyOnMainOnly { mmkv.getBoolean(DawnConstants.ANIMATION_FIRST_ONLY, false) }
-    fun setAnimationFirstOnly(status: Boolean){
+    val animationFirstOnly by lazyOnMainOnly {
+        mmkv.getBoolean(
+            DawnConstants.ANIMATION_FIRST_ONLY,
+            false
+        )
+    }
+
+    fun setAnimationFirstOnly(status: Boolean) {
         mmkv.putBoolean(DawnConstants.ANIMATION_FIRST_ONLY, status)
     }
 
@@ -81,13 +87,15 @@ class ApplicationDataStore @Inject constructor(
 
 
     fun initializeFeedId() {
-        mFeedId = mmkv.getString(DawnConstants.FEED_ID, null)
-        if (mFeedId == null) setFeedId(UUID.randomUUID().toString())
+        feedId = mmkv.getString(DawnConstants.FEED_ID, "")!!
+        if (feedId.isBlank()) {
+            feedId = UUID.randomUUID().toString()
+            updateFeedId(feedId)
+        }
     }
-
-    fun setFeedId(string: String) {
-        mFeedId = string
-        mmkv.putString(DawnConstants.FEED_ID, mFeedId)
+    fun updateFeedId(id: String) {
+        feedId = id
+        mmkv.putString(DawnConstants.FEED_ID, id)
     }
 
     suspend fun loadCookies() {

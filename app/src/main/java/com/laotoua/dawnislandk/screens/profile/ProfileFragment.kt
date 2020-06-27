@@ -101,7 +101,7 @@ class ProfileFragment : DaggerFragment() {
                     title(R.string.feedId)
                     input(hint = feedId, prefill = feedId) { _, text ->
                         feedId = text.toString()
-                        applicationDataStore.setFeedId(feedId)
+                        applicationDataStore.updateFeedId(feedId)
                         summary.text = feedId
                         displayRestartToApplySettingsToast()
                     }
@@ -278,7 +278,7 @@ class ProfileFragment : DaggerFragment() {
                         GlobalScope.launch {
                             applicationDataStore.nukeCommentTable()
                             Toast.makeText(
-                                context,
+                                this@ProfileFragment.context,
                                 R.string.cleared_comment_cache_message,
                                 Toast.LENGTH_SHORT
                             ).show()

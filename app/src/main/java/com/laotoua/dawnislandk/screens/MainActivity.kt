@@ -173,17 +173,16 @@ class MainActivity : DaggerAppCompatActivity() {
     }
 
     private fun bindNavBarAndNavController() {
-        val navHostFragment = supportFragmentManager
-            .findFragmentById(R.id.navHostFragment)
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.navHostFragment)
         if (navHostFragment is NavHostFragment) {
             val navController = navHostFragment.navController
             navController.addOnDestinationChangedListener { _, destination, _ ->
                 currentFragmentId = destination.id
             }
-            binding.bottomNavBar.setupWithNavController(navController)
             binding.bottomNavBar.setOnNavigationItemReselectedListener { item: MenuItem ->
                 if (item.itemId == R.id.postsFragment) showDrawer()
             }
+            binding.bottomNavBar.setupWithNavController(navController)
         }
     }
 

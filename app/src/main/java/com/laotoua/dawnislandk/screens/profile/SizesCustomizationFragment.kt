@@ -41,6 +41,7 @@ class SizesCustomizationFragment : Fragment() {
     private val lineHeight = 12
     private val segGap = 13
 
+    private var settingsChanged = false
     private val mmkv = DawnApp.applicationDataStore.mmkv
 
     private val rootView by lazy { LinearLayout(context) }
@@ -262,9 +263,9 @@ class SizesCustomizationFragment : Fragment() {
     inner class CardSettingSeekBar :
         SeekBar.OnSeekBarChangeListener {
         override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+            if (fromUser) settingsChanged = true
             var res = progress
             val cardLayoutParams = demoCard.layoutParams as MarginLayoutParams
-
             val contentView: View = demoCard.findViewById(R.id.content)
             when (seekBar.id) {
                 mainTextSize -> {
@@ -393,7 +394,9 @@ class SizesCustomizationFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        Toast.makeText(context, R.string.restart_to_apply_setting, Toast.LENGTH_SHORT).show()
+        if (settingsChanged) {
+            Toast.makeText(context, R.string.restart_to_apply_setting, Toast.LENGTH_SHORT).show()
+        }
 
         // showNav
         (requireActivity() as MainActivity).showNav()

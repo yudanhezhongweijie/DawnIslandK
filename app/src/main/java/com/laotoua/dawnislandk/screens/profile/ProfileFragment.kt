@@ -101,11 +101,7 @@ class ProfileFragment : DaggerFragment() {
                         feedId = text.toString()
                         applicationDataStore.setFeedId(feedId)
                         summary.text = feedId
-                        Toast.makeText(
-                            context,
-                            R.string.restart_to_apply_setting,
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        displayRestartToApplySettingsToast()
                     }
                     positiveButton(R.string.submit)
                     negativeButton(R.string.cancel)
@@ -130,11 +126,7 @@ class ProfileFragment : DaggerFragment() {
                     listItems(R.array.time_format_entries) { _, index, text ->
                         applicationDataStore.setDisplayTimeFormat(values[index])
                         summary.text = text
-                        Toast.makeText(
-                            context,
-                            R.string.restart_to_apply_setting,
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        displayRestartToApplySettingsToast()
                     }
                 }
             }
@@ -151,11 +143,7 @@ class ProfileFragment : DaggerFragment() {
                     R.string.reading_progress_on,
                     R.string.reading_progress_off
                 )
-                Toast.makeText(
-                    context,
-                    R.string.restart_to_apply_setting,
-                    Toast.LENGTH_SHORT
-                ).show()
+                displayRestartToApplySettingsToast()
             }
         }
 
@@ -170,11 +158,7 @@ class ProfileFragment : DaggerFragment() {
                     R.string.animation_on,
                     R.string.animation_off
                 )
-                Toast.makeText(
-                    context,
-                    R.string.restart_to_apply_setting,
-                    Toast.LENGTH_SHORT
-                ).show()
+                displayRestartToApplySettingsToast()
             }
         }
 
@@ -406,6 +390,10 @@ class ProfileFragment : DaggerFragment() {
         } else {
             summary.setText(summaryOff)
         }
+    }
+
+    private fun displayRestartToApplySettingsToast() {
+        Toast.makeText(context, R.string.restart_to_apply_setting, Toast.LENGTH_SHORT).show()
     }
 
     override fun onDestroyView() {

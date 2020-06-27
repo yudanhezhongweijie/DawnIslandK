@@ -103,7 +103,6 @@ class ProfileFragment : DaggerFragment() {
                         feedId = text.toString()
                         applicationDataStore.updateFeedId(feedId)
                         summary.text = feedId
-                        displayRestartToApplySettingsToast()
                     }
                     positiveButton(R.string.submit)
                     negativeButton(R.string.cancel)

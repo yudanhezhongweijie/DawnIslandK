@@ -47,6 +47,7 @@ class SharedViewModel @Inject constructor(
     private var _selectedPostFid: String = "-1"
     val selectedPostFid get() = _selectedPostFid
 
+    // TODO: use
     private val _savePostStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
     val savePostStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>> get() = _savePostStatus
 
@@ -157,12 +158,12 @@ class SharedViewModel @Inject constructor(
     }
 
     fun searchAndSavePost(
-        cookieName: String,
-        postTargetId: String, // do not have this when sending a newPost
-        postTargetPage: Int,
-        postTargetFid: String,
         newPost: Boolean,// false if replying
-        content: String //content
+        postTargetId: String, // equals postTargetFid when sending a new Post
+        postTargetFid: String,
+        postTargetPage: Int,
+        cookieName: String,
+        content: String
     ) {
         if (cookieName.isBlank()){
             val message = "Trying to save a Post without cookieName"
@@ -172,10 +173,10 @@ class SharedViewModel @Inject constructor(
         }
         viewModelScope.launch {
             val draft = PostHistory.Draft(
-                cookieName,
+                newPost,
                 postTargetId,
                 postTargetFid,
-                newPost,
+                cookieName,
                 content,
                 Date().time
             )
@@ -242,7 +243,7 @@ class SharedViewModel @Inject constructor(
                     searchCommentInPost(draft, maxPage, true)
                 } else {
                     postDao.insert(data)
-                    extractCommentInPost(data, draft, maxPage, true)
+                    extractCommentInPost(data, draft, targetPage, true)
                 }
                 commentDao.insertAllWithTimeStamp(data.comments)
             } else {

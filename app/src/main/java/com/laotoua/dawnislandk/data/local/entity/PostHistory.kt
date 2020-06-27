@@ -6,12 +6,12 @@ import androidx.room.PrimaryKey
 @Entity
 class PostHistory(
     @PrimaryKey
-    val id: String,
-    val cookieName: String,
-    val postTargetId: String, // do not have this when sending a newPost
-    val postTargetPage: Int,
-    val postTargetFid: String,
+    val id: String, // actual id of post
     val newPost: Boolean,// false if replying
+    val postTargetId: String, // equals postTargetFid when sending a new Post
+    val postTargetFid: String,
+    val postTargetPage: Int, // if replying, indicates posted page for jumps otherwise page 1
+    val cookieName: String,
     val content: String, //content
     val img: String,
     val ext: String,
@@ -19,11 +19,11 @@ class PostHistory(
 ) {
     constructor(id: String, targetPage: Int, img: String, ext: String, draft: Draft) : this(
         id,
-        draft.cookieName,
-        draft.postTargetId,
-        targetPage,
-        draft.postTargetFid,
         draft.newPost,
+        draft.postTargetId,
+        draft.postTargetFid,
+        targetPage,
+        draft.cookieName,
         draft.content,
         img,
         ext,
@@ -31,10 +31,10 @@ class PostHistory(
     )
 
     class Draft(
-        val cookieName: String,
-        val postTargetId: String, // do not have this when sending a newPost
-        val postTargetFid: String,
         val newPost: Boolean,// false if replying
+        val postTargetId: String, // equals postTargetFid when sending a new Post
+        val postTargetFid: String,
+        val cookieName: String,
         var content: String, //content
         val postDate: Long
     )

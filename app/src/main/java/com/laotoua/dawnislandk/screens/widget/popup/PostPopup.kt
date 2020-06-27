@@ -522,11 +522,11 @@ class PostPopup(
                 dismissWith {
                     if (message.substring(0, 2) == ":)") {
                         sharedVM.searchAndSavePost(
-                            selectedCookie?.cookieName ?: "",
-                            targetId!!,
-                            targetPage,
-                            targetFid,
                             newPost,
+                            targetId!!,
+                            targetFid,
+                            targetPage,
+                            selectedCookie?.cookieName ?: "",
                             content
                         )
                         afterPostTask?.invoke()

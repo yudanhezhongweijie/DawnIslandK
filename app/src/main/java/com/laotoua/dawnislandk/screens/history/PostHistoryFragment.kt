@@ -211,7 +211,7 @@ class PostHistoryFragment : BaseNavFragment() {
                 sharedViewModel.setPost(data.id, data.postTargetFid)
                 (context as MainActivity).showComment()
             } else {
-                sharedViewModel.setPost(data.id, data.postTargetFid, data.postTargetPage)
+                sharedViewModel.setPost(data.postTargetId, data.postTargetFid, data.postTargetPage)
                 (context as MainActivity).showComment()
             }
         }

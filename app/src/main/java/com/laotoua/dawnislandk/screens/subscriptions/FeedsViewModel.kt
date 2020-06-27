@@ -56,17 +56,13 @@ class FeedsViewModel @Inject constructor(private val webService: NMBServiceClien
 
     private fun convertFeedData(data: List<Post>) {
         val noDuplicates = data.filterNot { feedsIds.contains(it.id) }
-        if (noDuplicates.isEmpty()) {
-            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.NODATA))
-            return
-        }
         feedsIds.addAll(noDuplicates.map { it.id })
         feedsList.addAll(noDuplicates)
         Timber.i("feedsList now has ${feedsList.size} feeds")
         _feeds.postValue(feedsList)
-        if (noDuplicates.size < 10){
+        if (noDuplicates.isEmpty()) {
             _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.NODATA))
-        }else {
+        } else {
             _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))
         }
     }

@@ -353,12 +353,8 @@ class CommentsFragment : DaggerFragment() {
     }
 
     private val commentsObs = Observer<MutableList<Comment>> {
-        if (it.isEmpty()) {
-            if (!mAdapter.hasEmptyView()) mAdapter.setEmptyView(R.layout.view_no_data)
-            mAdapter.setDiffNewData(null)
-            return@Observer
-        }
-        if(mAdapter.data.isEmpty()) updateCurrentPage(it.first().page)
+        if (it.isEmpty()) return@Observer
+        if (mAdapter.data.isEmpty()) updateCurrentPage(it.first().page)
         if (sharedVM.selectedPostFid != viewModel.currentPostFid) {
             sharedVM.setPostFid(viewModel.currentPostFid)
             updateTitle()

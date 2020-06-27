@@ -42,10 +42,21 @@ class QuickAdapter<T>(
         // 当数据不满一页时，是否继续自动加载（默认为true）
         loadMoreModule.isEnableLoadMoreIfNotFullPage = false
 
-        if (DawnApp.applicationDataStore.animationStatus) {
-            setAnimationWithDefault(AnimationType.ScaleIn)
-            isAnimationFirstOnly = false
+        when (DawnApp.applicationDataStore.animationOption) {
+            0 -> {}
+            1 -> setAnimationWithDefault(AnimationType.AlphaIn)
+            2 -> setAnimationWithDefault(AnimationType.ScaleIn)
+            3 -> setAnimationWithDefault(AnimationType.SlideInBottom)
+            4 -> setAnimationWithDefault(AnimationType.SlideInLeft)
+            5 -> setAnimationWithDefault(AnimationType.SlideInRight)
+            6 -> adapterAnimation = CustomAnimation1()
+            7 -> adapterAnimation = CustomAnimation2()
+            else -> throw Exception("Unhandled Animation Option")
         }
+        if (DawnApp.applicationDataStore.animationOption > 0) {
+            isAnimationFirstOnly = DawnApp.applicationDataStore.animationFirstOnly
+        }
+
         setDiffCallback(DiffItemCallback())
         loadMoreModule.loadMoreView = DawnLoadMoreView()
     }
@@ -133,10 +144,15 @@ class QuickAdapter<T>(
         convertUserId(item.userid, item.admin, po)
         convertTimeStamp(item.now, item.isAd())
         convertSage(item.sage)
-        convertRefId(context, item.id,item.isAd())
+        convertRefId(context, item.id, item.isAd())
         convertImage(item.getImgUrl(), item.visible)
         convertContent(context, item.content, referenceClickListener, item.visible)
-        convertTitleAndName(item.getSimplifiedTitle(), item.getSimplifiedName(), item.visible, item.isAd())
+        convertTitleAndName(
+            item.getSimplifiedTitle(),
+            item.getSimplifiedName(),
+            item.visible,
+            item.isAd()
+        )
         convertExpandSummary(context, item.visible)
         hideCommentMenu()
     }

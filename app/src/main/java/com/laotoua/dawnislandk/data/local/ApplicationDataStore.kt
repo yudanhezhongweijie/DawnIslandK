@@ -46,9 +46,14 @@ class ApplicationDataStore @Inject constructor(
     val textSize by lazyOnMainOnly { mmkv.getFloat(DawnConstants.MAIN_TEXT_SIZE, 15f) }
 
     // adapter settings
-    val animationStatus by lazyOnMainOnly { mmkv.getBoolean(DawnConstants.ANIMATION, false) }
-    fun setAnimationStatus(status: Boolean) {
-        mmkv.putBoolean(DawnConstants.ANIMATION, status)
+    val animationOption by lazyOnMainOnly { mmkv.getInt(DawnConstants.ANIMATION_OPTION, 0) }
+    fun setAnimationOption(option: Int) {
+        mmkv.putInt(DawnConstants.ANIMATION_OPTION, option)
+    }
+
+    val animationFirstOnly by lazyOnMainOnly { mmkv.getBoolean(DawnConstants.ANIMATION_FIRST_ONLY, false) }
+    fun setAnimationFirstOnly(status: Boolean){
+        mmkv.putBoolean(DawnConstants.ANIMATION_FIRST_ONLY, status)
     }
 
     // Reading settings

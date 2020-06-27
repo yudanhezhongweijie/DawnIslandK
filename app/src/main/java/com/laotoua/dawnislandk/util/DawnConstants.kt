@@ -17,7 +17,8 @@ object DawnConstants {
     const val LINE_HEIGHT = "line_height"
     const val SEG_GAP = "seg_gap"
     const val MAIN_TEXT_MIN_SIZE = 10
-    const val ANIMATION = "animation"
+    const val ANIMATION_OPTION = "animation_option"
+    const val ANIMATION_FIRST_ONLY = "animation_first_only"
     const val READING_PROGRESS = "reading_progress"
     const val TIME_FORMAT = "time_format"
     const val DEFAULT_TIME_FORMAT = "simplified"

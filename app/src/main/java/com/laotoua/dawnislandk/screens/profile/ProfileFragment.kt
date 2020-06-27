@@ -20,9 +20,11 @@ import com.afollestad.materialdialogs.WhichButton
 import com.afollestad.materialdialogs.actions.getActionButton
 import com.afollestad.materialdialogs.actions.setActionButtonEnabled
 import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
+import com.afollestad.materialdialogs.checkbox.isCheckPromptChecked
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.input.input
 import com.afollestad.materialdialogs.list.listItems
+import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.king.zxing.util.CodeUtils
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
@@ -148,17 +150,21 @@ class ProfileFragment : DaggerFragment() {
         }
 
         binding.animationSwitch.apply {
-            key.setText(R.string.animation_on_off)
-            preferenceSwitch.visibility = View.VISIBLE
-            preferenceSwitch.isChecked = applicationDataStore.animationStatus
-            updateSwitchSummary(R.string.animation_on, R.string.animation_off)
+            key.setText(R.string.animation_settings)
+            val options =
+                requireContext().resources.getStringArray(R.array.adapter_animation_options)
+            summary.text = options[applicationDataStore.animationOption]
             root.setOnClickListener {
-                toggleSwitch(
-                    applicationDataStore::setAnimationStatus,
-                    R.string.animation_on,
-                    R.string.animation_off
-                )
-                displayRestartToApplySettingsToast()
+                MaterialDialog(requireContext()).show {
+                    checkBoxPrompt(res = R.string.animation_first_only) {}
+                    listItemsSingleChoice(items = options.toList()) { _, index, _ ->
+                        applicationDataStore.setAnimationOption(index)
+                        applicationDataStore.setAnimationFirstOnly(isCheckPromptChecked())
+                        displayRestartToApplySettingsToast()
+                        summary.text = options[index]
+                    }
+                    positiveButton(R.string.submit)
+                }
             }
         }
 
@@ -236,6 +242,7 @@ class ProfileFragment : DaggerFragment() {
                                     !text.isNullOrBlank() && !cookieName.text.isNullOrBlank()
                                 neuralButton.isEnabled = !text.isNullOrBlank()
                             }
+                            @Suppress("DEPRECATION")
                             neutralButton(R.string.default_cookie_name) {
                                 val cookieHashText = cookieHash.text.toString()
                                 if (cookieHashText.isNotBlank()) {

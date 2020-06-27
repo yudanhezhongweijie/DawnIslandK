@@ -57,9 +57,8 @@
     <string name="edit_cookie_remark" translatable="false">编辑饼干备注</string>
     <string name="default_cookie_name" translatable="false">默认饼干名称</string>
     <string name="time_display_format" translatable="false">时间显示格式</string>
-    <string name="animation_on_off" translatable="false">编辑动画效果</string>
-    <string name="animation_on" translatable="false">开启动画效果</string>
-    <string name="animation_off" translatable="false">关闭动画效果</string>
+    <string name="animation_first_only" translatable="false">仅在首次出现时显示动画</string>
+    <string name="animation_settings" translatable="false">编辑动画效果</string>
     <string name="cookie_management" translatable="false">饼干管理</string>
     <string name="add_cookie" translatable="false">添加饼干</string>
     <string name="select_cookie" translatable="false">选择饼干</string>

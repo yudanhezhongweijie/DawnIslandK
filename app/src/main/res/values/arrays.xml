@@ -324,6 +324,17 @@
         <item>串版自删</item>
     </string-array>
 
+    <string-array name="adapter_animation_options">
+        <item>无动画</item>
+        <item>Alpha渐进</item>
+        <item>Scale渐进</item>
+        <item>底部滑入</item>
+        <item>左边滑入</item>
+        <item>右边滑入</item>
+        <item>自定义1</item>
+        <item>自定义2</item>
+    </string-array>
+
     <string-array name="cookie_addition_options">
         <item>读取本地二维码</item>
         <item>扫描二维码</item>

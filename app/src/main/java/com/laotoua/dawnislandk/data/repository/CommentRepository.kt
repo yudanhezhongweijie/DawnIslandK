@@ -74,7 +74,6 @@ class CommentRepository @Inject constructor(
             readingPageDao.getReadingPageById(id).let {
                 readingPageMap.put(currentPostIdInt, it ?: ReadingPage(currentPostId, 1))
             }
-
             browsedPostDaoBrowsing.getBrowsingHistoryByDateAndIdSync(todayDateLong, currentPostId)
                 .let {
                     browsedPostMap.put(
@@ -144,8 +143,6 @@ class CommentRepository @Inject constructor(
                     setLoadingStatus(LoadingStatus.LOADING)
                     emitSource(getLocalData(page))
                     pageDownloadJob = getServerData(page)
-                    browsedPostMap[currentPostIdInt].pages.add(page)
-                    browsedPostDaoBrowsing.insertBrowsingHistory(browsedPostMap[currentPostIdInt])
                 })
             }
             return it[page]
@@ -161,8 +158,12 @@ class CommentRepository @Inject constructor(
             webService.getComments(currentPostId, page).run {
                 if (this is APIDataResponse.APISuccessDataResponse) convertServerData(data, page)
                 else {
-                    if (pageDownloadJob?.isCompleted == true) {
+                    if (pageDownloadJob?.isCancelled != true) {
                         Timber.e(message)
+                        commentsMap[currentPostIdInt].delete(page)
+                        if (commentsMap[currentPostIdInt]?.size() == 0){
+                            commentsMap.delete(currentPostIdInt)
+                        }
                         setLoadingStatus(LoadingStatus.FAILED, "无法读取串回复...\n$message")
                     }
                 }
@@ -177,8 +178,9 @@ class CommentRepository @Inject constructor(
         browsedPostMap[currentPostIdInt].run {
             if (postFid != currentPostFid) {
                 postFid = currentPostFid
-                browsedPostDaoBrowsing.insertBrowsingHistory(this)
             }
+            pages.add(page)
+            browsedPostDaoBrowsing.insertBrowsingHistory(this)
         }
 
         if (data != postMap[currentPostIdInt]) {

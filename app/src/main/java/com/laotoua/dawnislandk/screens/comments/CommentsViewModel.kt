@@ -96,6 +96,7 @@ class CommentsViewModel @Inject constructor(
                 }
             }
             if (page == 1) {
+                comments.removeSource(commentRepo.emptyPage)
                 comments.addSource(commentRepo.emptyPage) {
                     if (it == true) {
                         mergeNewPage(emptyList<Comment>().attachHeadAndAd(page), filterIds)
@@ -133,7 +134,7 @@ class CommentsViewModel @Inject constructor(
         listeningPages.clear()
         listeningPagesIndices.clear()
         commentList.clear()
-        if (clearFilter) clearFilter()
+        if (clearFilter) filterIds.clear()
     }
 
     fun onlyPo() {

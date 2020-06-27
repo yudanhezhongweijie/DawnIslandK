@@ -137,7 +137,7 @@ class PostHistoryFragment : BaseNavFragment() {
                     lastDate = dateString
                 }
             }
-            mAdapter.setNewInstance(data)
+            mAdapter.setDiffNewData(data)
             mAdapter.setFooterView(
                 layoutInflater.inflate(
                     R.layout.view_no_more_data,
@@ -167,7 +167,9 @@ class PostHistoryFragment : BaseNavFragment() {
     ) :
         QuickItemBinder<PostHistory>() {
         override fun convert(holder: BaseViewHolder, data: PostHistory) {
-            val cookieDisplayName = DawnApp.applicationDataStore.getCookieDisplayName(data.cookieName) ?: data.cookieName
+            val cookieDisplayName =
+                DawnApp.applicationDataStore.getCookieDisplayName(data.cookieName)
+                    ?: data.cookieName
             holder.convertUserId(cookieDisplayName, "", cookieDisplayName)
             holder.convertRefId(context, data.id)
             holder.convertTitleAndName("", "")
@@ -208,7 +210,7 @@ class PostHistoryFragment : BaseNavFragment() {
             if (data.newPost) {
                 sharedViewModel.setPost(data.id, data.postTargetFid)
                 (context as MainActivity).showComment()
-            } else{
+            } else {
                 sharedViewModel.setPost(data.id, data.postTargetFid, data.postTargetPage)
                 (context as MainActivity).showComment()
             }

@@ -358,7 +358,7 @@ class CommentsFragment : DaggerFragment() {
             mAdapter.setDiffNewData(null)
             return@Observer
         }
-        if (mAdapter.data.isEmpty()) updateCurrentPage(it.first().page)
+        if(mAdapter.data.isEmpty()) updateCurrentPage(it.first().page)
         if (sharedVM.selectedPostFid != viewModel.currentPostFid) {
             sharedVM.setPostFid(viewModel.currentPostFid)
             updateTitle()

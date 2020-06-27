@@ -5,6 +5,7 @@ import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.LoadingStatus
@@ -40,6 +41,10 @@ object Layout {
             LoadingStatus.FAILED -> {
                 refreshLayout.refreshComplete(false, headerDismissalDelayDuration)
                 mAdapter.loadMoreModule.loadMoreFail()
+                if (mAdapter.data.isNullOrEmpty()) {
+                    if (!mAdapter.hasEmptyView()) mAdapter.setEmptyView(R.layout.view_no_data)
+                    mAdapter.setDiffNewData(null)
+                }
                 Toast.makeText(
                     context,
                     event.message,

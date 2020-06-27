@@ -8,8 +8,10 @@ import android.animation.ObjectAnimator
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.os.Bundle
+import android.os.SystemClock
 import android.text.style.UnderlineSpan
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -200,9 +202,25 @@ class CommentsFragment : DaggerFragment() {
                     }
                     R.id.content -> {
                         val ltv = view as LinkifyTextView
-                        // TODO: add ripple effect
+                        // no span was clicked, simulate click events to parent
                         if (ltv.currentSpan == null) {
-                            mAdapter.getOnItemClickListener()?.onItemClick(mAdapter, view, position)
+                            val metaState = 0
+                            (view.parent as View).dispatchTouchEvent(MotionEvent.obtain(
+                                SystemClock.uptimeMillis(),
+                                SystemClock.uptimeMillis(),
+                                MotionEvent.ACTION_DOWN,
+                                0f,
+                                0f,
+                                metaState
+                            ))
+                            (view.parent as View).dispatchTouchEvent(MotionEvent.obtain(
+                                SystemClock.uptimeMillis(),
+                                SystemClock.uptimeMillis(),
+                                MotionEvent.ACTION_UP,
+                                0f,
+                                0f,
+                                metaState
+                            ))
                         }
                     }
                     R.id.expandSummary -> {

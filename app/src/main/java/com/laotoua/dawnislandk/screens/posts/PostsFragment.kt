@@ -182,6 +182,10 @@ class PostsFragment : BaseNavFragment() {
         }
 
         binding.forumRule.setOnClickListener {
+            if (sharedVM.selectedForumId.value == null){
+                Toast.makeText(requireContext(), R.string.please_try_again_later, Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             MaterialDialog(requireContext()).show {
                 val forumId = sharedVM.selectedForumId.value!!
                 val biId = if (forumId.toInt() > 0) forumId.toInt() else 1
@@ -207,6 +211,10 @@ class PostsFragment : BaseNavFragment() {
         }
 
         binding.post.setOnClickListener {
+            if (sharedVM.selectedForumId.value == null){
+                Toast.makeText(requireContext(), R.string.please_try_again_later, Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             hideFabMenu()
             postPopup.setupAndShow(
                 sharedVM.selectedForumId.value,

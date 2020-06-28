@@ -94,6 +94,7 @@
     <string name="need_write_storage_permission" translatable="false">需要写入外部存储权限</string>
     <string name="need_take_picture_permission" translatable="false">需要拍照权限</string>
     <string name="please_try_again" translatable="false">请重复操作</string>
+    <string name="please_try_again_later" translatable="false">请稍后再试</string>
     <string name="post_id_copied" translatable="false">串号已复制</string>
     <string name="comment_copied" translatable="false">评论已复制</string>
     <string name="restart_to_apply_setting" translatable="false">设置将在重启后生效</string>

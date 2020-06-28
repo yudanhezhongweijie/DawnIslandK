@@ -105,9 +105,9 @@ object FragmentIntentUtil {
 
     fun checkAndRequestAllPermissions(
         caller: Fragment,
-        permissions: Array<String>? = allPermissions
+        permissions: Array<String> = allPermissions
     ): Boolean {
-        val missingPermissions = permissions!!.filterNot {
+        val missingPermissions = permissions.filterNot {
             checkAndRequestSinglePermission(caller, it, false)
         }.toTypedArray()
         if (missingPermissions.isNotEmpty()) requestMultiplePermission(caller, missingPermissions)

@@ -36,7 +36,7 @@ class Converter {
                 List::class.java,
                 Forum::class.java
             )
-        ).fromJson(value)!!
+        ).fromJson(value) ?: emptyList()
     }
 
     @TypeConverter
@@ -67,7 +67,7 @@ class Converter {
                 List::class.java,
                 Trend::class.java
             )
-        ).fromJson(value)!!
+        ).fromJson(value) ?: emptyList()
     }
 
     @TypeConverter
@@ -87,7 +87,7 @@ class Converter {
                 List::class.java,
                 NoticeForum::class.java
             )
-        ).fromJson(value)!!
+        ).fromJson(value) ?: emptyList()
     }
 
     @TypeConverter
@@ -108,7 +108,7 @@ class Converter {
                 String::class.java,
                 Boolean::class.javaObjectType
             )
-        ).fromJson(value)!!
+        ).fromJson(value) ?: emptyMap()
     }
 
     @TypeConverter
@@ -129,7 +129,7 @@ class Converter {
                 List::class.java,
                 String::class.java
             )
-        ).fromJson(value)!!
+        ).fromJson(value) ?: emptyList()
     }
 
     @TypeConverter
@@ -150,7 +150,7 @@ class Converter {
                 String::class.java,
                 LuweiNotice.ClientInfo::class.java
             )
-        ).fromJson(value)!!
+        ).fromJson(value) ?: emptyMap()
     }
 
     @TypeConverter

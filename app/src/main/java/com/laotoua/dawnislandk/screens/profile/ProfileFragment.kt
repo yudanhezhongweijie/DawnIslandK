@@ -155,6 +155,7 @@ class ProfileFragment : DaggerFragment() {
             summary.text = options[applicationDataStore.animationOption]
             root.setOnClickListener {
                 MaterialDialog(requireContext()).show {
+                    title(res = R.string.animation_settings)
                     checkBoxPrompt(res = R.string.animation_first_only) {}
                     listItemsSingleChoice(items = options.toList()) { _, index, _ ->
                         applicationDataStore.setAnimationOption(index)

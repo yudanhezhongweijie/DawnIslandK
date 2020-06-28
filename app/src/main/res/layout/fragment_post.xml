@@ -51,7 +51,7 @@
         app:layout_constraintTop_toTopOf="@id/toolbar"
         tools:ignore="ContentDescription" />
 
-    <com.laotoua.dawnislandk.screens.widget.FlingInterceptor
+    <com.laotoua.dawnislandk.screens.widgets.FlingInterceptor
         android:id="@+id/flingInterceptor"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -64,7 +64,7 @@
             layout="@layout/widget_srl_and_rv"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-    </com.laotoua.dawnislandk.screens.widget.FlingInterceptor>
+    </com.laotoua.dawnislandk.screens.widgets.FlingInterceptor>
 
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton

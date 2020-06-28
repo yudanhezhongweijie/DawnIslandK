@@ -17,8 +17,8 @@ import com.laotoua.dawnislandk.data.local.entity.Comment
 import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformContent
 import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformCookie
 import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformTime
-import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
-import com.laotoua.dawnislandk.screens.widget.span.ReferenceSpan
+import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
+import com.laotoua.dawnislandk.screens.widgets.spans.ReferenceSpan
 import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.GlideApp

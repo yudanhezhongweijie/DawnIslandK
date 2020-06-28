@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.screens.widget
+package com.laotoua.dawnislandk.screens.widgets
 
 import android.text.Selection
 import android.text.Spannable

@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.screens.widget
+package com.laotoua.dawnislandk.screens.widgets
 
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView

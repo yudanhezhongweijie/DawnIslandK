@@ -1,9 +1,10 @@
-package com.laotoua.dawnislandk.screens.widget.popup
+package com.laotoua.dawnislandk.screens.widgets.popups
 
 import android.Manifest.permission
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Shader
@@ -11,6 +12,7 @@ import android.net.Uri
 import android.view.View
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -28,6 +30,7 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Cookie
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
+import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.FragmentIntentUtil
 import com.laotoua.dawnislandk.util.ImageUtil
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
@@ -470,6 +473,11 @@ class PostPopup(
                 title(R.string.please_comply_rules)
                 cancelOnTouchOutside(false)
                 checkBoxPrompt(R.string.acknowledge_post_rules) {
+                    val uri = DawnConstants.nmbHost+"/forum"
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uri))
+                    if (intent.resolveActivity(caller.requireActivity().packageManager) != null) {
+                        startActivity(caller.requireContext(), intent, null)
+                    }
                     getActionButton(WhichButton.POSITIVE).isEnabled = isCheckPromptChecked()
                 }
                 positiveButton(R.string.acknowledge) {

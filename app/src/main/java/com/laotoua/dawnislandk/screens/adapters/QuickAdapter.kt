@@ -19,7 +19,7 @@ import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.data.local.entity.Trend
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.posts.PostCardFactory
-import com.laotoua.dawnislandk.screens.widget.span.ReferenceSpan
+import com.laotoua.dawnislandk.screens.widgets.spans.ReferenceSpan
 
 
 // TODO: handle no new data exception

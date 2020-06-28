@@ -11,7 +11,6 @@ import com.laotoua.dawnislandk.screens.posts.PostsViewModel
 import com.laotoua.dawnislandk.screens.profile.ProfileFragment
 import com.laotoua.dawnislandk.screens.profile.ProfileViewModel
 import com.laotoua.dawnislandk.screens.subscriptions.*
-import com.laotoua.dawnislandk.unused.PagerFragment
 import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
@@ -22,9 +21,6 @@ abstract class ViewModelModule {
 
     @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
     internal abstract fun mainActivity(): MainActivity
-
-    @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
-    internal abstract fun pagerFragment(): PagerFragment
 
     @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
     internal abstract fun postsFragment(): PostsFragment

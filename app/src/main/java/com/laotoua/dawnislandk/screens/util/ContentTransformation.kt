@@ -11,9 +11,9 @@ import android.text.style.StyleSpan
 import android.text.style.URLSpan
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.screens.widget.span.HideSpan
-import com.laotoua.dawnislandk.screens.widget.span.ReferenceSpan
-import com.laotoua.dawnislandk.screens.widget.span.SegmentSpacingSpan
+import com.laotoua.dawnislandk.screens.widgets.spans.HideSpan
+import com.laotoua.dawnislandk.screens.widgets.spans.ReferenceSpan
+import com.laotoua.dawnislandk.screens.widgets.spans.SegmentSpacingSpan
 import com.laotoua.dawnislandk.util.ReadableTime
 import java.util.regex.Matcher
 import java.util.regex.Pattern

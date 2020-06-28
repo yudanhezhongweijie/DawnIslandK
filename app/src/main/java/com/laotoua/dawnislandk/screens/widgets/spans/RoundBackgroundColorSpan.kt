@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.screens.widget.span
+package com.laotoua.dawnislandk.screens.widgets.spans
 
 import android.graphics.*
 import android.graphics.Paint.FontMetricsInt

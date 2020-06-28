@@ -27,10 +27,10 @@ import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
-import com.laotoua.dawnislandk.screens.widget.BaseNavFragment
-import com.laotoua.dawnislandk.screens.widget.DoubleClickListener
-import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
-import com.laotoua.dawnislandk.screens.widget.popup.PostPopup
+import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
+import com.laotoua.dawnislandk.screens.widgets.DoubleClickListener
+import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
+import com.laotoua.dawnislandk.screens.widgets.popups.PostPopup
 import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup

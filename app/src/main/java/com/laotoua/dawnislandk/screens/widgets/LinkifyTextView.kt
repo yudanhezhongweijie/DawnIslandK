@@ -15,7 +15,7 @@
  */
 
 
-package com.laotoua.dawnislandk.screens.widget
+package com.laotoua.dawnislandk.screens.widgets
 
 import android.annotation.SuppressLint
 import android.content.Context

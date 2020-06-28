@@ -38,11 +38,11 @@ import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
-import com.laotoua.dawnislandk.screens.widget.DoubleClickListener
-import com.laotoua.dawnislandk.screens.widget.LinkifyTextView
-import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
-import com.laotoua.dawnislandk.screens.widget.popup.PostPopup
-import com.laotoua.dawnislandk.screens.widget.span.ReferenceSpan
+import com.laotoua.dawnislandk.screens.widgets.DoubleClickListener
+import com.laotoua.dawnislandk.screens.widgets.LinkifyTextView
+import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
+import com.laotoua.dawnislandk.screens.widgets.popups.PostPopup
+import com.laotoua.dawnislandk.screens.widgets.spans.ReferenceSpan
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.SingleLiveEvent
 import com.laotoua.dawnislandk.util.lazyOnMainOnly

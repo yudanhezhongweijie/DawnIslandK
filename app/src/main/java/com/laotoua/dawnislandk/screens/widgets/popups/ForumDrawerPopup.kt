@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.screens.widget.popup
+package com.laotoua.dawnislandk.screens.widgets.popups
 
 import android.annotation.SuppressLint
 import android.app.Activity

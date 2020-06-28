@@ -23,8 +23,8 @@ import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.*
 import com.laotoua.dawnislandk.screens.posts.PostCardFactory
-import com.laotoua.dawnislandk.screens.widget.BaseNavFragment
-import com.laotoua.dawnislandk.screens.widget.popup.ImageViewerPopup
+import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
+import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
 import com.laotoua.dawnislandk.util.ReadableTime
 import com.lxj.xpopup.XPopup
 import timber.log.Timber

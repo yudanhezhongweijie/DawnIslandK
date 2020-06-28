@@ -15,9 +15,9 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.screens.util.ContentTransformation
-import com.laotoua.dawnislandk.screens.widget.ClickableMovementMethod
-import com.laotoua.dawnislandk.screens.widget.span.ReferenceSpan
-import com.laotoua.dawnislandk.screens.widget.span.RoundBackgroundColorSpan
+import com.laotoua.dawnislandk.screens.widgets.ClickableMovementMethod
+import com.laotoua.dawnislandk.screens.widgets.spans.ReferenceSpan
+import com.laotoua.dawnislandk.screens.widgets.spans.RoundBackgroundColorSpan
 import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.GlideApp
 

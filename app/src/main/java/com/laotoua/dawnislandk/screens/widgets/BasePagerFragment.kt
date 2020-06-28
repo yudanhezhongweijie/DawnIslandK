@@ -1,4 +1,4 @@
-package com.laotoua.dawnislandk.screens.widget
+package com.laotoua.dawnislandk.screens.widgets
 
 import android.os.Bundle
 import android.view.LayoutInflater

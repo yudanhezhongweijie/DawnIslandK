@@ -19,8 +19,8 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.posts.PostCardFactory
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
-import com.laotoua.dawnislandk.screens.widget.span.RoundBackgroundColorSpan
-import com.laotoua.dawnislandk.screens.widget.span.SegmentSpacingSpan
+import com.laotoua.dawnislandk.screens.widgets.spans.RoundBackgroundColorSpan
+import com.laotoua.dawnislandk.screens.widgets.spans.SegmentSpacingSpan
 import com.laotoua.dawnislandk.util.DawnConstants
 import kotlinx.android.synthetic.main.list_item_post.view.*
 

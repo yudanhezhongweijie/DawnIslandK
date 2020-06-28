@@ -24,8 +24,8 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.ActivityDoodleBinding
 import com.laotoua.dawnislandk.screens.util.Layout
 import com.laotoua.dawnislandk.screens.util.ToolBar.themeStatusBar
-import com.laotoua.dawnislandk.screens.widget.DoodleView
-import com.laotoua.dawnislandk.screens.widget.ThicknessPreviewView
+import com.laotoua.dawnislandk.screens.widgets.DoodleView
+import com.laotoua.dawnislandk.screens.widgets.ThicknessPreviewView
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import kotlinx.coroutines.launch
 import timber.log.Timber

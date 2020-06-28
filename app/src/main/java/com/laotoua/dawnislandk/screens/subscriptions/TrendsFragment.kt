@@ -14,7 +14,7 @@ import com.laotoua.dawnislandk.databinding.FragmentSubscriptionTrendBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
-import com.laotoua.dawnislandk.screens.widget.BaseNavFragment
+import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import me.dkzwm.widget.srl.config.Constants
 import timber.log.Timber

@@ -6,8 +6,8 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.screens.widget.BaseNavFragment
-import com.laotoua.dawnislandk.screens.widget.BasePagerFragment
+import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
+import com.laotoua.dawnislandk.screens.widgets.BasePagerFragment
 
 class HistoryPagerFragment:BasePagerFragment() {
     private val pageIndices = DawnApp.applicationDataStore.getHistoryPagerPageIndices()

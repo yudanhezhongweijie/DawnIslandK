@@ -20,7 +20,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.laotoua.dawnislandk.screens.widget.DoodleView
+    <com.laotoua.dawnislandk.screens.widgets.DoodleView
         android:id="@+id/doodle_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

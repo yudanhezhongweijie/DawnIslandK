@@ -56,7 +56,7 @@
         app:layout_constraintTop_toTopOf="@id/toolbar"
         tools:ignore="ContentDescription" />
 
-    <com.laotoua.dawnislandk.screens.widget.FlingInterceptor
+    <com.laotoua.dawnislandk.screens.widgets.FlingInterceptor
         android:id="@+id/viewPagerInterceptor"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -71,7 +71,7 @@
             android:layout_height="match_parent"
             android:overScrollMode="never"
             tools:context=".unused.PagerFragment" />
-    </com.laotoua.dawnislandk.screens.widget.FlingInterceptor>
+    </com.laotoua.dawnislandk.screens.widgets.FlingInterceptor>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bottomToolbar"

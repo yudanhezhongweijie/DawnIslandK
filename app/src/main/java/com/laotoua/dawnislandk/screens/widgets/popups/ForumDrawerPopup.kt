@@ -18,8 +18,6 @@
 package com.laotoua.dawnislandk.screens.widgets.popups
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.Context
 import android.widget.Button
 import android.widget.ImageView
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.data.local.entity.Forum
+import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.CommunityNodeAdapter
 import com.laotoua.dawnislandk.util.GlideApp
@@ -36,9 +35,9 @@ import timber.log.Timber
 
 @SuppressLint("ViewConstructor")
 class ForumDrawerPopup(
-    context: Context,
+    mainActivity: MainActivity,
     private val sharedVM: SharedViewModel
-) : DrawerPopupView(context) {
+) : DrawerPopupView(mainActivity) {
     override fun getImplLayoutId(): Int = R.layout.drawer_forum
 
     private val forumListAdapter =
@@ -83,7 +82,7 @@ class ForumDrawerPopup(
         if (reedImageUrl.isNotBlank()) loadReedPicture()
         reedImageView.setOnClickListener {
             if (reedImageUrl.isBlank()) return@setOnClickListener
-            val viewerPopup = ImageViewerPopup(reedImageUrl, activity = context as Activity)
+            val viewerPopup = ImageViewerPopup(reedImageUrl, activity = context as MainActivity)
             viewerPopup.setSingleSrcView(reedImageView, reedImageUrl)
             XPopup.Builder(context)
                 .asCustom(viewerPopup)

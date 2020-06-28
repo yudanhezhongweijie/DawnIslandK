@@ -44,15 +44,48 @@ object FragmentIntentUtil {
         Manifest.permission.CAMERA
     )
 
+    private fun informUserRequiredPermission(context: Context, permission: String) {
+        val toastMsg = when (permission) {
+            Manifest.permission.READ_EXTERNAL_STORAGE -> R.string.need_read_storage_permission
+            Manifest.permission.WRITE_EXTERNAL_STORAGE -> R.string.need_write_storage_permission
+            Manifest.permission.CAMERA -> R.string.need_take_picture_permission
+            else -> {
+                throw Exception("Missing handler in checkAndRequestSinglePermission")
+            }
+        }
+        Toast.makeText(context, toastMsg, Toast.LENGTH_SHORT).show()
+    }
+
     private fun requestSinglePermission(caller: Fragment, permission: String) {
         caller.registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             Timber.i("requesting $permission permission...")
+            if (it == false) {
+                informUserRequiredPermission(caller.requireContext(), permission)
+            } else {
+                Toast.makeText(
+                    caller.requireContext(),
+                    R.string.please_try_again,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }.launch(permission)
     }
 
     private fun requestMultiplePermission(caller: Fragment, permissions: Array<String>) {
-        caller.registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+        caller.registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
             Timber.i("requesting multiple permissions: $permissions")
+            val missingPermissions = result.filter { it.value == false }.keys.toList()
+            if (missingPermissions.isNotEmpty()) {
+                missingPermissions.map {
+                    informUserRequiredPermission(caller.requireContext(), it)
+                }
+            } else {
+                Toast.makeText(
+                    caller.requireContext(),
+                    R.string.please_try_again,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }.launch(permissions)
     }
 
@@ -64,25 +97,7 @@ object FragmentIntentUtil {
         if (caller.requireContext()
                 .checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED
         ) {
-            val toastMsg = when (permission) {
-                Manifest.permission.READ_EXTERNAL_STORAGE -> R.string.need_read_storage_permission
-                Manifest.permission.WRITE_EXTERNAL_STORAGE -> R.string.need_write_storage_permission
-                Manifest.permission.CAMERA -> R.string.need_take_picture_permission
-                else -> {
-                    throw Exception("Missing handler in checkAndRequestSinglePermission")
-                }
-            }
-            Toast.makeText(
-                caller.requireContext(),
-                toastMsg,
-                Toast.LENGTH_SHORT
-            ).show()
-            if (request) {
-                requestSinglePermission(
-                    caller,
-                    permission
-                )
-            }
+            if (request) requestSinglePermission(caller, permission)
             return false
         }
         return true
@@ -93,17 +108,9 @@ object FragmentIntentUtil {
         permissions: Array<String>? = allPermissions
     ): Boolean {
         val missingPermissions = permissions!!.filterNot {
-            checkAndRequestSinglePermission(
-                caller,
-                it,
-                false
-            )
+            checkAndRequestSinglePermission(caller, it, false)
         }.toTypedArray()
-
-        requestMultiplePermission(
-            caller,
-            missingPermissions
-        )
+        if (missingPermissions.isNotEmpty()) requestMultiplePermission(caller, missingPermissions)
         return missingPermissions.isEmpty()
     }
 

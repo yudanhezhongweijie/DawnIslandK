@@ -18,13 +18,15 @@
 package com.laotoua.dawnislandk.screens.widgets.popups
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Environment
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
@@ -45,7 +47,7 @@ import java.io.File
 class ImageViewerPopup(
     private val imgUrl: String,
     fragment: Fragment? = null,
-    activity: Activity? = null
+    activity: AppCompatActivity? = null
 ) :
     ImageViewerPopupView(fragment?.requireContext() ?: activity!!) {
 
@@ -76,13 +78,29 @@ class ImageViewerPopup(
         super.onAttachedToWindow()
         this.isShowSaveBtn = false
         saveButton.setOnClickListener { addPicToGallery(context, imgUrl) }
-        toastMsg.observe(caller as LifecycleOwner, Observer {
+        toastMsg.observe(caller, Observer {
             Toast.makeText(caller, it, Toast.LENGTH_SHORT).show()
         })
     }
 
+    private fun checkAndRequestExternalStoragePermission(caller: FragmentActivity): Boolean {
+        if(caller.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            caller.registerForActivityResult(ActivityResultContracts.RequestPermission()){
+                if (it == false){
+                    Toast.makeText(context, R.string.need_write_storage_permission, Toast.LENGTH_SHORT).show()
+                }
+            }.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            return false
+        }
+        return true
+    }
+
     private fun addPicToGallery(context: Context, imgUrl: String) {
-        (caller as LifecycleOwner).lifecycleScope.launch(Dispatchers.IO) {
+        caller.lifecycleScope.launch(Dispatchers.IO) {
+            if(!checkAndRequestExternalStoragePermission(caller)){
+                return@launch
+            }
+
             Timber.i("Saving image $imgUrl to Gallery... ")
             val relativeLocation = Environment.DIRECTORY_PICTURES + File.separator + "Dawn"
             var fileName = imgUrl.substringAfter("/")

@@ -452,7 +452,7 @@ class PostPopup(
                 )
                 icon(resourceId)
                 title(text = sharedVM.getForumDisplayName(fid))
-                message(text = sharedVM.getForumMsg(fid)){html()}
+                message(text = sharedVM.getForumMsg(fid)) { html() }
                 positiveButton(R.string.acknowledge)
             }
         }
@@ -490,7 +490,7 @@ class PostPopup(
                 title(R.string.please_comply_rules)
                 cancelOnTouchOutside(false)
                 checkBoxPrompt(R.string.acknowledge_post_rules) {
-                    val uri = DawnConstants.nmbHost+"/forum"
+                    val uri = DawnConstants.nmbHost + "/forum"
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uri))
                     if (intent.resolveActivity(caller.requireActivity().packageManager) != null) {
                         startActivity(caller.requireContext(), intent, null)

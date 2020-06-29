@@ -17,6 +17,8 @@
 
 package com.laotoua.dawnislandk.screens.widgets
 
+import android.os.Bundle
+import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.laotoua.dawnislandk.R
@@ -42,9 +44,9 @@ open class BaseNavFragment:DaggerFragment() {
     }
     private var mRecyclerView:RecyclerView? = null
 
-    override fun onStart() {
-        super.onStart()
-        view?.findViewById<RecyclerView>(R.id.recyclerView)?.run {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        view.findViewById<RecyclerView>(R.id.recyclerView)?.run {
             mRecyclerView = this
             addOnScrollListener(navBarScrollListener)
         }

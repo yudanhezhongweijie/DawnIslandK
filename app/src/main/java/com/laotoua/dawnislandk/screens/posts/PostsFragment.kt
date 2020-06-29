@@ -168,9 +168,11 @@ class PostsFragment : BaseNavFragment() {
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     if (dy > 0) {
+                        if (_binding == null) return
                         hideFabMenu()
                         binding.fabMenu.hide()
                     } else if (dy < 0) {
+                        if (_binding == null) return
                         binding.fabMenu.show()
                     }
                 }

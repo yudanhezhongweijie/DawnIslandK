@@ -1,4 +1,7 @@
 # DawnIslandK
+这是一个浮夸的A岛(adnmb.com)客户端，特性功能请看截图。
+如果对app使用有问题或建议请提交新的issue。
+
 **DawnIslandK** is an Android client for adnmb.com. It is based on MVVM, following structural designs of [todoapp](https://github.com/android/architecture-samples) and [dagger-android](https://github.com/android/architecture-samples/tree/dagger-android) by Google.
 
 This app utilizes many latest Android features, concepts, propositions and guidlines, including but not limited to: Single Activity Application, Scoped Storage & MediaStore, Kotlin Coroutine, Navigations, Lifecycle, LiveData, Room, ActivityResultContracts, ViewPager2 and Material Design.
@@ -15,7 +18,7 @@ This app uses Retrofit2(& okhttp) for API calls, Dagger2 for Dependency Injectio
 # Thanks
 - [Nimingban](https://github.com/seven332/Nimingban)
 - [DawnIsland](https://github.com/zwt-ss/DawnIsland) 
-- Designer: 五
+- @柔柔(代码) @五(设计) @安之(产品) @bug触发器(测试) @第九龙琦(趋势榜)
 
 # License
 ```

@@ -18,6 +18,9 @@
 package com.laotoua.dawnislandk.screens.profile
 
 import android.Manifest
+import android.animation.Animator
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -31,6 +34,7 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.WhichButton
@@ -42,6 +46,7 @@ import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.input.input
 import com.afollestad.materialdialogs.list.listItems
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
+import com.google.android.material.animation.AnimationUtils
 import com.king.zxing.util.CodeUtils
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
@@ -108,6 +113,8 @@ class ProfileFragment : DaggerFragment() {
             setTitle(R.string.settings)
             setSubtitle(R.string.toolbar_subtitle)
         }
+
+        binding.settings.visibility = View.GONE
 
         binding.feedId.apply {
             var feedId = applicationDataStore.feedId
@@ -189,6 +196,7 @@ class ProfileFragment : DaggerFragment() {
             MaterialDialog(requireContext()).apply {
                 title(R.string.processing)
                 customView(R.layout.dialog_progress)
+                cancelOnTouchOutside(false)
             }
         }
         viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
@@ -339,6 +347,49 @@ class ProfileFragment : DaggerFragment() {
                     }
                 }
             }
+        }
+
+        binding.privacyAgreement.apply {
+            key.setText(R.string.privacy_agreement)
+            root.setOnClickListener {
+                val waitingDialog = MaterialDialog(requireContext()).show {
+                    title(R.string.processing)
+                    customView(R.layout.dialog_progress)
+                    cancelOnTouchOutside(false)
+                }
+                lifecycleScope.launch {
+                    val agreement = viewModel.getPrivacyAgreement()
+                    waitingDialog.dismiss()
+                    MaterialDialog(this@ProfileFragment.requireContext()).show {
+                        title(res = R.string.privacy_agreement)
+                        message(text = agreement){html()}
+                        positiveButton(R.string.acknowledge)
+                    }
+                }
+            }
+        }
+
+        hideProgressBarAndShowSettings()
+    }
+
+    private fun hideProgressBarAndShowSettings() {
+        val progressBarAlphaOutAnim = ObjectAnimator.ofFloat(binding.progressBar, "alpha", 0f)
+        val settingsAlphaInAnim = ObjectAnimator.ofFloat(binding.settings, "alpha", 1f)
+        AnimatorSet().apply {
+            duration = 250
+            addListener(object : Animator.AnimatorListener {
+                override fun onAnimationRepeat(animation: Animator?) {}
+                override fun onAnimationEnd(animation: Animator?) {
+                    binding.settings.visibility = View.VISIBLE
+                    binding.progressBar.visibility = View.GONE
+                }
+
+                override fun onAnimationCancel(animation: Animator?) {}
+                override fun onAnimationStart(animation: Animator?) {}
+            })
+            interpolator = AnimationUtils.FAST_OUT_LINEAR_IN_INTERPOLATOR
+            playTogether(progressBarAlphaOutAnim, settingsAlphaInAnim)
+            start()
         }
     }
 

@@ -322,15 +322,21 @@ class PostPopup(
                 when (checkedId) {
                     R.id.postExpand -> {
                         expansionContainer!!.visibility = if (isChecked) View.VISIBLE else View.GONE
+
                     }
 
                     R.id.postFace -> {
-                        KeyboardUtils.hideSoftInput(postContent!!)
+                        if (isChecked) {
+                            KeyboardUtils.hideSoftInput(postContent!!)
+                        }
                         emojiContainer!!.visibility = if (isChecked) View.VISIBLE else View.GONE
+
                     }
 
                     R.id.postLuwei -> {
-                        KeyboardUtils.hideSoftInput(postContent!!)
+                        if (isChecked) {
+                            KeyboardUtils.hideSoftInput(postContent!!)
+                        }
                         luweiStickerContainer!!.visibility =
                             if (isChecked) View.VISIBLE else View.GONE
                     }
@@ -347,6 +353,7 @@ class PostPopup(
             ) {
                 return@setOnClickListener
             }
+            KeyboardUtils.hideSoftInput(postContent!!)
             FragmentIntentUtil.drawNewDoodle(caller) { uri ->
                 uri?.let {
                     Timber.d("Made a doodle. Setting preview thumbnail...")
@@ -394,6 +401,7 @@ class PostPopup(
             ) {
                 return@setOnClickListener
             }
+            KeyboardUtils.hideSoftInput(postContent!!)
             FragmentIntentUtil.getImageFromGallery(caller, "image/*") { uri: Uri? ->
                 if (uri != null) {
                     imageFile = ImageUtil.getImageFileFromUri(fragment = caller, uri = uri)
@@ -428,6 +436,7 @@ class PostPopup(
             ) {
                 return@setOnClickListener
             }
+            KeyboardUtils.hideSoftInput(postContent!!)
             FragmentIntentUtil.getImageFromCamera(caller) { uri: Uri ->
                 Timber.d("Took a Picture. Setting preview thumbnail...")
                 ImageUtil.loadImageThumbnailToImageView(

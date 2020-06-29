@@ -55,7 +55,6 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
     private var mShowSide = true
     private var mHideSideRunnable: Runnable? = null
     private val handler = Handler()
-    private var dialogThickness: MaterialDialog? = null
 
     private val getImageBackground =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -85,10 +84,6 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
 
         themeStatusBar()
         binding.doodleView.setHelper(this)
-
-        binding.side.setOnClickListener {
-            hideSide()
-        }
 
         binding.palette.setOnClickListener {
             showPickColorDialog()
@@ -147,7 +142,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
 
         mSideAnimator.duration = 300
         mSideAnimator.addUpdateListener { animation ->
-            binding.side.translationX =
+            binding.sideMenu.translationX =
                 (animation.animatedValue as Float)
         }
         mHideSideRunnable = Runnable { hideSide() }
@@ -177,7 +172,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
         if (!mShowSide) {
             mShowSide = true
             mSideAnimator.cancel()
-            mSideAnimator.setFloatValues(binding.side.translationX, 0f)
+            mSideAnimator.setFloatValues(binding.sideMenu.translationX, 0f)
             mSideAnimator.start()
         }
     }
@@ -190,7 +185,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
         if (mShowSide) {
             mShowSide = false
             mSideAnimator.cancel()
-            mSideAnimator.setFloatValues(binding.side.translationX, -binding.side.width.toFloat())
+            mSideAnimator.setFloatValues(binding.sideMenu.translationX, -binding.sideMenu.width.toFloat())
             mSideAnimator.start()
         }
     }
@@ -255,46 +250,43 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
     }
 
     private fun showThicknessDialog() {
-        if (dialogThickness == null) {
-            dialogThickness = MaterialDialog(this).show {
-                customView(R.layout.dialog_thickness)
-                var thickness = binding.doodleView.paintThickness
-                val previewView = findViewById<ThicknessPreviewView>(R.id.thicknessPreviewView)
-                previewView.setColor(binding.doodleView.paintColor)
-                previewView.setThickness(thickness)
+        MaterialDialog(this).show {
+            customView(R.layout.dialog_thickness)
+            var thickness = binding.doodleView.paintThickness
+            val previewView = findViewById<ThicknessPreviewView>(R.id.thicknessPreviewView)
+            previewView.setColor(binding.doodleView.paintColor)
+            previewView.setThickness(thickness)
 
-                val thicknessTextView = findViewById<TextView>(R.id.thickness)
-                thicknessTextView.text =
-                    (Layout.pix2dp(context, thickness).toInt() + 1).toString()
-                thicknessTextView.typeface = Typeface.DEFAULT_BOLD
+            val thicknessTextView = findViewById<TextView>(R.id.thickness)
+            thicknessTextView.text =
+                (Layout.pix2dp(context, thickness).toInt() + 1).toString()
+            thicknessTextView.typeface = Typeface.DEFAULT_BOLD
 
-                findViewById<SeekBar>(R.id.thicknessSlider).apply {
-                    progress = Layout.pix2dp(context, thickness).toInt()
-                    setOnSeekBarChangeListener(object :
-                        SeekBar.OnSeekBarChangeListener {
-                        override fun onProgressChanged(
-                            seekBar: SeekBar?,
-                            progress: Int,
-                            fromUser: Boolean
-                        ) {
-                            thickness = Layout.dp2pix(context, progress.toFloat())
-                            previewView.setThickness(thickness)
-                            thicknessTextView.text = (progress + 1).toString()
-                        }
+            findViewById<SeekBar>(R.id.thicknessSlider).apply {
+                progress = Layout.pix2dp(context, thickness).toInt()
+                setOnSeekBarChangeListener(object :
+                    SeekBar.OnSeekBarChangeListener {
+                    override fun onProgressChanged(
+                        seekBar: SeekBar?,
+                        progress: Int,
+                        fromUser: Boolean
+                    ) {
+                        thickness = Layout.dp2pix(context, progress.toFloat())
+                        previewView.setThickness(thickness)
+                        thicknessTextView.text = (progress + 1).toString()
+                    }
 
-                        override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                        }
+                    override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                    }
 
-                        override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                        }
-                    })
-                }
-                positiveButton(R.string.submit) {
-                    binding.doodleView.paintThickness = thickness
-                }
+                    override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                    }
+                })
+            }
+            positiveButton(R.string.submit) {
+                binding.doodleView.paintThickness = thickness
             }
         }
-        dialogThickness!!.show()
     }
 
     private fun saveDoodle() {

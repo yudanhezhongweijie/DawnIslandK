@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright 2015 Hippo Seven
-  ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~     http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
+  ~ /* Copyright 2020 Fishballzzz
+  ~  *
+  ~  * Licensed under the Apache License, Version 2.0 (the "License");
+  ~  * you may not use this file except in compliance with the License.
+  ~  * You may obtain a copy of the License at
+  ~  *
+  ~  *     http://www.apache.org/licenses/LICENSE-2.0
+  ~  *
+  ~  * Unless required by applicable law or agreed to in writing, software
+  ~  * distributed under the License is distributed on an "AS IS" BASIS,
+  ~  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  * See the License for the specific language governing permissions and
+  ~  * limitations under the License.
+  ~  */
   -->
 
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -37,83 +38,110 @@
     <!--        android:background="@drawable/shadow_left" />-->
 
 
-    <LinearLayout
-        android:id="@+id/side"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/sideMenu"
         android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:background="?attr/colorPrimary"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageButton
-            android:id="@+id/palette"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackground"
-            android:padding="12dp"
-            app:srcCompat="@drawable/ic_palette_24px"
-            tools:ignore="ContentDescription" />
-
-        <ImageButton
-            android:id="@+id/thickness"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackground"
-            android:padding="12dp"
-            app:srcCompat="@drawable/ic_line_weight_24px"
-            tools:ignore="ContentDescription" />
-
-        <ImageButton
-            android:id="@+id/draw_action"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackground"
-            android:padding="12dp"
-            android:src="@drawable/ic_brush_black_24px"
-            tools:ignore="ContentDescription" />
-
-        <ImageButton
-            android:id="@+id/image"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackground"
-            android:padding="12dp"
-            android:src="@drawable/ic_insert_image_24px"
-            tools:ignore="ContentDescription" />
-
-        <ImageButton
-            android:id="@+id/undo"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackground"
-            android:padding="12dp"
-            android:src="@drawable/ic_undo_24px"
-            tools:ignore="ContentDescription" />
-
-        <ImageButton
-            android:id="@+id/redo"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackground"
-            android:padding="12dp"
-            android:src="@drawable/ic_redo_24px"
-            tools:ignore="ContentDescription" />
-
-        <ImageButton
-            android:id="@+id/clear"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackground"
-            android:padding="12dp"
-            app:srcCompat="@drawable/ic_delete_24px"
-            tools:ignore="ContentDescription" />
-
-        <Space
-            android:layout_width="match_parent"
+        <ScrollView
+            android:layout_width="wrap_content"
             android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:orientation="vertical"
+            app:layout_constraintBottom_toTopOf="@+id/ok"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/colorPrimary"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageButton
+                    android:id="@+id/palette"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:padding="12dp"
+                    app:srcCompat="@drawable/ic_palette_24px"
+                    tools:ignore="ContentDescription" />
+
+                <ImageButton
+                    android:id="@+id/thickness"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:padding="12dp"
+                    app:srcCompat="@drawable/ic_line_weight_24px"
+                    tools:ignore="ContentDescription" />
+
+                <ImageButton
+                    android:id="@+id/draw_action"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_brush_black_24px"
+                    tools:ignore="ContentDescription" />
+
+                <ImageButton
+                    android:id="@+id/image"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_insert_image_24px"
+                    tools:ignore="ContentDescription" />
+
+                <ImageButton
+                    android:id="@+id/undo"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_undo_24px"
+                    tools:ignore="ContentDescription" />
+
+                <ImageButton
+                    android:id="@+id/redo"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_redo_24px"
+                    tools:ignore="ContentDescription" />
+
+                <ImageButton
+                    android:id="@+id/clear"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:padding="12dp"
+                    app:srcCompat="@drawable/ic_delete_24px"
+                    tools:ignore="ContentDescription" />
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+            </LinearLayout>
+        </ScrollView>
+
+        <View
+            android:id="@+id/view"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:background="@color/pure_dark"
+            app:layout_constraintBottom_toTopOf="@+id/ok"
+            app:layout_constraintEnd_toEndOf="@id/ok"
+            app:layout_constraintStart_toStartOf="@id/ok" />
 
         <ImageButton
             android:id="@+id/ok"
@@ -121,10 +149,12 @@
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackground"
             android:padding="12dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:srcCompat="@drawable/ic_check_circle_24px"
             tools:ignore="ContentDescription" />
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ImageButton
         android:id="@+id/menu"

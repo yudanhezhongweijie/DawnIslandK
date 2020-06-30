@@ -100,8 +100,9 @@ fun BaseViewHolder.convertTitleAndName(
     setGone(R.id.name, name.isBlank() || !visible)
 }
 
-fun BaseViewHolder.convertSage(sage: String?) {
-    setGone(R.id.sage, sage != "1")
+fun BaseViewHolder.convertSage(sage: String?, skipConversion:Boolean = false) {
+    if (sage == "1" && !skipConversion) setVisible(R.id.sage,true)
+    else setGone(R.id.sage, true)
 }
 
 fun BaseViewHolder.convertImage(imgUrl: String, visible: Boolean = true) {

@@ -101,6 +101,9 @@ data class Post(
         page = 1
     )
 
+    // special handler for sticky top banner
+    fun skipSageConversion():Boolean = id == "14500641"
+
     fun getImgUrl() = (img + ext)
     fun getSimplifiedTitle(): String = if (title.isNotBlank() && title != "无标题") "标题：$title" else ""
     fun getSimplifiedName(): String = if (name.isNotBlank() && name != "无名氏") "名称：$name" else ""

@@ -152,8 +152,8 @@
     <string name="saves_reading_progress" translatable="false">是否保存阅读进度</string>
     <string name="reading_progress_on" translatable="false">打开串会跳转到上次看到的页面</string>
     <string name="reading_progress_off" translatable="false">打开串会在首页</string>
-    <string name="comment_filter_off" translatable="false">评论过滤关闭</string>
-    <string name="comment_filter_on" translatable="false">评论过滤开启。新的评论将被过滤</string>
+    <string name="comment_filter_off" translatable="false">只看Po过滤关闭</string>
+    <string name="comment_filter_on" translatable="false">只看Po过滤开启。新的非Po评论将被折叠</string>
     <string name="checked_filtered_comment" translatable="false">查看隐藏%dcm</string>
     <string name="transparent_white" translatable="false">(*´∀`)简约黑白</string>
     <string name="colorful" translatable="false">炫酷全彩(つд⊂)</string>

@@ -144,7 +144,7 @@ class QuickAdapter<T>(
         convertRefId(context, item.id)
         convertTimeStamp(item.now)
         convertForumAndReplyCount(item.replyCount, forumDisplayName)
-        convertSage(item.sage)
+        convertSage(item.sage, item.skipSageConversion())
         convertImage(item.getImgUrl())
         convertContent(context, item.content)
     }

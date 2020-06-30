@@ -59,7 +59,7 @@ class ApplicationDataStore @Inject constructor(
     val firstTimeUse by lazyOnMainOnly { mmkv.getBoolean(DawnConstants.USE_APP_FIRST_TIME, false) }
 
     fun setFirstTimeUse(){
-        mmkv.getBoolean(DawnConstants.USE_APP_FIRST_TIME, true)
+        mmkv.putBoolean(DawnConstants.USE_APP_FIRST_TIME, true)
     }
     // View settings
     val letterSpace by lazyOnMainOnly { mmkv.getFloat(DawnConstants.LETTER_SPACE, 0f) }

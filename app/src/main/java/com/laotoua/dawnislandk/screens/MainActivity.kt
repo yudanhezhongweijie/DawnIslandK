@@ -112,7 +112,7 @@ class MainActivity : DaggerAppCompatActivity() {
             forumDrawer.setData(it)
             sharedVM.setForumMappings(it)
             // TODO: set default forum
-            sharedVM.setForumId(it.first().forums.first().id)
+            if (sharedVM.selectedForumId.value == null) sharedVM.setForumId(it.first().forums.first().id)
             Timber.i("Loaded ${it.size} communities to Adapter")
         })
         sharedVM.reedPictureUrl.observe(this, Observer<String> {
@@ -132,11 +132,19 @@ class MainActivity : DaggerAppCompatActivity() {
         val action: String? = intent?.action
         val data: Uri? = intent?.data
         if (action == Intent.ACTION_VIEW && data != null) {
+            val path = data.path
+            if (path.isNullOrBlank()) return
+            val count = path.filter { it == '/' }.count()
             val raw = data.toString().substringAfterLast("/")
             if (raw.isNotBlank()) {
-                val threadId = if(raw.contains("?")) raw.substringBefore("?") else raw
-                sharedVM.setPost(threadId, "")
-                showComment()
+                val id = if (raw.contains("?")) raw.substringBefore("?") else raw
+                if (count == 1) {
+                    sharedVM.setForumId(id)
+                }
+                if (count == 2) {
+                    sharedVM.setPost(id, "")
+                    showComment()
+                }
             }
         }
     }
@@ -194,14 +202,14 @@ class MainActivity : DaggerAppCompatActivity() {
         }
 
         // first time app entry
-        applicationDataStore.firstTimeUse.let {it->
-            if (!it){
+        applicationDataStore.firstTimeUse.let { it ->
+            if (!it) {
                 MaterialDialog(this).show {
                     title(res = R.string.announcement)
                     checkBoxPrompt(R.string.acknowledge) {}
                     message(R.string.entry_message)
                     positiveButton(R.string.close) {
-                        if (isCheckPromptChecked()){
+                        if (isCheckPromptChecked()) {
                             applicationDataStore.setFirstTimeUse()
                         }
                     }

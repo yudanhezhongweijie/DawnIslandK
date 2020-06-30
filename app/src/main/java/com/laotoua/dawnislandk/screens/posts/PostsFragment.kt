@@ -277,6 +277,10 @@ class PostsFragment : BaseNavFragment() {
                 mAdapter.setDiffNewData(null)
                 return@Observer
             }
+            // adds title when navigate from website url
+            if (mAdapter.data.isNullOrEmpty() && binding.toolbar.title.isNullOrBlank()){
+                binding.toolbar.title = sharedVM.getForumDisplayName(it.first().fid)
+            }
             mAdapter.setDiffNewData(it.toMutableList())
             Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
         })

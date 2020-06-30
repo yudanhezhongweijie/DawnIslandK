@@ -18,7 +18,8 @@ This app uses Retrofit2(& okhttp) for API calls, Dagger2 for Dependency Injectio
 # Thanks
 - [Nimingban](https://github.com/seven332/Nimingban)
 - [DawnIsland](https://github.com/zwt-ss/DawnIsland) 
-- @柔柔(代码) @五(设计) @安之(产品) @bug触发器(测试) @第九龙琦(趋势榜)
+- @柔柔(代码) @五(设计) @安之(产品) @bug触发器(测试) @第九龙琦(趋势榜) @赛璐璐夙志(APP图标)
+资源有一些贡献者我没有记录下来，如果这个软件使用您的产物或者侵犯了您的权益，请联系我的邮箱`aliaseasy98@gmail.com`
 
 # License
 ```

@@ -25,7 +25,6 @@ import com.laotoua.dawnislandk.data.local.dao.CommentDao
 import com.laotoua.dawnislandk.data.local.dao.PostDao
 import com.laotoua.dawnislandk.data.local.dao.PostHistoryDao
 import com.laotoua.dawnislandk.data.local.entity.Community
-import com.laotoua.dawnislandk.data.local.entity.Forum
 import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.data.local.entity.PostHistory
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
@@ -104,10 +103,10 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun setForum(f: Forum) {
-        Timber.d("Setting forum to id: ${f.id}")
-        toolbarTitle = forumNameMapping[f.id] ?: ""
-        _selectedForumId.value = f.id
+    fun setForumId(fid: String) {
+        Timber.d("Setting forum to id: $fid")
+        toolbarTitle = forumNameMapping[fid] ?: ""
+        _selectedForumId.value = fid
     }
 
     fun setPost(id: String, fid: String? = null, selectedPage: Int? = null) {

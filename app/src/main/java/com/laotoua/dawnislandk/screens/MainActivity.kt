@@ -105,22 +105,14 @@ class MainActivity : DaggerAppCompatActivity() {
 
         bindNavBarAndNavController()
 
-        val action: String? = intent?.action
-        val data: Uri? = intent?.data
-        if (action == Intent.ACTION_VIEW && data != null) {
-            val threadId = data.toString().substringAfterLast("/")
-            if (threadId.isNotBlank()) {
-                sharedVM.setPost(threadId, "")
-                showComment()
-            }
-        }
+        handleIntentFilterNavigation()
 
         sharedVM.communityList.observe(this, Observer<List<Community>> {
             if (it.isNullOrEmpty()) return@Observer
             forumDrawer.setData(it)
             sharedVM.setForumMappings(it)
             // TODO: set default forum
-            sharedVM.setForum(it.first().forums.first())
+            sharedVM.setForumId(it.first().forums.first().id)
             Timber.i("Loaded ${it.size} communities to Adapter")
         })
         sharedVM.reedPictureUrl.observe(this, Observer<String> {
@@ -134,6 +126,19 @@ class MainActivity : DaggerAppCompatActivity() {
                         .show()
                 }
             })
+    }
+
+    private fun handleIntentFilterNavigation() {
+        val action: String? = intent?.action
+        val data: Uri? = intent?.data
+        if (action == Intent.ACTION_VIEW && data != null) {
+            val raw = data.toString().substringAfterLast("/")
+            if (raw.isNotBlank()) {
+                val threadId = if(raw.contains("?")) raw.substringBefore("?") else raw
+                sharedVM.setPost(threadId, "")
+                showComment()
+            }
+        }
     }
 
     fun showDrawer() {

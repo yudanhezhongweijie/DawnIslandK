@@ -44,7 +44,7 @@ class ForumDrawerPopup(
         CommunityNodeAdapter(object : CommunityNodeAdapter.ForumClickListener {
             override fun onForumClick(forum: Forum) {
                 Timber.d("Clicked on Forum ${forum.name}")
-                sharedVM.setForum(forum)
+                sharedVM.setForumId(forum.id)
                 dismiss()
             }
         })

@@ -17,7 +17,6 @@
 
 package com.laotoua.dawnislandk.util
 
-import android.app.Activity
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.graphics.Bitmap
@@ -29,8 +28,9 @@ import android.provider.OpenableColumns
 import android.util.Size
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import com.laotoua.dawnislandk.R
 import kotlinx.coroutines.Dispatchers
@@ -43,7 +43,7 @@ object ImageUtil {
 
     private val cachedImages = mutableSetOf<String>()
     fun imageExistInGalleryBasedOnFilenameAndExt(
-        callerActivity: Activity,
+        callerActivity: FragmentActivity,
         fileName: String,
         relativeLocation: String
     ): Boolean {
@@ -64,7 +64,7 @@ object ImageUtil {
         return res
     }
 
-    private fun copyFromFileToImageUri(callerActivity: Activity, uri: Uri, file: File): Boolean {
+    private fun copyFromFileToImageUri(callerActivity: FragmentActivity, uri: Uri, file: File): Boolean {
         try {
             val stream = callerActivity.contentResolver.openOutputStream(uri)
                 ?: throw IOException("Failed to get output stream.")
@@ -78,7 +78,7 @@ object ImageUtil {
     }
 
     fun copyImageFileToGallery(
-        callerActivity: Activity,
+        callerActivity: FragmentActivity,
         fileName: String,
         relativeLocation: String,
         file: File
@@ -107,7 +107,7 @@ object ImageUtil {
     }
 
     fun writeBitmapToGallery(
-        callerActivity: Activity, fileName: String, relativeLocation: String,
+        callerActivity: FragmentActivity, fileName: String, relativeLocation: String,
         bitmap: Bitmap
     ): Uri? {
         return try {
@@ -131,7 +131,7 @@ object ImageUtil {
     }
 
     fun addPlaceholderImageUriToGallery(
-        callerActivity: Activity,
+        callerActivity: FragmentActivity,
         fileName: String,
         relativeLocation: String
     ): Uri {
@@ -153,7 +153,7 @@ object ImageUtil {
     }
 
     fun removePlaceholderImageUriToGallery(
-        callerActivity: Activity,
+        callerActivity: FragmentActivity,
         uri: Uri
     ): Int {
         return callerActivity.contentResolver.delete(uri, null, null)
@@ -178,7 +178,7 @@ object ImageUtil {
 
     fun getImageFileFromUri(
         fragment: Fragment? = null,
-        activity: Activity? = null,
+        activity: AppCompatActivity? = null,
         uri: Uri
     ): File? {
         val callerActivity = fragment?.requireActivity() ?: activity!!
@@ -186,7 +186,7 @@ object ImageUtil {
             val filename = callerActivity.contentResolver.getFileName(uri)
             val file = File(callerActivity.cacheDir, filename)
             if (file.exists()) {
-                Timber.i("File exists. Reusing the old file")
+                Timber.d("File exists. Reusing the old file")
                 return file
             }
             Timber.d("File not found. Making a new one...")
@@ -194,7 +194,7 @@ object ImageUtil {
             if (pfd.statSize >= DawnConstants.SERVER_FILE_SIZE_LIMIT) {
                 Timber.d("Image is oversize: ${pfd.statSize}. Compressing...")
                 val ratio = (DawnConstants.SERVER_FILE_SIZE_LIMIT * 100 / pfd.statSize).toInt()
-                Toast.makeText(callerActivity, R.string.compressed_oversize_image, Toast.LENGTH_SHORT)
+                Toast.makeText(callerActivity, R.string.compressing_oversize_image, Toast.LENGTH_SHORT)
                     .show()
                 compressImage(callerActivity, ratio, pfd.fileDescriptor)
             } else {
@@ -210,9 +210,9 @@ object ImageUtil {
     }
 
     // compression runs on a different thread
-    private fun compressImage(callerActivity: Activity, ratio: Int, fileDescriptor: FileDescriptor): InputStream {
+    private fun compressImage(callerActivity: FragmentActivity, ratio: Int, fileDescriptor: FileDescriptor): InputStream {
         val pipedInputStream = PipedInputStream()
-        (callerActivity as LifecycleOwner).lifecycleScope.launch(Dispatchers.IO) {
+        callerActivity.lifecycleScope.launch(Dispatchers.IO) {
             try {
                 PipedOutputStream(pipedInputStream).use {
                     val bmp = BitmapFactory.decodeFileDescriptor(fileDescriptor)

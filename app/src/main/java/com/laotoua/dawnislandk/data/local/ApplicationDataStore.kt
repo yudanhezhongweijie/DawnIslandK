@@ -56,6 +56,11 @@ class ApplicationDataStore @Inject constructor(
     var feedId: String = ""
         private set
 
+    val firstTimeUse by lazyOnMainOnly { mmkv.getBoolean(DawnConstants.USE_APP_FIRST_TIME, false) }
+
+    fun setFirstTimeUse(){
+        mmkv.getBoolean(DawnConstants.USE_APP_FIRST_TIME, true)
+    }
     // View settings
     val letterSpace by lazyOnMainOnly { mmkv.getFloat(DawnConstants.LETTER_SPACE, 0f) }
     val lineHeight by lazyOnMainOnly { mmkv.getInt(DawnConstants.LINE_HEIGHT, 0) }

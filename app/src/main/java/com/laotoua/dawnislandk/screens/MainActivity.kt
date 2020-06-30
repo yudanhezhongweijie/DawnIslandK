@@ -192,6 +192,22 @@ class MainActivity : DaggerAppCompatActivity() {
         applicationDataStore.getLatestLuweiNotice()?.let { luweiNotice ->
             sharedVM.setLuweiLoadingBible(luweiNotice.loadingMsgs)
         }
+
+        // first time app entry
+        applicationDataStore.firstTimeUse.let {it->
+            if (!it){
+                MaterialDialog(this).show {
+                    title(res = R.string.announcement)
+                    checkBoxPrompt(R.string.acknowledge) {}
+                    message(R.string.entry_message)
+                    positiveButton(R.string.close) {
+                        if (isCheckPromptChecked()){
+                            applicationDataStore.setFirstTimeUse()
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun bindNavBarAndNavController() {

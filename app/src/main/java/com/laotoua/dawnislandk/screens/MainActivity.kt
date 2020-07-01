@@ -288,6 +288,7 @@ class MainActivity : DaggerAppCompatActivity() {
                 showNav()
                 if (currentFragmentId == R.id.postsFragment) {
                     findViewById<FloatingActionButton>(R.id.fabMenu).show()
+                    findViewById<FloatingActionButton>(R.id.fabMenu).isClickable = true
                 }
                 return true
             }

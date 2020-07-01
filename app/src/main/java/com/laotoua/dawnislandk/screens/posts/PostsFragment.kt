@@ -171,9 +171,11 @@ class PostsFragment : BaseNavFragment() {
                         if (_binding == null) return
                         hideFabMenu()
                         binding.fabMenu.hide()
+                        binding.fabMenu.isClickable = false
                     } else if (dy < 0) {
                         if (_binding == null) return
                         binding.fabMenu.show()
+                        binding.fabMenu.isClickable = true
                     }
                 }
             })

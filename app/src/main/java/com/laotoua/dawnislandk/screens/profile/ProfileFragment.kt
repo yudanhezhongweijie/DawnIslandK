@@ -300,14 +300,12 @@ class ProfileFragment : DaggerFragment() {
                         setActionButtonEnabled(WhichButton.POSITIVE, checked)
                     }
                     positiveButton(R.string.submit) {
-                        GlobalScope.launch {
-                            applicationDataStore.nukeCommentTable()
-                            Toast.makeText(
-                                this@ProfileFragment.context,
-                                R.string.cleared_comment_cache_message,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                        GlobalScope.launch { applicationDataStore.nukeCommentTable() }
+                        Toast.makeText(
+                            context,
+                            R.string.cleared_comment_cache_message,
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                     negativeButton(R.string.cancel)
                 }
@@ -362,7 +360,7 @@ class ProfileFragment : DaggerFragment() {
                     waitingDialog.dismiss()
                     MaterialDialog(this@ProfileFragment.requireContext()).show {
                         title(res = R.string.privacy_agreement)
-                        message(text = agreement){html()}
+                        message(text = agreement) { html() }
                         positiveButton(R.string.acknowledge)
                     }
                 }

@@ -25,6 +25,7 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
 import com.laotoua.dawnislandk.R
@@ -32,6 +33,7 @@ import com.laotoua.dawnislandk.databinding.FragmentSearchBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
+import timber.log.Timber
 
 
 class SearchFragment : BaseNavFragment() {
@@ -67,14 +69,7 @@ class SearchFragment : BaseNavFragment() {
                     findViewById<Button>(R.id.search).setOnClickListener {
                         val query = findViewById<TextView>(R.id.searchInputText).text.toString()
                         viewModel.search(query)
-//                        Toast.makeText(context, "还没做。。。", Toast.LENGTH_SHORT).show()
-//                        lifecycleScope.launch {
-//                            val res = viewModel.NMBSearch(query)
-//                            Timber.d("status: ${res.message}")
-//                            if (res is APIMessageResponse.APISuccessMessageResponse){
-//                                Timber.d("dom: ${res.dom}")
-//                            }
-//                        }
+                        dismiss()
                     }
 
                     findViewById<Button>(R.id.jumpToPost).setOnClickListener {
@@ -96,7 +91,10 @@ class SearchFragment : BaseNavFragment() {
                 }
             }
         }
-    }
 
+        viewModel.searchResult.observe(viewLifecycleOwner, Observer {
+            Timber.d("search res ${it.size} \n\n\n $it")
+        })
+    }
 
 }

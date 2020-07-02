@@ -24,16 +24,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
-import android.widget.Button
 import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
-import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.list.listItems
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.laotoua.dawnislandk.DawnApp
@@ -227,35 +224,6 @@ class PostsFragment : BaseNavFragment() {
             )
         }
 
-        binding.search.setOnClickListener {
-            hideFabMenu()
-            MaterialDialog(requireContext()).show {
-                title(R.string.search)
-                customView(R.layout.dialog_search, noVerticalPadding = true).apply {
-                    findViewById<Button>(R.id.search).setOnClickListener {
-                        Toast.makeText(context, "还没做。。。", Toast.LENGTH_SHORT).show()
-                    }
-
-                    findViewById<Button>(R.id.jumpToPost).setOnClickListener {
-                        val threadId = findViewById<TextView>(R.id.searchInputText).text
-                            .filter { it.isDigit() }.toString()
-                        if (threadId.isNotEmpty()) {
-                            // Does not have fid here. fid will be generated when data comes back in reply
-                            sharedVM.setPost(threadId, "")
-                            dismiss()
-                            (requireActivity() as MainActivity).showComment()
-                        } else {
-                            Toast.makeText(
-                                context,
-                                R.string.please_input_valid_text,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                }
-            }
-        }
-
         binding.announcement.setOnClickListener {
             hideFabMenu()
             DawnApp.applicationDataStore.nmbNotice?.let { notice ->
@@ -301,7 +269,6 @@ class PostsFragment : BaseNavFragment() {
         )
         binding.fabMenu.startAnimation(rotateBackward)
         binding.announcement.hide()
-        binding.search.hide()
         binding.post.hide()
         isFabOpen = false
     }
@@ -313,7 +280,6 @@ class PostsFragment : BaseNavFragment() {
         )
         binding.fabMenu.startAnimation(rotateForward)
         binding.announcement.show()
-        binding.search.show()
         binding.post.show()
         isFabOpen = true
     }

@@ -17,29 +17,44 @@
 
 package com.laotoua.dawnislandk.screens.search
 
-import android.util.SparseArray
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.laotoua.dawnislandk.data.local.entity.Post
+import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
+import com.laotoua.dawnislandk.data.remote.SearchResult
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
-class SearchViewModel @Inject constructor(private val webNMBServiceClient: NMBServiceClient) : ViewModel() {
-    var query:String = ""
-    private set
+class SearchViewModel @Inject constructor(private val webNMBServiceClient: NMBServiceClient) :
+    ViewModel() {
+    var query: String = ""
+        private set
 
-    var currentPage = 1
-    private set
+    var nextPage = 1
+        private set
 
-    private var pageResults = SparseArray<List<Post>>()
+    private var pageResults = mutableListOf<SearchResult>()
 
-    fun search(q:String){
+    val searchResult = MediatorLiveData<List<SearchResult.Hit>>()
+
+    fun search(q: String) {
         if (q == query) return
         viewModelScope.launch {
-            Timber.d("TODO SEARCH: $q")
+            webNMBServiceClient.getNMBSearch(q, nextPage).run {
+                if (this is APIDataResponse.APISuccessDataResponse) {
+                    data.query = q
+                    data.page = nextPage
+                    pageResults.add(data)
+                    combinePagedSearchResults()
+                    nextPage += 1
+                }
+            }
         }
+    }
+
+    fun combinePagedSearchResults() {
+        searchResult.value = pageResults.map { it.hits }.flatten()
     }
 
 }

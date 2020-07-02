@@ -83,7 +83,49 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
         moshi.adapter(Comment::class.java).fromJson(response)!!
     }
 
-    suspend fun getPrivacyAgreement():APIMessageResponse{
+    private val parseSearchResult: (String) -> SearchResult = { response ->
+        JSONObject(response).run {
+            getJSONObject("hits").run {
+                val count = optInt("total")
+                val hitsList = mutableListOf<SearchResult.Hit>()
+                optJSONArray("hits")?.run {
+                    for (i in 0 until length()) {
+                        val hitObject = getJSONObject(i)
+                        val sourceObject = getJSONObject("_source")
+                        val hit = SearchResult.Hit(
+                            hitObject.optString("_id"),
+                            sourceObject.optString("now"),
+                            sourceObject.optLong("time"),
+                            sourceObject.optString("img"),
+                            sourceObject.optString("ext"),
+                            sourceObject.optString("title"),
+                            sourceObject.optString("resto"), // the parent id that the hit replys to
+                            sourceObject.optString("userid"),
+                            sourceObject.optString("email"),
+                            sourceObject.optString("content")
+                        )
+                        hitsList.add(hit)
+                    }
+                }
+                SearchResult(
+                    "",
+                    count,
+                    1,
+                    hitsList
+                )
+            }
+        }
+    }
+
+    suspend fun getNMBSearch(
+        query: String,
+        page: Int = 1
+    ): APIDataResponse<SearchResult> {
+        Timber.d("Getting search result for $query on Page $page...")
+        return APIDataResponse.create(service.getNMBSearch(query, page), parseSearchResult)
+    }
+
+    suspend fun getPrivacyAgreement(): APIMessageResponse {
         return APIMessageResponse.create(service.getPrivacyAgreement())
     }
 

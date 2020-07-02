@@ -39,6 +39,9 @@ interface NMBService {
     @GET("https://cover.acfunwiki.org/luwei.json")
     fun getLuweiNotice(): Call<ResponseBody>
 
+    @GET("Api/search")
+    fun getNMBSearch(@Query("q") query: String, @Query("pageNo") page: Int): Call<ResponseBody>
+
     @GET("Api/getForumList")
     fun getNMBForumList(): Call<ResponseBody>
 

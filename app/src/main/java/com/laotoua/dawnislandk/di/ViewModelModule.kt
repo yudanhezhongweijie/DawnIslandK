@@ -27,6 +27,8 @@ import com.laotoua.dawnislandk.screens.posts.PostsFragment
 import com.laotoua.dawnislandk.screens.posts.PostsViewModel
 import com.laotoua.dawnislandk.screens.profile.ProfileFragment
 import com.laotoua.dawnislandk.screens.profile.ProfileViewModel
+import com.laotoua.dawnislandk.screens.search.SearchFragment
+import com.laotoua.dawnislandk.screens.search.SearchViewModel
 import com.laotoua.dawnislandk.screens.subscriptions.*
 import dagger.Binds
 import dagger.Module
@@ -66,6 +68,9 @@ abstract class ViewModelModule {
     @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
     internal abstract fun profileFragment(): ProfileFragment
 
+    @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
+    internal abstract fun searchFragment(): SearchFragment
+
     @Binds
     @IntoMap
     @ViewModelKey(PostsViewModel::class)
@@ -100,6 +105,11 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(ProfileViewModel::class)
     abstract fun bindProfileViewModel(viewModel: ProfileViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(SearchViewModel::class)
+    abstract fun bindSearchViewModel(viewModel: SearchViewModel): ViewModel
 
     @Binds
     @IntoMap

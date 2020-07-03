@@ -22,8 +22,9 @@ import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.chad.library.adapter.base.BaseQuickAdapter
+import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.LoadingStatus
 import me.dkzwm.widget.srl.SmoothRefreshLayout
@@ -48,15 +49,15 @@ object Layout {
     }
 
     fun <AdapterType, PayloadType> Fragment.updateHeaderAndFooter(
-        refreshLayout: SmoothRefreshLayout,
-        mAdapter: QuickAdapter<AdapterType>,
+        refreshLayout: SmoothRefreshLayout?,
+        mAdapter: BaseQuickAdapter<AdapterType, BaseViewHolder>,
         event: EventPayload<PayloadType>
     ) {
         val headerDismissalDelayDuration = 200L
         when (event.loadingStatus) {
             // TODO: stick failure message on header or footer instead of toast
             LoadingStatus.FAILED -> {
-                refreshLayout.refreshComplete(false, headerDismissalDelayDuration)
+                refreshLayout?.refreshComplete(false, headerDismissalDelayDuration)
                 mAdapter.loadMoreModule.loadMoreFail()
                 if (mAdapter.data.isNullOrEmpty()) {
                     if (!mAdapter.hasEmptyView()) mAdapter.setEmptyView(R.layout.view_no_data)
@@ -69,7 +70,7 @@ object Layout {
                 ).show()
             }
             LoadingStatus.NODATA -> {
-                refreshLayout.refreshComplete(true, headerDismissalDelayDuration)
+                refreshLayout?.refreshComplete(true, headerDismissalDelayDuration)
                 mAdapter.loadMoreModule.loadMoreEnd()
                 if (event.message != null) {
                     Toast.makeText(
@@ -80,51 +81,14 @@ object Layout {
                 }
             }
             LoadingStatus.SUCCESS -> {
-                refreshLayout.refreshComplete(true, headerDismissalDelayDuration)
+                refreshLayout?.refreshComplete(true, headerDismissalDelayDuration)
                 mAdapter.loadMoreModule.loadMoreComplete()
             }
             LoadingStatus.LOADING -> {
                 // show indicator if applicable
-                if (isVisible && !mAdapter.loadMoreModule.isLoading && !refreshLayout.isRefreshing) {
+                if (isVisible && !mAdapter.loadMoreModule.isLoading && refreshLayout?.isRefreshing?.not() == true) {
                     refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
                 }
-            }
-        }
-    }
-
-    fun <AdapterType, PayloadType> Fragment.updateFooter(
-        mAdapter: QuickAdapter<AdapterType>,
-        event: EventPayload<PayloadType>
-    ) {
-        when (event.loadingStatus) {
-            // TODO: stick failure message on header or footer instead of toast
-            LoadingStatus.FAILED -> {
-                mAdapter.loadMoreModule.loadMoreFail()
-                if (mAdapter.data.isNullOrEmpty()) {
-                    if (!mAdapter.hasEmptyView()) mAdapter.setEmptyView(R.layout.view_no_data)
-                    mAdapter.setDiffNewData(null)
-                }
-                Toast.makeText(
-                    context,
-                    event.message,
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-            LoadingStatus.NODATA -> {
-                mAdapter.loadMoreModule.loadMoreEnd()
-                if (event.message != null) {
-                    Toast.makeText(
-                        context,
-                        event.message,
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-            LoadingStatus.SUCCESS -> {
-                mAdapter.loadMoreModule.loadMoreComplete()
-            }
-            LoadingStatus.LOADING -> {
-                // show indicator if applicable
             }
         }
     }

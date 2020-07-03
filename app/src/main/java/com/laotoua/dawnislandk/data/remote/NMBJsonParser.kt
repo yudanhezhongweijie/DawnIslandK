@@ -104,7 +104,7 @@ abstract class NMBJsonParser<T> {
                             val hit = SearchResult.Hit(
                                 hitObject.optString("_id"),
                                 sourceObject.optString("now"),
-                                sourceObject.optLong("time"),
+                                sourceObject.optString("time"),
                                 sourceObject.optString("img"),
                                 sourceObject.optString("ext"),
                                 sourceObject.optString("title"),

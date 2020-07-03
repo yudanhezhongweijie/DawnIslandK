@@ -18,15 +18,15 @@
 package com.laotoua.dawnislandk.data.remote
 
 data class SearchResult(
-    var query: String = "", // to be set in VM
+    val query: String = "", // to be set in VM
     val queryHits: Int, // # of return result matching the query
-    var page: Int = 1, // current page of the result, to be set in VM
+    val page: Int = 1, // current page of the result, to be set in VM
     val hits: List<Hit> = emptyList()
 ) {
     data class Hit(
         val id: String,
         val now: String,
-        val time: Long,
+        val time: String,
         val img: String = "",
         val ext: String = "",
         val title: String = "",
@@ -34,5 +34,7 @@ data class SearchResult(
         val userid: String,
         val email: String,
         val content: String
-    )
+    ){
+        fun getImgUrl():String = img + ext
+    }
 }

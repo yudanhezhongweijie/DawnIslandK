@@ -22,18 +22,30 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
+import com.chad.library.adapter.base.binder.QuickItemBinder
+import com.chad.library.adapter.base.util.getItemView
+import com.chad.library.adapter.base.viewholder.BaseViewHolder
+import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.R
+import com.laotoua.dawnislandk.data.remote.SearchResult
 import com.laotoua.dawnislandk.databinding.FragmentSearchBinding
 import com.laotoua.dawnislandk.screens.MainActivity
+import com.laotoua.dawnislandk.screens.SharedViewModel
+import com.laotoua.dawnislandk.screens.adapters.*
+import com.laotoua.dawnislandk.screens.posts.PostCardFactory
+import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
-import timber.log.Timber
+import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
+import com.lxj.xpopup.XPopup
+import java.util.*
 
 
 class SearchFragment : BaseNavFragment() {
@@ -92,15 +104,85 @@ class SearchFragment : BaseNavFragment() {
             }
         }
 
-        viewModel.searchResult.observe(viewLifecycleOwner, Observer {
-            Timber.d("search res ${it.size} \n\n\n $it")
+        val mAdapter = QuickMultiBinder(sharedVM).apply {
+            addItemBinder(SimpleTextBinder())
+            addItemBinder(HitBinder(sharedVM, this@SearchFragment))
+
+        }
+
+        viewModel.searchResult.observe(viewLifecycleOwner, Observer {list->
+            if (list.isEmpty()) {
+                if (!mAdapter.hasEmptyView()) mAdapter.setEmptyView(R.layout.view_no_data)
+                mAdapter.setDiffNewData(null)
+                return@Observer
+            }
+
+            val data: MutableList<Any> = ArrayList()
+            data.add("搜索 ${list.firstOrNull()?.query} 共有结果：${list.firstOrNull()?.queryHits} ")
+            list.map {
+                data.add("搜索结果页数：${it.page}")
+                data.addAll(it.hits)
+            }
+            mAdapter.setDiffNewData(data)
+            mAdapter.setFooterView(
+                layoutInflater.inflate(
+                    R.layout.view_no_more_data,
+                    binding.recyclerView,
+                    false
+                )
+            )
         })
 
         viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.run {
-//                updateFooter(mAdapter, this)
+                updateHeaderAndFooter(null, mAdapter, this)
             }
         })
     }
 
+    private class SimpleTextBinder : QuickItemBinder<String>() {
+        override fun convert(holder: BaseViewHolder, data: String) {
+            holder.setText(R.id.text, data)
+        }
+
+        override fun getLayoutId(): Int = R.layout.list_item_simple_text
+    }
+
+    private class HitBinder(
+        private val sharedViewModel: SharedViewModel,
+        private val callerFragment: SearchFragment
+    ) :
+        QuickItemBinder<SearchResult.Hit>() {
+        override fun convert(holder: BaseViewHolder, data: SearchResult.Hit) {
+            holder.convertUserId(data.userid, "0")
+            holder.convertRefId(context, data.id)
+            holder.convertTimeStamp(data.now)
+            holder.convertImage(data.getImgUrl())
+            holder.convertContent(context, data.content)
+        }
+
+        override fun getLayoutId(): Int = R.layout.list_item_post
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
+            val view = parent.getItemView(getLayoutId()).applyTextSizeAndLetterSpacing()
+            PostCardFactory.applySettings(view as MaterialCardView)
+            return BaseViewHolder(view)
+        }
+
+        override fun onClick(holder: BaseViewHolder, view: View, data: SearchResult.Hit, position: Int) {
+            sharedViewModel.setPost(data.parentId, "")
+            (context as MainActivity).showComment()
+        }
+
+        override fun onChildClick(holder: BaseViewHolder, view: View, data: SearchResult.Hit, position: Int) {
+            if (view.id == R.id.attachedImage) {
+                val url = data.getImgUrl()
+                val viewerPopup = ImageViewerPopup(imgUrl = url, fragment = callerFragment)
+                viewerPopup.setSingleSrcView(view as ImageView?, url)
+                XPopup.Builder(context)
+                    .asCustom(viewerPopup)
+                    .show()
+            }
+        }
+    }
 }

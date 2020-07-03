@@ -17,7 +17,10 @@
 
 package com.laotoua.dawnislandk.screens.search
 
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
@@ -34,15 +37,16 @@ class SearchViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
     var query: String = ""
         private set
 
-    var nextPage = 1
-        private set
 
     private var pageResults = mutableListOf<SearchResult>()
+
+    val nextPage get() = 1.coerceAtLeast(pageResults.size)
 
     private val _loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
     val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>> get() = _loadingStatus
 
-    val searchResult = MediatorLiveData<List<SearchResult.Hit>>()
+    private val _searchResult = MutableLiveData<List<SearchResult>>()
+    val searchResult: LiveData<List<SearchResult>> get() = _searchResult
 
     fun search(q: String) {
         if (q == query) return
@@ -54,21 +58,20 @@ class SearchViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
         viewModelScope.launch {
             webNMBServiceClient.getNMBSearch(q, nextPage, cookieHash).run {
                 if (this is APIDataResponse.APISuccessDataResponse) {
-                    Timber.d("search success")
-                    data.query = q
-                    data.page = nextPage
-                    pageResults.add(data)
-                    combinePagedSearchResults()
-                    nextPage += 1
+                    combinePagedSearchResults(data)
                 } else {
-                    Timber.d("search failed $message")
+                    Timber.e(message)
+                    _loadingStatus.postValue(
+                        SingleLiveEvent.create(LoadingStatus.FAILED, "搜索失败...\n$message")
+                    )
                 }
             }
         }
     }
 
-    fun combinePagedSearchResults() {
-        searchResult.value = pageResults.map { it.hits }.flatten()
+    private fun combinePagedSearchResults(page : SearchResult) {
+        pageResults.add(page)
+        _searchResult.value = pageResults
     }
 
 }

@@ -165,6 +165,7 @@ class MainActivity : DaggerAppCompatActivity() {
     // initialize Global resources
     private suspend fun loadResources() {
         applicationDataStore.getLatestRelease()?.let { release ->
+            if(this.isFinishing) return@let
             MaterialDialog(this).show {
                 title(R.string.found_new_version)
                 message(text = release.message) { html() }
@@ -182,6 +183,7 @@ class MainActivity : DaggerAppCompatActivity() {
 
         applicationDataStore.loadCookies()
         applicationDataStore.getLatestNMBNotice()?.let { notice ->
+            if(this.isFinishing) return@let
             MaterialDialog(this).show {
                 title(res = R.string.announcement)
                 checkBoxPrompt(R.string.acknowledge) {}
@@ -204,6 +206,7 @@ class MainActivity : DaggerAppCompatActivity() {
         // first time app entry
         applicationDataStore.firstTimeUse.let { it ->
             if (!it) {
+                if(this.isFinishing) return@let
                 MaterialDialog(this).show {
                     title(res = R.string.announcement)
                     checkBoxPrompt(R.string.acknowledge) {}

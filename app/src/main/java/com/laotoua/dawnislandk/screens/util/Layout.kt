@@ -91,4 +91,41 @@ object Layout {
             }
         }
     }
+
+    fun <AdapterType, PayloadType> Fragment.updateFooter(
+        mAdapter: QuickAdapter<AdapterType>,
+        event: EventPayload<PayloadType>
+    ) {
+        when (event.loadingStatus) {
+            // TODO: stick failure message on header or footer instead of toast
+            LoadingStatus.FAILED -> {
+                mAdapter.loadMoreModule.loadMoreFail()
+                if (mAdapter.data.isNullOrEmpty()) {
+                    if (!mAdapter.hasEmptyView()) mAdapter.setEmptyView(R.layout.view_no_data)
+                    mAdapter.setDiffNewData(null)
+                }
+                Toast.makeText(
+                    context,
+                    event.message,
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            LoadingStatus.NODATA -> {
+                mAdapter.loadMoreModule.loadMoreEnd()
+                if (event.message != null) {
+                    Toast.makeText(
+                        context,
+                        event.message,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+            LoadingStatus.SUCCESS -> {
+                mAdapter.loadMoreModule.loadMoreComplete()
+            }
+            LoadingStatus.LOADING -> {
+                // show indicator if applicable
+            }
+        }
+    }
 }

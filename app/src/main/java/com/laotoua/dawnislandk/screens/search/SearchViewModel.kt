@@ -17,13 +17,16 @@
 
 package com.laotoua.dawnislandk.screens.search
 
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.data.remote.SearchResult
+import com.laotoua.dawnislandk.util.EventPayload
+import com.laotoua.dawnislandk.util.LoadingStatus
+import com.laotoua.dawnislandk.util.SingleLiveEvent
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 class SearchViewModel @Inject constructor(private val webNMBServiceClient: NMBServiceClient) :
@@ -36,18 +39,29 @@ class SearchViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
 
     private var pageResults = mutableListOf<SearchResult>()
 
+    private val _loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
+    val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>> get() = _loadingStatus
+
     val searchResult = MediatorLiveData<List<SearchResult.Hit>>()
 
     fun search(q: String) {
         if (q == query) return
+        val cookieHash = DawnApp.applicationDataStore.firstCookieHash
+        if (cookieHash == null) {
+            _loadingStatus.value = SingleLiveEvent.create(LoadingStatus.FAILED, "搜索需要饼干。。")
+            return
+        }
         viewModelScope.launch {
-            webNMBServiceClient.getNMBSearch(q, nextPage).run {
+            webNMBServiceClient.getNMBSearch(q, nextPage, cookieHash).run {
                 if (this is APIDataResponse.APISuccessDataResponse) {
+                    Timber.d("search success")
                     data.query = q
                     data.page = nextPage
                     pageResults.add(data)
                     combinePagedSearchResults()
                     nextPage += 1
+                } else {
+                    Timber.d("search failed $message")
                 }
             }
         }

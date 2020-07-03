@@ -25,4 +25,6 @@ data class Cookie(
     @PrimaryKey val cookieHash: String,
     val cookieName: String,
     var cookieDisplayName: String
-)
+){
+    fun getApiHeaderCookieHash():String = "userhash=$cookieHash"
+}

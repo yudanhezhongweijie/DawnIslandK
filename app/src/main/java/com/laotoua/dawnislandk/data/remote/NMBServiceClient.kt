@@ -19,6 +19,7 @@ package com.laotoua.dawnislandk.data.remote
 
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.entity.*
+import com.laotoua.dawnislandk.util.DawnConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -33,11 +34,12 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
 
     suspend fun getNMBSearch(
         query: String,
-        page: Int = 1
+        page: Int = 1,
+        userhash: String
     ): APIDataResponse<SearchResult> {
         Timber.d("Getting search result for $query on Page $page...")
         return APIDataResponse.create(
-            service.getNMBSearch(query, page),
+            service.getNMBSearch(query, page, userhash, DawnConstants.fastMirrorHost),
             NMBJsonParser.SearchResultParser(query, page)
         )
     }
@@ -89,9 +91,8 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
         userhash: String? = DawnApp.applicationDataStore.firstCookieHash
     ): APIDataResponse<Post> {
         Timber.i("Downloading Comments on Post $id on Page $page...")
-        val hash = userhash?.let { "userhash=$it" }
         return APIDataResponse.create(
-            service.getNMBComments(hash, id, page),
+            service.getNMBComments(userhash, id, page),
             NMBJsonParser.CommentParser()
         )
     }
@@ -137,7 +138,7 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
                     email?.toRequestBody(), title?.toRequestBody(),
                     content?.toRequestBody(), water?.toRequestBody(),
                     imagePart,
-                    "userhash=$userhash"
+                    userhash
                 )
             } else {
                 service.postComment(
@@ -145,7 +146,7 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
                     email?.toRequestBody(), title?.toRequestBody(),
                     content?.toRequestBody(), water?.toRequestBody(),
                     imagePart,
-                    "userhash=$userhash"
+                    userhash
                 )
             }
             APIMessageResponse.create(call)

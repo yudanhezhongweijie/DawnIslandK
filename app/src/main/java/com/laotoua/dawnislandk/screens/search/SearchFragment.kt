@@ -95,6 +95,12 @@ class SearchFragment : BaseNavFragment() {
         viewModel.searchResult.observe(viewLifecycleOwner, Observer {
             Timber.d("search res ${it.size} \n\n\n $it")
         })
+
+        viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
+            it.getContentIfNotHandled()?.run {
+//                updateFooter(mAdapter, this)
+            }
+        })
     }
 
 }

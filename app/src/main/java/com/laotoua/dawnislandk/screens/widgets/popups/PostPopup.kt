@@ -532,7 +532,7 @@ class PostPopup(
             return
         }
 
-        cookieHash = selectedCookie?.cookieHash ?: ""
+        selectedCookie?.let { cookieHash = it.getApiHeaderCookieHash() }
 
         val postProgressDialog = MaterialDialog(context).show {
             title(R.string.sending)

@@ -40,7 +40,7 @@ object NMBNetworkModule {
             .writeTimeout(30, TimeUnit.SECONDS)
             .build()
         return Retrofit.Builder()
-            .baseUrl(DawnConstants.baseCDN)
+            .baseUrl(DawnConstants.fastMirrorCDN)
             .client(okHttpClient)
             .build()
             .create(NMBService::class.java)

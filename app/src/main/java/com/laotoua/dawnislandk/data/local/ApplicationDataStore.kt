@@ -44,7 +44,7 @@ class ApplicationDataStore @Inject constructor(
 
     private var mCookies = mutableListOf<Cookie>()
     val cookies: List<Cookie> get() = mCookies
-    val firstCookieHash get() = cookies.firstOrNull()?.cookieHash
+    val firstCookieHash get() = cookies.firstOrNull()?.getApiHeaderCookieHash()
     var luweiNotice: LuweiNotice? = null
         private set
 

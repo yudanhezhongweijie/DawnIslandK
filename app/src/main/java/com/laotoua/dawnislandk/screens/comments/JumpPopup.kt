@@ -74,6 +74,7 @@ class JumpPopup(context: Context) : CenterPopupView(context) {
             if (applicationDataStore.firstCookieHash == null && targetPage > 99) {
                 MaterialDialog(context).show {
                     message(R.string.need_cookie_to_read)
+                    positiveButton(R.string.acknowledge)
                 }
             } else {
                 dismiss()

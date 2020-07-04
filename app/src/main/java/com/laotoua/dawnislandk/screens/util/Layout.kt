@@ -22,8 +22,9 @@ import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.chad.library.adapter.base.BaseQuickAdapter
+import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.LoadingStatus
 import me.dkzwm.widget.srl.SmoothRefreshLayout
@@ -49,7 +50,7 @@ object Layout {
 
     fun <AdapterType, PayloadType> Fragment.updateHeaderAndFooter(
         refreshLayout: SmoothRefreshLayout,
-        mAdapter: QuickAdapter<AdapterType>,
+        mAdapter: BaseQuickAdapter<AdapterType, BaseViewHolder>,
         event: EventPayload<PayloadType>
     ) {
         val headerDismissalDelayDuration = 200L

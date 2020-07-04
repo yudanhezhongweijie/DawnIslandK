@@ -46,7 +46,7 @@ class QuickAdapter<T>(
     private val layoutResId: Int,
     private val sharedViewModel: SharedViewModel? = null
 ) :
-    BaseQuickAdapter<T, BaseViewHolder>(layoutResId, mutableListOf<T>()),
+    BaseQuickAdapter<T, BaseViewHolder>(layoutResId),
     LoadMoreModule {
 
     private lateinit var referenceClickListener: ReferenceSpan.ReferenceClickHandler
@@ -76,12 +76,20 @@ class QuickAdapter<T>(
             isAnimationFirstOnly = DawnApp.applicationDataStore.animationFirstOnly
         }
 
+
         setDiffCallback(DiffItemCallback())
-        loadMoreModule.loadMoreView = DawnLoadMoreView()
+        sharedViewModel?.let {
+            loadMoreModule.loadMoreView = DawnLoadMoreView(it)
+        }
     }
 
     fun setPo(po: String) {
         this.po = po
+    }
+
+    // only works after adapter has been bind to recyclerview
+    fun setDefaultEmptyView(){
+        setEmptyView(R.layout.view_no_data)
     }
 
     fun setReferenceClickListener(referenceClickListener: ReferenceSpan.ReferenceClickHandler) {
@@ -297,7 +305,7 @@ class QuickAdapter<T>(
         )
     }
 
-    inner class DawnLoadMoreView : BaseLoadMoreView() {
+    internal class DawnLoadMoreView(private val sharedViewModel: SharedViewModel) : BaseLoadMoreView() {
         override fun getLoadComplete(holder: BaseViewHolder): View {
             return holder.getView(R.id.load_more_load_complete_view)
         }
@@ -313,7 +321,7 @@ class QuickAdapter<T>(
         override fun getLoadingView(holder: BaseViewHolder): View {
             return holder.getView<LinearLayout>(R.id.load_more_loading_view).apply {
                 findViewById<TextView>(R.id.loading_text).text =
-                    sharedViewModel!!.getRandomLoadingBible()
+                    sharedViewModel.getRandomLoadingBible()
             }
         }
 

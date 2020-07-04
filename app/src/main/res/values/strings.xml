@@ -181,4 +181,5 @@
     <string name="my_profile" translatable="false">个人</string>
     <string name="privacy_agreement" translatable="false">软件隐私协议</string>
     <string name="entry_message" translatable="false">本软件作者是安卓初学者，功能尚未完全实现，有建议或者发现bug请通过个人菜单-客户端反馈告诉作者。\n\n一些使用技巧：\n\n本客户端将交互大部分放在了屏幕下半部分以方便单手操作，推荐使用全面手势。\n\n板块页面再按一次板块按钮或者左滑可以呼出板块列表。\n\n大多数页面双击工具栏能返回顶部、支持上拉刷新</string>
+    <string name="need_cookie_to_search" translatable="false">有饼干才能搜索嗷</string>
 </resources>

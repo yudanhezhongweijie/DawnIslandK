@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ /* Copyright 2020 Fishballzzz
   ~  *
   ~  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,8 +20,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_optimizationLevel="standard|dimensions"
-    tools:context=".screens.posts.PostsFragment">
+    tools:context=".screens.search.SearchFragment">
 
     <ImageView
         android:id="@+id/imageView"
@@ -51,16 +49,27 @@
         app:title="时间线"
         app:titleTextColor="#FFFFFF" />
 
+    <TextView
+        android:id="@+id/pageCounter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:textColor="@color/pure_light"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@id/search"
+        app:layout_constraintEnd_toStartOf="@id/search"
+        app:layout_constraintTop_toTopOf="@id/search" />
+
     <Button
-        android:id="@+id/forumRule"
+        android:id="@+id/search"
         style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:padding="8dp"
-        android:text="@string/forum_rules"
+        android:text="@string/search"
         android:textColor="@color/pure_light"
-        app:icon="@drawable/ic_info_24px"
+        app:icon="@drawable/ic_search_24px"
         app:iconGravity="start"
         app:iconTint="@color/pure_light"
         app:layout_constraintBottom_toBottomOf="@id/toolbar"
@@ -68,58 +77,14 @@
         app:layout_constraintTop_toTopOf="@id/toolbar"
         tools:ignore="ContentDescription" />
 
-    <com.laotoua.dawnislandk.screens.widgets.FlingInterceptor
-        android:id="@+id/flingInterceptor"
+    <include
+        android:id="@+id/srlAndRv"
+        layout="@layout/widget_srl_and_rv"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView">
-
-        <include
-            android:id="@+id/srlAndRv"
-            layout="@layout/widget_srl_and_rv"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </com.laotoua.dawnislandk.screens.widgets.FlingInterceptor>
-
-
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/announcement"
-        style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:text="@string/announcement"
-        android:visibility="gone"
-        app:icon="@drawable/ic_announcement_24px"
-        app:layout_constraintBottom_toTopOf="@+id/post"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/post"
-        style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:text="@string/new_post"
-        android:visibility="gone"
-        app:icon="@drawable/ic_edit_24px"
-        app:layout_constraintBottom_toTopOf="@+id/fabMenu"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabMenu"
-        style="@style/Widget.MaterialComponents.FloatingActionButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="70dp"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_add_black_48px" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

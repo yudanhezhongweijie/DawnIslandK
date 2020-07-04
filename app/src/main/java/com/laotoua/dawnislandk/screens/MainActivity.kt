@@ -25,6 +25,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.Observer
@@ -263,6 +264,7 @@ class MainActivity : DaggerAppCompatActivity() {
     }
 
     fun showComment() {
+        hideNav()
         var commentFrag = supportFragmentManager.findFragmentByTag("comment")
         if (commentFrag == null) {
             commentFrag = CommentsFragment()
@@ -277,7 +279,6 @@ class MainActivity : DaggerAppCompatActivity() {
                 .runOnCommit { commentFrag.onResume() }
                 .commit()
         }
-        hideNav()
     }
 
     fun hideComment(): Boolean {
@@ -336,6 +337,7 @@ class MainActivity : DaggerAppCompatActivity() {
                 override fun onAnimationRepeat(animation: Animator?) {}
                 override fun onAnimationEnd(animation: Animator?) {
                     currentAnimatorSet = null
+                    binding.bottomNavBar.visibility = View.GONE
                 }
 
                 override fun onAnimationCancel(animation: Animator?) {}
@@ -351,6 +353,7 @@ class MainActivity : DaggerAppCompatActivity() {
         if (currentAnimatorSet != null) {
             currentAnimatorSet!!.cancel()
         }
+        binding.bottomNavBar.isClickable = true
         currentState = NavScrollSate.UP
         currentAnimatorSet = AnimatorSet().apply {
             duration = 250
@@ -359,6 +362,7 @@ class MainActivity : DaggerAppCompatActivity() {
                 override fun onAnimationRepeat(animation: Animator?) {}
                 override fun onAnimationEnd(animation: Animator?) {
                     currentAnimatorSet = null
+                    binding.bottomNavBar.visibility = View.VISIBLE
                 }
 
                 override fun onAnimationCancel(animation: Animator?) {}

@@ -18,6 +18,7 @@
 package com.laotoua.dawnislandk.screens.search
 
 import android.os.Bundle
+import android.text.style.UnderlineSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,8 +26,11 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.text.toSpannable
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
 import com.chad.library.adapter.base.binder.QuickItemBinder
@@ -43,6 +47,7 @@ import com.laotoua.dawnislandk.screens.posts.PostCardFactory
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
+import com.laotoua.dawnislandk.screens.widgets.DoubleClickListener
 import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
 import com.lxj.xpopup.XPopup
 import java.util.*
@@ -58,6 +63,8 @@ class SearchFragment : BaseNavFragment() {
     private var _binding: FragmentSearchBinding? = null
     private val binding: FragmentSearchBinding get() = _binding!!
 
+    private var currentPage = 0
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -72,7 +79,48 @@ class SearchFragment : BaseNavFragment() {
             immersiveToolbar()
             setTitle(R.string.search)
             setSubtitle(R.string.toolbar_subtitle)
+            setOnClickListener(
+                DoubleClickListener(callback = object : DoubleClickListener.DoubleClickCallBack {
+                    override fun doubleClicked() {
+                        binding.srlAndRv.recyclerView.layoutManager?.scrollToPosition(0)
+                    }
+                })
+            )
         }
+
+        val mAdapter = QuickMultiBinder(sharedVM).apply {
+            addItemBinder(SimpleTextBinder())
+            addItemBinder(HitBinder(sharedVM, this@SearchFragment).apply {
+                addChildClickViewIds(R.id.attachedImage)
+            })
+
+            loadMoreModule.setOnLoadMoreListener {
+                viewModel.getNextPage()
+            }
+        }
+
+        binding.srlAndRv.recyclerView.apply {
+            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(context)
+            adapter = mAdapter
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    val firstVisiblePos =
+                        (layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                    if (firstVisiblePos > 0 && firstVisiblePos < mAdapter.data.lastIndex) {
+                        if (mAdapter.getItem(firstVisiblePos) is String) {
+                            updateCurrentPage(
+                                (mAdapter.getItem(firstVisiblePos) as String).substringAfter(
+                                    ":"
+                                ).trim().toInt()
+                            )
+                        }
+                    }
+                }
+            })
+        }
+
+        mAdapter.setEmptyView(R.layout.view_no_data)
 
         binding.search.setOnClickListener {
             MaterialDialog(requireContext()).show {
@@ -80,8 +128,17 @@ class SearchFragment : BaseNavFragment() {
                 customView(R.layout.dialog_search, noVerticalPadding = true).apply {
                     findViewById<Button>(R.id.search).setOnClickListener {
                         val query = findViewById<TextView>(R.id.searchInputText).text.toString()
-                        viewModel.search(query)
-                        dismiss()
+                        if (query.isNotBlank() && query != viewModel.query) {
+                            viewModel.search(query)
+                            currentPage = 0
+                            dismiss()
+                        } else {
+                            Toast.makeText(
+                                context,
+                                R.string.please_input_valid_text,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
 
                     findViewById<Button>(R.id.jumpToPost).setOnClickListener {
@@ -104,40 +161,36 @@ class SearchFragment : BaseNavFragment() {
             }
         }
 
-        val mAdapter = QuickMultiBinder(sharedVM).apply {
-            addItemBinder(SimpleTextBinder())
-            addItemBinder(HitBinder(sharedVM, this@SearchFragment))
-
-        }
-
-        viewModel.searchResult.observe(viewLifecycleOwner, Observer {list->
+        viewModel.searchResult.observe(viewLifecycleOwner, Observer { list ->
             if (list.isEmpty()) {
-                if (!mAdapter.hasEmptyView()) mAdapter.setEmptyView(R.layout.view_no_data)
                 mAdapter.setDiffNewData(null)
                 return@Observer
             }
-
+            if (currentPage == 0) updateCurrentPage(1)
             val data: MutableList<Any> = ArrayList()
-            data.add("搜索 ${list.firstOrNull()?.query} 共有结果：${list.firstOrNull()?.queryHits} ")
+            data.add("搜索： ${list.firstOrNull()?.query}")
             list.map {
-                data.add("搜索结果页数：${it.page}")
+                data.add("结果页数: ${it.page}")
                 data.addAll(it.hits)
             }
             mAdapter.setDiffNewData(data)
-            mAdapter.setFooterView(
-                layoutInflater.inflate(
-                    R.layout.view_no_more_data,
-                    binding.recyclerView,
-                    false
-                )
-            )
         })
 
         viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.run {
-                updateHeaderAndFooter(null, mAdapter, this)
+                updateHeaderAndFooter(binding.srlAndRv.refreshLayout, mAdapter, this)
             }
         })
+    }
+
+
+    fun updateCurrentPage(page: Int) {
+        if (page != currentPage) {
+            binding.pageCounter.text =
+                (page.toString() + " / " + viewModel.maxPage.toString()).toSpannable()
+                    .apply { setSpan(UnderlineSpan(), 0, length, 0) }
+            currentPage = page
+        }
     }
 
     private class SimpleTextBinder : QuickItemBinder<String>() {
@@ -169,12 +222,22 @@ class SearchFragment : BaseNavFragment() {
             return BaseViewHolder(view)
         }
 
-        override fun onClick(holder: BaseViewHolder, view: View, data: SearchResult.Hit, position: Int) {
-            sharedViewModel.setPost(data.parentId, "")
+        override fun onClick(
+            holder: BaseViewHolder,
+            view: View,
+            data: SearchResult.Hit,
+            position: Int
+        ) {
+            sharedViewModel.setPost(data.getPostId(), "")
             (context as MainActivity).showComment()
         }
 
-        override fun onChildClick(holder: BaseViewHolder, view: View, data: SearchResult.Hit, position: Int) {
+        override fun onChildClick(
+            holder: BaseViewHolder,
+            view: View,
+            data: SearchResult.Hit,
+            position: Int
+        ) {
             if (view.id == R.id.attachedImage) {
                 val url = data.getImgUrl()
                 val viewerPopup = ImageViewerPopup(imgUrl = url, fragment = callerFragment)

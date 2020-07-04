@@ -31,16 +31,19 @@ import com.laotoua.dawnislandk.util.SingleLiveEvent
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.math.ceil
 
 class SearchViewModel @Inject constructor(private val webNMBServiceClient: NMBServiceClient) :
     ViewModel() {
-    var query: String = ""
+
+    var query = ""
         private set
-
-
     private var pageResults = mutableListOf<SearchResult>()
 
-    val nextPage get() = 1.coerceAtLeast(pageResults.size)
+    private var nextPage = 1
+    var maxPage = 0
+        private set
+    private var foundHits = 0
 
     private val _loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
     val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>> get() = _loadingStatus
@@ -49,29 +52,55 @@ class SearchViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
     val searchResult: LiveData<List<SearchResult>> get() = _searchResult
 
     fun search(q: String) {
-        if (q == query) return
+        if (q == query || q.isBlank()) return
+        pageResults.clear()
+        foundHits = 0
+        query = q
+        nextPage = 1
+        maxPage = 0
+        getNextPage()
+    }
+
+    fun getNextPage() {
         val cookieHash = DawnApp.applicationDataStore.firstCookieHash
         if (cookieHash == null) {
             _loadingStatus.value = SingleLiveEvent.create(LoadingStatus.FAILED, "搜索需要饼干。。")
             return
         }
+        if (query.isBlank()) return
+        _loadingStatus.value = SingleLiveEvent.create(LoadingStatus.LOADING)
         viewModelScope.launch {
-            webNMBServiceClient.getNMBSearch(q, nextPage, cookieHash).run {
-                if (this is APIDataResponse.APISuccessDataResponse) {
-                    combinePagedSearchResults(data)
-                } else {
-                    Timber.e(message)
-                    _loadingStatus.postValue(
-                        SingleLiveEvent.create(LoadingStatus.FAILED, "搜索失败...\n$message")
-                    )
-                }
-            }
+            getQueryOnPage(query, nextPage, cookieHash)
         }
     }
 
-    private fun combinePagedSearchResults(page : SearchResult) {
+    private fun combinePagedSearchResults(page: SearchResult) {
         pageResults.add(page)
+        foundHits += page.hits.size
+        if (page.hits.size == 20) nextPage += 1
+        if (maxPage == 0) maxPage = ceil(page.queryHits.toDouble() / 20).toInt()
+        _loadingStatus.postValue(
+            SingleLiveEvent.create(
+                LoadingStatus.SUCCESS
+            )
+        )
         _searchResult.value = pageResults
     }
 
+    private suspend fun getQueryOnPage(query: String, page: Int, cookieHash: String) {
+        if (foundHits == pageResults.firstOrNull()?.queryHits) {
+            _loadingStatus.value = SingleLiveEvent.create(LoadingStatus.NODATA)
+            return
+        }
+        webNMBServiceClient.getNMBSearch(query, page, cookieHash).run {
+            if (this is APIDataResponse.APISuccessDataResponse) {
+                combinePagedSearchResults(data)
+            } else {
+                Timber.e(message)
+                _loadingStatus.postValue(
+                    SingleLiveEvent.create(LoadingStatus.FAILED, "搜索失败...\n$message")
+                )
+            }
+        }
+    }
 }

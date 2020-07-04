@@ -71,6 +71,7 @@ sealed class APIDataResponse<out T> {
                             APISuccessDataResponse("Parse success", parser.parse(resBody))
                         } catch (e: Exception) {
                             // server returns non json string
+                            Timber.e("Parse failed: $e")
                             Timber.d("Response is non JSON data...")
                             APIBlankDataResponse<Nothing>(
                                 StringEscapeUtils.unescapeJava(

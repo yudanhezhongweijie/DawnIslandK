@@ -100,15 +100,16 @@ abstract class NMBJsonParser<T> {
                     optJSONArray("hits")?.run {
                         for (i in 0 until length()) {
                             val hitObject = getJSONObject(i)
-                            val sourceObject = getJSONObject("_source")
+                            val sourceObject = hitObject.getJSONObject("_source")
                             val hit = SearchResult.Hit(
                                 hitObject.optString("_id"),
                                 sourceObject.optString("now"),
                                 sourceObject.optString("time"),
+                                sourceObject.optString("sage", "0"),
                                 sourceObject.optString("img"),
                                 sourceObject.optString("ext"),
                                 sourceObject.optString("title"),
-                                sourceObject.optString("resto"), // the parent id that the hit replys to
+                                sourceObject.optString("resto"),
                                 sourceObject.optString("userid"),
                                 sourceObject.optString("email"),
                                 sourceObject.optString("content")

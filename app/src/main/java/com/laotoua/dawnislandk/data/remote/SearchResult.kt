@@ -27,14 +27,16 @@ data class SearchResult(
         val id: String,
         val now: String,
         val time: String,
+        val sage:String = "0",
         val img: String = "",
         val ext: String = "",
         val title: String = "",
-        val parentId: String, // the parent id that the hit replys to
+        val resto: String, // the parent id that the hit replys to
         val userid: String,
         val email: String,
         val content: String
-    ){
-        fun getImgUrl():String = img + ext
+    ) {
+        fun getImgUrl(): String = img + ext
+        fun getPostId(): String = if (resto == "0") id else resto
     }
 }

@@ -28,7 +28,6 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.datetime.datePicker
-import com.chad.library.adapter.base.BaseBinderAdapter
 import com.chad.library.adapter.base.binder.QuickItemBinder
 import com.chad.library.adapter.base.util.getItemView
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
@@ -73,7 +72,7 @@ class BrowsingHistoryFragment : BaseNavFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val mAdapter = BaseBinderAdapter().apply {
+        val mAdapter = QuickMultiBinder(sharedVM).apply {
             addItemBinder(DateStringBinder())
             addItemBinder(PostBinder(sharedVM, this@BrowsingHistoryFragment).apply {
                 addChildClickViewIds(R.id.attachedImage)
@@ -88,7 +87,7 @@ class BrowsingHistoryFragment : BaseNavFragment() {
 
         viewModel.browsingHistoryList.observe(viewLifecycleOwner, Observer { list ->
             if (list.isEmpty()) {
-                if (!mAdapter.hasEmptyView()) mAdapter.setEmptyView(R.layout.view_no_data)
+                if (!mAdapter.hasEmptyView()) mAdapter.setDefaultEmptyView()
                 mAdapter.setDiffNewData(null)
                 return@Observer
             }

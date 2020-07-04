@@ -49,7 +49,7 @@ object Layout {
     }
 
     fun <AdapterType, PayloadType> Fragment.updateHeaderAndFooter(
-        refreshLayout: SmoothRefreshLayout?,
+        refreshLayout: SmoothRefreshLayout,
         mAdapter: BaseQuickAdapter<AdapterType, BaseViewHolder>,
         event: EventPayload<PayloadType>
     ) {
@@ -57,7 +57,7 @@ object Layout {
         when (event.loadingStatus) {
             // TODO: stick failure message on header or footer instead of toast
             LoadingStatus.FAILED -> {
-                refreshLayout?.refreshComplete(false, headerDismissalDelayDuration)
+                refreshLayout.refreshComplete(false, headerDismissalDelayDuration)
                 mAdapter.loadMoreModule.loadMoreFail()
                 if (mAdapter.data.isNullOrEmpty()) {
                     if (!mAdapter.hasEmptyView()) mAdapter.setEmptyView(R.layout.view_no_data)
@@ -70,7 +70,7 @@ object Layout {
                 ).show()
             }
             LoadingStatus.NODATA -> {
-                refreshLayout?.refreshComplete(true, headerDismissalDelayDuration)
+                refreshLayout.refreshComplete(true, headerDismissalDelayDuration)
                 mAdapter.loadMoreModule.loadMoreEnd()
                 if (event.message != null) {
                     Toast.makeText(
@@ -81,12 +81,12 @@ object Layout {
                 }
             }
             LoadingStatus.SUCCESS -> {
-                refreshLayout?.refreshComplete(true, headerDismissalDelayDuration)
+                refreshLayout.refreshComplete(true, headerDismissalDelayDuration)
                 mAdapter.loadMoreModule.loadMoreComplete()
             }
             LoadingStatus.LOADING -> {
                 // show indicator if applicable
-                if (isVisible && !mAdapter.loadMoreModule.isLoading && refreshLayout?.isRefreshing?.not() == true) {
+                if (isVisible && !mAdapter.loadMoreModule.isLoading && !refreshLayout.isRefreshing) {
                     refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
                 }
             }

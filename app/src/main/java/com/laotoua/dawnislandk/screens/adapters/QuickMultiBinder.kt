@@ -48,8 +48,11 @@ class QuickMultiBinder(sharedViewModel: SharedViewModel):BaseBinderAdapter(), Lo
         if (DawnApp.applicationDataStore.animationOption > 0) {
             isAnimationFirstOnly = DawnApp.applicationDataStore.animationFirstOnly
         }
-
-        setEmptyView(R.layout.view_no_data)
         loadMoreModule.loadMoreView = QuickAdapter.DawnLoadMoreView(sharedViewModel)
+    }
+
+    // only works after adapter has been bind to recyclerview
+    fun setDefaultEmptyView(){
+        setEmptyView(R.layout.view_no_data)
     }
 }

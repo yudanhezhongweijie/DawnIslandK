@@ -37,6 +37,7 @@ import com.chad.library.adapter.base.binder.QuickItemBinder
 import com.chad.library.adapter.base.util.getItemView
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.google.android.material.card.MaterialCardView
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.remote.SearchResult
 import com.laotoua.dawnislandk.databinding.FragmentSearchBinding
@@ -120,9 +121,14 @@ class SearchFragment : BaseNavFragment() {
             })
         }
 
-        mAdapter.setEmptyView(R.layout.view_no_data)
+        mAdapter.setDefaultEmptyView()
 
         binding.search.setOnClickListener {
+            if (DawnApp.applicationDataStore.firstCookieHash == null){
+                Toast.makeText(context, R.string.need_cookie_to_search,Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             MaterialDialog(requireContext()).show {
                 title(R.string.search)
                 customView(R.layout.dialog_search, noVerticalPadding = true).apply {
@@ -164,6 +170,7 @@ class SearchFragment : BaseNavFragment() {
         viewModel.searchResult.observe(viewLifecycleOwner, Observer { list ->
             if (list.isEmpty()) {
                 mAdapter.setDiffNewData(null)
+                hideCurrentPageText()
                 return@Observer
             }
             if (currentPage == 0) updateCurrentPage(1)
@@ -184,13 +191,17 @@ class SearchFragment : BaseNavFragment() {
     }
 
 
-    fun updateCurrentPage(page: Int) {
+    private fun updateCurrentPage(page: Int) {
         if (page != currentPage) {
             binding.pageCounter.text =
                 (page.toString() + " / " + viewModel.maxPage.toString()).toSpannable()
                     .apply { setSpan(UnderlineSpan(), 0, length, 0) }
             currentPage = page
         }
+    }
+
+    private fun hideCurrentPageText(){
+        binding.pageCounter.text = ""
     }
 
     private class SimpleTextBinder : QuickItemBinder<String>() {

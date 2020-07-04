@@ -76,7 +76,7 @@ class QuickAdapter<T>(
             isAnimationFirstOnly = DawnApp.applicationDataStore.animationFirstOnly
         }
 
-        setEmptyView(R.layout.view_no_data)
+
         setDiffCallback(DiffItemCallback())
         sharedViewModel?.let {
             loadMoreModule.loadMoreView = DawnLoadMoreView(it)
@@ -85,6 +85,11 @@ class QuickAdapter<T>(
 
     fun setPo(po: String) {
         this.po = po
+    }
+
+    // only works after adapter has been bind to recyclerview
+    fun setDefaultEmptyView(){
+        setEmptyView(R.layout.view_no_data)
     }
 
     fun setReferenceClickListener(referenceClickListener: ReferenceSpan.ReferenceClickHandler) {

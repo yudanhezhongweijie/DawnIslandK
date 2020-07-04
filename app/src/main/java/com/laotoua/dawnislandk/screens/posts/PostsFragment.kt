@@ -243,7 +243,7 @@ class PostsFragment : BaseNavFragment() {
 
         viewModel.posts.observe(viewLifecycleOwner, Observer {
             if (it.isEmpty()) {
-                if (!mAdapter.hasEmptyView()) mAdapter.setEmptyView(R.layout.view_no_data)
+                if (!mAdapter.hasEmptyView()) mAdapter.setDefaultEmptyView()
                 mAdapter.setDiffNewData(null)
                 return@Observer
             }

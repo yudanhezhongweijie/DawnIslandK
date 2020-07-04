@@ -75,7 +75,9 @@ class SearchViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
     }
 
     private fun combinePagedSearchResults(page: SearchResult) {
-        pageResults.add(page)
+        if (!page.hits.isNullOrEmpty()) {
+            pageResults.add(page)
+        }
         foundHits += page.hits.size
         if (page.hits.size == 20) nextPage += 1
         if (maxPage == 0) maxPage = ceil(page.queryHits.toDouble() / 20).toInt()

@@ -107,7 +107,7 @@ class TrendsFragment : BaseNavFragment() {
 
         viewModel.trends.observe(viewLifecycleOwner, Observer { list ->
             if (list.isEmpty()) {
-                if (!mAdapter.hasEmptyView()) mAdapter.setEmptyView(R.layout.view_no_data)
+                if (!mAdapter.hasEmptyView()) mAdapter.setDefaultEmptyView()
                 mAdapter.setDiffNewData(null)
                 return@Observer
             }

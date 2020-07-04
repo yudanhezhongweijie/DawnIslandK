@@ -20,17 +20,12 @@ package com.laotoua.dawnislandk.screens.comments
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
-import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.os.Bundle
 import android.os.SystemClock
 import android.text.style.UnderlineSpan
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -94,31 +89,7 @@ class CommentsFragment : DaggerFragment() {
     }
 
     private var currentState: RVScrollState? = null
-    private var currentAnimatorSet: AnimatorSet? = null
-
-    private val slideOutBottom by lazyOnMainOnly {
-        ObjectAnimator.ofFloat(
-            binding.bottomToolbar,
-            "TranslationY",
-            binding.bottomToolbar.height.toFloat()
-        )
-    }
-
-    private val alphaOut by lazyOnMainOnly {
-        ObjectAnimator.ofFloat(binding.bottomToolbar, "alpha", 0f)
-    }
-
-    private val slideInBottom by lazyOnMainOnly {
-        ObjectAnimator.ofFloat(
-            binding.bottomToolbar,
-            "TranslationY",
-            0f
-        )
-    }
-
-    private val alphaIn by lazyOnMainOnly {
-        ObjectAnimator.ofFloat(binding.bottomToolbar, "alpha", 1f)
-    }
+    private var currentAnimatorSet: ViewPropertyAnimator? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -222,22 +193,26 @@ class CommentsFragment : DaggerFragment() {
                         // no span was clicked, simulate click events to parent
                         if (ltv.currentSpan == null) {
                             val metaState = 0
-                            (view.parent as View).dispatchTouchEvent(MotionEvent.obtain(
-                                SystemClock.uptimeMillis(),
-                                SystemClock.uptimeMillis(),
-                                MotionEvent.ACTION_DOWN,
-                                0f,
-                                0f,
-                                metaState
-                            ))
-                            (view.parent as View).dispatchTouchEvent(MotionEvent.obtain(
-                                SystemClock.uptimeMillis(),
-                                SystemClock.uptimeMillis(),
-                                MotionEvent.ACTION_UP,
-                                0f,
-                                0f,
-                                metaState
-                            ))
+                            (view.parent as View).dispatchTouchEvent(
+                                MotionEvent.obtain(
+                                    SystemClock.uptimeMillis(),
+                                    SystemClock.uptimeMillis(),
+                                    MotionEvent.ACTION_DOWN,
+                                    0f,
+                                    0f,
+                                    metaState
+                                )
+                            )
+                            (view.parent as View).dispatchTouchEvent(
+                                MotionEvent.obtain(
+                                    SystemClock.uptimeMillis(),
+                                    SystemClock.uptimeMillis(),
+                                    MotionEvent.ACTION_UP,
+                                    0f,
+                                    0f,
+                                    metaState
+                                )
+                            )
                         }
                     }
                     R.id.expandSummary -> {
@@ -457,21 +432,23 @@ class CommentsFragment : DaggerFragment() {
             currentAnimatorSet!!.cancel()
         }
         currentState = RVScrollState.DOWN
-        currentAnimatorSet = AnimatorSet().apply {
+        currentAnimatorSet = binding.bottomToolbar.animate().apply {
+            alpha(0f)
+            translationY(binding.bottomToolbar.height.toFloat())
             duration = 250
             interpolator = AnimationUtils.FAST_OUT_LINEAR_IN_INTERPOLATOR
-            addListener(object : Animator.AnimatorListener {
+            setListener(object : Animator.AnimatorListener {
                 override fun onAnimationRepeat(animation: Animator?) {}
                 override fun onAnimationEnd(animation: Animator?) {
                     currentAnimatorSet = null
+                    binding.bottomToolbar.visibility = View.GONE
                 }
 
                 override fun onAnimationCancel(animation: Animator?) {}
                 override fun onAnimationStart(animation: Animator?) {}
             })
-            playTogether(slideOutBottom, alphaOut)
-            start()
         }
+        currentAnimatorSet!!.start()
     }
 
     fun showMenu() {
@@ -480,10 +457,13 @@ class CommentsFragment : DaggerFragment() {
             currentAnimatorSet!!.cancel()
         }
         currentState = RVScrollState.UP
-        currentAnimatorSet = AnimatorSet().apply {
+        binding.bottomToolbar.visibility = View.VISIBLE
+        currentAnimatorSet = binding.bottomToolbar.animate().apply {
+            alpha(1f)
+            translationY(0f)
             duration = 250
             interpolator = AnimationUtils.LINEAR_OUT_SLOW_IN_INTERPOLATOR
-            addListener(object : Animator.AnimatorListener {
+            setListener(object : Animator.AnimatorListener {
                 override fun onAnimationRepeat(animation: Animator?) {}
                 override fun onAnimationEnd(animation: Animator?) {
                     currentAnimatorSet = null
@@ -492,9 +472,8 @@ class CommentsFragment : DaggerFragment() {
                 override fun onAnimationCancel(animation: Animator?) {}
                 override fun onAnimationStart(animation: Animator?) {}
             })
-            playTogether(slideInBottom, alphaIn)
-            start()
         }
+        currentAnimatorSet!!.start()
     }
 
     private fun updateTitle() {

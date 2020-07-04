@@ -18,14 +18,13 @@
 package com.laotoua.dawnislandk.screens
 
 import android.animation.Animator
-import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewPropertyAnimator
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.Observer
@@ -79,8 +78,7 @@ class MainActivity : DaggerAppCompatActivity() {
     }
 
     private var currentState: NavScrollSate? = null
-    private var currentAnimatorSet: AnimatorSet? = null
-
+    private var currentAnimatorSet: ViewPropertyAnimator? = null
 
     private val forumDrawer by lazyOnMainOnly {
         ForumDrawerPopup(
@@ -300,40 +298,18 @@ class MainActivity : DaggerAppCompatActivity() {
         return false
     }
 
-    private val navSlideOutBottomAnimAnim by lazyOnMainOnly {
-        ObjectAnimator.ofFloat(
-            binding.bottomNavBar,
-            "TranslationY",
-            binding.bottomNavBar.height.toFloat()
-        )
-    }
-
-    private val navAlphaOutAnim by lazyOnMainOnly {
-        ObjectAnimator.ofFloat(binding.bottomNavBar, "alpha", 0f)
-    }
-
-    private val navSlideInBottomAnim by lazyOnMainOnly {
-        ObjectAnimator.ofFloat(
-            binding.bottomNavBar,
-            "TranslationY",
-            0f
-        )
-    }
-
-    private val navAlphaInAnim by lazyOnMainOnly {
-        ObjectAnimator.ofFloat(binding.bottomNavBar, "alpha", 1f)
-    }
-
     fun hideNav() {
         if (currentState == NavScrollSate.DOWN) return
         if (currentAnimatorSet != null) {
             currentAnimatorSet!!.cancel()
         }
         currentState = NavScrollSate.DOWN
-        currentAnimatorSet = AnimatorSet().apply {
+        currentAnimatorSet = binding.bottomNavBar.animate().apply {
+            alpha(0f)
+            translationY(binding.bottomNavBar.height.toFloat())
             duration = 250
             interpolator = AnimationUtils.FAST_OUT_LINEAR_IN_INTERPOLATOR
-            addListener(object : Animator.AnimatorListener {
+            setListener(object : Animator.AnimatorListener {
                 override fun onAnimationRepeat(animation: Animator?) {}
                 override fun onAnimationEnd(animation: Animator?) {
                     currentAnimatorSet = null
@@ -343,9 +319,8 @@ class MainActivity : DaggerAppCompatActivity() {
                 override fun onAnimationCancel(animation: Animator?) {}
                 override fun onAnimationStart(animation: Animator?) {}
             })
-            playTogether(navSlideOutBottomAnimAnim, navAlphaOutAnim)
-            start()
         }
+        currentAnimatorSet!!.start()
     }
 
     fun showNav() {
@@ -353,23 +328,23 @@ class MainActivity : DaggerAppCompatActivity() {
         if (currentAnimatorSet != null) {
             currentAnimatorSet!!.cancel()
         }
-        binding.bottomNavBar.isClickable = true
         currentState = NavScrollSate.UP
-        currentAnimatorSet = AnimatorSet().apply {
+        binding.bottomNavBar.visibility = View.VISIBLE
+        currentAnimatorSet = binding.bottomNavBar.animate().apply {
+            alpha(1f)
+            translationY(0f)
             duration = 250
             interpolator = AnimationUtils.LINEAR_OUT_SLOW_IN_INTERPOLATOR
-            addListener(object : Animator.AnimatorListener {
+            setListener(object : Animator.AnimatorListener {
                 override fun onAnimationRepeat(animation: Animator?) {}
                 override fun onAnimationEnd(animation: Animator?) {
                     currentAnimatorSet = null
-                    binding.bottomNavBar.visibility = View.VISIBLE
                 }
 
                 override fun onAnimationCancel(animation: Animator?) {}
                 override fun onAnimationStart(animation: Animator?) {}
             })
-            playTogether(navSlideInBottomAnim, navAlphaInAnim)
-            start()
         }
+        currentAnimatorSet!!.start()
     }
 }

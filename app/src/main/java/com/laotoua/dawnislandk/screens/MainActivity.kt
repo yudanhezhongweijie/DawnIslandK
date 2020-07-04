@@ -56,6 +56,7 @@ import com.lxj.xpopup.interfaces.SimpleCallback
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.net.URLDecoder
 import javax.inject.Inject
 
 
@@ -93,6 +94,11 @@ class MainActivity : DaggerAppCompatActivity() {
         applicationDataStore.initializeFeedId()
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        handleIntentFilterNavigation(intent)
+    }
+
     // uses to display fab menu if it exists
     private var currentFragmentId: Int = 0
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -104,7 +110,7 @@ class MainActivity : DaggerAppCompatActivity() {
 
         bindNavBarAndNavController()
 
-        handleIntentFilterNavigation()
+        handleIntentFilterNavigation(intent)
 
         sharedVM.communityList.observe(this, Observer<List<Community>> {
             if (it.isNullOrEmpty()) return@Observer
@@ -127,7 +133,7 @@ class MainActivity : DaggerAppCompatActivity() {
             })
     }
 
-    private fun handleIntentFilterNavigation() {
+    private fun handleIntentFilterNavigation(intent: Intent?) {
         val action: String? = intent?.action
         val data: Uri? = intent?.data
         if (action == Intent.ACTION_VIEW && data != null) {
@@ -139,10 +145,14 @@ class MainActivity : DaggerAppCompatActivity() {
                 val id = if (raw.contains("?")) raw.substringBefore("?") else raw
                 if (count == 1) {
                     sharedVM.setForumId(id)
-                }
-                if (count == 2) {
-                    sharedVM.setPost(id, "")
-                    showComment()
+                } else if (count == 2) {
+                    if (path[1] == 't') {
+                        sharedVM.setPost(id, "")
+                        showComment()
+                    } else if (path[1] == 'f'){
+                        val fid = sharedVM.getForumIdByName(URLDecoder.decode(id, "UTF-8"))
+                        sharedVM.setForumId(fid)
+                    }
                 }
             }
         }

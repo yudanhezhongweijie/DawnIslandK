@@ -106,6 +106,12 @@ class CommentRepository @Inject constructor(
                     )
                 }
         }
+        // catch for jumps without fid or without server updates
+        if (currentPostFid.isBlank()){
+            postMap[currentPostIdInt]?.fid?.let {
+                _currentPostFid = it
+            }
+        }
     }
 
     // set default page

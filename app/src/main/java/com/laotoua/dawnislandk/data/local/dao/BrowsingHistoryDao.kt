@@ -25,24 +25,41 @@ import com.laotoua.dawnislandk.data.local.entity.BrowsingHistoryAndPost
 @Dao
 interface BrowsingHistoryDao {
     @Transaction
-    @Query("SELECT * From BrowsingHistory ORDER BY date DESC")
+    @Query("SELECT * From BrowsingHistory ORDER BY browsedDate DESC")
     fun getAllBrowsingHistoryAndPost(): LiveData<List<BrowsingHistoryAndPost>>
 
     @Transaction
-    @Query("SELECT * From BrowsingHistory WHERE date>=:startDate AND date<=:endDate ORDER BY date DESC ")
-    fun getAllBrowsingHistoryAndPostInDateRange(startDate:Long, endDate:Long): LiveData<List<BrowsingHistoryAndPost>>
+    @Query("SELECT * From BrowsingHistory WHERE browsedDate>=:startDate AND browsedDate<=:endDate ORDER BY browsedDate DESC ")
+    fun getAllBrowsingHistoryAndPostInDateRange(
+        startDate: Long,
+        endDate: Long
+    ): LiveData<List<BrowsingHistoryAndPost>>
 
-    @Query("SELECT * From BrowsingHistory ORDER BY date DESC")
+    @Query("SELECT * From BrowsingHistory ORDER BY browsedDate DESC")
     suspend fun getAllBrowsingHistory(): List<BrowsingHistory>
 
-    @Query("SELECT * From BrowsingHistory WHERE date=:date")
-    fun getBrowsingHistoryByDate(date:Long): LiveData<List<BrowsingHistory>>
+    @Query("SELECT * From BrowsingHistory WHERE browsedDate=:date")
+    fun getBrowsingHistoryByDate(date: Long): LiveData<List<BrowsingHistory>>
 
-    @Query("SELECT * From BrowsingHistory WHERE date=:date AND postId=:postId")
-    suspend fun getBrowsingHistoryByDateAndIdSync(date:Long, postId:String): BrowsingHistory?
+    @Query("SELECT * From BrowsingHistory WHERE browsedDate>=:today AND postId=:postId")
+    suspend fun getBrowsingHistoryByTodayAndIdSync(today: Long, postId: String): BrowsingHistory?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertBrowsingHistory(browsingHistory: BrowsingHistory)
+
+    @Query("UPDATE BrowsingHistory SET pages =:pages, browsedDate=:date WHERE id = :id")
+    suspend fun updateBrowsingPages(pages: String, date: Long, id: Int)
+
+    suspend fun insertOrUpdateBrowsingHistory(browsingHistory: BrowsingHistory) {
+        browsingHistory.id.let {
+            if (it == null) {
+                insertBrowsingHistory(browsingHistory)
+            } else {
+                val pageString = browsingHistory.pages.joinToString(", ")
+                updateBrowsingPages(pageString, browsingHistory.browsedDate, it)
+            }
+        }
+    }
 
     @Query("DELETE FROM BrowsingHistory")
     suspend fun nukeTable()

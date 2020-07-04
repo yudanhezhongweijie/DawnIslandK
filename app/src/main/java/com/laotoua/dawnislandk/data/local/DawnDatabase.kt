@@ -42,7 +42,7 @@ import com.laotoua.dawnislandk.data.local.entity.*
         ReadingPage::class,
         BrowsingHistory::class,
         PostHistory::class],
-    version = 11
+    version = 12
 )
 @TypeConverters(Converter::class)
 abstract class DawnDatabase : RoomDatabase() {
@@ -86,7 +86,8 @@ abstract class DawnDatabase : RoomDatabase() {
                         MIGRATION_7_8,
                         MIGRATION_8_9,
                         MIGRATION_9_10,
-                        MIGRATION_10_11
+                        MIGRATION_10_11,
+                        MIGRATION_11_12
                     )
                     .build()
                 INSTANCE = instance
@@ -185,7 +186,15 @@ abstract class DawnDatabase : RoomDatabase() {
                 database.execSQL("ALTER TABLE PostHistory2 RENAME TO PostHistory")
             }
         }
-
+        // updates BrowsingHistory Table
+        private val MIGRATION_11_12 = object : Migration(11, 12) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("CREATE TABLE IF NOT EXISTS `BrowsingHistory2` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `browsedDate` INTEGER NOT NULL, `postId` TEXT NOT NULL, `postFid` TEXT NOT NULL, `pages` TEXT NOT NULL)")
+                database.execSQL("INSERT INTO `BrowsingHistory2` SELECT NULL,`date`, `postId`, `postFid`, `pages` FROM BrowsingHistory")
+                database.execSQL("DROP TABLE BrowsingHistory")
+                database.execSQL("ALTER TABLE BrowsingHistory2 RENAME TO BrowsingHistory")
+            }
+        }
     }
 }
 

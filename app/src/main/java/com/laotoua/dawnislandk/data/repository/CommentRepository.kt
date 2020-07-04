@@ -39,6 +39,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.*
 import javax.inject.Inject
 
 class CommentRepository @Inject constructor(
@@ -46,7 +47,7 @@ class CommentRepository @Inject constructor(
     private val commentDao: CommentDao,
     private val postDao: PostDao,
     private val readingPageDao: ReadingPageDao,
-    private val browsedPostDaoBrowsing: BrowsingHistoryDao
+    private val browsingHistoryDao: BrowsingHistoryDao
 ) {
     private var _currentPostId: String = "0"
     val currentPostId get() = _currentPostId
@@ -61,7 +62,7 @@ class CommentRepository @Inject constructor(
     private val postMap = SparseArray<Post>(cacheCap)
     private val commentsMap = SparseArray<SparseArray<LiveData<List<Comment>>>>(cacheCap)
     private val readingPageMap = SparseArray<ReadingPage>(cacheCap)
-    private val browsedPostMap = SparseArray<BrowsingHistory>(cacheCap)
+    private val browsingHistoryMap = SparseArray<BrowsingHistory>(cacheCap)
     private val fifoPostList = mutableListOf<Int>()
     private val adMap = SparseArray<SparseArray<Comment>>()
 
@@ -91,15 +92,16 @@ class CommentRepository @Inject constructor(
             readingPageDao.getReadingPageById(id).let {
                 readingPageMap.put(currentPostIdInt, it ?: ReadingPage(currentPostId, 1))
             }
-            browsedPostDaoBrowsing.getBrowsingHistoryByDateAndIdSync(todayDateLong, currentPostId)
+            browsingHistoryDao.getBrowsingHistoryByTodayAndIdSync(todayDateLong, currentPostId)
                 .let {
-                    browsedPostMap.put(
+                    it?.browsedDate = Date().time
+                    browsingHistoryMap.put(
                         currentPostIdInt,
                         it ?: BrowsingHistory(
-                            todayDateLong,
-                            currentPostId,
-                            currentPostFid,
-                            mutableSetOf()
+                            browsedDate = Date().time,
+                            postId = currentPostId,
+                            postFid = currentPostFid,
+                            pages = mutableSetOf()
                         )
                     )
                 }
@@ -128,7 +130,7 @@ class CommentRepository @Inject constructor(
                 commentsMap.delete(this)
                 postMap.delete(this)
                 readingPageMap.delete(this)
-                browsedPostMap.delete(this)
+                browsingHistoryMap.delete(this)
             }
             fifoPostList.removeAt(0)
         }
@@ -192,12 +194,13 @@ class CommentRepository @Inject constructor(
         // update current thread with latest info
         _currentPostFid = data.fid
         // update postFid for browse history(search jump does not have fid)
-        browsedPostMap[currentPostIdInt].run {
+        browsingHistoryMap[currentPostIdInt].run {
             if (postFid != currentPostFid) {
                 postFid = currentPostFid
             }
+            browsedDate = Date().time
             pages.add(page)
-            browsedPostDaoBrowsing.insertBrowsingHistory(this)
+            browsingHistoryDao.insertOrUpdateBrowsingHistory(this)
         }
 
         if (data != postMap[currentPostIdInt]) {

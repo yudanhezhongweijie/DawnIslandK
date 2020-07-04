@@ -95,7 +95,7 @@ class BrowsingHistoryFragment : BaseNavFragment() {
             val data: MutableList<Any> = ArrayList()
             list.map {
                 val dateString = ReadableTime.getDateStringInLocalTime(
-                    it.browsingHistory.browsedDate,
+                            it.browsingHistory.browsedDate,
                     ReadableTime.DATE_ONLY_FORMAT
                 )
                 if (lastDate == null || dateString != lastDate) {

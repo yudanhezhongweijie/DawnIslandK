@@ -41,7 +41,6 @@ import com.laotoua.dawnislandk.screens.posts.PostCardFactory
 import com.laotoua.dawnislandk.screens.widgets.spans.ReferenceSpan
 
 
-// TODO: handle no new data exception
 class QuickAdapter<T>(
     private val layoutResId: Int,
     private val sharedViewModel: SharedViewModel? = null

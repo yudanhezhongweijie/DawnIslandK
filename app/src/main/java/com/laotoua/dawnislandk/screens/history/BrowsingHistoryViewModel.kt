@@ -30,7 +30,7 @@ class BrowsingHistoryViewModel @Inject constructor(private val browsingHistoryDa
     ViewModel() {
 
     // get a week's history by default
-    private var endDate = ReadableTime.getTodayDateLong()
+    private var endDate = Date().time
     private var startDate = endDate - ReadableTime.WEEK_MILLIS
     private var currentList: LiveData<List<BrowsingHistoryAndPost>>? = null
     val browsingHistoryList = MediatorLiveData<List<BrowsingHistoryAndPost>>()

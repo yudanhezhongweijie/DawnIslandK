@@ -91,20 +91,19 @@ class BrowsingHistoryFragment : BaseNavFragment() {
                 mAdapter.setDiffNewData(null)
                 return@Observer
             }
-            var lastDate: Long? = null
+            var lastDate: String? = null
             val data: MutableList<Any> = ArrayList()
             list.map {
-                if (lastDate == null || it.browsingHistory.date != lastDate) {
-                    data.add(
-                        ReadableTime.getDateString(
-                            it.browsingHistory.date,
-                            ReadableTime.DATE_ONLY_FORMAT
-                        )
-                    )
+                val dateString = ReadableTime.getDateStringInLocalTime(
+                    it.browsingHistory.browsedDate,
+                    ReadableTime.DATE_ONLY_FORMAT
+                )
+                if (lastDate == null || dateString != lastDate) {
+                    data.add(dateString)
                 }
                 if (it.post != null) {
                     data.add(it.post)
-                    lastDate = it.browsingHistory.date
+                    lastDate = dateString
                 }
             }
             mAdapter.setDiffNewData(data)
@@ -118,8 +117,8 @@ class BrowsingHistoryFragment : BaseNavFragment() {
             Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} posts")
         })
 
-        binding.startDate.text = ReadableTime.getDateString(startDate.time)
-        binding.endDate.text = ReadableTime.getDateString(endDate.time)
+        binding.startDate.text = ReadableTime.getDateStringInLocalTime(startDate.time.time)
+        binding.endDate.text = ReadableTime.getDateStringInLocalTime(endDate.time.time)
         binding.startDate.setOnClickListener {
             MaterialDialog(requireContext()).show {
                 datePicker(currentDate = startDate) { _, date ->

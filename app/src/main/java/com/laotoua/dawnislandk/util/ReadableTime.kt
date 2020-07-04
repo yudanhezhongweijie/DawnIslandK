@@ -87,6 +87,14 @@ object ReadableTime {
         return format?.format(Date(time)) ?: DATE_ONLY_FORMAT.format(Date(time))
     }
 
+    fun getDateStringInLocalTime(time:Long, format: SimpleDateFormat? = null): String {
+        val mFormat = format ?: DATE_ONLY_FORMAT
+        mFormat.timeZone = TimeZone.getDefault()
+        val dateString = mFormat.format(Date(time))
+        mFormat.timeZone = TimeZone.getTimeZone("GMT+08:00")
+        return dateString
+    }
+
     fun getDateString(date: Date, format: SimpleDateFormat? = null): String {
         return format?.format(date) ?: DATE_ONLY_FORMAT.format(date)
     }

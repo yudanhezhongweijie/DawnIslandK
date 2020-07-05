@@ -22,6 +22,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewPropertyAnimator
@@ -44,7 +45,9 @@ import com.laotoua.dawnislandk.databinding.ActivityMainBinding
 import com.laotoua.dawnislandk.di.DaggerViewModelFactory
 import com.laotoua.dawnislandk.screens.comments.CommentsFragment
 import com.laotoua.dawnislandk.screens.comments.QuotePopup
+import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbarInitialization
+import com.laotoua.dawnislandk.screens.widgets.DoubleClickListener
 import com.laotoua.dawnislandk.screens.widgets.popups.ForumDrawerPopup
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.LoadingStatus
@@ -88,9 +91,23 @@ class MainActivity : DaggerAppCompatActivity() {
         )
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_activity_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId){
+            android.R.id.home -> {
+                findNavController(R.id.navHostFragment).popBackStack()
+            }
+        }
+        return false
+    }
+
     init {
         // load Resources
-        lifecycleScope.launch { loadResources() }
+        lifecycleScope.launchWhenCreated { loadResources() }
         applicationDataStore.initializeFeedId()
     }
 
@@ -105,8 +122,14 @@ class MainActivity : DaggerAppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
+        binding.toolbar.apply {
+            immersiveToolbar()
+            setSubtitle(R.string.toolbar_subtitle)
+        }
         immersiveToolbarInitialization()
         setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
+
 
         bindNavBarAndNavController()
 
@@ -149,7 +172,7 @@ class MainActivity : DaggerAppCompatActivity() {
                     if (path[1] == 't') {
                         sharedVM.setPost(id, "")
                         showComment()
-                    } else if (path[1] == 'f'){
+                    } else if (path[1] == 'f') {
                         val fid = sharedVM.getForumIdByName(URLDecoder.decode(id, "UTF-8"))
                         sharedVM.setForumId(fid)
                     }
@@ -174,7 +197,7 @@ class MainActivity : DaggerAppCompatActivity() {
     // initialize Global resources
     private suspend fun loadResources() {
         applicationDataStore.getLatestRelease()?.let { release ->
-            if(this.isFinishing) return@let
+            if (this.isFinishing) return@let
             MaterialDialog(this).show {
                 title(R.string.found_new_version)
                 message(text = release.message) { html() }
@@ -192,7 +215,7 @@ class MainActivity : DaggerAppCompatActivity() {
 
         applicationDataStore.loadCookies()
         applicationDataStore.getLatestNMBNotice()?.let { notice ->
-            if(this.isFinishing) return@let
+            if (this.isFinishing) return@let
             MaterialDialog(this).show {
                 title(res = R.string.announcement)
                 checkBoxPrompt(R.string.acknowledge) {}
@@ -213,9 +236,9 @@ class MainActivity : DaggerAppCompatActivity() {
         }
 
         // first time app entry
-        applicationDataStore.firstTimeUse.let { it ->
+        applicationDataStore.firstTimeUse.let {
             if (!it) {
-                if(this.isFinishing) return@let
+                if (this.isFinishing) return@let
                 MaterialDialog(this).show {
                     title(res = R.string.announcement)
                     checkBoxPrompt(R.string.acknowledge) {}
@@ -278,7 +301,7 @@ class MainActivity : DaggerAppCompatActivity() {
             commentFrag = CommentsFragment()
             supportFragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
-                .add(R.id.navHostFragment, commentFrag, "comment")
+                .add(R.id.mainActivityFullView, commentFrag, "comment")
                 .addToBackStack(null).commit()
         } else {
             supportFragmentManager.beginTransaction()
@@ -356,5 +379,23 @@ class MainActivity : DaggerAppCompatActivity() {
             })
         }
         currentAnimatorSet!!.start()
+    }
+
+    fun setToolbarClickListener(listener: () -> Unit) {
+        binding.toolbar.setOnClickListener(
+            DoubleClickListener(callback = object : DoubleClickListener.DoubleClickCallBack {
+                override fun doubleClicked() {
+                    listener.invoke()
+                }
+            })
+        )
+    }
+
+    fun setToolbarTitle(text: String) {
+        binding.toolbar.title = text
+    }
+
+    fun setToolbarTitle(resId: Int) {
+        binding.toolbar.setTitle(resId)
     }
 }

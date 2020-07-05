@@ -21,9 +21,4 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <include
-        android:id="@+id/toolbarLayout"
-        layout="@layout/widget_toolbar" />
-
-
 </LinearLayout>

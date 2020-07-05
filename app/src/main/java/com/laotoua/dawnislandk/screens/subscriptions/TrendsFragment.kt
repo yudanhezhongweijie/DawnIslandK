@@ -120,14 +120,6 @@ class TrendsFragment : BaseNavFragment() {
                 )
             )
         })
-
-    }
-
-    override fun onResume() {
-        super.onResume()
-        (parentFragment as SubscriptionPagerFragment).setToolbarClickListener {
-            binding.srlAndRv.recyclerView.layoutManager?.scrollToPosition(0)
-        }
     }
 
     override fun onPause() {

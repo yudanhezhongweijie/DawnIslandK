@@ -20,9 +20,7 @@ package com.laotoua.dawnislandk.screens.posts
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.Toast
@@ -40,9 +38,7 @@ import com.laotoua.dawnislandk.databinding.FragmentPostBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
-import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
-import com.laotoua.dawnislandk.screens.widgets.DoubleClickListener
 import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
 import com.laotoua.dawnislandk.screens.widgets.popups.PostPopup
 import com.laotoua.dawnislandk.util.DawnConstants
@@ -68,20 +64,57 @@ class PostsFragment : BaseNavFragment() {
         return binding.root
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_fragment_post, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.forumRule -> {
+                if (sharedVM.selectedForumId.value == null) {
+                    Toast.makeText(
+                        requireContext(),
+                        R.string.please_try_again_later,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return true
+                }
+                MaterialDialog(requireContext()).show {
+                    val forumId = sharedVM.selectedForumId.value!!
+                    val biId = if (forumId.toInt() > 0) forumId.toInt() else 1
+                    val resourceId: Int = context.resources.getIdentifier(
+                        "bi_$biId", "drawable",
+                        context.packageName
+                    )
+                    icon(resourceId)
+                    title(text = sharedVM.getForumDisplayName(forumId))
+                    message(text = sharedVM.getForumMsg(forumId)) {
+                        html { link ->
+                            val uri = if (link.startsWith("/")) {
+                                DawnConstants.nmbHost + link
+                            } else link
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uri))
+                            if (intent.resolveActivity(requireActivity().packageManager) != null) {
+                                startActivity(intent)
+                            }
+                        }
+                    }
+                    positiveButton(R.string.acknowledge)
+                }
+                return true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        binding.toolbar.apply {
-            immersiveToolbar()
-            setSubtitle(R.string.toolbar_subtitle)
-            setOnClickListener(
-                DoubleClickListener(callback = object : DoubleClickListener.DoubleClickCallBack {
-                    override fun doubleClicked() {
-                        binding.srlAndRv.recyclerView.layoutManager?.scrollToPosition(0)
-                    }
-                })
-            )
-        }
         // initial load
         if (viewModel.posts.value.isNullOrEmpty()) {
             binding.srlAndRv.refreshLayout.autoRefresh(
@@ -182,38 +215,13 @@ class PostsFragment : BaseNavFragment() {
             toggleFabMenu()
         }
 
-        binding.forumRule.setOnClickListener {
-            if (sharedVM.selectedForumId.value == null){
-                Toast.makeText(requireContext(), R.string.please_try_again_later, Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            MaterialDialog(requireContext()).show {
-                val forumId = sharedVM.selectedForumId.value!!
-                val biId = if (forumId.toInt() > 0) forumId.toInt() else 1
-                val resourceId: Int = context.resources.getIdentifier(
-                    "bi_$biId", "drawable",
-                    context.packageName
-                )
-                icon(resourceId)
-                title(text = sharedVM.getForumDisplayName(forumId))
-                message(text = sharedVM.getForumMsg(forumId)) {
-                    html { link ->
-                        val uri = if (link.startsWith("/")) {
-                            DawnConstants.nmbHost + link
-                        } else link
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uri))
-                        if (intent.resolveActivity(requireActivity().packageManager) != null) {
-                            startActivity(intent)
-                        }
-                    }
-                }
-                positiveButton(R.string.acknowledge)
-            }
-        }
-
         binding.post.setOnClickListener {
-            if (sharedVM.selectedForumId.value == null){
-                Toast.makeText(requireContext(), R.string.please_try_again_later, Toast.LENGTH_SHORT).show()
+            if (sharedVM.selectedForumId.value == null) {
+                Toast.makeText(
+                    requireContext(),
+                    R.string.please_try_again_later,
+                    Toast.LENGTH_SHORT
+                ).show()
                 return@setOnClickListener
             }
             hideFabMenu()
@@ -248,8 +256,8 @@ class PostsFragment : BaseNavFragment() {
                 return@Observer
             }
             // adds title when navigate from website url
-            if (mAdapter.data.isNullOrEmpty() && binding.toolbar.title.isNullOrBlank()){
-                binding.toolbar.title = sharedVM.getForumDisplayName(it.first().fid)
+            if (mAdapter.data.isNullOrEmpty() && (requireActivity() as MainActivity).supportActionBar?.title.isNullOrBlank()) {
+                (requireActivity() as MainActivity).setToolbarTitle(sharedVM.getForumDisplayName(it.first().fid))
             }
             mAdapter.setDiffNewData(it.toMutableList())
             Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
@@ -258,7 +266,7 @@ class PostsFragment : BaseNavFragment() {
         sharedVM.selectedForumId.observe(viewLifecycleOwner, Observer {
             if (viewModel.currentFid != it) mAdapter.setList(emptyList())
             viewModel.setForum(it)
-            binding.toolbar.title = sharedVM.getToolbarTitle()
+            (requireActivity() as MainActivity).setToolbarTitle(sharedVM.getToolbarTitle())
         })
     }
 

@@ -46,7 +46,7 @@ class SingleLiveEvent<out T> private constructor(private val content: T) {
             payload: T? = null
         ): SingleLiveEvent<EventPayload<T>> {
             return SingleLiveEvent(
-                EventPayload<T>(
+                EventPayload(
                     loadingStatus,
                     message,
                     payload

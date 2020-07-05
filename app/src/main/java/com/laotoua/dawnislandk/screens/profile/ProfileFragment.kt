@@ -54,7 +54,7 @@ import com.laotoua.dawnislandk.data.local.entity.Cookie
 import com.laotoua.dawnislandk.databinding.FragmentProfileBinding
 import com.laotoua.dawnislandk.databinding.ListItemCookieBinding
 import com.laotoua.dawnislandk.databinding.ListItemPreferenceBinding
-import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
+import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.util.*
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.GlobalScope
@@ -108,10 +108,9 @@ class ProfileFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.toolbarLayout.toolbar.apply {
-            immersiveToolbar()
-            setTitle(R.string.settings)
-            setSubtitle(R.string.toolbar_subtitle)
+        // hide home button when coming back from SizesCustomization
+        (requireActivity() as MainActivity).supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(false)
         }
 
         binding.settings.visibility = View.GONE
@@ -467,6 +466,11 @@ class ProfileFragment : DaggerFragment() {
 
     private fun displayRestartToApplySettingsToast() {
         Toast.makeText(context, R.string.restart_to_apply_setting, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (requireActivity() as MainActivity).setToolbarTitle(R.string.settings)
     }
 
     override fun onDestroyView() {

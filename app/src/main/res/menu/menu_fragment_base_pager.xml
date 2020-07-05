@@ -15,19 +15,16 @@
   ~  */
   -->
 
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".screens.search.SearchFragment">
-
-    <include
-        android:id="@+id/srlAndRv"
-        layout="@layout/widget_srl_and_rv"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/pageIndicator"
+        android:title="@string/edit_default_page"
+        app:actionLayout="@layout/menu_item_page_indicator"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/settings"
+        android:icon="@drawable/ic_settings_24px"
+        android:title="@string/settings"
+        app:showAsAction="ifRoom" />
+</menu>

@@ -52,6 +52,20 @@ open class BaseNavFragment:DaggerFragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        (requireActivity() as MainActivity).setToolbarClickListener {
+            mRecyclerView?.layoutManager?.scrollToPosition(0)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        (requireActivity() as MainActivity).setToolbarClickListener {
+            mRecyclerView?.layoutManager?.scrollToPosition(0)
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         mRecyclerView?.removeOnScrollListener(navBarScrollListener)

@@ -19,9 +19,7 @@ package com.laotoua.dawnislandk.screens.search
 
 import android.os.Bundle
 import android.text.style.UnderlineSpan
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -46,9 +44,7 @@ import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.*
 import com.laotoua.dawnislandk.screens.posts.PostCardFactory
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
-import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
-import com.laotoua.dawnislandk.screens.widgets.DoubleClickListener
 import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
 import com.lxj.xpopup.XPopup
 import java.util.*
@@ -63,8 +59,75 @@ class SearchFragment : BaseNavFragment() {
     private val viewModel: SearchViewModel by viewModels { viewModelFactory }
     private var _binding: FragmentSearchBinding? = null
     private val binding: FragmentSearchBinding get() = _binding!!
+    private var pageCounter:TextView? = null
 
     private var currentPage = 0
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_fragment_search, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        pageCounter = menu.findItem(R.id.pageCounter).actionView.findViewById(R.id.text)
+        super.onPrepareOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.search -> {
+                if (DawnApp.applicationDataStore.firstCookieHash == null) {
+                    Toast.makeText(context, R.string.need_cookie_to_search, Toast.LENGTH_SHORT)
+                        .show()
+                    return true
+                }
+
+                MaterialDialog(requireContext()).show {
+                    title(R.string.search)
+                    customView(R.layout.dialog_search, noVerticalPadding = true).apply {
+                        findViewById<Button>(R.id.search).setOnClickListener {
+                            val query = findViewById<TextView>(R.id.searchInputText).text.toString()
+                            if (query.isNotBlank() && query != viewModel.query) {
+                                viewModel.search(query)
+                                currentPage = 0
+                                dismiss()
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    R.string.please_input_valid_text,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+
+                        findViewById<Button>(R.id.jumpToPost).setOnClickListener {
+                            val threadId = findViewById<TextView>(R.id.searchInputText).text
+                                .filter { it.isDigit() }.toString()
+                            if (threadId.isNotEmpty()) {
+                                // Does not have fid here. fid will be generated when data comes back in reply
+                                sharedVM.setPost(threadId, "")
+                                dismiss()
+                                (requireActivity() as MainActivity).showComment()
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    R.string.please_input_valid_text,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    }
+                }
+                return true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -76,18 +139,6 @@ class SearchFragment : BaseNavFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.toolbar.apply {
-            immersiveToolbar()
-            setTitle(R.string.search)
-            setSubtitle(R.string.toolbar_subtitle)
-            setOnClickListener(
-                DoubleClickListener(callback = object : DoubleClickListener.DoubleClickCallBack {
-                    override fun doubleClicked() {
-                        binding.srlAndRv.recyclerView.layoutManager?.scrollToPosition(0)
-                    }
-                })
-            )
-        }
 
         val mAdapter = QuickMultiBinder(sharedVM).apply {
             addItemBinder(SimpleTextBinder())
@@ -123,50 +174,6 @@ class SearchFragment : BaseNavFragment() {
 
         mAdapter.setDefaultEmptyView()
 
-        binding.search.setOnClickListener {
-            if (DawnApp.applicationDataStore.firstCookieHash == null){
-                Toast.makeText(context, R.string.need_cookie_to_search,Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            MaterialDialog(requireContext()).show {
-                title(R.string.search)
-                customView(R.layout.dialog_search, noVerticalPadding = true).apply {
-                    findViewById<Button>(R.id.search).setOnClickListener {
-                        val query = findViewById<TextView>(R.id.searchInputText).text.toString()
-                        if (query.isNotBlank() && query != viewModel.query) {
-                            viewModel.search(query)
-                            currentPage = 0
-                            dismiss()
-                        } else {
-                            Toast.makeText(
-                                context,
-                                R.string.please_input_valid_text,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-
-                    findViewById<Button>(R.id.jumpToPost).setOnClickListener {
-                        val threadId = findViewById<TextView>(R.id.searchInputText).text
-                            .filter { it.isDigit() }.toString()
-                        if (threadId.isNotEmpty()) {
-                            // Does not have fid here. fid will be generated when data comes back in reply
-                            sharedVM.setPost(threadId, "")
-                            dismiss()
-                            (requireActivity() as MainActivity).showComment()
-                        } else {
-                            Toast.makeText(
-                                context,
-                                R.string.please_input_valid_text,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                }
-            }
-        }
-
         viewModel.searchResult.observe(viewLifecycleOwner, Observer { list ->
             if (list.isEmpty()) {
                 mAdapter.setDiffNewData(null)
@@ -190,18 +197,22 @@ class SearchFragment : BaseNavFragment() {
         })
     }
 
+    override fun onResume() {
+        super.onResume()
+        (requireActivity() as MainActivity).setToolbarTitle(R.string.search)
+    }
 
     private fun updateCurrentPage(page: Int) {
         if (page != currentPage) {
-            binding.pageCounter.text =
+            pageCounter?.text =
                 (page.toString() + " / " + viewModel.maxPage.toString()).toSpannable()
                     .apply { setSpan(UnderlineSpan(), 0, length, 0) }
             currentPage = page
         }
     }
 
-    private fun hideCurrentPageText(){
-        binding.pageCounter.text = ""
+    private fun hideCurrentPageText() {
+        pageCounter?.text = ""
     }
 
     private class SimpleTextBinder : QuickItemBinder<String>() {

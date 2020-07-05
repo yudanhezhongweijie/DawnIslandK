@@ -97,12 +97,17 @@ class MainActivity : DaggerAppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId){
+            android.R.id.home -> {
+                findNavController(R.id.navHostFragment).popBackStack()
+            }
+        }
         return false
     }
 
     init {
         // load Resources
-        lifecycleScope.launchWhenCreated{ loadResources() }
+        lifecycleScope.launchWhenCreated { loadResources() }
         applicationDataStore.initializeFeedId()
     }
 
@@ -167,7 +172,7 @@ class MainActivity : DaggerAppCompatActivity() {
                     if (path[1] == 't') {
                         sharedVM.setPost(id, "")
                         showComment()
-                    } else if (path[1] == 'f'){
+                    } else if (path[1] == 'f') {
                         val fid = sharedVM.getForumIdByName(URLDecoder.decode(id, "UTF-8"))
                         sharedVM.setForumId(fid)
                     }
@@ -192,7 +197,7 @@ class MainActivity : DaggerAppCompatActivity() {
     // initialize Global resources
     private suspend fun loadResources() {
         applicationDataStore.getLatestRelease()?.let { release ->
-            if(this.isFinishing) return@let
+            if (this.isFinishing) return@let
             MaterialDialog(this).show {
                 title(R.string.found_new_version)
                 message(text = release.message) { html() }
@@ -210,7 +215,7 @@ class MainActivity : DaggerAppCompatActivity() {
 
         applicationDataStore.loadCookies()
         applicationDataStore.getLatestNMBNotice()?.let { notice ->
-            if(this.isFinishing) return@let
+            if (this.isFinishing) return@let
             MaterialDialog(this).show {
                 title(res = R.string.announcement)
                 checkBoxPrompt(R.string.acknowledge) {}
@@ -233,7 +238,7 @@ class MainActivity : DaggerAppCompatActivity() {
         // first time app entry
         applicationDataStore.firstTimeUse.let { it ->
             if (!it) {
-                if(this.isFinishing) return@let
+                if (this.isFinishing) return@let
                 MaterialDialog(this).show {
                     title(res = R.string.announcement)
                     checkBoxPrompt(R.string.acknowledge) {}
@@ -386,11 +391,11 @@ class MainActivity : DaggerAppCompatActivity() {
         )
     }
 
-    fun setToolbarTitle(text:String){
+    fun setToolbarTitle(text: String) {
         binding.toolbar.title = text
     }
 
-    fun setToolbarTitle(resId:Int){
+    fun setToolbarTitle(resId: Int) {
         binding.toolbar.setTitle(resId)
     }
 }

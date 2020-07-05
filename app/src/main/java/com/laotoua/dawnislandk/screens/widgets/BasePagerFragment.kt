@@ -18,18 +18,15 @@
 package com.laotoua.dawnislandk.screens.widgets
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.animation.AnimationUtils
+import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.FragmentBasePagerBinding
-import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
-import com.laotoua.dawnislandk.util.lazyOnMainOnly
+import com.laotoua.dawnislandk.screens.MainActivity
+import com.zhpan.indicator.IndicatorView
 import com.zhpan.indicator.enums.IndicatorSlideMode
 import com.zhpan.indicator.enums.IndicatorStyle
 import dagger.android.support.DaggerFragment
@@ -39,7 +36,7 @@ abstract class BasePagerFragment : DaggerFragment() {
     private var _binding: FragmentBasePagerBinding? = null
     private val binding: FragmentBasePagerBinding get() = _binding!!
 
-    abstract val pageTitleResIds: Map<Int,Int>
+    abstract val pageTitleResIds: Map<Int, Int>
     abstract val pageFragmentClass: Map<Int, Class<out BaseNavFragment>>
     abstract val pageEditorClickListener: View.OnClickListener
 
@@ -47,6 +44,44 @@ abstract class BasePagerFragment : DaggerFragment() {
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
             updateTitle(pageTitleResIds[position] ?: error("Missing title ResIds"))
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_fragment_base_pager, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        menu.findItem(R.id.pageIndicator).actionView.findViewById<IndicatorView>(R.id.pageIndicatorView)
+            .apply {
+                setSliderColor(
+                    requireContext().getColor(R.color.lime_500),
+                    requireContext().getColor(R.color.pure_light)
+                )
+                setSliderWidth(requireContext().resources.getDimension(R.dimen.dp_10))
+                setSliderHeight(requireContext().resources.getDimension(R.dimen.dp_10))
+                setSliderGap(requireContext().resources.getDimension(R.dimen.dp_8))
+                setSlideMode(IndicatorSlideMode.WORM)
+                setIndicatorStyle(IndicatorStyle.CIRCLE)
+                setupWithViewPager(binding.viewPager2)
+            }
+        super.onPrepareOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.settings -> {
+                pageEditorClickListener.onClick(item.actionView)
+                true
+            } else -> {
+                super.onOptionsItemSelected(item)
+            }
         }
     }
 
@@ -63,10 +98,6 @@ abstract class BasePagerFragment : DaggerFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.toolbar.apply {
-            immersiveToolbar()
-            setSubtitle(R.string.toolbar_subtitle)
-        }
 
         /** workaround for https://issuetracker.google.com/issues/134912610
          *  programmatically remove over scroll edge effect
@@ -77,25 +108,12 @@ abstract class BasePagerFragment : DaggerFragment() {
             object : FragmentStateAdapter(childFragmentManager, viewLifecycleOwner.lifecycle) {
                 override fun getItemCount(): Int = pageFragmentClass.size
                 override fun createFragment(position: Int): Fragment {
-                    return pageFragmentClass[position]?.newInstance() ?: error("Missing Fragment Class")
+                    return pageFragmentClass[position]?.newInstance()
+                        ?: error("Missing Fragment Class")
                 }
             }
 
         binding.viewPager2.registerOnPageChangeCallback(titleUpdateCallback)
-
-        binding.pageIndicatorView
-            .setSliderColor(
-                requireContext().getColor(R.color.lime_500),
-                requireContext().getColor(R.color.pure_light)
-            )
-            .setSliderWidth(requireContext().resources.getDimension(R.dimen.dp_10))
-            .setSliderHeight(requireContext().resources.getDimension(R.dimen.dp_10))
-            .setSliderGap(requireContext().resources.getDimension(R.dimen.dp_8))
-            .setSlideMode(IndicatorSlideMode.WORM)
-            .setIndicatorStyle(IndicatorStyle.CIRCLE)
-            .setupWithViewPager(binding.viewPager2)
-
-        binding.pageEditor.setOnClickListener(pageEditorClickListener)
     }
 
     override fun onDestroyView() {
@@ -105,28 +123,8 @@ abstract class BasePagerFragment : DaggerFragment() {
         Timber.d("Fragment View Destroyed")
     }
 
-    private val slideInLeftAnimation by lazyOnMainOnly {
-        AnimationUtils.loadAnimation(
-            requireContext(),
-            R.anim.slide_in_left
-        )
-    }
-
     fun updateTitle(resId: Int) {
-        binding.toolbar.run {
-            startAnimation(slideInLeftAnimation)
-            setTitle(resId)
-        }
-    }
-
-    fun setToolbarClickListener(listener: () -> Unit) {
-        binding.toolbar.setOnClickListener(
-            DoubleClickListener(callback = object : DoubleClickListener.DoubleClickCallBack {
-                override fun doubleClicked() {
-                    listener.invoke()
-                }
-            })
-        )
+        (requireActivity() as MainActivity).setToolbarTitle(resId)
     }
 
 }

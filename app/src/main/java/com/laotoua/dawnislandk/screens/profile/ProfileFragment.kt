@@ -108,6 +108,11 @@ class ProfileFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // hide home button when coming back from SizesCustomization
+        (requireActivity() as MainActivity).supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(false)
+        }
+
         binding.settings.visibility = View.GONE
 
         binding.feedId.apply {

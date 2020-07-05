@@ -166,13 +166,6 @@ class FeedsFragment : BaseNavFragment() {
         })
     }
 
-    override fun onResume() {
-        super.onResume()
-        (parentFragment as SubscriptionPagerFragment).setToolbarClickListener {
-            binding.srlAndRv.recyclerView.layoutManager?.scrollToPosition(0)
-        }
-    }
-
     override fun onPause() {
         super.onPause()
         mHandler?.removeCallbacks(mDelayedLoad)

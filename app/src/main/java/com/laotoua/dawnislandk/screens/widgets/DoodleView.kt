@@ -509,7 +509,7 @@ class DoodleView : View {
     private class Recycler {
         private var mSize = 0
         private val mStack: Stack<DrawInfo> =
-            Stack<DrawInfo>()
+            Stack()
 
         @Nullable
         fun obtain(): DrawInfo? {

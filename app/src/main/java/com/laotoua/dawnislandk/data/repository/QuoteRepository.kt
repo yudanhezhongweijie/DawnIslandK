@@ -52,7 +52,7 @@ class QuoteRepository @Inject constructor(
         return quoteMap[idLong]
     }
 
-    private fun getLiveQuote(id: String, idLong: Long) = liveData<Comment>(Dispatchers.IO) {
+    private fun getLiveQuote(id: String, idLong: Long) = liveData(Dispatchers.IO) {
         val cache = commentDao.findDistinctCommentById(id)
         addQuoteToCache(idLong, cache)
         emitSource(cache)

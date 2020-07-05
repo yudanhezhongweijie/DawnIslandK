@@ -64,7 +64,11 @@ object ImageUtil {
         return res
     }
 
-    private fun copyFromFileToImageUri(callerActivity: FragmentActivity, uri: Uri, file: File): Boolean {
+    private fun copyFromFileToImageUri(
+        callerActivity: FragmentActivity,
+        uri: Uri,
+        file: File
+    ): Boolean {
         try {
             val stream = callerActivity.contentResolver.openOutputStream(uri)
                 ?: throw IOException("Failed to get output stream.")
@@ -190,11 +194,14 @@ object ImageUtil {
                 return file
             }
             Timber.d("File not found. Making a new one...")
-            // TODO: image compression may cause lag on main thread
             if (pfd.statSize >= DawnConstants.SERVER_FILE_SIZE_LIMIT) {
                 Timber.d("Image is oversize: ${pfd.statSize}. Compressing...")
                 val ratio = (DawnConstants.SERVER_FILE_SIZE_LIMIT * 100 / pfd.statSize).toInt()
-                Toast.makeText(callerActivity, R.string.compressing_oversize_image, Toast.LENGTH_SHORT)
+                Toast.makeText(
+                    callerActivity,
+                    R.string.compressing_oversize_image,
+                    Toast.LENGTH_SHORT
+                )
                     .show()
                 compressImage(callerActivity, ratio, pfd.fileDescriptor)
             } else {
@@ -207,20 +214,20 @@ object ImageUtil {
             return file
         }
         return null
+
     }
 
     // compression runs on a different thread
-    private fun compressImage(callerActivity: FragmentActivity, ratio: Int, fileDescriptor: FileDescriptor): InputStream {
+    private fun compressImage(
+        callerActivity: FragmentActivity,
+        ratio: Int,
+        fileDescriptor: FileDescriptor
+    ): InputStream {
         val pipedInputStream = PipedInputStream()
-        callerActivity.lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                PipedOutputStream(pipedInputStream).use {
-                    val bmp = BitmapFactory.decodeFileDescriptor(fileDescriptor)
-                    bmp.compress(Bitmap.CompressFormat.JPEG, ratio, it)
-                }
-            } catch (e: IOException) {
-                // logging and exception handling should go here
-                Timber.e(e, "Failed to compress image")
+        PipedOutputStream(pipedInputStream).use {
+            callerActivity.lifecycleScope.launch(Dispatchers.IO) {
+                val bmp = BitmapFactory.decodeFileDescriptor(fileDescriptor)
+                bmp.compress(Bitmap.CompressFormat.JPEG, ratio, it)
             }
         }
         return pipedInputStream

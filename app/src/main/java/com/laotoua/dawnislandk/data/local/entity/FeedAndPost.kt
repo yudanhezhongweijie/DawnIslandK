@@ -23,7 +23,7 @@ import androidx.room.Relation
 class FeedAndPost(
     @Embedded val feed: Feed,
     @Relation(
-        parentColumn = "id",
+        parentColumn = "postId",
         entityColumn = "id"
     )
     // post can be deleted hence not exist in database

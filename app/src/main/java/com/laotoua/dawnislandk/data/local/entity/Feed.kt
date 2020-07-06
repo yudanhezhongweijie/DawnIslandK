@@ -22,13 +22,17 @@ import androidx.room.PrimaryKey
 import com.squareup.moshi.JsonClass
 
 @Entity
-data class Feed (
-    @PrimaryKey(autoGenerate = true) val id:Int? = null, // table id
+data class Feed(
+    @PrimaryKey(autoGenerate = true) val id: Int? = null, // table id
     val postId: String, //	该串的id
     val category: String,
-    val page:Int,
+    val page: Int,
     var lastUpdatedAt: Long = 0 // timestamp which the row is updated
-){
+) {
+    fun equalsExceptIdAndTime(other: Feed?): Boolean {
+        return if (other == null) false else postId == other.postId && category == other.category && page == other.page
+    }
+
     @JsonClass(generateAdapter = true)
     data class ServerFeed(
         @PrimaryKey val id: String,
@@ -44,5 +48,24 @@ data class Feed (
         val content: String,
         val admin: String = "0",
         val status: String = ""
-    )
+    ) {
+        fun toPost() = Post(
+            id,
+            fid,
+            img,
+            ext,
+            now,
+            userid,
+            name,
+            email,
+            title,
+            content,
+            "",
+            "0",
+            status,
+            emptyList(),
+            "",
+            0
+        )
+    }
 }

@@ -18,9 +18,11 @@
 package com.laotoua.dawnislandk.data.local.dao
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.distinctUntilChanged
 import androidx.room.*
 import com.laotoua.dawnislandk.data.local.entity.Feed
 import com.laotoua.dawnislandk.data.local.entity.FeedAndPost
+import com.laotoua.dawnislandk.data.local.entity.Post
 
 @Dao
 interface FeedDao {
@@ -30,23 +32,38 @@ interface FeedDao {
 
     @Transaction
     @Query("SELECT * From Feed WHERE page=:page")
-    fun getAllFeedAndPostOnPage(        page: Int    ): LiveData<List<FeedAndPost>>
+    fun getFeedAndPostOnPage(page: Int): LiveData<List<FeedAndPost>>
+
+    fun getDistinctFeedAndPostOnPage(page:Int) = getFeedAndPostOnPage(page).distinctUntilChanged()
+
+    @Query("DELETE FROM Feed WHERE postId=:postId")
+    suspend fun deleteFeed(postId: String)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertFeed(feed: Feed)
 
-    @Query("UPDATE Feed SET page =:page, lastUpdatedAt=:lastUpdatedAt WHERE id = :id")
-    suspend fun updateFeed(page: Int, lastUpdatedAt: Long, id: Int)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllFeed(feedList: List<Feed>)
+
+    @Query("UPDATE Feed SET page =:page, lastUpdatedAt=:lastUpdatedAt WHERE postId = :postId")
+    suspend fun updateFeed(page: Int, lastUpdatedAt: Long, postId: String)
 
     suspend fun insertOrUpdateFeed(feed: Feed) {
         feed.id.let {
             if (it == null) {
                 insertFeed(feed)
             } else {
-                updateFeed(feed.page, feed.lastUpdatedAt, it)
+                updateFeed(feed.page, feed.lastUpdatedAt, feed.postId)
             }
         }
     }
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertPostIfNotExist(post: Post)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAllPostIfNotExist(postList: List<Post>)
+
 
     @Query("DELETE FROM Feed")
     suspend fun nukeTable()

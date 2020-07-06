@@ -97,9 +97,9 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
         )
     }
 
-    suspend fun getFeeds(uuid: String, page: Int): APIDataResponse<List<Post>> {
+    suspend fun getFeeds(uuid: String, page: Int): APIDataResponse<List<Feed.ServerFeed>> {
         Timber.i("Downloading Feeds on Page $page...")
-        return APIDataResponse.create(service.getNMBFeeds(uuid, page), NMBJsonParser.PostParser())
+        return APIDataResponse.create(service.getNMBFeeds(uuid, page), NMBJsonParser.FeedParser())
     }
 
     suspend fun getQuote(id: String): APIDataResponse<Comment> {

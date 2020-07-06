@@ -134,7 +134,7 @@ class FeedsFragment : BaseNavFragment() {
         binding.srlAndRv.refreshLayout.apply {
             setOnRefreshListener(object : RefreshingListenerAdapter() {
                 override fun onRefreshing() {
-                    viewModel.refresh()
+                    viewModel.refreshOrGetPreviousPage()
                 }
             })
         }
@@ -161,8 +161,11 @@ class FeedsFragment : BaseNavFragment() {
                 mAdapter.setDiffNewData(null)
                 return@Observer
             }
-            mAdapter.setDiffNewData(it.toMutableList())
-            Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
+            // TODO: currently only display post, adds page Indicator
+            // TODO: add page jump
+            Timber.d("feed posts ${it.map { f->f.post }}")
+            mAdapter.setDiffNewData(it.mapNotNull { f -> f.post }.toMutableList())
+            Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} feeds")
         })
     }
 

@@ -31,10 +31,13 @@ interface FeedDao {
     fun getAllFeedAndPost(): LiveData<List<FeedAndPost>>
 
     @Transaction
-    @Query("SELECT * From Feed WHERE page=:page")
-    fun getFeedAndPostOnPage(page: Int): LiveData<List<FeedAndPost>>
+    @Query("SELECT * From Feed WHERE id>=:startInd AND id<:endInd")
+    fun getFeedAndPostBetweenIds(startInd: Int, endInd: Int): LiveData<List<FeedAndPost>>
 
-    fun getDistinctFeedAndPostOnPage(page:Int) = getFeedAndPostOnPage(page).distinctUntilChanged()
+    fun getFeedAndPostOnPage(page: Int) =
+        getFeedAndPostBetweenIds((page - 1) * 10 + 1, page * 10 + 1)
+
+    fun getDistinctFeedAndPostOnPage(page: Int) = getFeedAndPostOnPage(page).distinctUntilChanged()
 
     @Query("DELETE FROM Feed WHERE postId=:postId")
     suspend fun deleteFeed(postId: String)
@@ -44,19 +47,6 @@ interface FeedDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllFeed(feedList: List<Feed>)
-
-    @Query("UPDATE Feed SET page =:page, lastUpdatedAt=:lastUpdatedAt WHERE postId = :postId")
-    suspend fun updateFeed(page: Int, lastUpdatedAt: Long, postId: String)
-
-    suspend fun insertOrUpdateFeed(feed: Feed) {
-        feed.id.let {
-            if (it == null) {
-                insertFeed(feed)
-            } else {
-                updateFeed(feed.page, feed.lastUpdatedAt, feed.postId)
-            }
-        }
-    }
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertPostIfNotExist(post: Post)

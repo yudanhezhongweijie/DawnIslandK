@@ -23,14 +23,23 @@ import com.squareup.moshi.JsonClass
 
 @Entity
 data class Feed(
-    @PrimaryKey(autoGenerate = true) val id: Int? = null, // table id
-    val postId: String, //	该串的id
+    val id: Int = 1, // table id for sorting
+    @PrimaryKey val postId: String, //	该串的id
     val category: String,
-    val page: Int,
     var lastUpdatedAt: Long = 0 // timestamp which the row is updated
 ) {
-    fun equalsExceptIdAndTime(other: Feed?): Boolean {
-        return if (other == null) false else postId == other.postId && category == other.category && page == other.page
+    val page get() = id / 10 + if (id % 10 == 0) 0 else 1
+
+    override fun equals(other: Any?) =
+        if (other is Feed) {
+            id == other.id && postId == other.postId && category == other.category
+        } else false
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + postId.hashCode()
+        result = 31 * result + category.hashCode()
+        return result
     }
 
     @JsonClass(generateAdapter = true)

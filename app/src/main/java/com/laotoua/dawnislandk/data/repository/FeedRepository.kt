@@ -90,9 +90,11 @@ class FeedRepository @Inject constructor(
     private suspend fun convertFeedData(data: List<Feed.ServerFeed>, page: Int) {
         val feeds = mutableListOf<Feed>()
         val posts = mutableListOf<Post>()
-        data.map {
-            feeds.add(Feed(null, it.id, it.category, page, Date().time))
-            posts.add(it.toPost())
+        val baseIndex = (page - 1) * 10 + 1
+        val timestamp = Date().time
+        data.mapIndexed { index, serverFeed ->
+            feeds.add(Feed(baseIndex + index, serverFeed.id, serverFeed.category, timestamp))
+            posts.add(serverFeed.toPost())
         }
         if (data.isEmpty()) {
             _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.NODATA))
@@ -108,28 +110,18 @@ class FeedRepository @Inject constructor(
     }
 
     private suspend fun compareAndUpdateCacheFeeds(list: List<Feed>, page: Int) {
-        val cacheFeed = feedsMap[page].value?.map { feedAndPost -> feedAndPost.feed } ?: emptyList()
-        val updatedFeed = mutableListOf<Feed>()
-        for (i in list.indices) {
-            if (i > cacheFeed.lastIndex) {
-                updatedFeed.add(list[i])
-            } else if (!list[i].equalsExceptIdAndTime(cacheFeed[i])) {
-                updatedFeed.add(
-                    Feed(
-                        cacheFeed[i].id, list[i].postId, list[i].category, list[i].page
-                        , list[i].lastUpdatedAt
-                    )
-                )
-            }
+        val cacheFeed = feedsMap[page].value?.map { it.feed } ?: emptyList()
+        if (cacheFeed != list) {
+            feedDao.insertAllFeed(list)
         }
-        feedDao.insertAllFeed(updatedFeed)
     }
 
+    // TODO: deleting a feed cause all following feeds shift 1 position
     suspend fun deleteFeed(postId: String, position: Int) {
         Timber.i("Deleting Feed $postId")
         webService.delFeed(DawnApp.applicationDataStore.feedId, postId).run {
             if (this is APIMessageResponse.APISuccessMessageResponse) {
-                feedDao.deleteFeed(postId)
+                coroutineScope { launch { feedDao.deleteFeed(postId) } }
                 _delFeedResponse.postValue(
                     SingleLiveEvent.create(
                         LoadingStatus.SUCCESS,
@@ -138,7 +130,6 @@ class FeedRepository @Inject constructor(
                     )
                 )
             } else {
-                Timber.e("Response type: ${this.javaClass.simpleName}")
                 Timber.e(message)
                 _delFeedResponse.postValue(
                     SingleLiveEvent.create(

@@ -25,6 +25,7 @@ import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.data.local.entity.FeedAndPost
 import com.laotoua.dawnislandk.data.repository.FeedRepository
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 class FeedsViewModel @Inject constructor(private val feedRepo: FeedRepository) : ViewModel() {
@@ -34,18 +35,19 @@ class FeedsViewModel @Inject constructor(private val feedRepo: FeedRepository) :
     val loadingStatus get() = feedRepo.loadingStatus
     val delFeedResponse get() = feedRepo.delFeedResponse
 
+    // TODO verify
     fun getNextPage() {
-        var nextPage = feeds.value?.lastOrNull()?.feed?.page ?: 1
-        if (feeds.value?.size?.rem(10) == 0) nextPage += 1
+        val nextPage = feeds.value?.lastOrNull()?.feed?.id?.div(10)?.plus(1) ?: 1
         getFeedOnPage(nextPage)
     }
 
+    // TODO verify
     fun refreshOrGetPreviousPage() {
         if (feeds.value.isNullOrEmpty()) {
             getNextPage()
             return
         }
-        val lastPage = feeds.value?.firstOrNull()?.feed?.page ?: -1
+        val lastPage = feeds.value?.firstOrNull()?.feed?.id?.div(10)?.minus(1) ?: 0
         if (lastPage < 1) {
             clearCache()
             getFeedOnPage(1)
@@ -56,6 +58,7 @@ class FeedsViewModel @Inject constructor(private val feedRepo: FeedRepository) :
 
 
     private fun getFeedOnPage(page: Int) {
+        Timber.d("getting feed on $page")
         val newPage = feedRepo.getLiveFeedPage(page)
         if (feedPages[page] != newPage) {
             feedPages.put(page, newPage)
@@ -70,12 +73,15 @@ class FeedsViewModel @Inject constructor(private val feedRepo: FeedRepository) :
         }
     }
 
+    // 1. filter duplicates
+    // 2. filter feeds that do not have post data
+    // in the second case, getting remote data should save a copy of post
     private fun combineFeeds() {
         val ids = mutableSetOf<String>()
         val noDuplicates = mutableListOf<FeedAndPost>()
         feedPageIndices.map {
             feedPages[it].value?.map { feedAndPost ->
-                if (!ids.contains(feedAndPost.feed.postId)) {
+                if (!ids.contains(feedAndPost.feed.postId) && feedAndPost.post != null) {
                     ids.add(feedAndPost.feed.postId)
                     noDuplicates.add(feedAndPost)
                 }

@@ -19,20 +19,24 @@ package com.laotoua.dawnislandk.screens.subscriptions
 
 import android.os.Bundle
 import android.os.Handler
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
+import com.chad.library.adapter.base.binder.QuickItemBinder
+import com.chad.library.adapter.base.util.getItemView
+import com.chad.library.adapter.base.viewholder.BaseViewHolder
+import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.data.local.entity.Post
+import com.laotoua.dawnislandk.data.local.entity.FeedAndPost
 import com.laotoua.dawnislandk.databinding.FragmentSubscriptionFeedBinding
 import com.laotoua.dawnislandk.screens.MainActivity
-import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
+import com.laotoua.dawnislandk.screens.SharedViewModel
+import com.laotoua.dawnislandk.screens.adapters.*
+import com.laotoua.dawnislandk.screens.posts.PostCardFactory
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
 import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
@@ -41,6 +45,7 @@ import com.lxj.xpopup.XPopup
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import me.dkzwm.widget.srl.config.Constants
 import timber.log.Timber
+import java.util.*
 
 
 class FeedsFragment : BaseNavFragment() {
@@ -59,6 +64,27 @@ class FeedsFragment : BaseNavFragment() {
         viewModel.getNextPage()
     }
     private var delayedLoading = false
+    private var currentPage = 0
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_fragment_feed, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.jump -> {
+                Toast.makeText(requireContext(), "TODO", Toast.LENGTH_SHORT).show()
+                return true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -79,47 +105,12 @@ class FeedsFragment : BaseNavFragment() {
             delayedLoading = mHandler!!.postDelayed(mDelayedLoad, 500)
         }
 
-        val mAdapter = QuickAdapter<Post>(R.layout.list_item_post, sharedVM).apply {
-            setOnItemClickListener { _, _, position ->
-                getItem(position).run {
-                    sharedVM.setPost(id, fid)
-                }
-                (requireActivity() as MainActivity).showComment()
-            }
+        val mAdapter = QuickMultiBinder(sharedVM).apply {
+            addItemBinder(SimpleTextBinder())
+            addItemBinder(FeedAndPostBinder(sharedVM, this@FeedsFragment).apply {
+                addChildClickViewIds(R.id.attachedImage)
+            })
 
-            // long click to delete
-            setOnItemLongClickListener { _, _, position ->
-                val id = getItem(position).id
-                MaterialDialog(requireContext()).show {
-                    title(text = "删除订阅 $id?")
-                    positiveButton(R.string.delete) {
-                        viewModel.deleteFeed(id, position)
-                    }
-                    negativeButton(R.string.cancel)
-                }
-
-                true
-            }
-
-            addChildClickViewIds(R.id.attachedImage)
-            setOnItemChildClickListener { _, view, position ->
-                if (view.id == R.id.attachedImage) {
-                    val url = getItem(position).getImgUrl()
-
-                    val viewerPopup =
-                        ImageViewerPopup(
-                            url,
-                            fragment = this@FeedsFragment
-                        )
-                    viewerPopup.setSingleSrcView(view as ImageView?, url)
-
-                    XPopup.Builder(context)
-                        .asCustom(viewerPopup)
-                        .show()
-                }
-            }
-
-            // load more
             loadMoreModule.setOnLoadMoreListener {
                 viewModel.getNextPage()
             }
@@ -155,17 +146,26 @@ class FeedsFragment : BaseNavFragment() {
             }
         })
 
-        viewModel.feeds.observe(viewLifecycleOwner, Observer {
-            if (it.isEmpty()) {
-                if (!mAdapter.hasEmptyView()) mAdapter.setDefaultEmptyView()
+        mAdapter.setDefaultEmptyView()
+        viewModel.feeds.observe(viewLifecycleOwner, Observer {list->
+            if (list.isEmpty()) {
                 mAdapter.setDiffNewData(null)
                 return@Observer
             }
-            // TODO: currently only display post, adds page Indicator
-            // TODO: add page jump
-            Timber.d("feed posts ${it.map { f->f.post }}")
-            mAdapter.setDiffNewData(it.mapNotNull { f -> f.post }.toMutableList())
-            Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} feeds")
+
+            val data: MutableList<Any> = ArrayList()
+            var lastPage: Int? = null
+            list.map {
+                if (it.feed.page != lastPage) {
+                    data.add("页数: ${it.feed.page}")
+                    lastPage = it.feed.page
+                }
+                if (it.post != null) {
+                    data.add(it)
+                }
+            }
+            mAdapter.setDiffNewData(data)
+            Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} feeds")
         })
     }
 
@@ -179,6 +179,80 @@ class FeedsFragment : BaseNavFragment() {
         mHandler = null
         _binding = null
         Timber.d("Fragment View Destroyed")
+    }
+
+    private class SimpleTextBinder : QuickItemBinder<String>() {
+        override fun convert(holder: BaseViewHolder, data: String) {
+            holder.setText(R.id.text, data)
+        }
+
+        override fun getLayoutId(): Int = R.layout.list_item_simple_text
+    }
+
+    inner class FeedAndPostBinder(
+        private val sharedViewModel: SharedViewModel,
+        private val callerFragment: BaseNavFragment
+    ) :
+        QuickItemBinder<FeedAndPost>() {
+        override fun convert(holder: BaseViewHolder, data: FeedAndPost) {
+            holder.convertUserId(data.post!!.userid, "0")
+            holder.convertRefId(context, data.post.id)
+            holder.convertTimeStamp(data.post.now)
+            holder.convertImage(data.post.getImgUrl())
+            holder.convertContent(context, data.post.content)
+        }
+
+        override fun getLayoutId(): Int = R.layout.list_item_post
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
+            val view = parent.getItemView(getLayoutId()).applyTextSizeAndLetterSpacing()
+            PostCardFactory.applySettings(view as MaterialCardView)
+            return BaseViewHolder(view)
+        }
+
+        override fun onClick(
+            holder: BaseViewHolder,
+            view: View,
+            data: FeedAndPost,
+            position: Int
+        ) {
+
+            sharedViewModel.setPost(data.feed.postId, data.post!!.fid)
+            (context as MainActivity).showComment()
+        }
+
+        override fun onLongClick(
+            holder: BaseViewHolder,
+            view: View,
+            data: FeedAndPost,
+            position: Int
+        ): Boolean {
+            val id = data.feed.postId
+                MaterialDialog(context).show {
+                    title(text = "删除订阅 $id?")
+                    positiveButton(R.string.delete) {
+                        viewModel.deleteFeed(id, position)
+                    }
+                    negativeButton(R.string.cancel)
+                }
+            return true
+        }
+
+        override fun onChildClick(
+            holder: BaseViewHolder,
+            view: View,
+            data: FeedAndPost,
+            position: Int
+        ) {
+            if (view.id == R.id.attachedImage) {
+                val url = data.post!!.getImgUrl()
+                val viewerPopup = ImageViewerPopup(imgUrl = url, fragment = callerFragment)
+                viewerPopup.setSingleSrcView(view as ImageView?, url)
+                XPopup.Builder(context)
+                    .asCustom(viewerPopup)
+                    .show()
+            }
+        }
     }
 }
 

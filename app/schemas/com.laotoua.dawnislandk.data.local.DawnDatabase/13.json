@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 13,
-    "identityHash": "489224fce4ce61bf0bda9006512e4f99",
+    "identityHash": "e561184e27a20ff075499f954b4758e0",
     "entities": [
       {
         "tableName": "Community",
@@ -646,13 +646,13 @@
       },
       {
         "tableName": "Feed",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `postId` TEXT NOT NULL, `category` TEXT NOT NULL, `page` INTEGER NOT NULL, `lastUpdatedAt` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `postId` TEXT NOT NULL, `category` TEXT NOT NULL, `lastUpdatedAt` INTEGER NOT NULL, PRIMARY KEY(`postId`))",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "postId",
@@ -667,12 +667,6 @@
             "notNull": true
           },
           {
-            "fieldPath": "page",
-            "columnName": "page",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
             "fieldPath": "lastUpdatedAt",
             "columnName": "lastUpdatedAt",
             "affinity": "INTEGER",
@@ -681,9 +675,9 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "id"
+            "postId"
           ],
-          "autoGenerate": true
+          "autoGenerate": false
         },
         "indices": [],
         "foreignKeys": []
@@ -692,7 +686,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '489224fce4ce61bf0bda9006512e4f99')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e561184e27a20ff075499f954b4758e0')"
     ]
   }
 }

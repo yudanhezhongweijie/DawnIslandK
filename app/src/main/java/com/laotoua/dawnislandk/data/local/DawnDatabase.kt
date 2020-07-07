@@ -177,11 +177,19 @@ abstract class DawnDatabase : RoomDatabase() {
             // adds feeds Table, drop category column in Post
             val migrate12To13 = object : Migration(12, 13) {
                 override fun migrate(database: SupportSQLiteDatabase) {
-                    database.execSQL("CREATE TABLE IF NOT EXISTS `Feed` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `postId` TEXT NOT NULL, `category` TEXT NOT NULL, `page` INTEGER NOT NULL, `lastUpdatedAt` INTEGER NOT NULL)")
+                    database.execSQL("CREATE TABLE IF NOT EXISTS `Feed` (`id` INTEGER NOT NULL, `postId` TEXT NOT NULL, `category` TEXT NOT NULL, `lastUpdatedAt` INTEGER NOT NULL, PRIMARY KEY(`postId`))")
                     database.execSQL("CREATE TABLE IF NOT EXISTS `Post2` (`id` TEXT NOT NULL, `fid` TEXT NOT NULL, `img` TEXT NOT NULL, `ext` TEXT NOT NULL, `now` TEXT NOT NULL, `userid` TEXT NOT NULL, `name` TEXT NOT NULL, `email` TEXT NOT NULL, `title` TEXT NOT NULL, `content` TEXT NOT NULL, `sage` TEXT NOT NULL, `admin` TEXT NOT NULL, `status` TEXT NOT NULL, `replyCount` TEXT NOT NULL, `lastUpdatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))")
                     database.execSQL("INSERT INTO `Post2` SELECT `id`, `fid`, `img`, `ext`, `now`, `userid`, `name`, `email`, `title`, `content`, `sage`, `admin`, `status`, `replyCount`, `lastUpdatedAt` FROM Post")
                     database.execSQL("DROP TABLE Post")
                     database.execSQL("ALTER TABLE Post2 RENAME TO Post")
+                }
+            }
+
+            // TODO remove
+            val migrate13To12 = object : Migration(13, 12) {
+                override fun migrate(database: SupportSQLiteDatabase) {
+                    database.execSQL("DROP TABLE Feed")
+                    database.execSQL("CREATE TABLE IF NOT EXISTS `Feed` (`id` INTEGER NOT NULL, `postId` TEXT NOT NULL, `category` TEXT NOT NULL, `lastUpdatedAt` INTEGER NOT NULL, PRIMARY KEY(`postId`))")
                 }
             }
 
@@ -203,7 +211,8 @@ abstract class DawnDatabase : RoomDatabase() {
                         migrate9To10,
                         migrate10To11,
                         migrate11To12,
-                        migrate12To13
+                        migrate12To13,
+                        migrate13To12
                     )
                     .build()
                 INSTANCE = instance

@@ -26,9 +26,13 @@ import com.laotoua.dawnislandk.data.local.entity.Post
 
 @Dao
 interface FeedDao {
+
     @Transaction
     @Query("SELECT * From Feed")
     fun getAllFeedAndPost(): LiveData<List<FeedAndPost>>
+
+    @Query("SELECT * From FEED where postId=:postId")
+    suspend fun findFeedByPostId(postId: String): Feed?
 
     @Transaction
     @Query("SELECT * From Feed WHERE id>=:startInd AND id<:endInd ORDER BY id ASC")
@@ -39,11 +43,29 @@ interface FeedDao {
 
     fun getDistinctFeedAndPostOnPage(page: Int) = getFeedAndPostOnPage(page).distinctUntilChanged()
 
-    @Query("DELETE FROM Feed WHERE postId=:postId")
-    suspend fun deleteFeed(postId: String)
+    @Transaction
+    suspend fun addFeedToTopAndIncrementFeedIds(feed: Feed) {
+        incrementFeedIdsAfter(feed.id)
+        insertFeed(feed)
+    }
+
+    @Transaction
+    suspend fun deleteFeedAndDecrementFeedIds(feed: Feed){
+        decrementFeedIdsAfter(feed.id)
+        deleteFeedByPostId(feed.postId)
+    }
+
+    @Query("UPDATE Feed SET id=id+1 WHERE id>=:id")
+    suspend fun incrementFeedIdsAfter(id: Int)
+
+    @Query("UPDATE Feed SET id=id-1 WHERE id>:id")
+    suspend fun decrementFeedIdsAfter(id: Int)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertFeed(feed: Feed)
+
+    @Query("DELETE FROM Feed WHERE postId=:postId")
+    suspend fun deleteFeedByPostId(postId: String)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllFeed(feedList: List<Feed>)

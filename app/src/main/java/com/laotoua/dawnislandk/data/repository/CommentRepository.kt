@@ -22,14 +22,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import com.laotoua.dawnislandk.DawnApp
-import com.laotoua.dawnislandk.data.local.dao.BrowsingHistoryDao
-import com.laotoua.dawnislandk.data.local.dao.CommentDao
-import com.laotoua.dawnislandk.data.local.dao.PostDao
-import com.laotoua.dawnislandk.data.local.dao.ReadingPageDao
-import com.laotoua.dawnislandk.data.local.entity.BrowsingHistory
-import com.laotoua.dawnislandk.data.local.entity.Comment
-import com.laotoua.dawnislandk.data.local.entity.Post
-import com.laotoua.dawnislandk.data.local.entity.ReadingPage
+import com.laotoua.dawnislandk.data.local.dao.*
+import com.laotoua.dawnislandk.data.local.entity.*
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
@@ -47,7 +41,8 @@ class CommentRepository @Inject constructor(
     private val commentDao: CommentDao,
     private val postDao: PostDao,
     private val readingPageDao: ReadingPageDao,
-    private val browsingHistoryDao: BrowsingHistoryDao
+    private val browsingHistoryDao: BrowsingHistoryDao,
+    private val feedDao: FeedDao
 ) {
     private var _currentPostId: String = "0"
     val currentPostId get() = _currentPostId
@@ -107,7 +102,7 @@ class CommentRepository @Inject constructor(
                 }
         }
         // catch for jumps without fid or without server updates
-        if (currentPostFid.isBlank()){
+        if (currentPostFid.isBlank()) {
             postMap[currentPostIdInt]?.fid?.let {
                 _currentPostFid = it
             }
@@ -186,7 +181,7 @@ class CommentRepository @Inject constructor(
                     if (pageDownloadJob?.isCancelled != true) {
                         Timber.e(message)
                         commentsMap[currentPostIdInt].delete(page)
-                        if (commentsMap[currentPostIdInt]?.size() == 0){
+                        if (commentsMap[currentPostIdInt]?.size() == 0) {
                             commentsMap.delete(currentPostIdInt)
                         }
                         setLoadingStatus(LoadingStatus.FAILED, "无法读取串回复...\n$message")
@@ -252,9 +247,19 @@ class CommentRepository @Inject constructor(
         postDao.insertWithTimeStamp(post)
     }
 
-    // TODO: do not send request if subscribe already
     suspend fun addFeed(uuid: String, id: String) {
         Timber.d("Adding Feed $id")
+        val cachedFeed = feedDao.findFeedByPostId(id)
+        if (cachedFeed != null) {
+            addFeedResponse.postValue(
+                SingleLiveEvent.create(
+                    LoadingStatus.SUCCESS,
+                    "已经订阅过了哦"
+                )
+            )
+            return
+        }
+
         webService.addFeed(uuid, id).run {
             if (this is APIMessageResponse.APISuccessMessageResponse) {
                 if (messageType == APIMessageResponse.MessageType.String) {
@@ -264,6 +269,12 @@ class CommentRepository @Inject constructor(
                             message
                         )
                     )
+                    coroutineScope {
+                        launch {
+                            val newFeed = Feed(1, id, "", Date().time)
+                            feedDao.addFeedToTopAndIncrementFeedIds(newFeed)
+                        }
+                    }
                 } else {
                     Timber.e(message)
                 }

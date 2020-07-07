@@ -51,8 +51,8 @@ class FeedRepository @Inject constructor(
     val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>>
         get() = _loadingStatus
 
-    private val _delFeedResponse = MutableLiveData<SingleLiveEvent<EventPayload<Int>>>()
-    val delFeedResponse: LiveData<SingleLiveEvent<EventPayload<Int>>> get() = _delFeedResponse
+    private val _delFeedResponse = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
+    val delFeedResponse: LiveData<SingleLiveEvent<EventPayload<Nothing>>> get() = _delFeedResponse
     private var pageDownloadJob: Job? = null
 
 
@@ -65,7 +65,7 @@ class FeedRepository @Inject constructor(
                 pageDownloadJob = getServerData(page)
             })
         } else {
-            pageDownloadJob = getServerData(page)
+            coroutineScope { launch { pageDownloadJob = getServerData(page) } }
         }
         return feedsMap[page]
     }
@@ -121,17 +121,15 @@ class FeedRepository @Inject constructor(
         }
     }
 
-    // TODO: deleting a feed cause all following feeds shift 1 position
-    suspend fun deleteFeed(postId: String, position: Int) {
-        Timber.i("Deleting Feed $postId")
-        webService.delFeed(DawnApp.applicationDataStore.feedId, postId).run {
+    suspend fun deleteFeed(feed: Feed) {
+        Timber.i("Deleting Feed ${feed.postId}")
+        webService.delFeed(DawnApp.applicationDataStore.feedId, feed.postId).run {
             if (this is APIMessageResponse.APISuccessMessageResponse) {
-                coroutineScope { launch { feedDao.deleteFeed(postId) } }
+                coroutineScope { launch { feedDao.deleteFeedAndDecrementFeedIds(feed) } }
                 _delFeedResponse.postValue(
                     SingleLiveEvent.create(
                         LoadingStatus.SUCCESS,
-                        message,
-                        position
+                        message
                     )
                 )
             } else {

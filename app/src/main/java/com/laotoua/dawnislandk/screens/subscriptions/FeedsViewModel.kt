@@ -99,9 +99,9 @@ class FeedsViewModel @Inject constructor(private val feedRepo: FeedRepository) :
         feeds.value = noDuplicates
     }
 
-    fun deleteFeed(id: String, position: Int) {
+    fun deleteFeed(feed: Feed) {
         viewModelScope.launch {
-            feedRepo.deleteFeed(id, position)
+            feedRepo.deleteFeed(feed)
         }
     }
 

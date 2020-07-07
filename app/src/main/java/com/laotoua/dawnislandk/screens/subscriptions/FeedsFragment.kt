@@ -46,7 +46,6 @@ import com.laotoua.dawnislandk.screens.posts.PostCardFactory
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
 import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
-import com.laotoua.dawnislandk.util.LoadingStatus
 import com.lxj.xpopup.XPopup
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import me.dkzwm.widget.srl.config.Constants
@@ -159,9 +158,6 @@ class FeedsFragment : BaseNavFragment() {
         viewModel.delFeedResponse.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let { eventPayload ->
                 Toast.makeText(context, eventPayload.message, Toast.LENGTH_SHORT).show()
-                if (eventPayload.loadingStatus == LoadingStatus.SUCCESS) mAdapter.removeAt(
-                    eventPayload.payload!!
-                )
             }
         })
 
@@ -262,7 +258,7 @@ class FeedsFragment : BaseNavFragment() {
             MaterialDialog(context).show {
                 title(text = "删除订阅 $id?")
                 positiveButton(R.string.delete) {
-                    viewModel.deleteFeed(id, position)
+                    viewModel.deleteFeed(data.feed)
                 }
                 negativeButton(R.string.cancel)
             }

@@ -53,6 +53,7 @@
     <string name="choose_forum" translatable="false">选择板块</string>
     <string name="edit_text_hint" translatable="false">在这里输入文字</string>
     <string name="please_input_valid_text" translatable="false">请输入有效文字</string>
+    <string name="please_input_page_number" translatable="false">请输入页数</string>
     <string name="watermark" translatable="false">水印</string>
     <string name="missing_cookie" translatable="false">没有饼干</string>
     <string name="cookie_count" translatable="false">%d / 5</string>
@@ -170,6 +171,7 @@
     <string name="github" translatable="false">Github</string>
     <string name="email_author" translatable="false">发邮件给作者</string>
     <string name="data_range_selection_error" translatable="false">选择日期范围出错</string>
+    <string name="no_feed_on_page" translatable="false">第 %d 页订阅没有数据嗷</string>
     <string name="no_data_dots" translatable="false">没有数据。。。</string>
     <string name="no_more_data" translatable="false">没有更多数据</string>
     <string name="forum" translatable="false">板块</string>

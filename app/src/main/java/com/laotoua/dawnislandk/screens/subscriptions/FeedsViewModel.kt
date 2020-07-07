@@ -22,6 +22,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.laotoua.dawnislandk.data.local.entity.Feed
 import com.laotoua.dawnislandk.data.local.entity.FeedAndPost
 import com.laotoua.dawnislandk.data.repository.FeedRepository
 import kotlinx.coroutines.launch
@@ -29,25 +30,25 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class FeedsViewModel @Inject constructor(private val feedRepo: FeedRepository) : ViewModel() {
-    private val feedPages = SparseArray<LiveData<List<FeedAndPost>>>(10)
+    private val feedPages = SparseArray<LiveData<List<FeedAndPost>>>(5)
     private val feedPageIndices = mutableSetOf<Int>()
     val feeds = MediatorLiveData<MutableList<FeedAndPost>>()
     val loadingStatus get() = feedRepo.loadingStatus
     val delFeedResponse get() = feedRepo.delFeedResponse
 
-    // TODO verify
+    // use to flag jumps to a page without any feed
+    var lastJumpPage = 0
+        private set
+
     fun getNextPage() {
-        val nextPage = feeds.value?.lastOrNull()?.feed?.id?.div(10)?.plus(1) ?: 1
+        val lastFeed: Feed? = feeds.value?.lastOrNull()?.feed
+        var nextPage = lastFeed?.page ?: 1
+        if (lastFeed?.id?.rem(10) == 0) nextPage += 1
         getFeedOnPage(nextPage)
     }
 
-    // TODO verify
     fun refreshOrGetPreviousPage() {
-        if (feeds.value.isNullOrEmpty()) {
-            getNextPage()
-            return
-        }
-        val lastPage = feeds.value?.firstOrNull()?.feed?.id?.div(10)?.minus(1) ?: 0
+        val lastPage = feeds.value?.firstOrNull()?.feed?.page?.minus(1) ?: 0
         if (lastPage < 1) {
             clearCache()
             getFeedOnPage(1)
@@ -56,19 +57,23 @@ class FeedsViewModel @Inject constructor(private val feedRepo: FeedRepository) :
         }
     }
 
+    fun jumpToPage(page: Int) {
+        Timber.d("Jumping to Feeds on page $page")
+        clearCache()
+        getFeedOnPage(page)
+        lastJumpPage = page
+    }
 
     private fun getFeedOnPage(page: Int) {
-        Timber.d("getting feed on $page")
-        val newPage = feedRepo.getLiveFeedPage(page)
-        if (feedPages[page] != newPage) {
-            feedPages.put(page, newPage)
-            feedPageIndices.add(page)
-            feeds.addSource(newPage) {
-                combineFeeds()
-            }
-        } else {
-            viewModelScope.launch {
-                feedRepo.getServerData(page)
+        viewModelScope.launch {
+            Timber.d("Getting feed on $page")
+            val newPage = feedRepo.getLiveFeedPage(page)
+            if (feedPages[page] != newPage) {
+                feedPages.put(page, newPage)
+                feedPageIndices.add(page)
+                feeds.addSource(newPage) {
+                    combineFeeds()
+                }
             }
         }
     }
@@ -76,6 +81,7 @@ class FeedsViewModel @Inject constructor(private val feedRepo: FeedRepository) :
     // 1. filter duplicates
     // 2. filter feeds that do not have post data
     // in the second case, getting remote data should save a copy of post
+    // ALSO clears jump page failure flag if data successfully come back
     private fun combineFeeds() {
         val ids = mutableSetOf<String>()
         val noDuplicates = mutableListOf<FeedAndPost>()
@@ -86,6 +92,9 @@ class FeedsViewModel @Inject constructor(private val feedRepo: FeedRepository) :
                     noDuplicates.add(feedAndPost)
                 }
             }
+        }
+        if (noDuplicates.isNotEmpty()) {
+            lastJumpPage = 0
         }
         feeds.value = noDuplicates
     }

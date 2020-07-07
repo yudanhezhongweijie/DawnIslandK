@@ -39,7 +39,9 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class FeedRepository @Inject constructor(
     private val webService: NMBServiceClient,
     private val feedDao: FeedDao
@@ -54,7 +56,7 @@ class FeedRepository @Inject constructor(
     private var pageDownloadJob: Job? = null
 
 
-    fun getLiveFeedPage(page: Int): LiveData<List<FeedAndPost>> {
+    suspend fun getLiveFeedPage(page: Int): LiveData<List<FeedAndPost>> {
         if (feedsMap[page] == null) {
             feedsMap.put(page, liveData(Dispatchers.IO) {
                 _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.LOADING))
@@ -62,6 +64,8 @@ class FeedRepository @Inject constructor(
                 emitSource(getLocalData(page))
                 pageDownloadJob = getServerData(page)
             })
+        } else {
+            pageDownloadJob = getServerData(page)
         }
         return feedsMap[page]
     }
@@ -69,8 +73,9 @@ class FeedRepository @Inject constructor(
     private fun getLocalData(page: Int): LiveData<List<FeedAndPost>> =
         feedDao.getDistinctFeedAndPostOnPage(page)
 
-    suspend fun getServerData(page: Int): Job = coroutineScope {
+    private suspend fun getServerData(page: Int): Job = coroutineScope {
         launch {
+            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.LOADING))
             Timber.d("Querying remote Feed on $page")
             webService.getFeeds(DawnApp.applicationDataStore.feedId, page).run {
                 if (this is APIDataResponse.APISuccessDataResponse) convertFeedData(data, page)

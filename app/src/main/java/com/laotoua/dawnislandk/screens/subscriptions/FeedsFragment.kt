@@ -19,13 +19,19 @@ package com.laotoua.dawnislandk.screens.subscriptions
 
 import android.os.Bundle
 import android.os.Handler
+import android.text.InputType
 import android.view.*
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.core.text.isDigitsOnly
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.WhichButton
+import com.afollestad.materialdialogs.actions.setActionButtonEnabled
+import com.afollestad.materialdialogs.input.getInputField
+import com.afollestad.materialdialogs.input.input
 import com.chad.library.adapter.base.binder.QuickItemBinder
 import com.chad.library.adapter.base.util.getItemView
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
@@ -64,7 +70,6 @@ class FeedsFragment : BaseNavFragment() {
         viewModel.getNextPage()
     }
     private var delayedLoading = false
-    private var currentPage = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,7 +84,28 @@ class FeedsFragment : BaseNavFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.jump -> {
-                Toast.makeText(requireContext(), "TODO", Toast.LENGTH_SHORT).show()
+                MaterialDialog(requireContext()).show {
+                    title(R.string.page_jump)
+                    var page = 0
+                    input(
+                        waitForPositiveButton = false,
+                        inputType = InputType.TYPE_NUMBER_VARIATION_NORMAL,
+                        hintRes = R.string.please_input_page_number
+                    ) { dialog, text ->
+                        val inputField = getInputField()
+                        page = if (text.isNotBlank() && text.isDigitsOnly()) {
+                            text.toString().toInt()
+                        } else {
+                            0
+                        }
+                        val isValid = page > 0
+                        inputField.error = if (isValid) null else context.resources.getString(R.string.please_input_page_number)
+                        dialog.setActionButtonEnabled(WhichButton.POSITIVE, isValid)
+                    }
+                    positiveButton(R.string.submit) {
+                        viewModel.jumpToPage(page)
+                    }
+                }
                 return true
             }
             else -> super.onOptionsItemSelected(item)
@@ -147,8 +173,13 @@ class FeedsFragment : BaseNavFragment() {
         })
 
         mAdapter.setDefaultEmptyView()
-        viewModel.feeds.observe(viewLifecycleOwner, Observer {list->
+        viewModel.feeds.observe(viewLifecycleOwner, Observer { list ->
             if (list.isEmpty()) {
+                if (viewModel.lastJumpPage > 0){
+                    Toast.makeText(context,
+                    requireContext().getString(R.string.no_feed_on_page, viewModel.lastJumpPage),
+                    Toast.LENGTH_SHORT).show()
+                }
                 mAdapter.setDiffNewData(null)
                 return@Observer
             }
@@ -228,13 +259,13 @@ class FeedsFragment : BaseNavFragment() {
             position: Int
         ): Boolean {
             val id = data.feed.postId
-                MaterialDialog(context).show {
-                    title(text = "删除订阅 $id?")
-                    positiveButton(R.string.delete) {
-                        viewModel.deleteFeed(id, position)
-                    }
-                    negativeButton(R.string.cancel)
+            MaterialDialog(context).show {
+                title(text = "删除订阅 $id?")
+                positiveButton(R.string.delete) {
+                    viewModel.deleteFeed(id, position)
                 }
+                negativeButton(R.string.cancel)
+            }
             return true
         }
 

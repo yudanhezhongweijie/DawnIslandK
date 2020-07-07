@@ -31,7 +31,7 @@ interface FeedDao {
     fun getAllFeedAndPost(): LiveData<List<FeedAndPost>>
 
     @Transaction
-    @Query("SELECT * From Feed WHERE id>=:startInd AND id<:endInd")
+    @Query("SELECT * From Feed WHERE id>=:startInd AND id<:endInd ORDER BY id ASC")
     fun getFeedAndPostBetweenIds(startInd: Int, endInd: Int): LiveData<List<FeedAndPost>>
 
     fun getFeedAndPostOnPage(page: Int) =

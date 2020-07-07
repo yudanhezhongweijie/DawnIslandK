@@ -72,6 +72,8 @@ class CommentRepository @Inject constructor(
 
     fun getAd(page: Int): Comment? = adMap[currentPostIdInt]?.get(page)
 
+    private fun getTimeElapsedToday():Long = Date().time - todayDateLong
+
     suspend fun setPost(id: String, fid: String) {
         if (id == currentPostId) return
         setLoadingStatus(LoadingStatus.LOADING)
@@ -89,14 +91,15 @@ class CommentRepository @Inject constructor(
             }
             browsingHistoryDao.getBrowsingHistoryByTodayAndIdSync(todayDateLong, currentPostId)
                 .let {
-                    it?.browsedDate = Date().time
+                    it?.browsedTime = getTimeElapsedToday()
                     browsingHistoryMap.put(
                         currentPostIdInt,
                         it ?: BrowsingHistory(
-                            browsedDate = Date().time,
-                            postId = currentPostId,
-                            postFid = currentPostFid,
-                            pages = mutableSetOf()
+                            todayDateLong,
+                            getTimeElapsedToday(),
+                            currentPostId,
+                            currentPostFid,
+                            mutableSetOf()
                         )
                     )
                 }
@@ -180,7 +183,11 @@ class CommentRepository @Inject constructor(
                 else {
                     if (pageDownloadJob?.isCancelled != true) {
                         Timber.e(message)
-                        commentsMap[currentPostIdInt].delete(page)
+                        commentsMap[currentPostIdInt]?.run {
+                            if (get(page) != null) {
+                                delete(page)
+                            }
+                        }
                         if (commentsMap[currentPostIdInt]?.size() == 0) {
                             commentsMap.delete(currentPostIdInt)
                         }
@@ -199,9 +206,9 @@ class CommentRepository @Inject constructor(
             if (postFid != currentPostFid) {
                 postFid = currentPostFid
             }
-            browsedDate = Date().time
+            browsedTime = getTimeElapsedToday()
             pages.add(page)
-            browsingHistoryDao.insertOrUpdateBrowsingHistory(this)
+            browsingHistoryDao.insertBrowsingHistory(this)
         }
 
         if (data != postMap[currentPostIdInt]) {

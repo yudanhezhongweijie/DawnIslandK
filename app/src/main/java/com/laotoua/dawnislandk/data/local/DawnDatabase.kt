@@ -185,14 +185,6 @@ abstract class DawnDatabase : RoomDatabase() {
                 }
             }
 
-            // TODO remove
-            val migrate13To12 = object : Migration(13, 12) {
-                override fun migrate(database: SupportSQLiteDatabase) {
-                    database.execSQL("DROP TABLE Feed")
-                    database.execSQL("CREATE TABLE IF NOT EXISTS `Feed` (`id` INTEGER NOT NULL, `postId` TEXT NOT NULL, `category` TEXT NOT NULL, `lastUpdatedAt` INTEGER NOT NULL, PRIMARY KEY(`postId`))")
-                }
-            }
-
             synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
@@ -211,8 +203,7 @@ abstract class DawnDatabase : RoomDatabase() {
                         migrate9To10,
                         migrate10To11,
                         migrate11To12,
-                        migrate12To13,
-                        migrate13To12
+                        migrate12To13
                     )
                     .build()
                 INSTANCE = instance

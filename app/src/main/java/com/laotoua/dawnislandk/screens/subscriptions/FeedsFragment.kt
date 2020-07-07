@@ -26,6 +26,7 @@ import android.widget.Toast
 import androidx.core.text.isDigitsOnly
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.WhichButton
@@ -134,7 +135,7 @@ class FeedsFragment : BaseNavFragment() {
             addItemBinder(SimpleTextBinder())
             addItemBinder(FeedAndPostBinder(sharedVM, this@FeedsFragment).apply {
                 addChildClickViewIds(R.id.attachedImage)
-            })
+            }, FeedAndPostDiffer())
 
             loadMoreModule.setOnLoadMoreListener {
                 viewModel.getNextPage()
@@ -225,6 +226,7 @@ class FeedsFragment : BaseNavFragment() {
             holder.convertUserId(data.post!!.userid, "0")
             holder.convertRefId(context, data.post.id)
             holder.convertTimeStamp(data.post.now)
+            holder.convertTitleAndName(data.post.getSimplifiedTitle(),data.post.getSimplifiedName())
             holder.convertImage(data.post.getImgUrl())
             holder.convertContent(context, data.post.content)
         }
@@ -279,6 +281,15 @@ class FeedsFragment : BaseNavFragment() {
                     .asCustom(viewerPopup)
                     .show()
             }
+        }
+    }
+    private class FeedAndPostDiffer : DiffUtil.ItemCallback<FeedAndPost>() {
+        override fun areItemsTheSame(oldItem: FeedAndPost, newItem: FeedAndPost): Boolean {
+            return oldItem.feed.postId == newItem.feed.postId && oldItem.feed.category == newItem.feed.category
+        }
+
+        override fun areContentsTheSame(oldItem: FeedAndPost, newItem: FeedAndPost): Boolean {
+            return oldItem.post == newItem.post
         }
     }
 }

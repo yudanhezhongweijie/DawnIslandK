@@ -110,4 +110,11 @@ object DatabaseModule {
     fun providePostHistoryDao(dawnDatabase: DawnDatabase): PostHistoryDao {
         return dawnDatabase.postHistoryDao()
     }
+
+    @JvmStatic
+    @Provides
+    @Singleton
+    fun provideFeedDao(dawnDatabase: DawnDatabase): FeedDao {
+        return dawnDatabase.feedDao()
+    }
 }

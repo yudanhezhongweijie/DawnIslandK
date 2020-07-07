@@ -17,107 +17,100 @@
 
 package com.laotoua.dawnislandk.screens.subscriptions
 
+import android.util.SparseArray
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
-import com.laotoua.dawnislandk.data.local.entity.Post
-import com.laotoua.dawnislandk.data.remote.APIDataResponse
-import com.laotoua.dawnislandk.data.remote.APIMessageResponse
-import com.laotoua.dawnislandk.data.remote.NMBServiceClient
-import com.laotoua.dawnislandk.util.EventPayload
-import com.laotoua.dawnislandk.util.LoadingStatus
-import com.laotoua.dawnislandk.util.SingleLiveEvent
-import kotlinx.coroutines.Dispatchers
+import com.laotoua.dawnislandk.data.local.entity.Feed
+import com.laotoua.dawnislandk.data.local.entity.FeedAndPost
+import com.laotoua.dawnislandk.data.repository.FeedRepository
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
-class FeedsViewModel @Inject constructor(private val webService: NMBServiceClient) : ViewModel() {
-    private val feedsList = mutableListOf<Post>()
-    private val feedsIds = mutableSetOf<String>()
-    private var _feeds = MutableLiveData<List<Post>>()
-    val feeds: LiveData<List<Post>> get() = _feeds
-    private val nextPage get() = feedsList.size / 10 + 1
-    private var _loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
-    val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>>
-        get() = _loadingStatus
+class FeedsViewModel @Inject constructor(private val feedRepo: FeedRepository) : ViewModel() {
+    private val feedPages = SparseArray<LiveData<List<FeedAndPost>>>(5)
+    private val feedPageIndices = mutableSetOf<Int>()
+    val feeds = MediatorLiveData<MutableList<FeedAndPost>>()
+    val loadingStatus get() = feedRepo.loadingStatus
+    val delFeedResponse get() = feedRepo.delFeedResponse
 
-    private val _delFeedResponse = MutableLiveData<SingleLiveEvent<EventPayload<Int>>>()
-    val delFeedResponse: LiveData<SingleLiveEvent<EventPayload<Int>>> get() = _delFeedResponse
+    // use to flag jumps to a page without any feed
+    var lastJumpPage = 0
+        private set
 
     fun getNextPage() {
+        val lastFeed: Feed? = feeds.value?.lastOrNull()?.feed
+        var nextPage = lastFeed?.page ?: 1
+        if (lastFeed?.id?.rem(10) == 0) nextPage += 1
         getFeedOnPage(nextPage)
+    }
+
+    fun refreshOrGetPreviousPage() {
+        val lastPage = feeds.value?.firstOrNull()?.feed?.page?.minus(1) ?: 0
+        if (lastPage < 1) {
+            clearCache()
+            getFeedOnPage(1)
+        } else {
+            getFeedOnPage(lastPage)
+        }
+    }
+
+    fun jumpToPage(page: Int) {
+        Timber.d("Jumping to Feeds on page $page")
+        clearCache()
+        getFeedOnPage(page)
+        lastJumpPage = page
     }
 
     private fun getFeedOnPage(page: Int) {
         viewModelScope.launch {
-            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.LOADING))
-            Timber.i("Downloading Feeds on page $page...")
-            webService.getFeeds(applicationDataStore.feedId, page).run {
-                when (this) {
-                    is APIDataResponse.APIErrorDataResponse -> {
-                        Timber.e(message)
-                        _loadingStatus.postValue(
-                            SingleLiveEvent.create(LoadingStatus.FAILED, "无法读取订阅...\n$message")
-                        )
-                    }
-                    is APIDataResponse.APISuccessDataResponse -> {
-                        convertFeedData(data)
-                    }
+            Timber.d("Getting feed on $page")
+            val newPage = feedRepo.getLiveFeedPage(page)
+            if (feedPages[page] != newPage) {
+                feedPages.put(page, newPage)
+                feedPageIndices.add(page)
+                feeds.addSource(newPage) {
+                    combineFeeds()
                 }
             }
         }
     }
 
-    private fun convertFeedData(data: List<Post>) {
-        val noDuplicates = data.filterNot { feedsIds.contains(it.id) }
-        feedsIds.addAll(noDuplicates.map { it.id })
-        feedsList.addAll(noDuplicates)
-        Timber.i("feedsList now has ${feedsList.size} feeds")
-        _feeds.postValue(feedsList)
-        if (noDuplicates.isEmpty()) {
-            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.NODATA))
-        } else {
-            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))
-        }
-    }
-
-    fun deleteFeed(id: String, position: Int) {
-        Timber.i("Deleting Feed $id")
-        viewModelScope.launch(Dispatchers.IO) {
-            webService.delFeed(applicationDataStore.feedId, id).run {
-                when (this) {
-                    is APIMessageResponse.APISuccessMessageResponse -> {
-                        feedsList.removeAt(position)
-                        feedsIds.remove(id)
-                        _delFeedResponse.postValue(
-                            SingleLiveEvent.create(
-                                LoadingStatus.SUCCESS,
-                                message,
-                                position
-                            )
-                        )
-                    }
-                    else -> {
-                        Timber.e("Response type: ${this.javaClass.simpleName}")
-                        Timber.e(message)
-                        _delFeedResponse.postValue(
-                            SingleLiveEvent.create(
-                                LoadingStatus.FAILED,
-                                "删除订阅失败"
-                            )
-                        )
-                    }
+    // 1. filter duplicates
+    // 2. filter feeds that do not have post data
+    // in the second case, getting remote data should save a copy of post
+    // ALSO clears jump page failure flag if data successfully come back
+    private fun combineFeeds() {
+        val ids = mutableSetOf<String>()
+        val noDuplicates = mutableListOf<FeedAndPost>()
+        feedPageIndices.map {
+            feedPages[it].value?.map { feedAndPost ->
+                if (!ids.contains(feedAndPost.feed.postId) && feedAndPost.post != null) {
+                    ids.add(feedAndPost.feed.postId)
+                    noDuplicates.add(feedAndPost)
                 }
             }
         }
+        if (noDuplicates.isNotEmpty()) {
+            lastJumpPage = 0
+        }
+        feeds.value = noDuplicates
     }
 
-    fun refresh() {
-        feedsList.clear()
-        feedsIds.clear()
-        getFeedOnPage(nextPage)
+    fun deleteFeed(feed: Feed) {
+        viewModelScope.launch {
+            feedRepo.deleteFeed(feed)
+        }
     }
+
+    private fun clearCache() {
+        feedPageIndices.map {
+            feedPages[it]?.let { s -> feeds.removeSource(s) }
+            feedPages.delete(it)
+        }
+        feedPageIndices.clear()
+    }
+
 }

@@ -30,27 +30,25 @@ import kotlin.math.ceil
 data class Post(
     @PrimaryKey val id: String, //	该串的id
     var fid: String = "", //	该串的fid, 非时间线的串会被设置
-    var category: String = "",
-    val img: String, //	该串的图片相对地址
+    val img: String,//	该串的图片相对地址
     val ext: String, // 	该串图片的后缀
-    val now: String, // 	该串的可视化发言时间
-    val userid: String, //userid 	该串的饼干
-    val name: String, //name 	你懂得
-    val email: String, //email 	你懂得
-    val title: String, //title 	你还是懂的(:з」∠)
-    val content: String, //content 	....这个你也懂
-    val sage: String = "", // sage
-    val admin: String = "0", //admin 	是否是酷炫红名，如果是酷炫红名则userid为红名id
-    val status: String = "", //
-    @Json(name = "replys") @Ignore var comments: List<Comment> = emptyList(), //replys 	主页展示回复的帖子
-    val replyCount: String = "", //replyCount 	总共有多少个回复
+    val now: String,// 	该串的可视化发言时间
+    val userid: String, // 	该串的饼干
+    val name: String,
+    val email: String,
+    val title: String,
+    val content: String,
+    val sage: String = "",
+    val admin: String = "0",//admin 	是否是酷炫红名，如果是酷炫红名则userid为红名id
+    val status: String = "",
+    @Json(name = "replys") @Ignore var comments: List<Comment> = emptyList(), //replys 	主页展示回复的帖子(5个）
+    val replyCount: String = "",
     var lastUpdatedAt: Long = 0
 ) {
     // Room uses this
     constructor(
         id: String,
         fid: String,
-        category: String,
         img: String,
         ext: String,
         now: String,
@@ -67,7 +65,6 @@ data class Post(
     ) : this(
         id,
         fid,
-        category,
         img,
         ext,
         now,
@@ -111,8 +108,7 @@ data class Post(
 
     override fun equals(other: Any?) =
         if (other is Post) {
-            id == other.id && fid == other.fid
-                    && category == other.category && img == other.img
+            id == other.id && fid == other.fid && img == other.img
                     && ext == other.ext && now == other.now
                     && userid == other.userid && name == other.name
                     && email == other.email && title == other.title
@@ -124,7 +120,6 @@ data class Post(
     override fun hashCode(): Int {
         var result = id.hashCode()
         result = 31 * result + fid.hashCode()
-        result = 31 * result + category.hashCode()
         result = 31 * result + img.hashCode()
         result = 31 * result + ext.hashCode()
         result = 31 * result + now.hashCode()
@@ -148,7 +143,6 @@ data class Post(
         copy(
             id = id,
             fid = fid,
-            category = category,
             img = img,
             ext = ext,
             now = now,

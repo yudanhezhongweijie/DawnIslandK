@@ -79,6 +79,17 @@ abstract class NMBJsonParser<T> {
         }
     }
 
+    class FeedParser : NMBJsonParser<List<Feed.ServerFeed>>() {
+        override fun parse(response: String): List<Feed.ServerFeed> {
+            return moshi.adapter<List<Feed.ServerFeed>>(
+                Types.newParameterizedType(
+                    List::class.java,
+                    Feed.ServerFeed::class.java
+                )
+            ).fromJson(response)!!
+        }
+    }
+
     class CommentParser : NMBJsonParser<Post>() {
         override fun parse(response: String): Post {
             return moshi.adapter(Post::class.java).fromJson(response)!!

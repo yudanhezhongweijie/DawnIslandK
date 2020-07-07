@@ -57,8 +57,8 @@ android {
         applicationId "com.laotoua.dawnislandk"
         minSdkVersion 23
         targetSdkVersion 29
-        versionCode 9
-        versionName "v0.9.2"
+        versionCode 10
+        versionName "v0.9.3"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -151,9 +151,10 @@ dependencies {
     implementation 'com.afollestad.material-dialogs:color:3.2.1'
     implementation 'com.afollestad.material-dialogs:datetime:3.2.1'
 
-    implementation 'me.dkzwm.widget.srl:core:1.7.1.2.androidx'
-    implementation 'me.dkzwm.widget.srl:ext-util:1.7.1.2.androidx'
-    implementation 'me.dkzwm.widget.srl:ext-material:1.7.1.2.androidx'
+    def srl_version = "1.7.1.3.androidx"
+    implementation "me.dkzwm.widget.srl:core:$srl_version"
+    implementation "me.dkzwm.widget.srl:ext-util:$srl_version"
+    implementation "me.dkzwm.widget.srl:ext-material:$srl_version"
 
     implementation 'com.king.zxing:zxing-lite:1.1.9-androidx'
 

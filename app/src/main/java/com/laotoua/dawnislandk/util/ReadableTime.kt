@@ -50,11 +50,14 @@ object ReadableTime {
         R.plurals.minute,
         R.plurals.second
     )
-    private val sCalendar =
-        Calendar.getInstance(TimeZone.getTimeZone("GMT+08:00"))
+    private val mCalendar = Calendar.getInstance()
     private val localInstance get() = Locale.getDefault()
+    // The website use GMT+08:00
+    private val SERVER_DATETIME_FORMAT = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", localInstance).apply {
+        timeZone = TimeZone.getTimeZone("GMT+08:00")
+    }
+    // rests use local TZ
     val DATE_ONLY_FORMAT = SimpleDateFormat("yyyy-MM-dd", localInstance)
-    private val SERVER_DATETIME_FORMAT = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", localInstance)
     private val DATETIME_FORMAT = SimpleDateFormat("yy/MM/dd HH:mm", localInstance)
     private val DATETIME_FORMAT_WITHOUT_YEAR = SimpleDateFormat("MM/dd HH:mm", localInstance)
     private val TIME_FORMAT = SimpleDateFormat("HH:mm:ss", localInstance)
@@ -68,31 +71,12 @@ object ReadableTime {
         timeFormat = DawnApp.applicationDataStore.displayTimeFormat
     }
 
-    init {
-        // The website use GMT+08:00, so tell user the same
-        TimeZone.getTimeZone("GMT+08:00").run {
-            SERVER_DATETIME_FORMAT.timeZone = this
-            DATETIME_FORMAT.timeZone = this
-            DATETIME_FORMAT_WITHOUT_YEAR.timeZone = this
-            DATE_ONLY_FORMAT.timeZone = this
-            TIME_FORMAT.timeZone = this
-        }
-    }
-
     fun getTodayDateLong(): Long {
         return string2Time(getDateString(Date(), DATE_ONLY_FORMAT), DATE_ONLY_FORMAT)
     }
 
     fun getDateString(time: Long, format: SimpleDateFormat? = null): String {
-        return format?.format(Date(time)) ?: DATE_ONLY_FORMAT.format(Date(time))
-    }
-
-    fun getDateStringInLocalTime(time:Long, format: SimpleDateFormat? = null): String {
-        val mFormat = format ?: DATE_ONLY_FORMAT
-        mFormat.timeZone = TimeZone.getDefault()
-        val dateString = mFormat.format(Date(time))
-        mFormat.timeZone = TimeZone.getTimeZone("GMT+08:00")
-        return dateString
+        return getDateString(Date(time), format)
     }
 
     fun getDateString(date: Date, format: SimpleDateFormat? = null): String {
@@ -135,12 +119,12 @@ object ReadableTime {
         ) {
             val nowDate = Date(System.currentTimeMillis())
             val timeDate = Date(time)
-            sCalendar.time = nowDate
-            val nowYear = sCalendar[Calendar.YEAR]
-            val nowDayOfYear = sCalendar[Calendar.DAY_OF_YEAR]
-            sCalendar.time = timeDate
-            val timeYear = sCalendar[Calendar.YEAR]
-            val timeDayOfYear = sCalendar[Calendar.DAY_OF_YEAR]
+            mCalendar.time = nowDate
+            val nowYear = mCalendar[Calendar.YEAR]
+            val nowDayOfYear = mCalendar[Calendar.DAY_OF_YEAR]
+            mCalendar.time = timeDate
+            val timeYear = mCalendar[Calendar.YEAR]
+            val timeDayOfYear = mCalendar[Calendar.DAY_OF_YEAR]
             return if (nowYear == timeYear && nowDayOfYear == timeDayOfYear) {
                 TIME_FORMAT.format(timeDate)
             } else if (nowYear == timeYear) {
@@ -155,10 +139,10 @@ object ReadableTime {
         synchronized(
             sDateFormatLock1
         ) {
-            sCalendar.time = Date(time1)
-            val nowLong = sCalendar.time.time
-            sCalendar.time = Date(time2)
-            val timeLong = sCalendar.time.time
+            mCalendar.time = Date(time1)
+            val nowLong = mCalendar.time.time
+            mCalendar.time = Date(time2)
+            val timeLong = mCalendar.time.time
             return nowLong - timeLong
         }
     }

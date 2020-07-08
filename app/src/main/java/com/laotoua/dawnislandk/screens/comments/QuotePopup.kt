@@ -21,10 +21,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.text.method.LinkMovementMethod
 import android.view.View
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
@@ -98,11 +95,9 @@ class QuotePopup(
 
         findViewById<TextView>(R.id.timestamp).text = transformTime(quote.now)
 
-        // TODO: handle ads
         findViewById<TextView>(R.id.refId).text =
             context.resources.getString(R.string.ref_id_formatted, quote.id)
 
-        // TODO: add sage transformation
         findViewById<TextView>(R.id.sage).run {
             visibility = if (quote.sage == "1") {
                 View.VISIBLE
@@ -184,6 +179,14 @@ class QuotePopup(
             )
             textSize = DawnApp.applicationDataStore.textSize
             letterSpacing = DawnApp.applicationDataStore.letterSpace
+        }
+
+        findViewById<Button>(R.id.jumpToQuotedPost).run {
+            visibility = if (quote.parentId != commentVM.currentPostId) View.VISIBLE else View.GONE
+            setOnClickListener {
+                val parentId = quote.parentId
+                Toast.makeText(context, "TODO $parentId", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

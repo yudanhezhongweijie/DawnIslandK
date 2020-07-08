@@ -73,7 +73,7 @@ interface NMBService {
         @Query("page") page: Int
     ): Call<ResponseBody>
 
-    @GET("Api/ref")
+    @GET("https://adnmb2.com/Home/Forum/ref")
     fun getNMBQuote(@Query("id") id: String): Call<ResponseBody>
 
     @Multipart

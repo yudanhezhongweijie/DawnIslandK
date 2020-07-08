@@ -72,7 +72,7 @@ class CommentRepository @Inject constructor(
 
     fun getAd(page: Int): Comment? = adMap[currentPostIdInt]?.get(page)
 
-    private fun getTimeElapsedToday():Long = Date().time - todayDateLong
+    private fun getTimeElapsedToday(): Long = Date().time - todayDateLong
 
     suspend fun setPost(id: String, fid: String) {
         if (id == currentPostId) return
@@ -119,6 +119,11 @@ class CommentRepository @Inject constructor(
         } else 1
     }
 
+    /**
+     * By default, a post is only stored in the post table, but not stored in the comment table.
+     * However when requesting references, all references are stored as comment in comment table.
+     * Therefore, the first page can have or not have the header post
+     */
     fun getHeaderPost(): Comment = postMap[currentPostIdInt]!!.toComment()
 
     suspend fun saveReadingProgress(progress: Int) {
@@ -148,7 +153,7 @@ class CommentRepository @Inject constructor(
      *  *** here DB only store nonAd data
      */
     fun checkFullPage(page: Int): Boolean =
-        (commentsMap[currentPostIdInt]?.get(page)?.value?.size == 19)
+        (commentsMap[currentPostIdInt]?.get(page)?.value?.size ?: 0) >= 19
 
     fun setLoadingStatus(status: LoadingStatus, message: String? = null) =
         loadingStatus.postValue(SingleLiveEvent.create(status, message))

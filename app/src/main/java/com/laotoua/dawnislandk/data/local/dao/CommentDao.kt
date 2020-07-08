@@ -56,10 +56,7 @@ interface CommentDao {
     }
 
     @Query("SELECT * FROM Comment WHERE id=:id LIMIT 1")
-    fun findCommentById(id: String): LiveData<Comment>
-
-    fun findDistinctCommentById(id: String): LiveData<Comment> =
-        findCommentById(id).distinctUntilChanged()
+    suspend fun findCommentByIdSync(id: String): Comment?
 
     @Delete
     suspend fun delete(comment: Comment)

@@ -106,11 +106,12 @@ abstract class NMBJsonParser<T> {
             // key is email but actual content is name???
             val name = thread.getElementsByClass("h-threads-info-email").first().text()
             val now = thread.getElementsByClass("h-threads-info-createdat").first().text()
-            val imageFullPath = thread.getElementsByClass("h-threads-img-a").first().attr("href")
-                .substringAfter("image/")
+            val imageFullPath =
+                thread.getElementsByClass("h-threads-img-a").firstOrNull()?.attr("href")
+                    ?.substringAfter("image/") ?: ""
             val splitter = imageFullPath.indexOf(".")
-            val img = imageFullPath.substring(0, splitter)
-            val ext = imageFullPath.substring(splitter)
+            val img = if (splitter > 0) imageFullPath.substring(0, splitter) else ""
+            val ext = if (splitter > 0) imageFullPath.substring(splitter) else ""
             val uid = thread.getElementsByClass("h-threads-info-uid").first()
             val uidText = uid.text()
             val userid = if (uidText.startsWith("ID:")) uidText.substring(3) else uidText

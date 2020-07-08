@@ -94,10 +94,18 @@ class CommentsViewModel @Inject constructor(
         listenToNewPage(lastPage, filterIds)
     }
 
+    /**
+     * By default, a post is only stored in the post table, but not stored in the comment table.
+     * However when requesting references, all references are stored as comment in comment table.
+     * Therefore, the first page can have or not have the header post
+     */
     private fun List<Comment>.attachHeadAndAd(page: Int) = toMutableList().apply {
+        // first page can have
+        if (page == 1 && get(0).id != currentPostId) {
+            add(0, commentRepo.getHeaderPost())
+        }
         //  insert thread head & Ad below
-        commentRepo.getAd(page)?.let { add(0, it) }
-        if (page == 1) add(0, commentRepo.getHeaderPost())
+        commentRepo.getAd(page)?.let { add(if (page == 1) 1 else 0, it) }
     }
 
     private fun listenToNewPage(page: Int, filterIds: List<String>) {

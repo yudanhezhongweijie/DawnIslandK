@@ -179,7 +179,7 @@ class BrowsingHistoryFragment : BaseNavFragment() {
                 data.replyCount,
                 sharedViewModel.getForumDisplayName(data.fid)
             )
-            holder.convertSage(data.sage)
+            holder.convertSage(data.sage, data.skipSageConversion())
             holder.convertImage(data.getImgUrl())
             holder.convertContent(context, data.content)
         }

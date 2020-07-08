@@ -231,7 +231,7 @@ class CommentsFragment : DaggerFragment() {
         binding.srlAndRv.refreshLayout.apply {
             setOnRefreshListener(object : RefreshingListenerAdapter() {
                 override fun onRefreshing() {
-                    if (mAdapter.getItem(
+                    if (!mAdapter.data.isNullOrEmpty() && mAdapter.getItem(
                             (binding.srlAndRv.recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
                         ).page == 1
                     ) {

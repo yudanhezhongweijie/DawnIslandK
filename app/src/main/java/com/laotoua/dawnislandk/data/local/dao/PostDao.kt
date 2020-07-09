@@ -28,10 +28,10 @@ interface PostDao {
     @Query("SELECT * FROM Post")
     suspend fun getAll(): List<Post>
 
-    @Query("SELECT * FROM Post WHERE id=:id")
+    @Query("SELECT * FROM Post WHERE id=:id LIMIT 1")
     fun findPostById(id: String): LiveData<Post>
 
-    @Query("SELECT * FROM Post WHERE id=:id")
+    @Query("SELECT * FROM Post WHERE id=:id LIMIT 1")
     suspend fun findPostByIdSync(id: String): Post?
 
     fun findDistinctPostById(id: String): LiveData<Post> =

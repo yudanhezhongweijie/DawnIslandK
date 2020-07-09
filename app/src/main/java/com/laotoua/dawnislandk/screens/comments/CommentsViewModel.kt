@@ -18,14 +18,13 @@
 package com.laotoua.dawnislandk.screens.comments
 
 import android.util.SparseArray
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.laotoua.dawnislandk.data.local.entity.Comment
 import com.laotoua.dawnislandk.data.repository.CommentRepository
 import com.laotoua.dawnislandk.data.repository.QuoteRepository
+import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.LoadingStatus
+import com.laotoua.dawnislandk.util.SingleLiveEvent
 import com.laotoua.dawnislandk.util.addOrSet
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -35,9 +34,16 @@ class CommentsViewModel @Inject constructor(
     private val commentRepo: CommentRepository,
     private val quoteRepo: QuoteRepository
 ) : ViewModel() {
-    val currentPostId: String get() = commentRepo.currentPostId
-    val currentPostFid: String get() = commentRepo.currentPostFid
-    val po get() = commentRepo.po
+    var currentPostId: String = "0"
+    private set
+    // TODO: updates fragment when fid comes back
+    var currentPostFid: String = "-1"
+        private set
+
+    // TODO: handle empty Page
+
+    val po get() = commentRepo.getPo(currentPostId)
+    val maxPage get() = commentRepo.getMaxPage(currentPostId)
 
     private val commentList = mutableListOf<Comment>()
 
@@ -47,9 +53,8 @@ class CommentsViewModel @Inject constructor(
 
     private val listeningPages = SparseArray<LiveData<List<Comment>>>()
     private val listeningPagesIndices = mutableSetOf<Int>()
-    val maxPage get() = commentRepo.maxPage
 
-    val loadingStatus get() = commentRepo.loadingStatus
+    val loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
 
     val addFeedResponse
         get() = commentRepo.addFeedResponse
@@ -57,20 +62,33 @@ class CommentsViewModel @Inject constructor(
     val quoteLoadingStatus = quoteRepo.quoteLoadingStatus
     fun getQuote(id: String): LiveData<Comment> = quoteRepo.getQuote(id)
 
+    fun setLoadingStatus(status: LoadingStatus, message: String? = null) =
+        loadingStatus.postValue(SingleLiveEvent.create(status, message))
+
     fun setPost(id: String, fid: String, targetPage: Int?) {
+//        if (id == currentPostId) return
+//        setLoadingStatus(LoadingStatus.LOADING)
         if (id != currentPostId) clearCache(true)
+        currentPostId = id
+        currentPostFid = fid
         viewModelScope.launch {
             commentRepo.setPost(id, fid)
             if (commentList.isEmpty()) loadLandingPage(targetPage)
         }
+        // catch for jumps without fid or without server updates
+//        if (fid.isBlank()) {
+//            postMap[idInt]?.fid?.let {
+//                _currentPostFid = it
+//            }
+//        }
     }
 
     private fun loadLandingPage(targetPage: Int?) {
-        getNextPage(false, targetPage ?: commentRepo.getLandingPage())
+        getNextPage(false, targetPage ?: commentRepo.getLandingPage(currentPostId))
     }
 
     fun saveReadingProgress(page: Int) {
-        viewModelScope.launch { commentRepo.saveReadingProgress(page) }
+        viewModelScope.launch { commentRepo.saveReadingProgress(currentPostId, page) }
     }
 
     /** sometimes VM is KILLED but repo IS ALIVE, cache in Repo
@@ -79,7 +97,7 @@ class CommentsViewModel @Inject constructor(
      */
     fun getNextPage(incrementPage: Boolean = true, readingProgress: Int? = null) {
         var nextPage = readingProgress ?: (commentList.lastOrNull()?.page ?: 1)
-        if (incrementPage && commentRepo.checkFullPage(nextPage)) nextPage += 1
+        if (incrementPage && commentRepo.checkFullPage(currentPostId, nextPage)) nextPage += 1
         listenToNewPage(nextPage, filterIds)
     }
 
@@ -101,15 +119,18 @@ class CommentsViewModel @Inject constructor(
      */
     private fun List<Comment>.attachHeadAndAd(page: Int) = toMutableList().apply {
         // first page can have
-        if (page == 1 && get(0).id != currentPostId) {
-            add(0, commentRepo.getHeaderPost())
+        if (page == 1) {
+            val header = commentRepo.getHeaderPost(currentPostId)
+            if (header != null && (isEmpty() || get(0).id != header.id)) {
+                add(0, header)
+            }
         }
         //  insert thread head & Ad below
-        commentRepo.getAd(page)?.let { add(if (page == 1) 1 else 0, it) }
+        commentRepo.getAd(currentPostId, page)?.let { add(if (page == 1) 1 else 0, it) }
     }
 
     private fun listenToNewPage(page: Int, filterIds: List<String>) {
-        val newPage = commentRepo.getLivePage(page)
+        val newPage = commentRepo.getLivePage(currentPostId, page)
         if (listeningPages[page] != newPage) {
             listeningPages.put(page, newPage)
             listeningPagesIndices.add(page)
@@ -120,18 +141,18 @@ class CommentsViewModel @Inject constructor(
                     commentRepo.setLoadingStatus(LoadingStatus.SUCCESS)
                 }
             }
-            if (page == 1) {
-                comments.removeSource(commentRepo.emptyPage)
-                comments.addSource(commentRepo.emptyPage) {
-                    if (it == true) {
-                        mergeNewPage(emptyList<Comment>().attachHeadAndAd(page), filterIds)
-                        comments.value = commentList
-                    }
-                }
-            }
+//            if (page == 1) {
+//                comments.removeSource(commentRepo.emptyPage)
+//                comments.addSource(commentRepo.emptyPage) {
+//                    if (it == true) {
+//                        mergeNewPage(emptyList<Comment>().attachHeadAndAd(page), filterIds)
+//                        comments.value = commentList
+//                    }
+//                }
+//            }
         } else {
             viewModelScope.launch {
-                commentRepo.getServerData(page)
+                commentRepo.getServerData(currentPostId, page)
             }
         }
     }
@@ -155,7 +176,7 @@ class CommentsViewModel @Inject constructor(
 
     private fun clearCache(clearFilter: Boolean) {
         listeningPagesIndices.map { i -> listeningPages[i]?.let { s -> comments.removeSource(s) } }
-        if (listeningPagesIndices.contains(1)) comments.removeSource(commentRepo.emptyPage)
+//        if (listeningPagesIndices.contains(1)) comments.removeSource(commentRepo.emptyPage)
         listeningPages.clear()
         listeningPagesIndices.clear()
         commentList.clear()

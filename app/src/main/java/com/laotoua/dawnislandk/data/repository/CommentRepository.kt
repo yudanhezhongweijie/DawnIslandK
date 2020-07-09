@@ -17,6 +17,7 @@
 
 package com.laotoua.dawnislandk.data.repository
 
+import android.util.ArrayMap
 import android.util.SparseArray
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -44,78 +45,57 @@ class CommentRepository @Inject constructor(
     private val browsingHistoryDao: BrowsingHistoryDao,
     private val feedDao: FeedDao
 ) {
-    private var _currentPostId: String = "0"
-    val currentPostId get() = _currentPostId
-    private var _currentPostFid: String = "-1"
-    val currentPostFid get() = _currentPostFid
-    private val currentPostIdInt get() = currentPostId.toInt()
 
-    /** remember all pages for last 15 thread, using threadId and page as index
-     * using fifoList to pop the first thread
+    /** remember all pages for last 15 posts, using threadId and page as index
+     * using fifoList to pop the first post
      */
     private val cacheCap = 15
-    private val postMap = SparseArray<Post>(cacheCap)
-    private val commentsMap = SparseArray<SparseArray<LiveData<List<Comment>>>>(cacheCap)
-    private val readingPageMap = SparseArray<ReadingPage>(cacheCap)
-    private val browsingHistoryMap = SparseArray<BrowsingHistory>(cacheCap)
-    private val fifoPostList = mutableListOf<Int>()
-    private val adMap = SparseArray<SparseArray<Comment>>()
+    private val postMap = ArrayMap<String, Post>(cacheCap)
+    private val commentsMap = ArrayMap<String,SparseArray<LiveData<List<Comment>>>>(cacheCap)
+    private val readingPageMap = ArrayMap<String,ReadingPage>(cacheCap)
+    private val browsingHistoryMap = ArrayMap<String,BrowsingHistory>(cacheCap)
+    private val fifoPostList = mutableListOf<String>()
+    private val adMap = ArrayMap<String,SparseArray<Comment>>()
 
-    val po get() = postMap[currentPostIdInt]?.userid ?: ""
-    val maxPage get() = postMap[currentPostIdInt]?.getMaxPage() ?: 1
     val loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
     val addFeedResponse = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
     private val todayDateLong = ReadableTime.getTodayDateLong()
 
-    private var pageDownloadJob: Job? = null
-    val emptyPage = MutableLiveData<Boolean>()
-
-    fun getAd(page: Int): Comment? = adMap[currentPostIdInt]?.get(page)
+    fun getPo(id:String) = postMap[id]?.userid ?: ""
+    fun getMaxPage(id:String) = postMap[id]?.getMaxPage() ?: 1
+    fun getAd(id:String, page: Int): Comment? = adMap[id]?.get(page)
 
     private fun getTimeElapsedToday(): Long = Date().time - todayDateLong
 
     suspend fun setPost(id: String, fid: String) {
-        if (id == currentPostId) return
-        setLoadingStatus(LoadingStatus.LOADING)
         clearCachedPages()
         Timber.d("Setting new Thread: $id")
-        _currentPostId = id
-        _currentPostFid = fid
-        if (postMap[currentPostIdInt] == null) {
-            postDao.findPostByIdSync(id)?.let {
-                postMap.put(currentPostIdInt, it)
-                _currentPostFid = it.fid
-            }
+        if (postMap[id] == null) {
+            postMap[id] = postDao.findPostByIdSync(id)
             readingPageDao.getReadingPageById(id).let {
-                readingPageMap.put(currentPostIdInt, it ?: ReadingPage(currentPostId, 1))
+                readingPageMap.put(id, it ?: ReadingPage(id, 1))
             }
-            browsingHistoryDao.getBrowsingHistoryByTodayAndIdSync(todayDateLong, currentPostId)
+            browsingHistoryDao.getBrowsingHistoryByTodayAndIdSync(todayDateLong, id)
                 .let {
                     it?.browsedTime = getTimeElapsedToday()
                     browsingHistoryMap.put(
-                        currentPostIdInt,
+                        id,
                         it ?: BrowsingHistory(
                             todayDateLong,
                             getTimeElapsedToday(),
-                            currentPostId,
-                            currentPostFid,
+                            id,
+                            fid,
                             mutableSetOf()
                         )
                     )
                 }
         }
-        // catch for jumps without fid or without server updates
-        if (currentPostFid.isBlank()) {
-            postMap[currentPostIdInt]?.fid?.let {
-                _currentPostFid = it
-            }
-        }
     }
 
-    // set default page
-    fun getLandingPage(): Int {
+    // get default page
+    fun getLandingPage(id:String): Int {
         return if (DawnApp.applicationDataStore.readingProgressStatus) {
-            readingPageMap[currentPostIdInt]?.page ?: 1
+            readingPageMap[id]?.page ?: 1
         } else 1
     }
 
@@ -124,27 +104,24 @@ class CommentRepository @Inject constructor(
      * However when requesting references, all references are stored as comment in comment table.
      * Therefore, the first page can have or not have the header post
      */
-    fun getHeaderPost(): Comment = postMap[currentPostIdInt]!!.toComment()
+    fun getHeaderPost(id:String): Comment? = postMap[id]?.toComment()
 
-    suspend fun saveReadingProgress(progress: Int) {
-        readingPageMap[currentPostIdInt].page = progress
-        readingPageDao.insertReadingPageWithTimeStamp(readingPageMap[currentPostIdInt])
+    suspend fun saveReadingProgress(id:String, progress: Int) {
+        readingPageMap[id]!!.page = progress
+        readingPageDao.insertReadingPageWithTimeStamp(readingPageMap[id]!!)
     }
 
     private fun clearCachedPages() {
-        emptyPage.value = false
-        for (i in 0 until (commentsMap.size() - cacheCap)) {
+        for (i in 0 until (commentsMap.size - cacheCap)) {
             fifoPostList.first().run {
                 Timber.d("Reached cache Cap. Clearing ${this}...")
-                commentsMap.delete(this)
-                postMap.delete(this)
-                readingPageMap.delete(this)
-                browsingHistoryMap.delete(this)
+                commentsMap.remove(this)
+                postMap.remove(this)
+                readingPageMap.remove(this)
+                browsingHistoryMap.remove(this)
             }
             fifoPostList.removeAt(0)
         }
-        pageDownloadJob?.cancel()
-        pageDownloadJob = null
     }
 
     /**
@@ -152,83 +129,81 @@ class CommentRepository @Inject constructor(
      *  w/o cookie, always have 20 reply w. ad
      *  *** here DB only store nonAd data
      */
-    fun checkFullPage(page: Int): Boolean =
-        (commentsMap[currentPostIdInt]?.get(page)?.value?.size ?: 0) >= 19
+    fun checkFullPage(id:String, page: Int): Boolean =
+        (commentsMap[id]?.get(page)?.value?.size ?: 0) >= 19
 
     fun setLoadingStatus(status: LoadingStatus, message: String? = null) =
         loadingStatus.postValue(SingleLiveEvent.create(status, message))
 
     // also saved page browsing history
-    fun getLivePage(page: Int): LiveData<List<Comment>> {
-        if (commentsMap[currentPostIdInt] == null) {
-            commentsMap.append(currentPostIdInt, SparseArray())
-            fifoPostList.add(currentPostIdInt)
+    fun getLivePage(id:String, page: Int): LiveData<List<Comment>> {
+        if (commentsMap[id] == null) {
+            commentsMap[id] = SparseArray()
+            fifoPostList.add(id)
         }
-        commentsMap[currentPostIdInt]!!.let {
+        commentsMap[id]!!.let {
             if (it[page] == null) {
                 it.append(page, liveData(Dispatchers.IO) {
-                    Timber.d("Querying data for Thread $currentPostId on $page")
+                    Timber.d("Querying data for Thread $id on $page")
                     setLoadingStatus(LoadingStatus.LOADING)
-                    emitSource(getLocalData(page))
-                    pageDownloadJob = getServerData(page)
+                    emitSource(getLocalData(id, page))
+                    getServerData(id, page)
                 })
             }
             return it[page]
         }
     }
 
-    private fun getLocalData(page: Int): LiveData<List<Comment>> =
-        commentDao.findDistinctPageByParentId(currentPostId, page)
+    private fun getLocalData(id: String, page: Int): LiveData<List<Comment>> =
+        commentDao.findDistinctPageByParentId(id, page)
 
-    suspend fun getServerData(page: Int): Job = coroutineScope {
+    suspend fun getServerData(id:String, page: Int): Job = coroutineScope {
         launch {
-            Timber.d("Querying remote data for Thread $currentPostId on $page")
-            webService.getComments(currentPostId, page).run {
-                if (this is APIDataResponse.APISuccessDataResponse) convertServerData(data, page)
+            Timber.d("Querying remote data for Thread $id on $page")
+            webService.getComments(id, page).run {
+                if (this is APIDataResponse.APISuccessDataResponse) convertServerData(id, data, page)
                 else {
-                    if (pageDownloadJob?.isCancelled != true) {
                         Timber.e(message)
-                        commentsMap[currentPostIdInt]?.run {
+                        commentsMap[id]?.run {
                             if (get(page) != null) {
                                 delete(page)
                             }
                         }
-                        if (commentsMap[currentPostIdInt]?.size() == 0) {
-                            commentsMap.delete(currentPostIdInt)
+                        if (commentsMap[id]?.size() == 0) {
+                            commentsMap.remove(id)
                         }
                         setLoadingStatus(LoadingStatus.FAILED, "无法读取串回复...\n$message")
-                    }
                 }
             }
         }
     }
 
-    private suspend fun convertServerData(data: Post, page: Int) {
-        // update current thread with latest info
-        _currentPostFid = data.fid
+    private suspend fun convertServerData(id:String, data: Post, page: Int) {
+
         // update postFid for browse history(search jump does not have fid)
-        browsingHistoryMap[currentPostIdInt].run {
-            if (postFid != currentPostFid) {
-                postFid = currentPostFid
+        browsingHistoryMap[id]?.run {
+            if (postFid != data.fid) {
+                postFid = data.fid
             }
             browsedTime = getTimeElapsedToday()
             pages.add(page)
             browsingHistoryDao.insertBrowsingHistory(this)
         }
-
-        if (data != postMap[currentPostIdInt]) {
+        // update current thread with latest info
+        if (data != postMap[id]) {
+            postMap[id] = data.stripCopy()
             savePost(data)
         }
         val noAd = mutableListOf<Comment>()
         data.comments.map {
             it.page = page
-            it.parentId = currentPostId
+            it.parentId = id
             // handle Ad
             if (it.isAd()) {
-                if (adMap[currentPostIdInt] == null) {
-                    adMap.append(currentPostIdInt, SparseArray())
+                if (adMap[id] == null) {
+                    adMap.put(id, SparseArray())
                 }
-                adMap[currentPostIdInt]!!.append(page, it)
+                adMap[id]!!.append(page, it)
             } else noAd.add(it)
         }
         /**
@@ -237,16 +212,15 @@ class CommentRepository @Inject constructor(
          *  set LoadingStatus to Success to hide the header
          */
         if (noAd.isEmpty()) {
-            emptyPage.postValue(true)
             setLoadingStatus(LoadingStatus.NODATA)
             return
         }
 
-        if (commentsMap[currentPostIdInt]!![page]?.value.equalsWithServerComments(noAd)) {
-            if (page == maxPage) setLoadingStatus(LoadingStatus.NODATA)
+        if (commentsMap[id]!![page]?.value.equalsWithServerComments(noAd)) {
+            if (page == postMap[id]?.getMaxPage()) setLoadingStatus(LoadingStatus.NODATA)
             return
         }
-        Timber.d("Updating ${noAd.size} rows for $currentPostId on $page")
+        Timber.d("Updating ${noAd.size} rows for $id on $page")
         saveComments(noAd)
     }
 
@@ -255,7 +229,6 @@ class CommentRepository @Inject constructor(
         commentDao.insertAllWithTimeStamp(comments)
 
     private suspend fun savePost(post: Post) {
-        postMap.put(currentPostIdInt, post.stripCopy())
         postDao.insertWithTimeStamp(post)
     }
 

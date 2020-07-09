@@ -41,7 +41,7 @@
         android:title="@string/history"/>
 
     <item
-        android:id="@+id/settingsFragment"
+        android:id="@+id/profileFragment"
         android:enabled="true"
         android:icon="@drawable/ic_account_circle_24px"
         android:title="@string/my_profile"/>

@@ -32,6 +32,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
@@ -44,7 +46,6 @@ import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
 import com.laotoua.dawnislandk.di.DaggerViewModelFactory
 import com.laotoua.dawnislandk.screens.comments.CommentsFragment
-import com.laotoua.dawnislandk.screens.comments.QuotePopup
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbarInitialization
 import com.laotoua.dawnislandk.screens.widgets.DoubleClickListener
@@ -264,14 +265,14 @@ class MainActivity : DaggerAppCompatActivity() {
                 if (item.itemId == R.id.postsFragment) showDrawer()
             }
             binding.bottomNavBar.setupWithNavController(navController)
+            val appBarConfiguration = AppBarConfiguration(
+                setOf(R.id.postsFragment, R.id.subscriptionPagerFragment, R.id.searchFragment, R.id.historyPagerFragment, R.id.profileFragment),
+                null)
+            setupActionBarWithNavController(navController, appBarConfiguration)
         }
     }
 
     override fun onBackPressed() {
-        /**
-         *  Catch for popup which failed to request focus
-         */
-        if (!QuotePopup.ensureQuotePopupDismissal()) return
 
         if (hideComment()) return
 
@@ -301,7 +302,7 @@ class MainActivity : DaggerAppCompatActivity() {
             commentFrag = CommentsFragment()
             supportFragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
-                .add(R.id.mainActivityFullView, commentFrag, "comment")
+                .add(R.id.navHostFragment, commentFrag, "comment")
                 .addToBackStack(null).commit()
         } else {
             supportFragmentManager.beginTransaction()

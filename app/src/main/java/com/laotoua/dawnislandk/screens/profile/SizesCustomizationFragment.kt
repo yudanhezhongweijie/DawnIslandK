@@ -76,11 +76,6 @@ class SizesCustomizationFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        (requireActivity() as MainActivity).supportActionBar?.apply {
-            setTitle(R.string.size_customization_settings)
-            setDisplayHomeAsUpEnabled(true)
-            setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24px)
-        }
         // hide NavBar
         (requireActivity() as MainActivity).hideNav()
 
@@ -405,10 +400,6 @@ class SizesCustomizationFragment : Fragment() {
         super.onDestroy()
         if (settingsChanged) {
             Toast.makeText(context, R.string.restart_to_apply_setting, Toast.LENGTH_SHORT).show()
-        }
-
-        (requireActivity() as MainActivity).supportActionBar?.apply {
-            setDisplayHomeAsUpEnabled(false)
         }
         // showNav
         (requireActivity() as MainActivity).showNav()

@@ -49,8 +49,6 @@ import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
-import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
-import com.laotoua.dawnislandk.screens.widgets.DoubleClickListener
 import com.laotoua.dawnislandk.screens.widgets.LinkifyTextView
 import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
 import com.laotoua.dawnislandk.screens.widgets.popups.PostPopup
@@ -82,6 +80,8 @@ class CommentsFragment : DaggerFragment() {
 
     // last visible item indicates the current page, uses for remembering last read page
     private var currentPage = 0
+    private var pageCounter: TextView? = null
+    private var filterActivated: Boolean = false
 
     enum class RVScrollState {
         UP,
@@ -91,10 +91,52 @@ class CommentsFragment : DaggerFragment() {
     private var currentState: RVScrollState? = null
     private var currentAnimatorSet: ViewPropertyAnimator? = null
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_fragment_comment, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        pageCounter = menu.findItem(R.id.pageCounter).actionView.findViewById(R.id.text)
+        super.onPrepareOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.filter -> {
+                filterActivated = filterActivated.not()
+                if (!filterActivated) {
+                    viewModel.clearFilter()
+                    Toast.makeText(context, R.string.comment_filter_off, Toast.LENGTH_SHORT).show()
+                } else {
+                    viewModel.onlyPo()
+                    Toast.makeText(context, R.string.comment_filter_on, Toast.LENGTH_SHORT).show()
+                }
+                (binding.srlAndRv.recyclerView.layoutManager as LinearLayoutManager).run {
+                    val startPos = findFirstVisibleItemPosition()
+                    val itemCount = findLastVisibleItemPosition() - startPos
+                    mAdapter.notifyItemRangeChanged(startPos, itemCount + initialPrefetchItemCount)
+                }
+                return true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        (requireActivity() as MainActivity).supportActionBar?.apply {
+            setTitle(R.string.size_customization_settings)
+            setDisplayHomeAsUpEnabled(true)
+            setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24px)
+        }
         _binding = FragmentCommentBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -102,20 +144,10 @@ class CommentsFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.toolbar.apply {
-            immersiveToolbar()
-            setSubtitle(R.string.toolbar_subtitle)
-            setNavigationIcon(R.drawable.ic_arrow_back_white_24px)
-            setNavigationOnClickListener {
-                (requireActivity() as MainActivity).hideComment()
-            }
-            setOnClickListener(
-                DoubleClickListener(callback = object : DoubleClickListener.DoubleClickCallBack {
-                    override fun doubleClicked() {
-                        binding.srlAndRv.recyclerView.layoutManager?.scrollToPosition(0)
-                    }
-                })
-            )
+        // TODO
+        (requireActivity() as MainActivity).setToolbarClickListener {
+            binding.srlAndRv.recyclerView.layoutManager?.scrollToPosition(0)
+            (requireActivity() as MainActivity).showNav()
         }
 
         val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext(), sharedVM) }
@@ -268,23 +300,23 @@ class CommentsFragment : DaggerFragment() {
             })
         }
 
-        binding.filter.setOnClickListener {
-            binding.filter.apply {
-                isActivated = isActivated.not()
-                if (!isActivated) {
-                    viewModel.clearFilter()
-                    Toast.makeText(context, R.string.comment_filter_off, Toast.LENGTH_SHORT).show()
-                } else {
-                    viewModel.onlyPo()
-                    Toast.makeText(context, R.string.comment_filter_on, Toast.LENGTH_SHORT).show()
-                }
-                (binding.srlAndRv.recyclerView.layoutManager as LinearLayoutManager).run {
-                    val startPos = findFirstVisibleItemPosition()
-                    val itemCount = findLastVisibleItemPosition() - startPos
-                    mAdapter.notifyItemRangeChanged(startPos, itemCount + initialPrefetchItemCount)
-                }
-            }
-        }
+//        binding.filter.setOnClickListener {
+//            binding.filter.apply {
+//                isActivated = isActivated.not()
+//                if (!isActivated) {
+//                    viewModel.clearFilter()
+//                    Toast.makeText(context, R.string.comment_filter_off, Toast.LENGTH_SHORT).show()
+//                } else {
+//                    viewModel.onlyPo()
+//                    Toast.makeText(context, R.string.comment_filter_on, Toast.LENGTH_SHORT).show()
+//                }
+//                (binding.srlAndRv.recyclerView.layoutManager as LinearLayoutManager).run {
+//                    val startPos = findFirstVisibleItemPosition()
+//                    val itemCount = findLastVisibleItemPosition() - startPos
+//                    mAdapter.notifyItemRangeChanged(startPos, itemCount + initialPrefetchItemCount)
+//                }
+//            }
+//        }
 
         binding.copyId.setOnClickListener {
             copyText("串号", ">>No.${viewModel.currentPostId}")
@@ -347,8 +379,8 @@ class CommentsFragment : DaggerFragment() {
     private val selectedPostIdObs = Observer<String> {
         if (it != viewModel.currentPostId) {
             mAdapter.setList(emptyList())
-            binding.filter.isActivated = false
-            binding.pageCounter.text = ""
+            filterActivated = false
+            pageCounter?.text = ""
             currentPage = 0
             showMenu()
         }
@@ -422,11 +454,6 @@ class CommentsFragment : DaggerFragment() {
         Timber.d("Fragment View Destroyed")
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        QuotePopup.clearQuotePopups()
-    }
-
     fun hideMenu() {
         if (currentState == RVScrollState.DOWN) return
         if (currentAnimatorSet != null) {
@@ -478,14 +505,15 @@ class CommentsFragment : DaggerFragment() {
     }
 
     private fun updateTitle() {
-        binding.toolbar.title =
+        (requireActivity() as MainActivity).setToolbarTitle(
             "${sharedVM.getSelectedPostForumName()} • ${viewModel.currentPostId}"
+        )
     }
 
     private fun updateCurrentPage(page: Int) {
         if (page != currentPage) {
             viewModel.saveReadingProgress(page)
-            binding.pageCounter.text =
+            pageCounter?.text =
                 (page.toString() + " / " + viewModel.maxPage.toString()).toSpannable()
                     .apply { setSpan(UnderlineSpan(), 0, length, 0) }
             currentPage = page

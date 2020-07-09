@@ -68,7 +68,7 @@ class QuotePopup(
 
     private val quoteDownloadStatusObs = Observer<EventPayload<String>> {
         if (it.loadingStatus == LoadingStatus.ERROR && it.payload == quoteId) {
-            ensureQuotePopupDismissal()
+            dismiss()
             Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
         }
     }
@@ -190,26 +190,7 @@ class QuotePopup(
         }
     }
 
-    override fun onDismiss() {
-        super.onDismiss()
-        quotePopupList.remove(this)
-    }
-
     companion object {
-
-        private var quotePopupList = mutableListOf<QuotePopup>()
-
-        fun ensureQuotePopupDismissal(): Boolean {
-            quotePopupList.lastOrNull { it.isShow }.run {
-                this?.dismiss()
-                return this == null
-            }
-        }
-
-        fun clearQuotePopups() {
-            quotePopupList.clear()
-        }
-
         fun showQuote(
             caller: DaggerFragment,
             replyVM: CommentsViewModel,
@@ -218,7 +199,6 @@ class QuotePopup(
             po: String
         ) {
             val top = QuotePopup(caller, replyVM, id, po)
-            quotePopupList.add(top)
             XPopup.Builder(context)
                 .setPopupCallback(object : SimpleCallback() {
                     override fun beforeShow() {

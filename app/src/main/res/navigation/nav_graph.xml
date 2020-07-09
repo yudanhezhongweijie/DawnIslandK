@@ -22,9 +22,9 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/postsFragment">
     <fragment
-        android:id="@+id/settingsFragment"
+        android:id="@+id/profileFragment"
         android:name="com.laotoua.dawnislandk.screens.profile.ProfileFragment"
-        android:label="SettingsFragment">
+        android:label="ProfileFragment">
         <action
             android:id="@+id/action_settingsFragment_to_sizeCustomizationFragment"
             app:destination="@id/sizeCustomizationFragment"

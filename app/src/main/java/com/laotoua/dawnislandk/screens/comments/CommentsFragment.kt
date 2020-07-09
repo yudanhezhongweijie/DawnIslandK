@@ -407,6 +407,7 @@ class CommentsFragment : DaggerFragment() {
     }
 
     private fun getCurrentPage(adapter: QuickAdapter<Comment>): Int {
+        if (mAdapter.data.isNullOrEmpty()) return 1
         val pos = (binding.srlAndRv.recyclerView.layoutManager as LinearLayoutManager)
             .findLastVisibleItemPosition()
             .coerceAtLeast(0)

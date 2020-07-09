@@ -19,17 +19,13 @@ package com.laotoua.dawnislandk.data.repository
 
 import android.util.ArrayMap
 import android.util.SparseArray
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.liveData
+import androidx.lifecycle.*
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.dao.*
 import com.laotoua.dawnislandk.data.local.entity.*
 import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.util.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -110,10 +106,9 @@ class CommentRepository @Inject constructor(
     fun getHeaderPost(id: String): Comment? = postMap[id]?.toComment()
 
     suspend fun saveReadingProgress(id: String, progress: Int) {
-        readingPageMap[id]?.let {
-            it.page = progress
-            readingPageDao.insertReadingPageWithTimeStamp(it)
-        }
+        val readingProgress = readingPageMap[id] ?: ReadingPage(id, progress, Date().time)
+        readingProgress.page = progress
+        readingPageDao.insertReadingPageWithTimeStamp(readingProgress)
     }
 
     private fun clearCachedPages() {
@@ -143,7 +138,9 @@ class CommentRepository @Inject constructor(
         remoteDataOnly: Boolean
     ): LiveData<DataResource<List<Comment>>> {
         commentsMap[id]!!.let {
-            it.put(page, getLivePage(id, page, remoteDataOnly))
+            if (it[page] == null || remoteDataOnly) {
+                it.put(page, getLivePage(id, page, remoteDataOnly))
+            }
             return it[page]
         }
     }
@@ -152,10 +149,34 @@ class CommentRepository @Inject constructor(
         id: String,
         page: Int,
         remoteDataOnly: Boolean
-    ): LiveData<DataResource<List<Comment>>> = liveData(Dispatchers.IO) {
-        emit(DataResource.create())
-        if (!remoteDataOnly) emitSource(getLocalData(id, page))
-        emitSource(getServerData(id, page))
+    ): LiveData<DataResource<List<Comment>>> {
+        val result = MediatorLiveData<DataResource<List<Comment>>>()
+        result.value = DataResource.create()
+        if (!remoteDataOnly) {
+            val cache = getLocalData(id, page)
+            result.addSource(cache) {
+                if (it.status != LoadingStatus.NO_DATA) {
+                    result.value = combineCacheAndRemoteData(result.value, it, false)
+                }
+            }
+        }
+        val remote = getServerData(id, page)
+        result.addSource(remote) {
+            result.value = combineCacheAndRemoteData(result.value, it, true)
+        }
+        return result
+    }
+
+    private fun combineCacheAndRemoteData(
+        old: DataResource<List<Comment>>?,
+        new: DataResource<List<Comment>>?,
+        isRemoteData: Boolean
+    ): DataResource<List<Comment>>? {
+        return if (new?.status == LoadingStatus.ERROR && old?.status != new.status && !isRemoteData) {
+            old
+        } else {
+            new
+        }
     }
 
     private fun getLocalData(id: String, page: Int): LiveData<DataResource<List<Comment>>> {
@@ -168,10 +189,7 @@ class CommentRepository @Inject constructor(
         }
     }
 
-    private suspend fun getServerData(
-        id: String,
-        page: Int
-    ): LiveData<DataResource<List<Comment>>> {
+    private fun getServerData(id: String, page: Int): LiveData<DataResource<List<Comment>>> {
         return liveData {
             Timber.d("Querying remote data for Thread $id on $page")
             val response = DataResource.create(webService.getComments(id, page))

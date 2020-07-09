@@ -72,7 +72,7 @@ object Layout {
             LoadingStatus.NO_DATA -> {
                 refreshLayout.refreshComplete(true, headerDismissalDelayDuration)
                 mAdapter.loadMoreModule.loadMoreEnd()
-                if (event.message != null) {
+                if (!event.message.isNullOrBlank()) {
                     Toast.makeText(
                         context,
                         event.message,

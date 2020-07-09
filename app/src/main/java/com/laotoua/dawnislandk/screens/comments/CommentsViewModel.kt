@@ -102,7 +102,7 @@ class CommentsViewModel @Inject constructor(
     }
 
     private fun listenToNewPage(page: Int) {
-        val hasCache = listeningPages[page] == null
+        val hasCache = listeningPages[page] != null
         if (hasCache) comments.removeSource(listeningPages[page])
         val newPage = commentRepo.getCommentsOnPage(currentPostId, page, hasCache)
         listeningPages.put(page, newPage)
@@ -135,7 +135,7 @@ class CommentsViewModel @Inject constructor(
             if (noAdNewPage.size < 19) {
                 status = LoadingStatus.NO_DATA
             }
-            if (noAdOldPage.equalsWithServerComments(noAdNewPage)) {
+            if (!noAdOldPage.equalsWithServerComments(noAdNewPage)) {
                 mergeList(list, targetPage)
             }
         }

@@ -21,6 +21,7 @@ import android.util.SparseArray
 import androidx.lifecycle.*
 import com.laotoua.dawnislandk.data.local.entity.Comment
 import com.laotoua.dawnislandk.data.repository.CommentRepository
+import com.laotoua.dawnislandk.data.repository.DataResource
 import com.laotoua.dawnislandk.data.repository.QuoteRepository
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.LoadingStatus
@@ -35,12 +36,10 @@ class CommentsViewModel @Inject constructor(
     private val quoteRepo: QuoteRepository
 ) : ViewModel() {
     var currentPostId: String = "0"
-    private set
-    // TODO: updates fragment when fid comes back
-    var currentPostFid: String = "-1"
         private set
 
-    // TODO: handle empty Page
+    var currentPostFid: String = "-1"
+        private set
 
     val po get() = commentRepo.getPo(currentPostId)
     val maxPage get() = commentRepo.getMaxPage(currentPostId)
@@ -51,7 +50,7 @@ class CommentsViewModel @Inject constructor(
 
     val comments = MediatorLiveData<MutableList<Comment>>()
 
-    private val listeningPages = SparseArray<LiveData<List<Comment>>>()
+    private val listeningPages = SparseArray<LiveData<DataResource<List<Comment>>>>()
     private val listeningPagesIndices = mutableSetOf<Int>()
 
     val loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
@@ -62,25 +61,23 @@ class CommentsViewModel @Inject constructor(
     val quoteLoadingStatus = quoteRepo.quoteLoadingStatus
     fun getQuote(id: String): LiveData<Comment> = quoteRepo.getQuote(id)
 
-    fun setLoadingStatus(status: LoadingStatus, message: String? = null) =
+    private fun setLoadingStatus(status: LoadingStatus, message: String? = null) {
         loadingStatus.postValue(SingleLiveEvent.create(status, message))
+    }
 
     fun setPost(id: String, fid: String, targetPage: Int?) {
-//        if (id == currentPostId) return
-//        setLoadingStatus(LoadingStatus.LOADING)
-        if (id != currentPostId) clearCache(true)
+        if (id == currentPostId) return
+        clearCache(true)
         currentPostId = id
         currentPostFid = fid
         viewModelScope.launch {
             commentRepo.setPost(id, fid)
             if (commentList.isEmpty()) loadLandingPage(targetPage)
+            // catch for jumps without fid or without server updates
+            if (fid.isBlank()) {
+                currentPostFid = commentRepo.getFid(id)
+            }
         }
-        // catch for jumps without fid or without server updates
-//        if (fid.isBlank()) {
-//            postMap[idInt]?.fid?.let {
-//                _currentPostFid = it
-//            }
-//        }
     }
 
     private fun loadLandingPage(targetPage: Int?) {
@@ -91,14 +88,10 @@ class CommentsViewModel @Inject constructor(
         viewModelScope.launch { commentRepo.saveReadingProgress(currentPostId, page) }
     }
 
-    /** sometimes VM is KILLED but repo IS ALIVE, cache in Repo
-     *  may show current page is full so should get next page,
-     *  but VM still needs the cached current page to display
-     */
     fun getNextPage(incrementPage: Boolean = true, readingProgress: Int? = null) {
         var nextPage = readingProgress ?: (commentList.lastOrNull()?.page ?: 1)
         if (incrementPage && commentRepo.checkFullPage(currentPostId, nextPage)) nextPage += 1
-        listenToNewPage(nextPage, filterIds)
+        listenToNewPage(nextPage)
     }
 
     fun getPreviousPage() {
@@ -109,74 +102,75 @@ class CommentsViewModel @Inject constructor(
         }
         val lastPage = (commentList.firstOrNull()?.page ?: 1) - 1
         if (lastPage < 1) return
-        listenToNewPage(lastPage, filterIds)
+        listenToNewPage(lastPage)
     }
 
-    /**
-     * By default, a post is only stored in the post table, but not stored in the comment table.
-     * However when requesting references, all references are stored as comment in comment table.
-     * Therefore, the first page can have or not have the header post
-     */
-    private fun List<Comment>.attachHeadAndAd(page: Int) = toMutableList().apply {
-        // first page can have
-        if (page == 1) {
-            val header = commentRepo.getHeaderPost(currentPostId)
-            if (header != null && (isEmpty() || get(0).id != header.id)) {
-                add(0, header)
-            }
-        }
-        //  insert thread head & Ad below
-        commentRepo.getAd(currentPostId, page)?.let { add(if (page == 1) 1 else 0, it) }
-    }
-
-    private fun listenToNewPage(page: Int, filterIds: List<String>) {
-        val newPage = commentRepo.getLivePage(currentPostId, page)
-        if (listeningPages[page] != newPage) {
-            listeningPages.put(page, newPage)
-            listeningPagesIndices.add(page)
-            comments.addSource(newPage) {
-                if (!it.isNullOrEmpty()) {
-                    mergeNewPage(it.attachHeadAndAd(page), filterIds)
-                    comments.value = commentList
-                    commentRepo.setLoadingStatus(LoadingStatus.SUCCESS)
-                }
-            }
-//            if (page == 1) {
-//                comments.removeSource(commentRepo.emptyPage)
-//                comments.addSource(commentRepo.emptyPage) {
-//                    if (it == true) {
-//                        mergeNewPage(emptyList<Comment>().attachHeadAndAd(page), filterIds)
-//                        comments.value = commentList
-//                    }
-//                }
-//            }
-        } else {
-            viewModelScope.launch {
-                commentRepo.getServerData(currentPostId, page)
-            }
+    private fun listenToNewPage(page: Int) {
+        val hasCache = listeningPages[page] == null
+        if (hasCache) comments.removeSource(listeningPages[page])
+        val newPage = commentRepo.getCommentsOnPage(currentPostId, page, hasCache)
+        listeningPages.put(page, newPage)
+        listeningPagesIndices.add(page)
+        comments.addSource(newPage) {
+            combineDataResource(it, page)
         }
     }
 
-    private fun mergeNewPage(list: MutableList<Comment>, filterIds: List<String>) {
-        if (list.isNullOrEmpty()) return
-        val targetPage = list.first().page
+
+    private fun combineDataResource(
+        dataResource: DataResource<List<Comment>>,
+        targetPage: Int
+    ) {
+        if (dataResource.status == LoadingStatus.SUCCESS || dataResource.status == LoadingStatus.NO_DATA) {
+            val list = mutableListOf<Comment>()
+            Timber.d("merging ${list.size} comments on $targetPage")
+            /**
+             * By default, a post is only stored in the post table, but not stored in the comment table.
+             * However when requesting references, all references are stored as comment in comment table.
+             * Therefore, the first page can have or not have the header post
+             */
+            if (targetPage == 1 && (dataResource.data.isNullOrEmpty() || (dataResource.data?.size ?: 0 > 0 && dataResource.data!![0].id != currentPostId))) {
+                commentRepo.getHeaderPost(currentPostId)?.let { list.add(0, it) }
+            }
+            dataResource.data?.let { list.addAll(it) }
+            mergeList(list, targetPage)
+        }
+        setLoadingStatus(dataResource.status, dataResource.message)
+    }
+
+    private fun mergeList(
+        list: List<Comment>,
+        targetPage: Int
+    ) {
+        if (list.isEmpty()) {
+            Timber.d("Page $targetPage is empty. List still has size of ${comments.value?.size}")
+            return
+        }
         // apply filter
-        applyFilterToList(list, filterIds)
+        applyFilterToList(list)
         if (commentList.isEmpty() || targetPage > commentList.last().page) {
             commentList.addAll(list)
         } else if (targetPage < commentList.first().page) {
             commentList.addAll(0, list)
         } else {
-            val insertInd = commentList.indexOfLast { it.page < targetPage } + 1
+            var insertInd =
+                commentList.indexOfLast { it.page < targetPage } + 1
+            // refreshing a page may lose the ad, causing duplicate last row
+            if (commentList.size > insertInd && commentList[insertInd].isAd() && list.firstOrNull()
+                    ?.isNotAd() == true
+            ) {
+                insertInd += 1
+            }
             list.mapIndexed { i, reply ->
                 commentList.addOrSet(insertInd + i, reply)
             }
         }
+        comments.value = commentList
+        Timber.d("Got ${comments.value?.size} after merging on $targetPage")
     }
 
     private fun clearCache(clearFilter: Boolean) {
         listeningPagesIndices.map { i -> listeningPages[i]?.let { s -> comments.removeSource(s) } }
-//        if (listeningPagesIndices.contains(1)) comments.removeSource(commentRepo.emptyPage)
         listeningPages.clear()
         listeningPagesIndices.clear()
         commentList.clear()
@@ -189,7 +183,7 @@ class CommentsViewModel @Inject constructor(
 
     private fun applyFilter(vararg Ids: String) {
         filterIds.addAll(Ids)
-        if (commentList.isNotEmpty()) applyFilterToList(commentList, filterIds)
+        if (commentList.isNotEmpty()) applyFilterToList(commentList)
         comments.postValue(commentList)
     }
 
@@ -200,7 +194,7 @@ class CommentsViewModel @Inject constructor(
     }
 
     // keep ad as well
-    private fun applyFilterToList(list: MutableList<Comment>, filterIds: List<String>) {
+    private fun applyFilterToList(list: List<Comment>) {
         if (filterIds.isNotEmpty()) list.map {
             it.visible = filterIds.contains(it.userid) || it.isAd()
         }
@@ -210,10 +204,9 @@ class CommentsViewModel @Inject constructor(
     fun jumpTo(page: Int) {
         Timber.i("Jumping to page $page... Clearing old data")
         clearCache(false)
-        listenToNewPage(page, filterIds)
+        listenToNewPage(page)
     }
 
-    // TODO: do not send request if subscribe already
     fun addFeed(uuid: String, id: String) {
         viewModelScope.launch {
             commentRepo.addFeed(uuid, id)

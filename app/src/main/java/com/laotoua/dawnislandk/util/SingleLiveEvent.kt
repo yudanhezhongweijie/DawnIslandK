@@ -61,10 +61,3 @@ class EventPayload<out T>(
     val message: String? = null,
     val payload: T? = null
 )
-
-enum class LoadingStatus {
-    SUCCESS,
-    NODATA,
-    LOADING,
-    FAILED,
-}

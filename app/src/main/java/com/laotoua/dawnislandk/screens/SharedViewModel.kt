@@ -183,7 +183,7 @@ class SharedViewModel @Inject constructor(
     ) {
         if (cookieName.isBlank()){
             val message = "Trying to save a Post without cookieName"
-            _savePostStatus.postValue(SingleLiveEvent.create(LoadingStatus.FAILED, message))
+            _savePostStatus.postValue(SingleLiveEvent.create(LoadingStatus.ERROR, message))
             Timber.e(message)
             return
         }
@@ -230,7 +230,7 @@ class SharedViewModel @Inject constructor(
                 postDao.insertAll(data)
             }
             if (!saved) {
-                _savePostStatus.postValue(SingleLiveEvent.create(LoadingStatus.FAILED, message))
+                _savePostStatus.postValue(SingleLiveEvent.create(LoadingStatus.ERROR, message))
                 Timber.d("Failed to save new post")
             }
         }
@@ -244,7 +244,7 @@ class SharedViewModel @Inject constructor(
         if (targetPage < 1) {
             _savePostStatus.postValue(
                 SingleLiveEvent.create(
-                    LoadingStatus.FAILED,
+                    LoadingStatus.ERROR,
                     "无法保存发言历史...请联系作者\n"
                 )
             )
@@ -266,7 +266,7 @@ class SharedViewModel @Inject constructor(
                 Timber.e(message)
                 _savePostStatus.postValue(
                     SingleLiveEvent.create(
-                        LoadingStatus.FAILED,
+                        LoadingStatus.ERROR,
                         "无法保存发言历史...\n$message"
                     )
                 )

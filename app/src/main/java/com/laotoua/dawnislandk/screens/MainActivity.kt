@@ -149,7 +149,7 @@ class MainActivity : DaggerAppCompatActivity() {
         sharedVM.communityListLoadingStatus.observe(
             this,
             Observer<SingleLiveEvent<EventPayload<Nothing>>> {
-                if (it.getContentIfNotHandled()?.loadingStatus == LoadingStatus.FAILED) {
+                if (it.getContentIfNotHandled()?.loadingStatus == LoadingStatus.ERROR) {
                     Toast.makeText(this, it.peekContent().message, Toast.LENGTH_LONG)
                         .show()
                 }

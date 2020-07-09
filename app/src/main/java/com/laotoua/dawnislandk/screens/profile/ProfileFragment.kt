@@ -204,7 +204,7 @@ class ProfileFragment : DaggerFragment() {
                     LoadingStatus.LOADING -> {
                         loadingDialog.show()
                     }
-                    LoadingStatus.FAILED -> {
+                    LoadingStatus.ERROR -> {
                         loadingDialog.dismiss()
                         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                     }

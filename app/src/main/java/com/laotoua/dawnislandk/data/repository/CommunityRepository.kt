@@ -52,7 +52,7 @@ class CommunityRepository @Inject constructor(
         webService.getCommunities().run {
             if (this is APIDataResponse.APIErrorDataResponse) _loadingStatus.postValue(
                 SingleLiveEvent.create(
-                    LoadingStatus.FAILED,
+                    LoadingStatus.ERROR,
                     "无法读取板块列表...\n${message}"
                 )
             )

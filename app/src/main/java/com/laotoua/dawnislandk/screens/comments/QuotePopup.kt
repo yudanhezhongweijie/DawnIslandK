@@ -67,7 +67,7 @@ class QuotePopup(
     }
 
     private val quoteDownloadStatusObs = Observer<EventPayload<String>> {
-        if (it.loadingStatus == LoadingStatus.FAILED && it.payload == quoteId) {
+        if (it.loadingStatus == LoadingStatus.ERROR && it.payload == quoteId) {
             ensureQuotePopupDismissal()
             Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
         }

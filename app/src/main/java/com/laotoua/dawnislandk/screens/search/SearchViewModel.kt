@@ -64,7 +64,7 @@ class SearchViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
     fun getNextPage() {
         val cookieHash = DawnApp.applicationDataStore.firstCookieHash
         if (cookieHash == null) {
-            _loadingStatus.value = SingleLiveEvent.create(LoadingStatus.FAILED, "搜索需要饼干。。")
+            _loadingStatus.value = SingleLiveEvent.create(LoadingStatus.ERROR, "搜索需要饼干。。")
             return
         }
         if (query.isBlank()) return
@@ -91,7 +91,7 @@ class SearchViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
 
     private suspend fun getQueryOnPage(query: String, page: Int, cookieHash: String) {
         if (foundHits == pageResults.firstOrNull()?.queryHits) {
-            _loadingStatus.value = SingleLiveEvent.create(LoadingStatus.NODATA)
+            _loadingStatus.value = SingleLiveEvent.create(LoadingStatus.NO_DATA)
             return
         }
         webNMBServiceClient.getNMBSearch(query, page, cookieHash).run {
@@ -100,7 +100,7 @@ class SearchViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
             } else {
                 Timber.e(message)
                 _loadingStatus.postValue(
-                    SingleLiveEvent.create(LoadingStatus.FAILED, "搜索失败...\n$message")
+                    SingleLiveEvent.create(LoadingStatus.ERROR, "搜索失败...\n$message")
                 )
             }
         }

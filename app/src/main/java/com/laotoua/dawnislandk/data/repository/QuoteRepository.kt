@@ -82,7 +82,7 @@ class QuoteRepository @Inject constructor(
                 }
                 data
             } else {
-                quoteLoadingStatus.postValue(EventPayload(LoadingStatus.FAILED, message, id))
+                quoteLoadingStatus.postValue(EventPayload(LoadingStatus.ERROR, message, id))
                 null
             }
         }

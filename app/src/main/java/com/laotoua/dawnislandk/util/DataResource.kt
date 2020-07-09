@@ -15,10 +15,9 @@
  *
  */
 
-package com.laotoua.dawnislandk.data.repository
+package com.laotoua.dawnislandk.util
 
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
-import com.laotoua.dawnislandk.util.LoadingStatus
 
 sealed class DataResource<T> {
     abstract val status: LoadingStatus
@@ -28,7 +27,7 @@ sealed class DataResource<T> {
     data class SuccessDataResource<T>(
         override val data: T
     ) : DataResource<T>() {
-        override val message = "Success"
+        override val message: String? = null
         override val status: LoadingStatus = LoadingStatus.SUCCESS
     }
 
@@ -59,18 +58,26 @@ sealed class DataResource<T> {
             message: String = ""
         ): DataResource<T> {
             return if (status == LoadingStatus.SUCCESS && data != null) {
-                SuccessDataResource(data)
+                SuccessDataResource(
+                    data
+                )
             } else if (status == LoadingStatus.SUCCESS || status == LoadingStatus.NO_DATA) {
                 NoDataResource(message)
             } else if (status == LoadingStatus.LOADING) {
                 LoadingDataResource()
             } else {
-                ErrorDataResource(message)
+                ErrorDataResource(
+                    message
+                )
             }
         }
 
         fun <T> create(response: APIDataResponse<T>): DataResource<T> {
-            return create(response.status, response.data, response.message)
+            return create(
+                response.status,
+                response.data,
+                response.message
+            )
         }
     }
 }

@@ -110,8 +110,10 @@ class CommentRepository @Inject constructor(
     fun getHeaderPost(id: String): Comment? = postMap[id]?.toComment()
 
     suspend fun saveReadingProgress(id: String, progress: Int) {
-        readingPageMap[id]!!.page = progress
-        readingPageDao.insertReadingPageWithTimeStamp(readingPageMap[id]!!)
+        readingPageMap[id]?.let {
+            it.page = progress
+            readingPageDao.insertReadingPageWithTimeStamp(it)
+        }
     }
 
     private fun clearCachedPages() {

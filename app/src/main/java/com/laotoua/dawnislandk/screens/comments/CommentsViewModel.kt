@@ -21,12 +21,8 @@ import android.util.SparseArray
 import androidx.lifecycle.*
 import com.laotoua.dawnislandk.data.local.entity.Comment
 import com.laotoua.dawnislandk.data.repository.CommentRepository
-import com.laotoua.dawnislandk.data.repository.DataResource
 import com.laotoua.dawnislandk.data.repository.QuoteRepository
-import com.laotoua.dawnislandk.util.EventPayload
-import com.laotoua.dawnislandk.util.LoadingStatus
-import com.laotoua.dawnislandk.util.SingleLiveEvent
-import com.laotoua.dawnislandk.util.addOrSet
+import com.laotoua.dawnislandk.util.*
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -121,9 +117,9 @@ class CommentsViewModel @Inject constructor(
         dataResource: DataResource<List<Comment>>,
         targetPage: Int
     ) {
+        var status = dataResource.status
         if (dataResource.status == LoadingStatus.SUCCESS || dataResource.status == LoadingStatus.NO_DATA) {
             val list = mutableListOf<Comment>()
-            Timber.d("merging ${list.size} comments on $targetPage")
             /**
              * By default, a post is only stored in the post table, but not stored in the comment table.
              * However when requesting references, all references are stored as comment in comment table.
@@ -133,9 +129,17 @@ class CommentsViewModel @Inject constructor(
                 commentRepo.getHeaderPost(currentPostId)?.let { list.add(0, it) }
             }
             dataResource.data?.let { list.addAll(it) }
-            mergeList(list, targetPage)
+            // inform user latest page is the same as error by setting status to no_data instead of success
+            val noAdOldPage = commentList.filter { it.page == targetPage && it.isNotAd() }
+            val noAdNewPage = list.filter { it.isNotAd() }
+            if (noAdNewPage.size < 19) {
+                status = LoadingStatus.NO_DATA
+            }
+            if (noAdOldPage.equalsWithServerComments(noAdNewPage)) {
+                mergeList(list, targetPage)
+            }
         }
-        setLoadingStatus(dataResource.status, dataResource.message)
+        setLoadingStatus(status, dataResource.message)
     }
 
     private fun mergeList(
@@ -146,6 +150,7 @@ class CommentsViewModel @Inject constructor(
             Timber.d("Page $targetPage is empty. List still has size of ${comments.value?.size}")
             return
         }
+        Timber.d("Merging ${list.size} comments on $targetPage")
         // apply filter
         applyFilterToList(list)
         if (commentList.isEmpty() || targetPage > commentList.last().page) {
@@ -153,17 +158,9 @@ class CommentsViewModel @Inject constructor(
         } else if (targetPage < commentList.first().page) {
             commentList.addAll(0, list)
         } else {
-            var insertInd =
-                commentList.indexOfLast { it.page < targetPage } + 1
-            // refreshing a page may lose the ad, causing duplicate last row
-            if (commentList.size > insertInd && commentList[insertInd].isAd() && list.firstOrNull()
-                    ?.isNotAd() == true
-            ) {
-                insertInd += 1
-            }
-            list.mapIndexed { i, reply ->
-                commentList.addOrSet(insertInd + i, reply)
-            }
+            commentList.removeAll { it.page == targetPage }
+            val insertInd = commentList.indexOfLast { it.page < targetPage } + 1
+            commentList.addAll(insertInd, list)
         }
         comments.value = commentList
         Timber.d("Got ${comments.value?.size} after merging on $targetPage")

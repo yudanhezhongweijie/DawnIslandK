@@ -58,9 +58,7 @@ sealed class DataResource<T> {
             message: String = ""
         ): DataResource<T> {
             return if (status == LoadingStatus.SUCCESS && data != null) {
-                SuccessDataResource(
-                    data
-                )
+                SuccessDataResource(data)
             } else if (status == LoadingStatus.SUCCESS || status == LoadingStatus.NO_DATA) {
                 NoDataResource(message)
             } else if (status == LoadingStatus.LOADING) {

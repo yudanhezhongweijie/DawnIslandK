@@ -61,14 +61,14 @@ class CommentsViewModel @Inject constructor(
         loadingStatus.postValue(SingleLiveEvent.create(status, message))
     }
 
-    fun setPost(id: String, fid: String, targetPage: Int?) {
+    fun setPost(id: String, fid: String, targetPage: Int) {
         if (id == currentPostId) return
         clearCache(true)
         currentPostId = id
         currentPostFid = fid
         viewModelScope.launch {
             commentRepo.setPost(id, fid)
-            if (commentList.isEmpty()) loadLandingPage(targetPage)
+            loadLandingPage(targetPage)
             // catch for jumps without fid or without server updates
             if (fid.isBlank()) {
                 currentPostFid = commentRepo.getFid(id)
@@ -76,8 +76,11 @@ class CommentsViewModel @Inject constructor(
         }
     }
 
-    private fun loadLandingPage(targetPage: Int?) {
-        getNextPage(false, targetPage ?: commentRepo.getLandingPage(currentPostId))
+    private fun loadLandingPage(targetPage: Int) {
+        getNextPage(
+            false,
+            if (targetPage > 0) targetPage else commentRepo.getLandingPage(currentPostId)
+        )
     }
 
     fun saveReadingProgress(page: Int) {

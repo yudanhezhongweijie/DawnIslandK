@@ -54,16 +54,9 @@ class SharedViewModel @Inject constructor(
     val communityListLoadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>> =
         communityRepository.loadingStatus
 
-    // TODO: remove below
+
     private var _selectedForumId = MutableLiveData<String>()
     val selectedForumId: LiveData<String> get() = _selectedForumId
-    // TODO definitely remove below
-    private var _selectedPostId = MutableLiveData<String>()
-    val selectedPostId: LiveData<String> get() = _selectedPostId
-    var selectedPostTargetPage: Int? = null
-        private set
-    private var _selectedPostFid: String = "-1"
-    val selectedPostFid get() = _selectedPostFid
 
     // TODO: use
     private val _savePostStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
@@ -111,18 +104,6 @@ class SharedViewModel @Inject constructor(
         _selectedForumId.value = fid
     }
 
-    fun setPost(id: String, fid: String? = null, selectedPage: Int? = null) {
-        Timber.d("Setting thread to $id and fid to $fid")
-        fid?.let { _selectedPostFid = it }
-        _selectedPostId.value = id
-        selectedPostTargetPage = selectedPage
-    }
-
-    fun setPostFid(fid: String) {
-        Timber.d("Setting missing fid to $fid for thread $selectedPostId")
-        _selectedPostFid = fid
-    }
-
     fun setLuweiLoadingBible(bible: List<String>) {
         loadingBible = bible
     }
@@ -131,11 +112,11 @@ class SharedViewModel @Inject constructor(
         if (this::loadingBible.isInitialized) loadingBible.random()
         else "正在加载中..."
 
-    fun getForumMsg(id: String): String = forumMsgMapping[id] ?: ""
+    fun getForumMsg(id: String): String = if (id.isBlank()) "" else  forumMsgMapping[id] ?: ""
 
-    fun getForumDisplayName(id: String): String = forumNameMapping[id] ?: ""
+    fun getForumDisplayName(fid: String): String = if (fid.isBlank()) "" else  forumNameMapping[fid] ?: ""
 
-    fun getSelectedPostForumName(): String = getForumDisplayName(_selectedPostFid)
+    fun getSelectedPostForumName(fid:String): String = getForumDisplayName(fid)
 
     fun getToolbarTitle(): String = toolbarTitle
 

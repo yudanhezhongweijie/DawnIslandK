@@ -25,6 +25,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.datetime.datePicker
@@ -33,10 +34,10 @@ import com.chad.library.adapter.base.util.getItemView
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.DawnApp
+import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.PostHistory
 import com.laotoua.dawnislandk.databinding.FragmentHistoryPostBinding
-import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.*
 import com.laotoua.dawnislandk.screens.posts.PostCardFactory
@@ -74,7 +75,7 @@ class PostHistoryFragment : BaseNavFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val mAdapter = QuickMultiBinder(sharedVM).apply {
-            addItemBinder(PostHistoryBinder(sharedVM, this@PostHistoryFragment).apply {
+            addItemBinder(PostHistoryBinder(sharedVM).apply {
                 addChildClickViewIds(R.id.attachedImage)
             })
             addItemBinder(DateStringBinder())
@@ -117,52 +118,52 @@ class PostHistoryFragment : BaseNavFragment() {
         }
 
         viewModel.postHistoryList.observe(viewLifecycleOwner, Observer { list ->
-        if (list.isEmpty()) {
-            if (!mAdapter.hasEmptyView()) mAdapter.setDefaultEmptyView()
-            mAdapter.setDiffNewData(null)
-            return@Observer
-        }
-        var lastDate: String? = null
-        val data: MutableList<Any> = ArrayList()
-        list.filter { it.newPost }.run {
-            data.add(SectionHeader("发布"))
-            map {
-                val dateString = ReadableTime.getDateString(
-                    it.postDate,
-                    ReadableTime.DATE_ONLY_FORMAT
-                )
-                if (lastDate == null || dateString != lastDate) {
-                    data.add(dateString)
-                }
-                data.add(it)
-                lastDate = dateString
+            if (list.isEmpty()) {
+                if (!mAdapter.hasEmptyView()) mAdapter.setDefaultEmptyView()
+                mAdapter.setDiffNewData(null)
+                return@Observer
             }
-        }
-        list.filterNot { it.newPost }.run {
-            data.add(SectionHeader("回复"))
-            lastDate = null
-            map {
-                val dateString = ReadableTime.getDateString(
-                    it.postDate,
-                    ReadableTime.DATE_ONLY_FORMAT
-                )
-                if (lastDate == null || dateString != lastDate) {
-                    data.add(dateString)
+            var lastDate: String? = null
+            val data: MutableList<Any> = ArrayList()
+            list.filter { it.newPost }.run {
+                data.add(SectionHeader("发布"))
+                map {
+                    val dateString = ReadableTime.getDateString(
+                        it.postDate,
+                        ReadableTime.DATE_ONLY_FORMAT
+                    )
+                    if (lastDate == null || dateString != lastDate) {
+                        data.add(dateString)
+                    }
+                    data.add(it)
+                    lastDate = dateString
                 }
-                data.add(it)
-                lastDate = dateString
             }
-        }
-        mAdapter.setDiffNewData(data)
-        mAdapter.setFooterView(
-            layoutInflater.inflate(
-                R.layout.view_no_more_data,
-                binding.recyclerView,
-                false
+            list.filterNot { it.newPost }.run {
+                data.add(SectionHeader("回复"))
+                lastDate = null
+                map {
+                    val dateString = ReadableTime.getDateString(
+                        it.postDate,
+                        ReadableTime.DATE_ONLY_FORMAT
+                    )
+                    if (lastDate == null || dateString != lastDate) {
+                        data.add(dateString)
+                    }
+                    data.add(it)
+                    lastDate = dateString
+                }
+            }
+            mAdapter.setDiffNewData(data)
+            mAdapter.setFooterView(
+                layoutInflater.inflate(
+                    R.layout.view_no_more_data,
+                    binding.recyclerView,
+                    false
+                )
             )
-        )
-        Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} items")
-                })
+            Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} items")
+        })
     }
 
     private fun setStartDate(date: Calendar) {
@@ -177,10 +178,7 @@ class PostHistoryFragment : BaseNavFragment() {
         binding.endDate.text = ReadableTime.getDateString(date.time)
     }
 
-    private class PostHistoryBinder(
-        private val sharedViewModel: SharedViewModel,
-        private val callerFragment: PostHistoryFragment
-    ) :
+    inner class PostHistoryBinder(private val sharedViewModel: SharedViewModel) :
         QuickItemBinder<PostHistory>() {
         override fun convert(holder: BaseViewHolder, data: PostHistory) {
             val cookieDisplayName =
@@ -224,11 +222,14 @@ class PostHistoryFragment : BaseNavFragment() {
 
         override fun onClick(holder: BaseViewHolder, view: View, data: PostHistory, position: Int) {
             if (data.newPost) {
-                sharedViewModel.setPost(data.id, data.postTargetFid)
-                (context as MainActivity).showComment()
+                val navAction =
+                    MainNavDirections.actionGlobalCommentsFragment(data.id, data.postTargetFid)
+                findNavController().navigate(navAction)
             } else {
-                sharedViewModel.setPost(data.postTargetId, data.postTargetFid, data.postTargetPage)
-                (context as MainActivity).showComment()
+                val navAction =
+                    MainNavDirections.actionGlobalCommentsFragment(data.postTargetId, data.postTargetFid)
+                navAction.targetPage = data.postTargetPage
+                findNavController().navigate(navAction)
             }
         }
     }

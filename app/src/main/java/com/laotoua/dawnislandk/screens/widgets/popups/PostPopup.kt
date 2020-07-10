@@ -453,7 +453,7 @@ class PostPopup(
 
         findViewById<Button>(R.id.forumRule).setOnClickListener {
             MaterialDialog(context).show {
-                val fid = if (newPost && targetId != null) targetId!! else sharedVM.selectedPostFid
+                val fid = if (newPost && targetId != null) targetId!! else targetFid
                 val biId = if (fid.toInt() > 0) fid.toInt() else 1
                 val resourceId: Int = context.resources.getIdentifier(
                     "bi_$biId", "drawable",

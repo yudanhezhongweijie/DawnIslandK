@@ -26,12 +26,14 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItems
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.laotoua.dawnislandk.DawnApp
+import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.databinding.FragmentPostBinding
@@ -131,9 +133,10 @@ class PostsFragment : BaseNavFragment() {
         val mAdapter = QuickAdapter<Post>(R.layout.list_item_post, sharedVM).apply {
             setOnItemClickListener { _, _, position ->
                 getItem(position).run {
-                    sharedVM.setPost(id, fid)
+                    val navAction =
+                        MainNavDirections.actionGlobalCommentsFragment(id, fid)
+                    findNavController().navigate(navAction)
                 }
-                (requireActivity() as MainActivity).showComment()
             }
             setOnItemLongClickListener { _, _, position ->
                 MaterialDialog(requireContext()).show {

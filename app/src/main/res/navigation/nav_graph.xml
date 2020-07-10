@@ -18,7 +18,7 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nav_graph"
+    android:id="@+id/main_nav"
     app:startDestination="@id/postsFragment">
     <fragment
         android:id="@+id/profileFragment"
@@ -40,69 +40,41 @@
         android:id="@+id/postsFragment"
         android:name="com.laotoua.dawnislandk.screens.posts.PostsFragment"
         android:label="fragment_post"
-        tools:layout="@layout/fragment_post">
-        <action
-            android:id="@+id/action_postsFragment_to_commentsFragment"
-            app:destination="@id/commentsFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-    </fragment>
+        tools:layout="@layout/fragment_post" />
 
     <fragment
         android:id="@+id/historyPagerFragment"
         android:name="com.laotoua.dawnislandk.screens.history.HistoryPagerFragment"
-        android:label="HistoryPagerFragment">
-        <action
-            android:id="@+id/action_historyPagerFragment_to_commentsFragment"
-            app:destination="@id/commentsFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-    </fragment>
+        android:label="HistoryPagerFragment" />
     <fragment
         android:id="@+id/subscriptionPagerFragment"
         android:name="com.laotoua.dawnislandk.screens.subscriptions.SubscriptionPagerFragment"
-        android:label="SubscriptionPagerFragment">
-        <action
-            android:id="@+id/action_subscriptionPagerFragment_to_commentsFragment"
-            app:destination="@id/commentsFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-    </fragment>
+        android:label="SubscriptionPagerFragment" />
     <fragment
         android:id="@+id/searchFragment"
         android:name="com.laotoua.dawnislandk.screens.search.SearchFragment"
         android:label="fragment_search"
-        tools:layout="@layout/fragment_search">
-        <action
-            android:id="@+id/action_searchFragment_to_commentsFragment"
-            app:destination="@id/commentsFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-    </fragment>
+        tools:layout="@layout/fragment_search" />
     <fragment
         android:id="@+id/commentsFragment"
         android:name="com.laotoua.dawnislandk.screens.comments.CommentsFragment"
         android:label="CommentsFragment">
-        <action
-            android:id="@+id/action_commentsFragment_self"
-            app:destination="@id/commentsFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
         <argument
             android:name="id"
             app:argType="string" />
         <argument
             android:name="fid"
             app:argType="string" />
+        <argument
+            android:name="targetPage"
+            app:argType="integer"
+            android:defaultValue="0" />
     </fragment>
+    <action
+        android:id="@+id/action_global_commentsFragment"
+        app:destination="@id/commentsFragment"
+        app:enterAnim="@anim/slide_in_right"
+        app:exitAnim="@anim/slide_out_left"
+        app:popEnterAnim="@anim/slide_in_left"
+        app:popExitAnim="@anim/slide_out_right" />
 </navigation>

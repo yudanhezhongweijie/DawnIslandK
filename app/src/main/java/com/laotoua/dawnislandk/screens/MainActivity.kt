@@ -40,6 +40,7 @@ import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
 import com.afollestad.materialdialogs.checkbox.isCheckPromptChecked
 import com.google.android.material.animation.AnimationUtils
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
+import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
@@ -169,8 +170,8 @@ class MainActivity : DaggerAppCompatActivity() {
                     sharedVM.setForumId(id)
                 } else if (count == 2) {
                     if (path[1] == 't') {
-                        sharedVM.setPost(id, "")
-                        showComment()
+                        val navAction = MainNavDirections.actionGlobalCommentsFragment(id,"")
+                        findNavController(R.id.navHostFragment).navigate(navAction)
                     } else if (path[1] == 'f') {
                         val fid = sharedVM.getForumIdByName(URLDecoder.decode(id, "UTF-8"))
                         sharedVM.setForumId(fid)
@@ -289,46 +290,6 @@ class MainActivity : DaggerAppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         mHandler.removeCallbacks(mRunnable)
-    }
-
-    fun showComment() {
-        hideNav()
-        findNavController(R.id.navHostFragment).navigate(R.id.commentsFragment)
-//        var commentFrag = supportFragmentManager.findFragmentByTag("comment")
-//        if (commentFrag == null) {
-//            commentFrag = CommentsFragment()
-//            supportFragmentManager.beginTransaction()
-//                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
-//                .add(R.id.navHostFragment, commentFrag, "comment")
-//                .addToBackStack(null).commit()
-//        } else {
-//            supportFragmentManager.beginTransaction()
-//                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
-//                .show(commentFrag)
-//                .runOnCommit { commentFrag.onResume() }
-//                .commit()
-//        }
-    }
-
-    fun hideComment(): Boolean {
-        findNavController(R.id.navHostFragment).popBackStack()
-        return true
-//        supportFragmentManager.findFragmentByTag("comment")?.let {
-//            if (!it.isHidden) {
-//                it.onPause()
-//                supportFragmentManager.beginTransaction()
-//                    .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
-//                    .hide(it)
-//                    .commit()
-//                showNav()
-//                if (currentFragmentId == R.id.postsFragment) {
-//                    findViewById<FloatingActionButton>(R.id.fabMenu).show()
-//                    findViewById<FloatingActionButton>(R.id.fabMenu).isClickable = true
-//                }
-//                return true
-//            }
-//        }
-//        return false
     }
 
     fun hideNav() {

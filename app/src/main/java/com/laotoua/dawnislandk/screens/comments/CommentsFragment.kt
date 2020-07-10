@@ -35,6 +35,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -42,6 +43,7 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.google.android.material.animation.AnimationUtils
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
+import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Comment
 import com.laotoua.dawnislandk.databinding.FragmentCommentBinding
@@ -85,6 +87,10 @@ class CommentsFragment : DaggerFragment() {
     private var pageCounter: TextView? = null
     private var filterActivated: Boolean = false
     private var requireTitleUpdate: Boolean = false
+
+    // list to remember all currently displaying popups
+    // need to dismiss all before jumping to new post, by lifo
+    private val quotePopups : MutableList<QuotePopup> = mutableListOf()
 
     enum class RVScrollState {
         UP,
@@ -142,27 +148,13 @@ class CommentsFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        (requireActivity() as MainActivity).run {
-            setToolbarClickListener {
-                binding.srlAndRv.recyclerView.layoutManager?.scrollToPosition(0)
-                showMenu()
-            }
-            hideNav()
-        }
-
         val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext(), sharedVM) }
         val jumpPopup: JumpPopup by lazyOnMainOnly { JumpPopup(requireContext()) }
 
         _mAdapter = QuickAdapter<Comment>(R.layout.list_item_comment, sharedVM).apply {
             setReferenceClickListener(object : ReferenceSpan.ReferenceClickHandler {
                 override fun handleReference(id: String) {
-                    QuotePopup.showQuote(
-                        this@CommentsFragment,
-                        viewModel,
-                        requireContext(),
-                        id,
-                        viewModel.po
-                    )
+                    displayQuote(id)
                 }
             })
 
@@ -291,11 +283,7 @@ class CommentsFragment : DaggerFragment() {
                             viewModel.getPreviousPage()
                         }
                     }
-
-                    val lastVisiblePos = llm.findLastVisibleItemPosition()
-                    if (lastVisiblePos < mAdapter.data.lastIndex) {
-                        updateCurrentPage(mAdapter.getItem(lastVisiblePos).page)
-                    }
+                    updateCurrentPage()
                 }
             })
         }
@@ -354,6 +342,7 @@ class CommentsFragment : DaggerFragment() {
         viewModel.setPost(args.id, args.fid, args.targetPage)
         requireTitleUpdate = args.fid.isBlank()
         updateTitle()
+        updateCurrentPage()
     }
 
     private val addFeedObs = Observer<SingleLiveEvent<EventPayload<Nothing>>> {
@@ -370,7 +359,7 @@ class CommentsFragment : DaggerFragment() {
 
     private val commentsObs = Observer<MutableList<Comment>> {
         if (it.isEmpty()) return@Observer
-        if (mAdapter.data.isEmpty()) updateCurrentPage(it.first().page)
+        updateCurrentPage()
         if (requireTitleUpdate) {
             updateTitle()
             requireTitleUpdate = false
@@ -400,6 +389,14 @@ class CommentsFragment : DaggerFragment() {
     override fun onResume() {
         super.onResume()
         subscribeUI()
+
+        (requireActivity() as MainActivity).run {
+            setToolbarClickListener {
+                binding.srlAndRv.recyclerView.layoutManager?.scrollToPosition(0)
+                showMenu()
+            }
+            hideNav()
+        }
     }
 
     private fun copyText(label: String, text: String) {
@@ -423,7 +420,6 @@ class CommentsFragment : DaggerFragment() {
         super.onDestroyView()
         _mAdapter = null
         _binding = null
-        (requireActivity() as MainActivity).showNav()
         Timber.d("Fragment View Destroyed")
     }
 
@@ -485,13 +481,17 @@ class CommentsFragment : DaggerFragment() {
         }
     }
 
-    private fun updateCurrentPage(page: Int) {
-        if (page != currentPage) {
-            viewModel.saveReadingProgress(page)
-            pageCounter?.text =
-                (page.toString() + " / " + viewModel.maxPage.toString()).toSpannable()
-                    .apply { setSpan(UnderlineSpan(), 0, length, 0) }
-            currentPage = page
+    private fun updateCurrentPage() {
+        val lastVisiblePos = (binding.srlAndRv.recyclerView.layoutManager as LinearLayoutManager? )?.findLastVisibleItemPosition() ?: 0
+        if (lastVisiblePos < mAdapter.data.lastIndex) {
+            val page = mAdapter.getItem(lastVisiblePos).page
+            if (page != currentPage) {
+                viewModel.saveReadingProgress(page)
+                pageCounter?.text =
+                    (page.toString() + " / " + viewModel.maxPage.toString()).toSpannable()
+                        .apply { setSpan(UnderlineSpan(), 0, length, 0) }
+                currentPage = page
+            }
         }
     }
 
@@ -531,5 +531,28 @@ class CommentsFragment : DaggerFragment() {
                 showCommentMenuOnPos(pos)
             }
         }
+    }
+
+    fun displayQuote(id:String){
+        val top = QuotePopup(this, viewModel, id, viewModel.po)
+        quotePopups.add(top)
+        XPopup.Builder(context)
+            .setPopupCallback(object : SimpleCallback() {
+                override fun beforeShow() {
+                    super.beforeShow()
+                    top.listenToLiveQuote()
+                }
+            })
+            .asCustom(top)
+            .show()
+    }
+
+    fun jumpToNewPost(id: String){
+        for (i in quotePopups.indices.reversed()){
+            quotePopups[i].smartDismiss()
+            quotePopups.removeAt(i)
+        }
+        val navAction = MainNavDirections.actionGlobalCommentsFragment(id, "")
+        findNavController().navigate(navAction)
     }
 }

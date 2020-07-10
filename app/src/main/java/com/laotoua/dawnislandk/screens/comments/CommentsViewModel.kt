@@ -55,7 +55,13 @@ class CommentsViewModel @Inject constructor(
         get() = commentRepo.addFeedResponse
 
     val quoteLoadingStatus = quoteRepo.quoteLoadingStatus
-    fun getQuote(id: String): LiveData<Comment> = quoteRepo.getQuote(id)
+
+    fun getQuote(id: String): LiveData<Comment> = liveData {
+        // try to find quote in current post, if not then in local cache or remote data
+        val result = commentList.find { it.id == id }
+        if (result != null) emit(result)
+        else emitSource(quoteRepo.getQuote(id))
+    }
 
     private fun setLoadingStatus(status: LoadingStatus, message: String? = null) {
         loadingStatus.postValue(SingleLiveEvent.create(status, message))

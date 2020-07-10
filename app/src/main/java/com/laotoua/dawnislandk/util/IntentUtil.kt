@@ -28,7 +28,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.CallSuper
-import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import com.king.zxing.Intents
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.screens.tasks.DoodleActivity
@@ -36,7 +36,7 @@ import com.laotoua.dawnislandk.screens.tasks.QRCookieActivity
 import timber.log.Timber
 import java.io.File
 
-object FragmentIntentUtil {
+object IntentUtil {
 
     private val allPermissions = arrayOf(
         Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -56,14 +56,14 @@ object FragmentIntentUtil {
         Toast.makeText(context, toastMsg, Toast.LENGTH_SHORT).show()
     }
 
-    private fun requestSinglePermission(caller: Fragment, permission: String) {
+    private fun requestSinglePermission(caller: FragmentActivity, permission: String) {
         caller.registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             Timber.i("requesting $permission permission...")
             if (it == false) {
-                informUserRequiredPermission(caller.requireContext(), permission)
+                informUserRequiredPermission(caller, permission)
             } else {
                 Toast.makeText(
-                    caller.requireContext(),
+                    caller,
                     R.string.please_try_again,
                     Toast.LENGTH_SHORT
                 ).show()
@@ -71,17 +71,17 @@ object FragmentIntentUtil {
         }.launch(permission)
     }
 
-    private fun requestMultiplePermission(caller: Fragment, permissions: Array<String>) {
+    private fun requestMultiplePermission(caller: FragmentActivity, permissions: Array<String>) {
         caller.registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
             Timber.i("requesting multiple permissions: $permissions")
             val missingPermissions = result.filter { it.value == false }.keys.toList()
             if (missingPermissions.isNotEmpty()) {
                 missingPermissions.map {
-                    informUserRequiredPermission(caller.requireContext(), it)
+                    informUserRequiredPermission(caller, it)
                 }
             } else {
                 Toast.makeText(
-                    caller.requireContext(),
+                    caller,
                     R.string.please_try_again,
                     Toast.LENGTH_SHORT
                 ).show()
@@ -90,13 +90,11 @@ object FragmentIntentUtil {
     }
 
     fun checkAndRequestSinglePermission(
-        caller: Fragment,
+        caller: FragmentActivity,
         permission: String,
         request: Boolean
     ): Boolean {
-        if (caller.requireContext()
-                .checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED
-        ) {
+        if (caller.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
             if (request) requestSinglePermission(caller, permission)
             return false
         }
@@ -104,7 +102,7 @@ object FragmentIntentUtil {
     }
 
     fun checkAndRequestAllPermissions(
-        caller: Fragment,
+        caller: FragmentActivity,
         permissions: Array<String> = allPermissions
     ): Boolean {
         val missingPermissions = permissions.filterNot {
@@ -114,53 +112,42 @@ object FragmentIntentUtil {
         return missingPermissions.isEmpty()
     }
 
-    fun getImageFromGallery(caller: Fragment, type: String, callback: (Uri?) -> Unit) {
+    fun getImageFromGallery(caller: FragmentActivity, type: String, callback: (Uri?) -> Unit) {
         caller.registerForActivityResult(ActivityResultContracts.GetContent(), callback)
             .launch(type)
     }
 
-    fun getImageFromCamera(caller: Fragment, callback: (Uri) -> Unit) {
+    fun getImageFromCamera(caller: FragmentActivity, callback: (Uri) -> Unit) {
         val timeStamp: String = ReadableTime.getCurrentTimeFileName()
         val relativeLocation = Environment.DIRECTORY_PICTURES + File.separator + "Dawn"
         val fileName = "DawnIsland_$timeStamp.jpg"
         try {
-            val uri = ImageUtil.addPlaceholderImageUriToGallery(
-                caller.requireActivity(),
-                fileName,
-                relativeLocation
-            )
+            val uri = ImageUtil.addPlaceholderImageToGallery(caller, fileName, relativeLocation)
             caller.registerForActivityResult(ActivityResultContracts.TakePicture()) {
                 if (it == true) {
                     callback.invoke(uri)
                 } else {
-                    ImageUtil.removePlaceholderImageUriToGallery(
-                        caller.requireActivity(),
-                        uri
-                    )
+                    ImageUtil.removePlaceholderImageInGallery(caller, uri)
                 }
             }.launch(uri)
         } catch (e: Exception) {
             Timber.e(e)
-            Toast.makeText(
-                caller.requireContext(),
-                R.string.something_went_wrong,
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(caller, R.string.something_went_wrong, Toast.LENGTH_SHORT).show()
         }
     }
 
-    fun drawNewDoodle(caller: Fragment, callback: (Uri?) -> Unit) {
+    fun drawNewDoodle(caller: FragmentActivity, callback: (Uri?) -> Unit) {
         caller.registerForActivityResult(MakeDoodle(), callback).launch(caller)
     }
 
     internal class MakeDoodle :
-        ActivityResultContract<Fragment, Uri?>() {
+        ActivityResultContract<FragmentActivity, Uri?>() {
         @CallSuper
         override fun createIntent(
             context: Context,
-            input: Fragment
+            input: FragmentActivity
         ): Intent {
-            return Intent(input.requireActivity(), DoodleActivity::class.java)
+            return Intent(input, DoodleActivity::class.java)
         }
 
         override fun parseResult(
@@ -171,18 +158,18 @@ object FragmentIntentUtil {
         }
     }
 
-    fun getCookieFromQRCode(caller: Fragment, callback: (String?) -> Unit) {
+    fun getCookieFromQRCode(caller: FragmentActivity, callback: (String?) -> Unit) {
         caller.registerForActivityResult(ScanQRCode(), callback).launch(caller)
     }
 
     internal class ScanQRCode :
-        ActivityResultContract<Fragment, String?>() {
+        ActivityResultContract<FragmentActivity, String?>() {
         @CallSuper
         override fun createIntent(
             context: Context,
-            input: Fragment
+            input: FragmentActivity
         ): Intent {
-            return Intent(input.requireActivity(), QRCookieActivity::class.java)
+            return Intent(input, QRCookieActivity::class.java)
         }
 
         override fun parseResult(
@@ -194,5 +181,4 @@ object FragmentIntentUtil {
             )
         }
     }
-
 }

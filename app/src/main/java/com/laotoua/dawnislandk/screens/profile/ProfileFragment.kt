@@ -74,7 +74,7 @@ class ProfileFragment : DaggerFragment() {
             uri?.run {
                 try {
                     val file =
-                        ImageUtil.getImageFileFromUri(fragment = this@ProfileFragment, uri = uri)
+                        ImageUtil.getImageFileFromUri(requireActivity(), uri)
                             ?: return@registerForActivityResult
                     val res = CodeUtils.parseQRCode(file.path)
                     if (res != null) {
@@ -222,13 +222,13 @@ class ProfileFragment : DaggerFragment() {
                         when (index) {
                             0 -> getCookieImage.launch("image/*")
                             1 -> {
-                                if (FragmentIntentUtil.checkAndRequestSinglePermission(
-                                        this@ProfileFragment,
+                                if (IntentUtil.checkAndRequestSinglePermission(
+                                        requireActivity(),
                                         Manifest.permission.CAMERA,
                                         true
                                     )
                                 ) {
-                                    FragmentIntentUtil.getCookieFromQRCode(this@ProfileFragment) {
+                                    IntentUtil.getCookieFromQRCode(requireActivity()) {
                                         it?.run {
                                             saveCookieWithInputName(it)
                                         }
@@ -352,7 +352,7 @@ class ProfileFragment : DaggerFragment() {
                     lifecycleScope.launch {
                         val agreement = viewModel.getPrivacyAgreement()
                         waitingDialog.dismiss()
-                        MaterialDialog(this@ProfileFragment.requireContext()).show {
+                        MaterialDialog(requireContext()).show {
                             title(res = R.string.privacy_agreement)
                             message(text = agreement) { html() }
                             positiveButton(R.string.acknowledge)

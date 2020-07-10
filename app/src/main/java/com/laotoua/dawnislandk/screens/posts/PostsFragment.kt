@@ -129,7 +129,7 @@ class PostsFragment : BaseNavFragment() {
             (activity as MainActivity).showDrawer()
         }
 
-        val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext(), sharedVM) }
+        val postPopup: PostPopup by lazyOnMainOnly { PostPopup(requireActivity(), sharedVM) }
         val mAdapter = QuickAdapter<Post>(R.layout.list_item_post, sharedVM).apply {
             setOnItemClickListener { _, _, position ->
                 getItem(position).run {

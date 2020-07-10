@@ -18,6 +18,7 @@
 package com.laotoua.dawnislandk.screens.widgets.popups
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.widget.Button
 import android.widget.ImageView
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -25,7 +26,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.data.local.entity.Forum
-import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.CommunityNodeAdapter
 import com.laotoua.dawnislandk.util.GlideApp
@@ -35,9 +35,9 @@ import timber.log.Timber
 
 @SuppressLint("ViewConstructor")
 class ForumDrawerPopup(
-    mainActivity: MainActivity,
+    context: Context,
     private val sharedVM: SharedViewModel
-) : DrawerPopupView(mainActivity) {
+) : DrawerPopupView(context) {
     override fun getImplLayoutId(): Int = R.layout.drawer_forum
 
     private val forumListAdapter =

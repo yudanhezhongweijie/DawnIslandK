@@ -45,8 +45,7 @@ import java.io.File
 class ImageViewerPopup(
     private val imgUrl: String,
     context: Context
-) :
-    ImageViewerPopupView(context) {
+) : ImageViewerPopupView(context) {
 
     companion object {
         val universalImageLoader = ImageLoader()
@@ -81,10 +80,14 @@ class ImageViewerPopup(
     }
 
     private fun checkAndRequestExternalStoragePermission(caller: FragmentActivity): Boolean {
-        if(caller.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
-            caller.registerForActivityResult(ActivityResultContracts.RequestPermission()){
-                if (it == false){
-                    Toast.makeText(context, R.string.need_write_storage_permission, Toast.LENGTH_SHORT).show()
+        if (caller.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            caller.registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+                if (it == false) {
+                    Toast.makeText(
+                        context,
+                        R.string.need_write_storage_permission,
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
             return false
@@ -94,18 +97,14 @@ class ImageViewerPopup(
 
     private fun addPicToGallery(context: Context, imgUrl: String) {
         caller.lifecycleScope.launch(Dispatchers.IO) {
-            if(!checkAndRequestExternalStoragePermission(caller)){
+            if (!checkAndRequestExternalStoragePermission(caller)) {
                 return@launch
             }
 
             Timber.i("Saving image $imgUrl to Gallery... ")
             val relativeLocation = Environment.DIRECTORY_PICTURES + File.separator + "Dawn"
             var fileName = imgUrl.substringAfter("/")
-            val fileExist = ImageUtil.imageExistInGalleryBasedOnFilenameAndExt(
-                caller,
-                fileName,
-                relativeLocation
-            )
+            val fileExist = ImageUtil.isImageInGallery(caller, fileName)
             if (fileExist) {
                 // Inform user and renamed file when the filename is already taken
                 val name = fileName.substringBeforeLast(".")

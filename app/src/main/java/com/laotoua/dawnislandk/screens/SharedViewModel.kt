@@ -54,8 +54,10 @@ class SharedViewModel @Inject constructor(
     val communityListLoadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>> =
         communityRepository.loadingStatus
 
+    // TODO: remove below
     private var _selectedForumId = MutableLiveData<String>()
     val selectedForumId: LiveData<String> get() = _selectedForumId
+    // TODO definitely remove below
     private var _selectedPostId = MutableLiveData<String>()
     val selectedPostId: LiveData<String> get() = _selectedPostId
     var selectedPostTargetPage: Int? = null

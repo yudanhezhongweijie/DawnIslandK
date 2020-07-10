@@ -39,13 +39,11 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
 import com.afollestad.materialdialogs.checkbox.isCheckPromptChecked
 import com.google.android.material.animation.AnimationUtils
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
 import com.laotoua.dawnislandk.di.DaggerViewModelFactory
-import com.laotoua.dawnislandk.screens.comments.CommentsFragment
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbarInitialization
 import com.laotoua.dawnislandk.screens.widgets.DoubleClickListener
@@ -265,6 +263,7 @@ class MainActivity : DaggerAppCompatActivity() {
                 if (item.itemId == R.id.postsFragment) showDrawer()
             }
             binding.bottomNavBar.setupWithNavController(navController)
+            // up button
             val appBarConfiguration = AppBarConfiguration(
                 setOf(R.id.postsFragment, R.id.subscriptionPagerFragment, R.id.searchFragment, R.id.historyPagerFragment, R.id.profileFragment),
                 null)
@@ -273,9 +272,6 @@ class MainActivity : DaggerAppCompatActivity() {
     }
 
     override fun onBackPressed() {
-
-        if (hideComment()) return
-
         if (!doubleBackToExitPressedOnce &&
             findNavController(R.id.navHostFragment).previousBackStackEntry == null
         ) {
@@ -297,39 +293,42 @@ class MainActivity : DaggerAppCompatActivity() {
 
     fun showComment() {
         hideNav()
-        var commentFrag = supportFragmentManager.findFragmentByTag("comment")
-        if (commentFrag == null) {
-            commentFrag = CommentsFragment()
-            supportFragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
-                .add(R.id.navHostFragment, commentFrag, "comment")
-                .addToBackStack(null).commit()
-        } else {
-            supportFragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
-                .show(commentFrag)
-                .runOnCommit { commentFrag.onResume() }
-                .commit()
-        }
+        findNavController(R.id.navHostFragment).navigate(R.id.commentsFragment)
+//        var commentFrag = supportFragmentManager.findFragmentByTag("comment")
+//        if (commentFrag == null) {
+//            commentFrag = CommentsFragment()
+//            supportFragmentManager.beginTransaction()
+//                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
+//                .add(R.id.navHostFragment, commentFrag, "comment")
+//                .addToBackStack(null).commit()
+//        } else {
+//            supportFragmentManager.beginTransaction()
+//                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
+//                .show(commentFrag)
+//                .runOnCommit { commentFrag.onResume() }
+//                .commit()
+//        }
     }
 
     fun hideComment(): Boolean {
-        supportFragmentManager.findFragmentByTag("comment")?.let {
-            if (!it.isHidden) {
-                it.onPause()
-                supportFragmentManager.beginTransaction()
-                    .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
-                    .hide(it)
-                    .commit()
-                showNav()
-                if (currentFragmentId == R.id.postsFragment) {
-                    findViewById<FloatingActionButton>(R.id.fabMenu).show()
-                    findViewById<FloatingActionButton>(R.id.fabMenu).isClickable = true
-                }
-                return true
-            }
-        }
-        return false
+        findNavController(R.id.navHostFragment).popBackStack()
+        return true
+//        supportFragmentManager.findFragmentByTag("comment")?.let {
+//            if (!it.isHidden) {
+//                it.onPause()
+//                supportFragmentManager.beginTransaction()
+//                    .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
+//                    .hide(it)
+//                    .commit()
+//                showNav()
+//                if (currentFragmentId == R.id.postsFragment) {
+//                    findViewById<FloatingActionButton>(R.id.fabMenu).show()
+//                    findViewById<FloatingActionButton>(R.id.fabMenu).isClickable = true
+//                }
+//                return true
+//            }
+//        }
+//        return false
     }
 
     fun hideNav() {

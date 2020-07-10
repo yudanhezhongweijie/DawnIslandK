@@ -143,7 +143,7 @@ class QuotePopup(
                 val viewerPopup =
                     ImageViewerPopup(
                         url,
-                        fragment = caller
+                        caller.requireContext()
                     )
                 viewerPopup.setSingleSrcView(imageView as ImageView?, url)
                 XPopup.Builder(context)

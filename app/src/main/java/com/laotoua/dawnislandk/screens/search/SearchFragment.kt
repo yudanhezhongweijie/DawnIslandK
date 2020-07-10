@@ -141,36 +141,36 @@ class SearchFragment : BaseNavFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val mAdapter = QuickMultiBinder(sharedVM).apply {
-            addItemBinder(SimpleTextBinder())
-            addItemBinder(HitBinder(sharedVM, this@SearchFragment).apply {
-                addChildClickViewIds(R.id.attachedImage)
-            })
+                addItemBinder(SimpleTextBinder())
+                addItemBinder(HitBinder(sharedVM, this@SearchFragment).apply {
+                    addChildClickViewIds(R.id.attachedImage)
+                })
 
-            loadMoreModule.setOnLoadMoreListener {
-                viewModel.getNextPage()
+                loadMoreModule.setOnLoadMoreListener {
+                    viewModel.getNextPage()
+                }
             }
-        }
 
-        binding.srlAndRv.recyclerView.apply {
-            setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(context)
-            adapter = mAdapter
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    val firstVisiblePos =
-                        (layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-                    if (firstVisiblePos > 0 && firstVisiblePos < mAdapter.data.lastIndex) {
-                        if (mAdapter.getItem(firstVisiblePos) is String) {
-                            updateCurrentPage(
-                                (mAdapter.getItem(firstVisiblePos) as String).substringAfter(
-                                    ":"
-                                ).trim().toInt()
-                            )
+            binding.srlAndRv.recyclerView.apply {
+                setHasFixedSize(true)
+                layoutManager = LinearLayoutManager(context)
+                adapter = mAdapter
+                addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                        val firstVisiblePos =
+                            (layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                        if (firstVisiblePos > 0 && firstVisiblePos < mAdapter.data.lastIndex) {
+                            if (mAdapter.getItem(firstVisiblePos) is String) {
+                                updateCurrentPage(
+                                    (mAdapter.getItem(firstVisiblePos) as String).substringAfter(
+                                        ":"
+                                    ).trim().toInt()
+                                )
+                            }
                         }
                     }
-                }
-            })
-        }
+                })
+            }
 
         mAdapter.setDefaultEmptyView()
 
@@ -179,14 +179,14 @@ class SearchFragment : BaseNavFragment() {
                 mAdapter.setDiffNewData(null)
                 hideCurrentPageText()
                 return@Observer
-            }
+        }
             if (currentPage == 0) updateCurrentPage(1)
             val data: MutableList<Any> = ArrayList()
             data.add("搜索： ${list.firstOrNull()?.query}")
             list.map {
                 data.add("结果页数: ${it.page}")
                 data.addAll(it.hits)
-            }
+    }
             mAdapter.setDiffNewData(data)
         })
 
@@ -262,7 +262,7 @@ class SearchFragment : BaseNavFragment() {
         ) {
             if (view.id == R.id.attachedImage) {
                 val url = data.getImgUrl()
-                val viewerPopup = ImageViewerPopup(imgUrl = url, fragment = callerFragment)
+                val viewerPopup = ImageViewerPopup(url, context)
                 viewerPopup.setSingleSrcView(view as ImageView?, url)
                 XPopup.Builder(context)
                     .asCustom(viewerPopup)

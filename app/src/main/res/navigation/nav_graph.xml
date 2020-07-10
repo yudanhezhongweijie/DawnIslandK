@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ /* Copyright 2020 Fishballzzz
   ~  *
   ~  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,19 +40,69 @@
         android:id="@+id/postsFragment"
         android:name="com.laotoua.dawnislandk.screens.posts.PostsFragment"
         android:label="fragment_post"
-        tools:layout="@layout/fragment_post" />
+        tools:layout="@layout/fragment_post">
+        <action
+            android:id="@+id/action_postsFragment_to_commentsFragment"
+            app:destination="@id/commentsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
 
     <fragment
         android:id="@+id/historyPagerFragment"
         android:name="com.laotoua.dawnislandk.screens.history.HistoryPagerFragment"
-        android:label="HistoryPagerFragment" />
+        android:label="HistoryPagerFragment">
+        <action
+            android:id="@+id/action_historyPagerFragment_to_commentsFragment"
+            app:destination="@id/commentsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
     <fragment
         android:id="@+id/subscriptionPagerFragment"
         android:name="com.laotoua.dawnislandk.screens.subscriptions.SubscriptionPagerFragment"
-        android:label="SubscriptionPagerFragment" />
+        android:label="SubscriptionPagerFragment">
+        <action
+            android:id="@+id/action_subscriptionPagerFragment_to_commentsFragment"
+            app:destination="@id/commentsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
     <fragment
         android:id="@+id/searchFragment"
         android:name="com.laotoua.dawnislandk.screens.search.SearchFragment"
         android:label="fragment_search"
-        tools:layout="@layout/fragment_search" />
+        tools:layout="@layout/fragment_search">
+        <action
+            android:id="@+id/action_searchFragment_to_commentsFragment"
+            app:destination="@id/commentsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/commentsFragment"
+        android:name="com.laotoua.dawnislandk.screens.comments.CommentsFragment"
+        android:label="CommentsFragment">
+        <action
+            android:id="@+id/action_commentsFragment_self"
+            app:destination="@id/commentsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <argument
+            android:name="id"
+            app:argType="string" />
+        <argument
+            android:name="fid"
+            app:argType="string" />
+    </fragment>
 </navigation>

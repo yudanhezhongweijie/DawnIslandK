@@ -117,52 +117,52 @@ class PostHistoryFragment : BaseNavFragment() {
         }
 
         viewModel.postHistoryList.observe(viewLifecycleOwner, Observer { list ->
-            if (list.isEmpty()) {
-                if (!mAdapter.hasEmptyView()) mAdapter.setDefaultEmptyView()
-                mAdapter.setDiffNewData(null)
-                return@Observer
-            }
-            var lastDate: String? = null
-            val data: MutableList<Any> = ArrayList()
-            list.filter { it.newPost }.run {
-                data.add(SectionHeader("发布"))
-                map {
-                    val dateString = ReadableTime.getDateString(
-                        it.postDate,
-                        ReadableTime.DATE_ONLY_FORMAT
-                    )
-                    if (lastDate == null || dateString != lastDate) {
-                        data.add(dateString)
-                    }
-                    data.add(it)
-                    lastDate = dateString
-                }
-            }
-            list.filterNot { it.newPost }.run {
-                data.add(SectionHeader("回复"))
-                lastDate = null
-                map {
-                    val dateString = ReadableTime.getDateString(
-                        it.postDate,
-                        ReadableTime.DATE_ONLY_FORMAT
-                    )
-                    if (lastDate == null || dateString != lastDate) {
-                        data.add(dateString)
-                    }
-                    data.add(it)
-                    lastDate = dateString
-                }
-            }
-            mAdapter.setDiffNewData(data)
-            mAdapter.setFooterView(
-                layoutInflater.inflate(
-                    R.layout.view_no_more_data,
-                    binding.recyclerView,
-                    false
+        if (list.isEmpty()) {
+            if (!mAdapter.hasEmptyView()) mAdapter.setDefaultEmptyView()
+            mAdapter.setDiffNewData(null)
+            return@Observer
+        }
+        var lastDate: String? = null
+        val data: MutableList<Any> = ArrayList()
+        list.filter { it.newPost }.run {
+            data.add(SectionHeader("发布"))
+            map {
+                val dateString = ReadableTime.getDateString(
+                    it.postDate,
+                    ReadableTime.DATE_ONLY_FORMAT
                 )
+                if (lastDate == null || dateString != lastDate) {
+                    data.add(dateString)
+                }
+                data.add(it)
+                lastDate = dateString
+            }
+        }
+        list.filterNot { it.newPost }.run {
+            data.add(SectionHeader("回复"))
+            lastDate = null
+            map {
+                val dateString = ReadableTime.getDateString(
+                    it.postDate,
+                    ReadableTime.DATE_ONLY_FORMAT
+                )
+                if (lastDate == null || dateString != lastDate) {
+                    data.add(dateString)
+                }
+                data.add(it)
+                lastDate = dateString
+            }
+        }
+        mAdapter.setDiffNewData(data)
+        mAdapter.setFooterView(
+            layoutInflater.inflate(
+                R.layout.view_no_more_data,
+                binding.recyclerView,
+                false
             )
-            Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} items")
-        })
+        )
+        Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} items")
+                })
     }
 
     private fun setStartDate(date: Calendar) {
@@ -214,7 +214,7 @@ class PostHistoryFragment : BaseNavFragment() {
         ) {
             if (view.id == R.id.attachedImage) {
                 val url = data.getImgUrl()
-                val viewerPopup = ImageViewerPopup(imgUrl = url, fragment = callerFragment)
+                val viewerPopup = ImageViewerPopup(url, context)
                 viewerPopup.setSingleSrcView(view as ImageView?, url)
                 XPopup.Builder(context)
                     .asCustom(viewerPopup)

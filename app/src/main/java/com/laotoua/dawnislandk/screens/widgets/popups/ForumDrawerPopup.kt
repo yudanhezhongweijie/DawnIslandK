@@ -82,7 +82,7 @@ class ForumDrawerPopup(
         if (reedImageUrl.isNotBlank()) loadReedPicture()
         reedImageView.setOnClickListener {
             if (reedImageUrl.isBlank()) return@setOnClickListener
-            val viewerPopup = ImageViewerPopup(reedImageUrl, activity = context as MainActivity)
+            val viewerPopup = ImageViewerPopup(reedImageUrl, context)
             viewerPopup.setSingleSrcView(reedImageView, reedImageUrl)
             XPopup.Builder(context)
                 .asCustom(viewerPopup)

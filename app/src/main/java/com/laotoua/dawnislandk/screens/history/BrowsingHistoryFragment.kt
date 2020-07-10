@@ -86,63 +86,63 @@ class BrowsingHistoryFragment : BaseNavFragment() {
         }
 
         viewModel.browsingHistoryList.observe(viewLifecycleOwner, Observer { list ->
-            if (list.isEmpty()) {
-                if (!mAdapter.hasEmptyView()) mAdapter.setDefaultEmptyView()
-                mAdapter.setDiffNewData(null)
-                return@Observer
-            }
-            var lastDate: String? = null
-            val data: MutableList<Any> = ArrayList()
-            list.map {
-                val dateString = ReadableTime.getDateString(
-                            it.browsingHistory.browsedDate,
-                    ReadableTime.DATE_ONLY_FORMAT
-                )
-                if (lastDate == null || dateString != lastDate) {
-                    data.add(dateString)
-                }
-                if (it.post != null) {
-                    data.add(it.post)
-                    lastDate = dateString
-                }
-            }
-            mAdapter.setDiffNewData(data)
-            mAdapter.setFooterView(
-                layoutInflater.inflate(
-                    R.layout.view_no_more_data,
-                    binding.recyclerView,
-                    false
-                )
+        if (list.isEmpty()) {
+            if (!mAdapter.hasEmptyView()) mAdapter.setDefaultEmptyView()
+            mAdapter.setDiffNewData(null)
+            return@Observer
+        }
+        var lastDate: String? = null
+        val data: MutableList<Any> = ArrayList()
+        list.map {
+            val dateString = ReadableTime.getDateString(
+                it.browsingHistory.browsedDate,
+                ReadableTime.DATE_ONLY_FORMAT
             )
-            Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} posts")
-        })
+            if (lastDate == null || dateString != lastDate) {
+                data.add(dateString)
+            }
+            if (it.post != null) {
+                data.add(it.post)
+                lastDate = dateString
+            }
+        }
+        mAdapter.setDiffNewData(data)
+        mAdapter.setFooterView(
+            layoutInflater.inflate(
+                R.layout.view_no_more_data,
+                binding.recyclerView,
+                false
+            )
+        )
+        Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} posts")
+                })
 
-        binding.startDate.text = ReadableTime.getDateString(startDate.time.time)
-        binding.endDate.text = ReadableTime.getDateString(endDate.time.time)
-        binding.startDate.setOnClickListener {
-            MaterialDialog(requireContext()).show {
-                datePicker(currentDate = startDate) { _, date ->
-                    setStartDate(date)
+            binding.startDate.text = ReadableTime.getDateString(startDate.time.time)
+            binding.endDate.text = ReadableTime.getDateString(endDate.time.time)
+            binding.startDate.setOnClickListener {
+                MaterialDialog(requireContext()).show {
+                    datePicker(currentDate = startDate) { _, date ->
+                        setStartDate(date)
+                    }
                 }
             }
-        }
 
-        binding.endDate.setOnClickListener {
-            MaterialDialog(requireContext()).show {
-                datePicker(currentDate = endDate) { _, date ->
-                    setEndDate(date)
+            binding.endDate.setOnClickListener {
+                MaterialDialog(requireContext()).show {
+                    datePicker(currentDate = endDate) { _, date ->
+                        setEndDate(date)
+                    }
                 }
             }
-        }
 
-        binding.confirmDate.setOnClickListener {
-            if (startDate.before(endDate)) {
-                viewModel.searchByDate()
-            } else {
-                Toast.makeText(context, R.string.data_range_selection_error, Toast.LENGTH_SHORT)
-                    .show()
+            binding.confirmDate.setOnClickListener {
+                if (startDate.before(endDate)) {
+                    viewModel.searchByDate()
+                } else {
+                    Toast.makeText(context, R.string.data_range_selection_error, Toast.LENGTH_SHORT)
+                        .show()
+                }
             }
-        }
     }
 
     private fun setStartDate(date: Calendar) {
@@ -200,7 +200,7 @@ class BrowsingHistoryFragment : BaseNavFragment() {
         override fun onChildClick(holder: BaseViewHolder, view: View, data: Post, position: Int) {
             if (view.id == R.id.attachedImage) {
                 val url = data.getImgUrl()
-                val viewerPopup = ImageViewerPopup(imgUrl = url, fragment = callerFragment)
+                val viewerPopup = ImageViewerPopup(url, context)
                 viewerPopup.setSingleSrcView(view as ImageView?, url)
                 XPopup.Builder(context)
                     .asCustom(viewerPopup)

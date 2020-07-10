@@ -74,35 +74,35 @@ class TrendsFragment : BaseNavFragment() {
             delayedLoading = mHandler!!.postDelayed(mDelayedLoad, 500)
         }
         val mAdapter = QuickAdapter<Trend>(R.layout.list_item_trend, sharedVM).apply {
-            loadMoreModule.isEnableLoadMore = false
-            setOnItemClickListener { _, _, position ->
-                val target = getItem(position)
-                target.toPost(sharedVM.getForumIdByName(target.forum)).run {
-                    sharedVM.setPost(id, fid)
+                loadMoreModule.isEnableLoadMore = false
+                setOnItemClickListener { _, _, position ->
+                    val target = getItem(position)
+                    target.toPost(sharedVM.getForumIdByName(target.forum)).run {
+                        sharedVM.setPost(id, fid)
+                    }
+                    (requireActivity() as MainActivity).showComment()
                 }
-                (requireActivity() as MainActivity).showComment()
             }
-        }
 
-        binding.srlAndRv.refreshLayout.apply {
-            setOnRefreshListener(object : RefreshingListenerAdapter() {
-                override fun onRefreshing() {
-                    viewModel.getLatestTrend()
-                }
-            })
-        }
+            binding.srlAndRv.refreshLayout.apply {
+                setOnRefreshListener(object : RefreshingListenerAdapter() {
+                    override fun onRefreshing() {
+                        viewModel.getLatestTrend()
+                    }
+                })
+            }
 
-        binding.srlAndRv.recyclerView.apply {
-            setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(context)
-            adapter = mAdapter
-        }
+            binding.srlAndRv.recyclerView.apply {
+                setHasFixedSize(true)
+                layoutManager = LinearLayoutManager(context)
+                adapter = mAdapter
+            }
 
         viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.run {
                 updateHeaderAndFooter(binding.srlAndRv.refreshLayout, mAdapter, this)
                 delayedLoading = false
-            }
+        }
         })
 
         viewModel.trends.observe(viewLifecycleOwner, Observer { list ->
@@ -110,14 +110,14 @@ class TrendsFragment : BaseNavFragment() {
                 if (!mAdapter.hasEmptyView()) mAdapter.setDefaultEmptyView()
                 mAdapter.setDiffNewData(null)
                 return@Observer
-            }
+    }
             mAdapter.setList(list.toMutableList())
             mAdapter.setFooterView(
                 layoutInflater.inflate(
                     R.layout.view_no_more_data,
                     binding.srlAndRv.recyclerView,
-                    false
-                )
+                false
+            )
             )
         })
     }

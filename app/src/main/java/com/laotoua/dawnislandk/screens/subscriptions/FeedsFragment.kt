@@ -132,41 +132,41 @@ class FeedsFragment : BaseNavFragment() {
         }
 
         val mAdapter = QuickMultiBinder(sharedVM).apply {
-            addItemBinder(SimpleTextBinder())
-            addItemBinder(FeedAndPostBinder(sharedVM, this@FeedsFragment).apply {
-                addChildClickViewIds(R.id.attachedImage)
-            }, FeedAndPostDiffer())
+                addItemBinder(SimpleTextBinder())
+                addItemBinder(FeedAndPostBinder(sharedVM, this@FeedsFragment).apply {
+                    addChildClickViewIds(R.id.attachedImage)
+                }, FeedAndPostDiffer())
 
-            loadMoreModule.setOnLoadMoreListener {
-                viewModel.getNextPage()
-            }
-        }
-
-        binding.srlAndRv.recyclerView.apply {
-            setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(context)
-            adapter = mAdapter
-        }
-
-        binding.srlAndRv.refreshLayout.apply {
-            setOnRefreshListener(object : RefreshingListenerAdapter() {
-                override fun onRefreshing() {
-                    viewModel.refreshOrGetPreviousPage()
+                loadMoreModule.setOnLoadMoreListener {
+                    viewModel.getNextPage()
                 }
-            })
-        }
+            }
+
+            binding.srlAndRv.recyclerView.apply {
+                setHasFixedSize(true)
+                layoutManager = LinearLayoutManager(context)
+                adapter = mAdapter
+            }
+
+            binding.srlAndRv.refreshLayout.apply {
+                setOnRefreshListener(object : RefreshingListenerAdapter() {
+                    override fun onRefreshing() {
+                        viewModel.refreshOrGetPreviousPage()
+                    }
+                })
+            }
 
         viewModel.delFeedResponse.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.let { eventPayload ->
                 Toast.makeText(context, eventPayload.message, Toast.LENGTH_SHORT).show()
-            }
+        }
         })
 
         viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.run {
                 updateHeaderAndFooter(binding.srlAndRv.refreshLayout, mAdapter, this)
                 delayedLoading = false
-            }
+    }
         })
 
         mAdapter.setDefaultEmptyView()
@@ -187,10 +187,10 @@ class FeedsFragment : BaseNavFragment() {
                 if (it.feed.page != lastPage) {
                     data.add("页数: ${it.feed.page}")
                     lastPage = it.feed.page
-                }
+        }
                 if (it.post != null) {
                     data.add(it)
-                }
+    }
             }
             mAdapter.setDiffNewData(data)
             Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} feeds")
@@ -275,7 +275,7 @@ class FeedsFragment : BaseNavFragment() {
         ) {
             if (view.id == R.id.attachedImage) {
                 val url = data.post!!.getImgUrl()
-                val viewerPopup = ImageViewerPopup(imgUrl = url, fragment = callerFragment)
+                val viewerPopup = ImageViewerPopup(url, context)
                 viewerPopup.setSingleSrcView(view as ImageView?, url)
                 XPopup.Builder(context)
                     .asCustom(viewerPopup)

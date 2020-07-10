@@ -132,11 +132,6 @@ class CommentsFragment : DaggerFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        (requireActivity() as MainActivity).supportActionBar?.apply {
-            setTitle(R.string.size_customization_settings)
-            setDisplayHomeAsUpEnabled(true)
-            setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24px)
-        }
         _binding = FragmentCommentBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -144,161 +139,161 @@ class CommentsFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // TODO
-        (requireActivity() as MainActivity).setToolbarClickListener {
-            binding.srlAndRv.recyclerView.layoutManager?.scrollToPosition(0)
-            (requireActivity() as MainActivity).showNav()
-        }
+            // TODO
+            (requireActivity() as MainActivity).setToolbarClickListener {
+                binding.srlAndRv.recyclerView.layoutManager?.scrollToPosition(0)
+                showMenu()
+            }
 
-        val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext(), sharedVM) }
-        val jumpPopup: JumpPopup by lazyOnMainOnly { JumpPopup(requireContext()) }
+            val postPopup: PostPopup by lazyOnMainOnly { PostPopup(this, requireContext(), sharedVM) }
+            val jumpPopup: JumpPopup by lazyOnMainOnly { JumpPopup(requireContext()) }
 
         _mAdapter = QuickAdapter<Comment>(R.layout.list_item_comment, sharedVM).apply {
-            setReferenceClickListener(object : ReferenceSpan.ReferenceClickHandler {
-                override fun handleReference(id: String) {
-                    QuotePopup.showQuote(
-                        this@CommentsFragment,
-                        viewModel,
-                        requireContext(),
-                        id,
-                        viewModel.po
-                    )
-                }
-            })
-
-            setOnItemClickListener { _, _, pos ->
-                toggleCommentMenuOnPos(pos)
-            }
-
-            addChildClickViewIds(
-                R.id.attachedImage,
-                R.id.expandSummary,
-                R.id.comment,
-                R.id.content,
-                R.id.copy,
-                R.id.report
-            )
-
-            setOnItemChildClickListener { _, view, position ->
-                when (view.id) {
-                    R.id.attachedImage -> {
-                        val url = getItem(position).getImgUrl()
-                        // TODO support multiple image
-                        val viewerPopup =
-                            ImageViewerPopup(url, fragment = this@CommentsFragment)
-                        viewerPopup.setSingleSrcView(view as ImageView?, url)
-
-                        XPopup.Builder(context)
-                            .asCustom(viewerPopup)
-                            .show()
-                    }
-                    R.id.comment -> {
-                        val content = ">>No.${getItem(position).id}\n"
-                        postPopup.setupAndShow(
-                            viewModel.currentPostId,
-                            viewModel.currentPostFid,
-                            targetPage = viewModel.maxPage,
-                            quote = content
+                setReferenceClickListener(object : ReferenceSpan.ReferenceClickHandler {
+                    override fun handleReference(id: String) {
+                        QuotePopup.showQuote(
+                            this@CommentsFragment,
+                            viewModel,
+                            requireContext(),
+                            id,
+                            viewModel.po
                         )
                     }
-                    R.id.copy -> {
-                        mAdapter.getViewByPosition(position, R.id.content)?.let {
-                            copyText("评论", (it as TextView).text.toString())
+                })
+
+                setOnItemClickListener { _, _, pos ->
+                    toggleCommentMenuOnPos(pos)
+                }
+
+                addChildClickViewIds(
+                    R.id.attachedImage,
+                    R.id.expandSummary,
+                    R.id.comment,
+                    R.id.content,
+                    R.id.copy,
+                    R.id.report
+                )
+
+                setOnItemChildClickListener { _, view, position ->
+                    when (view.id) {
+                        R.id.attachedImage -> {
+                            val url = getItem(position).getImgUrl()
+                            // TODO support multiple image
+                            val viewerPopup =
+                                ImageViewerPopup(url, requireContext())
+                            viewerPopup.setSingleSrcView(view as ImageView?, url)
+
+                            XPopup.Builder(context)
+                                .asCustom(viewerPopup)
+                                .show()
                         }
-                    }
-                    R.id.report -> {
-                        MaterialDialog(requireContext()).show {
-                            title(R.string.report_reasons)
-                            listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
-                                postPopup.setupAndShow(
-                                    "18",//值班室
-                                    "18",
-                                    newPost = true,
-                                    quote = "\n>>No.${getItem(position).id}\n${context.getString(R.string.report_reasons)}: $text"
+                        R.id.comment -> {
+                            val content = ">>No.${getItem(position).id}\n"
+                            postPopup.setupAndShow(
+                                viewModel.currentPostId,
+                                viewModel.currentPostFid,
+                                targetPage = viewModel.maxPage,
+                                quote = content
+                            )
+                        }
+                        R.id.copy -> {
+                            mAdapter.getViewByPosition(position, R.id.content)?.let {
+                                copyText("评论", (it as TextView).text.toString())
+                            }
+                        }
+                        R.id.report -> {
+                            MaterialDialog(requireContext()).show {
+                                title(R.string.report_reasons)
+                                listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
+                                    postPopup.setupAndShow(
+                                        "18",//值班室
+                                        "18",
+                                        newPost = true,
+                                        quote = "\n>>No.${getItem(position).id}\n${context.getString(R.string.report_reasons)}: $text"
+                                    )
+                                }
+                                cancelOnTouchOutside(false)
+                            }
+                        }
+                        R.id.content -> {
+                            val ltv = view as LinkifyTextView
+                            // no span was clicked, simulate click events to parent
+                            if (ltv.currentSpan == null) {
+                                val metaState = 0
+                                (view.parent as View).dispatchTouchEvent(
+                                    MotionEvent.obtain(
+                                        SystemClock.uptimeMillis(),
+                                        SystemClock.uptimeMillis(),
+                                        MotionEvent.ACTION_DOWN,
+                                        0f,
+                                        0f,
+                                        metaState
+                                    )
+                                )
+                                (view.parent as View).dispatchTouchEvent(
+                                    MotionEvent.obtain(
+                                        SystemClock.uptimeMillis(),
+                                        SystemClock.uptimeMillis(),
+                                        MotionEvent.ACTION_UP,
+                                        0f,
+                                        0f,
+                                        metaState
+                                    )
                                 )
                             }
-                            cancelOnTouchOutside(false)
+                        }
+                        R.id.expandSummary -> {
+                            data[position].visible = true
+                            notifyItemChanged(position)
                         }
                     }
-                    R.id.content -> {
-                        val ltv = view as LinkifyTextView
-                        // no span was clicked, simulate click events to parent
-                        if (ltv.currentSpan == null) {
-                            val metaState = 0
-                            (view.parent as View).dispatchTouchEvent(
-                                MotionEvent.obtain(
-                                    SystemClock.uptimeMillis(),
-                                    SystemClock.uptimeMillis(),
-                                    MotionEvent.ACTION_DOWN,
-                                    0f,
-                                    0f,
-                                    metaState
-                                )
-                            )
-                            (view.parent as View).dispatchTouchEvent(
-                                MotionEvent.obtain(
-                                    SystemClock.uptimeMillis(),
-                                    SystemClock.uptimeMillis(),
-                                    MotionEvent.ACTION_UP,
-                                    0f,
-                                    0f,
-                                    metaState
-                                )
-                            )
-                        }
-                    }
-                    R.id.expandSummary -> {
-                        data[position].visible = true
-                        notifyItemChanged(position)
-                    }
+                }
+
+                // load more
+                loadMoreModule.setOnLoadMoreListener {
+                    viewModel.getNextPage()
                 }
             }
 
-            // load more
-            loadMoreModule.setOnLoadMoreListener {
-                viewModel.getNextPage()
-            }
-        }
-
-        binding.srlAndRv.refreshLayout.apply {
-            setOnRefreshListener(object : RefreshingListenerAdapter() {
-                override fun onRefreshing() {
-                    if (!mAdapter.data.isNullOrEmpty() && mAdapter.getItem(
-                            (binding.srlAndRv.recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-                        ).page == 1
-                    ) {
-                        Toast.makeText(context, "没有上一页了。。。", Toast.LENGTH_SHORT).show()
-                        refreshComplete(true, 100L)
-                    } else {
-                        viewModel.getPreviousPage()
-                    }
-                }
-            })
-        }
-
-        binding.srlAndRv.recyclerView.apply {
-            val llm = LinearLayoutManager(context)
-            layoutManager = llm
-            adapter = mAdapter
-            setHasFixedSize(true)
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    if (dy > 0) {
-                        hideMenu()
-                    } else if (dy < 0) {
-                        showMenu()
-                        if (llm.findFirstVisibleItemPosition() <= 2 && !binding.srlAndRv.refreshLayout.isRefreshing) {
+            binding.srlAndRv.refreshLayout.apply {
+                setOnRefreshListener(object : RefreshingListenerAdapter() {
+                    override fun onRefreshing() {
+                        if (!mAdapter.data.isNullOrEmpty() && mAdapter.getItem(
+                                (binding.srlAndRv.recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                            ).page == 1
+                        ) {
+                            Toast.makeText(context, "没有上一页了。。。", Toast.LENGTH_SHORT).show()
+                            refreshComplete(true, 100L)
+                        } else {
                             viewModel.getPreviousPage()
                         }
                     }
+                })
+            }
 
-                    val lastVisiblePos = llm.findLastVisibleItemPosition()
-                    if (lastVisiblePos < mAdapter.data.lastIndex) {
-                        updateCurrentPage(mAdapter.getItem(lastVisiblePos).page)
+            binding.srlAndRv.recyclerView.apply {
+                val llm = LinearLayoutManager(context)
+                layoutManager = llm
+                adapter = mAdapter
+                setHasFixedSize(true)
+                addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                        if (dy > 0) {
+                            hideMenu()
+                        } else if (dy < 0) {
+                            showMenu()
+                            if (llm.findFirstVisibleItemPosition() <= 2 && !binding.srlAndRv.refreshLayout.isRefreshing) {
+                                viewModel.getPreviousPage()
+                            }
+                        }
+
+                        val lastVisiblePos = llm.findLastVisibleItemPosition()
+                        if (lastVisiblePos < mAdapter.data.lastIndex) {
+                            updateCurrentPage(mAdapter.getItem(lastVisiblePos).page)
+                        }
                     }
-                }
-            })
-        }
+                })
+            }
 
 //        binding.filter.setOnClickListener {
 //            binding.filter.apply {
@@ -318,56 +313,56 @@ class CommentsFragment : DaggerFragment() {
 //            }
 //        }
 
-        binding.copyId.setOnClickListener {
-            copyText("串号", ">>No.${viewModel.currentPostId}")
-        }
+            binding.copyId.setOnClickListener {
+                copyText("串号", ">>No.${viewModel.currentPostId}")
+            }
 
-        binding.post.setOnClickListener {
-            val page = getCurrentPage(mAdapter)
-            postPopup.setupAndShow(
-                viewModel.currentPostId,
-                viewModel.currentPostFid,
-                targetPage = viewModel.maxPage
-            ) {
-                if (page == viewModel.maxPage) {
-                    mAdapter.loadMoreModule.loadMoreToLoading()
+            binding.post.setOnClickListener {
+                val page = getCurrentPage(mAdapter)
+                postPopup.setupAndShow(
+                    viewModel.currentPostId,
+                    viewModel.currentPostFid,
+                    targetPage = viewModel.maxPage
+                ) {
+                    if (page == viewModel.maxPage) {
+                        mAdapter.loadMoreModule.loadMoreToLoading()
+                    }
                 }
             }
-        }
 
-        binding.jump.setOnClickListener {
-            if (binding.srlAndRv.refreshLayout.isRefreshing || mAdapter.loadMoreModule.isLoading) {
-                Timber.d("Loading data...Holding on jump...")
-                return@setOnClickListener
-            }
-            val page = getCurrentPage(mAdapter)
-            XPopup.Builder(context)
-                .setPopupCallback(object : SimpleCallback() {
-                    override fun beforeShow() {
-                        super.beforeShow()
-                        jumpPopup.updatePages(page, viewModel.maxPage)
-                    }
-
-                    override fun onDismiss() {
-                        super.onDismiss()
-                        if (jumpPopup.submit) {
-                            binding.srlAndRv.refreshLayout.autoRefresh(
-                                Constants.ACTION_NOTHING,
-                                false
-                            )
-                            mAdapter.setList(emptyList())
-                            Timber.i("Jumping to ${jumpPopup.targetPage}...")
-                            viewModel.jumpTo(jumpPopup.targetPage)
+            binding.jump.setOnClickListener {
+                if (binding.srlAndRv.refreshLayout.isRefreshing || mAdapter.loadMoreModule.isLoading) {
+                    Timber.d("Loading data...Holding on jump...")
+                    return@setOnClickListener
+                }
+                val page = getCurrentPage(mAdapter)
+                XPopup.Builder(context)
+                    .setPopupCallback(object : SimpleCallback() {
+                        override fun beforeShow() {
+                            super.beforeShow()
+                            jumpPopup.updatePages(page, viewModel.maxPage)
                         }
-                    }
-                })
-                .asCustom(jumpPopup)
-                .show()
-        }
 
-        binding.addFeed.setOnClickListener {
-            viewModel.addFeed(applicationDataStore.feedId, viewModel.currentPostId)
-        }
+                        override fun onDismiss() {
+                            super.onDismiss()
+                            if (jumpPopup.submit) {
+                                binding.srlAndRv.refreshLayout.autoRefresh(
+                                    Constants.ACTION_NOTHING,
+                                    false
+                                )
+                                mAdapter.setList(emptyList())
+                                Timber.i("Jumping to ${jumpPopup.targetPage}...")
+                                viewModel.jumpTo(jumpPopup.targetPage)
+                            }
+                        }
+                    })
+                    .asCustom(jumpPopup)
+                    .show()
+            }
+
+            binding.addFeed.setOnClickListener {
+                viewModel.addFeed(applicationDataStore.feedId, viewModel.currentPostId)
+            }
     }
 
     private val addFeedObs = Observer<SingleLiveEvent<EventPayload<Nothing>>> {

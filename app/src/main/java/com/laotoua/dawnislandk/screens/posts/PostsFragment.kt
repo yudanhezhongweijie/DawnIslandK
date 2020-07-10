@@ -164,14 +164,8 @@ class PostsFragment : BaseNavFragment() {
             setOnItemChildClickListener { _, view, position ->
                 if (view.id == R.id.attachedImage) {
                     val url = getItem(position).getImgUrl()
-
-                    val viewerPopup =
-                        ImageViewerPopup(
-                            imgUrl = url,
-                            fragment = this@PostsFragment
-                        )
+                    val viewerPopup = ImageViewerPopup(url, requireContext())
                     viewerPopup.setSingleSrcView(view as ImageView?, url)
-
                     XPopup.Builder(context)
                         .asCustom(viewerPopup)
                         .show()
@@ -183,13 +177,13 @@ class PostsFragment : BaseNavFragment() {
             }
         }
 
-        binding.srlAndRv.refreshLayout.apply {
-            setOnRefreshListener(object : RefreshingListenerAdapter() {
-                override fun onRefreshing() {
-                    viewModel.refresh()
-                }
-            })
-        }
+            binding.srlAndRv.refreshLayout.apply {
+                setOnRefreshListener(object : RefreshingListenerAdapter() {
+                    override fun onRefreshing() {
+                        viewModel.refresh()
+                    }
+                })
+            }
 
         binding.srlAndRv.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
@@ -211,54 +205,54 @@ class PostsFragment : BaseNavFragment() {
             })
         }
 
-        binding.fabMenu.setOnClickListener {
-            toggleFabMenu()
-        }
-
-        binding.post.setOnClickListener {
-            if (sharedVM.selectedForumId.value == null) {
-                Toast.makeText(
-                    requireContext(),
-                    R.string.please_try_again_later,
-                    Toast.LENGTH_SHORT
-                ).show()
-                return@setOnClickListener
+            binding.fabMenu.setOnClickListener {
+                toggleFabMenu()
             }
-            hideFabMenu()
-            postPopup.setupAndShow(
-                sharedVM.selectedForumId.value,
-                sharedVM.selectedForumId.value!!,
-                true
-            )
-        }
 
-        binding.announcement.setOnClickListener {
-            hideFabMenu()
-            DawnApp.applicationDataStore.nmbNotice?.let { notice ->
-                MaterialDialog(requireContext()).show {
-                    title(res = R.string.announcement)
-                    message(text = notice.content) { html() }
-                    positiveButton(R.string.close)
+            binding.post.setOnClickListener {
+                if (sharedVM.selectedForumId.value == null) {
+                    Toast.makeText(
+                        requireContext(),
+                        R.string.please_try_again_later,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@setOnClickListener
+                }
+                hideFabMenu()
+                postPopup.setupAndShow(
+                    sharedVM.selectedForumId.value,
+                    sharedVM.selectedForumId.value!!,
+                    true
+                )
+            }
+
+            binding.announcement.setOnClickListener {
+                hideFabMenu()
+                DawnApp.applicationDataStore.nmbNotice?.let { notice ->
+                    MaterialDialog(requireContext()).show {
+                        title(res = R.string.announcement)
+                        message(text = notice.content) { html() }
+                        positiveButton(R.string.close)
+                    }
                 }
             }
-        }
 
         viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.run {
                 updateHeaderAndFooter(binding.srlAndRv.refreshLayout, mAdapter, this)
-            }
-        })
+                }
+            })
 
         viewModel.posts.observe(viewLifecycleOwner, Observer {
             if (it.isEmpty()) {
                 if (!mAdapter.hasEmptyView()) mAdapter.setDefaultEmptyView()
                 mAdapter.setDiffNewData(null)
                 return@Observer
-            }
+        }
             // adds title when navigate from website url
             if (mAdapter.data.isNullOrEmpty() && (requireActivity() as MainActivity).supportActionBar?.title.isNullOrBlank()) {
                 (requireActivity() as MainActivity).setToolbarTitle(sharedVM.getForumDisplayName(it.first().fid))
-            }
+    }
             mAdapter.setDiffNewData(it.toMutableList())
             Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
         })

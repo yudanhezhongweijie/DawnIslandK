@@ -362,7 +362,7 @@ class MainActivity : DaggerAppCompatActivity() {
     fun setToolbarTitle(text: String) {
         val animCharCount = max(binding.toolbar.title.length, text.length)
         ValueAnimator.ofObject(StringEvaluator(animCharCount), binding.toolbar.title, text).apply {
-            duration = animCharCount.toLong() * 100
+            duration = animCharCount.toLong() * 60
             start()
             addUpdateListener {
                 binding.toolbar.title = it.animatedValue as String

@@ -32,7 +32,7 @@ import javax.inject.Inject
 
 class FeedsViewModel @Inject constructor(private val feedRepo: FeedRepository) : ViewModel() {
     private val feedPages = ArrayMap<Int, LiveData<DataResource<List<FeedAndPost>>>>(5)
-    private val feedPageIndices = mutableSetOf<Int>()
+    private val feedPageIndices = sortedSetOf<Int>()
     val feeds = MediatorLiveData<MutableList<FeedAndPost>>()
     private val _loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
     val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>>
@@ -72,16 +72,17 @@ class FeedsViewModel @Inject constructor(private val feedRepo: FeedRepository) :
         viewModelScope.launch {
             Timber.d("Getting feed on $page")
             val newPage = feedRepo.getLiveFeedPage(page)
-            if (feedPages[page] != newPage) {
-                feedPages[page] = newPage
-                feedPageIndices.add(page)
-                feeds.addSource(newPage) {
-                    if (it.status == LoadingStatus.NO_DATA || it.status == LoadingStatus.ERROR) {
-                        _loadingStatus.value = SingleLiveEvent.create(it.status, it.message)
-                    } else {
-                        combineFeeds()
-                    }
+            if (feedPages[page] != null) feeds.removeSource(feedPages[page]!!)
+            feedPages[page] = newPage
+            feedPageIndices.add(page)
+            feeds.addSource(newPage) {
+                if (it.status == LoadingStatus.SUCCESS || lastJumpPage == page) {
+                    combineFeeds()
                 }
+                val status =
+                    if (it.status == LoadingStatus.SUCCESS && (it.data?.size ?: 0 < 10)) LoadingStatus.NO_DATA
+                    else it.status
+                _loadingStatus.value = SingleLiveEvent.create(status, it.message)
             }
         }
     }

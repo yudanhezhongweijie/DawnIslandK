@@ -61,10 +61,6 @@ class FeedRepository @Inject constructor(
         result.addSource(remote) {
             if (it.status == LoadingStatus.NO_DATA || it.status == LoadingStatus.ERROR) {
                 result.value = it
-            } else {
-                result.value?.let { old ->
-                    result.value = old.copy(it.status, it.message)
-                }
             }
         }
         return result
@@ -81,7 +77,7 @@ class FeedRepository @Inject constructor(
             val response =
                 DataResource.create(webService.getFeeds(DawnApp.applicationDataStore.feedId, page))
             if (response.status == LoadingStatus.SUCCESS) {
-                emit(DataResource.create(convertFeedData(response.data!!, page)))
+                emit(DataResource.create(convertFeedData(response.data!!, page), emptyList()))
             } else {
                 emit(
                     DataResource.create(
@@ -109,10 +105,13 @@ class FeedRepository @Inject constructor(
             posts.add(serverFeed.toPost())
         }
 
-        coroutineScope {
-            launch {
-                compareAndUpdateCacheFeeds(feeds, page)
-                feedDao.insertAllPostIfNotExist(posts)
+        val cacheFeed = feedsMap[page]?.value?.data?.map { it.feed } ?: emptyList()
+        if (cacheFeed != feeds) {
+            coroutineScope {
+                launch {
+                    feedDao.insertAllFeed(feeds)
+                    feedDao.insertAllPostIfNotExist(posts)
+                }
             }
         }
         return LoadingStatus.SUCCESS

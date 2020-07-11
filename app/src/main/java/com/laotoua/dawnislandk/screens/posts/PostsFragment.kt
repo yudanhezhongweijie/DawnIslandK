@@ -55,16 +55,10 @@ class PostsFragment : BaseNavFragment() {
 
     private var _binding: FragmentPostBinding? = null
     private val binding get() = _binding!!
+    private lateinit var mAdapter : QuickAdapter<Post>
     private val viewModel: PostsViewModel by viewModels { viewModelFactory }
+    private val postPopup: PostPopup by lazyOnMainOnly { PostPopup(requireActivity(), sharedVM) }
     private var isFabOpen = false
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        _binding = FragmentPostBinding.inflate(inflater, container, false)
-        return binding.root
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -115,70 +109,61 @@ class PostsFragment : BaseNavFragment() {
         }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        // initial load
-        if (viewModel.posts.value.isNullOrEmpty()) {
-            binding.srlAndRv.refreshLayout.autoRefresh(
-                Constants.ACTION_NOTHING,
-                false
-            )
-        }
-
-        binding.flingInterceptor.bindListener {
-            (activity as MainActivity).showDrawer()
-        }
-
-        val postPopup: PostPopup by lazyOnMainOnly { PostPopup(requireActivity(), sharedVM) }
-        val mAdapter = QuickAdapter<Post>(R.layout.list_item_post, sharedVM).apply {
-            setOnItemClickListener { _, _, position ->
-                getItem(position).run {
-                    val navAction =
-                        MainNavDirections.actionGlobalCommentsFragment(id, fid)
-                    findNavController().navigate(navAction)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        if (_binding == null) {
+            _binding = FragmentPostBinding.inflate(inflater, container, false)
+            mAdapter = QuickAdapter<Post>(R.layout.list_item_post, sharedVM).apply {
+                setOnItemClickListener { _, _, position ->
+                    getItem(position).run {
+                        val navAction =
+                            MainNavDirections.actionGlobalCommentsFragment(id, fid)
+                        findNavController().navigate(navAction)
+                    }
                 }
-            }
-            setOnItemLongClickListener { _, _, position ->
-                MaterialDialog(requireContext()).show {
-                    title(R.string.post_options)
-                    listItems(R.array.post_options) { _, index, _ ->
-                        if (index == 0) {
-                            MaterialDialog(requireContext()).show {
-                                title(R.string.report_reasons)
-                                listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
-                                    postPopup.setupAndShow(
-                                        "18",//值班室
-                                        "18",
-                                        newPost = true,
-                                        quote = "\n>>No.${getItem(position).id}\n${context.getString(
-                                            R.string.report_reasons
-                                        )}: $text"
-                                    )
+                setOnItemLongClickListener { _, _, position ->
+                    MaterialDialog(requireContext()).show {
+                        title(R.string.post_options)
+                        listItems(R.array.post_options) { _, index, _ ->
+                            if (index == 0) {
+                                MaterialDialog(requireContext()).show {
+                                    title(R.string.report_reasons)
+                                    listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
+                                        postPopup.setupAndShow(
+                                            "18",//值班室
+                                            "18",
+                                            newPost = true,
+                                            quote = "\n>>No.${getItem(position).id}\n${context.getString(
+                                                R.string.report_reasons
+                                            )}: $text"
+                                        )
+                                    }
+                                    cancelOnTouchOutside(false)
                                 }
-                                cancelOnTouchOutside(false)
                             }
                         }
                     }
+                    true
                 }
-                true
-            }
 
-            addChildClickViewIds(R.id.attachedImage)
-            setOnItemChildClickListener { _, view, position ->
-                if (view.id == R.id.attachedImage) {
-                    val url = getItem(position).getImgUrl()
-                    val viewerPopup = ImageViewerPopup(url, requireContext())
-                    viewerPopup.setSingleSrcView(view as ImageView?, url)
-                    XPopup.Builder(context)
-                        .asCustom(viewerPopup)
-                        .show()
+                addChildClickViewIds(R.id.attachedImage)
+                setOnItemChildClickListener { _, view, position ->
+                    if (view.id == R.id.attachedImage) {
+                        val url = getItem(position).getImgUrl()
+                        val viewerPopup = ImageViewerPopup(url, requireContext())
+                        viewerPopup.setSingleSrcView(view as ImageView?, url)
+                        XPopup.Builder(context)
+                            .asCustom(viewerPopup)
+                            .show()
+                    }
+                }
+
+                loadMoreModule.setOnLoadMoreListener {
+                    viewModel.getPosts()
                 }
             }
-
-            loadMoreModule.setOnLoadMoreListener {
-                viewModel.getPosts()
-            }
-        }
 
             binding.srlAndRv.refreshLayout.apply {
                 setOnRefreshListener(object : RefreshingListenerAdapter() {
@@ -188,25 +173,23 @@ class PostsFragment : BaseNavFragment() {
                 })
             }
 
-        binding.srlAndRv.recyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = mAdapter
-            setHasFixedSize(true)
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    if (dy > 0) {
-                        if (_binding == null) return
-                        hideFabMenu()
-                        binding.fabMenu.hide()
-                        binding.fabMenu.isClickable = false
-                    } else if (dy < 0) {
-                        if (_binding == null) return
-                        binding.fabMenu.show()
-                        binding.fabMenu.isClickable = true
+            binding.srlAndRv.recyclerView.apply {
+                layoutManager = LinearLayoutManager(context)
+                adapter = mAdapter
+                setHasFixedSize(true)
+                addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                        if (dy > 0) {
+                            hideFabMenu()
+                            binding.fabMenu.hide()
+                            binding.fabMenu.isClickable = false
+                        } else if (dy < 0) {
+                            binding.fabMenu.show()
+                            binding.fabMenu.isClickable = true
+                        }
                     }
-                }
-            })
-        }
+                })
+            }
 
             binding.fabMenu.setOnClickListener {
                 toggleFabMenu()
@@ -239,6 +222,23 @@ class PostsFragment : BaseNavFragment() {
                     }
                 }
             }
+        }
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        // initial load
+        if (viewModel.posts.value.isNullOrEmpty()) {
+            binding.srlAndRv.refreshLayout.autoRefresh(
+                Constants.ACTION_NOTHING,
+                false
+            )
+        }
+
+        binding.flingInterceptor.bindListener {
+            (activity as MainActivity).showDrawer()
+        }
 
         viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
             it.getContentIfNotHandled()?.run {

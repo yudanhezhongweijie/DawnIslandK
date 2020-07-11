@@ -27,7 +27,7 @@ sealed class DataResource<T> {
     data class SuccessDataResource<T>(
         override val data: T
     ) : DataResource<T>() {
-        override var message: String = "Success"
+        override var message: String = ""
         override val status: LoadingStatus = LoadingStatus.SUCCESS
     }
 
@@ -48,7 +48,7 @@ sealed class DataResource<T> {
     data class LoadingDataResource<T>(override val status: LoadingStatus = LoadingStatus.LOADING) :
         DataResource<T>() {
         override val data: T? = null
-        override var message: String = "Loading"
+        override var message: String = ""
     }
 
     companion object {

@@ -18,7 +18,6 @@
 package com.laotoua.dawnislandk.screens.subscriptions
 
 import android.os.Bundle
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,13 +27,15 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
+import com.laotoua.dawnislandk.data.local.entity.DailyTrend
 import com.laotoua.dawnislandk.data.local.entity.Trend
 import com.laotoua.dawnislandk.databinding.FragmentSubscriptionTrendBinding
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
+import com.laotoua.dawnislandk.util.DataResource
+import com.laotoua.dawnislandk.util.EventPayload
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
-import me.dkzwm.widget.srl.config.Constants
 import timber.log.Timber
 
 class TrendsFragment : BaseNavFragment() {
@@ -46,13 +47,27 @@ class TrendsFragment : BaseNavFragment() {
     private var _binding: FragmentSubscriptionTrendBinding? = null
     private val binding get() = _binding!!
 
+    private lateinit var mAdapter: QuickAdapter<Trend>
+
     private val viewModel: TrendsViewModel by viewModels { viewModelFactory }
 
-    private var mHandler: Handler? = null
-    private val mDelayedLoad = Runnable {
-        viewModel.getLatestTrend()
+    private val trendsObs = Observer<DataResource<DailyTrend>> {
+        updateHeaderAndFooter(binding.srlAndRv.refreshLayout, mAdapter, EventPayload(it.status, it.message, null))
+        val list = it.data?.trends
+        if (list.isNullOrEmpty()) {
+            if (!mAdapter.hasEmptyView()) mAdapter.setDefaultEmptyView()
+            mAdapter.setDiffNewData(null)
+            return@Observer
+        }
+        mAdapter.setList(list.toMutableList())
+        mAdapter.setFooterView(
+            layoutInflater.inflate(
+                R.layout.view_no_more_data,
+                binding.srlAndRv.recyclerView,
+                false
+            )
+        )
     }
-    private var delayedLoading = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -64,17 +79,8 @@ class TrendsFragment : BaseNavFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // initial load
-        if (viewModel.trends.value.isNullOrEmpty() && !delayedLoading) {
-            binding.srlAndRv.refreshLayout.autoRefresh(
-                Constants.ACTION_NOTHING,
-                false
-            )
-            // give sometime to skip load if bypassing this fragment
-            mHandler = mHandler ?: Handler()
-            delayedLoading = mHandler!!.postDelayed(mDelayedLoad, 500)
-        }
-        val mAdapter = QuickAdapter<Trend>(R.layout.list_item_trend, sharedVM).apply {
+
+        mAdapter = QuickAdapter<Trend>(R.layout.list_item_trend, sharedVM).apply {
             loadMoreModule.isEnableLoadMore = false
             setOnItemClickListener { _, _, position ->
                 val target = getItem(position)
@@ -89,7 +95,7 @@ class TrendsFragment : BaseNavFragment() {
         binding.srlAndRv.refreshLayout.apply {
             setOnRefreshListener(object : RefreshingListenerAdapter() {
                 override fun onRefreshing() {
-                    viewModel.getLatestTrend()
+                    refreshTrends()
                 }
             })
         }
@@ -100,38 +106,18 @@ class TrendsFragment : BaseNavFragment() {
             adapter = mAdapter
         }
 
-        viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
-            it.getContentIfNotHandled()?.run {
-                updateHeaderAndFooter(binding.srlAndRv.refreshLayout, mAdapter, this)
-                delayedLoading = false
-            }
-        })
-
-        viewModel.trends.observe(viewLifecycleOwner, Observer { list ->
-            if (list.isEmpty()) {
-                if (!mAdapter.hasEmptyView()) mAdapter.setDefaultEmptyView()
-                mAdapter.setDiffNewData(null)
-                return@Observer
-            }
-            mAdapter.setList(list.toMutableList())
-            mAdapter.setFooterView(
-                layoutInflater.inflate(
-                    R.layout.view_no_more_data,
-                    binding.srlAndRv.recyclerView,
-                    false
-                )
-            )
-        })
+        viewModel.latestTrends.observe(viewLifecycleOwner, trendsObs)
     }
 
-    override fun onPause() {
-        super.onPause()
-        mHandler?.removeCallbacks(mDelayedLoad)
+    private fun refreshTrends(){
+        viewModel.latestTrends.removeObserver(trendsObs)
+        viewModel.getLatestTrend()
+        viewModel.latestTrends.observe(viewLifecycleOwner, trendsObs)
+
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        mHandler = null
         _binding = null
         Timber.d("Fragment View Destroyed")
     }

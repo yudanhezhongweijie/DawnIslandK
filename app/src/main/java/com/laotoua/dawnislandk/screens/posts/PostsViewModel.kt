@@ -53,7 +53,7 @@ class PostsViewModel @Inject constructor(private val webService: NMBServiceClien
                 if (this is APIDataResponse.APIErrorDataResponse) {
                     Timber.e(message)
                     _loadingStatus.postValue(
-                        SingleLiveEvent.create(LoadingStatus.FAILED, "无法读取串列表...\n$message")
+                        SingleLiveEvent.create(LoadingStatus.ERROR, "无法读取串列表...\n$message")
                     )
                 } else if (this is APIDataResponse.APISuccessDataResponse) {
                     convertServerData(data, fid)

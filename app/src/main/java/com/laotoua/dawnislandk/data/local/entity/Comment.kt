@@ -46,6 +46,7 @@ data class Comment(
     @Ignore
     var visible: Boolean = true
 
+
     fun getSimplifiedTitle(): String =
         if (isAd()) "广告"
         else if (title.isNotBlank() && title != "无标题") "标题：$title"

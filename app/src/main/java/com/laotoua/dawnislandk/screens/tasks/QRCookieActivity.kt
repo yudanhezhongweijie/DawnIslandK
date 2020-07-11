@@ -46,7 +46,7 @@ class QRCookieActivity : CaptureActivity() {
             uri?.run {
                 try {
                     val file =
-                        ImageUtil.getImageFileFromUri(activity = this@QRCookieActivity, uri = uri)
+                        ImageUtil.getImageFileFromUri(this@QRCookieActivity, uri)
                             ?: return@registerForActivityResult
                     val res = CodeUtils.parseQRCode(file.path)
                     if (res != null) {

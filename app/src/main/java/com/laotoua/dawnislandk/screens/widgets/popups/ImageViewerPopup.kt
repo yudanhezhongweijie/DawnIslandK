@@ -24,8 +24,6 @@ import android.os.Environment
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -46,16 +44,14 @@ import java.io.File
 @SuppressLint("ViewConstructor")
 class ImageViewerPopup(
     private val imgUrl: String,
-    fragment: Fragment? = null,
-    activity: AppCompatActivity? = null
-) :
-    ImageViewerPopupView(fragment?.requireContext() ?: activity!!) {
+    context: Context
+) : ImageViewerPopupView(context) {
 
     companion object {
         val universalImageLoader = ImageLoader()
     }
 
-    private val caller = activity ?: fragment!!.requireActivity()
+    private val caller = context as FragmentActivity
     private val toastMsg = MutableLiveData<Int>()
     private var saveShown = true
     private val saveButton by lazyOnMainOnly { findViewById<FloatingActionButton>(R.id.save) }
@@ -84,10 +80,14 @@ class ImageViewerPopup(
     }
 
     private fun checkAndRequestExternalStoragePermission(caller: FragmentActivity): Boolean {
-        if(caller.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
-            caller.registerForActivityResult(ActivityResultContracts.RequestPermission()){
-                if (it == false){
-                    Toast.makeText(context, R.string.need_write_storage_permission, Toast.LENGTH_SHORT).show()
+        if (caller.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            caller.registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+                if (it == false) {
+                    Toast.makeText(
+                        context,
+                        R.string.need_write_storage_permission,
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
             return false
@@ -97,18 +97,14 @@ class ImageViewerPopup(
 
     private fun addPicToGallery(context: Context, imgUrl: String) {
         caller.lifecycleScope.launch(Dispatchers.IO) {
-            if(!checkAndRequestExternalStoragePermission(caller)){
+            if (!checkAndRequestExternalStoragePermission(caller)) {
                 return@launch
             }
 
             Timber.i("Saving image $imgUrl to Gallery... ")
             val relativeLocation = Environment.DIRECTORY_PICTURES + File.separator + "Dawn"
             var fileName = imgUrl.substringAfter("/")
-            val fileExist = ImageUtil.imageExistInGalleryBasedOnFilenameAndExt(
-                caller,
-                fileName,
-                relativeLocation
-            )
+            val fileExist = ImageUtil.isImageInGallery(caller, fileName)
             if (fileExist) {
                 // Inform user and renamed file when the filename is already taken
                 val name = fileName.substringBeforeLast(".")

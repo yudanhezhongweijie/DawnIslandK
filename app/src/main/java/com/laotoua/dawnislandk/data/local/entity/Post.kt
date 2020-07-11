@@ -106,6 +106,7 @@ data class Post(
     fun getSimplifiedName(): String = if (name.isNotBlank() && name != "无名氏") "名称：$name" else ""
     fun getMaxPage() = if (replyCount.isBlank()) 1 else 1.coerceAtLeast(ceil(replyCount.toDouble() / 19).toInt())
 
+    // only compares by server fields
     override fun equals(other: Any?) =
         if (other is Post) {
             id == other.id && fid == other.fid && img == other.img

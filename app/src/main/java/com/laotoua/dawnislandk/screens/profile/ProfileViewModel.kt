@@ -99,7 +99,7 @@ class ProfileViewModel @Inject constructor(
         }
         val message = sendNameTestComment(cookieHash, randomString)
         if (message.substring(0, 2) != ":)") {
-            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.FAILED, message))
+            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.ERROR, message))
             return ""
         }
         return findNameInComments(cookieHash, randomString, targetPage, false)
@@ -140,7 +140,7 @@ class ProfileViewModel @Inject constructor(
         if (targetPage < 1) {
             _loadingStatus.postValue(
                 SingleLiveEvent.create(
-                    LoadingStatus.FAILED,
+                    LoadingStatus.ERROR,
                     "无法获取默认饼干名...请联系作者\n"
                 )
             )

@@ -32,19 +32,19 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
 import com.afollestad.materialdialogs.checkbox.isCheckPromptChecked
 import com.google.android.material.animation.AnimationUtils
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
+import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
 import com.laotoua.dawnislandk.di.DaggerViewModelFactory
-import com.laotoua.dawnislandk.screens.comments.CommentsFragment
-import com.laotoua.dawnislandk.screens.comments.QuotePopup
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbarInitialization
 import com.laotoua.dawnislandk.screens.widgets.DoubleClickListener
@@ -149,7 +149,7 @@ class MainActivity : DaggerAppCompatActivity() {
         sharedVM.communityListLoadingStatus.observe(
             this,
             Observer<SingleLiveEvent<EventPayload<Nothing>>> {
-                if (it.getContentIfNotHandled()?.loadingStatus == LoadingStatus.FAILED) {
+                if (it.getContentIfNotHandled()?.loadingStatus == LoadingStatus.ERROR) {
                     Toast.makeText(this, it.peekContent().message, Toast.LENGTH_LONG)
                         .show()
                 }
@@ -170,8 +170,8 @@ class MainActivity : DaggerAppCompatActivity() {
                     sharedVM.setForumId(id)
                 } else if (count == 2) {
                     if (path[1] == 't') {
-                        sharedVM.setPost(id, "")
-                        showComment()
+                        val navAction = MainNavDirections.actionGlobalCommentsFragment(id,"")
+                        findNavController(R.id.navHostFragment).navigate(navAction)
                     } else if (path[1] == 'f') {
                         val fid = sharedVM.getForumIdByName(URLDecoder.decode(id, "UTF-8"))
                         sharedVM.setForumId(fid)
@@ -264,17 +264,15 @@ class MainActivity : DaggerAppCompatActivity() {
                 if (item.itemId == R.id.postsFragment) showDrawer()
             }
             binding.bottomNavBar.setupWithNavController(navController)
+            // up button
+            val appBarConfiguration = AppBarConfiguration(
+                setOf(R.id.postsFragment, R.id.subscriptionPagerFragment, R.id.searchFragment, R.id.historyPagerFragment, R.id.profileFragment),
+                null)
+            setupActionBarWithNavController(navController, appBarConfiguration)
         }
     }
 
     override fun onBackPressed() {
-        /**
-         *  Catch for popup which failed to request focus
-         */
-        if (!QuotePopup.ensureQuotePopupDismissal()) return
-
-        if (hideComment()) return
-
         if (!doubleBackToExitPressedOnce &&
             findNavController(R.id.navHostFragment).previousBackStackEntry == null
         ) {
@@ -292,43 +290,6 @@ class MainActivity : DaggerAppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         mHandler.removeCallbacks(mRunnable)
-    }
-
-    fun showComment() {
-        hideNav()
-        var commentFrag = supportFragmentManager.findFragmentByTag("comment")
-        if (commentFrag == null) {
-            commentFrag = CommentsFragment()
-            supportFragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
-                .add(R.id.mainActivityFullView, commentFrag, "comment")
-                .addToBackStack(null).commit()
-        } else {
-            supportFragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
-                .show(commentFrag)
-                .runOnCommit { commentFrag.onResume() }
-                .commit()
-        }
-    }
-
-    fun hideComment(): Boolean {
-        supportFragmentManager.findFragmentByTag("comment")?.let {
-            if (!it.isHidden) {
-                it.onPause()
-                supportFragmentManager.beginTransaction()
-                    .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
-                    .hide(it)
-                    .commit()
-                showNav()
-                if (currentFragmentId == R.id.postsFragment) {
-                    findViewById<FloatingActionButton>(R.id.fabMenu).show()
-                    findViewById<FloatingActionButton>(R.id.fabMenu).isClickable = true
-                }
-                return true
-            }
-        }
-        return false
     }
 
     fun hideNav() {

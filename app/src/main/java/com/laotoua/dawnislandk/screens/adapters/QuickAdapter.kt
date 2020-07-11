@@ -220,8 +220,15 @@ class QuickAdapter<T>(
         override fun areItemsTheSame(oldItem: T, newItem: T): Boolean {
             return when {
                 (oldItem is Post && newItem is Post) -> oldItem.id == newItem.id && oldItem.fid == newItem.fid
-                (oldItem is Comment && newItem is Comment) -> oldItem.id == newItem.id && oldItem.content == newItem.content
-                        && oldItem.visible == newItem.visible
+                (oldItem is Comment && newItem is Comment) -> {
+                    if (oldItem.isAd() && newItem.isAd()) {
+                        oldItem.page == newItem.page && oldItem.content == newItem.content
+                    }
+                    else{
+                        oldItem.id == newItem.id && oldItem.content == newItem.content
+                                && oldItem.visible == newItem.visible
+                    }
+                }
                 (oldItem is Trend && newItem is Trend) -> oldItem.id == newItem.id
                 (oldItem is String && newItem is String) -> oldItem == newItem
                 else -> throw Exception("Unhandled type comparison")

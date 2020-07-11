@@ -56,7 +56,7 @@ object Layout {
         val headerDismissalDelayDuration = 200L
         when (event.loadingStatus) {
             // TODO: stick failure message on header or footer instead of toast
-            LoadingStatus.FAILED -> {
+            LoadingStatus.ERROR -> {
                 refreshLayout.refreshComplete(false, headerDismissalDelayDuration)
                 mAdapter.loadMoreModule.loadMoreFail()
                 if (mAdapter.data.isNullOrEmpty()) {
@@ -69,10 +69,10 @@ object Layout {
                     Toast.LENGTH_LONG
                 ).show()
             }
-            LoadingStatus.NODATA -> {
+            LoadingStatus.NO_DATA -> {
                 refreshLayout.refreshComplete(true, headerDismissalDelayDuration)
                 mAdapter.loadMoreModule.loadMoreEnd()
-                if (event.message != null) {
+                if (!event.message.isNullOrBlank()) {
                     Toast.makeText(
                         context,
                         event.message,

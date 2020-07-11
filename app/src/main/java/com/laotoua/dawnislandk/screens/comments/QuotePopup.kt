@@ -18,13 +18,9 @@
 package com.laotoua.dawnislandk.screens.comments
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.text.method.LinkMovementMethod
 import android.view.View
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
@@ -42,14 +38,12 @@ import com.laotoua.dawnislandk.util.GlideApp
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.CenterPopupView
-import com.lxj.xpopup.interfaces.SimpleCallback
 import com.lxj.xpopup.util.XPopupUtils
-import dagger.android.support.DaggerFragment
 
 @SuppressLint("ViewConstructor")
 // uses caller fragment's context, should not live without fragment
 class QuotePopup(
-    private val caller: DaggerFragment,
+    private val caller: CommentsFragment,
     private val commentVM: CommentsViewModel,
     private val quoteId: String,
     private val po: String
@@ -70,8 +64,8 @@ class QuotePopup(
     }
 
     private val quoteDownloadStatusObs = Observer<EventPayload<String>> {
-        if (it.loadingStatus == LoadingStatus.FAILED && it.payload == quoteId) {
-            ensureQuotePopupDismissal()
+        if (it.loadingStatus == LoadingStatus.ERROR && it.payload == quoteId) {
+            dismiss()
             Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
         }
     }
@@ -98,11 +92,9 @@ class QuotePopup(
 
         findViewById<TextView>(R.id.timestamp).text = transformTime(quote.now)
 
-        // TODO: handle ads
         findViewById<TextView>(R.id.refId).text =
             context.resources.getString(R.string.ref_id_formatted, quote.id)
 
-        // TODO: add sage transformation
         findViewById<TextView>(R.id.sage).run {
             visibility = if (quote.sage == "1") {
                 View.VISIBLE
@@ -148,7 +140,7 @@ class QuotePopup(
                 val viewerPopup =
                     ImageViewerPopup(
                         url,
-                        fragment = caller
+                        caller.requireContext()
                     )
                 viewerPopup.setSingleSrcView(imageView as ImageView?, url)
                 XPopup.Builder(context)
@@ -159,13 +151,7 @@ class QuotePopup(
 
         val referenceClickListener = object : ReferenceSpan.ReferenceClickHandler {
             override fun handleReference(id: String) {
-                showQuote(
-                    caller,
-                    commentVM,
-                    context,
-                    id,
-                    po
-                )
+                caller.displayQuote(id)
             }
         }
 
@@ -185,46 +171,12 @@ class QuotePopup(
             textSize = DawnApp.applicationDataStore.textSize
             letterSpacing = DawnApp.applicationDataStore.letterSpace
         }
-    }
 
-    override fun onDismiss() {
-        super.onDismiss()
-        quotePopupList.remove(this)
-    }
-
-    companion object {
-
-        private var quotePopupList = mutableListOf<QuotePopup>()
-
-        fun ensureQuotePopupDismissal(): Boolean {
-            quotePopupList.lastOrNull { it.isShow }.run {
-                this?.dismiss()
-                return this == null
+        findViewById<Button>(R.id.jumpToQuotedPost).run {
+            visibility = if (quote.parentId != commentVM.currentPostId) View.VISIBLE else View.GONE
+            setOnClickListener {
+                caller.jumpToNewPost(quote.parentId)
             }
-        }
-
-        fun clearQuotePopups() {
-            quotePopupList.clear()
-        }
-
-        fun showQuote(
-            caller: DaggerFragment,
-            replyVM: CommentsViewModel,
-            context: Context,
-            id: String,
-            po: String
-        ) {
-            val top = QuotePopup(caller, replyVM, id, po)
-            quotePopupList.add(top)
-            XPopup.Builder(context)
-                .setPopupCallback(object : SimpleCallback() {
-                    override fun beforeShow() {
-                        super.beforeShow()
-                        top.listenToLiveQuote()
-                    }
-                })
-                .asCustom(top)
-                .show()
         }
     }
 }

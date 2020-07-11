@@ -83,7 +83,7 @@ class TrendRepository @Inject constructor(
                 Timber.e(message)
                 _loadingStatus.postValue(
                     SingleLiveEvent.create(
-                        LoadingStatus.FAILED,
+                        LoadingStatus.ERROR,
                         "无法读取A岛热榜...\n$message"
                     )
                 )

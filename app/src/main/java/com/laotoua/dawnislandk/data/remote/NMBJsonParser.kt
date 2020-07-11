@@ -21,6 +21,7 @@ import com.laotoua.dawnislandk.data.local.entity.*
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import org.json.JSONObject
+import org.jsoup.Jsoup
 import java.util.*
 
 
@@ -98,11 +99,47 @@ abstract class NMBJsonParser<T> {
 
     class QuoteParser : NMBJsonParser<Comment>() {
         override fun parse(response: String): Comment {
-            return moshi.adapter(Comment::class.java).fromJson(response)!!
+            val thread = Jsoup.parse(response).getElementsByClass("h-threads-item").first()
+            val id = thread.getElementsByClass("h-threads-item-reply h-threads-item-ref").first()
+                .attr("data-threads-id")
+            val title = thread.getElementsByClass("h-threads-info-title").first().text()
+            // key is email but actual content is name???
+            val name = thread.getElementsByClass("h-threads-info-email").first().text()
+            val now = thread.getElementsByClass("h-threads-info-createdat").first().text()
+            val imageFullPath =
+                thread.getElementsByClass("h-threads-img-a").firstOrNull()?.attr("href")
+                    ?.substringAfter("image/") ?: ""
+            val splitter = imageFullPath.indexOf(".")
+            val img = if (splitter > 0) imageFullPath.substring(0, splitter) else ""
+            val ext = if (splitter > 0) imageFullPath.substring(splitter) else ""
+            val uid = thread.getElementsByClass("h-threads-info-uid").first()
+            val uidText = uid.text()
+            val userid = if (uidText.startsWith("ID:")) uidText.substring(3) else uidText
+            val admin = if (uid.childNodeSize() > 1) "1" else "0"
+            val href = thread.getElementsByClass("h-threads-info-id").first().attr("href")
+            val endIndex = href.indexOf("?")
+            val parentId = if (endIndex < 0) href.substring(3) else href.substring(3, endIndex)
+            val content = thread.getElementsByClass("h-threads-content").first().html()
+            return Comment(
+                id,
+                userid,
+                name,
+                "",
+                admin,
+                "",
+                title,
+                "",
+                now,
+                content,
+                img,
+                ext,
+                1,
+                parentId
+            )
         }
     }
 
-    class SearchResultParser(val query:String, val page: Int) : NMBJsonParser<SearchResult>() {
+    class SearchResultParser(val query: String, val page: Int) : NMBJsonParser<SearchResult>() {
         override fun parse(response: String): SearchResult {
             return JSONObject(response).run {
                 getJSONObject("hits").run {

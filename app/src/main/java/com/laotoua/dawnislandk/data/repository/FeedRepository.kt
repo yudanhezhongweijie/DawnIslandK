@@ -84,7 +84,7 @@ class FeedRepository @Inject constructor(
                         Timber.e(message)
                         feedsMap.delete(page)
                         _loadingStatus.postValue(
-                            SingleLiveEvent.create(LoadingStatus.FAILED, "无法读取订阅...\n$message")
+                            SingleLiveEvent.create(LoadingStatus.ERROR, "无法读取订阅...\n$message")
                         )
                     }
                 }
@@ -102,7 +102,7 @@ class FeedRepository @Inject constructor(
             posts.add(serverFeed.toPost())
         }
         if (data.isEmpty()) {
-            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.NODATA))
+            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.NO_DATA))
         } else {
             _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))
             coroutineScope {
@@ -136,7 +136,7 @@ class FeedRepository @Inject constructor(
                 Timber.e(message)
                 _delFeedResponse.postValue(
                     SingleLiveEvent.create(
-                        LoadingStatus.FAILED,
+                        LoadingStatus.ERROR,
                         "删除订阅失败"
                     )
                 )

@@ -17,7 +17,6 @@
 
 package com.laotoua.dawnislandk.util
 
-import android.content.ContentResolver
 import android.content.ContentValues
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -28,8 +27,6 @@ import android.provider.OpenableColumns
 import android.util.Size
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import com.laotoua.dawnislandk.R
@@ -42,17 +39,13 @@ import java.io.*
 object ImageUtil {
 
     private val cachedImages = mutableSetOf<String>()
-    fun imageExistInGalleryBasedOnFilenameAndExt(
-        callerActivity: FragmentActivity,
-        fileName: String,
-        relativeLocation: String
-    ): Boolean {
+    fun isImageInGallery(caller: FragmentActivity, fileName: String): Boolean {
         if (cachedImages.contains(fileName)) return true
         val selection = "${MediaStore.Images.ImageColumns.DISPLAY_NAME}=?"
         val selectionArgs = arrayOf(fileName)
         val projection = arrayOf(MediaStore.Images.ImageColumns.DISPLAY_NAME)
         var res = false
-        callerActivity.contentResolver.query(
+        caller.contentResolver.query(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
             projection,
             selection,
@@ -64,69 +57,55 @@ object ImageUtil {
         return res
     }
 
-    private fun copyFromFileToImageUri(
-        callerActivity: FragmentActivity,
-        uri: Uri,
-        file: File
-    ): Boolean {
-        try {
-            val stream = callerActivity.contentResolver.openOutputStream(uri)
+    private fun copyImageFromFileToUri(caller: FragmentActivity, uri: Uri, file: File): Boolean {
+        return try {
+            val stream = caller.contentResolver.openOutputStream(uri)
                 ?: throw IOException("Failed to get output stream.")
             stream.write(file.readBytes())
             stream.close()
+            true
         } catch (e: Exception) {
             Timber.e(e)
-            return false
+            false
         }
-        return true
     }
 
     fun copyImageFileToGallery(
-        callerActivity: FragmentActivity,
+        caller: FragmentActivity,
         fileName: String,
         relativeLocation: String,
         file: File
     ): Boolean {
-        try {
-            val uri = addPlaceholderImageUriToGallery(
-                callerActivity,
-                fileName,
-                relativeLocation
-            )
-            return try {
-                copyFromFileToImageUri(
-                    callerActivity,
-                    uri,
-                    file
-                )
+        return try {
+            val uri = addPlaceholderImageToGallery(caller, fileName, relativeLocation)
+            try {
+                copyImageFromFileToUri(caller, uri, file)
             } catch (writeException: Exception) {
                 Timber.e(writeException)
-                removePlaceholderImageUriToGallery(callerActivity, uri)
+                removePlaceholderImageInGallery(caller, uri)
                 false
             }
         } catch (uriException: Exception) {
             Timber.e(uriException)
-            return false
+            false
         }
     }
 
     fun writeBitmapToGallery(
-        callerActivity: FragmentActivity, fileName: String, relativeLocation: String,
+        caller: FragmentActivity,
+        fileName: String,
+        relativeLocation: String,
         bitmap: Bitmap
     ): Uri? {
         return try {
-            val uri = addPlaceholderImageUriToGallery(
-                callerActivity,
-                fileName,
-                relativeLocation
-            )
+            val uri = addPlaceholderImageToGallery(caller, fileName, relativeLocation)
             try {
-                callerActivity.contentResolver.openOutputStream(uri)?.use {
+                caller.contentResolver.openOutputStream(uri)?.use {
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
                 }
                 uri
             } catch (e: Exception) {
-                removePlaceholderImageUriToGallery(callerActivity, uri)
+                removePlaceholderImageInGallery(caller, uri)
                 null
             }
         } catch (e: FileNotFoundException) {
@@ -134,8 +113,8 @@ object ImageUtil {
         }
     }
 
-    fun addPlaceholderImageUriToGallery(
-        callerActivity: FragmentActivity,
+    fun addPlaceholderImageToGallery(
+        caller: FragmentActivity,
         fileName: String,
         relativeLocation: String
     ): Uri {
@@ -150,45 +129,35 @@ object ImageUtil {
             }
         }
 
-        return callerActivity.contentResolver.insert(
+        return caller.contentResolver.insert(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
             contentValues
         ) ?: throw IOException("Failed to create new MediaStore record.")
     }
 
-    fun removePlaceholderImageUriToGallery(
-        callerActivity: FragmentActivity,
-        uri: Uri
-    ): Int {
-        return callerActivity.contentResolver.delete(uri, null, null)
+    fun removePlaceholderImageInGallery(caller: FragmentActivity, uri: Uri): Int {
+        return caller.contentResolver.delete(uri, null, null)
     }
 
     fun loadImageThumbnailToImageView(
-        caller: Fragment,
+        caller: FragmentActivity,
         uri: Uri,
         width: Int,
         height: Int,
         imageView: ImageView
     ) {
         if (Build.VERSION.SDK_INT >= 29) {
-            caller.requireActivity().contentResolver
-                .loadThumbnail(uri, Size(width, height), null)
+            caller.contentResolver.loadThumbnail(uri, Size(width, height), null)
                 .run { imageView.setImageBitmap(this) }
         } else {
-            GlideApp.with(imageView)
-                .load(uri).override(width, height).into(imageView)
+            GlideApp.with(imageView).load(uri).override(width, height).into(imageView)
         }
     }
 
-    fun getImageFileFromUri(
-        fragment: Fragment? = null,
-        activity: AppCompatActivity? = null,
-        uri: Uri
-    ): File? {
-        val callerActivity = fragment?.requireActivity() ?: activity!!
-        callerActivity.contentResolver.openFileDescriptor(uri, "r", null)?.use { pfd ->
-            val filename = callerActivity.contentResolver.getFileName(uri)
-            val file = File(callerActivity.cacheDir, filename)
+    fun getImageFileFromUri(caller: FragmentActivity, uri: Uri): File? {
+        caller.contentResolver.openFileDescriptor(uri, "r", null)?.use { pfd ->
+            val filename = getFileName(caller, uri)
+            val file = File(caller.cacheDir, filename)
             if (file.exists()) {
                 Timber.d("File exists. Reusing the old file")
                 return file
@@ -198,12 +167,12 @@ object ImageUtil {
                 Timber.d("Image is oversize: ${pfd.statSize}. Compressing...")
                 val ratio = (DawnConstants.SERVER_FILE_SIZE_LIMIT * 100 / pfd.statSize).toInt()
                 Toast.makeText(
-                    callerActivity,
+                    caller,
                     R.string.compressing_oversize_image,
                     Toast.LENGTH_SHORT
                 )
                     .show()
-                compressImage(callerActivity, ratio, pfd.fileDescriptor)
+                compressImage(caller, ratio, pfd.fileDescriptor)
             } else {
                 FileInputStream(pfd.fileDescriptor)
             }.use { inputStream ->
@@ -219,13 +188,13 @@ object ImageUtil {
 
     // compression runs on a different thread
     private fun compressImage(
-        callerActivity: FragmentActivity,
+        caller: FragmentActivity,
         ratio: Int,
         fileDescriptor: FileDescriptor
     ): InputStream {
         val pipedInputStream = PipedInputStream()
         PipedOutputStream(pipedInputStream).use {
-            callerActivity.lifecycleScope.launch(Dispatchers.IO) {
+            caller.lifecycleScope.launch(Dispatchers.IO) {
                 val bmp = BitmapFactory.decodeFileDescriptor(fileDescriptor)
                 bmp.compress(Bitmap.CompressFormat.JPEG, ratio, it)
             }
@@ -233,9 +202,9 @@ object ImageUtil {
         return pipedInputStream
     }
 
-    fun getFileFromDrawable(caller: Fragment, fileName: String, resId: Int): File {
+    fun getFileFromDrawable(caller: FragmentActivity, fileName: String, resId: Int): File {
         val file = File(
-            caller.requireContext().cacheDir,
+            caller.cacheDir,
             "$fileName.png"
         )
         if (file.exists()) {
@@ -243,7 +212,7 @@ object ImageUtil {
             return file
         }
         Timber.i("File not found. Making a new one...")
-        val inputStream: InputStream = caller.requireContext().resources.openRawResource(resId)
+        val inputStream: InputStream = caller.resources.openRawResource(resId)
 
         val outputStream = FileOutputStream(file)
         inputStream.copyTo(outputStream)
@@ -252,10 +221,10 @@ object ImageUtil {
         return file
     }
 
-    private fun ContentResolver.getFileName(fileUri: Uri): String {
+    private fun getFileName(caller: FragmentActivity, fileUri: Uri): String {
         var name = ""
         val projection = arrayOf(MediaStore.Images.ImageColumns.DISPLAY_NAME)
-        this.query(fileUri, projection, null, null, null)?.use {
+        caller.contentResolver.query(fileUri, projection, null, null, null)?.use {
             it.moveToFirst()
             name = it.getString(it.getColumnIndex(OpenableColumns.DISPLAY_NAME))
         }

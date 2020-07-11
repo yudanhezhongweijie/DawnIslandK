@@ -17,6 +17,7 @@
 
 package com.laotoua.dawnislandk.data.remote
 
+import com.laotoua.dawnislandk.util.LoadingStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
@@ -27,6 +28,7 @@ import timber.log.Timber
 sealed class APIDataResponse<out T> {
     abstract val message: String
     abstract val data: T?
+    abstract val status: LoadingStatus
 
     /**
      * separate class for HTTP 204 responses so that we can make ApiSuccessResponse's body non-null.
@@ -34,20 +36,28 @@ sealed class APIDataResponse<out T> {
     class APIEmptyDataResponse<T>(
         override val message: String = "EmptyResponse",
         override val data: Nothing? = null
-    ) : APIDataResponse<T>()
+    ) : APIDataResponse<T>() {
+        override val status = LoadingStatus.NO_DATA
+    }
 
     data class APIBlankDataResponse<T>(
         override val message: String,
         override val data: Nothing? = null
-    ) : APIDataResponse<T>()
+    ) : APIDataResponse<T>() {
+        override val status = LoadingStatus.NO_DATA
+    }
 
     data class APIErrorDataResponse<T>(
         override val message: String,
         override val data: Nothing? = null
-    ) : APIDataResponse<T>()
+    ) : APIDataResponse<T>() {
+        override val status = LoadingStatus.ERROR
+    }
 
     data class APISuccessDataResponse<T>(override val message: String, override val data: T) :
-        APIDataResponse<T>()
+        APIDataResponse<T>() {
+        override val status = LoadingStatus.SUCCESS
+    }
 
     companion object {
         suspend fun <T> create(

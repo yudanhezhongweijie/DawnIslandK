@@ -26,6 +26,7 @@ import android.widget.Toast
 import androidx.core.text.isDigitsOnly
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
@@ -37,10 +38,10 @@ import com.chad.library.adapter.base.binder.QuickItemBinder
 import com.chad.library.adapter.base.util.getItemView
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.google.android.material.card.MaterialCardView
+import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.FeedAndPost
 import com.laotoua.dawnislandk.databinding.FragmentSubscriptionFeedBinding
-import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.*
 import com.laotoua.dawnislandk.screens.posts.PostCardFactory
@@ -99,7 +100,8 @@ class FeedsFragment : BaseNavFragment() {
                             0
                         }
                         val isValid = page > 0
-                        inputField.error = if (isValid) null else context.resources.getString(R.string.please_input_page_number)
+                        inputField.error =
+                            if (isValid) null else context.resources.getString(R.string.please_input_page_number)
                         dialog.setActionButtonEnabled(WhichButton.POSITIVE, isValid)
                     }
                     positiveButton(R.string.submit) {
@@ -133,7 +135,7 @@ class FeedsFragment : BaseNavFragment() {
 
         val mAdapter = QuickMultiBinder(sharedVM).apply {
             addItemBinder(SimpleTextBinder())
-            addItemBinder(FeedAndPostBinder(sharedVM, this@FeedsFragment).apply {
+            addItemBinder(FeedAndPostBinder(sharedVM).apply {
                 addChildClickViewIds(R.id.attachedImage)
             }, FeedAndPostDiffer())
 
@@ -172,10 +174,15 @@ class FeedsFragment : BaseNavFragment() {
         mAdapter.setDefaultEmptyView()
         viewModel.feeds.observe(viewLifecycleOwner, Observer { list ->
             if (list.isEmpty()) {
-                if (viewModel.lastJumpPage > 0){
-                    Toast.makeText(context,
-                    requireContext().getString(R.string.no_feed_on_page, viewModel.lastJumpPage),
-                    Toast.LENGTH_SHORT).show()
+                if (viewModel.lastJumpPage > 0) {
+                    Toast.makeText(
+                        context,
+                        requireContext().getString(
+                            R.string.no_feed_on_page,
+                            viewModel.lastJumpPage
+                        ),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
                 mAdapter.setDiffNewData(null)
                 return@Observer
@@ -217,16 +224,16 @@ class FeedsFragment : BaseNavFragment() {
         override fun getLayoutId(): Int = R.layout.list_item_simple_text
     }
 
-    inner class FeedAndPostBinder(
-        private val sharedViewModel: SharedViewModel,
-        private val callerFragment: BaseNavFragment
-    ) :
+    inner class FeedAndPostBinder(private val sharedViewModel: SharedViewModel) :
         QuickItemBinder<FeedAndPost>() {
         override fun convert(holder: BaseViewHolder, data: FeedAndPost) {
             holder.convertUserId(data.post!!.userid, "0")
             holder.convertRefId(context, data.post.id)
             holder.convertTimeStamp(data.post.now)
-            holder.convertTitleAndName(data.post.getSimplifiedTitle(),data.post.getSimplifiedName())
+            holder.convertTitleAndName(
+                data.post.getSimplifiedTitle(),
+                data.post.getSimplifiedName()
+            )
             holder.convertImage(data.post.getImgUrl())
             holder.convertContent(context, data.post.content)
         }
@@ -245,9 +252,9 @@ class FeedsFragment : BaseNavFragment() {
             data: FeedAndPost,
             position: Int
         ) {
-
-            sharedViewModel.setPost(data.feed.postId, data.post!!.fid)
-            (context as MainActivity).showComment()
+            val navAction =
+                MainNavDirections.actionGlobalCommentsFragment(data.feed.postId, data.post!!.fid)
+            findNavController().navigate(navAction)
         }
 
         override fun onLongClick(
@@ -275,7 +282,7 @@ class FeedsFragment : BaseNavFragment() {
         ) {
             if (view.id == R.id.attachedImage) {
                 val url = data.post!!.getImgUrl()
-                val viewerPopup = ImageViewerPopup(imgUrl = url, fragment = callerFragment)
+                val viewerPopup = ImageViewerPopup(url, context)
                 viewerPopup.setSingleSrcView(view as ImageView?, url)
                 XPopup.Builder(context)
                     .asCustom(viewerPopup)
@@ -283,6 +290,7 @@ class FeedsFragment : BaseNavFragment() {
             }
         }
     }
+
     private class FeedAndPostDiffer : DiffUtil.ItemCallback<FeedAndPost>() {
         override fun areItemsTheSame(oldItem: FeedAndPost, newItem: FeedAndPost): Boolean {
             return oldItem.feed.postId == newItem.feed.postId && oldItem.feed.category == newItem.feed.category

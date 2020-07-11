@@ -52,35 +52,42 @@ class QuoteRepository @Inject constructor(
         return quoteMap[idLong]
     }
 
-    private fun getLiveQuote(id: String, idLong: Long) = liveData(Dispatchers.IO) {
-        val cache = commentDao.findDistinctCommentById(id)
-        addQuoteToCache(idLong, cache)
-        emitSource(cache)
-        getServerData(id, idLong)
-    }
+    private fun getLiveQuote(id: String, idLong: Long): LiveData<Comment> =
+        liveData<Comment>(Dispatchers.IO) {
+            var cache:Comment? = commentDao.findCommentByIdSync(id)
+            if (cache == null) {
+                cache = getServerData(id, idLong)
+            }
+            if (cache != null) {
+                emit(cache)
+            }
+        }
 
-    private suspend fun getServerData(id: String, idLong: Long) = coroutineScope {
-        launch {
-            webService.getQuote(id).run {
-                if (this is APIDataResponse.APISuccessDataResponse) {
-                    quoteMap[idLong].value.let {
-                        if (!data.equalsWithServerData(it)) {
-                            // if local already has cache, update some fields
-                            // otherwise save new reply cache with default value
-                            it?.let {
-                                data.page = it.page
-                                data.parentId = it.parentId
-                            }
+    private suspend fun getServerData(id: String, idLong: Long): Comment? {
+        return webService.getQuote(id).run {
+            if (this is APIDataResponse.APISuccessDataResponse) {
+                val cache = quoteMap[idLong].value
+                if (!data.equalsWithServerData(cache)) {
+                    // if local already has cache, update some fields
+                    // otherwise save new reply cache with default value
+                    cache?.run {
+                        data.page = cache.page
+                        data.parentId = cache.parentId
+                    }
+                    coroutineScope {
+                        launch {
                             commentDao.insertWithTimeStamp(data)
                         }
                     }
-
-                } else {
-                    quoteLoadingStatus.postValue(EventPayload(LoadingStatus.FAILED, message, id))
                 }
+                data
+            } else {
+                quoteLoadingStatus.postValue(EventPayload(LoadingStatus.ERROR, message, id))
+                null
             }
         }
     }
+
 
     private fun addQuoteToCache(idLong: Long, quote: LiveData<Comment>) {
         quoteMap.append(idLong, quote)

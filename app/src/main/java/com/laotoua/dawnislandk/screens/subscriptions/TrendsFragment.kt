@@ -24,11 +24,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Trend
 import com.laotoua.dawnislandk.databinding.FragmentSubscriptionTrendBinding
-import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
@@ -77,10 +78,11 @@ class TrendsFragment : BaseNavFragment() {
             loadMoreModule.isEnableLoadMore = false
             setOnItemClickListener { _, _, position ->
                 val target = getItem(position)
-                target.toPost(sharedVM.getForumIdByName(target.forum)).run {
-                    sharedVM.setPost(id, fid)
+                getItem(position).toPost(sharedVM.getForumIdByName(target.forum)).run {
+                    val navAction =
+                        MainNavDirections.actionGlobalCommentsFragment(id, fid)
+                    findNavController().navigate(navAction)
                 }
-                (requireActivity() as MainActivity).showComment()
             }
         }
 

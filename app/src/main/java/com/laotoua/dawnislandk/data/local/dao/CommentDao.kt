@@ -29,10 +29,10 @@ interface CommentDao {
     @Query("SELECT * FROM Comment WHERE parentId=:parentId")
     suspend fun findAllByParentId(parentId: String): List<Comment>
 
-    @Query("SELECT * FROM Comment WHERE parentId=:parentId AND page<=:page")
+    @Query("SELECT * FROM Comment WHERE parentId=:parentId AND page<=:page ORDER BY id ASC")
     suspend fun findByParentIdUntilPage(parentId: String, page: Int): List<Comment>
 
-    @Query("SELECT * FROM Comment WHERE parentId=:parentId AND page=:page")
+    @Query("SELECT * FROM Comment WHERE parentId=:parentId AND page=:page ORDER BY id ASC")
     fun findPageByParentId(parentId: String, page: Int): LiveData<List<Comment>>
 
     fun findDistinctPageByParentId(parentId: String, page: Int):
@@ -56,10 +56,7 @@ interface CommentDao {
     }
 
     @Query("SELECT * FROM Comment WHERE id=:id LIMIT 1")
-    fun findCommentById(id: String): LiveData<Comment>
-
-    fun findDistinctCommentById(id: String): LiveData<Comment> =
-        findCommentById(id).distinctUntilChanged()
+    suspend fun findCommentByIdSync(id: String): Comment?
 
     @Delete
     suspend fun delete(comment: Comment)

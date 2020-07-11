@@ -25,6 +25,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.datetime.datePicker
@@ -32,10 +33,10 @@ import com.chad.library.adapter.base.binder.QuickItemBinder
 import com.chad.library.adapter.base.util.getItemView
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.google.android.material.card.MaterialCardView
+import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.databinding.FragmentHistoryBrowsingBinding
-import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.*
 import com.laotoua.dawnislandk.screens.posts.PostCardFactory
@@ -74,7 +75,7 @@ class BrowsingHistoryFragment : BaseNavFragment() {
 
         val mAdapter = QuickMultiBinder(sharedVM).apply {
             addItemBinder(DateStringBinder())
-            addItemBinder(PostBinder(sharedVM, this@BrowsingHistoryFragment).apply {
+            addItemBinder(PostBinder(sharedVM).apply {
                 addChildClickViewIds(R.id.attachedImage)
             })
         }
@@ -95,7 +96,7 @@ class BrowsingHistoryFragment : BaseNavFragment() {
             val data: MutableList<Any> = ArrayList()
             list.map {
                 val dateString = ReadableTime.getDateString(
-                            it.browsingHistory.browsedDate,
+                    it.browsingHistory.browsedDate,
                     ReadableTime.DATE_ONLY_FORMAT
                 )
                 if (lastDate == null || dateString != lastDate) {
@@ -165,11 +166,7 @@ class BrowsingHistoryFragment : BaseNavFragment() {
         override fun getLayoutId(): Int = R.layout.list_item_simple_text
     }
 
-    private class PostBinder(
-        private val sharedViewModel: SharedViewModel,
-        private val callerFragment: BrowsingHistoryFragment
-    ) :
-        QuickItemBinder<Post>() {
+    inner class PostBinder(private val sharedViewModel: SharedViewModel) : QuickItemBinder<Post>() {
         override fun convert(holder: BaseViewHolder, data: Post) {
             holder.convertUserId(data.userid, data.admin)
             holder.convertTitleAndName(data.getSimplifiedTitle(), data.getSimplifiedName())
@@ -179,7 +176,7 @@ class BrowsingHistoryFragment : BaseNavFragment() {
                 data.replyCount,
                 sharedViewModel.getForumDisplayName(data.fid)
             )
-            holder.convertSage(data.sage)
+            holder.convertSage(data.sage, data.skipSageConversion())
             holder.convertImage(data.getImgUrl())
             holder.convertContent(context, data.content)
         }
@@ -193,14 +190,14 @@ class BrowsingHistoryFragment : BaseNavFragment() {
         }
 
         override fun onClick(holder: BaseViewHolder, view: View, data: Post, position: Int) {
-            sharedViewModel.setPost(data.id, data.fid)
-            (context as MainActivity).showComment()
+            val navAction = MainNavDirections.actionGlobalCommentsFragment(data.id, data.fid)
+            findNavController().navigate(navAction)
         }
 
         override fun onChildClick(holder: BaseViewHolder, view: View, data: Post, position: Int) {
             if (view.id == R.id.attachedImage) {
                 val url = data.getImgUrl()
-                val viewerPopup = ImageViewerPopup(imgUrl = url, fragment = callerFragment)
+                val viewerPopup = ImageViewerPopup(url, context)
                 viewerPopup.setSingleSrcView(view as ImageView?, url)
                 XPopup.Builder(context)
                     .asCustom(viewerPopup)

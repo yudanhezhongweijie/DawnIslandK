@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ /* Copyright 2020 Fishballzzz
   ~  *
   ~  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,12 +18,12 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nav_graph"
+    android:id="@+id/main_nav"
     app:startDestination="@id/postsFragment">
     <fragment
-        android:id="@+id/settingsFragment"
+        android:id="@+id/profileFragment"
         android:name="com.laotoua.dawnislandk.screens.profile.ProfileFragment"
-        android:label="SettingsFragment">
+        android:label="ProfileFragment">
         <action
             android:id="@+id/action_settingsFragment_to_sizeCustomizationFragment"
             app:destination="@id/sizeCustomizationFragment"
@@ -56,4 +55,26 @@
         android:name="com.laotoua.dawnislandk.screens.search.SearchFragment"
         android:label="fragment_search"
         tools:layout="@layout/fragment_search" />
+    <fragment
+        android:id="@+id/commentsFragment"
+        android:name="com.laotoua.dawnislandk.screens.comments.CommentsFragment"
+        android:label="CommentsFragment">
+        <argument
+            android:name="id"
+            app:argType="string" />
+        <argument
+            android:name="fid"
+            app:argType="string" />
+        <argument
+            android:name="targetPage"
+            app:argType="integer"
+            android:defaultValue="0" />
+    </fragment>
+    <action
+        android:id="@+id/action_global_commentsFragment"
+        app:destination="@id/commentsFragment"
+        app:enterAnim="@anim/slide_in_right"
+        app:exitAnim="@anim/slide_out_left"
+        app:popEnterAnim="@anim/slide_in_left"
+        app:popExitAnim="@anim/slide_out_right" />
 </navigation>

@@ -17,25 +17,24 @@
 
 package com.laotoua.dawnislandk.data.repository
 
+import android.util.ArrayMap
 import android.util.SparseArray
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.liveData
+import androidx.lifecycle.*
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.dao.*
 import com.laotoua.dawnislandk.data.local.entity.*
-import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.util.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
+import javax.inject.Singleton
+import kotlin.collections.set
 
+@Singleton
 class CommentRepository @Inject constructor(
     private val webService: NMBServiceClient,
     private val commentDao: CommentDao,
@@ -44,102 +43,85 @@ class CommentRepository @Inject constructor(
     private val browsingHistoryDao: BrowsingHistoryDao,
     private val feedDao: FeedDao
 ) {
-    private var _currentPostId: String = "0"
-    val currentPostId get() = _currentPostId
-    private var _currentPostFid: String = "-1"
-    val currentPostFid get() = _currentPostFid
-    private val currentPostIdInt get() = currentPostId.toInt()
 
-    /** remember all pages for last 15 thread, using threadId and page as index
-     * using fifoList to pop the first thread
+    /** remember all pages for last 15 posts, using threadId and page as index
+     *  pop posts by fifo
      */
     private val cacheCap = 15
-    private val postMap = SparseArray<Post>(cacheCap)
-    private val commentsMap = SparseArray<SparseArray<LiveData<List<Comment>>>>(cacheCap)
-    private val readingPageMap = SparseArray<ReadingPage>(cacheCap)
-    private val browsingHistoryMap = SparseArray<BrowsingHistory>(cacheCap)
-    private val fifoPostList = mutableListOf<Int>()
-    private val adMap = SparseArray<SparseArray<Comment>>()
+    private val postMap = ArrayMap<String, Post>(cacheCap)
+    private val commentsMap =
+        ArrayMap<String, SparseArray<LiveData<DataResource<List<Comment>>>>>(cacheCap)
+    private val readingPageMap = ArrayMap<String, ReadingPage>(cacheCap)
+    private val browsingHistoryMap = ArrayMap<String, BrowsingHistory>(cacheCap)
+    private val fifoPostList = mutableListOf<String>()
 
-    val po get() = postMap[currentPostIdInt]?.userid ?: ""
-    val maxPage get() = postMap[currentPostIdInt]?.getMaxPage() ?: 1
-    val loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
     val addFeedResponse = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
     private val todayDateLong = ReadableTime.getTodayDateLong()
 
-    private var pageDownloadJob: Job? = null
-    val emptyPage = MutableLiveData<Boolean>()
+    fun getPo(id: String) = postMap[id]?.userid ?: ""
+    fun getMaxPage(id: String) = postMap[id]?.getMaxPage() ?: 1
+    fun getFid(id: String) = postMap[id]?.fid ?: ""
 
-    fun getAd(page: Int): Comment? = adMap[currentPostIdInt]?.get(page)
-
-    private fun getTimeElapsedToday():Long = Date().time - todayDateLong
+    private fun getTimeElapsedToday(): Long = Date().time - todayDateLong
 
     suspend fun setPost(id: String, fid: String) {
-        if (id == currentPostId) return
-        setLoadingStatus(LoadingStatus.LOADING)
         clearCachedPages()
         Timber.d("Setting new Thread: $id")
-        _currentPostId = id
-        _currentPostFid = fid
-        if (postMap[currentPostIdInt] == null) {
-            postDao.findPostByIdSync(id)?.let {
-                postMap.put(currentPostIdInt, it)
-                _currentPostFid = it.fid
-            }
-            readingPageDao.getReadingPageById(id).let {
-                readingPageMap.put(currentPostIdInt, it ?: ReadingPage(currentPostId, 1))
-            }
-            browsingHistoryDao.getBrowsingHistoryByTodayAndIdSync(todayDateLong, currentPostId)
-                .let {
-                    it?.browsedTime = getTimeElapsedToday()
-                    browsingHistoryMap.put(
-                        currentPostIdInt,
-                        it ?: BrowsingHistory(
-                            todayDateLong,
-                            getTimeElapsedToday(),
-                            currentPostId,
-                            currentPostFid,
-                            mutableSetOf()
-                        )
-                    )
-                }
-        }
-        // catch for jumps without fid or without server updates
-        if (currentPostFid.isBlank()) {
-            postMap[currentPostIdInt]?.fid?.let {
-                _currentPostFid = it
-            }
+        if (postMap[id] == null) {
+            postMap[id] = postDao.findPostByIdSync(id)
+            readingPageMap[id] = getReadingPageOnId(id)
+            browsingHistoryMap[id] = getBrowsingHistoryOnId(id, fid)
+            commentsMap[id] = SparseArray()
+            fifoPostList.add(id)
         }
     }
 
-    // set default page
-    fun getLandingPage(): Int {
+    private suspend fun getReadingPageOnId(id: String): ReadingPage {
+        return readingPageDao.getReadingPageById(id) ?: ReadingPage(id, 1)
+    }
+
+    private suspend fun getBrowsingHistoryOnId(id: String, fid: String): BrowsingHistory {
+        return browsingHistoryDao.getBrowsingHistoryByTodayAndIdSync(todayDateLong, id)
+            ?: BrowsingHistory(
+                todayDateLong,
+                getTimeElapsedToday(),
+                id,
+                fid,
+                mutableSetOf()
+            )
+    }
+
+    // get default page
+    fun getLandingPage(id: String): Int {
         return if (DawnApp.applicationDataStore.readingProgressStatus) {
-            readingPageMap[currentPostIdInt]?.page ?: 1
+            readingPageMap[id]?.page ?: 1
         } else 1
     }
 
-    fun getHeaderPost(): Comment = postMap[currentPostIdInt]!!.toComment()
+    /**
+     * By default, a post is only stored in the post table, but not stored in the comment table.
+     * However when requesting references, all references are stored as comment in comment table.
+     * Therefore, the first page can have or not have the header post
+     */
+    fun getHeaderPost(id: String): Comment? = postMap[id]?.toComment()
 
-    suspend fun saveReadingProgress(progress: Int) {
-        readingPageMap[currentPostIdInt].page = progress
-        readingPageDao.insertReadingPageWithTimeStamp(readingPageMap[currentPostIdInt])
+    suspend fun saveReadingProgress(id: String, progress: Int) {
+        val readingProgress = readingPageMap[id] ?: ReadingPage(id, progress, Date().time)
+        readingProgress.page = progress
+        readingPageDao.insertReadingPageWithTimeStamp(readingProgress)
     }
 
     private fun clearCachedPages() {
-        emptyPage.value = false
-        for (i in 0 until (commentsMap.size() - cacheCap)) {
+        for (i in 0 until (commentsMap.size - cacheCap)) {
             fifoPostList.first().run {
                 Timber.d("Reached cache Cap. Clearing ${this}...")
-                commentsMap.delete(this)
-                postMap.delete(this)
-                readingPageMap.delete(this)
-                browsingHistoryMap.delete(this)
+                postMap.remove(this)
+                readingPageMap.remove(this)
+                browsingHistoryMap.remove(this)
+                commentsMap.remove(this)
             }
             fifoPostList.removeAt(0)
         }
-        pageDownloadJob?.cancel()
-        pageDownloadJob = null
     }
 
     /**
@@ -147,110 +129,133 @@ class CommentRepository @Inject constructor(
      *  w/o cookie, always have 20 reply w. ad
      *  *** here DB only store nonAd data
      */
-    fun checkFullPage(page: Int): Boolean =
-        (commentsMap[currentPostIdInt]?.get(page)?.value?.size == 19)
+    fun checkFullPage(id: String, page: Int): Boolean =
+        (commentsMap[id]?.get(page)?.value?.data?.size ?: 0) >= 19
 
-    fun setLoadingStatus(status: LoadingStatus, message: String? = null) =
-        loadingStatus.postValue(SingleLiveEvent.create(status, message))
-
-    // also saved page browsing history
-    fun getLivePage(page: Int): LiveData<List<Comment>> {
-        if (commentsMap[currentPostIdInt] == null) {
-            commentsMap.append(currentPostIdInt, SparseArray())
-            fifoPostList.add(currentPostIdInt)
-        }
-        commentsMap[currentPostIdInt]!!.let {
-            if (it[page] == null) {
-                it.append(page, liveData(Dispatchers.IO) {
-                    Timber.d("Querying data for Thread $currentPostId on $page")
-                    setLoadingStatus(LoadingStatus.LOADING)
-                    emitSource(getLocalData(page))
-                    pageDownloadJob = getServerData(page)
-                })
+    fun getCommentsOnPage(
+        id: String,
+        page: Int,
+        remoteDataOnly: Boolean
+    ): LiveData<DataResource<List<Comment>>> {
+        commentsMap[id]!!.let {
+            if (it[page] == null || remoteDataOnly) {
+                it.put(page, getLivePage(id, page, remoteDataOnly))
             }
             return it[page]
         }
     }
 
-    private fun getLocalData(page: Int): LiveData<List<Comment>> =
-        commentDao.findDistinctPageByParentId(currentPostId, page)
-
-    suspend fun getServerData(page: Int): Job = coroutineScope {
-        launch {
-            Timber.d("Querying remote data for Thread $currentPostId on $page")
-            webService.getComments(currentPostId, page).run {
-                if (this is APIDataResponse.APISuccessDataResponse) convertServerData(data, page)
-                else {
-                    if (pageDownloadJob?.isCancelled != true) {
-                        Timber.e(message)
-                        commentsMap[currentPostIdInt]?.run {
-                            if (get(page) != null) {
-                                delete(page)
-                            }
-                        }
-                        if (commentsMap[currentPostIdInt]?.size() == 0) {
-                            commentsMap.delete(currentPostIdInt)
-                        }
-                        setLoadingStatus(LoadingStatus.FAILED, "无法读取串回复...\n$message")
-                    }
+    private fun getLivePage(
+        id: String,
+        page: Int,
+        remoteDataOnly: Boolean
+    ): LiveData<DataResource<List<Comment>>> {
+        val result = MediatorLiveData<DataResource<List<Comment>>>()
+        result.value = DataResource.create()
+        if (!remoteDataOnly) {
+            val cache = getLocalData(id, page)
+            result.addSource(cache) {
+                if (it.status != LoadingStatus.NO_DATA) {
+                    result.value = combineCacheAndRemoteData(result.value, it, false)
                 }
+            }
+        }
+        val remote = getServerData(id, page)
+        result.addSource(remote) {
+            result.value = combineCacheAndRemoteData(result.value, it, true)
+        }
+        return result
+    }
+
+    private fun combineCacheAndRemoteData(
+        old: DataResource<List<Comment>>?,
+        new: DataResource<List<Comment>>?,
+        isRemoteData: Boolean
+    ): DataResource<List<Comment>>? {
+        return if (new?.status == LoadingStatus.ERROR && old?.status != new.status && !isRemoteData) {
+            old
+        } else {
+            new
+        }
+    }
+
+    private fun getLocalData(id: String, page: Int): LiveData<DataResource<List<Comment>>> {
+        Timber.d("Querying local data for Thread $id on $page")
+        return Transformations.map(commentDao.findDistinctPageByParentId(id, page)) {
+            Timber.d("Got ${it.size} rows from database")
+            val status: LoadingStatus =
+                if (it.isNullOrEmpty()) LoadingStatus.NO_DATA else LoadingStatus.SUCCESS
+            DataResource.create(status, it)
+        }
+    }
+
+    private fun getServerData(id: String, page: Int): LiveData<DataResource<List<Comment>>> {
+        return liveData {
+            Timber.d("Querying remote data for Thread $id on $page")
+            val response = DataResource.create(webService.getComments(id, page))
+            if (response.status == LoadingStatus.SUCCESS) {
+                emit(convertServerData(id, response.data!!, page))
+            } else {
+                emit(DataResource.create(response.status, emptyList(), response.message!!))
             }
         }
     }
 
-    private suspend fun convertServerData(data: Post, page: Int) {
+    private suspend fun convertServerData(
+        id: String,
+        data: Post,
+        page: Int
+    ): DataResource<List<Comment>> {
         // update current thread with latest info
-        _currentPostFid = data.fid
+        if (data.fid.isBlank() && postMap[id]?.fid?.isNotBlank() == true) {
+            data.fid = postMap[id]?.fid!!
+        }
         // update postFid for browse history(search jump does not have fid)
-        browsingHistoryMap[currentPostIdInt].run {
-            if (postFid != currentPostFid) {
-                postFid = currentPostFid
+        browsingHistoryMap[id]?.run {
+            if (postFid != data.fid) {
+                postFid = data.fid
             }
             browsedTime = getTimeElapsedToday()
             pages.add(page)
             browsingHistoryDao.insertBrowsingHistory(this)
         }
 
-        if (data != postMap[currentPostIdInt]) {
-            savePost(data)
+        if (data != postMap[id]) {
+            postMap[id] = data.stripCopy()
+            savePost(id, data)
         }
-        val noAd = mutableListOf<Comment>()
+
         data.comments.map {
             it.page = page
-            it.parentId = currentPostId
-            // handle Ad
-            if (it.isAd()) {
-                if (adMap[currentPostIdInt] == null) {
-                    adMap.append(currentPostIdInt, SparseArray())
-                }
-                adMap[currentPostIdInt]!!.append(page, it)
-            } else noAd.add(it)
+            it.parentId = id
         }
         /**
          *  On the first or last page, show NO DATA to indicate footer load end;
          *  When entering to a thread with cached data, refresh header is showing,
          *  set LoadingStatus to Success to hide the header
          */
-        if (noAd.isEmpty()) {
-            emptyPage.postValue(true)
-            setLoadingStatus(LoadingStatus.NODATA)
-            return
-        }
 
-        if (commentsMap[currentPostIdInt]!![page]?.value.equalsWithServerComments(noAd)) {
-            if (page == maxPage) setLoadingStatus(LoadingStatus.NODATA)
-            return
-        }
-        Timber.d("Updating ${noAd.size} rows for $currentPostId on $page")
-        saveComments(noAd)
+        saveComments(id, page, data.comments)
+        return DataResource.create(LoadingStatus.SUCCESS, data.comments)
     }
 
     // DO NOT SAVE ADS
-    private suspend fun saveComments(comments: List<Comment>) =
-        commentDao.insertAllWithTimeStamp(comments)
+    private suspend fun saveComments(id: String, page: Int, serverComments: List<Comment>) =
+        coroutineScope {
+            launch {
+                val cacheNoAd =
+                    commentsMap[id]!![page]?.value?.data?.filter { it.isNotAd() } ?: emptyList()
+                val serverNoAd = serverComments.filter { it.isNotAd() }
+                Timber.d("Got ${serverComments.size} comments and ${serverComments.size - serverNoAd.size} ad from server")
+                if (!cacheNoAd.equalsWithServerComments(serverNoAd)) {
+                    Timber.d("Updating ${serverNoAd.size} rows for $id on $page")
+                    commentDao.insertAllWithTimeStamp(serverNoAd)
+                }
+            }
+        }
 
-    private suspend fun savePost(post: Post) {
-        postMap.put(currentPostIdInt, post.stripCopy())
+    private suspend fun savePost(id: String, post: Post) {
+        postMap[id] = post.stripCopy()
         postDao.insertWithTimeStamp(post)
     }
 
@@ -289,7 +294,7 @@ class CommentRepository @Inject constructor(
                 Timber.e("Response type: ${this.javaClass.simpleName}\n $message")
                 addFeedResponse.postValue(
                     SingleLiveEvent.create(
-                        LoadingStatus.FAILED,
+                        LoadingStatus.ERROR,
                         "订阅失败...是不是已经订阅了呢?"
                     )
                 )

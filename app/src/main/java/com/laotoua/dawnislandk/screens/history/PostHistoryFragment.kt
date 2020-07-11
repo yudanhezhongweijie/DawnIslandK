@@ -25,6 +25,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.datetime.datePicker
@@ -33,10 +34,10 @@ import com.chad.library.adapter.base.util.getItemView
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.DawnApp
+import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.PostHistory
 import com.laotoua.dawnislandk.databinding.FragmentHistoryPostBinding
-import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.*
 import com.laotoua.dawnislandk.screens.posts.PostCardFactory
@@ -74,7 +75,7 @@ class PostHistoryFragment : BaseNavFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val mAdapter = QuickMultiBinder(sharedVM).apply {
-            addItemBinder(PostHistoryBinder(sharedVM, this@PostHistoryFragment).apply {
+            addItemBinder(PostHistoryBinder(sharedVM).apply {
                 addChildClickViewIds(R.id.attachedImage)
             })
             addItemBinder(DateStringBinder())
@@ -177,10 +178,7 @@ class PostHistoryFragment : BaseNavFragment() {
         binding.endDate.text = ReadableTime.getDateString(date.time)
     }
 
-    private class PostHistoryBinder(
-        private val sharedViewModel: SharedViewModel,
-        private val callerFragment: PostHistoryFragment
-    ) :
+    inner class PostHistoryBinder(private val sharedViewModel: SharedViewModel) :
         QuickItemBinder<PostHistory>() {
         override fun convert(holder: BaseViewHolder, data: PostHistory) {
             val cookieDisplayName =
@@ -214,7 +212,7 @@ class PostHistoryFragment : BaseNavFragment() {
         ) {
             if (view.id == R.id.attachedImage) {
                 val url = data.getImgUrl()
-                val viewerPopup = ImageViewerPopup(imgUrl = url, fragment = callerFragment)
+                val viewerPopup = ImageViewerPopup(url, context)
                 viewerPopup.setSingleSrcView(view as ImageView?, url)
                 XPopup.Builder(context)
                     .asCustom(viewerPopup)
@@ -224,11 +222,14 @@ class PostHistoryFragment : BaseNavFragment() {
 
         override fun onClick(holder: BaseViewHolder, view: View, data: PostHistory, position: Int) {
             if (data.newPost) {
-                sharedViewModel.setPost(data.id, data.postTargetFid)
-                (context as MainActivity).showComment()
+                val navAction =
+                    MainNavDirections.actionGlobalCommentsFragment(data.id, data.postTargetFid)
+                findNavController().navigate(navAction)
             } else {
-                sharedViewModel.setPost(data.postTargetId, data.postTargetFid, data.postTargetPage)
-                (context as MainActivity).showComment()
+                val navAction =
+                    MainNavDirections.actionGlobalCommentsFragment(data.postTargetId, data.postTargetFid)
+                navAction.targetPage = data.postTargetPage
+                findNavController().navigate(navAction)
             }
         }
     }

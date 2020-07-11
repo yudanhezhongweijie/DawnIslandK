@@ -27,6 +27,7 @@ import android.widget.Toast
 import androidx.core.text.toSpannable
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
@@ -36,6 +37,7 @@ import com.chad.library.adapter.base.util.getItemView
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.DawnApp
+import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.remote.SearchResult
 import com.laotoua.dawnislandk.databinding.FragmentSearchBinding
@@ -59,7 +61,7 @@ class SearchFragment : BaseNavFragment() {
     private val viewModel: SearchViewModel by viewModels { viewModelFactory }
     private var _binding: FragmentSearchBinding? = null
     private val binding: FragmentSearchBinding get() = _binding!!
-    private var pageCounter:TextView? = null
+    private var pageCounter: TextView? = null
 
     private var currentPage = 0
 
@@ -110,9 +112,10 @@ class SearchFragment : BaseNavFragment() {
                                 .filter { it.isDigit() }.toString()
                             if (threadId.isNotEmpty()) {
                                 // Does not have fid here. fid will be generated when data comes back in reply
-                                sharedVM.setPost(threadId, "")
                                 dismiss()
-                                (requireActivity() as MainActivity).showComment()
+                                val navAction =
+                                    MainNavDirections.actionGlobalCommentsFragment(threadId, "")
+                                findNavController().navigate(navAction)
                             } else {
                                 Toast.makeText(
                                     context,
@@ -142,7 +145,7 @@ class SearchFragment : BaseNavFragment() {
 
         val mAdapter = QuickMultiBinder(sharedVM).apply {
             addItemBinder(SimpleTextBinder())
-            addItemBinder(HitBinder(sharedVM, this@SearchFragment).apply {
+            addItemBinder(HitBinder(sharedVM).apply {
                 addChildClickViewIds(R.id.attachedImage)
             })
 
@@ -223,10 +226,7 @@ class SearchFragment : BaseNavFragment() {
         override fun getLayoutId(): Int = R.layout.list_item_simple_text
     }
 
-    private class HitBinder(
-        private val sharedViewModel: SharedViewModel,
-        private val callerFragment: SearchFragment
-    ) :
+    inner class HitBinder(private val sharedViewModel: SharedViewModel) :
         QuickItemBinder<SearchResult.Hit>() {
         override fun convert(holder: BaseViewHolder, data: SearchResult.Hit) {
             holder.convertUserId(data.userid, "0")
@@ -250,8 +250,8 @@ class SearchFragment : BaseNavFragment() {
             data: SearchResult.Hit,
             position: Int
         ) {
-            sharedViewModel.setPost(data.getPostId(), "")
-            (context as MainActivity).showComment()
+            val navAction = MainNavDirections.actionGlobalCommentsFragment(data.getPostId(), "")
+            findNavController().navigate(navAction)
         }
 
         override fun onChildClick(
@@ -262,7 +262,7 @@ class SearchFragment : BaseNavFragment() {
         ) {
             if (view.id == R.id.attachedImage) {
                 val url = data.getImgUrl()
-                val viewerPopup = ImageViewerPopup(imgUrl = url, fragment = callerFragment)
+                val viewerPopup = ImageViewerPopup(url, context)
                 viewerPopup.setSingleSrcView(view as ImageView?, url)
                 XPopup.Builder(context)
                     .asCustom(viewerPopup)

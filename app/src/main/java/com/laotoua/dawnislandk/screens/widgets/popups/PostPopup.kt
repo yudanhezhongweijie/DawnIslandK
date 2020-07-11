@@ -19,8 +19,6 @@ package com.laotoua.dawnislandk.screens.widgets.popups
 
 import android.Manifest.permission
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.LinearGradient
@@ -30,6 +28,7 @@ import android.view.View
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat.startActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -48,25 +47,21 @@ import com.laotoua.dawnislandk.data.local.entity.Cookie
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.util.DawnConstants
-import com.laotoua.dawnislandk.util.FragmentIntentUtil
 import com.laotoua.dawnislandk.util.ImageUtil
+import com.laotoua.dawnislandk.util.IntentUtil
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BottomPopupView
 import com.lxj.xpopup.interfaces.SimpleCallback
 import com.lxj.xpopup.util.KeyboardUtils
-import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
 
 
 @SuppressLint("ViewConstructor")
-class PostPopup(
-    private val caller: DaggerFragment, context: Context,
-    private val sharedVM: SharedViewModel
-) :
-    BottomPopupView(context) {
+class PostPopup(private val caller: FragmentActivity, private val sharedVM: SharedViewModel) :
+    BottomPopupView(caller) {
 
     private var newPost = false
     private var targetId: String? = null
@@ -142,6 +137,7 @@ class PostPopup(
         }
     }
 
+    // TODO: memory leak as after post tasks is destroyed upon activity destroy
     fun bindAfterPostTask(task: (() -> Unit)) {
         afterPostTask = task
     }
@@ -190,10 +186,7 @@ class PostPopup(
 
     override fun onShow() {
         super.onShow()
-        KeyboardUtils.registerSoftInputChangedListener(
-            (context as Activity).window,
-            this
-        ) { height ->
+        KeyboardUtils.registerSoftInputChangedListener(caller.window, this) { height ->
             if (height > 0 && keyboardHeight != height) {
                 keyboardHeight = height
                 listOf(emojiContainer!!, luweiStickerContainer!!).map {
@@ -344,7 +337,7 @@ class PostPopup(
             }
 
         findViewById<Button>(R.id.postDoodle).setOnClickListener {
-            if (!FragmentIntentUtil.checkAndRequestAllPermissions(
+            if (!IntentUtil.checkAndRequestAllPermissions(
                     caller, arrayOf(
                         permission.READ_EXTERNAL_STORAGE,
                         permission.WRITE_EXTERNAL_STORAGE
@@ -354,7 +347,7 @@ class PostPopup(
                 return@setOnClickListener
             }
             KeyboardUtils.hideSoftInput(postContent!!)
-            FragmentIntentUtil.drawNewDoodle(caller) { uri ->
+            IntentUtil.drawNewDoodle(caller) { uri ->
                 uri?.let {
                     Timber.d("Made a doodle. Setting preview thumbnail...")
                     ImageUtil.loadImageThumbnailToImageView(
@@ -364,7 +357,7 @@ class PostPopup(
                         150,
                         postImagePreview!!
                     )
-                    imageFile = ImageUtil.getImageFileFromUri(fragment = caller, uri = it)
+                    imageFile = ImageUtil.getImageFileFromUri(caller, it)
                     attachmentContainer!!.visibility = View.VISIBLE
                 }
             }
@@ -387,24 +380,23 @@ class PostPopup(
                         }
                     }
                 } else {
-                    Toast.makeText(caller.context, R.string.missing_cookie, Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(caller, R.string.missing_cookie, Toast.LENGTH_SHORT).show()
                 }
             }
         }
 
 
         findViewById<Button>(R.id.postImage).setOnClickListener {
-            if (!FragmentIntentUtil.checkAndRequestSinglePermission(
+            if (!IntentUtil.checkAndRequestSinglePermission(
                     caller, permission.READ_EXTERNAL_STORAGE, true
                 )
             ) {
                 return@setOnClickListener
             }
             KeyboardUtils.hideSoftInput(postContent!!)
-            FragmentIntentUtil.getImageFromGallery(caller, "image/*") { uri: Uri? ->
+            IntentUtil.getImageFromGallery(caller, "image/*") { uri: Uri? ->
                 if (uri != null) {
-                    imageFile = ImageUtil.getImageFileFromUri(fragment = caller, uri = uri)
+                    imageFile = ImageUtil.getImageFileFromUri(caller, uri)
                     try {
                         ImageUtil.loadImageThumbnailToImageView(
                             caller,
@@ -428,7 +420,7 @@ class PostPopup(
         }
 
         findViewById<Button>(R.id.postCamera).setOnClickListener {
-            if (!FragmentIntentUtil.checkAndRequestSinglePermission(
+            if (!IntentUtil.checkAndRequestSinglePermission(
                     caller,
                     permission.CAMERA,
                     true
@@ -437,7 +429,7 @@ class PostPopup(
                 return@setOnClickListener
             }
             KeyboardUtils.hideSoftInput(postContent!!)
-            FragmentIntentUtil.getImageFromCamera(caller) { uri: Uri ->
+            IntentUtil.getImageFromCamera(caller) { uri: Uri ->
                 Timber.d("Took a Picture. Setting preview thumbnail...")
                 ImageUtil.loadImageThumbnailToImageView(
                     caller,
@@ -446,14 +438,14 @@ class PostPopup(
                     150,
                     postImagePreview!!
                 )
-                imageFile = ImageUtil.getImageFileFromUri(fragment = caller, uri = uri)
+                imageFile = ImageUtil.getImageFileFromUri(caller, uri)
                 attachmentContainer!!.visibility = View.VISIBLE
             }
         }
 
         findViewById<Button>(R.id.forumRule).setOnClickListener {
             MaterialDialog(context).show {
-                val fid = if (newPost && targetId != null) targetId!! else sharedVM.selectedPostFid
+                val fid = if (newPost && targetId != null) targetId!! else targetFid
                 val biId = if (fid.toInt() > 0) fid.toInt() else 1
                 val resourceId: Int = context.resources.getIdentifier(
                     "bi_$biId", "drawable",
@@ -501,8 +493,8 @@ class PostPopup(
                 checkBoxPrompt(R.string.acknowledge_post_rules) {
                     val uri = DawnConstants.nmbHost + "/forum"
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uri))
-                    if (intent.resolveActivity(caller.requireActivity().packageManager) != null) {
-                        startActivity(caller.requireContext(), intent, null)
+                    if (intent.resolveActivity(caller.packageManager) != null) {
+                        startActivity(caller, intent, null)
                     }
                     getActionButton(WhichButton.POSITIVE).isEnabled = isCheckPromptChecked()
                 }
@@ -515,11 +507,11 @@ class PostPopup(
         }
 
         if (selectedCookie == null) {
-            Toast.makeText(caller.context, R.string.need_cookie_to_post, Toast.LENGTH_SHORT).show()
+            Toast.makeText(caller, R.string.need_cookie_to_post, Toast.LENGTH_SHORT).show()
             return
         }
         if (targetId == null && newPost) {
-            Toast.makeText(caller.context, R.string.please_select_target_forum, Toast.LENGTH_SHORT)
+            Toast.makeText(caller, R.string.please_select_target_forum, Toast.LENGTH_SHORT)
                 .show()
             return
         }
@@ -528,7 +520,7 @@ class PostPopup(
         title = findViewById<TextView>(R.id.formTitle).text.toString()
         content = postContent!!.text.toString()
         if (content.isBlank() && imageFile == null) {
-            Toast.makeText(caller.context, R.string.need_content_to_post, Toast.LENGTH_SHORT).show()
+            Toast.makeText(caller, R.string.need_content_to_post, Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -567,7 +559,7 @@ class PostPopup(
                         clearEntries()
                     }
                 }
-                Toast.makeText(caller.context, message, Toast.LENGTH_LONG).show()
+                Toast.makeText(caller, message, Toast.LENGTH_LONG).show()
             }
         }
     }

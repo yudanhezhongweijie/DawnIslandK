@@ -276,6 +276,20 @@ class ProfileFragment : DaggerFragment() {
 
             binding.sizeCustomization.apply {
                 key.setText(R.string.size_customization_settings)
+                preferenceSwitch.visibility = View.VISIBLE
+                preferenceSwitch.isChecked = applicationDataStore.layoutCustomizationStatus
+                updateSwitchSummary(
+                    R.string.layout_customization_on,
+                    R.string.layout_customization_off
+                )
+                preferenceSwitch.setOnClickListener {
+                    applicationDataStore.setLayoutCustomization(preferenceSwitch.isChecked)
+                    updateSwitchSummary(
+                        R.string.layout_customization_on,
+                        R.string.layout_customization_off
+                    )
+                    displayRestartToApplySettingsToast()
+                }
                 root.setOnClickListener {
                     val action =
                         ProfileFragmentDirections.actionSettingsFragmentToSizeCustomizationFragment()

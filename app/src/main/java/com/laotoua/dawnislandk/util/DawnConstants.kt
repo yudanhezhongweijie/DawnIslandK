@@ -37,6 +37,7 @@ object DawnConstants {
     const val ANIMATION_OPTION = "animation_option"
     const val ANIMATION_FIRST_ONLY = "animation_first_only"
     const val READING_PROGRESS = "reading_progress"
+    const val LAYOUT_CUSTOMIZATION = "layout_customization"
     const val TIME_FORMAT = "time_format"
     const val DEFAULT_TIME_FORMAT = "simplified"
     const val FEED_ID = "feedId"

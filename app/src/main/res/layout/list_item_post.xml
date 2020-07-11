@@ -34,7 +34,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cardContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:padding="10dp"
         app:layout_optimizationLevel="standard|dimensions">
 
@@ -127,7 +127,6 @@
             android:maxLines="8"
             android:text="@string/sample_post_content"
             android:textColor="@color/pure_dark"
-            android:textSize="16sp"
             app:layout_constraintEnd_toStartOf="@id/attachedImage"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/barrier2" />

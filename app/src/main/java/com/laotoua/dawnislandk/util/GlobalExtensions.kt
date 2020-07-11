@@ -71,9 +71,28 @@ fun <X, Y> getRemoteDataResource(
     if (response.status == LoadingStatus.SUCCESS) {
         emit(conversion.apply(response))
     } else {
-        emit(DataResource.create(response.status, null, response.message!!))
+        emit(DataResource.create(response.status, null, response.message))
     }
 }
+
+// data only in local cache, but remote acts as a message transmitter
+fun <T> getLocalLiveDataAndRemoteResponse(
+    cache: LiveData<DataResource<T>>,
+    remote: LiveData<DataResource<T>>
+): LiveData<DataResource<T>> {
+    val result = MediatorLiveData<DataResource<T>>()
+    result.value = DataResource.create()
+    result.addSource(cache) {
+        result.value = it
+    }
+    result.addSource(remote) {
+        if (it.status == LoadingStatus.NO_DATA || it.status == LoadingStatus.ERROR) {
+            result.value = it
+        }
+    }
+    return result
+}
+
 // combines local and remote data then emit
 // when requesting remote data only, simply pass null as cache
 fun <T> getCombinedLiveData(

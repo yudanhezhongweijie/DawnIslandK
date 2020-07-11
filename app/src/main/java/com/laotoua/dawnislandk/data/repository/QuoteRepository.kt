@@ -25,8 +25,8 @@ import com.laotoua.dawnislandk.data.local.entity.Comment
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.util.DataResource
 import com.laotoua.dawnislandk.util.LoadingStatus
-import com.laotoua.dawnislandk.util.getCombinedLiveData
 import com.laotoua.dawnislandk.util.getLocalDataResource
+import com.laotoua.dawnislandk.util.getLocalLiveDataAndRemoteResponse
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -50,7 +50,7 @@ class QuoteRepository @Inject constructor(
     private fun getLiveQuote(id: String): LiveData<DataResource<Comment>> {
         val cache = getLocalData(id)
         val remote = getServerData(id)
-        return getCombinedLiveData(cache, remote)
+        return getLocalLiveDataAndRemoteResponse(cache, remote)
     }
 
     private fun getLocalData(id: String): LiveData<DataResource<Comment>> {
@@ -61,14 +61,14 @@ class QuoteRepository @Inject constructor(
         return liveData<DataResource<Comment>> {
             val response = DataResource.create(webService.getQuote(id))
             if (response.status == LoadingStatus.SUCCESS) {
-                emit(convertServerData(id, response.data!!))
+                convertServerData(id, response.data!!)
             } else {
-                emit(DataResource.create(response.status, null, response.message!!))
+                emit(DataResource.create(response.status, null, response.message))
             }
         }
     }
 
-    private suspend fun convertServerData(id: String, data: Comment): DataResource<Comment> {
+    private suspend fun convertServerData(id: String, data: Comment) {
         val cache = quoteMap[id]?.value?.data
         if (!data.equalsWithServerData(cache)) {
             // if local already has cache, update some fields
@@ -83,9 +83,7 @@ class QuoteRepository @Inject constructor(
                 }
             }
         }
-        return DataResource.create(LoadingStatus.SUCCESS, data)
     }
-
 
     private fun addQuoteToCache(id: String, quote: LiveData<DataResource<Comment>>) {
         quoteMap[id] = quote

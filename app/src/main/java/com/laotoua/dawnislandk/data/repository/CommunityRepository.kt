@@ -24,8 +24,8 @@ import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.util.DataResource
 import com.laotoua.dawnislandk.util.LoadingStatus
-import com.laotoua.dawnislandk.util.getCombinedLiveData
 import com.laotoua.dawnislandk.util.getLocalListDataResource
+import com.laotoua.dawnislandk.util.getLocalLiveDataAndRemoteResponse
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -41,7 +41,7 @@ class CommunityRepository @Inject constructor(
     private fun getLiveCommunities(): LiveData<DataResource<List<Community>>> {
         val cache = getLocalData()
         val remote = getServerData()
-        return getCombinedLiveData(cache, remote)
+        return getLocalLiveDataAndRemoteResponse(cache, remote)
     }
 
     private fun getLocalData(): LiveData<DataResource<List<Community>>> {

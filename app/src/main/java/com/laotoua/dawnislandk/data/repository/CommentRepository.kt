@@ -156,18 +156,18 @@ class CommentRepository @Inject constructor(
     }
 
     private fun getLocalData(id: String, page: Int): LiveData<DataResource<List<Comment>>> {
-        Timber.d("Querying local data for Thread $id on $page")
+        Timber.d("Querying local data for Post $id on $page")
         return getLocalListDataResource(commentDao.findDistinctPageByParentId(id, page))
     }
 
     private fun getServerData(id: String, page: Int): LiveData<DataResource<List<Comment>>> {
         return liveData {
-            Timber.d("Querying remote data for Thread $id on $page")
+            Timber.d("Querying remote data for Post $id on $page")
             val response = DataResource.create(webService.getComments(id, page))
             if (response.status == LoadingStatus.SUCCESS) {
                 emit(convertServerData(id, response.data!!, page))
             } else {
-                emit(DataResource.create(response.status, emptyList(), response.message!!))
+                emit(DataResource.create(response.status, emptyList(), response.message))
             }
         }
     }

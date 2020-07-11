@@ -53,6 +53,9 @@ class CommunityRepository @Inject constructor(
         return liveData {
             Timber.d("Querying remote data communities")
             val response = DataResource.create(webService.getCommunities())
+            if (response.status == LoadingStatus.ERROR) {
+                response.message = "无法读取板块列表...\n${response.message}"
+            }
             emit(response)
             if (response.status == LoadingStatus.SUCCESS) {
                 updateCache(response.data!!, false)

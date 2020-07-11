@@ -45,16 +45,14 @@ import timber.log.Timber
 // uses caller fragment's context, should not live without fragment
 class QuotePopup(
     private val caller: CommentsFragment,
-    private val commentVM: CommentsViewModel,
-    quoteId: String,
+    private val liveQuote: LiveData<DataResource<Comment>>,
+    private val currentPostId:String,
     private val po: String
 ) : CenterPopupView(caller.requireContext()) {
 
     override fun getImplLayoutId(): Int = R.layout.popup_quote
 
     override fun getMaxWidth(): Int = (XPopupUtils.getWindowWidth(context) * .9f).toInt()
-
-    private val liveQuote: LiveData<DataResource<Comment>> = commentVM.getQuote(quoteId)
 
     private val liveQuoteObs = Observer<DataResource<Comment>> {
         when (it.status) {
@@ -164,7 +162,7 @@ class QuotePopup(
         }
 
         findViewById<Button>(R.id.jumpToQuotedPost).run {
-            visibility = if (quote.parentId != commentVM.currentPostId) View.VISIBLE else View.GONE
+            visibility = if (quote.parentId != currentPostId) View.VISIBLE else View.GONE
             setOnClickListener {
                 caller.jumpToNewPost(quote.parentId)
             }

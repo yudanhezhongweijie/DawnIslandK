@@ -22,24 +22,24 @@ import com.laotoua.dawnislandk.data.remote.APIDataResponse
 sealed class DataResource<T> {
     abstract val status: LoadingStatus
     abstract val data: T?
-    abstract val message: String?
+    abstract var message: String
 
     data class SuccessDataResource<T>(
         override val data: T
     ) : DataResource<T>() {
-        override val message: String? = null
+        override var message: String = "Success"
         override val status: LoadingStatus = LoadingStatus.SUCCESS
     }
 
     data class ErrorDataResource<T>(
-        override val message: String
+        override var message: String
     ) : DataResource<T>() {
         override val status: LoadingStatus = LoadingStatus.ERROR
         override val data: T? = null
     }
 
     data class NoDataResource<T>(
-        override val message: String
+        override var message: String
     ) : DataResource<T>() {
         override val status: LoadingStatus = LoadingStatus.NO_DATA
         override val data: T? = null
@@ -48,7 +48,7 @@ sealed class DataResource<T> {
     data class LoadingDataResource<T>(override val status: LoadingStatus = LoadingStatus.LOADING) :
         DataResource<T>() {
         override val data: T? = null
-        override val message: String = "Loading"
+        override var message: String = "Loading"
     }
 
     companion object {

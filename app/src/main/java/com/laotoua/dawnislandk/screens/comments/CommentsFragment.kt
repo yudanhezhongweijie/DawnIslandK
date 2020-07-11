@@ -534,7 +534,7 @@ class CommentsFragment : DaggerFragment() {
     }
 
     fun displayQuote(id:String){
-        val top = QuotePopup(this, viewModel, id, viewModel.po)
+        val top = QuotePopup(this, viewModel.getQuote(id), viewModel.currentPostId, viewModel.po)
         quotePopups.add(top)
         XPopup.Builder(context)
             .setPopupCallback(object : SimpleCallback() {

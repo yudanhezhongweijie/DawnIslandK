@@ -19,7 +19,9 @@ package com.laotoua.dawnislandk.data.repository
 
 import android.util.ArrayMap
 import android.util.SparseArray
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
+import androidx.lifecycle.liveData
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.dao.*
 import com.laotoua.dawnislandk.data.local.entity.*
@@ -55,7 +57,6 @@ class CommentRepository @Inject constructor(
     private val browsingHistoryMap = ArrayMap<String, BrowsingHistory>(cacheCap)
     private val fifoPostList = mutableListOf<String>()
 
-    val addFeedResponse = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
     private val todayDateLong = ReadableTime.getTodayDateLong()
 
     fun getPo(id: String) = postMap[id]?.userid ?: ""
@@ -98,11 +99,6 @@ class CommentRepository @Inject constructor(
         } else 1
     }
 
-    /**
-     * By default, a post is only stored in the post table, but not stored in the comment table.
-     * However when requesting references, all references are stored as comment in comment table.
-     * Therefore, the first page can have or not have the header post
-     */
     fun getHeaderPost(id: String): Comment? = postMap[id]?.toComment()
 
     suspend fun saveReadingProgress(id: String, progress: Int) {
@@ -125,9 +121,14 @@ class CommentRepository @Inject constructor(
     }
 
     /**
-     *  w. cookie, responses have 20 reply w. ad, or 19 reply w/o ad
+     *  A page does not include the header post in comments
+     *  w. cookie, a page of comments can have 20 reply w. ad, or 19 reply w/o ad
      *  w/o cookie, always have 20 reply w. ad
      *  *** here DB only store nonAd data
+     *  **********************************************
+     *  By default, a post is only stored in the post table, but not stored in the comment table.
+     *  However when requesting references, all references are stored as comment in comment table.
+     *  Therefore, the first page can have or not have the header post, if using local cache
      */
     fun checkFullPage(id: String, page: Int): Boolean =
         (commentsMap[id]?.get(page)?.value?.data?.size ?: 0) >= 19
@@ -150,33 +151,9 @@ class CommentRepository @Inject constructor(
         page: Int,
         remoteDataOnly: Boolean
     ): LiveData<DataResource<List<Comment>>> {
-        val result = MediatorLiveData<DataResource<List<Comment>>>()
-        result.value = DataResource.create()
-        if (!remoteDataOnly) {
-            val cache = getLocalData(id, page)
-            result.addSource(cache) {
-                if (it.status != LoadingStatus.NO_DATA) {
-                    result.value = combineCacheAndRemoteData(result.value, it, false)
-                }
-            }
-        }
+        val cache = if (remoteDataOnly) null else getLocalData(id, page)
         val remote = getServerData(id, page)
-        result.addSource(remote) {
-            result.value = combineCacheAndRemoteData(result.value, it, true)
-        }
-        return result
-    }
-
-    private fun combineCacheAndRemoteData(
-        old: DataResource<List<Comment>>?,
-        new: DataResource<List<Comment>>?,
-        isRemoteData: Boolean
-    ): DataResource<List<Comment>>? {
-        return if (new?.status == LoadingStatus.ERROR && old?.status != new.status && !isRemoteData) {
-            old
-        } else {
-            new
-        }
+        return getCombinedLiveData(cache, remote)
     }
 
     private fun getLocalData(id: String, page: Int): LiveData<DataResource<List<Comment>>> {
@@ -259,45 +236,25 @@ class CommentRepository @Inject constructor(
         postDao.insertWithTimeStamp(post)
     }
 
-    suspend fun addFeed(uuid: String, id: String) {
+    suspend fun addFeed(uuid: String, id: String): SingleLiveEvent<String> {
         Timber.d("Adding Feed $id")
         val cachedFeed = feedDao.findFeedByPostId(id)
         if (cachedFeed != null) {
-            addFeedResponse.postValue(
-                SingleLiveEvent.create(
-                    LoadingStatus.SUCCESS,
-                    "已经订阅过了哦"
-                )
-            )
-            return
+            return SingleLiveEvent.create("已经订阅过了哦")
         }
 
-        webService.addFeed(uuid, id).run {
-            if (this is APIMessageResponse.APISuccessMessageResponse) {
-                if (messageType == APIMessageResponse.MessageType.String) {
-                    addFeedResponse.postValue(
-                        SingleLiveEvent.create(
-                            LoadingStatus.SUCCESS,
-                            message
-                        )
-                    )
-                    coroutineScope {
-                        launch {
-                            val newFeed = Feed(1, id, "", Date().time)
-                            feedDao.addFeedToTopAndIncrementFeedIds(newFeed)
-                        }
+        return webService.addFeed(uuid, id).run {
+            if (this is APIMessageResponse.APISuccessMessageResponse && messageType == APIMessageResponse.MessageType.String) {
+                coroutineScope {
+                    launch {
+                        val newFeed = Feed(1, id, "", Date().time)
+                        feedDao.addFeedToTopAndIncrementFeedIds(newFeed)
                     }
-                } else {
-                    Timber.e(message)
                 }
+                SingleLiveEvent.create(message)
             } else {
                 Timber.e("Response type: ${this.javaClass.simpleName}\n $message")
-                addFeedResponse.postValue(
-                    SingleLiveEvent.create(
-                        LoadingStatus.ERROR,
-                        "订阅失败...是不是已经订阅了呢?"
-                    )
-                )
+                SingleLiveEvent.create("订阅失败...是不是已经订阅了呢?")
             }
         }
     }

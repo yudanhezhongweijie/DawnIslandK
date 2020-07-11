@@ -17,6 +17,8 @@
 
 package com.laotoua.dawnislandk.util
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import com.laotoua.dawnislandk.data.local.entity.Comment
 
 fun <T> lazyOnMainOnly(initializer: () -> T): Lazy<T> = lazy(LazyThreadSafetyMode.NONE, initializer)
@@ -36,5 +38,38 @@ fun List<Comment>?.equalsWithServerComments(targetList: List<Comment>?): Boolean
         this.zip(targetList).all { (r1, r2) ->
             r1.equalsWithServerData(r2)
         }
+    }
+}
+
+// combines local and remote data then emit
+// when requesting remote data only, simply pass null as cache
+fun <T> getCombinedLiveData(
+    cache: LiveData<DataResource<T>>?,
+    remote: LiveData<DataResource<T>>
+): LiveData<DataResource<T>> {
+    val result = MediatorLiveData<DataResource<T>>()
+    result.value = DataResource.create()
+    if (cache != null) {
+        result.addSource(cache) {
+            if (it.status != LoadingStatus.NO_DATA) {
+                result.value = combineCacheAndRemoteData(result.value, it, false)
+            }
+        }
+    }
+    result.addSource(remote) {
+        result.value = combineCacheAndRemoteData(result.value, it, true)
+    }
+    return result
+}
+
+private fun <T> combineCacheAndRemoteData(
+    old: DataResource<T>?,
+    new: DataResource<T>?,
+    isRemoteData: Boolean
+): DataResource<T>? {
+    return if (new?.status == LoadingStatus.ERROR && old?.status != new.status && !isRemoteData) {
+        old
+    } else {
+        new
     }
 }

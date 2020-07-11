@@ -42,7 +42,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.google.android.material.animation.AnimationUtils
-import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Comment
@@ -336,7 +335,7 @@ class CommentsFragment : DaggerFragment() {
         }
 
         binding.addFeed.setOnClickListener {
-            viewModel.addFeed(applicationDataStore.feedId, viewModel.currentPostId)
+            viewModel.addFeed(viewModel.currentPostId)
         }
 
         viewModel.setPost(args.id, args.fid, args.targetPage)
@@ -345,9 +344,9 @@ class CommentsFragment : DaggerFragment() {
         updateCurrentPage()
     }
 
-    private val addFeedObs = Observer<SingleLiveEvent<EventPayload<Nothing>>> {
-        it.getContentIfNotHandled()?.let { eventPayload ->
-            Toast.makeText(context, eventPayload.message, Toast.LENGTH_SHORT).show()
+    private val addFeedObs = Observer<SingleLiveEvent<String>> {
+        it.getContentIfNotHandled()?.let { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -418,6 +417,7 @@ class CommentsFragment : DaggerFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        dismissAllQuotes()
         _mAdapter = null
         _binding = null
         Timber.d("Fragment View Destroyed")
@@ -547,11 +547,19 @@ class CommentsFragment : DaggerFragment() {
             .show()
     }
 
-    fun jumpToNewPost(id: String){
+    fun dismissQuote(quotePopup: QuotePopup){
+        quotePopups.remove(quotePopup)
+    }
+
+    private fun dismissAllQuotes(){
         for (i in quotePopups.indices.reversed()){
             quotePopups[i].smartDismiss()
             quotePopups.removeAt(i)
         }
+    }
+
+    fun jumpToNewPost(id: String){
+        dismissAllQuotes()
         val navAction = MainNavDirections.actionGlobalCommentsFragment(id, "")
         findNavController().navigate(navAction)
     }

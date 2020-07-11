@@ -53,6 +53,10 @@ class SingleLiveEvent<out T> private constructor(private val content: T) {
                 )
             )
         }
+
+        fun <T> create(data: T): SingleLiveEvent<T> {
+            return SingleLiveEvent(data)
+        }
     }
 }
 

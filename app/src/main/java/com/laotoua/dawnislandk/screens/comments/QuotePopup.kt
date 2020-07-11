@@ -32,20 +32,21 @@ import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformCooki
 import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformTime
 import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
 import com.laotoua.dawnislandk.screens.widgets.spans.ReferenceSpan
+import com.laotoua.dawnislandk.util.DataResource
 import com.laotoua.dawnislandk.util.DawnConstants
-import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.GlideApp
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.CenterPopupView
 import com.lxj.xpopup.util.XPopupUtils
+import timber.log.Timber
 
 @SuppressLint("ViewConstructor")
 // uses caller fragment's context, should not live without fragment
 class QuotePopup(
     private val caller: CommentsFragment,
     private val commentVM: CommentsViewModel,
-    private val quoteId: String,
+    quoteId: String,
     private val po: String
 ) : CenterPopupView(caller.requireContext()) {
 
@@ -53,42 +54,36 @@ class QuotePopup(
 
     override fun getMaxWidth(): Int = (XPopupUtils.getWindowWidth(context) * .9f).toInt()
 
-    private val liveQuote: LiveData<Comment> = commentVM.getQuote(quoteId)
+    private val liveQuote: LiveData<DataResource<Comment>> = commentVM.getQuote(quoteId)
 
-    private val liveQuoteObs = Observer<Comment> {
-        if (it != null) {
-            convertQuote(it, po)
-            findViewById<ProgressBar>(R.id.progressBar).visibility = View.GONE
-            findViewById<ConstraintLayout>(R.id.quote).visibility = View.VISIBLE
-        }
-    }
-
-    private val quoteDownloadStatusObs = Observer<EventPayload<String>> {
-        if (it.loadingStatus == LoadingStatus.ERROR && it.payload == quoteId) {
-            dismiss()
-            Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
+    private val liveQuoteObs = Observer<DataResource<Comment>> {
+        when (it.status) {
+            LoadingStatus.SUCCESS -> {
+                convertQuote(it.data!!, po)
+                findViewById<ProgressBar>(R.id.progressBar).visibility = View.GONE
+                findViewById<ConstraintLayout>(R.id.quote).visibility = View.VISIBLE
+            }
+            // (it.loadingStatus == LoadingStatus.ERROR && it.payload == quoteId) {
+            LoadingStatus.ERROR -> {
+                dismiss()
+                Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
+            }
+            else -> {
+                Timber.e("Unhandled quote query case: $it")
+            }
         }
     }
 
     fun listenToLiveQuote() {
         findViewById<ProgressBar>(R.id.progressBar).visibility = View.VISIBLE
         findViewById<ConstraintLayout>(R.id.quote).visibility = View.GONE
-        // observe quote live quote, loading Status
         liveQuote.observe(caller.viewLifecycleOwner, liveQuoteObs)
-        commentVM.quoteLoadingStatus.observe(caller.viewLifecycleOwner, quoteDownloadStatusObs)
     }
 
     private fun convertQuote(quote: Comment, po: String) {
-        // remove observers when data has come back
         liveQuote.removeObserver(liveQuoteObs)
-        commentVM.quoteLoadingStatus.removeObserver(quoteDownloadStatusObs)
 
-        findViewById<TextView>(R.id.userId).text =
-            transformCookie(
-                quote.userid,
-                quote.admin,
-                po
-            )
+        findViewById<TextView>(R.id.userId).text = transformCookie(quote.userid, quote.admin, po)
 
         findViewById<TextView>(R.id.timestamp).text = transformTime(quote.now)
 
@@ -137,11 +132,7 @@ class QuotePopup(
             }
             setOnClickListener { imageView ->
                 val url = quote.getImgUrl()
-                val viewerPopup =
-                    ImageViewerPopup(
-                        url,
-                        caller.requireContext()
-                    )
+                val viewerPopup = ImageViewerPopup(url, context)
                 viewerPopup.setSingleSrcView(imageView as ImageView?, url)
                 XPopup.Builder(context)
                     .asCustom(viewerPopup)
@@ -178,5 +169,11 @@ class QuotePopup(
                 caller.jumpToNewPost(quote.parentId)
             }
         }
+    }
+
+    override fun onDismiss() {
+        super.onDismiss()
+        liveQuote.removeObserver(liveQuoteObs)
+        caller.dismissQuote(this)
     }
 }

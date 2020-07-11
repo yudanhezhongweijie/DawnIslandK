@@ -17,6 +17,7 @@
 
 package com.laotoua.dawnislandk.data.remote
 
+import com.laotoua.dawnislandk.util.LoadingStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
@@ -28,24 +29,31 @@ import timber.log.Timber
 
 sealed class APIMessageResponse {
     abstract val message: String
+    abstract val status: LoadingStatus
 
     /**
      * separate class for HTTP 204 responses so that we can make ApiSuccessResponse's body non-null.
      */
     class APIEmptyMessageResponse(
         override val message: String = "EmptyResponse"
-    ) : APIMessageResponse()
+    ) : APIMessageResponse() {
+        override val status = LoadingStatus.NO_DATA
+    }
 
     data class APIErrorMessageResponse(
         override val message: String,
         val dom: Document? = null
-    ) : APIMessageResponse()
+    ) : APIMessageResponse() {
+        override val status = LoadingStatus.ERROR
+    }
 
     data class APISuccessMessageResponse(
         val messageType: MessageType,
         override val message: String,
         val dom: Document? = null
-    ) : APIMessageResponse()
+    ) : APIMessageResponse() {
+        override val status = LoadingStatus.SUCCESS
+    }
 
     enum class MessageType {
         HTML,
@@ -53,13 +61,10 @@ sealed class APIMessageResponse {
     }
 
     companion object {
-        suspend fun create(
-            call: Call<ResponseBody>
-        ): APIMessageResponse {
+        suspend fun create(call: Call<ResponseBody>): APIMessageResponse {
             try {
                 // html test
-                val regex =
-                    "[\\S\\s]*<html[\\S\\s]*>[\\S\\s]*</html[\\S\\s]*>[\\S\\s]*".toRegex()
+                val regex = "[\\S\\s]*<html[\\S\\s]*>[\\S\\s]*</html[\\S\\s]*>[\\S\\s]*".toRegex()
                 val response = withContext(Dispatchers.IO) { call.execute() }
 
                 if (response.isSuccessful) {
@@ -84,7 +89,6 @@ sealed class APIMessageResponse {
                             )
                         }
                     }
-
                 }
 
                 Timber.e("Response is unsuccessful...")

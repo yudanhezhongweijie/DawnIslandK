@@ -47,8 +47,7 @@ class SharedViewModel @Inject constructor(
     private val commentDao: CommentDao,
     private val postHistoryDao: PostHistoryDao,
     private val communityRepository: CommunityRepository
-) :
-    ViewModel() {
+) : ViewModel() {
     val communityList get() = communityRepository.communityList
     val reedPictureUrl = MutableLiveData<String>()
     val communityListLoadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>> =

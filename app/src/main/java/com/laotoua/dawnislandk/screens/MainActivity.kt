@@ -18,6 +18,8 @@
 package com.laotoua.dawnislandk.screens
 
 import android.animation.Animator
+import android.animation.TypeEvaluator
+import android.animation.ValueAnimator
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -60,6 +62,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.net.URLDecoder
 import javax.inject.Inject
+import kotlin.math.max
 
 
 class MainActivity : DaggerAppCompatActivity() {
@@ -357,10 +360,31 @@ class MainActivity : DaggerAppCompatActivity() {
     }
 
     fun setToolbarTitle(text: String) {
-        binding.toolbar.title = text
+        val animCharCount = max(binding.toolbar.title.length, text.length)
+        ValueAnimator.ofObject(StringEvaluator(animCharCount), binding.toolbar.title, text).apply {
+            duration = animCharCount.toLong() * 100
+            start()
+            addUpdateListener {
+                binding.toolbar.title = it.animatedValue as String
+                binding.toolbar.invalidate()
+            }
+        }.start()
     }
 
     fun setToolbarTitle(resId: Int) {
-        binding.toolbar.setTitle(resId)
+        val text = getText(resId).toString()
+        setToolbarTitle(text)
     }
+
+    private class StringEvaluator(private val animCharCount: Int) : TypeEvaluator<String> {
+        override fun evaluate(fraction: Float, startValue: String, endValue: String): String {
+            val ind = (fraction * animCharCount).toInt()
+            val left = endValue.substring(0, ind.coerceAtMost(endValue.length))
+            val right =
+                if (ind > startValue.length) " "
+                else startValue.substring(ind, startValue.length)
+            return left + right
+        }
+    }
+
 }

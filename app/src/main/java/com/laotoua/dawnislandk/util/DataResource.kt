@@ -51,6 +51,10 @@ sealed class DataResource<T> {
         override var message: String = ""
     }
 
+    fun copy(newStatus: LoadingStatus, newMessage: String?=null): DataResource<T> {
+        return create(newStatus, data, newMessage ?: message)
+    }
+
     companion object {
         fun <T> create(
             status: LoadingStatus = LoadingStatus.LOADING,

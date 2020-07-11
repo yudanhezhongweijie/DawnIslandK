@@ -103,19 +103,23 @@ class TrendRepository @Inject constructor(
 
     private suspend fun convertLatestTrend(targetPage: Int, data: Post): DataResource<DailyTrend>? {
         val newDailyTrend: DailyTrend? = extractLatestTrend(data)
-        if (newDailyTrend != null) {
-            if (newDailyTrend.date >= todayLong ) {
-                dailyTrendDao.insertWithTimeStamp(newDailyTrend)
+        return when {
+            newDailyTrend != null -> {
+                if (newDailyTrend.date >= todayLong) {
+                    dailyTrendDao.insertWithTimeStamp(newDailyTrend)
+                }
+                null
             }
-            return null
-        } else {
-            val newTargetPage = targetPage - 1
-            return if (newTargetPage > 1) getRemoteTrend(newTargetPage)
-            else DataResource.create(
-                LoadingStatus.ERROR,
-                null,
-                "CANNOT GET LATEST TREND FROM ALL PAGES"
-            )
+            targetPage - 1 > 1 -> {
+                getRemoteTrend(targetPage - 1)
+            }
+            else -> {
+                DataResource.create(
+                    LoadingStatus.ERROR,
+                    null,
+                    "CANNOT GET LATEST TREND FROM ALL PAGES"
+                )
+            }
         }
     }
 

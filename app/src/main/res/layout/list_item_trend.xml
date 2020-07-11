@@ -80,7 +80,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:text="@string/sample_post_content"
-            android:textAppearance="@style/PrimaryText"
+            android:textColor="@color/pure_dark"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/trendDivider"
             app:layout_constraintTop_toBottomOf="@+id/trendForum" />

@@ -49,9 +49,8 @@ import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbarInitialization
 import com.laotoua.dawnislandk.screens.widgets.DoubleClickListener
 import com.laotoua.dawnislandk.screens.widgets.popups.ForumDrawerPopup
-import com.laotoua.dawnislandk.util.EventPayload
+import com.laotoua.dawnislandk.util.DataResource
 import com.laotoua.dawnislandk.util.LoadingStatus
-import com.laotoua.dawnislandk.util.SingleLiveEvent
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.enums.PopupPosition
@@ -97,7 +96,7 @@ class MainActivity : DaggerAppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId){
+        when (item.itemId) {
             android.R.id.home -> {
                 findNavController(R.id.navHostFragment).popBackStack()
             }
@@ -135,25 +134,23 @@ class MainActivity : DaggerAppCompatActivity() {
 
         handleIntentFilterNavigation(intent)
 
-        sharedVM.communityList.observe(this, Observer<List<Community>> {
-            if (it.isNullOrEmpty()) return@Observer
-            forumDrawer.setData(it)
-            sharedVM.setForumMappings(it)
+        sharedVM.communityList.observe(this, Observer<DataResource<List<Community>>> {
+            if (it.status == LoadingStatus.ERROR) {
+                Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
+                return@Observer
+            }
+            val list = it.data
+            if (list.isNullOrEmpty()) return@Observer
+            forumDrawer.setData(list)
+            sharedVM.setForumMappings(list)
             // TODO: set default forum
-            if (sharedVM.selectedForumId.value == null) sharedVM.setForumId(it.first().forums.first().id)
-            Timber.i("Loaded ${it.size} communities to Adapter")
+            if (sharedVM.selectedForumId.value == null) sharedVM.setForumId(list.first().forums.first().id)
+            Timber.i("Loaded ${list.size} communities to Adapter")
         })
+
         sharedVM.reedPictureUrl.observe(this, Observer<String> {
             forumDrawer.setReedPicture(it)
         })
-        sharedVM.communityListLoadingStatus.observe(
-            this,
-            Observer<SingleLiveEvent<EventPayload<Nothing>>> {
-                if (it.getContentIfNotHandled()?.loadingStatus == LoadingStatus.ERROR) {
-                    Toast.makeText(this, it.peekContent().message, Toast.LENGTH_LONG)
-                        .show()
-                }
-            })
     }
 
     private fun handleIntentFilterNavigation(intent: Intent?) {
@@ -170,7 +167,7 @@ class MainActivity : DaggerAppCompatActivity() {
                     sharedVM.setForumId(id)
                 } else if (count == 2) {
                     if (path[1] == 't') {
-                        val navAction = MainNavDirections.actionGlobalCommentsFragment(id,"")
+                        val navAction = MainNavDirections.actionGlobalCommentsFragment(id, "")
                         findNavController(R.id.navHostFragment).navigate(navAction)
                     } else if (path[1] == 'f') {
                         val fid = sharedVM.getForumIdByName(URLDecoder.decode(id, "UTF-8"))
@@ -266,8 +263,15 @@ class MainActivity : DaggerAppCompatActivity() {
             binding.bottomNavBar.setupWithNavController(navController)
             // up button
             val appBarConfiguration = AppBarConfiguration(
-                setOf(R.id.postsFragment, R.id.subscriptionPagerFragment, R.id.searchFragment, R.id.historyPagerFragment, R.id.profileFragment),
-                null)
+                setOf(
+                    R.id.postsFragment,
+                    R.id.subscriptionPagerFragment,
+                    R.id.searchFragment,
+                    R.id.historyPagerFragment,
+                    R.id.profileFragment
+                ),
+                null
+            )
             setupActionBarWithNavController(navController, appBarConfiguration)
         }
     }

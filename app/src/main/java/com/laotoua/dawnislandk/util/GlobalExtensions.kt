@@ -17,9 +17,13 @@
 
 package com.laotoua.dawnislandk.util
 
+import androidx.arch.core.util.Function
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.Transformations
+import androidx.lifecycle.liveData
 import com.laotoua.dawnislandk.data.local.entity.Comment
+import timber.log.Timber
 
 fun <T> lazyOnMainOnly(initializer: () -> T): Lazy<T> = lazy(LazyThreadSafetyMode.NONE, initializer)
 
@@ -41,6 +45,35 @@ fun List<Comment>?.equalsWithServerComments(targetList: List<Comment>?): Boolean
     }
 }
 
+
+fun <T> getLocalDataResource(cache: LiveData<T>): LiveData<DataResource<T>> {
+    return Transformations.map(cache) {
+        Timber.d("Got ${if (it == null) "NO" else ""} data from database")
+        val status: LoadingStatus =
+            if (it == null) LoadingStatus.NO_DATA else LoadingStatus.SUCCESS
+        DataResource.create(status, it)
+    }
+}
+
+fun <T> getLocalListDataResource(cache: LiveData<List<T>>): LiveData<DataResource<List<T>>> {
+    return Transformations.map(cache) {
+        Timber.d("Got ${it.size} rows from database")
+        val status: LoadingStatus =
+            if (it.isNullOrEmpty()) LoadingStatus.NO_DATA else LoadingStatus.SUCCESS
+        DataResource.create(status, it)
+    }
+}
+
+fun <X, Y> getRemoteDataResource(
+    response: DataResource<X>,
+    conversion: Function<DataResource<X>, DataResource<Y>>
+) = liveData<DataResource<Y>> {
+    if (response.status == LoadingStatus.SUCCESS) {
+        emit(conversion.apply(response))
+    } else {
+        emit(DataResource.create(response.status, null, response.message!!))
+    }
+}
 // combines local and remote data then emit
 // when requesting remote data only, simply pass null as cache
 fun <T> getCombinedLiveData(

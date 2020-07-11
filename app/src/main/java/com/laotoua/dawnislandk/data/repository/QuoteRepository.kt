@@ -19,7 +19,6 @@ package com.laotoua.dawnislandk.data.repository
 
 import android.util.ArrayMap
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.liveData
 import com.laotoua.dawnislandk.data.local.dao.CommentDao
 import com.laotoua.dawnislandk.data.local.entity.Comment
@@ -27,6 +26,7 @@ import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.util.DataResource
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.getCombinedLiveData
+import com.laotoua.dawnislandk.util.getLocalDataResource
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -54,11 +54,7 @@ class QuoteRepository @Inject constructor(
     }
 
     private fun getLocalData(id: String): LiveData<DataResource<Comment>> {
-        return Transformations.map(commentDao.findCommentById(id)) {
-            val status: LoadingStatus =
-                if (it == null) LoadingStatus.NO_DATA else LoadingStatus.SUCCESS
-            DataResource.create(status, it)
-        }
+        return getLocalDataResource(commentDao.findCommentById(id))
     }
 
     private fun getServerData(id: String): LiveData<DataResource<Comment>> {

@@ -20,7 +20,6 @@ package com.laotoua.dawnislandk.data.repository
 import android.util.ArrayMap
 import android.util.SparseArray
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.liveData
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.dao.*
@@ -158,12 +157,7 @@ class CommentRepository @Inject constructor(
 
     private fun getLocalData(id: String, page: Int): LiveData<DataResource<List<Comment>>> {
         Timber.d("Querying local data for Thread $id on $page")
-        return Transformations.map(commentDao.findDistinctPageByParentId(id, page)) {
-            Timber.d("Got ${it.size} rows from database")
-            val status: LoadingStatus =
-                if (it.isNullOrEmpty()) LoadingStatus.NO_DATA else LoadingStatus.SUCCESS
-            DataResource.create(status, it)
-        }
+        return getLocalListDataResource(commentDao.findDistinctPageByParentId(id, page))
     }
 
     private fun getServerData(id: String, page: Int): LiveData<DataResource<List<Comment>>> {

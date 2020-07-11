@@ -18,16 +18,14 @@
 package com.laotoua.dawnislandk.data.repository
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import com.laotoua.dawnislandk.data.local.dao.CommunityDao
 import com.laotoua.dawnislandk.data.local.entity.Community
-import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
-import com.laotoua.dawnislandk.util.EventPayload
+import com.laotoua.dawnislandk.util.DataResource
 import com.laotoua.dawnislandk.util.LoadingStatus
-import com.laotoua.dawnislandk.util.SingleLiveEvent
-import kotlinx.coroutines.Dispatchers
+import com.laotoua.dawnislandk.util.getCombinedLiveData
+import com.laotoua.dawnislandk.util.getLocalListDataResource
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -37,43 +35,44 @@ class CommunityRepository @Inject constructor(
     private val webService: NMBServiceClient,
     private val dao: CommunityDao
 ) {
-    val communityList: LiveData<List<Community>> = liveData(Dispatchers.IO) {
-        Timber.d("Loading communities")
-        val local = dao.getAll()
-        emitSource(local)
-        matchRemoteData(local)
+    //    private var _communityList = MutableLiveData<DataResource<List<Community>>>()
+    val communityList = getLiveCommunities()
+
+    private fun getLiveCommunities(): LiveData<DataResource<List<Community>>> {
+        val cache = getLocalData()
+        val remote = getServerData()
+        return getCombinedLiveData(cache, remote)
     }
 
-    private val _loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
-    val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>> get() = _loadingStatus
+    private fun getLocalData(): LiveData<DataResource<List<Community>>> {
+        Timber.d("Querying local communities")
+        return getLocalListDataResource(dao.getAll())
+    }
 
-    private suspend fun getRemoteData(): List<Community> {
-        _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.LOADING))
-        webService.getCommunities().run {
-            if (this is APIDataResponse.APIErrorDataResponse) _loadingStatus.postValue(
-                SingleLiveEvent.create(
-                    LoadingStatus.ERROR,
-                    "无法读取板块列表...\n${message}"
-                )
-            )
-            return data ?: emptyList()
+    private fun getServerData(): LiveData<DataResource<List<Community>>> {
+        return liveData {
+            Timber.d("Querying remote data communities")
+            val response = DataResource.create(webService.getCommunities())
+            emit(response)
+            if (response.status == LoadingStatus.SUCCESS) {
+                updateCache(response.data!!, false)
+            }
         }
     }
 
-    private suspend fun matchRemoteData(
-        local: LiveData<List<Community>>,
-        remoteDataOnly: Boolean = false
-    ) {
-        val remote = getRemoteData()
-        if (remote.isNotEmpty() && (remote != local.value || remoteDataOnly)) {
+    private suspend fun updateCache(remote: List<Community>, remoteDataOnly: Boolean) {
+        if (remote.isNotEmpty() && (remoteDataOnly || remote != communityList.value?.data)) {
             Timber.d("Remote data differs from local data or forced refresh. Updating...")
             dao.insertAll(remote)
         }
-        _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))
     }
 
     suspend fun refresh() {
-        matchRemoteData(communityList, true)
+        webService.getCommunities().run {
+            if (status == LoadingStatus.SUCCESS) {
+                updateCache(data!!, true)
+            }
+        }
     }
 
 }

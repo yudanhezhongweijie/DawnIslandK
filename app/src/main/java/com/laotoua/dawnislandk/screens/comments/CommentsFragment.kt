@@ -482,7 +482,7 @@ class CommentsFragment : DaggerFragment() {
     }
 
     private fun updateCurrentPage() {
-        val lastVisiblePos = (binding.srlAndRv.recyclerView.layoutManager as LinearLayoutManager? )?.findLastVisibleItemPosition() ?: 0
+        val lastVisiblePos = (_binding?.srlAndRv?.recyclerView?.layoutManager as LinearLayoutManager? )?.findLastVisibleItemPosition() ?: 0
         if (0 <= lastVisiblePos && lastVisiblePos < mAdapter.data.size) {
             val page = mAdapter.getItem(lastVisiblePos).page
             if (page != currentPage) {

@@ -83,28 +83,30 @@ data class Post(
 
     // convert threadList to Reply
     fun toComment() = Comment(
-        id = id,
-        userid = userid,
-        name = name,
-        sage = sage,
-        admin = admin,
-        status = status,
-        title = title,
-        email = email,
-        now = now,
-        content = content,
-        img = img,
-        ext = ext,
-        page = 1
+        id,
+        userid,
+        name,
+        sage,
+        admin,
+        status,
+        title,
+        email,
+        now,
+        content,
+        img,
+        ext,
+        1,
+        id
     )
 
     // special handler for sticky top banner
-    fun skipSageConversion():Boolean = id == "14500641"
+    fun skipSageConversion(): Boolean = id == "14500641"
 
     fun getImgUrl() = (img + ext)
     fun getSimplifiedTitle(): String = if (title.isNotBlank() && title != "无标题") "标题：$title" else ""
     fun getSimplifiedName(): String = if (name.isNotBlank() && name != "无名氏") "名称：$name" else ""
-    fun getMaxPage() = if (replyCount.isBlank()) 1 else 1.coerceAtLeast(ceil(replyCount.toDouble() / 19).toInt())
+    fun getMaxPage() =
+        if (replyCount.isBlank()) 1 else 1.coerceAtLeast(ceil(replyCount.toDouble() / 19).toInt())
 
     // only compares by server fields
     override fun equals(other: Any?) =

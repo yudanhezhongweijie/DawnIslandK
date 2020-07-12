@@ -35,7 +35,6 @@ class CommunityRepository @Inject constructor(
     private val webService: NMBServiceClient,
     private val dao: CommunityDao
 ) {
-    //    private var _communityList = MutableLiveData<DataResource<List<Community>>>()
     val communityList = getLiveCommunities()
 
     private fun getLiveCommunities(): LiveData<DataResource<List<Community>>> {

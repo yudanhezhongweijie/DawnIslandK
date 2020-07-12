@@ -117,13 +117,6 @@ class FeedRepository @Inject constructor(
         return LoadingStatus.SUCCESS
     }
 
-    private suspend fun compareAndUpdateCacheFeeds(list: List<Feed>, page: Int) {
-        val cacheFeed = feedsMap[page]?.value?.data?.map { it.feed } ?: emptyList()
-        if (cacheFeed != list) {
-            feedDao.insertAllFeed(list)
-        }
-    }
-
     suspend fun deleteFeed(feed: Feed): String {
         Timber.d("Deleting Feed ${feed.postId}")
         return webService.delFeed(DawnApp.applicationDataStore.feedId, feed.postId).run {

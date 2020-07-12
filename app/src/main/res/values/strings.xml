@@ -152,6 +152,10 @@
     <string name="cookie_hash" translatable="false">饼干序列</string>
     <string name="cookie_slots" translatable="false">饼干槽:</string>
     <string name="saves_reading_progress" translatable="false">是否保存阅读进度</string>
+    <string name="view_caching" translatable="false">缓存页面(测试)</string>
+    <string name="view_caching_warning" translatable="false">缓存页面是一个不稳定的功能，可能会引发内存不足等未知错误。\n\n进入、退出串会卡顿的用户可以尝试使用此功能。\n\n此功能将会使用更多内存来缓存上一次打开的页面，以此加快运行速度。</string>
+    <string name="view_caching_on" translatable="false">使用更多内存，缓存部分上一次打开的页面</string>
+    <string name="view_caching_off" translatable="false">不缓存部分上一次打开的页面以减少内存消耗</string>
     <string name="reading_progress_on" translatable="false">打开串会跳转到上次看到的页面</string>
     <string name="reading_progress_off" translatable="false">打开串会在首页</string>
     <string name="layout_customization_on" translatable="false">开启自定义卡片布局</string>
@@ -186,7 +190,7 @@
     <string name="history" translatable="false">浏览 · 发言</string>
     <string name="my_profile" translatable="false">个人</string>
     <string name="privacy_agreement" translatable="false">软件隐私协议</string>
-    <string name="entry_message" translatable="false">本软件作者是安卓初学者，功能尚未完全实现，有建议或者发现bug请通过个人菜单-客户端反馈告诉作者。\n\n一些使用技巧：\n\n本客户端将交互大部分放在了屏幕下半部分以方便单手操作，推荐使用全面手势。\n\n板块页面再按一次板块按钮或者左滑可以呼出板块列表。\n\n大多数页面双击工具栏能返回顶部、支持上拉刷新</string>
+    <string name="entry_message" translatable="false">本软件作者是安卓初学者，功能尚未完全实现，有建议或者发现bug请通过个人菜单-客户端反馈告诉作者。\n\n一些使用技巧：\n\n本客户端将交互大部分放在了屏幕下半部分以方便单手操作，推荐使用全面手势。\n\n板块页面再按一次板块按钮或者左滑可以呼出板块列表。\n\n大多数页面双击工具栏能返回顶部、支持上拉刷新。\n\n进入、退出串掉帧的用户可以尝试使用缓存页面的功能（测试）</string>
     <string name="need_cookie_to_search" translatable="false">有饼干才能搜索嗷</string>
     <string name="show_original_post">显示原串</string>
 </resources>

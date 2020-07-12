@@ -67,6 +67,28 @@ class ApplicationDataStore @Inject constructor(
     val segGap by lazyOnMainOnly { mmkv.getInt(DawnConstants.SEG_GAP, 0) }
     val textSize by lazyOnMainOnly { mmkv.getFloat(DawnConstants.MAIN_TEXT_SIZE, 15f) }
 
+    val layoutCustomizationStatus by lazyOnMainOnly {
+        mmkv.getBoolean(
+            DawnConstants.LAYOUT_CUSTOMIZATION,
+            true
+        )
+    }
+
+    fun setLayoutCustomization(status: Boolean){
+        mmkv.putBoolean(DawnConstants.LAYOUT_CUSTOMIZATION, status)
+    }
+
+    val displayTimeFormat by lazyOnMainOnly {
+        mmkv.getString(
+            DawnConstants.TIME_FORMAT,
+            DawnConstants.DEFAULT_TIME_FORMAT
+        )!!
+    }
+
+    fun setDisplayTimeFormat(format: String) {
+        mmkv.putString(DawnConstants.TIME_FORMAT, format)
+    }
+
     // adapter settings
     val animationOption by lazyOnMainOnly { mmkv.getInt(DawnConstants.ANIMATION_OPTION, 0) }
     fun setAnimationOption(option: Int) {
@@ -84,17 +106,6 @@ class ApplicationDataStore @Inject constructor(
         mmkv.putBoolean(DawnConstants.ANIMATION_FIRST_ONLY, status)
     }
 
-    val layoutCustomizationStatus by lazyOnMainOnly {
-        mmkv.getBoolean(
-            DawnConstants.LAYOUT_CUSTOMIZATION,
-            true
-        )
-    }
-
-    fun setLayoutCustomization(status: Boolean){
-        mmkv.putBoolean(DawnConstants.LAYOUT_CUSTOMIZATION, status)
-    }
-
     // Reading settings
     val readingProgressStatus by lazyOnMainOnly {
         mmkv.getBoolean(
@@ -107,15 +118,16 @@ class ApplicationDataStore @Inject constructor(
         mmkv.putBoolean(DawnConstants.READING_PROGRESS, status)
     }
 
-    val displayTimeFormat by lazyOnMainOnly {
-        mmkv.getString(
-            DawnConstants.TIME_FORMAT,
-            DawnConstants.DEFAULT_TIME_FORMAT
-        )!!
+    // view caching
+    val viewCaching by lazyOnMainOnly {
+        mmkv.getBoolean(
+            DawnConstants.VIEW_CACHING,
+            false
+        )
     }
 
-    fun setDisplayTimeFormat(format: String) {
-        mmkv.putString(DawnConstants.TIME_FORMAT, format)
+    fun setViewCaching(status: Boolean) {
+        mmkv.putBoolean(DawnConstants.VIEW_CACHING, status)
     }
 
 

@@ -77,7 +77,7 @@
 
     <com.laotoua.dawnislandk.screens.widgets.LinkifyTextView
         android:id="@+id/content"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
         android:clickable="false"

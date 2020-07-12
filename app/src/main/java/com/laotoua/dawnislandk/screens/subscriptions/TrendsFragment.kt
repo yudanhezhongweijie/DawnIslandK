@@ -25,6 +25,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.DailyTrend
@@ -75,53 +76,65 @@ class TrendsFragment : BaseNavFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentSubscriptionTrendBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        _mAdapter = QuickAdapter<Trend>(R.layout.list_item_trend, sharedVM).apply {
-            loadMoreModule.isEnableLoadMore = false
-            setOnItemClickListener { _, _, position ->
-                val target = getItem(position)
-                getItem(position).toPost(sharedVM.getForumIdByName(target.forum)).run {
-                    val navAction =
-                        MainNavDirections.actionGlobalCommentsFragment(id, fid)
-                    findNavController().navigate(navAction)
+        if (_mAdapter == null){
+            _mAdapter = QuickAdapter<Trend>(R.layout.list_item_trend, sharedVM).apply {
+                loadMoreModule.isEnableLoadMore = false
+                setOnItemClickListener { _, _, position ->
+                    val target = getItem(position)
+                    getItem(position).toPost(sharedVM.getForumIdByName(target.forum)).run {
+                        val navAction =
+                            MainNavDirections.actionGlobalCommentsFragment(id, fid)
+                        findNavController().navigate(navAction)
+                    }
                 }
             }
         }
+        if (_binding != null) {
+            Timber.d("Fragment View Reusing!")
+        } else {
+            Timber.d("Fragment View Created")
+            _binding = FragmentSubscriptionTrendBinding.inflate(inflater, container, false)
 
-        binding.srlAndRv.refreshLayout.apply {
-            setOnRefreshListener(object : RefreshingListenerAdapter() {
-                override fun onRefreshing() {
-                    refreshTrends()
-                }
-            })
+            binding.srlAndRv.refreshLayout.apply {
+                setOnRefreshListener(object : RefreshingListenerAdapter() {
+                    override fun onRefreshing() {
+                        refreshTrends()
+                    }
+                })
+            }
+
+            binding.srlAndRv.recyclerView.apply {
+                setHasFixedSize(true)
+                layoutManager = LinearLayoutManager(context)
+                adapter = mAdapter
+            }
+
         }
+        return binding.root
+    }
 
-        binding.srlAndRv.recyclerView.apply {
-            setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(context)
-            adapter = mAdapter
-        }
-
+    override fun onResume() {
+        super.onResume()
         viewModel.latestTrends.observe(viewLifecycleOwner, trendsObs)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.latestTrends.removeObserver(trendsObs)
     }
 
     private fun refreshTrends(){
         viewModel.latestTrends.removeObserver(trendsObs)
         viewModel.getLatestTrend()
         viewModel.latestTrends.observe(viewLifecycleOwner, trendsObs)
-
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
-        _mAdapter = null
-        Timber.d("Fragment View Destroyed")
+        if (!DawnApp.applicationDataStore.viewCaching) {
+            _mAdapter = null
+            _binding = null
+        }
+        Timber.d("Fragment View Destroyed ${_binding == null}")
     }
 }

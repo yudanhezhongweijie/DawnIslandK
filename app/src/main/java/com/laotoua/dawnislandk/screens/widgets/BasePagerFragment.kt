@@ -120,7 +120,7 @@ abstract class BasePagerFragment : DaggerFragment() {
         super.onDestroyView()
         binding.viewPager2.unregisterOnPageChangeCallback(titleUpdateCallback)
         _binding = null
-        Timber.d("Fragment View Destroyed")
+        Timber.d("Pager View Destroyed")
     }
 
     fun updateTitle(resId: Int) {

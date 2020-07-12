@@ -21,6 +21,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.di.DaggerViewModelFactory
 import com.laotoua.dawnislandk.screens.MainActivity
@@ -46,9 +47,11 @@ open class BaseNavFragment:DaggerFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        view.findViewById<RecyclerView>(R.id.recyclerView)?.run {
-            mRecyclerView = this
-            addOnScrollListener(navBarScrollListener)
+        if (mRecyclerView == null) {
+            view.findViewById<RecyclerView>(R.id.recyclerView)?.run {
+                mRecyclerView = this
+                addOnScrollListener(navBarScrollListener)
+            }
         }
     }
 
@@ -63,7 +66,9 @@ open class BaseNavFragment:DaggerFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        mRecyclerView?.removeOnScrollListener(navBarScrollListener)
-        mRecyclerView = null
+        if (!DawnApp.applicationDataStore.viewCaching) {
+            mRecyclerView?.removeOnScrollListener(navBarScrollListener)
+            mRecyclerView = null
+        }
     }
 }

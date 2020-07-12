@@ -38,16 +38,18 @@ import com.chad.library.adapter.base.binder.QuickItemBinder
 import com.chad.library.adapter.base.util.getItemView
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.google.android.material.card.MaterialCardView
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.FeedAndPost
 import com.laotoua.dawnislandk.databinding.FragmentSubscriptionFeedBinding
-import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.*
 import com.laotoua.dawnislandk.screens.posts.PostCardFactory
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
 import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
+import com.laotoua.dawnislandk.util.EventPayload
+import com.laotoua.dawnislandk.util.SingleLiveEvent
 import com.lxj.xpopup.XPopup
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import me.dkzwm.widget.srl.config.Constants
@@ -63,6 +65,9 @@ class FeedsFragment : BaseNavFragment() {
 
     private var _binding: FragmentSubscriptionFeedBinding? = null
     private val binding: FragmentSubscriptionFeedBinding get() = _binding!!
+
+    private var _mAdapter: QuickMultiBinder? = null
+    private val mAdapter: QuickMultiBinder get() = _mAdapter!!
 
     private val viewModel: FeedsViewModel by viewModels { viewModelFactory }
 
@@ -118,14 +123,90 @@ class FeedsFragment : BaseNavFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentSubscriptionFeedBinding.inflate(inflater, container, false)
+        if (_mAdapter == null) {
+            _mAdapter = QuickMultiBinder(sharedVM).apply {
+                addItemBinder(SimpleTextBinder())
+                addItemBinder(FeedAndPostBinder().apply {
+                    addChildClickViewIds(R.id.attachedImage)
+                }, FeedAndPostDiffer())
+
+                loadMoreModule.setOnLoadMoreListener {
+                    viewModel.getNextPage()
+                }
+            }
+        }
+        if (_binding != null) {
+            Timber.d("Fragment View Reusing!")
+        } else {
+            Timber.d("Fragment View Created")
+            _binding = FragmentSubscriptionFeedBinding.inflate(inflater, container, false)
+            binding.srlAndRv.recyclerView.apply {
+                setHasFixedSize(true)
+                layoutManager = LinearLayoutManager(context)
+                adapter = mAdapter
+            }
+
+            mAdapter.setDefaultEmptyView()
+            binding.srlAndRv.refreshLayout.apply {
+                setOnRefreshListener(object : RefreshingListenerAdapter() {
+                    override fun onRefreshing() {
+                        viewModel.refreshOrGetPreviousPage()
+                    }
+                })
+            }
+        }
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    private val delFeedResponseObs = Observer<SingleLiveEvent<String>> {
+        it.getContentIfNotHandled()?.let { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        }
+    }
 
-        // initial load
+    private val loadingObs = Observer<SingleLiveEvent<EventPayload<Nothing>>> {
+        if (_mAdapter == null || _binding == null) return@Observer
+        it.getContentIfNotHandled()?.run {
+            updateHeaderAndFooter(binding.srlAndRv.refreshLayout, mAdapter, this)
+            delayedLoading = false
+        }
+    }
+
+    private val feedsObs = Observer<List<FeedAndPost>> { list ->
+        if (_mAdapter == null) return@Observer
+        if (list.isEmpty()) {
+            if (viewModel.lastJumpPage > 0) {
+                Toast.makeText(
+                    context,
+                    requireContext().getString(
+                        R.string.no_feed_on_page,
+                        viewModel.lastJumpPage
+                    ),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            mAdapter.setDiffNewData(null)
+            return@Observer
+        }
+
+        val data: MutableList<Any> = ArrayList()
+        var lastPage: Int? = null
+        list.map {
+            if (it.feed.page != lastPage) {
+                data.add("页数: ${it.feed.page}")
+                lastPage = it.feed.page
+            }
+            if (it.post != null) {
+                data.add(it)
+            }
+        }
+        mAdapter.setDiffNewData(data)
+        Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} feeds")
+    }
+
+    override fun onResume() {
+        super.onResume()
+
         if (viewModel.feeds.value.isNullOrEmpty() && !delayedLoading) {
             binding.srlAndRv.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
             // give sometime to skip load if bypassing this fragment
@@ -133,87 +214,27 @@ class FeedsFragment : BaseNavFragment() {
             delayedLoading = mHandler!!.postDelayed(mDelayedLoad, 500)
         }
 
-        val mAdapter = QuickMultiBinder(sharedVM).apply {
-            addItemBinder(SimpleTextBinder())
-            addItemBinder(FeedAndPostBinder(sharedVM).apply {
-                addChildClickViewIds(R.id.attachedImage)
-            }, FeedAndPostDiffer())
-
-            loadMoreModule.setOnLoadMoreListener {
-                viewModel.getNextPage()
-            }
-        }
-
-        binding.srlAndRv.recyclerView.apply {
-            setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(context)
-            adapter = mAdapter
-        }
-
-        binding.srlAndRv.refreshLayout.apply {
-            setOnRefreshListener(object : RefreshingListenerAdapter() {
-                override fun onRefreshing() {
-                    viewModel.refreshOrGetPreviousPage()
-                }
-            })
-        }
-
-        viewModel.delFeedResponse.observe(viewLifecycleOwner, Observer {
-            it.getContentIfNotHandled()?.let { message ->
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-            }
-        })
-
-        viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
-            it.getContentIfNotHandled()?.run {
-                updateHeaderAndFooter(binding.srlAndRv.refreshLayout, mAdapter, this)
-                delayedLoading = false
-            }
-        })
-
-        mAdapter.setDefaultEmptyView()
-        viewModel.feeds.observe(viewLifecycleOwner, Observer { list ->
-            if (list.isEmpty()) {
-                if (viewModel.lastJumpPage > 0) {
-                    Toast.makeText(
-                        context,
-                        requireContext().getString(
-                            R.string.no_feed_on_page,
-                            viewModel.lastJumpPage
-                        ),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                mAdapter.setDiffNewData(null)
-                return@Observer
-            }
-
-            val data: MutableList<Any> = ArrayList()
-            var lastPage: Int? = null
-            list.map {
-                if (it.feed.page != lastPage) {
-                    data.add("页数: ${it.feed.page}")
-                    lastPage = it.feed.page
-                }
-                if (it.post != null) {
-                    data.add(it)
-                }
-            }
-            mAdapter.setDiffNewData(data)
-            Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} feeds")
-        })
+        viewModel.delFeedResponse.observe(viewLifecycleOwner, delFeedResponseObs)
+        viewModel.loadingStatus.observe(viewLifecycleOwner, loadingObs)
+        viewModel.feeds.observe(viewLifecycleOwner, feedsObs)
     }
 
     override fun onPause() {
         super.onPause()
         mHandler?.removeCallbacks(mDelayedLoad)
+        viewModel.delFeedResponse.removeObserver(delFeedResponseObs)
+        viewModel.loadingStatus.removeObserver(loadingObs)
+        viewModel.feeds.removeObserver(feedsObs)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         mHandler = null
-        _binding = null
-        Timber.d("Fragment View Destroyed")
+        if (!DawnApp.applicationDataStore.viewCaching) {
+            _mAdapter = null
+            _binding = null
+        }
+        Timber.d("Fragment View Destroyed ${_binding == null}")
     }
 
     private class SimpleTextBinder : QuickItemBinder<String>() {
@@ -224,8 +245,7 @@ class FeedsFragment : BaseNavFragment() {
         override fun getLayoutId(): Int = R.layout.list_item_simple_text
     }
 
-    inner class FeedAndPostBinder(private val sharedViewModel: SharedViewModel) :
-        QuickItemBinder<FeedAndPost>() {
+    inner class FeedAndPostBinder : QuickItemBinder<FeedAndPost>() {
         override fun convert(holder: BaseViewHolder, data: FeedAndPost) {
             holder.convertUserId(data.post!!.userid, "0")
             holder.convertRefId(context, data.post.id)

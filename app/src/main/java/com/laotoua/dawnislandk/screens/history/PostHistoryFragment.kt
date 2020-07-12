@@ -57,6 +57,8 @@ class PostHistoryFragment : BaseNavFragment() {
 
     private var _binding: FragmentHistoryPostBinding? = null
     private val binding: FragmentHistoryPostBinding get() = _binding!!
+    private var _mAdapter: QuickMultiBinder? = null
+    private val mAdapter: QuickMultiBinder get() = _mAdapter!!
 
     private val viewModel: PostHistoryViewModel by viewModels { viewModelFactory }
 
@@ -67,103 +69,116 @@ class PostHistoryFragment : BaseNavFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentHistoryPostBinding.inflate(inflater, container, false)
+        if (_mAdapter == null) {
+            _mAdapter = QuickMultiBinder(sharedVM).apply {
+                addItemBinder(PostHistoryBinder(sharedVM).apply {
+                    addChildClickViewIds(R.id.attachedImage)
+                })
+                addItemBinder(DateStringBinder())
+                addItemBinder(SectionHeaderBinder().apply {
+                    addChildClickViewIds(R.id.button)
+                })
+            }
+        }
+        if (_binding != null) {
+            Timber.d("Fragment View Reusing!")
+        } else {
+            Timber.d("Fragment View Created")
+            _binding = FragmentHistoryPostBinding.inflate(inflater, container, false)
+
+            binding.recyclerView.apply {
+                setHasFixedSize(true)
+                layoutManager = LinearLayoutManager(context)
+                adapter = mAdapter
+            }
+
+            binding.startDate.text = ReadableTime.getDateString(startDate.time)
+            binding.endDate.text = ReadableTime.getDateString(endDate.time)
+            binding.startDate.setOnClickListener {
+                MaterialDialog(requireContext()).show {
+                    datePicker(currentDate = startDate) { _, date ->
+                        setStartDate(date)
+                    }
+                }
+            }
+
+            binding.endDate.setOnClickListener {
+                MaterialDialog(requireContext()).show {
+                    datePicker(currentDate = endDate) { _, date ->
+                        setEndDate(date)
+                    }
+                }
+            }
+
+            binding.confirmDate.setOnClickListener {
+                if (startDate.before(endDate)) {
+                    viewModel.searchByDate()
+                } else {
+                    Toast.makeText(context, R.string.data_range_selection_error, Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+        }
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        val mAdapter = QuickMultiBinder(sharedVM).apply {
-            addItemBinder(PostHistoryBinder(sharedVM).apply {
-                addChildClickViewIds(R.id.attachedImage)
-            })
-            addItemBinder(DateStringBinder())
-            addItemBinder(SectionHeaderBinder().apply {
-                addChildClickViewIds(R.id.button)
-            })
+    private val listObs = Observer<List<PostHistory>> { list ->
+        if (_mAdapter == null) return@Observer
+        if (list.isEmpty()) {
+            if (!mAdapter.hasEmptyView()) mAdapter.setDefaultEmptyView()
+            mAdapter.setDiffNewData(null)
+            return@Observer
         }
-
-        binding.recyclerView.apply {
-            setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(context)
-            adapter = mAdapter
-        }
-
-        binding.startDate.text = ReadableTime.getDateString(startDate.time)
-        binding.endDate.text = ReadableTime.getDateString(endDate.time)
-        binding.startDate.setOnClickListener {
-            MaterialDialog(requireContext()).show {
-                datePicker(currentDate = startDate) { _, date ->
-                    setStartDate(date)
-                }
-            }
-        }
-
-        binding.endDate.setOnClickListener {
-            MaterialDialog(requireContext()).show {
-                datePicker(currentDate = endDate) { _, date ->
-                    setEndDate(date)
-                }
-            }
-        }
-
-        binding.confirmDate.setOnClickListener {
-            if (startDate.before(endDate)) {
-                viewModel.searchByDate()
-            } else {
-                Toast.makeText(context, R.string.data_range_selection_error, Toast.LENGTH_SHORT)
-                    .show()
-            }
-        }
-
-        viewModel.postHistoryList.observe(viewLifecycleOwner, Observer { list ->
-            if (list.isEmpty()) {
-                if (!mAdapter.hasEmptyView()) mAdapter.setDefaultEmptyView()
-                mAdapter.setDiffNewData(null)
-                return@Observer
-            }
-            var lastDate: String? = null
-            val data: MutableList<Any> = ArrayList()
-            list.filter { it.newPost }.run {
-                data.add(SectionHeader("发布"))
-                map {
-                    val dateString = ReadableTime.getDateString(
-                        it.postDate,
-                        ReadableTime.DATE_ONLY_FORMAT
-                    )
-                    if (lastDate == null || dateString != lastDate) {
-                        data.add(dateString)
-                    }
-                    data.add(it)
-                    lastDate = dateString
-                }
-            }
-            list.filterNot { it.newPost }.run {
-                data.add(SectionHeader("回复"))
-                lastDate = null
-                map {
-                    val dateString = ReadableTime.getDateString(
-                        it.postDate,
-                        ReadableTime.DATE_ONLY_FORMAT
-                    )
-                    if (lastDate == null || dateString != lastDate) {
-                        data.add(dateString)
-                    }
-                    data.add(it)
-                    lastDate = dateString
-                }
-            }
-            mAdapter.setDiffNewData(data)
-            mAdapter.setFooterView(
-                layoutInflater.inflate(
-                    R.layout.view_no_more_data,
-                    binding.recyclerView,
-                    false
+        var lastDate: String? = null
+        val data: MutableList<Any> = ArrayList()
+        list.filter { it.newPost }.run {
+            data.add(SectionHeader("发布"))
+            map {
+                val dateString = ReadableTime.getDateString(
+                    it.postDate,
+                    ReadableTime.DATE_ONLY_FORMAT
                 )
+                if (lastDate == null || dateString != lastDate) {
+                    data.add(dateString)
+                }
+                data.add(it)
+                lastDate = dateString
+            }
+        }
+        list.filterNot { it.newPost }.run {
+            data.add(SectionHeader("回复"))
+            lastDate = null
+            map {
+                val dateString = ReadableTime.getDateString(
+                    it.postDate,
+                    ReadableTime.DATE_ONLY_FORMAT
+                )
+                if (lastDate == null || dateString != lastDate) {
+                    data.add(dateString)
+                }
+                data.add(it)
+                lastDate = dateString
+            }
+        }
+        mAdapter.setDiffNewData(data)
+        mAdapter.setFooterView(
+            layoutInflater.inflate(
+                R.layout.view_no_more_data,
+                binding.recyclerView,
+                false
             )
-            Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} items")
-        })
+        )
+        Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} items")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.postHistoryList.observe(viewLifecycleOwner, listObs)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.postHistoryList.removeObserver(listObs)
     }
 
     private fun setStartDate(date: Calendar) {
@@ -267,7 +282,11 @@ class PostHistoryFragment : BaseNavFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
+        if (!DawnApp.applicationDataStore.viewCaching) {
+            _mAdapter = null
+            _binding = null
+        }
+        Timber.d("Fragment View Destroyed ${_binding == null}")
     }
 
 }

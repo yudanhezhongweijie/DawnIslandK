@@ -108,7 +108,7 @@ class TrendRepository @Inject constructor(
                 if (newDailyTrend.date >= todayLong) {
                     dailyTrendDao.insertWithTimeStamp(newDailyTrend)
                 }
-                null
+                DataResource.create(LoadingStatus.SUCCESS, newDailyTrend)
             }
             targetPage - 1 > 1 -> {
                 getRemoteTrend(targetPage - 1)

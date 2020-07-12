@@ -117,6 +117,8 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
         return APIMessageResponse.create(service.delNMBFeed(uuid, tid))
     }
 
+    // Note: userhash should be already converted to header style beforehand
+    // i.e. "userhash=v%C6%CB...."
     suspend fun sendPost(
         newPost: Boolean,
         targetId: String, name: String?,

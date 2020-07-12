@@ -17,19 +17,17 @@
 
 package com.laotoua.dawnislandk.data.repository
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.liveData
 import com.laotoua.dawnislandk.data.local.dao.DailyTrendDao
 import com.laotoua.dawnislandk.data.local.entity.DailyTrend
 import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.data.local.entity.Trend
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
-import com.laotoua.dawnislandk.util.EventPayload
+import com.laotoua.dawnislandk.util.DataResource
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.ReadableTime
 import com.laotoua.dawnislandk.util.ReadableTime.DATE_ONLY_FORMAT
-import com.laotoua.dawnislandk.util.SingleLiveEvent
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.ceil
@@ -44,49 +42,41 @@ class TrendRepository @Inject constructor(
     private val trendDelimiter = "\n\u2014\u2014\u2014\u2014\u2014<br />\n<br />\n"
 
     private val trendLength = 32
-    private var page = 1
+    private val todayLong = ReadableTime.getTodayDateLong()
 
-    private var _loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
-    val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>>
-        get() = _loadingStatus
-
-    val dailyTrend = MutableLiveData<DailyTrend>()
-
-    suspend fun getLatestTrend() {
+    // Remote only acts as a request status responder, actual data will be emitted by local cache
+    fun getLatestTrend() = liveData<DataResource<DailyTrend>> {
         var getRemoteData = true
-        dailyTrendDao.findLatestDailyTrendSync()?.let {
-            dailyTrend.value = it
-            page = ceil(it.lastReplyCount.toDouble() / 19).toInt()
+        val cache = dailyTrendDao.findLatestDailyTrendSync()
+        var page = 1
+        if (cache != null) {
+            emit(DataResource.create(LoadingStatus.SUCCESS, cache))
+            page = ceil(cache.lastReplyCount.toDouble() / 19).toInt()
             // trends updates daily at 1AM
-            val diff = ReadableTime.getTimeAgo(System.currentTimeMillis(), it.date)
+            val diff = ReadableTime.getTimeAgo(System.currentTimeMillis(), cache.date)
             val dayTime = ReadableTime.HOUR_MILLIS * 25
             if (diff - dayTime < 0) {
                 getRemoteData = false
-                _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))
             }
         }
         if (getRemoteData) {
-            getRemoteTrend()
+            emit(DataResource.create())
+            getRemoteTrend(page)?.let { emit(it) }
         }
     }
 
-    private suspend fun getRemoteTrend() {
-        webService.getComments(trendId, page).run {
+    private suspend fun getRemoteTrend(page: Int): DataResource<DailyTrend>? {
+        return webService.getComments(trendId, page).run {
             if (this is APIDataResponse.APISuccessDataResponse) {
+                val targetPage = ceil(data.replyCount.toDouble() / 19).toInt()
                 if (page == 1) {
-                    page = ceil(data.replyCount.toDouble() / 19).toInt()
-                    getRemoteTrend()
+                    getRemoteTrend(targetPage)
                 } else {
-                    convertLatestTrend(data)
+                    convertLatestTrend(targetPage, data)
                 }
             } else {
                 Timber.e(message)
-                _loadingStatus.postValue(
-                    SingleLiveEvent.create(
-                        LoadingStatus.ERROR,
-                        "无法读取A岛热榜...\n$message"
-                    )
-                )
+                DataResource.create(LoadingStatus.ERROR, null, "无法读取A岛热榜...\n$message")
             }
         }
     }
@@ -111,19 +101,25 @@ class TrendRepository @Inject constructor(
         return null
     }
 
-    private suspend fun convertLatestTrend(data: Post) {
+    private suspend fun convertLatestTrend(targetPage: Int, data: Post): DataResource<DailyTrend>? {
         val newDailyTrend: DailyTrend? = extractLatestTrend(data)
-        if (newDailyTrend != null) {
-            if (newDailyTrend != dailyTrend.value) {
-                dailyTrend.postValue(newDailyTrend)
-                dailyTrendDao.insertWithTimeStamp(newDailyTrend)
+        return when {
+            newDailyTrend != null -> {
+                if (newDailyTrend.date >= todayLong) {
+                    dailyTrendDao.insertWithTimeStamp(newDailyTrend)
+                }
+                DataResource.create(LoadingStatus.SUCCESS, newDailyTrend)
             }
-            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))
-            return
-        } else {
-            page -= 1
-            if (page > 1) getLatestTrend()
-            else throw Exception("CANNOT GET LATEST TREND FROM ALL PAGES")
+            targetPage - 1 > 1 -> {
+                getRemoteTrend(targetPage - 1)
+            }
+            else -> {
+                DataResource.create(
+                    LoadingStatus.ERROR,
+                    null,
+                    "CANNOT GET LATEST TREND FROM ALL PAGES"
+                )
+            }
         }
     }
 

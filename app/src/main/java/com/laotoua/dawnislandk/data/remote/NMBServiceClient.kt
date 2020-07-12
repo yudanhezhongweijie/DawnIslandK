@@ -102,6 +102,8 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
         return APIDataResponse.create(service.getNMBFeeds(uuid, page), NMBJsonParser.FeedParser())
     }
 
+
+    // Returns BlankDataResponse(not Error) when comment is deleted
     suspend fun getQuote(id: String): APIDataResponse<Comment> {
         Timber.i("Downloading Quote $id...")
         return APIDataResponse.create(service.getNMBQuote(id), NMBJsonParser.QuoteParser())
@@ -117,6 +119,8 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
         return APIMessageResponse.create(service.delNMBFeed(uuid, tid))
     }
 
+    // Note: userhash should be already converted to header style beforehand
+    // i.e. "userhash=v%C6%CB...."
     suspend fun sendPost(
         newPost: Boolean,
         targetId: String, name: String?,

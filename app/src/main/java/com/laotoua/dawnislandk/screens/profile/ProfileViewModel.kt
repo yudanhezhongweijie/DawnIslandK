@@ -115,7 +115,7 @@ class ProfileViewModel @Inject constructor(
             randomString,
             null,
             null,
-            cookieHash
+            "userhash=$cookieHash"
         ).run {
             if (this is APIMessageResponse.APISuccessMessageResponse) {
                 if (messageType == APIMessageResponse.MessageType.String) {

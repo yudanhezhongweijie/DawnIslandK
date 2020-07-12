@@ -17,24 +17,28 @@
 
 package com.laotoua.dawnislandk.screens.subscriptions
 
-import android.util.SparseArray
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import android.util.ArrayMap
+import androidx.lifecycle.*
 import com.laotoua.dawnislandk.data.local.entity.Feed
 import com.laotoua.dawnislandk.data.local.entity.FeedAndPost
 import com.laotoua.dawnislandk.data.repository.FeedRepository
+import com.laotoua.dawnislandk.util.DataResource
+import com.laotoua.dawnislandk.util.EventPayload
+import com.laotoua.dawnislandk.util.LoadingStatus
+import com.laotoua.dawnislandk.util.SingleLiveEvent
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
 class FeedsViewModel @Inject constructor(private val feedRepo: FeedRepository) : ViewModel() {
-    private val feedPages = SparseArray<LiveData<List<FeedAndPost>>>(5)
-    private val feedPageIndices = mutableSetOf<Int>()
+    private val feedPages = ArrayMap<Int, LiveData<DataResource<List<FeedAndPost>>>>(5)
+    private val feedPageIndices = sortedSetOf<Int>()
     val feeds = MediatorLiveData<MutableList<FeedAndPost>>()
-    val loadingStatus get() = feedRepo.loadingStatus
-    val delFeedResponse get() = feedRepo.delFeedResponse
+    private val _loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
+    val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>>
+        get() = _loadingStatus
+    private val _delFeedResponse = MutableLiveData<SingleLiveEvent<String>>()
+    val delFeedResponse: LiveData<SingleLiveEvent<String>> get() = _delFeedResponse
 
     // use to flag jumps to a page without any feed
     var lastJumpPage = 0
@@ -68,12 +72,17 @@ class FeedsViewModel @Inject constructor(private val feedRepo: FeedRepository) :
         viewModelScope.launch {
             Timber.d("Getting feed on $page")
             val newPage = feedRepo.getLiveFeedPage(page)
-            if (feedPages[page] != newPage) {
-                feedPages.put(page, newPage)
-                feedPageIndices.add(page)
-                feeds.addSource(newPage) {
+            if (feedPages[page] != null) feeds.removeSource(feedPages[page]!!)
+            feedPages[page] = newPage
+            feedPageIndices.add(page)
+            feeds.addSource(newPage) {
+                if (it.status == LoadingStatus.SUCCESS || lastJumpPage == page) {
                     combineFeeds()
                 }
+                val status =
+                    if (it.status == LoadingStatus.SUCCESS && (it.data?.size ?: 0 < 10)) LoadingStatus.NO_DATA
+                    else it.status
+                _loadingStatus.value = SingleLiveEvent.create(status, it.message)
             }
         }
     }
@@ -86,7 +95,7 @@ class FeedsViewModel @Inject constructor(private val feedRepo: FeedRepository) :
         val ids = mutableSetOf<String>()
         val noDuplicates = mutableListOf<FeedAndPost>()
         feedPageIndices.map {
-            feedPages[it].value?.map { feedAndPost ->
+            feedPages[it]?.value?.data?.map { feedAndPost ->
                 if (!ids.contains(feedAndPost.feed.postId) && feedAndPost.post != null) {
                     ids.add(feedAndPost.feed.postId)
                     noDuplicates.add(feedAndPost)
@@ -101,14 +110,14 @@ class FeedsViewModel @Inject constructor(private val feedRepo: FeedRepository) :
 
     fun deleteFeed(feed: Feed) {
         viewModelScope.launch {
-            feedRepo.deleteFeed(feed)
+            _delFeedResponse.postValue(SingleLiveEvent.create(feedRepo.deleteFeed(feed)))
         }
     }
 
     private fun clearCache() {
         feedPageIndices.map {
             feedPages[it]?.let { s -> feeds.removeSource(s) }
-            feedPages.delete(it)
+            feedPages.remove(it)
         }
         feedPageIndices.clear()
     }

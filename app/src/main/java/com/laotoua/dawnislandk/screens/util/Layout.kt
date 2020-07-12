@@ -63,11 +63,9 @@ object Layout {
                     if (!mAdapter.hasEmptyView()) mAdapter.setEmptyView(R.layout.view_no_data)
                     mAdapter.setDiffNewData(null)
                 }
-                Toast.makeText(
-                    context,
-                    event.message,
-                    Toast.LENGTH_LONG
-                ).show()
+                if (!event.message.isNullOrBlank()) {
+                    Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
+                }
             }
             LoadingStatus.NO_DATA -> {
                 refreshLayout.refreshComplete(true, headerDismissalDelayDuration)

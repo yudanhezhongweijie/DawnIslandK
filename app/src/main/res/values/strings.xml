@@ -88,6 +88,7 @@
     <string name="general_settings" translatable="false">通用设置</string>
     <string name="size_customization_settings" translatable="false">设置串卡片布局</string>
     <string name="trend" translatable="false">昨日热榜</string>
+    <string name="basic_title" translatable="false">A岛</string>
     <string name="toolbar_subtitle" translatable="false">A岛 · adnmb.com</string>
     <string name="need_cookie_to_post" translatable="false">没有饼干不能发串哦。。</string>
     <string name="need_content_to_post" translatable="false">:(没有上传的内容或文件</string>
@@ -153,6 +154,8 @@
     <string name="saves_reading_progress" translatable="false">是否保存阅读进度</string>
     <string name="reading_progress_on" translatable="false">打开串会跳转到上次看到的页面</string>
     <string name="reading_progress_off" translatable="false">打开串会在首页</string>
+    <string name="layout_customization_on" translatable="false">开启自定义卡片布局</string>
+    <string name="layout_customization_off" translatable="false">关闭自定义卡片布局</string>
     <string name="comment_filter" translatable="false">只看Po过滤</string>
     <string name="comment_filter_off" translatable="false">只看Po过滤关闭</string>
     <string name="comment_filter_on" translatable="false">只看Po过滤开启。新的非Po评论将被折叠</string>

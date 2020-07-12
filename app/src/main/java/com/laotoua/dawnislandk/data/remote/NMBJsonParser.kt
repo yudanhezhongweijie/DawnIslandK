@@ -102,6 +102,7 @@ abstract class NMBJsonParser<T> {
             val thread = Jsoup.parse(response).getElementsByClass("h-threads-item").first()
             val id = thread.getElementsByClass("h-threads-item-reply h-threads-item-ref").first()
                 .attr("data-threads-id")
+            if (id.isNullOrBlank()) throw Exception("无法获取引用")
             val title = thread.getElementsByClass("h-threads-info-title").first().text()
             // key is email but actual content is name???
             val name = thread.getElementsByClass("h-threads-info-email").first().text()

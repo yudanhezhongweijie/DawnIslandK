@@ -47,14 +47,11 @@ class SharedViewModel @Inject constructor(
     private val commentDao: CommentDao,
     private val postHistoryDao: PostHistoryDao,
     private val communityRepository: CommunityRepository
-) :
-    ViewModel() {
-    val communityList get() = communityRepository.communityList
+) : ViewModel() {
+
+    val communityList = communityRepository.communityList
+
     val reedPictureUrl = MutableLiveData<String>()
-    val communityListLoadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>> =
-        communityRepository.loadingStatus
-
-
     private var _selectedForumId = MutableLiveData<String>()
     val selectedForumId: LiveData<String> get() = _selectedForumId
 
@@ -78,7 +75,9 @@ class SharedViewModel @Inject constructor(
     }
 
     fun forumRefresh() {
-        viewModelScope.launch { communityRepository.refresh() }
+        viewModelScope.launch {
+            communityRepository.refresh()
+        }
     }
 
     fun setForumMappings(list: List<Community>) {
@@ -112,11 +111,12 @@ class SharedViewModel @Inject constructor(
         if (this::loadingBible.isInitialized) loadingBible.random()
         else "正在加载中..."
 
-    fun getForumMsg(id: String): String = if (id.isBlank()) "" else  forumMsgMapping[id] ?: ""
+    fun getForumMsg(id: String): String = if (id.isBlank()) "" else forumMsgMapping[id] ?: ""
 
-    fun getForumDisplayName(fid: String): String = if (fid.isBlank()) "" else  forumNameMapping[fid] ?: ""
+    fun getForumDisplayName(fid: String): String =
+        if (fid.isBlank()) "" else forumNameMapping[fid] ?: ""
 
-    fun getSelectedPostForumName(fid:String): String = getForumDisplayName(fid)
+    fun getSelectedPostForumName(fid: String): String = getForumDisplayName(fid)
 
     fun getToolbarTitle(): String = toolbarTitle
 
@@ -164,7 +164,7 @@ class SharedViewModel @Inject constructor(
         cookieName: String,
         content: String
     ) {
-        if (cookieName.isBlank()){
+        if (cookieName.isBlank()) {
             val message = "Trying to save a Post without cookieName"
             _savePostStatus.postValue(SingleLiveEvent.create(LoadingStatus.ERROR, message))
             Timber.e(message)

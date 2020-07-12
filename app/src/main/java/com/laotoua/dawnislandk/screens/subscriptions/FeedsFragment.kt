@@ -159,8 +159,8 @@ class FeedsFragment : BaseNavFragment() {
         }
 
         viewModel.delFeedResponse.observe(viewLifecycleOwner, Observer {
-            it.getContentIfNotHandled()?.let { eventPayload ->
-                Toast.makeText(context, eventPayload.message, Toast.LENGTH_SHORT).show()
+            it.getContentIfNotHandled()?.let { message ->
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
             }
         })
 

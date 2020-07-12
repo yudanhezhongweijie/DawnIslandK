@@ -17,7 +17,13 @@
 
 package com.laotoua.dawnislandk.util
 
+import androidx.arch.core.util.Function
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.Transformations
+import androidx.lifecycle.liveData
 import com.laotoua.dawnislandk.data.local.entity.Comment
+import timber.log.Timber
 
 fun <T> lazyOnMainOnly(initializer: () -> T): Lazy<T> = lazy(LazyThreadSafetyMode.NONE, initializer)
 
@@ -36,5 +42,86 @@ fun List<Comment>?.equalsWithServerComments(targetList: List<Comment>?): Boolean
         this.zip(targetList).all { (r1, r2) ->
             r1.equalsWithServerData(r2)
         }
+    }
+}
+
+
+fun <T> getLocalDataResource(cache: LiveData<T>): LiveData<DataResource<T>> {
+    return Transformations.map(cache) {
+        Timber.d("Got ${if (it == null) "NO" else ""} data from database")
+        val status: LoadingStatus =
+            if (it == null) LoadingStatus.NO_DATA else LoadingStatus.SUCCESS
+        DataResource.create(status, it)
+    }
+}
+
+fun <T> getLocalListDataResource(cache: LiveData<List<T>>): LiveData<DataResource<List<T>>> {
+    return Transformations.map(cache) {
+        Timber.d("Got ${it.size} rows from database")
+        val status: LoadingStatus =
+            if (it.isNullOrEmpty()) LoadingStatus.NO_DATA else LoadingStatus.SUCCESS
+        DataResource.create(status, it)
+    }
+}
+
+fun <X, Y> getRemoteDataResource(
+    response: DataResource<X>,
+    conversion: Function<DataResource<X>, DataResource<Y>>
+) = liveData<DataResource<Y>> {
+    if (response.status == LoadingStatus.SUCCESS) {
+        emit(conversion.apply(response))
+    } else {
+        emit(DataResource.create(response.status, null, response.message))
+    }
+}
+
+// data only in local cache, but remote acts as a message transmitter
+fun <T> getLocalLiveDataAndRemoteResponse(
+    cache: LiveData<DataResource<T>>,
+    remote: LiveData<DataResource<T>>
+): LiveData<DataResource<T>> {
+    val result = MediatorLiveData<DataResource<T>>()
+    result.value = DataResource.create()
+    result.addSource(cache) {
+        result.value = it
+    }
+    result.addSource(remote) {
+        if (it.status == LoadingStatus.NO_DATA || it.status == LoadingStatus.ERROR) {
+            result.value = it
+        }
+    }
+    return result
+}
+
+// combines local and remote data then emit
+// when requesting remote data only, simply pass null as cache
+fun <T> getCombinedLiveData(
+    cache: LiveData<DataResource<T>>?,
+    remote: LiveData<DataResource<T>>
+): LiveData<DataResource<T>> {
+    val result = MediatorLiveData<DataResource<T>>()
+    result.value = DataResource.create()
+    if (cache != null) {
+        result.addSource(cache) {
+            if (it.status != LoadingStatus.NO_DATA) {
+                result.value = combineCacheAndRemoteData(result.value, it, false)
+            }
+        }
+    }
+    result.addSource(remote) {
+        result.value = combineCacheAndRemoteData(result.value, it, true)
+    }
+    return result
+}
+
+private fun <T> combineCacheAndRemoteData(
+    old: DataResource<T>?,
+    new: DataResource<T>?,
+    isRemoteData: Boolean
+): DataResource<T>? {
+    return if (new?.status == LoadingStatus.ERROR && old?.status != new.status && !isRemoteData) {
+        old
+    } else {
+        new
     }
 }

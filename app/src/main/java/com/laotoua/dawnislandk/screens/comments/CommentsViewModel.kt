@@ -19,6 +19,7 @@ package com.laotoua.dawnislandk.screens.comments
 
 import android.util.SparseArray
 import androidx.lifecycle.*
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.entity.Comment
 import com.laotoua.dawnislandk.data.repository.CommentRepository
 import com.laotoua.dawnislandk.data.repository.QuoteRepository
@@ -51,15 +52,12 @@ class CommentsViewModel @Inject constructor(
 
     val loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
 
-    val addFeedResponse
-        get() = commentRepo.addFeedResponse
+    val addFeedResponse = MutableLiveData<SingleLiveEvent<String>>()
 
-    val quoteLoadingStatus = quoteRepo.quoteLoadingStatus
-
-    fun getQuote(id: String): LiveData<Comment> = liveData {
+    fun getQuote(id: String): LiveData<DataResource<Comment>> = liveData {
         // try to find quote in current post, if not then in local cache or remote data
         val result = commentList.find { it.id == id }
-        if (result != null) emit(result)
+        if (result != null) emit(DataResource.create(LoadingStatus.SUCCESS, result))
         else emitSource(quoteRepo.getQuote(id))
     }
 
@@ -213,9 +211,9 @@ class CommentsViewModel @Inject constructor(
         listenToNewPage(page)
     }
 
-    fun addFeed(uuid: String, id: String) {
+    fun addFeed(id: String) {
         viewModelScope.launch {
-            commentRepo.addFeed(uuid, id)
+            addFeedResponse.postValue(commentRepo.addFeed(DawnApp.applicationDataStore.feedId, id))
         }
     }
 }

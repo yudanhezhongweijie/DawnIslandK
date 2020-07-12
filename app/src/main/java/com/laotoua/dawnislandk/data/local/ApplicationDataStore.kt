@@ -84,6 +84,17 @@ class ApplicationDataStore @Inject constructor(
         mmkv.putBoolean(DawnConstants.ANIMATION_FIRST_ONLY, status)
     }
 
+    val layoutCustomizationStatus by lazyOnMainOnly {
+        mmkv.getBoolean(
+            DawnConstants.LAYOUT_CUSTOMIZATION,
+            true
+        )
+    }
+
+    fun setLayoutCustomization(status: Boolean){
+        mmkv.putBoolean(DawnConstants.LAYOUT_CUSTOMIZATION, status)
+    }
+
     // Reading settings
     val readingProgressStatus by lazyOnMainOnly {
         mmkv.getBoolean(

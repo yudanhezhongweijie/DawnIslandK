@@ -58,6 +58,9 @@ interface CommentDao {
     @Query("SELECT * FROM Comment WHERE id=:id LIMIT 1")
     suspend fun findCommentByIdSync(id: String): Comment?
 
+    @Query("SELECT * FROM Comment WHERE id=:id LIMIT 1")
+    fun findCommentById(id: String): LiveData<Comment>
+
     @Delete
     suspend fun delete(comment: Comment)
 

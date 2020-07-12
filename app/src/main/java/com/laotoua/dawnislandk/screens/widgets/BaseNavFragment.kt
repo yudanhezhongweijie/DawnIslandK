@@ -58,6 +58,7 @@ open class BaseNavFragment:DaggerFragment() {
             mRecyclerView?.layoutManager?.scrollToPosition(0)
             (requireActivity() as MainActivity).showNav()
         }
+        (requireActivity() as MainActivity).showNav()
     }
 
     override fun onDestroyView() {

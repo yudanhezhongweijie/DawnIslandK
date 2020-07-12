@@ -47,11 +47,13 @@ class TrendsFragment : BaseNavFragment() {
     private var _binding: FragmentSubscriptionTrendBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var mAdapter: QuickAdapter<Trend>
+    private var _mAdapter: QuickAdapter<Trend>? = null
+    private val mAdapter get() = _mAdapter!!
 
     private val viewModel: TrendsViewModel by viewModels { viewModelFactory }
 
     private val trendsObs = Observer<DataResource<DailyTrend>> {
+        if (_mAdapter == null) return@Observer
         updateHeaderAndFooter(binding.srlAndRv.refreshLayout, mAdapter, EventPayload(it.status, it.message, null))
         val list = it.data?.trends
         if (list.isNullOrEmpty()) {
@@ -80,7 +82,7 @@ class TrendsFragment : BaseNavFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        mAdapter = QuickAdapter<Trend>(R.layout.list_item_trend, sharedVM).apply {
+        _mAdapter = QuickAdapter<Trend>(R.layout.list_item_trend, sharedVM).apply {
             loadMoreModule.isEnableLoadMore = false
             setOnItemClickListener { _, _, position ->
                 val target = getItem(position)
@@ -119,6 +121,7 @@ class TrendsFragment : BaseNavFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        _mAdapter = null
         Timber.d("Fragment View Destroyed")
     }
 }

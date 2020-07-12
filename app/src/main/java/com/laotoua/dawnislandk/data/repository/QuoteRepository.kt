@@ -63,7 +63,8 @@ class QuoteRepository @Inject constructor(
             if (response.status == LoadingStatus.SUCCESS) {
                 convertServerData(id, response.data!!)
             } else {
-                emit(DataResource.create(response.status, null, response.message))
+                val message = if (response.status == LoadingStatus.NO_DATA) "无法获取引用" else response.message
+                emit(DataResource.create(LoadingStatus.ERROR, null, message))
             }
         }
     }

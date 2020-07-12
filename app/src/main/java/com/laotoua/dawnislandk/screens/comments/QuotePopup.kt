@@ -39,7 +39,6 @@ import com.laotoua.dawnislandk.util.LoadingStatus
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.CenterPopupView
 import com.lxj.xpopup.util.XPopupUtils
-import timber.log.Timber
 
 @SuppressLint("ViewConstructor")
 // uses caller fragment's context, should not live without fragment
@@ -61,14 +60,12 @@ class QuotePopup(
                 findViewById<ProgressBar>(R.id.progressBar).visibility = View.GONE
                 findViewById<ConstraintLayout>(R.id.quote).visibility = View.VISIBLE
             }
-            // (it.loadingStatus == LoadingStatus.ERROR && it.payload == quoteId) {
             LoadingStatus.ERROR -> {
                 dismiss()
                 Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
             }
-            else -> {
-                Timber.e("Unhandled quote query case: $it")
-            }
+            // do nothing when loading or no data
+            else -> {}
         }
     }
 
@@ -170,8 +167,8 @@ class QuotePopup(
     }
 
     override fun onDismiss() {
-        super.onDismiss()
         liveQuote.removeObserver(liveQuoteObs)
         caller.dismissQuote(this)
+        super.onDismiss()
     }
 }

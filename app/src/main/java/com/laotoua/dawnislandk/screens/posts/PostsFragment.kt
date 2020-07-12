@@ -145,9 +145,7 @@ class PostsFragment : BaseNavFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        if (_binding == null) {
-            _binding = FragmentPostBinding.inflate(inflater, container, false)
-
+        if (_mAdapter == null) {
             _mAdapter = QuickAdapter<Post>(R.layout.list_item_post, sharedVM).apply {
                 setOnItemClickListener { _, _, position ->
                     getItem(position).run {
@@ -197,6 +195,13 @@ class PostsFragment : BaseNavFragment() {
                     viewModel.getPosts()
                 }
             }
+        }
+
+        if (_binding != null) {
+            Timber.d("Fragment View Reusing!")
+        } else {
+            Timber.d("Fragment View Created")
+            _binding = FragmentPostBinding.inflate(inflater, container, false)
 
             binding.srlAndRv.refreshLayout.apply {
                 setOnRefreshListener(object : RefreshingListenerAdapter() {
@@ -317,9 +322,11 @@ class PostsFragment : BaseNavFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
-        _mAdapter = null
-        Timber.d("Fragment View Destroyed")
+        if (!DawnApp.applicationDataStore.viewCaching) {
+            _mAdapter = null
+            _binding = null
+        }
+        Timber.d("Fragment View Destroyed ${_binding == null}")
     }
 }
 

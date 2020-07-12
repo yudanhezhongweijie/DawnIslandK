@@ -48,7 +48,10 @@ import com.laotoua.dawnislandk.screens.posts.PostCardFactory
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
 import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
+import com.laotoua.dawnislandk.util.EventPayload
+import com.laotoua.dawnislandk.util.SingleLiveEvent
 import com.lxj.xpopup.XPopup
+import timber.log.Timber
 import java.util.*
 
 
@@ -61,6 +64,10 @@ class SearchFragment : BaseNavFragment() {
     private val viewModel: SearchViewModel by viewModels { viewModelFactory }
     private var _binding: FragmentSearchBinding? = null
     private val binding: FragmentSearchBinding get() = _binding!!
+
+    private var _mAdapter: QuickMultiBinder? = null
+    private val mAdapter: QuickMultiBinder get() = _mAdapter!!
+
     private var pageCounter: TextView? = null
 
     private var currentPage = 0
@@ -136,73 +143,93 @@ class SearchFragment : BaseNavFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentSearchBinding.inflate(inflater, container, false)
+        if (_mAdapter == null) {
+            _mAdapter = QuickMultiBinder(sharedVM).apply {
+                addItemBinder(SimpleTextBinder())
+                addItemBinder(HitBinder(sharedVM).apply {
+                    addChildClickViewIds(R.id.attachedImage)
+                })
+
+                loadMoreModule.setOnLoadMoreListener {
+                    viewModel.getNextPage()
+                }
+            }
+        }
+        if (_binding != null) {
+            Timber.d("Fragment View Reusing!")
+        } else {
+            Timber.d("Fragment View Created")
+            _binding = FragmentSearchBinding.inflate(inflater, container, false)
+            binding.srlAndRv.recyclerView.apply {
+                setHasFixedSize(true)
+                layoutManager = LinearLayoutManager(context)
+                adapter = mAdapter
+                addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                        val firstVisiblePos =
+                            (layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                        if (firstVisiblePos > 0 && firstVisiblePos < mAdapter.data.lastIndex) {
+                            if (mAdapter.getItem(firstVisiblePos) is String) {
+                                updateCurrentPage(
+                                    (mAdapter.getItem(firstVisiblePos) as String).substringAfter(
+                                        ":"
+                                    ).trim().toInt()
+                                )
+                            }
+                        }
+                    }
+                })
+            }
+
+            mAdapter.setDefaultEmptyView()
+        }
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        val mAdapter = QuickMultiBinder(sharedVM).apply {
-            addItemBinder(SimpleTextBinder())
-            addItemBinder(HitBinder(sharedVM).apply {
-                addChildClickViewIds(R.id.attachedImage)
-            })
-
-            loadMoreModule.setOnLoadMoreListener {
-                viewModel.getNextPage()
-            }
+    private val searchResultObs = Observer<List<SearchResult>> { list ->
+        if (_mAdapter == null) return@Observer
+        if (list.isEmpty()) {
+            mAdapter.setDiffNewData(null)
+            hideCurrentPageText()
+            return@Observer
         }
-
-        binding.srlAndRv.recyclerView.apply {
-            setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(context)
-            adapter = mAdapter
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    val firstVisiblePos =
-                        (layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-                    if (firstVisiblePos > 0 && firstVisiblePos < mAdapter.data.lastIndex) {
-                        if (mAdapter.getItem(firstVisiblePos) is String) {
-                            updateCurrentPage(
-                                (mAdapter.getItem(firstVisiblePos) as String).substringAfter(
-                                    ":"
-                                ).trim().toInt()
-                            )
-                        }
-                    }
-                }
-            })
+        if (currentPage == 0) updateCurrentPage(1)
+        val data: MutableList<Any> = ArrayList()
+        data.add("搜索： ${list.firstOrNull()?.query}")
+        list.map {
+            data.add("结果页数: ${it.page}")
+            data.addAll(it.hits)
         }
+        mAdapter.setDiffNewData(data)
+    }
 
-        mAdapter.setDefaultEmptyView()
+    override fun onDestroyView() {
+        super.onDestroyView()
+        if (!DawnApp.applicationDataStore.viewCaching) {
+            _mAdapter = null
+            _binding = null
+        }
+        Timber.d("Fragment View Destroyed ${_binding == null}")
+    }
 
-        viewModel.searchResult.observe(viewLifecycleOwner, Observer { list ->
-            if (list.isEmpty()) {
-                mAdapter.setDiffNewData(null)
-                hideCurrentPageText()
-                return@Observer
-            }
-            if (currentPage == 0) updateCurrentPage(1)
-            val data: MutableList<Any> = ArrayList()
-            data.add("搜索： ${list.firstOrNull()?.query}")
-            list.map {
-                data.add("结果页数: ${it.page}")
-                data.addAll(it.hits)
-            }
-            mAdapter.setDiffNewData(data)
-        })
-
-        viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
-            it.getContentIfNotHandled()?.run {
-                updateHeaderAndFooter(binding.srlAndRv.refreshLayout, mAdapter, this)
-            }
-        })
+    private val loadingStatusObs = Observer<SingleLiveEvent<EventPayload<Nothing>>> {
+        if (_binding == null || _mAdapter == null) return@Observer
+        it.getContentIfNotHandled()?.run {
+            updateHeaderAndFooter(binding.srlAndRv.refreshLayout, mAdapter, this)
+        }
     }
 
     override fun onResume() {
         super.onResume()
         (requireActivity() as MainActivity).setToolbarTitle(R.string.search)
+        viewModel.searchResult.observe(viewLifecycleOwner, searchResultObs)
+        viewModel.loadingStatus.observe(viewLifecycleOwner, loadingStatusObs)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.searchResult.removeObserver(searchResultObs)
+        viewModel.loadingStatus.removeObserver(loadingStatusObs)
     }
 
     private fun updateCurrentPage(page: Int) {

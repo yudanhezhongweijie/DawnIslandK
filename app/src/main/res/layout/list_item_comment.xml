@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ /* Copyright 2020 Fishballzzz
   ~  *
   ~  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +24,7 @@
     android:paddingLeft="12dp"
     android:paddingTop="4dp"
     android:paddingRight="12dp"
-    app:layout_optimizationLevel="standard|dimensions"
+    app:layout_optimizationLevel="standard|chains|dimensions"
     tools:viewBindingIgnore="true">
 
     <TextView
@@ -48,7 +47,6 @@
         android:layout_height="wrap_content"
         android:clickable="false"
         android:focusable="false"
-        android:text="@string/sample_ref_id"
         android:textAppearance="@style/SecondaryText"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -61,7 +59,6 @@
         android:layout_height="wrap_content"
         android:clickable="false"
         android:focusable="false"
-        android:text="@string/sample_user_id"
         android:textAppearance="@style/SecondaryText"
         android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -73,7 +70,6 @@
         android:layout_height="wrap_content"
         android:clickable="false"
         android:focusable="false"
-        android:text="@string/sample_timestamp_plain"
         android:textAppearance="@style/SecondaryText"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -81,14 +77,13 @@
 
     <com.laotoua.dawnislandk.screens.widgets.LinkifyTextView
         android:id="@+id/content"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
         android:clickable="false"
         android:focusable="false"
         android:paddingBottom="2dp"
         android:scrollbars="vertical"
-        android:text="@string/sample_comment_content"
         android:textColor="@color/pure_dark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -159,7 +154,8 @@
         app:layout_constraintEnd_toEndOf="@id/timestamp"
         app:layout_constraintStart_toStartOf="@id/userId"
         app:layout_constraintTop_toBottomOf="@id/expandSummary"
-        app:layout_goneMarginTop="4dp">
+        app:layout_goneMarginTop="4dp"
+        app:layout_optimizationLevel="standard|chains|dimensions">
 
         <View
             android:layout_width="wrap_content"

@@ -483,7 +483,7 @@ class CommentsFragment : DaggerFragment() {
 
     private fun updateCurrentPage() {
         val lastVisiblePos = (binding.srlAndRv.recyclerView.layoutManager as LinearLayoutManager? )?.findLastVisibleItemPosition() ?: 0
-        if (lastVisiblePos < mAdapter.data.lastIndex) {
+        if (0 <= lastVisiblePos && lastVisiblePos < mAdapter.data.size) {
             val page = mAdapter.getItem(lastVisiblePos).page
             if (page != currentPage) {
                 viewModel.saveReadingProgress(page)

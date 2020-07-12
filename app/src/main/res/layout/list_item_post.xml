@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ /* Copyright 2020 Fishballzzz
   ~  *
   ~  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,14 +35,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
-        app:layout_optimizationLevel="standard|dimensions">
+        app:layout_optimizationLevel="standard|chains|dimensions">
 
         <TextView
             android:id="@+id/userId"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:text="@string/sample_user_id"
             android:textSize="12sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -54,7 +52,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:text="@string/sample_ref_id"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -68,7 +65,6 @@
             android:paddingTop="2dp"
             android:paddingRight="10dp"
             android:paddingBottom="2dp"
-            android:text="@string/sample_forum_and_reply_count"
             android:textColor="#FCFCFC"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -85,7 +81,6 @@
             android:id="@+id/timestamp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/sample_timestamp_simplified"
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/barrier" />
@@ -125,7 +120,6 @@
             android:layout_marginEnd="2dp"
             android:ellipsize="end"
             android:maxLines="8"
-            android:text="@string/sample_post_content"
             android:textColor="@color/pure_dark"
             app:layout_constraintEnd_toStartOf="@id/attachedImage"
             app:layout_constraintStart_toStartOf="parent"
@@ -147,7 +141,6 @@
             android:layout_height="0dp"
             android:background="@drawable/sage_background"
             android:gravity="bottom|center_horizontal"
-            android:text="@string/sage_text"
             android:textSize="18sp"
             android:textStyle="bold"
             android:visibility="gone"

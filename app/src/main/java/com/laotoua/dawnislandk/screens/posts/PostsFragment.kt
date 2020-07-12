@@ -44,6 +44,8 @@ import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
 import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
 import com.laotoua.dawnislandk.screens.widgets.popups.PostPopup
 import com.laotoua.dawnislandk.util.DawnConstants
+import com.laotoua.dawnislandk.util.EventPayload
+import com.laotoua.dawnislandk.util.SingleLiveEvent
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
@@ -55,9 +57,40 @@ class PostsFragment : BaseNavFragment() {
 
     private var _binding: FragmentPostBinding? = null
     private val binding get() = _binding!!
+    private var _mAdapter: QuickAdapter<Post>? = null
+    private val mAdapter get() = _mAdapter!!
     private val viewModel: PostsViewModel by viewModels { viewModelFactory }
     private val postPopup: PostPopup by lazyOnMainOnly { PostPopup(requireActivity(), sharedVM) }
     private var isFabOpen = false
+
+    private val postObs = Observer<List<Post>> {
+        if (_mAdapter == null) return@Observer
+        if (it.isEmpty()) {
+            if (!mAdapter.hasEmptyView()) mAdapter.setDefaultEmptyView()
+            mAdapter.setDiffNewData(null)
+            return@Observer
+        }
+        // adds title when navigate from website url
+        if (mAdapter.data.isNullOrEmpty() && (requireActivity() as MainActivity).supportActionBar?.title.isNullOrBlank()) {
+            (requireActivity() as MainActivity).setToolbarTitle(sharedVM.getForumDisplayName(it.first().fid))
+        }
+        mAdapter.setDiffNewData(it.toMutableList())
+        Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
+    }
+
+    private val forumIdObs = Observer<String> {
+        if (_mAdapter == null) return@Observer
+        if (viewModel.currentFid != it) mAdapter.setList(emptyList())
+        viewModel.setForum(it)
+        (requireActivity() as MainActivity).setToolbarTitle(sharedVM.getToolbarTitle())
+    }
+
+    private val loadingObs = Observer<SingleLiveEvent<EventPayload<Nothing>>> {
+        if (_mAdapter == null || _binding == null) return@Observer
+        it.getContentIfNotHandled()?.run {
+            updateHeaderAndFooter(binding.srlAndRv.refreshLayout, mAdapter, this)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -114,12 +147,124 @@ class PostsFragment : BaseNavFragment() {
     ): View? {
         if (_binding == null) {
             _binding = FragmentPostBinding.inflate(inflater, container, false)
+
+            _mAdapter = QuickAdapter<Post>(R.layout.list_item_post, sharedVM).apply {
+                setOnItemClickListener { _, _, position ->
+                    getItem(position).run {
+                        val navAction =
+                            MainNavDirections.actionGlobalCommentsFragment(id, fid)
+                        findNavController().navigate(navAction)
+                    }
+                }
+                setOnItemLongClickListener { _, _, position ->
+                    MaterialDialog(requireContext()).show {
+                        title(R.string.post_options)
+                        listItems(R.array.post_options) { _, index, _ ->
+                            if (index == 0) {
+                                MaterialDialog(requireContext()).show {
+                                    title(R.string.report_reasons)
+                                    listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
+                                        postPopup.setupAndShow(
+                                            "18",//值班室
+                                            "18",
+                                            newPost = true,
+                                            quote = "\n>>No.${getItem(position).id}\n${context.getString(
+                                                R.string.report_reasons
+                                            )}: $text"
+                                        )
+                                    }
+                                    cancelOnTouchOutside(false)
+                                }
+                            }
+                        }
+                    }
+                    true
+                }
+
+                addChildClickViewIds(R.id.attachedImage)
+                setOnItemChildClickListener { _, view, position ->
+                    if (view.id == R.id.attachedImage) {
+                        val url = getItem(position).getImgUrl()
+                        val viewerPopup = ImageViewerPopup(url, requireContext())
+                        viewerPopup.setSingleSrcView(view as ImageView?, url)
+                        XPopup.Builder(context)
+                            .asCustom(viewerPopup)
+                            .show()
+                    }
+                }
+
+                loadMoreModule.setOnLoadMoreListener {
+                    viewModel.getPosts()
+                }
+            }
+
+            binding.srlAndRv.refreshLayout.apply {
+                setOnRefreshListener(object : RefreshingListenerAdapter() {
+                    override fun onRefreshing() {
+                        viewModel.refresh()
+                    }
+                })
+            }
+
+            binding.srlAndRv.recyclerView.apply {
+                layoutManager = LinearLayoutManager(context)
+                adapter = mAdapter
+                setHasFixedSize(true)
+                addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                        if (dy > 0) {
+                            hideFabMenu()
+                            binding.fabMenu.hide()
+                            binding.fabMenu.isClickable = false
+                        } else if (dy < 0) {
+                            binding.fabMenu.show()
+                            binding.fabMenu.isClickable = true
+                        }
+                    }
+                })
+            }
+
+            binding.fabMenu.setOnClickListener {
+                toggleFabMenu()
+            }
+
+            binding.post.setOnClickListener {
+                if (sharedVM.selectedForumId.value == null) {
+                    Toast.makeText(
+                        requireContext(),
+                        R.string.please_try_again_later,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@setOnClickListener
+                }
+                hideFabMenu()
+                postPopup.setupAndShow(
+                    sharedVM.selectedForumId.value,
+                    sharedVM.selectedForumId.value!!,
+                    true
+                )
+            }
+
+            binding.announcement.setOnClickListener {
+                hideFabMenu()
+                DawnApp.applicationDataStore.nmbNotice?.let { notice ->
+                    MaterialDialog(requireContext()).show {
+                        title(res = R.string.announcement)
+                        message(text = notice.content) { html() }
+                        positiveButton(R.string.close)
+                    }
+                }
+            }
+
+            binding.flingInterceptor.bindListener {
+                (activity as MainActivity).showDrawer()
+            }
         }
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onResume() {
+        super.onResume()
         // initial load
         if (viewModel.posts.value.isNullOrEmpty()) {
             binding.srlAndRv.refreshLayout.autoRefresh(
@@ -128,143 +273,16 @@ class PostsFragment : BaseNavFragment() {
             )
         }
 
-        val mAdapter = QuickAdapter<Post>(R.layout.list_item_post, sharedVM).apply {
-            setOnItemClickListener { _, _, position ->
-                getItem(position).run {
-                    val navAction =
-                        MainNavDirections.actionGlobalCommentsFragment(id, fid)
-                    findNavController().navigate(navAction)
-                }
-            }
-            setOnItemLongClickListener { _, _, position ->
-                MaterialDialog(requireContext()).show {
-                    title(R.string.post_options)
-                    listItems(R.array.post_options) { _, index, _ ->
-                        if (index == 0) {
-                            MaterialDialog(requireContext()).show {
-                                title(R.string.report_reasons)
-                                listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
-                                    postPopup.setupAndShow(
-                                        "18",//值班室
-                                        "18",
-                                        newPost = true,
-                                        quote = "\n>>No.${getItem(position).id}\n${context.getString(
-                                            R.string.report_reasons
-                                        )}: $text"
-                                    )
-                                }
-                                cancelOnTouchOutside(false)
-                            }
-                        }
-                    }
-                }
-                true
-            }
-
-            addChildClickViewIds(R.id.attachedImage)
-            setOnItemChildClickListener { _, view, position ->
-                if (view.id == R.id.attachedImage) {
-                    val url = getItem(position).getImgUrl()
-                    val viewerPopup = ImageViewerPopup(url, requireContext())
-                    viewerPopup.setSingleSrcView(view as ImageView?, url)
-                    XPopup.Builder(context)
-                        .asCustom(viewerPopup)
-                        .show()
-                }
-            }
-
-            loadMoreModule.setOnLoadMoreListener {
-                viewModel.getPosts()
-            }
-        }
-
-        binding.srlAndRv.refreshLayout.apply {
-            setOnRefreshListener(object : RefreshingListenerAdapter() {
-                override fun onRefreshing() {
-                    viewModel.refresh()
-                }
-            })
-        }
-
-        binding.srlAndRv.recyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = mAdapter
-            setHasFixedSize(true)
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    if (dy > 0) {
-                        hideFabMenu()
-                        binding.fabMenu.hide()
-                        binding.fabMenu.isClickable = false
-                    } else if (dy < 0) {
-                        binding.fabMenu.show()
-                        binding.fabMenu.isClickable = true
-                    }
-                }
-            })
-        }
-
-        binding.fabMenu.setOnClickListener {
-            toggleFabMenu()
-        }
-
-        binding.post.setOnClickListener {
-            if (sharedVM.selectedForumId.value == null) {
-                Toast.makeText(
-                    requireContext(),
-                    R.string.please_try_again_later,
-                    Toast.LENGTH_SHORT
-                ).show()
-                return@setOnClickListener
-            }
-            hideFabMenu()
-            postPopup.setupAndShow(
-                sharedVM.selectedForumId.value,
-                sharedVM.selectedForumId.value!!,
-                true
-            )
-        }
-
-        binding.announcement.setOnClickListener {
-            hideFabMenu()
-            DawnApp.applicationDataStore.nmbNotice?.let { notice ->
-                MaterialDialog(requireContext()).show {
-                    title(res = R.string.announcement)
-                    message(text = notice.content) { html() }
-                    positiveButton(R.string.close)
-                }
-            }
-        }
-
-        binding.flingInterceptor.bindListener {
-            (activity as MainActivity).showDrawer()
-        }
-
-        viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
-            it.getContentIfNotHandled()?.run {
-                updateHeaderAndFooter(binding.srlAndRv.refreshLayout, mAdapter, this)
-                }
-            })
-
-        viewModel.posts.observe(viewLifecycleOwner, Observer {
-            if (it.isEmpty()) {
-                if (!mAdapter.hasEmptyView()) mAdapter.setDefaultEmptyView()
-                mAdapter.setDiffNewData(null)
-                return@Observer
-        }
-            // adds title when navigate from website url
-            if (mAdapter.data.isNullOrEmpty() && (requireActivity() as MainActivity).supportActionBar?.title.isNullOrBlank()) {
-                (requireActivity() as MainActivity).setToolbarTitle(sharedVM.getForumDisplayName(it.first().fid))
+        viewModel.loadingStatus.observe(viewLifecycleOwner, loadingObs)
+        viewModel.posts.observe(viewLifecycleOwner, postObs)
+        sharedVM.selectedForumId.observe(viewLifecycleOwner, forumIdObs)
     }
-            mAdapter.setDiffNewData(it.toMutableList())
-            Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
-        })
 
-        sharedVM.selectedForumId.observe(viewLifecycleOwner, Observer {
-            if (viewModel.currentFid != it) mAdapter.setList(emptyList())
-            viewModel.setForum(it)
-            (requireActivity() as MainActivity).setToolbarTitle(sharedVM.getToolbarTitle())
-        })
+    override fun onPause() {
+        super.onPause()
+        viewModel.loadingStatus.removeObserver(loadingObs)
+        viewModel.posts.removeObserver(postObs)
+        sharedVM.selectedForumId.removeObserver(forumIdObs)
     }
 
     private fun hideFabMenu() {
@@ -300,6 +318,7 @@ class PostsFragment : BaseNavFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        _mAdapter = null
         Timber.d("Fragment View Destroyed")
     }
 }

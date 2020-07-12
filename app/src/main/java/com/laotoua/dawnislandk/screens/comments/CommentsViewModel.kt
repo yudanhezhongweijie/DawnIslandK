@@ -56,7 +56,7 @@ class CommentsViewModel @Inject constructor(
 
     fun getQuote(id: String): LiveData<DataResource<Comment>> = liveData {
         // try to find quote in current post, if not then in local cache or remote data
-        val result = commentList.find { it.id == id }
+        val result = if (id == currentPostId) commentRepo.getHeaderPost(id) else commentList.find { it.id == id }
         if (result != null) emit(DataResource.create(LoadingStatus.SUCCESS, result))
         else emitSource(quoteRepo.getQuote(id))
     }

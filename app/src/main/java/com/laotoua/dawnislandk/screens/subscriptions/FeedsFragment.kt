@@ -19,7 +19,6 @@ package com.laotoua.dawnislandk.screens.subscriptions
 
 import android.os.Bundle
 import android.os.Handler
-import android.text.InputType
 import android.view.*
 import android.widget.ImageView
 import android.widget.Toast
@@ -83,8 +82,8 @@ class FeedsFragment : BaseNavFragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.menu_fragment_feed, menu)
+        super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -95,7 +94,6 @@ class FeedsFragment : BaseNavFragment() {
                     var page = 0
                     input(
                         waitForPositiveButton = false,
-                        inputType = InputType.TYPE_NUMBER_VARIATION_NORMAL,
                         hintRes = R.string.please_input_page_number
                     ) { dialog, text ->
                         val inputField = getInputField()

@@ -29,7 +29,7 @@ import com.laotoua.dawnislandk.screens.SharedViewModel
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
 
-open class BaseNavFragment:DaggerFragment() {
+open class BaseNavFragment : DaggerFragment() {
     @Inject
     lateinit var viewModelFactory: DaggerViewModelFactory
     protected val sharedVM: SharedViewModel by activityViewModels { viewModelFactory }
@@ -43,15 +43,14 @@ open class BaseNavFragment:DaggerFragment() {
             }
         }
     }
-    private var mRecyclerView:RecyclerView? = null
+    private var mRecyclerView: RecyclerView? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (mRecyclerView == null) {
-            view.findViewById<RecyclerView>(R.id.recyclerView)?.run {
-                mRecyclerView = this
-                addOnScrollListener(navBarScrollListener)
-            }
+        if (mRecyclerView != null) mRecyclerView?.removeOnScrollListener(navBarScrollListener)
+        view.findViewById<RecyclerView>(R.id.recyclerView)?.run {
+            mRecyclerView = this
+            addOnScrollListener(navBarScrollListener)
         }
     }
 

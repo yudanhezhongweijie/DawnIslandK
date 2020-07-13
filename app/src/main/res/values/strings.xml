@@ -155,7 +155,7 @@
     <string name="view_caching" translatable="false">缓存页面(测试)</string>
     <string name="view_caching_warning" translatable="false">缓存页面是一个不稳定的功能，可能会引发内存不足等未知错误。\n\n进入、退出串会卡顿的用户可以尝试使用此功能。\n\n此功能将会使用更多内存来缓存上一次打开的页面，以此加快运行速度。</string>
     <string name="view_caching_on" translatable="false">使用更多内存，缓存部分上一次打开的页面</string>
-    <string name="view_caching_off" translatable="false">不缓存部分上一次打开的页面以减少内存消耗</string>
+    <string name="view_caching_off" translatable="false">不缓存上一次打开的页面以减少内存消耗</string>
     <string name="reading_progress_on" translatable="false">打开串会跳转到上次看到的页面</string>
     <string name="reading_progress_off" translatable="false">打开串会在首页</string>
     <string name="layout_customization_on" translatable="false">开启自定义卡片布局</string>

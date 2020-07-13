@@ -42,7 +42,6 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.remote.SearchResult
 import com.laotoua.dawnislandk.databinding.FragmentSearchBinding
 import com.laotoua.dawnislandk.screens.MainActivity
-import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.*
 import com.laotoua.dawnislandk.screens.posts.PostCardFactory
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
@@ -146,7 +145,7 @@ class SearchFragment : BaseNavFragment() {
         if (_mAdapter == null) {
             _mAdapter = QuickMultiBinder(sharedVM).apply {
                 addItemBinder(SimpleTextBinder())
-                addItemBinder(HitBinder(sharedVM).apply {
+                addItemBinder(HitBinder().apply {
                     addChildClickViewIds(R.id.attachedImage)
                 })
 
@@ -253,8 +252,7 @@ class SearchFragment : BaseNavFragment() {
         override fun getLayoutId(): Int = R.layout.list_item_simple_text
     }
 
-    inner class HitBinder(private val sharedViewModel: SharedViewModel) :
-        QuickItemBinder<SearchResult.Hit>() {
+    inner class HitBinder : QuickItemBinder<SearchResult.Hit>() {
         override fun convert(holder: BaseViewHolder, data: SearchResult.Hit) {
             holder.convertUserId(data.userid, "0")
             holder.convertRefId(context, data.id)

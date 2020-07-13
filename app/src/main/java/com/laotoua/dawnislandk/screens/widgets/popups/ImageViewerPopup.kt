@@ -32,6 +32,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.util.ImageUtil
 import com.laotoua.dawnislandk.util.ReadableTime
+import com.laotoua.dawnislandk.util.SingleLiveEvent
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.core.ImageViewerPopupView
 import com.lxj.xpopup.photoview.PhotoView
@@ -47,22 +48,16 @@ class ImageViewerPopup(
     context: Context
 ) : ImageViewerPopupView(context) {
 
-    companion object {
-        val universalImageLoader = ImageLoader()
-    }
-
     private val caller = context as FragmentActivity
-    private val toastMsg = MutableLiveData<Int>()
+    private val toastMsg = MutableLiveData<SingleLiveEvent<Int>>()
     private var saveShown = true
     private val saveButton by lazyOnMainOnly { findViewById<FloatingActionButton>(R.id.save) }
 
-    override fun getImplLayoutId(): Int {
-        return R.layout.popup_image_viewer
-    }
+    override fun getImplLayoutId(): Int = R.layout.popup_image_viewer
 
     override fun onCreate() {
         super.onCreate()
-        setXPopupImageLoader(universalImageLoader)
+        setXPopupImageLoader(ImageLoader())
     }
 
     override fun initPopupContent() {
@@ -70,13 +65,21 @@ class ImageViewerPopup(
         pager.adapter = PopupPVA()
     }
 
+    private val toastObs = Observer<SingleLiveEvent<Int>> {event->
+        event.getContentIfNotHandled()?.let {
+            Toast.makeText(caller, it, Toast.LENGTH_SHORT).show()
+        }
+    }
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         this.isShowSaveBtn = false
         saveButton.setOnClickListener { addPicToGallery(context, imgUrl) }
-        toastMsg.observe(caller, Observer {
-            Toast.makeText(caller, it, Toast.LENGTH_SHORT).show()
-        })
+        toastMsg.observe(caller, toastObs)
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        toastMsg.removeObserver(toastObs)
     }
 
     private fun checkAndRequestExternalStoragePermission(caller: FragmentActivity): Boolean {
@@ -117,9 +120,9 @@ class ImageViewerPopup(
                 relativeLocation,
                 imageLoader.getImageFile(context, imgUrl)
             )
-            if (fileExist && saved) toastMsg.postValue(R.string.image_already_exists_in_picture)
-            else if (saved) toastMsg.postValue(R.string.image_saved)
-            else toastMsg.postValue(R.string.something_went_wrong)
+            if (fileExist && saved) toastMsg.postValue(SingleLiveEvent.create(R.string.image_already_exists_in_picture))
+            else if (saved) toastMsg.postValue(SingleLiveEvent.create(R.string.image_saved))
+            else toastMsg.postValue(SingleLiveEvent.create(R.string.something_went_wrong))
         }
     }
 

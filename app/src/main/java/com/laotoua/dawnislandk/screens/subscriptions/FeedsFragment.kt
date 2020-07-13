@@ -83,8 +83,8 @@ class FeedsFragment : BaseNavFragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_fragment_feed, menu)
         super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.menu_fragment_feed, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

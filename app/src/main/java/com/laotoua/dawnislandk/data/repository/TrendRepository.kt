@@ -28,6 +28,8 @@ import com.laotoua.dawnislandk.util.DataResource
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.ReadableTime
 import com.laotoua.dawnislandk.util.ReadableTime.DATE_ONLY_FORMAT
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.ceil
@@ -42,21 +44,22 @@ class TrendRepository @Inject constructor(
     private val trendDelimiter = "\n\u2014\u2014\u2014\u2014\u2014<br />\n<br />\n"
 
     private val trendLength = 32
-    private val todayLong = ReadableTime.getTodayDateLong()
+    private var cache: DailyTrend? = null
 
     // Remote only acts as a request status responder, actual data will be emitted by local cache
     fun getLatestTrend() = liveData<DataResource<DailyTrend>> {
         var getRemoteData = true
-        val cache = dailyTrendDao.findLatestDailyTrendSync()
+        if (cache == null) cache = dailyTrendDao.findLatestDailyTrendSync()
         var page = 1
-        if (cache != null) {
-            emit(DataResource.create(LoadingStatus.SUCCESS, cache))
-            page = ceil(cache.lastReplyCount.toDouble() / 19).toInt()
+        cache?.let {
+            emit(DataResource.create(LoadingStatus.SUCCESS, it))
+            page = ceil(it.lastReplyCount.toDouble() / 19).toInt()
             // trends updates daily at 1AM
-            val diff = ReadableTime.getTimeAgo(System.currentTimeMillis(), cache.date)
+            val diff = ReadableTime.getTimeAgo(System.currentTimeMillis(), it.date)
             val dayTime = ReadableTime.HOUR_MILLIS * 25
             if (diff - dayTime < 0) {
                 getRemoteData = false
+                Timber.d("It's less than 25 hours since Trend last updated. Reusing...")
             }
         }
         if (getRemoteData) {
@@ -66,6 +69,7 @@ class TrendRepository @Inject constructor(
     }
 
     private suspend fun getRemoteTrend(page: Int): DataResource<DailyTrend>? {
+        Timber.d("Getting remote trend on page $page")
         return webService.getComments(trendId, page).run {
             if (this is APIDataResponse.APISuccessDataResponse) {
                 val targetPage = ceil(data.replyCount.toDouble() / 19).toInt()
@@ -88,6 +92,7 @@ class TrendRepository @Inject constructor(
                 if (list.size == trendLength) {
                     // keep only date in DB, e.g 2018-10-18 for "2018-10-18(四)17:55:01"
                     val dateString = reply.now.substringBefore("(")
+                    Timber.d("Found remote trends on $dateString")
                     return DailyTrend(
                         trendId,
                         po,
@@ -105,8 +110,10 @@ class TrendRepository @Inject constructor(
         val newDailyTrend: DailyTrend? = extractLatestTrend(data)
         return when {
             newDailyTrend != null -> {
-                if (newDailyTrend.date >= todayLong) {
-                    dailyTrendDao.insertWithTimeStamp(newDailyTrend)
+                if (newDailyTrend.date != cache?.date) {
+                    Timber.d("Found new trends. Saving...")
+                    cache = newDailyTrend
+                    coroutineScope { launch { dailyTrendDao.insertWithTimeStamp(newDailyTrend) } }
                 }
                 DataResource.create(LoadingStatus.SUCCESS, newDailyTrend)
             }

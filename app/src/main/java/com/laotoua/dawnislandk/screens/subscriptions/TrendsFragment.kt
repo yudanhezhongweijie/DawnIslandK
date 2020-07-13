@@ -36,6 +36,7 @@ import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
 import com.laotoua.dawnislandk.util.DataResource
 import com.laotoua.dawnislandk.util.EventPayload
+import com.laotoua.dawnislandk.util.LoadingStatus
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import timber.log.Timber
 
@@ -56,6 +57,7 @@ class TrendsFragment : BaseNavFragment() {
     private val trendsObs = Observer<DataResource<DailyTrend>> {
         if (_mAdapter == null) return@Observer
         updateHeaderAndFooter(binding.srlAndRv.refreshLayout, mAdapter, EventPayload(it.status, it.message, null))
+        if (it.status == LoadingStatus.LOADING) return@Observer
         val list = it.data?.trends
         if (list.isNullOrEmpty()) {
             if (!mAdapter.hasEmptyView()) mAdapter.setDefaultEmptyView()

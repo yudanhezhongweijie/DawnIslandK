@@ -141,6 +141,7 @@
             android:layout_height="0dp"
             android:background="@drawable/sage_background"
             android:gravity="bottom|center_horizontal"
+            android:text="@string/sage_text"
             android:textSize="18sp"
             android:textStyle="bold"
             android:visibility="gone"

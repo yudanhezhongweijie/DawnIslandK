@@ -103,7 +103,8 @@
         <item>⊂彡☆))д`)</item>
         <item>⊂彡☆))д´)</item>
         <item>⊂彡☆))∀`)</item>
-        <item>(´∀((☆ミつ"</item>
+        <item>(´∀((☆ミつ</item>
+        <item>༼;´༎ຶ ۝ ༎ຶ༽</item>
     </string-array>
 
     <string-array name="LuweiStickersWhite">
@@ -360,7 +361,7 @@
 
     <string-array name="post_options">
         <item>举报</item>
-<!--        <item>屏蔽</item>-->
+        <!--        <item>屏蔽</item>-->
     </string-array>
 
 </resources>

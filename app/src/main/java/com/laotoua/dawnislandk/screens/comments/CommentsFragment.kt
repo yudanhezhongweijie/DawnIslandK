@@ -294,16 +294,11 @@ class CommentsFragment : DaggerFragment() {
             }
 
             binding.post.setOnClickListener {
-                val page = getCurrentPage(mAdapter)
                 postPopup.setupAndShow(
                     viewModel.currentPostId,
                     viewModel.currentPostFid,
                     targetPage = viewModel.maxPage
-                ) {
-                    if (page == viewModel.maxPage) {
-                        mAdapter.loadMoreModule.loadMoreToLoading()
-                    }
-                }
+                )
             }
 
             binding.jump.setOnClickListener {
@@ -377,16 +372,26 @@ class CommentsFragment : DaggerFragment() {
         Timber.i("${this.javaClass.simpleName} Adapter will have ${mAdapter.data.size} threads")
     }
 
+    private val successPostObs = Observer<SingleLiveEvent<Boolean>> {event ->
+        event.getContentIfNotHandled()?.let {
+            if (it && currentPage >= viewModel.maxPage - 1) {
+                mAdapter.loadMoreModule.loadMoreToLoading()
+            }
+        }
+    }
+
     private fun subscribeUI() {
         viewModel.addFeedResponse.observe(viewLifecycleOwner, addFeedObs)
         viewModel.loadingStatus.observe(viewLifecycleOwner, loadingStatusObs)
         viewModel.comments.observe(viewLifecycleOwner, commentsObs)
+        sharedVM.savePostStatus.observe(viewLifecycleOwner, successPostObs)
     }
 
     private fun unsubscribeUI() {
         viewModel.addFeedResponse.removeObserver(addFeedObs)
         viewModel.loadingStatus.removeObserver(loadingStatusObs)
         viewModel.comments.removeObserver(commentsObs)
+        sharedVM.savePostStatus.removeObserver(successPostObs)
     }
 
     override fun onPause() {

@@ -101,7 +101,6 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
     // keyboard height listener
     private var keyboardHeight = -1
     private var keyboardHolder: LinearLayout? = null
-    private var afterPostTask: (() -> Unit)? = null
 
     private fun updateTitle(targetId: String?, newPost: Boolean) {
         findViewById<TextView>(R.id.postTitle).text =
@@ -137,11 +136,6 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
         }
     }
 
-    // TODO: memory leak as after post tasks is destroyed upon activity destroy
-    fun bindAfterPostTask(task: (() -> Unit)) {
-        afterPostTask = task
-    }
-
     fun updateView(targetId: String?, newPost: Boolean, quote: String?) {
         if (targetId != "-1") this.targetId = targetId // cannot post to timeline
         this.newPost = newPost
@@ -161,8 +155,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
         targetFid: String,
         newPost: Boolean = false,
         targetPage: Int = 1,
-        quote: String? = null,
-        afterPostTask: (() -> Unit)? = null
+        quote: String? = null
     ) {
         XPopup.Builder(context)
             .setPopupCallback(object : SimpleCallback() {
@@ -170,12 +163,10 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
                     this@PostPopup.targetPage = targetPage
                     this@PostPopup.targetFid = targetFid
                     updateView(targetId, newPost, quote)
-                    afterPostTask?.run { bindAfterPostTask(this) }
                     super.beforeShow()
                 }
             })
             .enableDrag(false)
-//            .moveUpToKeyboard(false)
             .asCustom(this)
             .show()
     }
@@ -555,7 +546,6 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
                             selectedCookie?.cookieName ?: "",
                             content
                         )
-                        afterPostTask?.invoke()
                         clearEntries()
                     }
                 }

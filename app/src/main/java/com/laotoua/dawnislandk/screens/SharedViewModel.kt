@@ -32,8 +32,6 @@ import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.data.repository.CommunityRepository
 import com.laotoua.dawnislandk.screens.util.ContentTransformation
-import com.laotoua.dawnislandk.util.EventPayload
-import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.SingleLiveEvent
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -55,9 +53,8 @@ class SharedViewModel @Inject constructor(
     private var _selectedForumId = MutableLiveData<String>()
     val selectedForumId: LiveData<String> get() = _selectedForumId
 
-    // TODO: use
-    private val _savePostStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
-    val savePostStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>> get() = _savePostStatus
+    private val _savePostStatus = MutableLiveData<SingleLiveEvent<Boolean>>()
+    val savePostStatus: LiveData<SingleLiveEvent<Boolean>> get() = _savePostStatus
 
     private lateinit var loadingBible: List<String>
 
@@ -66,8 +63,7 @@ class SharedViewModel @Inject constructor(
     var forumNameMapping = mapOf<String, String>()
         private set
 
-    var forumMsgMapping = mapOf<String, String>()
-        private set
+    private var forumMsgMapping = mapOf<String, String>()
 
 
     init {
@@ -165,9 +161,8 @@ class SharedViewModel @Inject constructor(
         content: String
     ) {
         if (cookieName.isBlank()) {
-            val message = "Trying to save a Post without cookieName"
-            _savePostStatus.postValue(SingleLiveEvent.create(LoadingStatus.ERROR, message))
-            Timber.e(message)
+            _savePostStatus.postValue(SingleLiveEvent.create(false))
+            Timber.e("Trying to save a Post without cookieName")
             return
         }
         viewModelScope.launch {
@@ -205,7 +200,7 @@ class SharedViewModel @Inject constructor(
                             )
                         )
                         saved = true
-                        _savePostStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))
+                        _savePostStatus.postValue(SingleLiveEvent.create(true))
                         Timber.d("Saved new post with id ${post.id}")
                         break
                     }
@@ -213,8 +208,8 @@ class SharedViewModel @Inject constructor(
                 postDao.insertAll(data)
             }
             if (!saved) {
-                _savePostStatus.postValue(SingleLiveEvent.create(LoadingStatus.ERROR, message))
-                Timber.d("Failed to save new post")
+                _savePostStatus.postValue(SingleLiveEvent.create(false))
+                Timber.e("Failed to save new post")
             }
         }
     }
@@ -225,12 +220,8 @@ class SharedViewModel @Inject constructor(
         targetPageUpperBound: Boolean
     ) {
         if (targetPage < 1) {
-            _savePostStatus.postValue(
-                SingleLiveEvent.create(
-                    LoadingStatus.ERROR,
-                    "无法保存发言历史...请联系作者\n"
-                )
-            )
+            _savePostStatus.postValue(SingleLiveEvent.create(false))
+            Timber.e("Did not find comment in all pages")
             return
         }
         Timber.d("Searching posted comment in ${draft.postTargetId} on page $targetPage")
@@ -247,12 +238,7 @@ class SharedViewModel @Inject constructor(
                 commentDao.insertAllWithTimeStamp(data.comments)
             } else {
                 Timber.e(message)
-                _savePostStatus.postValue(
-                    SingleLiveEvent.create(
-                        LoadingStatus.ERROR,
-                        "无法保存发言历史...\n$message"
-                    )
-                )
+                _savePostStatus.postValue(SingleLiveEvent.create(false))
             }
         }
     }
@@ -278,7 +264,7 @@ class SharedViewModel @Inject constructor(
                         draft
                     )
                 )
-                _savePostStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))
+                _savePostStatus.postValue(SingleLiveEvent.create(true))
                 Timber.d("Saved posted comment with id ${reply.id}")
                 return
             }

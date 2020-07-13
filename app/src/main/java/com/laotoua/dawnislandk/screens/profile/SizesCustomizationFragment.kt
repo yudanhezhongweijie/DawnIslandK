@@ -92,9 +92,13 @@ class SizesCustomizationFragment : Fragment() {
             visibility = View.VISIBLE
             text = "名称： 无名氏"
         }
+
+        demoCard.findViewById<TextView>(R.id.refId).setText(R.string.sample_ref_id)
+        demoCard.findViewById<TextView>(R.id.userId).setText(R.string.sample_user_id)
+        demoCard.findViewById<TextView>(R.id.timestamp).setText(R.string.sample_timestamp_simplified)
         demoCard.findViewById<ImageView>(R.id.attachedImage).setImageResource(R.mipmap.ic_launcher)
 
-        val threadForumAndReplyCount = SpannableString(demoCard.forumAndReplyCount.text)
+        val threadForumAndReplyCount = SpannableString(requireContext().getString(R.string.sample_forum_and_reply_count))
         threadForumAndReplyCount.setSpan(
             RoundBackgroundColorSpan(
                 Color.parseColor("#12DBD1"),
@@ -105,7 +109,7 @@ class SizesCustomizationFragment : Fragment() {
         demoCard.findViewById<TextView>(R.id.forumAndReplyCount)
             .setText(threadForumAndReplyCount, TextView.BufferType.SPANNABLE)
 
-        val threadContent = SpannableString(demoCard.content.text)
+        val threadContent = SpannableString(requireContext().getString(R.string.sample_post_content))
         threadContent.setSpan(
             SegmentSpacingSpan(
                 PostCardFactory.lineHeight,

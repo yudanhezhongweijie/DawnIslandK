@@ -43,10 +43,7 @@ import java.io.File
 
 
 @SuppressLint("ViewConstructor")
-class ImageViewerPopup(
-    private val imgUrl: String,
-    context: Context
-) : ImageViewerPopupView(context) {
+class ImageViewerPopup(context: Context) : ImageViewerPopupView(context) {
 
     private val caller = context as FragmentActivity
     private val toastMsg = MutableLiveData<SingleLiveEvent<Int>>()
@@ -65,15 +62,16 @@ class ImageViewerPopup(
         pager.adapter = PopupPVA()
     }
 
-    private val toastObs = Observer<SingleLiveEvent<Int>> {event->
+    private val toastObs = Observer<SingleLiveEvent<Int>> { event ->
         event.getContentIfNotHandled()?.let {
             Toast.makeText(caller, it, Toast.LENGTH_SHORT).show()
         }
     }
+
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         this.isShowSaveBtn = false
-        saveButton.setOnClickListener { addPicToGallery(context, imgUrl) }
+        saveButton.setOnClickListener { addPicToGallery(context, urls[position].toString()) }
         toastMsg.observe(caller, toastObs)
     }
 
@@ -132,6 +130,7 @@ class ImageViewerPopup(
     }
 
     inner class PopupPVA : PhotoViewAdapter() {
+
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
             val photoView =
                 PhotoView(container.context)

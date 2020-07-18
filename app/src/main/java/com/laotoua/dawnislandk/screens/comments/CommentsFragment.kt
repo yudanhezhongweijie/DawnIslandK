@@ -170,7 +170,7 @@ class CommentsFragment : DaggerFragment() {
                             val url = getItem(position).getImgUrl()
                             // TODO support multiple image
                             val viewerPopup =
-                                ImageViewerPopup(url, requireContext())
+                                ImageViewerPopup(requireContext())
                             viewerPopup.setSingleSrcView(view as ImageView?, url)
 
                             XPopup.Builder(context)

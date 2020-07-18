@@ -227,7 +227,7 @@ class PostHistoryFragment : BaseNavFragment() {
         ) {
             if (view.id == R.id.attachedImage) {
                 val url = data.getImgUrl()
-                val viewerPopup = ImageViewerPopup(url, context)
+                val viewerPopup = ImageViewerPopup(context)
                 viewerPopup.setSingleSrcView(view as ImageView?, url)
                 XPopup.Builder(context)
                     .asCustom(viewerPopup)

@@ -190,7 +190,7 @@ class PostsFragment : BaseNavFragment() {
                 setOnItemChildClickListener { _, view, position ->
                     if (view.id == R.id.attachedImage) {
                         val url = getItem(position).getImgUrl()
-                        val viewerPopup = ImageViewerPopup(url, requireContext())
+                        val viewerPopup = ImageViewerPopup(requireContext())
                         viewerPopup.setSingleSrcView(view as ImageView?, url)
                         XPopup.Builder(context)
                             .asCustom(viewerPopup)

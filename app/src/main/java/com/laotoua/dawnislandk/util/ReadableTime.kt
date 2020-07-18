@@ -52,10 +52,13 @@ object ReadableTime {
     )
     private val mCalendar = Calendar.getInstance()
     private val localInstance get() = Locale.getDefault()
+
     // The website use GMT+08:00
-    private val SERVER_DATETIME_FORMAT = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", localInstance).apply {
-        timeZone = TimeZone.getTimeZone("GMT+08:00")
-    }
+    private val SERVER_DATETIME_FORMAT =
+        SimpleDateFormat("yyyy-MM-dd HH:mm:ss", localInstance).apply {
+            timeZone = TimeZone.getTimeZone("GMT+08:00")
+        }
+
     // rests use local TZ
     val DATE_ONLY_FORMAT = SimpleDateFormat("yyyy-MM-dd", localInstance)
     private val DATETIME_FORMAT = SimpleDateFormat("yy/MM/dd HH:mm", localInstance)
@@ -135,11 +138,22 @@ object ReadableTime {
         }
     }
 
-    fun getTimeAgo(time1: Long, time2: Long): Long {
+    fun getTimeAgo(time1: Long, time2: Long, applyTimezoneOffset: Boolean = false): Long {
         synchronized(
             sDateFormatLock1
         ) {
-            mCalendar.time = Date(time1)
+
+            val now = System.currentTimeMillis()
+            mCalendar.time =
+                if (applyTimezoneOffset) {
+                    Date(
+                        time1 + (TimeZone.getTimeZone("GMT+08:00")
+                            .getOffset(now) - TimeZone.getDefault()
+                            .getOffset(now)).toLong()
+                    )
+                } else {
+                    Date(time1)
+                }
             val nowLong = mCalendar.time.time
             mCalendar.time = Date(time2)
             val timeLong = mCalendar.time.time

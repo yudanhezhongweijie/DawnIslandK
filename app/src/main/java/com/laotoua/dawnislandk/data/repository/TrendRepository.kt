@@ -55,7 +55,7 @@ class TrendRepository @Inject constructor(
             emit(DataResource.create(LoadingStatus.SUCCESS, it))
             page = ceil(it.lastReplyCount.toDouble() / 19).toInt()
             // trends updates daily at 1AM
-            val diff = ReadableTime.getTimeAgo(System.currentTimeMillis(), it.date)
+            val diff = ReadableTime.getTimeAgo(System.currentTimeMillis(), it.date, true)
             val dayTime = ReadableTime.HOUR_MILLIS * 25
             if (diff - dayTime < 0) {
                 getRemoteData = false

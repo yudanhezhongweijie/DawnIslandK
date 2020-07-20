@@ -171,7 +171,11 @@ class MainActivity : DaggerAppCompatActivity() {
                 } else if (count == 2) {
                     if (path[1] == 't') {
                         val navAction = MainNavDirections.actionGlobalCommentsFragment(id, "")
-                        findNavController(R.id.navHostFragment).navigate(navAction)
+                        val navHostFragment =
+                            supportFragmentManager.findFragmentById(R.id.navHostFragment)
+                        if (navHostFragment is NavHostFragment) {
+                            navHostFragment.navController.navigate(navAction)
+                        }
                     } else if (path[1] == 'f') {
                         val fid = sharedVM.getForumIdByName(URLDecoder.decode(id, "UTF-8"))
                         sharedVM.setForumId(fid)

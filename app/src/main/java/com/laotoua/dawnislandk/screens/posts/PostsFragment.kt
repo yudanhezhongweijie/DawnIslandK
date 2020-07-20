@@ -105,7 +105,8 @@ class PostsFragment : BaseNavFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.forumRule -> {
-                if (sharedVM.selectedForumId.value == null) {
+                val fid = sharedVM.selectedForumId.value
+                if (fid == null) {
                     Toast.makeText(
                         requireContext(),
                         R.string.please_try_again_later,
@@ -113,16 +114,23 @@ class PostsFragment : BaseNavFragment() {
                     ).show()
                     return true
                 }
+                val fidInt: Int?
+                try {
+                    fidInt = fid.toInt()
+                } catch (e: Exception) {
+                    Toast.makeText(context, R.string.did_not_select_forum_id, Toast.LENGTH_SHORT)
+                        .show()
+                    return true
+                }
                 MaterialDialog(requireContext()).show {
-                    val forumId = sharedVM.selectedForumId.value!!
-                    val biId = if (forumId.toInt() > 0) forumId.toInt() else 1
+                    val biId = if (fidInt > 0) fidInt else 1
                     val resourceId: Int = context.resources.getIdentifier(
                         "bi_$biId", "drawable",
                         context.packageName
                     )
                     icon(resourceId)
-                    title(text = sharedVM.getForumDisplayName(forumId))
-                    message(text = sharedVM.getForumMsg(forumId)) {
+                    title(text = sharedVM.getForumDisplayName(fid))
+                    message(text = sharedVM.getForumMsg(fid)) {
                         html { link ->
                             val uri = if (link.startsWith("/")) {
                                 DawnConstants.nmbHost + link

@@ -22,6 +22,8 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.util.Size
@@ -195,8 +197,14 @@ object ImageUtil {
         val pipedInputStream = PipedInputStream()
         PipedOutputStream(pipedInputStream).use {
             caller.lifecycleScope.launch(Dispatchers.IO) {
-                val bmp = BitmapFactory.decodeFileDescriptor(fileDescriptor)
-                bmp.compress(Bitmap.CompressFormat.JPEG, ratio, it)
+                try {
+                    val bmp = BitmapFactory.decodeFileDescriptor(fileDescriptor)
+                    bmp.compress(Bitmap.CompressFormat.JPEG, ratio, it)
+                } catch (e:Exception){
+                    Handler(Looper.getMainLooper()).post {
+                        Toast.makeText(caller, "压缩图片时发生错误", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
         }
         return pipedInputStream

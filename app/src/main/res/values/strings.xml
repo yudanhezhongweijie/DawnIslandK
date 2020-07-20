@@ -106,6 +106,8 @@
     <string name="sending" translatable="false">正在发送中...</string>
     <string name="processing" translatable="false">正在处理中...</string>
     <string name="something_went_wrong" translatable="false">发生未知错误...</string>
+    <string name="did_not_select_forum_id" translatable="false">发生错误：没有选择板块</string>
+    <string name="image_does_not_exist" translatable="false">图片不存在</string>
     <string name="image_saved" translatable="false">图片保存在Pictures/Dawn</string>
     <string name="image_already_exists_in_picture" translatable="false">已保存图片，同时检测到图库中有相同名字的图片。默认图库可能不会显示新图片，但是在文件管理器下可见，请勿重复保存</string>
     <string name="did_not_get_cookie_from_image" translatable="false">没有读取到饼干。。请检查图片</string>

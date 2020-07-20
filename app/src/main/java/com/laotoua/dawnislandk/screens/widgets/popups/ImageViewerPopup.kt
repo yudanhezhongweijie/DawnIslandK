@@ -114,11 +114,16 @@ class ImageViewerPopup(
                 val ext = fileName.substringAfterLast(".")
                 fileName = "${name}_${ReadableTime.getCurrentTimeFileName()}.$ext"
             }
+            val source = imageLoader.getImageFile(context, imgUrl)
+            if (source == null) {
+                toastMsg.postValue(SingleLiveEvent.create(R.string.image_does_not_exist))
+                return@launch
+            }
             val saved = ImageUtil.copyImageFileToGallery(
                 caller,
                 fileName,
                 relativeLocation,
-                imageLoader.getImageFile(context, imgUrl)
+                source
             )
             if (fileExist && saved) toastMsg.postValue(SingleLiveEvent.create(R.string.image_already_exists_in_picture))
             else if (saved) toastMsg.postValue(SingleLiveEvent.create(R.string.image_saved))

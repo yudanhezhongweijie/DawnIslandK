@@ -57,8 +57,8 @@ android {
         applicationId "com.laotoua.dawnislandk"
         minSdkVersion 23
         targetSdkVersion 29
-        versionCode 14
-        versionName "v0.9.7"
+        versionCode 15
+        versionName "v0.9.8"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -196,7 +196,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-crashlytics:17.1.1'
     implementation 'com.google.firebase:firebase-inappmessaging-display-ktx:19.1.0'
     implementation 'com.google.firebase:firebase-config-ktx:19.2.0'
-    implementation 'com.google.firebase:firebase-perf:19.0.7'
+    implementation 'com.google.firebase:firebase-perf:19.0.8'
 
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.3'
     debugImplementation 'com.amitshekhar.android:debug-db:1.0.6'

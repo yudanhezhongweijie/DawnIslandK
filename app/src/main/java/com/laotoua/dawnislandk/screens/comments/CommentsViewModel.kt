@@ -126,6 +126,10 @@ class CommentsViewModel @Inject constructor(
     ) {
         var status = dataResource.status
         if (dataResource.status == LoadingStatus.SUCCESS || dataResource.status == LoadingStatus.NO_DATA) {
+            // assign fid if missing
+            if (currentPostFid.isBlank()){
+                currentPostFid = commentRepo.getFid(currentPostId)
+            }
             val list = mutableListOf<Comment>()
             /**
              * By default, a post is only stored in the post table, but not stored in the comment table.

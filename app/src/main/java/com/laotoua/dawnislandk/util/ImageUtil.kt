@@ -156,6 +156,9 @@ object ImageUtil {
         }
     }
 
+    // TODO: combine image compressing and image file return
+    // image file should only return valid file if compressing is successful
+    // TODO: combine get image file & load image preview
     fun getImageFileFromUri(caller: FragmentActivity, uri: Uri): File? {
         caller.contentResolver.openFileDescriptor(uri, "r", null)?.use { pfd ->
             val filename = getFileName(caller, uri)

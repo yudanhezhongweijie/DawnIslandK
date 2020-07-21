@@ -70,9 +70,9 @@ class PostsFragment : BaseNavFragment() {
             mAdapter.setDiffNewData(null)
             return@Observer
         }
-        // adds title when navigate from website url
-        if (mAdapter.data.isNullOrEmpty() && (requireActivity() as MainActivity).supportActionBar?.title.isNullOrBlank()) {
-            (requireActivity() as MainActivity).setToolbarTitle(sharedVM.getForumDisplayName(it.first().fid))
+        // set forum when navigate from website url
+        if (sharedVM.selectedForumId.value == null) {
+            sharedVM.setForumId(it.first().fid)
         }
         mAdapter.setDiffNewData(it.toMutableList())
         Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
@@ -82,7 +82,6 @@ class PostsFragment : BaseNavFragment() {
         if (_mAdapter == null) return@Observer
         if (viewModel.currentFid != it) mAdapter.setList(emptyList())
         viewModel.setForum(it)
-        (requireActivity() as MainActivity).setToolbarTitle(sharedVM.getToolbarTitle())
     }
 
     private val loadingObs = Observer<SingleLiveEvent<EventPayload<Nothing>>> {

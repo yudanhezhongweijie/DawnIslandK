@@ -154,6 +154,12 @@ class MainActivity : DaggerAppCompatActivity() {
         sharedVM.reedPictureUrl.observe(this, Observer<String> {
             forumDrawer.setReedPicture(it)
         })
+
+        sharedVM.selectedForumId.observe(this, Observer<String> {
+            if (currentFragmentId == R.id.postsFragment) {
+                setToolbarTitle(sharedVM.getForumDisplayName(it))
+            }
+        })
     }
 
     private fun handleIntentFilterNavigation(intent: Intent?) {
@@ -263,6 +269,9 @@ class MainActivity : DaggerAppCompatActivity() {
             val navController = navHostFragment.navController
             navController.addOnDestinationChangedListener { _, destination, _ ->
                 currentFragmentId = destination.id
+                if (currentFragmentId == R.id.postsFragment){
+                    sharedVM.selectedForumId.value?.let { setToolbarTitle(sharedVM.getForumDisplayName(it))}
+                }
             }
             binding.bottomNavBar.setOnNavigationItemReselectedListener { item: MenuItem ->
                 if (item.itemId == R.id.postsFragment) showDrawer()
@@ -363,9 +372,11 @@ class MainActivity : DaggerAppCompatActivity() {
         )
     }
 
-    fun setToolbarTitle(text: String) {
-        val animCharCount = max(binding.toolbar.title.length, text.length)
-        ValueAnimator.ofObject(StringEvaluator(animCharCount), binding.toolbar.title, text).apply {
+    fun setToolbarTitle(newTitle: String) {
+        val oldTitle = binding.toolbar.title.toString()
+        if (oldTitle == newTitle) return
+        val animCharCount = max(oldTitle.length, newTitle.length)
+        ValueAnimator.ofObject(StringEvaluator(animCharCount), binding.toolbar.title, newTitle).apply {
             duration = animCharCount.toLong() * 60
             start()
             addUpdateListener {

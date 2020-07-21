@@ -58,8 +58,6 @@ class SharedViewModel @Inject constructor(
 
     private lateinit var loadingBible: List<String>
 
-    private var toolbarTitle = "A岛"
-
     var forumNameMapping = mapOf<String, String>()
         private set
 
@@ -95,7 +93,6 @@ class SharedViewModel @Inject constructor(
 
     fun setForumId(fid: String) {
         Timber.d("Setting forum to id: $fid")
-        toolbarTitle = forumNameMapping[fid] ?: ""
         _selectedForumId.value = fid
     }
 
@@ -110,11 +107,9 @@ class SharedViewModel @Inject constructor(
     fun getForumMsg(id: String): String = if (id.isBlank()) "" else forumMsgMapping[id] ?: ""
 
     fun getForumDisplayName(fid: String): String =
-        if (fid.isBlank()) "" else forumNameMapping[fid] ?: ""
+        if (fid.isBlank()) "" else forumNameMapping[fid] ?: "A岛"
 
     fun getSelectedPostForumName(fid: String): String = getForumDisplayName(fid)
-
-    fun getToolbarTitle(): String = toolbarTitle
 
     fun getForumIdByName(name: String): String {
         return forumNameMapping.filterValues { it == name }.keys.first()

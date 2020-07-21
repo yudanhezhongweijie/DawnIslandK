@@ -30,6 +30,9 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.laotoua.dawnislandk.R
+import com.laotoua.dawnislandk.data.local.entity.Comment
+import com.laotoua.dawnislandk.data.local.entity.Post
+import com.laotoua.dawnislandk.data.remote.SearchResult
 import com.laotoua.dawnislandk.util.ImageUtil
 import com.laotoua.dawnislandk.util.ReadableTime
 import com.laotoua.dawnislandk.util.SingleLiveEvent
@@ -71,7 +74,7 @@ class ImageViewerPopup(context: Context) : ImageViewerPopupView(context) {
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         this.isShowSaveBtn = false
-        saveButton.setOnClickListener { addPicToGallery(context, urls[position].toString()) }
+        saveButton.setOnClickListener { addPicToGallery(context, urls[position]) }
         toastMsg.observe(caller, toastObs)
     }
 
@@ -96,7 +99,9 @@ class ImageViewerPopup(context: Context) : ImageViewerPopupView(context) {
         return true
     }
 
-    private fun addPicToGallery(context: Context, imgUrl: String) {
+    private fun addPicToGallery(context: Context, urlObj: Any) {
+        val imgUrl:String = getImageUrl(urlObj)
+
         caller.lifecycleScope.launch(Dispatchers.IO) {
             if (!checkAndRequestExternalStoragePermission(caller)) {
                 return@launch
@@ -129,6 +134,26 @@ class ImageViewerPopup(context: Context) : ImageViewerPopupView(context) {
         }
     }
 
+    private fun getImageUrl(urlObj:Any):String{
+        return when (urlObj) {
+            is Post -> {
+                urlObj.getImgUrl()
+            }
+            is Comment -> {
+                urlObj.getImgUrl()
+            }
+            is SearchResult.Hit -> {
+                urlObj.getImgUrl()
+            }
+            is String -> {
+                urlObj.toString()
+            }
+            else -> {
+                throw Exception("Unhandled url getter for type $urlObj")
+            }
+        }
+    }
+
     inner class PopupPVA : PhotoViewAdapter() {
 
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
@@ -136,7 +161,7 @@ class ImageViewerPopup(context: Context) : ImageViewerPopupView(context) {
                 PhotoView(container.context)
             if (imageLoader != null) imageLoader.loadImage(
                 position,
-                urls[if (isInfinite) position % urls.size else position],
+                getImageUrl(urls[if (isInfinite) position % urls.size else position]),
                 photoView
             )
             container.addView(photoView)

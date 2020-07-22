@@ -224,11 +224,12 @@ class PostsFragment : BaseNavFragment() {
                 setHasFixedSize(true)
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                        if (_binding != null && dy > 0) {
+                        if (_binding == null) return
+                        if (dy > 0) {
                             hideFabMenu()
                             binding.fabMenu.hide()
                             binding.fabMenu.isClickable = false
-                        } else if (_binding != null && dy < 0) {
+                        } else if (dy < 0) {
                             binding.fabMenu.show()
                             binding.fabMenu.isClickable = true
                         }

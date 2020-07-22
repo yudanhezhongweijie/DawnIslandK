@@ -276,6 +276,7 @@ class CommentsFragment : DaggerFragment() {
                 setHasFixedSize(true)
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                        if (_binding == null) return
                         if (dy > 0) {
                             hideMenu()
                         } else if (dy < 0) {

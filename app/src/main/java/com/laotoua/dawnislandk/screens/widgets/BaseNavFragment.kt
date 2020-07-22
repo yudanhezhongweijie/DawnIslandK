@@ -36,6 +36,7 @@ open class BaseNavFragment : DaggerFragment() {
 
     private val navBarScrollListener = object : RecyclerView.OnScrollListener() {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            if (mRecyclerView == null) return
             if (dy > 0) {
                 (requireActivity() as MainActivity).hideNav()
             } else if (dy < 0) {
@@ -47,7 +48,7 @@ open class BaseNavFragment : DaggerFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (mRecyclerView != null) mRecyclerView?.removeOnScrollListener(navBarScrollListener)
+        mRecyclerView?.removeOnScrollListener(navBarScrollListener)
         view.findViewById<RecyclerView>(R.id.recyclerView)?.run {
             mRecyclerView = this
             addOnScrollListener(navBarScrollListener)

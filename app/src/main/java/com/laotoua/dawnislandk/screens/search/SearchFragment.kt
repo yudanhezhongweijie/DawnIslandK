@@ -165,6 +165,7 @@ class SearchFragment : BaseNavFragment() {
                 adapter = mAdapter
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                        if (_binding == null) return
                         val firstVisiblePos =
                             (layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
                         if (firstVisiblePos > 0 && firstVisiblePos < mAdapter.data.lastIndex) {

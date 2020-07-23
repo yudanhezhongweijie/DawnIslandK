@@ -38,7 +38,6 @@ class HideSpan(val start: Int, val end: Int) : ClickableSpan() {
 
     override fun onClick(widget: View) {
         if (widget is TextView) toggle(widget)
-
     }
 
     // overrides, DO NOT CREATE PAINT
@@ -50,18 +49,18 @@ class HideSpan(val start: Int, val end: Int) : ClickableSpan() {
         if (charSequence is Spannable) {
             hidden = !hidden
             if (!hidden) {
-                showSecret(charSequence)
+                showSecret(widget, charSequence)
             } else {
                 hideSecret(charSequence, start, end)
             }
         }
     }
 
-    private fun showSecret(charSequence: Spannable) {
+    private fun showSecret(widget: TextView, charSequence: Spannable) {
         charSequence.removeSpan(backgroundColorSpan)
         if (hasForegroundColorSpan) charSequence.removeSpan(foregroundColorSpan)
         // remove highlight color
-//        widget.highlightColor = Color.TRANSPARENT
+        widget.highlightColor = Color.TRANSPARENT
     }
 
     fun hideSecret(charSequence: Spannable, start: Int, end: Int) {

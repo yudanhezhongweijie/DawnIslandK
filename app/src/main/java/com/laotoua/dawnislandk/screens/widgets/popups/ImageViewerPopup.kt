@@ -179,18 +179,22 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
         }
     }
 
+    // only preload images when reading comments and each page has >10 pages on average,
     private fun preloadImages(currentPos: Int) {
-        if (urls.isNotEmpty()){
-            if (currentPos >= urls.size - 1 - prefetchItemCount && !nextPageLoading){
+        if (urls.firstOrNull() !is Comment) return
+        val pages = urls.map { (it as Comment).page }.toSet().size
+        if (urls.isNotEmpty() && urls.size / pages > 10) {
+            if (currentPos > urls.size - 1 - prefetchItemCount && !nextPageLoading) {
                 nextPageLoader?.invoke()
                 nextPageLoading = true
-            } else if (currentPos <= prefetchItemCount && !previousPageLoading) {
+            } else if (currentPos < prefetchItemCount && !previousPageLoading) {
                 previousPageLoader?.invoke()
                 previousPageLoading = true
             }
         }
     }
-    fun setPreviousPageLoader(task: (() -> Unit)?){
+
+    fun setPreviousPageLoader(task: (() -> Unit)?) {
         previousPageLoader = task
     }
 
@@ -378,14 +382,15 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
     fun setImageUrls(urls: MutableList<Any>): ImageViewerPopup {
         val currentItem = this.urls.getOrNull(position)
         this.urls = urls
-        if (currentItem != null){
+        if (currentItem != null) {
             position = urls.indexOf(currentItem).coerceAtLeast(0)
+            pager?.adapter?.notifyDataSetChanged()
             pager?.setCurrentItem(position, false)
             // clear loading flag
             nextPageLoading = false
             previousPageLoading = false
         }
-        if (this.isShow){
+        if (this.isShow) {
             showPagerIndicator()
         }
         return this
@@ -480,7 +485,7 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
                 locations[1] + srcView.height
             )
         }
-        if (urls.size > 1){
+        if (urls.size > 1) {
             pager?.currentItem = position
         }
         return this
@@ -519,16 +524,13 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
             return if (isInfinite) Int.MAX_VALUE / 2 else urls.size
         }
 
-        override fun isViewFromObject(
-            view: View,
-            o: Any
-        ): Boolean {
+        override fun isViewFromObject(view: View, o: Any): Boolean {
             return o === view
         }
 
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
             val photoView = PhotoView(container.context)
-            if (imageLoader != null) {
+            if (imageLoader != null && position < urls.size) {
                 imageLoader?.loadImage(
                     position,
                     getImageUrl(urls[if (isInfinite) position % urls.size else position]),

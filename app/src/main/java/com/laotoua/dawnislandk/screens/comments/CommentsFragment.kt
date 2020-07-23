@@ -98,7 +98,6 @@ class CommentsFragment : DaggerFragment() {
 
     private val imageViewerPopup: ImageViewerPopup by lazyOnMainOnly {
         ImageViewerPopup(requireContext()).apply {
-            isInfinite(true)
             setNextPageLoader { viewModel.getNextPage() }
             setPreviousPageLoader { viewModel.getPreviousPage() }
         }

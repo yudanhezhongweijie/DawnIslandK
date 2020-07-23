@@ -100,6 +100,7 @@ class CommentsFragment : DaggerFragment() {
         ImageViewerPopup(requireContext()).apply {
             isInfinite(true)
             setNextPageLoader { viewModel.getNextPage() }
+            setPreviousPageLoader { viewModel.getPreviousPage() }
         }
     }
 
@@ -181,10 +182,6 @@ class CommentsFragment : DaggerFragment() {
                                 Timber.e("Did not find image in for comment #$position")
                                 return@setOnItemChildClickListener
                             }
-//                            val viewerPopup = ImageViewerPopup(requireContext())
-//                                .setSrcView(null, pos)
-//                                .setImageUrls(imagesList.toMutableList())
-                            Timber.d("pos: $pos / ${imagesList.size}")
                             imageViewerPopup.setSrcView(null, pos)
                             XPopup.Builder(context)
                                 .asCustom(imageViewerPopup)

@@ -93,12 +93,15 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
     private var customView: View? = null
     private var bgColor = Color.rgb(32, 36, 46) //弹窗的背景颜色，可以自定义
     private val toastMsg = MutableLiveData<SingleLiveEvent<Int>>()
-    private var saveShown = true
+    private var uiShown = true
     private var saveButton: FloatingActionButton? = null
 
     // preload previous, next page if about to reach edge pages
     private var prefetchItemCount = 2
     private var nextPageLoader: (() -> Unit)? = null
+    private var nextPageLoading = false
+    private var previousPageLoader: (() -> Unit)? = null
+    private var previousPageLoading = false
 
     private val toastObs = Observer<SingleLiveEvent<Int>> { event ->
         event.getContentIfNotHandled()?.let {
@@ -177,9 +180,18 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
     }
 
     private fun preloadImages(currentPos: Int) {
-        if (urls.isNotEmpty() && currentPos >= urls.size - 1 - prefetchItemCount) {
+        if (urls.isNotEmpty()){
+            if (currentPos >= urls.size - 1 - prefetchItemCount && !nextPageLoading){
                 nextPageLoader?.invoke()
+                nextPageLoading = true
+            } else if (currentPos <= prefetchItemCount && !previousPageLoading) {
+                previousPageLoader?.invoke()
+                previousPageLoading = true
             }
+        }
+    }
+    fun setPreviousPageLoader(task: (() -> Unit)?){
+        previousPageLoader = task
     }
 
     fun setNextPageLoader(task: (() -> Unit)?) {
@@ -211,7 +223,7 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
             val pos = if (isInfinite) position % urls.size else position
             tvPagerIndicator!!.text = resources.getString(R.string.count_text, (pos + 1), urls.size)
         }
-        if (isShowSaveBtn && saveShown) saveButton!!.visibility = View.VISIBLE
+        if (isShowSaveBtn && uiShown) saveButton!!.visibility = View.VISIBLE
     }
 
     private fun addOrUpdateSnapshot() {
@@ -364,7 +376,15 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
     }
 
     fun setImageUrls(urls: MutableList<Any>): ImageViewerPopup {
+        val currentItem = this.urls.getOrNull(position)
         this.urls = urls
+        if (currentItem != null){
+            position = urls.indexOf(currentItem).coerceAtLeast(0)
+            pager?.setCurrentItem(position, false)
+            // clear loading flag
+            nextPageLoading = false
+            previousPageLoading = false
+        }
         if (this.isShow){
             showPagerIndicator()
         }
@@ -517,13 +537,15 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
             }
             container.addView(photoView)
             photoView.setOnClickListener {
-                saveShown = if (saveShown) {
+                uiShown = if (uiShown) {
                     saveButton?.hide()
                     saveButton?.isClickable = false
+                    tvPagerIndicator?.visibility = View.GONE
                     false
                 } else {
                     saveButton?.isClickable = true
                     saveButton?.show()
+                    tvPagerIndicator?.visibility = View.VISIBLE
                     true
                 }
 

@@ -70,8 +70,7 @@ import javax.inject.Inject
 class CommentsFragment : DaggerFragment() {
     private val args: CommentsFragmentArgs by navArgs()
 
-    private var _binding: FragmentCommentBinding? = null
-    private val binding get() = _binding!!
+    private var binding: FragmentCommentBinding? = null
 
     @Inject
     lateinit var viewModelFactory: DaggerViewModelFactory
@@ -137,10 +136,10 @@ class CommentsFragment : DaggerFragment() {
                     viewModel.onlyPo()
                     Toast.makeText(context, R.string.comment_filter_on, Toast.LENGTH_SHORT).show()
                 }
-                (binding.srlAndRv.recyclerView.layoutManager as LinearLayoutManager).run {
+                (binding?.srlAndRv?.recyclerView?.layoutManager as LinearLayoutManager?)?.run {
                     val startPos = findFirstVisibleItemPosition()
                     val itemCount = findLastVisibleItemPosition() - startPos
-                    mAdapter.notifyItemRangeChanged(startPos, itemCount + initialPrefetchItemCount)
+                    _mAdapter?.notifyItemRangeChanged(startPos, itemCount + initialPrefetchItemCount)
                 }
                 return true
             }
@@ -257,16 +256,17 @@ class CommentsFragment : DaggerFragment() {
             }
         }
 
-        if (_binding != null) {
+        if (binding != null) {
             Timber.d("Fragment View Reusing!")
         } else {
             Timber.d("Fragment View Created")
-            _binding = FragmentCommentBinding.inflate(inflater, container, false)
-            binding.srlAndRv.refreshLayout.apply {
+            binding = FragmentCommentBinding.inflate(inflater, container, false)
+            binding!!.srlAndRv.refreshLayout.apply {
                 setOnRefreshListener(object : RefreshingListenerAdapter() {
                     override fun onRefreshing() {
+                        if (binding == null || _mAdapter == null) return
                         if (!mAdapter.data.isNullOrEmpty() && mAdapter.getItem(
-                                (binding.srlAndRv.recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                                (binding!!.srlAndRv.recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
                             ).page == 1
                         ) {
                             Toast.makeText(context, "没有上一页了。。。", Toast.LENGTH_SHORT).show()
@@ -278,19 +278,19 @@ class CommentsFragment : DaggerFragment() {
                 })
             }
 
-            binding.srlAndRv.recyclerView.apply {
+            binding!!.srlAndRv.recyclerView.apply {
                 val llm = LinearLayoutManager(context)
                 layoutManager = llm
                 adapter = mAdapter
                 setHasFixedSize(true)
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                        if (_binding == null) return
+                        if (binding == null) return
                         if (dy > 0) {
                             hideMenu()
                         } else if (dy < 0) {
                             showMenu()
-                            if (llm.findFirstVisibleItemPosition() <= 2 && !binding.srlAndRv.refreshLayout.isRefreshing) {
+                            if (llm.findFirstVisibleItemPosition() <= 2 && !binding!!.srlAndRv.refreshLayout.isRefreshing) {
                                 viewModel.getPreviousPage()
                             }
                         }
@@ -299,11 +299,11 @@ class CommentsFragment : DaggerFragment() {
                 })
             }
 
-            binding.copyId.setOnClickListener {
+            binding!!.copyId.setOnClickListener {
                 copyText("串号", ">>No.${viewModel.currentPostId}")
             }
 
-            binding.post.setOnClickListener {
+            binding!!.post.setOnClickListener {
                 postPopup.setupAndShow(
                     viewModel.currentPostId,
                     viewModel.currentPostFid,
@@ -311,8 +311,9 @@ class CommentsFragment : DaggerFragment() {
                 )
             }
 
-            binding.jump.setOnClickListener {
-                if (binding.srlAndRv.refreshLayout.isRefreshing || mAdapter.loadMoreModule.isLoading) {
+            binding!!.jump.setOnClickListener {
+                if (binding == null || _mAdapter == null) return@setOnClickListener
+                if (binding!!.srlAndRv.refreshLayout.isRefreshing || mAdapter.loadMoreModule.isLoading) {
                     Timber.d("Loading data...Holding on jump...")
                     return@setOnClickListener
                 }
@@ -326,8 +327,9 @@ class CommentsFragment : DaggerFragment() {
 
                         override fun onDismiss() {
                             super.onDismiss()
+                            if (binding == null || _mAdapter == null) return
                             if (jumpPopup.submit) {
-                                binding.srlAndRv.refreshLayout.autoRefresh(
+                                binding!!.srlAndRv.refreshLayout.autoRefresh(
                                     Constants.ACTION_NOTHING,
                                     false
                                 )
@@ -341,11 +343,11 @@ class CommentsFragment : DaggerFragment() {
                     .show()
             }
 
-            binding.addFeed.setOnClickListener {
+            binding!!.addFeed.setOnClickListener {
                 viewModel.addFeed(viewModel.currentPostId)
             }
         }
-        return binding.root
+        return binding!!.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -364,9 +366,9 @@ class CommentsFragment : DaggerFragment() {
     }
 
     private val loadingStatusObs = Observer<SingleLiveEvent<EventPayload<Nothing>>> {
-        if (_binding == null || _mAdapter == null) return@Observer
+        if (binding == null || _mAdapter == null) return@Observer
         it.getContentIfNotHandled()?.run {
-            updateHeaderAndFooter(binding.srlAndRv.refreshLayout, mAdapter, this)
+            updateHeaderAndFooter(binding!!.srlAndRv.refreshLayout, mAdapter, this)
         }
     }
 
@@ -416,7 +418,7 @@ class CommentsFragment : DaggerFragment() {
 
         (requireActivity() as MainActivity).run {
             setToolbarClickListener {
-                binding.srlAndRv.recyclerView.layoutManager?.scrollToPosition(0)
+                binding?.srlAndRv?.recyclerView?.layoutManager?.scrollToPosition(0)
                 showMenu()
             }
             hideNav()
@@ -432,8 +434,8 @@ class CommentsFragment : DaggerFragment() {
     }
 
     private fun getCurrentPage(adapter: QuickAdapter<Comment>): Int {
-        if (_mAdapter == null || mAdapter.data.isNullOrEmpty()) return 1
-        val pos = (binding.srlAndRv.recyclerView.layoutManager as LinearLayoutManager)
+        if (_mAdapter == null || binding == null|| mAdapter.data.isNullOrEmpty()) return 1
+        val pos = (binding!!.srlAndRv.recyclerView.layoutManager as LinearLayoutManager)
             .findLastVisibleItemPosition()
             .coerceAtLeast(0)
             .coerceAtMost(adapter.data.lastIndex)
@@ -445,9 +447,9 @@ class CommentsFragment : DaggerFragment() {
         dismissAllQuotes()
         if (!DawnApp.applicationDataStore.viewCaching) {
             _mAdapter = null
-            _binding = null
+            binding = null
         }
-        Timber.d("Fragment View Destroyed ${_binding == null}")
+        Timber.d("Fragment View Destroyed ${binding == null}")
     }
 
     fun hideMenu() {
@@ -456,16 +458,16 @@ class CommentsFragment : DaggerFragment() {
             currentAnimatorSet!!.cancel()
         }
         currentState = RVScrollState.DOWN
-        currentAnimatorSet = binding.bottomToolbar.animate().apply {
+        currentAnimatorSet = binding?.bottomToolbar?.animate()?.apply {
             alpha(0f)
-            translationY(binding.bottomToolbar.height.toFloat())
+            translationY(binding!!.bottomToolbar.height.toFloat())
             duration = 250
             interpolator = AnimationUtils.FAST_OUT_LINEAR_IN_INTERPOLATOR
             setListener(object : Animator.AnimatorListener {
                 override fun onAnimationRepeat(animation: Animator?) {}
                 override fun onAnimationEnd(animation: Animator?) {
                     currentAnimatorSet = null
-                    binding.bottomToolbar.visibility = View.GONE
+                    binding?.bottomToolbar?.visibility = View.GONE
                 }
 
                 override fun onAnimationCancel(animation: Animator?) {}
@@ -481,8 +483,8 @@ class CommentsFragment : DaggerFragment() {
             currentAnimatorSet!!.cancel()
         }
         currentState = RVScrollState.UP
-        binding.bottomToolbar.visibility = View.VISIBLE
-        currentAnimatorSet = binding.bottomToolbar.animate().apply {
+        binding?.bottomToolbar?.visibility = View.VISIBLE
+        currentAnimatorSet = binding?.bottomToolbar?.animate()?.apply {
             alpha(1f)
             translationY(0f)
             duration = 250
@@ -509,9 +511,9 @@ class CommentsFragment : DaggerFragment() {
     }
 
     private fun updateCurrentPage() {
-        if (_mAdapter == null || _binding == null) return
+        if (_mAdapter == null || binding == null) return
         val lastVisiblePos =
-            (_binding?.srlAndRv?.recyclerView?.layoutManager as LinearLayoutManager?)?.findLastVisibleItemPosition()
+            (binding?.srlAndRv?.recyclerView?.layoutManager as LinearLayoutManager?)?.findLastVisibleItemPosition()
                 ?: 0
         if (0 <= lastVisiblePos && lastVisiblePos < mAdapter.data.size) {
             val page = mAdapter.getItem(lastVisiblePos).page
@@ -529,7 +531,7 @@ class CommentsFragment : DaggerFragment() {
 
     private fun showCommentMenuOnPos(pos: Int) {
         menuPos = pos
-        mAdapter.getViewByPosition(pos, R.id.commentMenu)?.apply {
+        _mAdapter?.getViewByPosition(pos, R.id.commentMenu)?.apply {
             visibility = View.VISIBLE
             animate()
                 .alpha(1f)
@@ -540,7 +542,7 @@ class CommentsFragment : DaggerFragment() {
 
     private fun hideCommentMenuOnPos(pos: Int) {
         if (menuPos < 0) return
-        mAdapter.getViewByPosition(pos, R.id.commentMenu)?.apply {
+        _mAdapter?.getViewByPosition(pos, R.id.commentMenu)?.apply {
             animate()
                 .alpha(0f)
                 .setDuration(150)
@@ -553,7 +555,7 @@ class CommentsFragment : DaggerFragment() {
     }
 
     private fun toggleCommentMenuOnPos(pos: Int) {
-        mAdapter.getViewByPosition(pos, R.id.commentMenu)?.apply {
+        _mAdapter?.getViewByPosition(pos, R.id.commentMenu)?.apply {
             if (isVisible) {
                 hideCommentMenuOnPos(pos)
             } else {

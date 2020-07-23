@@ -62,8 +62,7 @@ class FeedsFragment : BaseNavFragment() {
         fun newInstance() = FeedsFragment()
     }
 
-    private var _binding: FragmentSubscriptionFeedBinding? = null
-    private val binding: FragmentSubscriptionFeedBinding get() = _binding!!
+    private var binding: FragmentSubscriptionFeedBinding? = null
 
     private var _mAdapter: QuickMultiBinder? = null
     private val mAdapter: QuickMultiBinder get() = _mAdapter!!
@@ -133,19 +132,19 @@ class FeedsFragment : BaseNavFragment() {
                 }
             }
         }
-        if (_binding != null) {
+        if (binding != null) {
             Timber.d("Fragment View Reusing!")
         } else {
             Timber.d("Fragment View Created")
-            _binding = FragmentSubscriptionFeedBinding.inflate(inflater, container, false)
-            binding.srlAndRv.recyclerView.apply {
+            binding = FragmentSubscriptionFeedBinding.inflate(inflater, container, false)
+            binding!!.srlAndRv.recyclerView.apply {
                 setHasFixedSize(true)
                 layoutManager = LinearLayoutManager(context)
                 adapter = mAdapter
             }
 
             mAdapter.setDefaultEmptyView()
-            binding.srlAndRv.refreshLayout.apply {
+            binding!!.srlAndRv.refreshLayout.apply {
                 setOnRefreshListener(object : RefreshingListenerAdapter() {
                     override fun onRefreshing() {
                         viewModel.refreshOrGetPreviousPage()
@@ -153,7 +152,7 @@ class FeedsFragment : BaseNavFragment() {
                 })
             }
         }
-        return binding.root
+        return binding!!.root
     }
 
     private val delFeedResponseObs = Observer<SingleLiveEvent<String>> {
@@ -163,9 +162,9 @@ class FeedsFragment : BaseNavFragment() {
     }
 
     private val loadingObs = Observer<SingleLiveEvent<EventPayload<Nothing>>> {
-        if (_mAdapter == null || _binding == null) return@Observer
+        if (_mAdapter == null || binding == null) return@Observer
         it.getContentIfNotHandled()?.run {
-            updateHeaderAndFooter(binding.srlAndRv.refreshLayout, mAdapter, this)
+            updateHeaderAndFooter(binding!!.srlAndRv.refreshLayout, mAdapter, this)
             delayedLoading = false
         }
     }
@@ -206,7 +205,7 @@ class FeedsFragment : BaseNavFragment() {
         super.onResume()
 
         if (viewModel.feeds.value.isNullOrEmpty() && !delayedLoading) {
-            binding.srlAndRv.refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
+            binding?.srlAndRv?.refreshLayout?.autoRefresh(Constants.ACTION_NOTHING, false)
             // give sometime to skip load if bypassing this fragment
             mHandler = mHandler ?: Handler()
             delayedLoading = mHandler!!.postDelayed(mDelayedLoad, 500)
@@ -230,9 +229,9 @@ class FeedsFragment : BaseNavFragment() {
         mHandler = null
         if (!DawnApp.applicationDataStore.viewCaching) {
             _mAdapter = null
-            _binding = null
+            binding = null
         }
-        Timber.d("Fragment View Destroyed ${_binding == null}")
+        Timber.d("Fragment View Destroyed ${binding == null}")
     }
 
     private class SimpleTextBinder : QuickItemBinder<String>() {

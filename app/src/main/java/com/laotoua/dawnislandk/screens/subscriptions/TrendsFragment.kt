@@ -46,8 +46,7 @@ class TrendsFragment : BaseNavFragment() {
         fun newInstance() = TrendsFragment()
     }
 
-    private var _binding: FragmentSubscriptionTrendBinding? = null
-    private val binding get() = _binding!!
+    private var binding: FragmentSubscriptionTrendBinding? = null
 
     private var _mAdapter: QuickAdapter<Trend>? = null
     private val mAdapter get() = _mAdapter!!
@@ -55,8 +54,8 @@ class TrendsFragment : BaseNavFragment() {
     private val viewModel: TrendsViewModel by viewModels { viewModelFactory }
 
     private val trendsObs = Observer<DataResource<DailyTrend>> {
-        if (_mAdapter == null) return@Observer
-        updateHeaderAndFooter(binding.srlAndRv.refreshLayout, mAdapter, EventPayload(it.status, it.message, null))
+        if (_mAdapter == null || binding == null) return@Observer
+        updateHeaderAndFooter(binding!!.srlAndRv.refreshLayout, mAdapter, EventPayload(it.status, it.message, null))
         if (it.status == LoadingStatus.LOADING) return@Observer
         val list = it.data?.trends
         if (list.isNullOrEmpty()) {
@@ -68,7 +67,7 @@ class TrendsFragment : BaseNavFragment() {
         mAdapter.setFooterView(
             layoutInflater.inflate(
                 R.layout.view_no_more_data,
-                binding.srlAndRv.recyclerView,
+                binding!!.srlAndRv.recyclerView,
                 false
             )
         )
@@ -91,13 +90,13 @@ class TrendsFragment : BaseNavFragment() {
                 }
             }
         }
-        if (_binding != null) {
+        if (binding != null) {
             Timber.d("Fragment View Reusing!")
         } else {
             Timber.d("Fragment View Created")
-            _binding = FragmentSubscriptionTrendBinding.inflate(inflater, container, false)
+            binding = FragmentSubscriptionTrendBinding.inflate(inflater, container, false)
 
-            binding.srlAndRv.refreshLayout.apply {
+            binding!!.srlAndRv.refreshLayout.apply {
                 setOnRefreshListener(object : RefreshingListenerAdapter() {
                     override fun onRefreshing() {
                         refreshTrends()
@@ -105,14 +104,14 @@ class TrendsFragment : BaseNavFragment() {
                 })
             }
 
-            binding.srlAndRv.recyclerView.apply {
+            binding!!.srlAndRv.recyclerView.apply {
                 setHasFixedSize(true)
                 layoutManager = LinearLayoutManager(context)
                 adapter = mAdapter
             }
 
         }
-        return binding.root
+        return binding!!.root
     }
 
     override fun onResume() {
@@ -135,8 +134,8 @@ class TrendsFragment : BaseNavFragment() {
         super.onDestroyView()
         if (!DawnApp.applicationDataStore.viewCaching) {
             _mAdapter = null
-            _binding = null
+            binding = null
         }
-        Timber.d("Fragment View Destroyed ${_binding == null}")
+        Timber.d("Fragment View Destroyed ${binding == null}")
     }
 }

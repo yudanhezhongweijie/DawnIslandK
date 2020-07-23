@@ -299,9 +299,8 @@ class FeedsFragment : BaseNavFragment() {
             position: Int
         ) {
             if (view.id == R.id.attachedImage) {
-                val url = data.post!!.getImgUrl()
-                val viewerPopup = ImageViewerPopup(url, context)
-                viewerPopup.setSingleSrcView(view as ImageView?, url)
+                val viewerPopup = ImageViewerPopup(context)
+                viewerPopup.setSingleSrcView(view as ImageView?, data.post!!)
                 XPopup.Builder(context)
                     .asCustom(viewerPopup)
                     .show()

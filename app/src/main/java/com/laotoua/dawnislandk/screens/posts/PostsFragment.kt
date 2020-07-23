@@ -189,9 +189,8 @@ class PostsFragment : BaseNavFragment() {
                 addChildClickViewIds(R.id.attachedImage)
                 setOnItemChildClickListener { _, view, position ->
                     if (view.id == R.id.attachedImage) {
-                        val url = getItem(position).getImgUrl()
-                        val viewerPopup = ImageViewerPopup(url, requireContext())
-                        viewerPopup.setSingleSrcView(view as ImageView?, url)
+                        val viewerPopup = ImageViewerPopup(requireContext())
+                        viewerPopup.setSingleSrcView(view as ImageView?, getItem(position))
                         XPopup.Builder(context)
                             .asCustom(viewerPopup)
                             .show()

@@ -26,7 +26,6 @@ import android.os.Bundle
 import android.os.SystemClock
 import android.text.style.UnderlineSpan
 import android.view.*
-import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
@@ -88,9 +87,12 @@ class CommentsFragment : DaggerFragment() {
     private var filterActivated: Boolean = false
     private var requireTitleUpdate: Boolean = false
 
+    private var imagesList: List<Any> = listOf()
+
     // list to remember all currently displaying popups
     // need to dismiss all before jumping to new post, by lifo
     private val quotePopups: MutableList<QuotePopup> = mutableListOf()
+
     private val postPopup: PostPopup by lazyOnMainOnly { PostPopup(requireActivity(), sharedVM) }
     private val jumpPopup: JumpPopup by lazyOnMainOnly { JumpPopup(requireContext()) }
 
@@ -167,11 +169,14 @@ class CommentsFragment : DaggerFragment() {
                 setOnItemChildClickListener { _, view, position ->
                     when (view.id) {
                         R.id.attachedImage -> {
-                            val url = getItem(position).getImgUrl()
-                            // TODO support multiple image
-                            val viewerPopup =
-                                ImageViewerPopup(requireContext())
-                            viewerPopup.setSingleSrcView(view as ImageView?, url)
+                            val pos = imagesList.indexOf(getItem(position))
+                            if (pos < 0){
+                                Timber.e("Did not find image in for comment #$position")
+                                return@setOnItemChildClickListener
+                            }
+                            val viewerPopup = ImageViewerPopup(requireContext())
+                                .setSrcView(null, pos)
+                                .setImageUrls(imagesList.toMutableList())
 
                             XPopup.Builder(context)
                                 .asCustom(viewerPopup)
@@ -369,6 +374,7 @@ class CommentsFragment : DaggerFragment() {
             requireTitleUpdate = false
         }
         mAdapter.setDiffNewData(it.toMutableList())
+        updateCurrentlyAvailableImages(it)
         mAdapter.setPo(viewModel.po)
         Timber.i("${this.javaClass.simpleName} Adapter will have ${mAdapter.data.size} threads")
     }
@@ -582,5 +588,9 @@ class CommentsFragment : DaggerFragment() {
         dismissAllQuotes()
         val navAction = MainNavDirections.actionGlobalCommentsFragment(id, "")
         findNavController().navigate(navAction)
+    }
+
+    private fun updateCurrentlyAvailableImages(newList: MutableList<Comment>){
+        imagesList = newList.filter { it.getImgUrl().isNotBlank() }
     }
 }

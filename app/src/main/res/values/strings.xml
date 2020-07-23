@@ -56,7 +56,7 @@
     <string name="please_input_page_number" translatable="false">请输入页数</string>
     <string name="watermark" translatable="false">水印</string>
     <string name="missing_cookie" translatable="false">没有饼干</string>
-    <string name="cookie_count" translatable="false">%d / 5</string>
+    <string name="count_text" translatable="false">%d / %d</string>
     <string name="title" translatable="false">标题</string>
     <string name="email_address" translatable="false">邮箱</string>
     <string name="name" translatable="false">名称</string>

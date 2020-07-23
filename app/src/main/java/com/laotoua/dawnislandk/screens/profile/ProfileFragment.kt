@@ -69,6 +69,8 @@ class ProfileFragment : DaggerFragment() {
     lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel: ProfileViewModel by viewModels { viewModelFactory }
 
+    private val cookieLimit = 5
+
     private val getCookieImage =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
             uri?.run {
@@ -460,13 +462,13 @@ class ProfileFragment : DaggerFragment() {
                 binding.addCookie.isEnabled = true
             }
             binding.cookieSummary.text =
-                resources.getString(R.string.cookie_count, binding.cookieList.childCount)
+                resources.getString(R.string.count_text, binding.cookieList.childCount, cookieLimit)
         }
 
         binding.cookieList.addView(view.root)
 
         binding.cookieSummary.text =
-            resources.getString(R.string.cookie_count, binding.cookieList.childCount)
+            resources.getString(R.string.count_text, binding.cookieList.childCount, cookieLimit)
         if (binding.cookieList.childCount >= 5) {
             binding.addCookie.isEnabled = false
         }

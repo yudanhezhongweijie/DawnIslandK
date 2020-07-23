@@ -15,22 +15,50 @@
   ~  * limitations under the License.
   ~  */
   -->
-
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:viewBindingIgnore="true">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/save"
-        style="@style/Widget.MaterialComponents.FloatingActionButton"
+    <com.lxj.xpopup.widget.BlankView
+        android:id="@+id/placeholderView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:visibility="visible"
-        app:srcCompat="@drawable/ic_save_black_24px" />
+        android:visibility="invisible" />
+
+    <com.lxj.xpopup.widget.PhotoViewContainer
+        android:id="@+id/photoViewContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.lxj.xpopup.widget.HackyViewPager
+            android:id="@+id/pager"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </com.lxj.xpopup.widget.PhotoViewContainer>
+
+    <TextView
+        android:id="@+id/tv_pager_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="25dp"
+        android:layout_marginBottom="20dp"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/save_button"
+            style="@style/Widget.MaterialComponents.FloatingActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="16dp"
+            android:visibility="visible"
+            app:srcCompat="@drawable/ic_save_black_24px" />
 
 </FrameLayout>

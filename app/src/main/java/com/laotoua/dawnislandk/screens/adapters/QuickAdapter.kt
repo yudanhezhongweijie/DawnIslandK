@@ -50,7 +50,6 @@ class QuickAdapter<T>(
 
     private lateinit var referenceClickListener: ReferenceSpan.ReferenceClickHandler
 
-    // TODO: support multiple Po
     private var po: String = ""
 
     init {

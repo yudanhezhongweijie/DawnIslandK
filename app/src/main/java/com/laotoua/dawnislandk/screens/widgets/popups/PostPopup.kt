@@ -354,7 +354,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
             }
         }
 
-        // TODO: save
+        // TODO: save draft
         findViewById<Button>(R.id.postSave).apply {
             visibility = View.GONE
         }

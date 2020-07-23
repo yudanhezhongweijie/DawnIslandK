@@ -122,7 +122,7 @@ class BrowsingHistoryFragment : BaseNavFragment() {
     }
 
     private val listObs = Observer<List<BrowsingHistoryAndPost>> { list ->
-        if (_mAdapter == null) return@Observer
+        if (_mAdapter == null || _binding == null) return@Observer
         if (list.isEmpty()) {
             if (!mAdapter.hasEmptyView()) mAdapter.setDefaultEmptyView()
             mAdapter.setDiffNewData(null)
@@ -167,13 +167,13 @@ class BrowsingHistoryFragment : BaseNavFragment() {
     private fun setStartDate(date: Calendar) {
         startDate = date
         viewModel.setStartDate(date.time)
-        binding.startDate.text = ReadableTime.getDateString(date.time)
+        _binding?.startDate?.text = ReadableTime.getDateString(date.time)
     }
 
     private fun setEndDate(date: Calendar) {
         endDate = date
         viewModel.setEndDate(date.time)
-        binding.endDate.text = ReadableTime.getDateString(date.time)
+        _binding?.endDate?.text = ReadableTime.getDateString(date.time)
     }
 
     private class DateStringBinder : QuickItemBinder<String>() {

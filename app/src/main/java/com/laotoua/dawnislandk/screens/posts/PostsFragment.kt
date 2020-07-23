@@ -55,8 +55,7 @@ import timber.log.Timber
 
 class PostsFragment : BaseNavFragment() {
 
-    private var _binding: FragmentPostBinding? = null
-    private val binding get() = _binding!!
+    private var binding: FragmentPostBinding? = null
     private var _mAdapter: QuickAdapter<Post>? = null
     private val mAdapter get() = _mAdapter!!
     private val viewModel: PostsViewModel by viewModels { viewModelFactory }
@@ -85,9 +84,9 @@ class PostsFragment : BaseNavFragment() {
     }
 
     private val loadingObs = Observer<SingleLiveEvent<EventPayload<Nothing>>> {
-        if (_mAdapter == null || _binding == null) return@Observer
+        if (_mAdapter == null || binding == null) return@Observer
         it.getContentIfNotHandled()?.run {
-            updateHeaderAndFooter(binding.srlAndRv.refreshLayout, mAdapter, this)
+            updateHeaderAndFooter(binding!!.srlAndRv.refreshLayout, mAdapter, this)
         }
     }
 
@@ -203,13 +202,13 @@ class PostsFragment : BaseNavFragment() {
             }
         }
 
-        if (_binding != null) {
+        if (binding != null) {
             Timber.d("Fragment View Reusing!")
         } else {
             Timber.d("Fragment View Created")
-            _binding = FragmentPostBinding.inflate(inflater, container, false)
+            binding = FragmentPostBinding.inflate(inflater, container, false)
 
-            binding.srlAndRv.refreshLayout.apply {
+            binding!!.srlAndRv.refreshLayout.apply {
                 setOnRefreshListener(object : RefreshingListenerAdapter() {
                     override fun onRefreshing() {
                         viewModel.refresh()
@@ -217,30 +216,29 @@ class PostsFragment : BaseNavFragment() {
                 })
             }
 
-            binding.srlAndRv.recyclerView.apply {
+            binding!!.srlAndRv.recyclerView.apply {
                 layoutManager = LinearLayoutManager(context)
                 adapter = mAdapter
                 setHasFixedSize(true)
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                        if (_binding == null) return
                         if (dy > 0) {
                             hideFabMenu()
-                            binding.fabMenu.hide()
-                            binding.fabMenu.isClickable = false
+                            binding?.fabMenu?.hide()
+                            binding?.fabMenu?.isClickable = false
                         } else if (dy < 0) {
-                            binding.fabMenu.show()
-                            binding.fabMenu.isClickable = true
+                            binding?.fabMenu?.show()
+                            binding?.fabMenu?.isClickable = true
                         }
                     }
                 })
             }
 
-            binding.fabMenu.setOnClickListener {
+            binding!!.fabMenu.setOnClickListener {
                 toggleFabMenu()
             }
 
-            binding.post.setOnClickListener {
+            binding!!.post.setOnClickListener {
                 if (sharedVM.selectedForumId.value == null) {
                     Toast.makeText(
                         requireContext(),
@@ -257,7 +255,7 @@ class PostsFragment : BaseNavFragment() {
                 )
             }
 
-            binding.announcement.setOnClickListener {
+            binding!!.announcement.setOnClickListener {
                 hideFabMenu()
                 DawnApp.applicationDataStore.nmbNotice?.let { notice ->
                     MaterialDialog(requireContext()).show {
@@ -268,18 +266,18 @@ class PostsFragment : BaseNavFragment() {
                 }
             }
 
-            binding.flingInterceptor.bindListener {
+            binding!!.flingInterceptor.bindListener {
                 (activity as MainActivity).showDrawer()
             }
         }
-        return binding.root
+        return binding!!.root
     }
 
     override fun onResume() {
         super.onResume()
         // initial load
         if (viewModel.posts.value.isNullOrEmpty()) {
-            binding.srlAndRv.refreshLayout.autoRefresh(
+            binding?.srlAndRv?.refreshLayout?.autoRefresh(
                 Constants.ACTION_NOTHING,
                 false
             )
@@ -302,9 +300,9 @@ class PostsFragment : BaseNavFragment() {
             requireContext(),
             R.anim.rotate_backward
         )
-        binding.fabMenu.startAnimation(rotateBackward)
-        binding.announcement.hide()
-        binding.post.hide()
+        binding?.fabMenu?.startAnimation(rotateBackward)
+        binding?.announcement?.hide()
+        binding?.post?.hide()
         isFabOpen = false
     }
 
@@ -313,9 +311,9 @@ class PostsFragment : BaseNavFragment() {
             requireContext(),
             R.anim.rotate_forward
         )
-        binding.fabMenu.startAnimation(rotateForward)
-        binding.announcement.show()
-        binding.post.show()
+        binding?.fabMenu?.startAnimation(rotateForward)
+        binding?.announcement?.show()
+        binding?.post?.show()
         isFabOpen = true
     }
 
@@ -331,9 +329,9 @@ class PostsFragment : BaseNavFragment() {
         super.onDestroyView()
         if (!DawnApp.applicationDataStore.viewCaching) {
             _mAdapter = null
-            _binding = null
+            binding = null
         }
-        Timber.d("Fragment View Destroyed ${_binding == null}")
+        Timber.d("Fragment View Destroyed ${binding == null}")
     }
 }
 

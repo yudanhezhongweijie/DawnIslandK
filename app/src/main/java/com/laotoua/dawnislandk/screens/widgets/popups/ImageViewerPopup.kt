@@ -96,6 +96,10 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
     private var saveShown = true
     private var saveButton: FloatingActionButton? = null
 
+    // preload previous, next page if about to reach edge pages
+    private var prefetchItemCount = 2
+    private var nextPageLoader: (() -> Unit)? = null
+
     private val toastObs = Observer<SingleLiveEvent<Int>> { event ->
         event.getContentIfNotHandled()?.let {
             Toast.makeText(context as FragmentActivity, it, Toast.LENGTH_SHORT).show()
@@ -135,7 +139,12 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
         super.initPopupContent()
         tvPagerIndicator = findViewById(R.id.tv_pager_indicator)
         saveButton = findViewById(R.id.save_button)
-        saveButton!!.setOnClickListener { addPicToGallery(context as FragmentActivity, urls[position]) }
+        saveButton!!.setOnClickListener {
+            addPicToGallery(
+                context as FragmentActivity,
+                urls[position]
+            )
+        }
         placeholderView = findViewById(R.id.placeholderView)
         photoViewContainer = findViewById(R.id.photoViewContainer)
         photoViewContainer!!.setOnDragChangeListener(this)
@@ -151,6 +160,7 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
                 override fun onPageSelected(i: Int) {
                     position = i
                     showPagerIndicator()
+                    preloadImages(i)
                     //更新srcView
 //                    if (srcViewUpdateListener != null) {
 //                        srcViewUpdateListener!!.onSrcViewUpdate(this@ImageViewerPopup, i)
@@ -165,6 +175,17 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
             saveButton!!.visibility = View.VISIBLE
         }
     }
+
+    private fun preloadImages(currentPos: Int) {
+        if (urls.isNotEmpty() && currentPos >= urls.size - 1 - prefetchItemCount) {
+                nextPageLoader?.invoke()
+            }
+    }
+
+    fun setNextPageLoader(task: (() -> Unit)?) {
+        nextPageLoader = task
+    }
+
 
     private fun setupPlaceholder() {
         placeholderView!!.visibility = if (isShowPlaceholder) View.VISIBLE else View.INVISIBLE
@@ -190,7 +211,7 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
             val pos = if (isInfinite) position % urls.size else position
             tvPagerIndicator!!.text = resources.getString(R.string.count_text, (pos + 1), urls.size)
         }
-        if (isShowSaveBtn) saveButton!!.visibility = View.VISIBLE
+        if (isShowSaveBtn && saveShown) saveButton!!.visibility = View.VISIBLE
     }
 
     private fun addOrUpdateSnapshot() {
@@ -344,6 +365,9 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
 
     fun setImageUrls(urls: MutableList<Any>): ImageViewerPopup {
         this.urls = urls
+        if (this.isShow){
+            showPagerIndicator()
+        }
         return this
     }
 
@@ -436,6 +460,9 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
                 locations[1] + srcView.height
             )
         }
+        if (urls.size > 1){
+            pager?.currentItem = position
+        }
         return this
     }
 
@@ -504,11 +531,7 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
             return photoView
         }
 
-        override fun destroyItem(
-            container: ViewGroup,
-            position: Int,
-            `object`: Any
-        ) {
+        override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
             container.removeView(`object` as View)
         }
     }

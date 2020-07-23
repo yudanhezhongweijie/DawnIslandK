@@ -96,6 +96,13 @@ class CommentsFragment : DaggerFragment() {
     private val postPopup: PostPopup by lazyOnMainOnly { PostPopup(requireActivity(), sharedVM) }
     private val jumpPopup: JumpPopup by lazyOnMainOnly { JumpPopup(requireContext()) }
 
+    private val imageViewerPopup: ImageViewerPopup by lazyOnMainOnly {
+        ImageViewerPopup(requireContext()).apply {
+            isInfinite(true)
+            setNextPageLoader { viewModel.getNextPage() }
+        }
+    }
+
     enum class RVScrollState {
         UP,
         DOWN
@@ -170,16 +177,17 @@ class CommentsFragment : DaggerFragment() {
                     when (view.id) {
                         R.id.attachedImage -> {
                             val pos = imagesList.indexOf(getItem(position))
-                            if (pos < 0){
+                            if (pos < 0) {
                                 Timber.e("Did not find image in for comment #$position")
                                 return@setOnItemChildClickListener
                             }
-                            val viewerPopup = ImageViewerPopup(requireContext())
-                                .setSrcView(null, pos)
-                                .setImageUrls(imagesList.toMutableList())
-
+//                            val viewerPopup = ImageViewerPopup(requireContext())
+//                                .setSrcView(null, pos)
+//                                .setImageUrls(imagesList.toMutableList())
+                            Timber.d("pos: $pos / ${imagesList.size}")
+                            imageViewerPopup.setSrcView(null, pos)
                             XPopup.Builder(context)
-                                .asCustom(viewerPopup)
+                                .asCustom(imageViewerPopup)
                                 .show()
                         }
                         R.id.comment -> {
@@ -379,7 +387,7 @@ class CommentsFragment : DaggerFragment() {
         Timber.i("${this.javaClass.simpleName} Adapter will have ${mAdapter.data.size} threads")
     }
 
-    private val successPostObs = Observer<SingleLiveEvent<Boolean>> {event ->
+    private val successPostObs = Observer<SingleLiveEvent<Boolean>> { event ->
         event.getContentIfNotHandled()?.let {
             if (it && currentPage >= viewModel.maxPage - 1) {
                 mAdapter.loadMoreModule.loadMoreToLoading()
@@ -590,7 +598,8 @@ class CommentsFragment : DaggerFragment() {
         findNavController().navigate(navAction)
     }
 
-    private fun updateCurrentlyAvailableImages(newList: MutableList<Comment>){
+    private fun updateCurrentlyAvailableImages(newList: MutableList<Comment>) {
         imagesList = newList.filter { it.getImgUrl().isNotBlank() }
+        imageViewerPopup.setImageUrls(imagesList.toMutableList())
     }
 }

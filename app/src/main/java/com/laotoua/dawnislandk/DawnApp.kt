@@ -17,6 +17,7 @@
 
 package com.laotoua.dawnislandk
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.laotoua.dawnislandk.data.local.ApplicationDataStore
 import com.laotoua.dawnislandk.di.DaggerDawnAppComponent
 import com.laotoua.dawnislandk.util.ReadableTime
@@ -47,6 +48,9 @@ class DawnApp : DaggerApplication() {
         super.onCreate()
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
+            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false)
+        } else {
+            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)
         }
 
         applicationDataStore = mApplicationDataStore

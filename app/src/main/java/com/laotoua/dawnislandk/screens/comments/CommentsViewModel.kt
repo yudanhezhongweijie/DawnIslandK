@@ -115,7 +115,7 @@ class CommentsViewModel @Inject constructor(
         listeningPages.put(page, newPage)
         listeningPagesIndices.add(page)
         comments.addSource(newPage) {
-            combineDataResource(it, page)
+            if (it != null) combineDataResource(it, page)
         }
     }
 
@@ -127,7 +127,7 @@ class CommentsViewModel @Inject constructor(
         var status = dataResource.status
         if (dataResource.status == LoadingStatus.SUCCESS || dataResource.status == LoadingStatus.NO_DATA) {
             // assign fid if missing
-            if (currentPostFid.isBlank()){
+            if (currentPostFid.isBlank()) {
                 currentPostFid = commentRepo.getFid(currentPostId)
             }
             val list = mutableListOf<Comment>()

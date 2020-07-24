@@ -35,31 +35,28 @@ interface FeedDao {
     suspend fun findFeedByPostId(postId: String): Feed?
 
     @Transaction
-    @Query("SELECT * From Feed WHERE id>=:startInd AND id<:endInd ORDER BY id ASC")
-    fun getFeedAndPostBetweenIds(startInd: Int, endInd: Int): LiveData<List<FeedAndPost>>
-
-    fun getFeedAndPostOnPage(page: Int) =
-        getFeedAndPostBetweenIds((page - 1) * 10 + 1, page * 10 + 1)
+    @Query("SELECT * From Feed WHERE page==:page ORDER BY id ASC")
+    fun getFeedAndPostOnPage(page: Int): LiveData<List<FeedAndPost>>
 
     fun getDistinctFeedAndPostOnPage(page: Int) = getFeedAndPostOnPage(page).distinctUntilChanged()
 
     @Transaction
     suspend fun addFeedToTopAndIncrementFeedIds(feed: Feed) {
-        incrementFeedIdsAfter(feed.id)
+        incrementFeedIdsAfter(feed.id, feed.page)
         insertFeed(feed)
     }
 
     @Transaction
     suspend fun deleteFeedAndDecrementFeedIds(feed: Feed){
-        decrementFeedIdsAfter(feed.id)
+        decrementFeedIdsAfter(feed.id, feed.page)
         deleteFeedByPostId(feed.postId)
     }
 
-    @Query("UPDATE Feed SET id=id+1 WHERE id>=:id")
-    suspend fun incrementFeedIdsAfter(id: Int)
+    @Query("UPDATE Feed SET id=id+1 WHERE id>=:id AND page=:page")
+    suspend fun incrementFeedIdsAfter(id: Int, page:Int)
 
-    @Query("UPDATE Feed SET id=id-1 WHERE id>:id")
-    suspend fun decrementFeedIdsAfter(id: Int)
+    @Query("UPDATE Feed SET id=id-1 WHERE id>:id AND page=:page")
+    suspend fun decrementFeedIdsAfter(id: Int, page:Int)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertFeed(feed: Feed)

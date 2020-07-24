@@ -101,7 +101,7 @@ class FeedRepository @Inject constructor(
         val baseIndex = (page - 1) * 10 + 1
         val timestamp = Date().time
         data.mapIndexed { index, serverFeed ->
-            feeds.add(Feed(baseIndex + index, serverFeed.id, serverFeed.category, timestamp))
+            feeds.add(Feed(baseIndex + index, page, serverFeed.id, serverFeed.category, timestamp))
             posts.add(serverFeed.toPost())
         }
 

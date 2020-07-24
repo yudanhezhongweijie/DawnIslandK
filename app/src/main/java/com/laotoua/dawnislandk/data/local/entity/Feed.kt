@@ -24,19 +24,19 @@ import com.squareup.moshi.JsonClass
 @Entity
 data class Feed(
     val id: Int = 1, // table id for sorting
+    val page: Int, // each page has at most 10 feeds, page also helps sorting
     @PrimaryKey val postId: String, //	该串的id
     val category: String,
     var lastUpdatedAt: Long = 0 // timestamp which the row is updated
 ) {
-    val page get() = id / 10 + if (id % 10 == 0) 0 else 1
-
     override fun equals(other: Any?) =
         if (other is Feed) {
-            id == other.id && postId == other.postId && category == other.category
+            id == other.id && page == other.page && postId == other.postId && category == other.category
         } else false
 
     override fun hashCode(): Int {
         var result = id.hashCode()
+        result = 31 * result + page.hashCode()
         result = 31 * result + postId.hashCode()
         result = 31 * result + category.hashCode()
         return result

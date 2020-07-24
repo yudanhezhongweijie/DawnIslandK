@@ -241,7 +241,7 @@ class CommentRepository @Inject constructor(
             if (this is APIMessageResponse.APISuccessMessageResponse && messageType == APIMessageResponse.MessageType.String) {
                 coroutineScope {
                     launch {
-                        val newFeed = Feed(1, id, "", Date().time)
+                        val newFeed = Feed(1, 1, id, "", Date().time)
                         feedDao.addFeedToTopAndIncrementFeedIds(newFeed)
                     }
                 }

@@ -43,7 +43,7 @@ import com.laotoua.dawnislandk.data.local.entity.*
         BrowsingHistory::class,
         PostHistory::class,
         Feed::class],
-    version = 14
+    version = 15
 )
 @TypeConverters(Converter::class)
 abstract class DawnDatabase : RoomDatabase() {
@@ -194,6 +194,14 @@ abstract class DawnDatabase : RoomDatabase() {
                 }
             }
 
+            // adds page column to Feed
+            val migrate14To15 = object : Migration(14, 15) {
+                override fun migrate(database: SupportSQLiteDatabase) {
+                    database.execSQL("DROP TABLE Feed")
+                    database.execSQL("CREATE TABLE IF NOT EXISTS `Feed` (`id` INTEGER NOT NULL, `page` INTEGER NOT NULL, `postId` TEXT NOT NULL, `category` TEXT NOT NULL, `lastUpdatedAt` INTEGER NOT NULL, PRIMARY KEY(`postId`))")
+                }
+            }
+
             synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
@@ -213,7 +221,8 @@ abstract class DawnDatabase : RoomDatabase() {
                         migrate10To11,
                         migrate11To12,
                         migrate12To13,
-                        migrate13To14
+                        migrate13To14,
+                        migrate14To15
                     )
                     .build()
                 INSTANCE = instance

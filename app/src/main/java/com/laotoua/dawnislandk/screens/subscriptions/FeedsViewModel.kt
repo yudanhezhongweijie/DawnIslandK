@@ -45,9 +45,7 @@ class FeedsViewModel @Inject constructor(private val feedRepo: FeedRepository) :
         private set
 
     fun getNextPage() {
-        val lastFeed: Feed? = feeds.value?.lastOrNull()?.feed
-        var nextPage = lastFeed?.page ?: 1
-        if (lastFeed?.id?.rem(10) == 0) nextPage += 1
+        val nextPage = feeds.value?.lastOrNull()?.feed?.page?.plus(1) ?: 1
         getFeedOnPage(nextPage)
     }
 
@@ -79,10 +77,7 @@ class FeedsViewModel @Inject constructor(private val feedRepo: FeedRepository) :
                 if (it.status == LoadingStatus.SUCCESS || lastJumpPage == page) {
                     combineFeeds()
                 }
-                val status =
-                    if (it.status == LoadingStatus.SUCCESS && (it.data?.size ?: 0 < 10)) LoadingStatus.NO_DATA
-                    else it.status
-                _loadingStatus.value = SingleLiveEvent.create(status, it.message)
+                _loadingStatus.value = SingleLiveEvent.create(it.status, it.message)
             }
         }
     }

@@ -48,6 +48,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Comment
 import com.laotoua.dawnislandk.data.local.entity.Post
+import com.laotoua.dawnislandk.data.local.entity.PostHistory
 import com.laotoua.dawnislandk.data.remote.SearchResult
 import com.laotoua.dawnislandk.util.ImageUtil
 import com.laotoua.dawnislandk.util.ReadableTime
@@ -621,6 +622,9 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
                 urlObj.getImgUrl()
             }
             is SearchResult.Hit -> {
+                urlObj.getImgUrl()
+            }
+            is PostHistory -> {
                 urlObj.getImgUrl()
             }
             is String -> {

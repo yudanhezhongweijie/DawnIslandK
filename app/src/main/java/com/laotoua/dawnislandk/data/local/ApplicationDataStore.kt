@@ -28,6 +28,7 @@ import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.tencent.mmkv.MMKV
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -35,7 +36,9 @@ import java.util.*
 import javax.inject.Inject
 
 class ApplicationDataStore @Inject constructor(
-    private val cookieDao: CookieDao, private val commentDao: CommentDao,
+    private val cookieDao: CookieDao,
+    private val commentDao: CommentDao,
+    private val feedDao: FeedDao,
     private val NMBNoticeDao: NMBNoticeDao,
     private val luweiNoticeDao: LuweiNoticeDao,
     private val releaseDao: ReleaseDao,
@@ -58,9 +61,10 @@ class ApplicationDataStore @Inject constructor(
 
     val firstTimeUse by lazyOnMainOnly { mmkv.getBoolean(DawnConstants.USE_APP_FIRST_TIME, false) }
 
-    fun setFirstTimeUse(){
+    fun setFirstTimeUse() {
         mmkv.putBoolean(DawnConstants.USE_APP_FIRST_TIME, true)
     }
+
     // View settings
     val letterSpace by lazyOnMainOnly { mmkv.getFloat(DawnConstants.LETTER_SPACE, 0f) }
     val lineHeight by lazyOnMainOnly { mmkv.getInt(DawnConstants.LINE_HEIGHT, 0) }
@@ -74,7 +78,7 @@ class ApplicationDataStore @Inject constructor(
         )
     }
 
-    fun setLayoutCustomization(status: Boolean){
+    fun setLayoutCustomization(status: Boolean) {
         mmkv.putBoolean(DawnConstants.LAYOUT_CUSTOMIZATION, status)
     }
 
@@ -138,7 +142,11 @@ class ApplicationDataStore @Inject constructor(
             updateFeedId(feedId)
         }
     }
+
     fun updateFeedId(id: String) {
+        if (id != feedId) {
+            GlobalScope.launch { feedDao.nukeTable() }
+        }
         feedId = id
         mmkv.putString(DawnConstants.FEED_ID, id)
     }
@@ -165,8 +173,8 @@ class ApplicationDataStore @Inject constructor(
         cookieDao.delete(cookie)
     }
 
-    suspend fun nukeCommentTable() {
-        commentDao.nukeTable()
+    fun nukeCommentTable() {
+        GlobalScope.launch { commentDao.nukeTable() }
     }
 
     suspend fun getLatestNMBNotice(): NMBNotice? {

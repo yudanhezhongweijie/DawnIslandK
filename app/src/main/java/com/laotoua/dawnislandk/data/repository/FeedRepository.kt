@@ -56,7 +56,9 @@ class FeedRepository @Inject constructor(
         val cache = getLocalData(page)
         val remote = getServerData(page)
         result.addSource(cache) {
-            result.value = it
+            if (it.status == LoadingStatus.SUCCESS) {
+                result.value = it
+            }
         }
         result.addSource(remote) {
             if (it.status == LoadingStatus.NO_DATA || it.status == LoadingStatus.ERROR) {

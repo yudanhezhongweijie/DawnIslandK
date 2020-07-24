@@ -57,7 +57,6 @@ import com.laotoua.dawnislandk.databinding.ListItemPreferenceBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.util.*
 import dagger.android.support.DaggerFragment
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import timber.log.Timber
@@ -124,7 +123,9 @@ class ProfileFragment : DaggerFragment() {
                         applicationDataStore.updateFeedId(feedId)
                         summary.text = feedId
                     }
-                    positiveButton(R.string.submit)
+                    positiveButton(R.string.submit){
+                        displayRestartToApplySettingsToast()
+                    }
                     negativeButton(R.string.cancel)
                 }
             }
@@ -342,7 +343,7 @@ class ProfileFragment : DaggerFragment() {
                         setActionButtonEnabled(WhichButton.POSITIVE, checked)
                     }
                     positiveButton(R.string.submit) {
-                        GlobalScope.launch { applicationDataStore.nukeCommentTable() }
+                        applicationDataStore.nukeCommentTable()
                         Toast.makeText(
                             context,
                             R.string.cleared_comment_cache_message,

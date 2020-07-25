@@ -45,7 +45,8 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/settings"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:paddingBottom="15dp">
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guidelineStart"
@@ -197,13 +198,35 @@
                 app:layout_constraintTop_toBottomOf="@id/clearCommentCache" />
 
             <include
-                android:id="@+id/privacyAgreement"
+                android:id="@+id/appPrivacyAgreement"
                 layout="@layout/list_item_preference"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
                 app:layout_constraintStart_toStartOf="@id/guidelineStart"
                 app:layout_constraintTop_toBottomOf="@id/appFeedback" />
+
+            <include
+                android:id="@+id/adnmbPrivacyAgreement"
+                layout="@layout/list_item_preference"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+                app:layout_constraintStart_toStartOf="@id/guidelineStart"
+                app:layout_constraintTop_toBottomOf="@id/appPrivacyAgreement" />
+
+            <TextView
+                android:id="@+id/credit"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="@string/credit"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+                app:layout_constraintStart_toStartOf="@id/guidelineStart"
+                app:layout_constraintTop_toBottomOf="@id/adnmbPrivacyAgreement" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 

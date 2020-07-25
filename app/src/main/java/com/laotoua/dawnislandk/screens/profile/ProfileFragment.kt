@@ -49,6 +49,7 @@ import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.google.android.material.animation.AnimationUtils
 import com.king.zxing.util.CodeUtils
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
+import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Cookie
 import com.laotoua.dawnislandk.databinding.FragmentProfileBinding
@@ -108,8 +109,10 @@ class ProfileFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.settings.visibility = View.GONE
+        // showNav
+        (requireActivity() as MainActivity).showNav()
 
+        binding.settings.visibility = View.GONE
         binding.feedId.apply {
             var feedId = applicationDataStore.feedId
             key.setText(R.string.feedId)
@@ -389,8 +392,8 @@ class ProfileFragment : DaggerFragment() {
             }
         }
 
-        binding.privacyAgreement.apply {
-            key.setText(R.string.privacy_agreement)
+        binding.appPrivacyAgreement.apply {
+            key.setText(R.string.app_privacy_agreement)
             root.setOnClickListener {
                 val waitingDialog = MaterialDialog(requireContext()).show {
                     title(R.string.processing)
@@ -401,11 +404,19 @@ class ProfileFragment : DaggerFragment() {
                     val agreement = viewModel.getPrivacyAgreement()
                     waitingDialog.dismiss()
                     MaterialDialog(requireContext()).show {
-                        title(res = R.string.privacy_agreement)
+                        title(res = R.string.app_privacy_agreement)
                         message(text = agreement) { html() }
                         positiveButton(R.string.acknowledge)
                     }
                 }
+            }
+        }
+
+        binding.adnmbPrivacyAgreement.apply {
+            key.setText(R.string.adnmb_privacy_agreement)
+            root.setOnClickListener {
+                val navAction = MainNavDirections.actionGlobalCommentsFragment("11689471", "")
+                findNavController().navigate(navAction)
             }
         }
 

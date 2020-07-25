@@ -410,7 +410,5 @@ class SizesCustomizationFragment : Fragment() {
         if (settingsChanged) {
             Toast.makeText(context, R.string.restart_to_apply_setting, Toast.LENGTH_SHORT).show()
         }
-        // showNav
-        (requireActivity() as MainActivity).showNav()
     }
 }

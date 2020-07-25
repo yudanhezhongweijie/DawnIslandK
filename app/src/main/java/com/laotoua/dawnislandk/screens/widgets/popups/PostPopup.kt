@@ -245,12 +245,12 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
                             "le$emojiId", "drawable",
                             context.packageName
                         )
-                        try {
-                            imageFile = ImageUtil.getFileFromDrawable(caller, emojiId, resourceId)
+                        imageFile = ImageUtil.getFileFromDrawable(caller, emojiId, resourceId)
+                        if (imageFile != null){
                             postImagePreview!!.setImageResource(resourceId)
                             attachmentContainer!!.visibility = View.VISIBLE
-                        } catch (e: Exception) {
-                            Timber.e(e)
+                        } else {
+                            Toast.makeText(context, R.string.cannot_load_image_file, Toast.LENGTH_SHORT).show()
                         }
                     }
 
@@ -339,18 +339,8 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
             }
             KeyboardUtils.hideSoftInput(postContent!!)
             IntentUtil.drawNewDoodle(caller) { uri ->
-                uri?.let {
-                    Timber.d("Made a doodle. Setting preview thumbnail...")
-                    ImageUtil.loadImageThumbnailToImageView(
-                        caller,
-                        it,
-                        150,
-                        150,
-                        postImagePreview!!
-                    )
-                    imageFile = ImageUtil.getImageFileFromUri(caller, it)
-                    attachmentContainer!!.visibility = View.VISIBLE
-                }
+                Timber.d("Made a doodle. Prepare to upload...")
+                compressAndPreviewImage(uri)
             }
         }
 
@@ -386,21 +376,8 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
             }
             KeyboardUtils.hideSoftInput(postContent!!)
             IntentUtil.getImageFromGallery(caller, "image/*") { uri: Uri? ->
-                if (uri != null) {
-                    imageFile = ImageUtil.getImageFileFromUri(caller, uri)
-                    try {
-                        ImageUtil.loadImageThumbnailToImageView(
-                            caller,
-                            uri,
-                            150,
-                            150,
-                            postImagePreview!!
-                        )
-                        attachmentContainer!!.visibility = View.VISIBLE
-                    } catch (e: Exception) {
-                        Timber.e(e, "Cannot load thumbnail from image...")
-                    }
-                }
+                Timber.d("Picked a local image. Prepare to upload...")
+                compressAndPreviewImage(uri)
             }
         }
 
@@ -421,16 +398,8 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
             }
             KeyboardUtils.hideSoftInput(postContent!!)
             IntentUtil.getImageFromCamera(caller) { uri: Uri ->
-                Timber.d("Took a Picture. Setting preview thumbnail...")
-                ImageUtil.loadImageThumbnailToImageView(
-                    caller,
-                    uri,
-                    150,
-                    150,
-                    postImagePreview!!
-                )
-                imageFile = ImageUtil.getImageFileFromUri(caller, uri)
-                attachmentContainer!!.visibility = View.VISIBLE
+                Timber.d("Took a Picture. Prepare to upload...")
+                compressAndPreviewImage(uri)
             }
         }
 
@@ -461,6 +430,43 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
 //                lp.height = 0
 //                keyboardHolder!!.layoutParams = lp
 //            }
+        }
+    }
+
+    private fun compressAndPreviewImage(uri: Uri?) {
+        if (uri == null) {
+            Toast.makeText(context, R.string.cannot_load_image_file, Toast.LENGTH_SHORT).show()
+            return
+        }
+        val compressDialog = MaterialDialog(context).show {
+            title(R.string.compressing_oversize_image)
+            customView(R.layout.dialog_progress)
+            cancelable(false)
+        }
+        compressDialog.show()
+        caller.lifecycleScope.launch {
+            imageFile = ImageUtil.getCompressedImageFileFromUri(caller, uri)
+            if (imageFile != null) {
+                try {
+                    ImageUtil.loadImageThumbnailToImageView(
+                        caller,
+                        uri,
+                        150,
+                        150,
+                        postImagePreview!!
+                    )
+                    attachmentContainer!!.visibility = View.VISIBLE
+                } catch (e: Exception) {
+                    Timber.e(e, "Cannot load thumbnail from image...")
+                }
+            } else {
+                Toast.makeText(
+                    context,
+                    R.string.compressing_oversize_image_error,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            compressDialog.dismiss()
         }
     }
 

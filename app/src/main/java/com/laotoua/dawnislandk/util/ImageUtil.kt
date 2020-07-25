@@ -25,9 +25,7 @@ import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.util.Size
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
-import com.laotoua.dawnislandk.R
 import id.zelory.compressor.Compressor
 import id.zelory.compressor.constraint.format
 import id.zelory.compressor.constraint.quality
@@ -39,9 +37,7 @@ import java.util.*
 
 object ImageUtil {
 
-    private val cachedImages = mutableSetOf<String>()
     fun isImageInGallery(caller: FragmentActivity, fileName: String): Boolean {
-        if (cachedImages.contains(fileName)) return true
         val selection = "${MediaStore.Images.ImageColumns.DISPLAY_NAME}=?"
         val selectionArgs = arrayOf(fileName)
         val projection = arrayOf(MediaStore.Images.ImageColumns.DISPLAY_NAME)
@@ -53,17 +49,17 @@ object ImageUtil {
             selectionArgs,
             null
         )?.use { cursor -> res = (cursor.count > 0) }
-
-        if (res) cachedImages.add(fileName)
         return res
     }
 
     private fun copyImageFromFileToUri(caller: FragmentActivity, uri: Uri, file: File): Boolean {
         return try {
-            val stream = caller.contentResolver.openOutputStream(uri)
+            val inputStream = FileInputStream(file)
+            val outputStream = caller.contentResolver.openOutputStream(uri)
                 ?: throw IOException("Failed to get output stream.")
-            stream.write(file.readBytes())
-            stream.close()
+            inputStream.copyTo(outputStream)
+            inputStream.close()
+            outputStream.close()
             true
         } catch (e: Exception) {
             Timber.e(e)
@@ -156,14 +152,21 @@ object ImageUtil {
     }
 
     fun getImageFileFromUri(caller: FragmentActivity, uri: Uri): File? {
-        return caller.contentResolver.openFileDescriptor(uri, "r", null)?.use { pfd ->
-            try {
+        return try {
+            caller.contentResolver.openFileDescriptor(uri, "r", null)?.use { pfd ->
                 val inputStream = FileInputStream(pfd.fileDescriptor)
                 val file = File(caller.cacheDir, getFileName(caller, uri))
                 if (file.exists()) {
                     Timber.d("File exists in cache. Reusing...")
                 } else {
-                    cleanCacheDir(caller.cacheDir, pfd.statSize)
+                    val size: Long = getDirSize(caller.cacheDir)
+                    if (size + pfd.statSize > DawnConstants.CACHE_FILE_LIMIT) {
+                        Timber.d("Adding ${pfd.statSize} to cache. New size ${size + pfd.statSize} exceeds limit ${DawnConstants.CACHE_FILE_LIMIT}.")
+                        deleteBytesInDir(
+                            caller.cacheDir,
+                            pfd.statSize + size - DawnConstants.CACHE_FILE_LIMIT
+                        )
+                    }
                     Timber.d("File not found in cache. Copying...")
                     val outputStream = FileOutputStream(file)
                     inputStream.copyTo(outputStream)
@@ -171,36 +174,32 @@ object ImageUtil {
                     outputStream.close()
                 }
                 file
-            } catch (e: Exception) {
-                Timber.e(e, "Error in copying file to cache!")
-                null
             }
+        } catch (e: Exception) {
+            Timber.e(e, "Error in copying file $uri to cache!")
+            null
         }
     }
 
     // clear enough spaces for new bytes added to cache
-    private fun cleanCacheDir(cacheDir: File, bytes: Long): Long {
-        val size: Long = getDirSize(cacheDir)
-        val newSize: Long = bytes + size
+    // currently only deletes compressor files & cached images for uploads
+    private fun deleteBytesInDir(dir: File, bytes: Long): Long {
+        if (dir.isFile) throw Exception("Expect $dir to be a directory, however got a file.")
         var bytesDeleted: Long = 0
-        Timber.d("Checking cache size $size vs ${DawnConstants.CACHE_FILE_LIMIT}. Adding $bytes to cache.")
-        if (newSize > DawnConstants.CACHE_FILE_LIMIT) {
-            Timber.d("Cache reached limit. Deleting files...")
-            val files = cacheDir.listFiles() ?: emptyArray()
-            for (file in files) {
-                if (bytesDeleted >= bytes) {
-                    break
-                } else if (file.isFile) {
-                    bytesDeleted += file.length()
-                    Timber.d("Deleting file ${file.name} with ${file.length()} bytes")
-                    file.delete()
-                } else if (file.isDirectory) {
-                    Timber.d("Found a cacheDir. Clearing ${file.name}")
-                    bytesDeleted += cleanCacheDir(file, bytes)
-                }
+        val files = dir.listFiles() ?: emptyArray()
+        for (file in files) {
+            if (bytesDeleted >= bytes) {
+                break
+            } else if (file.isFile) {
+                bytesDeleted += file.length()
+                Timber.d("Deleting file ${file.name} with ${file.length()} bytes")
+                file.delete()
+            } else if (file.isDirectory && file.name == "compressor") {
+                Timber.d("Found a directory in $dir. Clearing ${file.name}")
+                bytesDeleted += deleteBytesInDir(file, bytes - bytesDeleted)
             }
         }
-        Timber.d("Cleared $bytesDeleted bytes cache.")
+        Timber.d("Cleared $bytesDeleted bytes in $dir.")
         return bytesDeleted
     }
 
@@ -210,7 +209,7 @@ object ImageUtil {
         for (file in files) {
             if (file.isFile) {
                 size += file.length()
-            } else if (file.isDirectory){
+            } else if (file.isDirectory && file.name == "compressor") {
                 size += getDirSize(file)
             }
         }
@@ -227,7 +226,6 @@ object ImageUtil {
             Timber.d("File exists and under server size limit. Reusing the old file")
             return source
         }
-        Toast.makeText(caller, R.string.compressing_oversize_image, Toast.LENGTH_SHORT).show()
         return Compressor.compress(caller, source) {
             quality(80)
             format(Bitmap.CompressFormat.JPEG)
@@ -235,19 +233,24 @@ object ImageUtil {
         }
     }
 
-    fun getFileFromDrawable(caller: FragmentActivity, fileName: String, resId: Int): File {
-        val file = File(caller.cacheDir, "$fileName.png")
-        if (file.exists()) {
-            Timber.i("File exists..Reusing the old file")
-            return file
+    fun getFileFromDrawable(caller: FragmentActivity, fileName: String, resId: Int): File? {
+        return try {
+            val file = File(caller.cacheDir, "$fileName.png")
+            if (file.exists()) {
+                Timber.i("File exists..Reusing the old file")
+                return file
+            }
+            Timber.i("File not found. Making a new one...")
+            val inputStream: InputStream = caller.resources.openRawResource(resId)
+            val outputStream = FileOutputStream(file)
+            inputStream.copyTo(outputStream)
+            inputStream.close()
+            outputStream.close()
+            file
+        } catch (e:Exception){
+            Timber.e(e, "Did not get drawable file $fileName")
+            null
         }
-        Timber.i("File not found. Making a new one...")
-        val inputStream: InputStream = caller.resources.openRawResource(resId)
-        val outputStream = FileOutputStream(file)
-        inputStream.copyTo(outputStream)
-        inputStream.close()
-        outputStream.close()
-        return file
     }
 
     private fun getFileName(caller: FragmentActivity, fileUri: Uri): String {

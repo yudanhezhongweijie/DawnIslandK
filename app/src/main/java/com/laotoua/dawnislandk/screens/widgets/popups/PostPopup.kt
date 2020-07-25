@@ -245,12 +245,12 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
                             "le$emojiId", "drawable",
                             context.packageName
                         )
-                        try {
-                            imageFile = ImageUtil.getFileFromDrawable(caller, emojiId, resourceId)
+                        imageFile = ImageUtil.getFileFromDrawable(caller, emojiId, resourceId)
+                        if (imageFile != null){
                             postImagePreview!!.setImageResource(resourceId)
                             attachmentContainer!!.visibility = View.VISIBLE
-                        } catch (e: Exception) {
-                            Timber.e(e)
+                        } else {
+                            Toast.makeText(context, R.string.cannot_load_image_file, Toast.LENGTH_SHORT).show()
                         }
                     }
 
@@ -439,7 +439,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
             return
         }
         val compressDialog = MaterialDialog(context).show {
-            title(R.string.processing)
+            title(R.string.compressing_oversize_image)
             customView(R.layout.dialog_progress)
             cancelable(false)
         }

@@ -55,7 +55,7 @@ object DawnConstants {
     const val thumbCDN = "${imgCDN}thumb/"
     const val imageCDN = "${imgCDN}image/"
 
-    const val SERVER_FILE_SIZE_LIMIT = 2097152 // 2MB
+    const val SERVER_FILE_SIZE_LIMIT = 2097152L // 2MB
 
     const val AUTHOR_EMAIL="aliaseasy98@gmail.com"
     const val GITHUB_ADDRESS="https://github.com/fishballzzz/DawnIslandK/issues"

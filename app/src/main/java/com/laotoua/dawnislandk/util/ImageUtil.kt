@@ -19,23 +19,22 @@ package com.laotoua.dawnislandk.util
 
 import android.content.ContentValues
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.util.Size
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.lifecycleScope
 import com.laotoua.dawnislandk.R
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import id.zelory.compressor.Compressor
+import id.zelory.compressor.constraint.format
+import id.zelory.compressor.constraint.quality
+import id.zelory.compressor.constraint.size
 import timber.log.Timber
 import java.io.*
+import java.util.*
 
 
 object ImageUtil {
@@ -156,75 +155,55 @@ object ImageUtil {
         }
     }
 
-    // TODO: combine image compressing and image file return
-    // image file should only return valid file if compressing is successful
-    // TODO: combine get image file & load image preview
+    // TODO: clear cache
     fun getImageFileFromUri(caller: FragmentActivity, uri: Uri): File? {
-        caller.contentResolver.openFileDescriptor(uri, "r", null)?.use { pfd ->
-            val filename = getFileName(caller, uri)
-            val file = File(caller.cacheDir, filename)
-            if (file.exists()) {
-                Timber.d("File exists. Reusing the old file")
-                return file
-            }
-            Timber.d("File not found. Making a new one...")
-            if (pfd.statSize >= DawnConstants.SERVER_FILE_SIZE_LIMIT) {
-                Timber.d("Image is oversize: ${pfd.statSize}. Compressing...")
-                val ratio = (DawnConstants.SERVER_FILE_SIZE_LIMIT * 100 / pfd.statSize).toInt()
-                Toast.makeText(
-                    caller,
-                    R.string.compressing_oversize_image,
-                    Toast.LENGTH_SHORT
-                )
-                    .show()
-                compressImage(caller, ratio, pfd.fileDescriptor)
-            } else {
-                FileInputStream(pfd.fileDescriptor)
-            }.use { inputStream ->
-                FileOutputStream(file).use { outputStream ->
-                    inputStream.copyTo(outputStream)
+        return caller.contentResolver.openFileDescriptor(uri, "r", null)?.use { pfd ->
+            try {
+                val inputStream = FileInputStream(pfd.fileDescriptor)
+                val file = File(caller.cacheDir, getFileName(caller, uri))
+                if (file.exists()) {
+                    Timber.d("File exists in cache. Reusing...")
+                    return file
                 }
+                Timber.d("File not found in cache. Copying...")
+                val outputStream = FileOutputStream(file)
+                inputStream.copyTo(outputStream)
+                inputStream.close()
+                outputStream.close()
+                file
+            } catch (e: Exception) {
+                Timber.e(e, "Error in copying file to cache!")
+                null
             }
-            return file
         }
-        return null
-
     }
 
-    // compression runs on a different thread
-    private fun compressImage(
-        caller: FragmentActivity,
-        ratio: Int,
-        fileDescriptor: FileDescriptor
-    ): InputStream {
-        val pipedInputStream = PipedInputStream()
-        PipedOutputStream(pipedInputStream).use {
-            caller.lifecycleScope.launch(Dispatchers.IO) {
-                try {
-                    val bmp = BitmapFactory.decodeFileDescriptor(fileDescriptor)
-                    bmp.compress(Bitmap.CompressFormat.JPEG, ratio, it)
-                } catch (e:Exception){
-                    Handler(Looper.getMainLooper()).post {
-                        Toast.makeText(caller, "压缩图片时发生错误", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
+    suspend fun getCompressedImageFileFromUri(caller: FragmentActivity, uri: Uri): File? {
+        val source = getImageFileFromUri(caller, uri)
+        if (source == null || source.extension.toLowerCase(Locale.getDefault()) == "gif") {
+            Timber.e("Did not get file from uri. Cannot compress...")
+            return null
         }
-        return pipedInputStream
+        if (source.exists() && source.length() < DawnConstants.SERVER_FILE_SIZE_LIMIT) {
+            Timber.d("File exists and under server size limit. Reusing the old file")
+            return source
+        }
+        Toast.makeText(caller, R.string.compressing_oversize_image, Toast.LENGTH_SHORT).show()
+        return Compressor.compress(caller, source) {
+            quality(80)
+            format(Bitmap.CompressFormat.JPEG)
+            size(DawnConstants.SERVER_FILE_SIZE_LIMIT) // 2 MB
+        }
     }
 
     fun getFileFromDrawable(caller: FragmentActivity, fileName: String, resId: Int): File {
-        val file = File(
-            caller.cacheDir,
-            "$fileName.png"
-        )
+        val file = File(caller.cacheDir, "$fileName.png")
         if (file.exists()) {
             Timber.i("File exists..Reusing the old file")
             return file
         }
         Timber.i("File not found. Making a new one...")
         val inputStream: InputStream = caller.resources.openRawResource(resId)
-
         val outputStream = FileOutputStream(file)
         inputStream.copyTo(outputStream)
         inputStream.close()

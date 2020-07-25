@@ -74,9 +74,8 @@ class ProfileFragment : DaggerFragment() {
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
             uri?.run {
                 try {
-                    val file =
-                        ImageUtil.getImageFileFromUri(requireActivity(), uri)
-                            ?: return@registerForActivityResult
+                    val file = ImageUtil.getImageFileFromUri(requireActivity(), uri)
+                        ?: return@registerForActivityResult
                     val res = CodeUtils.parseQRCode(file.path)
                     if (res != null) {
                         saveCookieWithInputName(res)
@@ -123,7 +122,7 @@ class ProfileFragment : DaggerFragment() {
                         applicationDataStore.updateFeedId(feedId)
                         summary.text = feedId
                     }
-                    positiveButton(R.string.submit){
+                    positiveButton(R.string.submit) {
                         displayRestartToApplySettingsToast()
                     }
                     negativeButton(R.string.cancel)

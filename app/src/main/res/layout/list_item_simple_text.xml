@@ -34,7 +34,7 @@
         android:layout_height="wrap_content"
         android:textColor="@color/gray_400"
         android:textSize="18sp"
-        android:textStyle="bold|italic"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

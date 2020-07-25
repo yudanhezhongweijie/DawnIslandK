@@ -56,6 +56,7 @@ object DawnConstants {
     const val imageCDN = "${imgCDN}image/"
 
     const val SERVER_FILE_SIZE_LIMIT = 2097152L // 2MB
+    const val CACHE_FILE_LIMIT = 52428800L // 50MB
 
     const val AUTHOR_EMAIL="aliaseasy98@gmail.com"
     const val GITHUB_ADDRESS="https://github.com/fishballzzz/DawnIslandK/issues"

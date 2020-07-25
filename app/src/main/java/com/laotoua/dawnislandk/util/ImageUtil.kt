@@ -155,7 +155,6 @@ object ImageUtil {
         }
     }
 
-    // TODO: clear cache
     fun getImageFileFromUri(caller: FragmentActivity, uri: Uri): File? {
         return caller.contentResolver.openFileDescriptor(uri, "r", null)?.use { pfd ->
             try {
@@ -163,19 +162,59 @@ object ImageUtil {
                 val file = File(caller.cacheDir, getFileName(caller, uri))
                 if (file.exists()) {
                     Timber.d("File exists in cache. Reusing...")
-                    return file
+                } else {
+                    cleanCacheDir(caller.cacheDir, pfd.statSize)
+                    Timber.d("File not found in cache. Copying...")
+                    val outputStream = FileOutputStream(file)
+                    inputStream.copyTo(outputStream)
+                    inputStream.close()
+                    outputStream.close()
                 }
-                Timber.d("File not found in cache. Copying...")
-                val outputStream = FileOutputStream(file)
-                inputStream.copyTo(outputStream)
-                inputStream.close()
-                outputStream.close()
                 file
             } catch (e: Exception) {
                 Timber.e(e, "Error in copying file to cache!")
                 null
             }
         }
+    }
+
+    // clear enough spaces for new bytes added to cache
+    private fun cleanCacheDir(cacheDir: File, bytes: Long): Long {
+        val size: Long = getDirSize(cacheDir)
+        val newSize: Long = bytes + size
+        var bytesDeleted: Long = 0
+        Timber.d("Checking cache size $size vs ${DawnConstants.CACHE_FILE_LIMIT}. Adding $bytes to cache.")
+        if (newSize > DawnConstants.CACHE_FILE_LIMIT) {
+            Timber.d("Cache reached limit. Deleting files...")
+            val files = cacheDir.listFiles() ?: emptyArray()
+            for (file in files) {
+                if (bytesDeleted >= bytes) {
+                    break
+                } else if (file.isFile) {
+                    bytesDeleted += file.length()
+                    Timber.d("Deleting file ${file.name} with ${file.length()} bytes")
+                    file.delete()
+                } else if (file.isDirectory) {
+                    Timber.d("Found a cacheDir. Clearing ${file.name}")
+                    bytesDeleted += cleanCacheDir(file, bytes)
+                }
+            }
+        }
+        Timber.d("Cleared $bytesDeleted bytes cache.")
+        return bytesDeleted
+    }
+
+    private fun getDirSize(dir: File): Long {
+        var size: Long = 0
+        val files = dir.listFiles() ?: emptyArray()
+        for (file in files) {
+            if (file.isFile) {
+                size += file.length()
+            } else if (file.isDirectory){
+                size += getDirSize(file)
+            }
+        }
+        return size
     }
 
     suspend fun getCompressedImageFileFromUri(caller: FragmentActivity, uri: Uri): File? {

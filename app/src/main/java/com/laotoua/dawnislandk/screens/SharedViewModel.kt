@@ -112,7 +112,7 @@ class SharedViewModel @Inject constructor(
     fun getSelectedPostForumName(fid: String): String = getForumDisplayName(fid)
 
     fun getForumIdByName(name: String): String {
-        return forumNameMapping.filterValues { it == name }.keys.first()
+        return forumNameMapping.filterValues { it == name }.keys.firstOrNull() ?: ""
     }
 
     suspend fun sendPost(

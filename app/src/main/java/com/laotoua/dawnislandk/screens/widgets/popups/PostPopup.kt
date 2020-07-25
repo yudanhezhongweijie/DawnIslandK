@@ -51,6 +51,7 @@ import com.laotoua.dawnislandk.util.ImageUtil
 import com.laotoua.dawnislandk.util.IntentUtil
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
+import com.lxj.xpopup.core.BasePopupView
 import com.lxj.xpopup.core.BottomPopupView
 import com.lxj.xpopup.interfaces.SimpleCallback
 import com.lxj.xpopup.util.KeyboardUtils
@@ -159,11 +160,11 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
     ) {
         XPopup.Builder(context)
             .setPopupCallback(object : SimpleCallback() {
-                override fun beforeShow() {
-                    this@PostPopup.targetPage = targetPage
-                    this@PostPopup.targetFid = targetFid
+                override fun beforeShow(popupView: BasePopupView?) {
+                    super.beforeShow(popupView)
+                    (popupView as PostPopup?)?.targetPage = targetPage
+                    popupView?.targetFid = targetFid
                     updateView(targetId, newPost, quote)
-                    super.beforeShow()
                 }
             })
             .enableDrag(false)

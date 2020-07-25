@@ -55,6 +55,7 @@ import com.laotoua.dawnislandk.util.DataResource
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
+import com.lxj.xpopup.core.BasePopupView
 import com.lxj.xpopup.enums.PopupPosition
 import com.lxj.xpopup.interfaces.SimpleCallback
 import dagger.android.support.DaggerAppCompatActivity
@@ -194,8 +195,8 @@ class MainActivity : DaggerAppCompatActivity() {
     fun showDrawer() {
         XPopup.Builder(this)
             .setPopupCallback(object : SimpleCallback() {
-                override fun beforeShow() {
-                    super.beforeShow()
+                override fun beforeShow(popupView: BasePopupView?) {
+                    super.beforeShow(popupView)
                     forumDrawer.loadReedPicture()
                 }
             })

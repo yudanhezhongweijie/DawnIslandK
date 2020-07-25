@@ -56,6 +56,7 @@ import com.laotoua.dawnislandk.util.SingleLiveEvent
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BasePopupView
 import com.lxj.xpopup.enums.PopupStatus
+import com.lxj.xpopup.enums.PopupType
 import com.lxj.xpopup.interfaces.OnDragChangeListener
 import com.lxj.xpopup.interfaces.OnSrcViewUpdateListener
 import com.lxj.xpopup.interfaces.XPopupImageLoader
@@ -126,6 +127,7 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
     override fun onCreate() {
         super.onCreate()
         setXPopupImageLoader(ImageLoader())
+        popupInfo.popupType = PopupType.ImageViewer
     }
 
 
@@ -488,6 +490,7 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
         }
         if (urls.size > 1) {
             pager?.currentItem = position
+            addOrUpdateSnapshot()
         }
         return this
     }

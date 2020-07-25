@@ -59,6 +59,7 @@ import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.SingleLiveEvent
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
+import com.lxj.xpopup.core.BasePopupView
 import com.lxj.xpopup.interfaces.SimpleCallback
 import dagger.android.support.DaggerFragment
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
@@ -320,13 +321,13 @@ class CommentsFragment : DaggerFragment() {
                 val page = getCurrentPage(mAdapter)
                 XPopup.Builder(context)
                     .setPopupCallback(object : SimpleCallback() {
-                        override fun beforeShow() {
-                            super.beforeShow()
+                        override fun beforeShow(popupView: BasePopupView?) {
+                            super.beforeShow(popupView)
                             jumpPopup.updatePages(page, viewModel.maxPage)
                         }
 
-                        override fun onDismiss() {
-                            super.onDismiss()
+                        override fun onDismiss(popupView: BasePopupView?) {
+                            super.onDismiss(popupView)
                             if (binding == null || _mAdapter == null) return
                             if (jumpPopup.submit) {
                                 binding!!.srlAndRv.refreshLayout.autoRefresh(
@@ -570,8 +571,8 @@ class CommentsFragment : DaggerFragment() {
         quotePopups.add(top)
         XPopup.Builder(context)
             .setPopupCallback(object : SimpleCallback() {
-                override fun beforeShow() {
-                    super.beforeShow()
+                override fun beforeShow(popupView: BasePopupView?) {
+                    super.beforeShow(popupView)
                     top.listenToLiveQuote()
                 }
             })

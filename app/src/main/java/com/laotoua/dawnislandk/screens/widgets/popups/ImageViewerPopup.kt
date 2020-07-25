@@ -489,8 +489,8 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
             )
         }
         if (urls.size > 1) {
-            pager?.currentItem = position
-            addOrUpdateSnapshot()
+            pager?.adapter?.notifyDataSetChanged()
+            pager?.setCurrentItem(position,false)
         }
         return this
     }
@@ -534,7 +534,7 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
 
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
             val photoView = PhotoView(container.context)
-            if (imageLoader != null && position < urls.size) {
+            if (imageLoader != null) {
                 imageLoader?.loadImage(
                     position,
                     getImageUrl(urls[if (isInfinite) position % urls.size else position]),
@@ -561,6 +561,10 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
 
         override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
             container.removeView(`object` as View)
+        }
+
+        override fun getItemPosition(`object`: Any): Int {
+            return POSITION_NONE
         }
     }
 

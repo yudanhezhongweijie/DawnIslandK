@@ -15,6 +15,11 @@ This app uses Retrofit2(& okhttp) for API calls, Dagger2 for Dependency Injectio
 <img src="https://github.com/fishballzzz/DawnIslandK/blob/master/demo/demo1.gif" width="240">         <img src="https://github.com/fishballzzz/DawnIslandK/blob/master/demo/demo2.gif" width="240">       <img src="https://github.com/fishballzzz/DawnIslandK/blob/master/demo/demo3.gif" width="240"> 
 <img src="https://github.com/fishballzzz/DawnIslandK/blob/master/demo/demo4.gif" width="240"> 
 
+# Downloads
+- Download apk from [Google Play](https://play.google.com/store/apps/details?id=com.laotoua.dawnislandk) or from the latest [Release Asset](https://github.com/fishballzzz/DawnIslandK/releases/latest)
+- 可通过[Google play](https://play.google.com/store/apps/details?id=com.laotoua.dawnislandk) 或 [Release Asset](https://github.com/fishballzzz/DawnIslandK/releases/latest)下载
+
+
 # Thanks
 - [Nimingban](https://github.com/seven332/Nimingban)
 - [DawnIsland](https://github.com/zwt-ss/DawnIsland) 

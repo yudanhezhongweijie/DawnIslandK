@@ -48,6 +48,7 @@ import com.afollestad.materialdialogs.list.listItems
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.google.android.material.animation.AnimationUtils
 import com.king.zxing.util.CodeUtils
+import com.laotoua.dawnislandk.BuildConfig
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
@@ -418,6 +419,10 @@ class ProfileFragment : DaggerFragment() {
                 val navAction = MainNavDirections.actionGlobalCommentsFragment("11689471", "")
                 findNavController().navigate(navAction)
             }
+        }
+
+        binding.credit.apply {
+            text = getString(R.string.credit, BuildConfig.VERSION_NAME)
         }
 
         hideProgressBarAndShowSettings()

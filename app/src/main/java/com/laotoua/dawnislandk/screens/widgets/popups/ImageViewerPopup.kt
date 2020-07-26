@@ -24,6 +24,7 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.os.Environment
@@ -205,6 +206,11 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
         nextPageLoader = task
     }
 
+    fun clearLoaders(){
+        nextPageLoader = null
+        previousPageLoader = null
+    }
+
 
     private fun setupPlaceholder() {
         placeholderView!!.visibility = if (isShowPlaceholder) View.VISIBLE else View.INVISIBLE
@@ -253,6 +259,7 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
 
     public override fun doShowAnimation() {
         if (srcView == null) {
+            resetViewStates()
             photoViewContainer!!.setBackgroundColor(bgColor)
             pager!!.visibility = View.VISIBLE
             showPagerIndicator()
@@ -319,6 +326,7 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
     public override fun doDismissAnimation() {
         if (srcView == null) {
             photoViewContainer!!.setBackgroundColor(Color.TRANSPARENT)
+            photoViewContainer!!.isReleasing = true
             doAfterDismiss()
             pager!!.visibility = View.INVISIBLE
             placeholderView!!.visibility = View.INVISIBLE
@@ -488,10 +496,9 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
                 locations[1] + srcView.height
             )
         }
-        if (urls.size > 1) {
-            pager?.adapter?.notifyDataSetChanged()
-            pager?.setCurrentItem(position,false)
-        }
+        // clear cache views when reusing the same popup in images
+        pager?.adapter?.notifyDataSetChanged()
+        pager?.setCurrentItem(position, false)
         return this
     }
 
@@ -517,6 +524,16 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
         )
     }
 
+    // when reusing the same popup, need to reset the following attributes,
+    // which are modified by the drag change listener
+    private fun resetViewStates() {
+        tvPagerIndicator?.alpha = 1f
+        if (customView != null) customView!!.alpha = 1f
+        if (isShowSaveBtn) saveButton?.alpha = 1f
+        pager?.scaleX = 1f
+        pager?.scaleY = 1f
+    }
+
     override fun onDismiss() {
         super.onDismiss()
         srcView = null
@@ -540,6 +557,13 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
                     getImageUrl(urls[if (isInfinite) position % urls.size else position]),
                     photoView
                 )
+            }
+            photoView.setOnMatrixChangeListener {
+                if (snapshotView != null) {
+                    val matrix = Matrix()
+                    photoView.getSuppMatrix(matrix)
+                    snapshotView!!.setSuppMatrix(matrix)
+                }
             }
             container.addView(photoView)
             photoView.setOnClickListener {

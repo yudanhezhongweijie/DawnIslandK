@@ -96,12 +96,7 @@ class CommentsFragment : DaggerFragment() {
     private val postPopup: PostPopup by lazyOnMainOnly { PostPopup(requireActivity(), sharedVM) }
     private val jumpPopup: JumpPopup by lazyOnMainOnly { JumpPopup(requireContext()) }
 
-    private val imageViewerPopup: ImageViewerPopup by lazyOnMainOnly {
-        ImageViewerPopup(requireContext()).apply {
-            setNextPageLoader { viewModel.getNextPage() }
-            setPreviousPageLoader { viewModel.getPreviousPage() }
-        }
-    }
+    private var imageViewerPopup: ImageViewerPopup? = null
 
     enum class RVScrollState {
         UP,
@@ -181,9 +176,9 @@ class CommentsFragment : DaggerFragment() {
                                 Timber.e("Did not find image in for comment #$position")
                                 return@setOnItemChildClickListener
                             }
-                            imageViewerPopup.setSrcView(null, pos)
+                            getImageViewerPopup().setSrcView(null, pos)
                             XPopup.Builder(context)
-                                .asCustom(imageViewerPopup)
+                                .asCustom(getImageViewerPopup())
                                 .show()
                         }
                         R.id.comment -> {
@@ -435,7 +430,7 @@ class CommentsFragment : DaggerFragment() {
     }
 
     private fun getCurrentPage(adapter: QuickAdapter<Comment>): Int {
-        if (_mAdapter == null || binding == null|| mAdapter.data.isNullOrEmpty()) return 1
+        if (_mAdapter == null || binding == null || mAdapter.data.isNullOrEmpty()) return 1
         val pos = (binding!!.srlAndRv.recyclerView.layoutManager as LinearLayoutManager)
             .findLastVisibleItemPosition()
             .coerceAtLeast(0)
@@ -450,6 +445,8 @@ class CommentsFragment : DaggerFragment() {
             _mAdapter = null
             binding = null
         }
+        imageViewerPopup?.clearLoaders()
+        imageViewerPopup = null
         Timber.d("Fragment View Destroyed ${binding == null}")
     }
 
@@ -597,8 +594,17 @@ class CommentsFragment : DaggerFragment() {
         findNavController().navigate(navAction)
     }
 
+    private fun getImageViewerPopup():ImageViewerPopup{
+        if (imageViewerPopup == null) {
+            imageViewerPopup = ImageViewerPopup(requireContext()).apply {
+                setNextPageLoader { viewModel.getNextPage() }
+                setPreviousPageLoader { viewModel.getPreviousPage() }
+            }
+        }
+        return imageViewerPopup!!
+    }
     private fun updateCurrentlyAvailableImages(newList: MutableList<Comment>) {
         imagesList = newList.filter { it.getImgUrl().isNotBlank() }
-        imageViewerPopup.setImageUrls(imagesList.toMutableList())
+        getImageViewerPopup().setImageUrls(imagesList.toMutableList())
     }
 }

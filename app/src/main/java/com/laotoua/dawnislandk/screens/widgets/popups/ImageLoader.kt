@@ -22,6 +22,7 @@ import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
+import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.GlideApp
 import com.lxj.xpopup.interfaces.XPopupImageLoader
@@ -42,7 +43,9 @@ class ImageLoader :
 
     override fun loadImage(position: Int, uri: Any, imageView: ImageView) {
         val imgUrl = if (uri.toString().startsWith("http")) uri else DawnConstants.imageCDN + uri
-        GlideApp.with(imageView).load(imgUrl)
+        GlideApp.with(imageView)
+            .load(imgUrl)
+            .placeholder(R.drawable.placeholder)
             .apply(
                 RequestOptions().override(
                     Target.SIZE_ORIGINAL,

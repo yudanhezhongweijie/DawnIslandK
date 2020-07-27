@@ -67,13 +67,11 @@ class CommentRepository @Inject constructor(
     suspend fun setPost(id: String, fid: String) {
         clearCachedPages()
         Timber.d("Setting new Thread: $id")
-        if (postMap[id] == null) {
-            postMap[id] = postDao.findPostByIdSync(id)
-            readingPageMap[id] = getReadingPageOnId(id)
-            browsingHistoryMap[id] = getBrowsingHistoryOnId(id, fid)
-            commentsMap[id] = SparseArray()
-            fifoPostList.add(id)
-        }
+        fifoPostList.add(id)
+        if (commentsMap[id] == null) commentsMap[id] = SparseArray()
+        if (postMap[id] == null) postMap[id] = postDao.findPostByIdSync(id)
+        if (readingPageMap[id] == null) readingPageMap[id] = getReadingPageOnId(id)
+        if (browsingHistoryMap[id] == null) browsingHistoryMap[id] = getBrowsingHistoryOnId(id, fid)
     }
 
     private suspend fun getReadingPageOnId(id: String): ReadingPage {
@@ -137,6 +135,9 @@ class CommentRepository @Inject constructor(
         page: Int,
         remoteDataOnly: Boolean
     ): LiveData<DataResource<List<Comment>>> {
+        if (commentsMap[id] == null) {
+            commentsMap[id] = SparseArray()
+        }
         commentsMap[id]!!.let {
             if (it[page] == null || remoteDataOnly) {
                 it.put(page, getLivePage(id, page, remoteDataOnly))
@@ -179,7 +180,7 @@ class CommentRepository @Inject constructor(
     ): DataResource<List<Comment>> {
         // update current thread with latest info
         if (data.fid.isBlank() && postMap[id]?.fid?.isNotBlank() == true) {
-            data.fid = postMap[id]?.fid!!
+            data.fid = postMap[id]?.fid.toString()
         }
         // update postFid for browse history(search jump does not have fid)
         browsingHistoryMap[id]?.run {
@@ -215,7 +216,7 @@ class CommentRepository @Inject constructor(
         coroutineScope {
             launch {
                 val cacheNoAd =
-                    commentsMap[id]!![page]?.value?.data?.filter { it.isNotAd() } ?: emptyList()
+                    commentsMap[id]?.get(page)?.value?.data?.filter { it.isNotAd() } ?: emptyList()
                 val serverNoAd = serverComments.filter { it.isNotAd() }
                 Timber.d("Got ${serverComments.size} comments and ${serverComments.size - serverNoAd.size} ad from server")
                 if (!cacheNoAd.equalsWithServerComments(serverNoAd)) {

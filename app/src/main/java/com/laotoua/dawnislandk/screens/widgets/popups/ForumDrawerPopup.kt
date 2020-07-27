@@ -67,7 +67,7 @@ class ForumDrawerPopup(
     fun loadReedPicture() {
         GlideApp.with(reedImageView)
             .load(reedImageUrl)
-            .placeholder(R.drawable.drawer_placeholder)
+            .placeholder(R.drawable.placeholder)
             .fitCenter()
             .into(reedImageView)
     }
@@ -91,7 +91,7 @@ class ForumDrawerPopup(
         }
 
         findViewById<Button>(R.id.ReedPictureRefresh).setOnClickListener {
-            reedImageView.setImageResource(R.drawable.drawer_placeholder)
+            reedImageView.setImageResource(R.drawable.placeholder)
             sharedVM.getRandomReedPicture()
             reedImageUrl = ""
         }

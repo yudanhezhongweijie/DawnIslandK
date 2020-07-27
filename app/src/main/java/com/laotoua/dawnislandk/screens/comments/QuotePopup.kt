@@ -22,6 +22,7 @@ import android.text.method.LinkMovementMethod
 import android.view.View
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import com.laotoua.dawnislandk.DawnApp
@@ -69,10 +70,10 @@ class QuotePopup(
         }
     }
 
-    fun listenToLiveQuote() {
+    fun listenToLiveQuote(lifecycleOwner: LifecycleOwner) {
         findViewById<ProgressBar>(R.id.progressBar).visibility = View.VISIBLE
         findViewById<ConstraintLayout>(R.id.quote).visibility = View.GONE
-        liveQuote.observe(caller.viewLifecycleOwner, liveQuoteObs)
+        liveQuote.observe(lifecycleOwner, liveQuoteObs)
     }
 
     private fun convertQuote(quote: Comment, po: String) {
@@ -167,7 +168,6 @@ class QuotePopup(
 
     override fun onDismiss() {
         liveQuote.removeObserver(liveQuoteObs)
-        caller.dismissQuote(this)
         super.onDismiss()
     }
 }

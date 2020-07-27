@@ -94,8 +94,6 @@ class CommentsFragment : DaggerFragment() {
     private val quotePopups: MutableList<QuotePopup> = mutableListOf()
 
     private val postPopup: PostPopup by lazyOnMainOnly { PostPopup(requireActivity(), sharedVM) }
-    private val jumpPopup: JumpPopup by lazyOnMainOnly { JumpPopup(requireContext()) }
-
     private var imageViewerPopup: ImageViewerPopup? = null
 
     enum class RVScrollState {
@@ -314,6 +312,7 @@ class CommentsFragment : DaggerFragment() {
                     return@setOnClickListener
                 }
                 val page = getCurrentPage(mAdapter)
+                val jumpPopup = JumpPopup(requireContext())
                 XPopup.Builder(context)
                     .setPopupCallback(object : SimpleCallback() {
                         override fun beforeShow(popupView: BasePopupView?) {
@@ -570,21 +569,22 @@ class CommentsFragment : DaggerFragment() {
             .setPopupCallback(object : SimpleCallback() {
                 override fun beforeShow(popupView: BasePopupView?) {
                     super.beforeShow(popupView)
-                    top.listenToLiveQuote()
+                    top.listenToLiveQuote(viewLifecycleOwner)
+                }
+
+                override fun beforeDismiss(popupView: BasePopupView?) {
+                    super.beforeDismiss(popupView)
+                    quotePopups.remove(popupView)
                 }
             })
             .asCustom(top)
             .show()
     }
 
-    fun dismissQuote(quotePopup: QuotePopup) {
-        quotePopups.remove(quotePopup)
-    }
-
     private fun dismissAllQuotes() {
         for (i in quotePopups.indices.reversed()) {
             quotePopups[i].smartDismiss()
-            quotePopups.removeAt(i)
+            quotePopups[i].destroy()
         }
     }
 

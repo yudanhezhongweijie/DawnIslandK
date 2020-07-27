@@ -182,6 +182,10 @@ class ProfileFragment : DaggerFragment() {
                     MaterialDialog(requireContext()).show {
                         title(R.string.view_caching)
                         message(R.string.view_caching_warning)
+                        getActionButton(WhichButton.POSITIVE).isEnabled = false
+                        checkBoxPrompt(R.string.acknowledge){
+                            getActionButton(WhichButton.POSITIVE).isEnabled = it
+                        }
                         positiveButton(R.string.submit) {
                             toggleSwitch(
                                 applicationDataStore::setViewCaching,

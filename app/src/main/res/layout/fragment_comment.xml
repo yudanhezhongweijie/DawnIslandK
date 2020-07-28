@@ -59,15 +59,15 @@
             android:text="@string/subscribe"
             app:icon="@drawable/ic_favorite_24px"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/copyId"
+            app:layout_constraintEnd_toStartOf="@+id/copyAndShare"
             app:layout_constraintStart_toStartOf="parent" />
 
         <Button
-            android:id="@+id/copyId"
+            android:id="@+id/copyAndShare"
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/copy_post_id"
+            android:text="@string/copy_and_share"
             app:icon="@drawable/ic_label_24px"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/post"
@@ -93,6 +93,6 @@
             app:icon="@drawable/ic_edit_24px"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/jump"
-            app:layout_constraintStart_toEndOf="@+id/copyId" />
+            app:layout_constraintStart_toEndOf="@+id/copyAndShare" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

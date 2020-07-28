@@ -37,7 +37,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.afollestad.materialdialogs.LayoutMode
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.bottomsheets.BasicGridItem
+import com.afollestad.materialdialogs.bottomsheets.BottomSheet
+import com.afollestad.materialdialogs.bottomsheets.gridItems
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.google.android.material.animation.AnimationUtils
 import com.laotoua.dawnislandk.DawnApp
@@ -54,6 +58,7 @@ import com.laotoua.dawnislandk.screens.widgets.LinkifyTextView
 import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
 import com.laotoua.dawnislandk.screens.widgets.popups.PostPopup
 import com.laotoua.dawnislandk.screens.widgets.spans.ReferenceSpan
+import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.SingleLiveEvent
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
@@ -291,8 +296,31 @@ class CommentsFragment : DaggerFragment() {
                 })
             }
 
-            binding!!.copyId.setOnClickListener {
-                copyText("串号", ">>No.${viewModel.currentPostId}")
+            binding!!.copyAndShare.setOnClickListener {
+                val items = listOf(
+                    BasicGridItem(R.drawable.ic_share_black_48dp, "分享串"),
+                    BasicGridItem(R.drawable.ic_public_black_48dp, "复制串地址"),
+                    BasicGridItem(R.drawable.ic_content_copy_black_48dp, "复制串号")
+                )
+                MaterialDialog(requireContext(), BottomSheet(LayoutMode.WRAP_CONTENT)).show {
+                    gridItems(items) { _, index, item ->
+                        when (index) {
+                            1 -> copyText(
+                                "串地址",
+                                "${DawnConstants.nmbHost}/t/${viewModel.currentPostId}"
+                            )
+                            2 -> copyText("串号", ">>No.${viewModel.currentPostId}")
+                            else -> {
+                                Toast.makeText(
+                                    context,
+                                    "Selected item ${item.title} at index $index",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+
+                    }
+                }
             }
 
             binding!!.post.setOnClickListener {
@@ -422,9 +450,11 @@ class CommentsFragment : DaggerFragment() {
     private fun copyText(label: String, text: String) {
         getSystemService(requireContext(), ClipboardManager::class.java)
             ?.setPrimaryClip(ClipData.newPlainText(label, text))
-        if (label == "串号") Toast.makeText(context, R.string.post_id_copied, Toast.LENGTH_SHORT)
-            .show()
-        else Toast.makeText(context, R.string.comment_copied, Toast.LENGTH_SHORT).show()
+        Toast.makeText(
+            context,
+            resources.getString(R.string.content_copied, label),
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     private fun getCurrentPage(): Int {

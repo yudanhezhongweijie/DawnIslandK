@@ -97,8 +97,7 @@
     <string name="need_take_picture_permission" translatable="false">需要拍照权限</string>
     <string name="please_try_again" translatable="false">请重复操作</string>
     <string name="please_try_again_later" translatable="false">请稍后再试</string>
-    <string name="post_id_copied" translatable="false">串号已复制</string>
-    <string name="comment_copied" translatable="false">评论已复制</string>
+    <string name="content_copied" translatable="false">%s已复制</string>
     <string name="restart_to_apply_setting" translatable="false">设置将在重启后生效</string>
     <string name="save_image_selection" translatable="false">要保存图片吗?</string>
     <string name="cannot_load_image_file" translatable="false">无法读取图片文件</string>
@@ -148,7 +147,7 @@
     <string name="page_jump" translatable="false">跳页</string>
     <string name="subscribe" translatable="false">收藏</string>
     <string name="see_po_only" translatable="false">只看Po</string>
-    <string name="copy_post_id" translatable="false">复制串号</string>
+    <string name="copy_and_share" translatable="false">复制 · 分享</string>
     <string name="please_select_target_forum" translatable="false">请选择发布板块</string>
     <string name="cookie_name" translatable="false">饼干名字</string>
     <string name="cookie_hash" translatable="false">饼干序列</string>

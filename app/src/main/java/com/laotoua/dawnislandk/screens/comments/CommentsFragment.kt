@@ -33,6 +33,7 @@ import androidx.core.text.toSpannable
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -66,6 +67,8 @@ import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BasePopupView
 import com.lxj.xpopup.interfaces.SimpleCallback
 import dagger.android.support.DaggerFragment
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import me.dkzwm.widget.srl.config.Constants
 import timber.log.Timber
@@ -378,7 +381,6 @@ class CommentsFragment : DaggerFragment() {
         viewModel.setPost(args.id, args.fid, args.targetPage)
         requireTitleUpdate = args.fid.isBlank()
         updateTitle()
-        updateCurrentPage()
     }
 
     private val addFeedObs = Observer<SingleLiveEvent<String>> {
@@ -607,15 +609,17 @@ class CommentsFragment : DaggerFragment() {
 
     private fun dismissAllQuotes() {
         for (i in quotePopups.indices.reversed()) {
-            quotePopups[i].smartDismiss()
             quotePopups[i].destroy()
         }
     }
 
     fun jumpToNewPost(id: String) {
         dismissAllQuotes()
-        val navAction = MainNavDirections.actionGlobalCommentsFragment(id, "")
-        findNavController().navigate(navAction)
+        lifecycleScope.launch {
+            delay(100L)
+            val navAction = MainNavDirections.actionGlobalCommentsFragment(id, "")
+            findNavController().navigate(navAction)
+        }
     }
 
     private fun getImageViewerPopup(): ImageViewerPopup {

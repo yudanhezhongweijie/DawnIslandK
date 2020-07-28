@@ -18,11 +18,13 @@
 package com.laotoua.dawnislandk.screens.util
 
 import android.app.Activity
+import android.content.res.Resources
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.updateLayoutParams
 import com.laotoua.dawnislandk.R
+import timber.log.Timber
 
 object ToolBar {
 
@@ -32,15 +34,27 @@ object ToolBar {
 
     private var topMargin = 0
 
+    private fun getStatusBarHeight(): Int {
+        val resources = Resources.getSystem()
+        val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
+        return resources.getDimensionPixelSize(resourceId)
+    }
+
     // add status bar's height to toolbar content margin
     fun Toolbar.immersiveToolbar(): Toolbar = apply {
-        if (topMargin == 0) {
-            setOnApplyWindowInsetsListener { _, insets ->
-                topMargin = insets.systemWindowInsetTop
-                setMarginTop(topMargin)
-                insets.consumeSystemWindowInsets()
-            }
-        } else setMarginTop(topMargin)
+        try {
+            topMargin = getStatusBarHeight()
+            setMarginTop(topMargin)
+        } catch (e:Exception){
+            Timber.e("Cannot get status bar height from system. use insets")
+            if (topMargin == 0) {
+                setOnApplyWindowInsetsListener { _, insets ->
+                    topMargin = insets.systemWindowInsetTop
+                    setMarginTop(topMargin)
+                    insets.consumeSystemWindowInsets()
+                }
+            } else setMarginTop(topMargin)
+        }
     }
 
     // expand toolbar to status bar
@@ -50,6 +64,8 @@ object ToolBar {
     }
 
    private fun View.setMarginTop(value: Int = topMargin) = updateLayoutParams<ViewGroup.MarginLayoutParams> {
-        topMargin = value
+       // shift by magic value 5, because bang screens does not have the accurate status bar height
+       // which may results in weird gap
+       topMargin = value - 5
     }
 }

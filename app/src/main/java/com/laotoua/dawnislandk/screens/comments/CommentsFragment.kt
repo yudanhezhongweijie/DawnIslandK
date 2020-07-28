@@ -22,6 +22,7 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.Intent
 import android.os.Bundle
 import android.os.SystemClock
 import android.text.style.UnderlineSpan
@@ -306,22 +307,26 @@ class CommentsFragment : DaggerFragment() {
                     BasicGridItem(R.drawable.ic_content_copy_black_48dp, "复制串号")
                 )
                 MaterialDialog(requireContext(), BottomSheet(LayoutMode.WRAP_CONTENT)).show {
-                    gridItems(items) { _, index, item ->
+                    title(R.string.copy_and_share)
+                    gridItems(items) { _, index, _ ->
                         when (index) {
+                            0 -> {
+                                val sendIntent: Intent = Intent().apply {
+                                    action = Intent.ACTION_SEND
+                                    putExtra(Intent.EXTRA_TEXT, "${DawnConstants.nmbHost}/t/${viewModel.currentPostId}")
+                                    type = "text/html"
+                                    putExtra(Intent.EXTRA_TITLE, "A岛 · ${sharedVM.getForumDisplayName(viewModel.currentPostFid)} · ${viewModel.currentPostId}")
+                                }
+                                val shareIntent = Intent.createChooser(sendIntent, null)
+                                startActivity(shareIntent)
+                            }
                             1 -> copyText(
                                 "串地址",
                                 "${DawnConstants.nmbHost}/t/${viewModel.currentPostId}"
                             )
                             2 -> copyText("串号", ">>No.${viewModel.currentPostId}")
-                            else -> {
-                                Toast.makeText(
-                                    context,
-                                    "Selected item ${item.title} at index $index",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
+                            else -> {}
                         }
-
                     }
                 }
             }

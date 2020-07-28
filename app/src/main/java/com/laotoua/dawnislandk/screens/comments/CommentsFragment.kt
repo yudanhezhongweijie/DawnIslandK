@@ -30,7 +30,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.text.toSpannable
-import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -78,8 +77,7 @@ class CommentsFragment : DaggerFragment() {
     private val viewModel: CommentsViewModel by viewModels { viewModelFactory }
     private val sharedVM: SharedViewModel by activityViewModels { viewModelFactory }
 
-    private var _mAdapter: QuickAdapter<Comment>? = null
-    private val mAdapter get() = _mAdapter!!
+    private var mAdapter: QuickAdapter<Comment>? = null
 
     // last visible item indicates the current page, uses for remembering last read page
     private var currentPage = 0
@@ -133,7 +131,7 @@ class CommentsFragment : DaggerFragment() {
                 (binding?.srlAndRv?.recyclerView?.layoutManager as LinearLayoutManager?)?.run {
                     val startPos = findFirstVisibleItemPosition()
                     val itemCount = findLastVisibleItemPosition() - startPos
-                    _mAdapter?.notifyItemRangeChanged(startPos, itemCount + initialPrefetchItemCount)
+                    mAdapter?.notifyItemRangeChanged(startPos, itemCount + initialPrefetchItemCount)
                 }
                 return true
             }
@@ -145,8 +143,8 @@ class CommentsFragment : DaggerFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        if (_mAdapter == null) {
-            _mAdapter = QuickAdapter<Comment>(R.layout.list_item_comment, sharedVM).apply {
+        if (mAdapter == null) {
+            mAdapter = QuickAdapter<Comment>(R.layout.list_item_comment, sharedVM).apply {
                 setReferenceClickListener(object : ReferenceSpan.ReferenceClickHandler {
                     override fun handleReference(id: String) {
                         displayQuote(id)
@@ -189,7 +187,7 @@ class CommentsFragment : DaggerFragment() {
                             )
                         }
                         R.id.copy -> {
-                            mAdapter.getViewByPosition(position, R.id.content)?.let {
+                            mAdapter?.getViewByPosition(position, R.id.content)?.let {
                                 copyText("评论", (it as TextView).text.toString())
                             }
                         }
@@ -258,10 +256,10 @@ class CommentsFragment : DaggerFragment() {
             binding!!.srlAndRv.refreshLayout.apply {
                 setOnRefreshListener(object : RefreshingListenerAdapter() {
                     override fun onRefreshing() {
-                        if (binding == null || _mAdapter == null) return
-                        if (!mAdapter.data.isNullOrEmpty() && mAdapter.getItem(
+                        if (binding == null || mAdapter == null) return
+                        if (mAdapter?.data.isNullOrEmpty().not() && mAdapter?.getItem(
                                 (binding!!.srlAndRv.recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-                            ).page == 1
+                            )?.page == 1
                         ) {
                             Toast.makeText(context, "没有上一页了。。。", Toast.LENGTH_SHORT).show()
                             refreshComplete(true, 100L)
@@ -306,12 +304,12 @@ class CommentsFragment : DaggerFragment() {
             }
 
             binding!!.jump.setOnClickListener {
-                if (binding == null || _mAdapter == null) return@setOnClickListener
-                if (binding!!.srlAndRv.refreshLayout.isRefreshing || mAdapter.loadMoreModule.isLoading) {
+                if (binding == null || mAdapter == null) return@setOnClickListener
+                if (binding!!.srlAndRv.refreshLayout.isRefreshing || mAdapter?.loadMoreModule?.isLoading == true) {
                     Timber.d("Loading data...Holding on jump...")
                     return@setOnClickListener
                 }
-                val page = getCurrentPage(mAdapter)
+                val page = getCurrentPage()
                 val jumpPopup = JumpPopup(requireContext())
                 XPopup.Builder(context)
                     .setPopupCallback(object : SimpleCallback() {
@@ -322,18 +320,19 @@ class CommentsFragment : DaggerFragment() {
 
                         override fun onDismiss(popupView: BasePopupView?) {
                             super.onDismiss(popupView)
-                            if (binding == null || _mAdapter == null) return
+                            if (binding == null || mAdapter == null) return
                             if (jumpPopup.submit) {
                                 binding!!.srlAndRv.refreshLayout.autoRefresh(
                                     Constants.ACTION_NOTHING,
                                     false
                                 )
-                                mAdapter.setList(emptyList())
+                                mAdapter?.setList(emptyList())
                                 Timber.i("Jumping to ${jumpPopup.targetPage}...")
                                 viewModel.jumpTo(jumpPopup.targetPage)
                             }
                         }
                     })
+                    .isDestroyOnDismiss(true)
                     .asCustom(jumpPopup)
                     .show()
             }
@@ -361,29 +360,29 @@ class CommentsFragment : DaggerFragment() {
     }
 
     private val loadingStatusObs = Observer<SingleLiveEvent<EventPayload<Nothing>>> {
-        if (binding == null || _mAdapter == null) return@Observer
+        if (binding == null || mAdapter == null) return@Observer
         it.getContentIfNotHandled()?.run {
-            updateHeaderAndFooter(binding!!.srlAndRv.refreshLayout, mAdapter, this)
+            updateHeaderAndFooter(binding!!.srlAndRv.refreshLayout, mAdapter!!, this)
         }
     }
 
     private val commentsObs = Observer<MutableList<Comment>> {
-        if (_mAdapter == null || it.isEmpty()) return@Observer
+        if (mAdapter == null || it.isEmpty()) return@Observer
         updateCurrentPage()
         if (requireTitleUpdate) {
             updateTitle()
             requireTitleUpdate = false
         }
-        mAdapter.setDiffNewData(it.toMutableList())
+        mAdapter?.setDiffNewData(it.toMutableList())
         updateCurrentlyAvailableImages(it)
-        mAdapter.setPo(viewModel.po)
-        Timber.i("${this.javaClass.simpleName} Adapter will have ${mAdapter.data.size} threads")
+        mAdapter?.setPo(viewModel.po)
+        Timber.i("${this.javaClass.simpleName} Adapter will have ${mAdapter?.data?.size} comments")
     }
 
     private val successPostObs = Observer<SingleLiveEvent<Boolean>> { event ->
         event.getContentIfNotHandled()?.let {
             if (it && currentPage >= viewModel.maxPage - 1) {
-                mAdapter.loadMoreModule.loadMoreToLoading()
+                mAdapter?.loadMoreModule?.loadMoreToLoading()
             }
         }
     }
@@ -428,20 +427,20 @@ class CommentsFragment : DaggerFragment() {
         else Toast.makeText(context, R.string.comment_copied, Toast.LENGTH_SHORT).show()
     }
 
-    private fun getCurrentPage(adapter: QuickAdapter<Comment>): Int {
-        if (_mAdapter == null || binding == null || mAdapter.data.isNullOrEmpty()) return 1
+    private fun getCurrentPage(): Int {
+        if (mAdapter == null || binding == null || mAdapter?.data.isNullOrEmpty()) return 1
         val pos = (binding!!.srlAndRv.recyclerView.layoutManager as LinearLayoutManager)
             .findLastVisibleItemPosition()
             .coerceAtLeast(0)
-            .coerceAtMost(adapter.data.lastIndex)
-        return adapter.getItem(pos).page
+            .coerceAtMost(mAdapter!!.data.lastIndex)
+        return mAdapter!!.getItem(pos).page
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         dismissAllQuotes()
         if (!DawnApp.applicationDataStore.viewCaching) {
-            _mAdapter = null
+            mAdapter = null
             binding = null
         }
         imageViewerPopup?.clearLoaders()
@@ -508,27 +507,22 @@ class CommentsFragment : DaggerFragment() {
     }
 
     private fun updateCurrentPage() {
-        if (_mAdapter == null || binding == null) return
-        val lastVisiblePos =
-            (binding?.srlAndRv?.recyclerView?.layoutManager as LinearLayoutManager?)?.findLastVisibleItemPosition()
-                ?: 0
-        if (0 <= lastVisiblePos && lastVisiblePos < mAdapter.data.size) {
-            val page = mAdapter.getItem(lastVisiblePos).page
-            if (page != currentPage || pageCounter?.text?.isBlank() == true) {
-                if (page != currentPage) viewModel.saveReadingProgress(page)
-                pageCounter?.text =
-                    (page.toString() + " / " + viewModel.maxPage.toString()).toSpannable()
-                        .apply { setSpan(UnderlineSpan(), 0, length, 0) }
-                currentPage = page
-            }
+        if (mAdapter == null || binding == null) return
+        val page = getCurrentPage()
+        if (page != currentPage || pageCounter?.text?.isBlank() == true) {
+            viewModel.saveReadingProgress(page)
+            pageCounter?.text =
+                (page.toString() + " / " + viewModel.maxPage.toString()).toSpannable()
+                    .apply { setSpan(UnderlineSpan(), 0, length, 0) }
         }
+        currentPage = page
     }
 
     private var menuPos = -1
 
     private fun showCommentMenuOnPos(pos: Int) {
         menuPos = pos
-        _mAdapter?.getViewByPosition(pos, R.id.commentMenu)?.apply {
+        mAdapter?.getViewByPosition(pos, R.id.commentMenu)?.apply {
             visibility = View.VISIBLE
             animate()
                 .alpha(1f)
@@ -539,7 +533,7 @@ class CommentsFragment : DaggerFragment() {
 
     private fun hideCommentMenuOnPos(pos: Int) {
         if (menuPos < 0) return
-        _mAdapter?.getViewByPosition(pos, R.id.commentMenu)?.apply {
+        mAdapter?.getViewByPosition(pos, R.id.commentMenu)?.apply {
             animate()
                 .alpha(0f)
                 .setDuration(150)
@@ -552,7 +546,7 @@ class CommentsFragment : DaggerFragment() {
     }
 
     private fun toggleCommentMenuOnPos(pos: Int) {
-        _mAdapter?.getViewByPosition(pos, R.id.commentMenu)?.apply {
+        mAdapter?.getViewByPosition(pos, R.id.commentMenu)?.apply {
             if (isVisible) {
                 hideCommentMenuOnPos(pos)
             } else {
@@ -594,7 +588,7 @@ class CommentsFragment : DaggerFragment() {
         findNavController().navigate(navAction)
     }
 
-    private fun getImageViewerPopup():ImageViewerPopup{
+    private fun getImageViewerPopup(): ImageViewerPopup {
         if (imageViewerPopup == null) {
             imageViewerPopup = ImageViewerPopup(requireContext()).apply {
                 setNextPageLoader { viewModel.getNextPage() }
@@ -603,6 +597,7 @@ class CommentsFragment : DaggerFragment() {
         }
         return imageViewerPopup!!
     }
+
     private fun updateCurrentlyAvailableImages(newList: MutableList<Comment>) {
         imagesList = newList.filter { it.getImgUrl().isNotBlank() }
         getImageViewerPopup().setImageUrls(imagesList.toMutableList())

@@ -64,8 +64,7 @@ class FeedsFragment : BaseNavFragment() {
 
     private var binding: FragmentSubscriptionFeedBinding? = null
 
-    private var _mAdapter: QuickMultiBinder? = null
-    private val mAdapter: QuickMultiBinder get() = _mAdapter!!
+    private var mAdapter: QuickMultiBinder? = null
 
     private val viewModel: FeedsViewModel by viewModels { viewModelFactory }
 
@@ -120,8 +119,8 @@ class FeedsFragment : BaseNavFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        if (_mAdapter == null) {
-            _mAdapter = QuickMultiBinder(sharedVM).apply {
+        if (mAdapter == null) {
+            mAdapter = QuickMultiBinder(sharedVM).apply {
                 addItemBinder(SimpleTextBinder())
                 addItemBinder(FeedAndPostBinder().apply {
                     addChildClickViewIds(R.id.attachedImage)
@@ -143,7 +142,7 @@ class FeedsFragment : BaseNavFragment() {
                 adapter = mAdapter
             }
 
-            mAdapter.setDefaultEmptyView()
+            mAdapter!!.setDefaultEmptyView()
             binding!!.srlAndRv.refreshLayout.apply {
                 setOnRefreshListener(object : RefreshingListenerAdapter() {
                     override fun onRefreshing() {
@@ -162,15 +161,15 @@ class FeedsFragment : BaseNavFragment() {
     }
 
     private val loadingObs = Observer<SingleLiveEvent<EventPayload<Nothing>>> {
-        if (_mAdapter == null || binding == null) return@Observer
+        if (mAdapter == null || binding == null) return@Observer
         it.getContentIfNotHandled()?.run {
-            updateHeaderAndFooter(binding!!.srlAndRv.refreshLayout, mAdapter, this)
+            updateHeaderAndFooter(binding!!.srlAndRv.refreshLayout, mAdapter!!, this)
             delayedLoading = false
         }
     }
 
     private val feedsObs = Observer<List<FeedAndPost>> { list ->
-        if (_mAdapter == null) return@Observer
+        if (mAdapter == null) return@Observer
         if (list.isEmpty()) {
             if (viewModel.lastJumpPage > 0) {
                 Toast.makeText(
@@ -182,7 +181,7 @@ class FeedsFragment : BaseNavFragment() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
-            mAdapter.setDiffNewData(null)
+            mAdapter!!.setDiffNewData(null)
             return@Observer
         }
 
@@ -197,7 +196,7 @@ class FeedsFragment : BaseNavFragment() {
                 data.add(it)
             }
         }
-        mAdapter.setDiffNewData(data)
+        mAdapter!!.setDiffNewData(data)
         Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} feeds")
     }
 
@@ -219,6 +218,7 @@ class FeedsFragment : BaseNavFragment() {
     override fun onPause() {
         super.onPause()
         mHandler?.removeCallbacks(mDelayedLoad)
+        mHandler = null
         viewModel.delFeedResponse.removeObserver(delFeedResponseObs)
         viewModel.loadingStatus.removeObserver(loadingObs)
         viewModel.feeds.removeObserver(feedsObs)
@@ -226,9 +226,8 @@ class FeedsFragment : BaseNavFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        mHandler = null
         if (!DawnApp.applicationDataStore.viewCaching) {
-            _mAdapter = null
+            mAdapter = null
             binding = null
         }
         Timber.d("Fragment View Destroyed ${binding == null}")

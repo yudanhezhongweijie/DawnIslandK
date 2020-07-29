@@ -133,7 +133,7 @@ class SharedViewModel @Inject constructor(
             imageFile,
             cookieHash
         ).run {
-            if (this is APIMessageResponse.APISuccessMessageResponse) {
+            if (this is APIMessageResponse.Success) {
                 if (messageType == APIMessageResponse.MessageType.String) {
                     message
                 } else {

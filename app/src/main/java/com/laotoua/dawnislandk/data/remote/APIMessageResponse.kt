@@ -27,33 +27,25 @@ import org.jsoup.nodes.Document
 import retrofit2.Call
 import timber.log.Timber
 
-sealed class APIMessageResponse {
-    abstract val message: String
-    abstract val status: LoadingStatus
+sealed class APIMessageResponse(
+    val status: LoadingStatus,
+    val message: String,
+    val dom: Document? = null
+) {
 
     /**
      * separate class for HTTP 204 responses so that we can make ApiSuccessResponse's body non-null.
      */
-    class APIEmptyMessageResponse(
-        override val message: String = "EmptyResponse"
-    ) : APIMessageResponse() {
-        override val status = LoadingStatus.NO_DATA
-    }
+    class Empty : APIMessageResponse(LoadingStatus.NO_DATA, "EmptyResponse")
 
-    data class APIErrorMessageResponse(
-        override val message: String,
-        val dom: Document? = null
-    ) : APIMessageResponse() {
-        override val status = LoadingStatus.ERROR
-    }
+    class Error(message: String, dom: Document? = null) :
+        APIMessageResponse(LoadingStatus.ERROR, message, dom)
 
-    data class APISuccessMessageResponse(
+    class Success(
         val messageType: MessageType,
-        override val message: String,
-        val dom: Document? = null
-    ) : APIMessageResponse() {
-        override val status = LoadingStatus.SUCCESS
-    }
+        message: String,
+        dom: Document? = null
+    ) : APIMessageResponse(LoadingStatus.SUCCESS, message, dom)
 
     enum class MessageType {
         HTML,
@@ -71,18 +63,18 @@ sealed class APIMessageResponse {
                     val body = response.body()
                     body?.close()
                     if (body == null || response.code() == 204) {
-                        return APIEmptyMessageResponse()
+                        return Empty()
                     }
                     val resBody = withContext(Dispatchers.IO) { body.string() }
                     return withContext(Dispatchers.Default) {
                         if (regex.containsMatchIn(resBody)) {
-                            APISuccessMessageResponse(
+                            Success(
                                 MessageType.HTML,
                                 "HTML Response",
                                 dom = Jsoup.parse(resBody)
                             )
                         } else {
-                            APISuccessMessageResponse(
+                            Success(
                                 MessageType.String, StringEscapeUtils.unescapeJava(
                                     resBody.replace("\"", "")
                                 )
@@ -101,11 +93,11 @@ sealed class APIMessageResponse {
                     }
                     Timber.e(errorMsg)
                     val dom = if (regex.containsMatchIn(errorMsg)) Jsoup.parse(errorMsg) else null
-                    APIErrorMessageResponse(errorMsg ?: "unknown error", dom)
+                    Error(errorMsg ?: "unknown error", dom)
                 }
             } catch (e: Exception) {
                 Timber.e(e)
-                return APIErrorMessageResponse(e.toString())
+                return Error(e.toString())
             }
         }
     }

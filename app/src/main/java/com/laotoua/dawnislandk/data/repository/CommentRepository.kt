@@ -258,7 +258,7 @@ class CommentRepository @Inject constructor(
         }
 
         return webService.addFeed(uuid, id).run {
-            if (this is APIMessageResponse.APISuccessMessageResponse && messageType == APIMessageResponse.MessageType.String) {
+            if (this is APIMessageResponse.Success && messageType == APIMessageResponse.MessageType.String) {
                 coroutineScope {
                     launch {
                         val newFeed = Feed(1, 1, id, "", Date().time)
@@ -268,7 +268,7 @@ class CommentRepository @Inject constructor(
                 SingleLiveEvent.create(message)
             } else {
                 Timber.e("Response type: ${this.javaClass.simpleName}\n $message")
-                SingleLiveEvent.create("订阅失败...是不是已经订阅了呢?")
+                SingleLiveEvent.create("订阅失败...是不是已经订阅了或者网络出问题了呢?")
             }
         }
     }

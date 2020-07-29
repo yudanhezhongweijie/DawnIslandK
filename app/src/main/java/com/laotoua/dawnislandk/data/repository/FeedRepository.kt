@@ -122,7 +122,7 @@ class FeedRepository @Inject constructor(
     suspend fun deleteFeed(feed: Feed): String {
         Timber.d("Deleting Feed ${feed.postId}")
         return webService.delFeed(DawnApp.applicationDataStore.feedId, feed.postId).run {
-            if (this is APIMessageResponse.APISuccessMessageResponse) {
+            if (this is APIMessageResponse.Success) {
                 coroutineScope { launch { feedDao.deleteFeedAndDecrementFeedIds(feed) } }
                 message
             } else {

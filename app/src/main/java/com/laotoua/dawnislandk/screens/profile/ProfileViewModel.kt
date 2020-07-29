@@ -117,7 +117,7 @@ class ProfileViewModel @Inject constructor(
             null,
             "userhash=$cookieHash"
         ).run {
-            if (this is APIMessageResponse.APISuccessMessageResponse) {
+            if (this is APIMessageResponse.Success) {
                 if (messageType == APIMessageResponse.MessageType.String) {
                     message
                 } else {
@@ -179,7 +179,7 @@ class ProfileViewModel @Inject constructor(
 
     suspend fun getPrivacyAgreement():String{
         return webNMBServiceClient.getPrivacyAgreement().run {
-            if (this is APIMessageResponse.APISuccessMessageResponse){
+            if (this is APIMessageResponse.Success){
                 dom!!.toString()
             } else{
                 Timber.d(message)

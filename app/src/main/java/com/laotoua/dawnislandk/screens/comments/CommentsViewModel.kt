@@ -136,7 +136,7 @@ class CommentsViewModel @Inject constructor(
              * However when requesting references, all references are stored as comment in comment table.
              * Therefore, the first page can have or not have the header post
              */
-            if (targetPage == 1 && (dataResource.data.isNullOrEmpty() || (dataResource.data?.size ?: 0 > 0 && dataResource.data!![0].id != currentPostId))) {
+            if (targetPage == 1 && (dataResource.data.isNullOrEmpty() || (dataResource.data.isNotEmpty() && dataResource.data[0].id != currentPostId))) {
                 commentRepo.getHeaderPost(currentPostId)?.let { list.add(0, it) }
             }
             dataResource.data?.let { list.addAll(it) }
@@ -215,7 +215,6 @@ class CommentsViewModel @Inject constructor(
         listenToNewPage(page)
     }
 
-    // TODO: add delFeed, update subscribe icon status
     fun addFeed(id: String) {
         viewModelScope.launch {
             addFeedResponse.postValue(commentRepo.addFeed(DawnApp.applicationDataStore.feedId, id))

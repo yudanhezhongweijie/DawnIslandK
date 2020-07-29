@@ -56,37 +56,36 @@ import timber.log.Timber
 class PostsFragment : BaseNavFragment() {
 
     private var binding: FragmentPostBinding? = null
-    private var _mAdapter: QuickAdapter<Post>? = null
-    private val mAdapter get() = _mAdapter!!
+    private var mAdapter: QuickAdapter<Post>? = null
     private val viewModel: PostsViewModel by viewModels { viewModelFactory }
     private val postPopup: PostPopup by lazyOnMainOnly { PostPopup(requireActivity(), sharedVM) }
     private var isFabOpen = false
 
     private val postObs = Observer<List<Post>> {
-        if (_mAdapter == null) return@Observer
+        if (mAdapter == null) return@Observer
         if (it.isEmpty()) {
-            if (!mAdapter.hasEmptyView()) mAdapter.setDefaultEmptyView()
-            mAdapter.setDiffNewData(null)
+            if (!mAdapter!!.hasEmptyView()) mAdapter!!.setDefaultEmptyView()
+            mAdapter!!.setDiffNewData(null)
             return@Observer
         }
         // set forum when navigate from website url
         if (sharedVM.selectedForumId.value == null) {
             sharedVM.setForumId(it.first().fid)
         }
-        mAdapter.setDiffNewData(it.toMutableList())
+        mAdapter!!.setDiffNewData(it.toMutableList())
         Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
     }
 
     private val forumIdObs = Observer<String> {
-        if (_mAdapter == null) return@Observer
-        if (viewModel.currentFid != it) mAdapter.setList(emptyList())
+        if (mAdapter == null) return@Observer
+        if (viewModel.currentFid != it) mAdapter!!.setList(emptyList())
         viewModel.setForum(it)
     }
 
     private val loadingObs = Observer<SingleLiveEvent<EventPayload<Nothing>>> {
-        if (_mAdapter == null || binding == null) return@Observer
+        if (mAdapter == null || binding == null) return@Observer
         it.getContentIfNotHandled()?.run {
-            updateHeaderAndFooter(binding!!.srlAndRv.refreshLayout, mAdapter, this)
+            updateHeaderAndFooter(binding!!.srlAndRv.refreshLayout, mAdapter!!, this)
         }
     }
 
@@ -151,8 +150,8 @@ class PostsFragment : BaseNavFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        if (_mAdapter == null) {
-            _mAdapter = QuickAdapter<Post>(R.layout.list_item_post, sharedVM).apply {
+        if (mAdapter == null) {
+            mAdapter = QuickAdapter<Post>(R.layout.list_item_post, sharedVM).apply {
                 setOnItemClickListener { _, _, position ->
                     getItem(position).run {
                         val navAction =
@@ -328,7 +327,7 @@ class PostsFragment : BaseNavFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         if (!DawnApp.applicationDataStore.viewCaching) {
-            _mAdapter = null
+            mAdapter = null
             binding = null
         }
         Timber.d("Fragment View Destroyed ${binding == null}")

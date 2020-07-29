@@ -1,4 +1,4 @@
-# DawnIslandK
+# DawnIslandK 黎明岛K
 这是一个浮夸的A岛(adnmb.com)客户端，特性功能请看截图。
 如果对app使用有问题或建议请提交新的issue。
 
@@ -8,19 +8,20 @@ This app utilizes many latest Android features, concepts, propositions and guidl
 
 This app uses Retrofit2(& okhttp) for API calls, Dagger2 for Dependency Injection(required for repository behind MVVM), Moshi(which provides better support than Gson in Kotlin, i.e. data class constructor with default value). 
 
-# Dev Memo
+# Dev Memo 开发者日志
 [Issue faced & Solution](https://github.com/fishballzzz/DawnIslandK/blob/master/DEV_MEMO.md)
 
-# Screenshots
+# Screenshots 截图
 <img src="https://github.com/fishballzzz/DawnIslandK/blob/master/demo/demo1.gif" width="240">         <img src="https://github.com/fishballzzz/DawnIslandK/blob/master/demo/demo2.gif" width="240">       <img src="https://github.com/fishballzzz/DawnIslandK/blob/master/demo/demo3.gif" width="240"> 
 <img src="https://github.com/fishballzzz/DawnIslandK/blob/master/demo/demo4.gif" width="240"> 
 
-# Downloads
-- Download apk from [Google Play](https://play.google.com/store/apps/details?id=com.laotoua.dawnislandk) or from the latest [Release Asset](https://github.com/fishballzzz/DawnIslandK/releases/latest)
-- 可通过[Google play](https://play.google.com/store/apps/details?id=com.laotoua.dawnislandk) 或 [Release Asset](https://github.com/fishballzzz/DawnIslandK/releases/latest)下载
+# Downloads 下载
+<a href='https://play.google.com/store/apps/details?id=com.laotoua.dawnislandk&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img width="240" alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'/></a>
+
+[Release Asset](https://github.com/fishballzzz/DawnIslandK/releases/latest) 
 
 
-# Thanks
+# Thanks 鸣谢
 - [Nimingban](https://github.com/seven332/Nimingban)
 - [DawnIsland](https://github.com/zwt-ss/DawnIsland) 
 - @柔柔(代码) @五(设计) @安之(产品) @bug触发器(测试) @第九龙琦(趋势榜) @赛璐璐夙志(APP图标)

@@ -17,23 +17,13 @@
 
 package com.laotoua.dawnislandk.util
 
-import androidx.arch.core.util.Function
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Transformations
-import androidx.lifecycle.liveData
 import com.laotoua.dawnislandk.data.local.entity.Comment
 import timber.log.Timber
 
 fun <T> lazyOnMainOnly(initializer: () -> T): Lazy<T> = lazy(LazyThreadSafetyMode.NONE, initializer)
-
-/**
- * returns true if list has been modified
- */
-fun <E> MutableList<E>.addOrSet(ind: Int, element: E): Boolean {
-    return if (ind >= size) add(element)
-    else set(ind, element) == element
-}
 
 fun List<Comment>?.equalsWithServerComments(targetList: List<Comment>?): Boolean {
     return if (this == null || targetList == null) false
@@ -61,17 +51,6 @@ fun <T> getLocalListDataResource(cache: LiveData<List<T>>): LiveData<DataResourc
         val status: LoadingStatus =
             if (it.isNullOrEmpty()) LoadingStatus.NO_DATA else LoadingStatus.SUCCESS
         DataResource.create(status, it)
-    }
-}
-
-fun <X, Y> getRemoteDataResource(
-    response: DataResource<X>,
-    conversion: Function<DataResource<X>, DataResource<Y>>
-) = liveData<DataResource<Y>> {
-    if (response.status == LoadingStatus.SUCCESS) {
-        emit(conversion.apply(response))
-    } else {
-        emit(DataResource.create(response.status, null, response.message))
     }
 }
 

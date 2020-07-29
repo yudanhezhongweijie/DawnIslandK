@@ -25,6 +25,7 @@
     android:focusable="false"
     android:paddingTop="4dp"
     android:paddingBottom="4dp"
+    android:background="?attr/selectableItemBackground"
     app:layout_optimizationLevel="standard|dimensions"
     tools:viewBindingIgnore="true">
 

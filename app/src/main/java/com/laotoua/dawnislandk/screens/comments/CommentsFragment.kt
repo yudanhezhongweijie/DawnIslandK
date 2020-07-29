@@ -35,6 +35,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -52,7 +53,6 @@ import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Comment
 import com.laotoua.dawnislandk.databinding.FragmentCommentBinding
-import com.laotoua.dawnislandk.di.DaggerViewModelFactory
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
@@ -83,7 +83,7 @@ class CommentsFragment : DaggerFragment() {
     private var binding: FragmentCommentBinding? = null
 
     @Inject
-    lateinit var viewModelFactory: DaggerViewModelFactory
+    lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel: CommentsViewModel by viewModels { viewModelFactory }
     private val sharedVM: SharedViewModel by activityViewModels { viewModelFactory }
 

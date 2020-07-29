@@ -20,10 +20,10 @@ package com.laotoua.dawnislandk.screens.widgets
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.di.DaggerViewModelFactory
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import dagger.android.support.DaggerFragment
@@ -31,7 +31,7 @@ import javax.inject.Inject
 
 open class BaseNavFragment : DaggerFragment() {
     @Inject
-    lateinit var viewModelFactory: DaggerViewModelFactory
+    lateinit var viewModelFactory: ViewModelProvider.Factory
     protected val sharedVM: SharedViewModel by activityViewModels { viewModelFactory }
 
     private val navBarScrollListener = object : RecyclerView.OnScrollListener() {

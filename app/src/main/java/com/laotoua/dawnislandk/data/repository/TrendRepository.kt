@@ -17,6 +17,7 @@
 
 package com.laotoua.dawnislandk.data.repository
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
 import com.laotoua.dawnislandk.data.local.dao.DailyTrendDao
 import com.laotoua.dawnislandk.data.local.entity.DailyTrend
@@ -47,7 +48,7 @@ class TrendRepository @Inject constructor(
     private var cache: DailyTrend? = null
 
     // Remote only acts as a request status responder, actual data will be emitted by local cache
-    fun getLatestTrend() = liveData<DataResource<DailyTrend>> {
+    fun getLatestTrend(): LiveData<DataResource<DailyTrend>> = liveData {
         var getRemoteData = true
         if (cache == null) cache = dailyTrendDao.findLatestDailyTrendSync()
         var page = 1

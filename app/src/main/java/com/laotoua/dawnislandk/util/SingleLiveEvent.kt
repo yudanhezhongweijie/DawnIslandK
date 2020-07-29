@@ -60,7 +60,7 @@ class SingleLiveEvent<out T> private constructor(private val content: T) {
     }
 }
 
-class EventPayload<out T>(
+class EventPayload<T>(
     val loadingStatus: LoadingStatus,
     val message: String? = null,
     val payload: T? = null

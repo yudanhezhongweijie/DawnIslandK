@@ -64,7 +64,7 @@ sealed class APIDataResponse<T>(
                     return withContext(Dispatchers.Default) {
                         try {
                             Timber.d("Trying to parse response with supplied parser...")
-                            Success<T>("Parse success", parser.parse(resBody))
+                            Success("Parse success", parser.parse(resBody))
                         } catch (e: Exception) {
                             // server returns non json string
                             Timber.e("Parse failed: $e")
@@ -89,7 +89,7 @@ sealed class APIDataResponse<T>(
                     Error<T>(errorMsg ?: "unknown error")
                 }
             } catch (e: Exception) {
-                return Error<T>(e.toString())
+                return Error(e.toString())
             }
         }
     }

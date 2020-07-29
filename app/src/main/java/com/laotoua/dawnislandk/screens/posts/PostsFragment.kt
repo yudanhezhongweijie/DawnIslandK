@@ -171,9 +171,9 @@ class PostsFragment : BaseNavFragment() {
                                             "18",//值班室
                                             "18",
                                             newPost = true,
-                                            quote = "\n>>No.${getItem(position).id}\n${context.getString(
+                                            quote = ">>No.${getItem(position).id}\n${context.getString(
                                                 R.string.report_reasons
-                                            )}: $text"
+                                            )}: $text\n"
                                         )
                                     }
                                     cancelOnTouchOutside(false)

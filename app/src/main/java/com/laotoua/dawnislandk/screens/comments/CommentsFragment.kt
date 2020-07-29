@@ -31,6 +31,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.text.toSpannable
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -208,9 +209,9 @@ class CommentsFragment : DaggerFragment() {
                                         "18",//值班室
                                         "18",
                                         newPost = true,
-                                        quote = "\n>>No.${getItem(position).id}\n${context.getString(
+                                        quote = ">>No.${getItem(position).id}\n${context.getString(
                                             R.string.report_reasons
-                                        )}: $text"
+                                        )}: $text\n"
                                     )
                                 }
                                 cancelOnTouchOutside(false)
@@ -584,7 +585,7 @@ class CommentsFragment : DaggerFragment() {
 
     private fun toggleCommentMenuOnPos(pos: Int) {
         mAdapter?.getViewByPosition(pos, R.id.commentMenu)?.apply {
-            if (isVisible) {
+            if (this.isVisible) {
                 hideCommentMenuOnPos(pos)
             } else {
                 hideCommentMenuOnPos(menuPos)

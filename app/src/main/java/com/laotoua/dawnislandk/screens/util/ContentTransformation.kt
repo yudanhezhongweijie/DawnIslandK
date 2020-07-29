@@ -67,7 +67,6 @@ object ContentTransformation {
         if (admin == "1") {
             val adminColor = ForegroundColorSpan(Color.parseColor("#FF0F0F"))
             cookie.setSpan(adminColor, 0, cookie.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
-            // TODO: support multiple po
         } else if (userId == po) {
             val poColor = ForegroundColorSpan(Color.parseColor("#000000"))
             cookie.setSpan(poColor, 0, cookie.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)

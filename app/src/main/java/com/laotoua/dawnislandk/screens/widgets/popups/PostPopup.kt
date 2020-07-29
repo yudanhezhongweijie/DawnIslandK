@@ -25,6 +25,7 @@ import android.graphics.LinearGradient
 import android.graphics.Shader
 import android.net.Uri
 import android.view.View
+import android.view.animation.DecelerateInterpolator
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat.startActivity
@@ -303,11 +304,23 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
         }
 
         findViewById<MaterialButtonToggleGroup>(R.id.toggleButtonGroup)
-            .addOnButtonCheckedListener { _, checkedId, isChecked ->
+            .addOnButtonCheckedListener { toggleGroup, checkedId, isChecked ->
                 when (checkedId) {
                     R.id.postExpand -> {
                         expansionContainer!!.visibility = if (isChecked) View.VISIBLE else View.GONE
-
+                        toggleGroup.findViewById<Button>(R.id.postExpand)?.run {
+                            if (isChecked){
+                                animate().setDuration(200)
+                                    .setInterpolator(DecelerateInterpolator())
+                                    .rotation(180f)
+                                    .start()
+                            } else {
+                                animate().setDuration(200)
+                                    .setInterpolator(DecelerateInterpolator())
+                                    .rotation(0f)
+                                    .start()
+                            }
+                        }
                     }
 
                     R.id.postFace -> {

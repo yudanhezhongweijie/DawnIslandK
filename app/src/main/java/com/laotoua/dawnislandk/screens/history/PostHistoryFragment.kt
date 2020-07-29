@@ -281,9 +281,9 @@ class PostHistoryFragment : BaseNavFragment() {
         override fun convert(holder: BaseViewHolder, data: SectionHeader) {
             holder.setText(R.id.text, data.text)
             if (data.clickListener == null) {
-                holder.setGone(R.id.arrow, true)
+                holder.setGone(R.id.icon, true)
             } else {
-                holder.setVisible(R.id.arrow, true)
+                holder.setVisible(R.id.icon, true)
             }
         }
 
@@ -295,7 +295,8 @@ class PostHistoryFragment : BaseNavFragment() {
         ) {
             if (data.clickListener == null) return
             data.clickListener.onClick(view)
-            val icon: ImageView = holder.getView(R.id.arrow)
+            data.isExpanded = !data.isExpanded
+            val icon: ImageView = holder.getView(R.id.icon)
             if (data.isExpanded) {
                 icon.animate().setDuration(200)
                     .setInterpolator(DecelerateInterpolator())
@@ -304,10 +305,9 @@ class PostHistoryFragment : BaseNavFragment() {
             } else {
                 icon.animate().setDuration(200)
                     .setInterpolator(DecelerateInterpolator())
-                    .rotation(90f)
+                    .rotation(180f)
                     .start()
             }
-            data.isExpanded = !data.isExpanded
         }
 
         override fun getLayoutId(): Int = R.layout.list_item_section_header

@@ -187,7 +187,7 @@
                         style="@style/Widget.App.Button.OutlinedButton.IconOnly"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        app:icon="@drawable/ic_unfold_more_black_24px"
+                        app:icon="@drawable/ic_expand_more_24px"
                         app:strokeWidth="0dp" />
 
                     <Button

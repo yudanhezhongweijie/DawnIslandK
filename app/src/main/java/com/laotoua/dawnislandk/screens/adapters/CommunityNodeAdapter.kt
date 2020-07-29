@@ -20,7 +20,6 @@ package com.laotoua.dawnislandk.screens.adapters
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
-import androidx.core.view.ViewCompat
 import com.chad.library.adapter.base.BaseNodeAdapter
 import com.chad.library.adapter.base.entity.node.BaseExpandNode
 import com.chad.library.adapter.base.entity.node.BaseNode
@@ -93,10 +92,10 @@ class CommunityNodeAdapter(val clickListener: ForumClickListener) : BaseNodeAdap
             data: BaseNode,
             isAnimate: Boolean
         ) {
-            val icon: ImageView = helper.getView(R.id.arrow)
+            val icon: ImageView = helper.getView(R.id.icon)
             if ((data as CommunityNode).isExpanded) {
                 if (isAnimate) {
-                    ViewCompat.animate(icon).setDuration(200)
+                    icon.animate().setDuration(200)
                         .setInterpolator(DecelerateInterpolator())
                         .rotation(0f)
                         .start()
@@ -105,12 +104,12 @@ class CommunityNodeAdapter(val clickListener: ForumClickListener) : BaseNodeAdap
                 }
             } else {
                 if (isAnimate) {
-                    ViewCompat.animate(icon).setDuration(200)
+                    icon.animate().setDuration(200)
                         .setInterpolator(DecelerateInterpolator())
-                        .rotation(90f)
+                        .rotation(180f)
                         .start()
                 } else {
-                    icon.rotation = 90f
+                    icon.rotation = 180f
                 }
             }
         }

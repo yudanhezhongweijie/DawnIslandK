@@ -41,8 +41,8 @@ object ContentTransformation {
         Pattern.compile("(http|https)://[a-z0-9A-Z%-]+(\\.[a-z0-9A-Z%-]+)+(:\\d{1,5})?(/[a-zA-Z0-9-_~:#@!&',;=%/*.?+$\\[\\]()]+)?/?")
     private val AC_PATTERN = Pattern.compile("ac\\d+")
     private val HIDE_PATTERN = Pattern.compile("\\[h](.+?)\\[/h]")
-    private const val CUSTOM_HIDE_PATTERN_OPEN = "<-hide->"
-    private const val CUSTOM_HIDE_PATTERN_CLOSE = "</-hide->"
+    private const val CUSTOM_HIDE_PATTERN_OPEN = "`-hide-`"
+    private const val CUSTOM_HIDE_PATTERN_CLOSE = "`/-hide-`"
     private val CUSTOM_HIDE_PATTERN =
         Pattern.compile("$CUSTOM_HIDE_PATTERN_OPEN(.+?)$CUSTOM_HIDE_PATTERN_CLOSE")
 

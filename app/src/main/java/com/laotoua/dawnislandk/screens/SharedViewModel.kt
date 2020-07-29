@@ -85,8 +85,7 @@ class SharedViewModel @Inject constructor(
         viewModelScope.launch {
             webNMBServiceClient.getRandomReedPicture().run {
                 if (this is APIDataResponse.APISuccessDataResponse) {
-                    // TODO: Non nullable value
-                    reedPictureUrl.postValue(data)
+                    reedPictureUrl.postValue(data!!)
                 }
             }
         }
@@ -180,7 +179,7 @@ class SharedViewModel @Inject constructor(
         var saved = false
         webNMBServiceClient.getPosts(targetFid, 1).run {
             if (this is APIDataResponse.APISuccessDataResponse) {
-                for (post in data) {
+                for (post in data!!) {
                     // content may be formatted to html by server hence compared by unformatted string
                     val striped = ContentTransformation.htmlToSpanned(post.content).toString()
                     if (post.userid == draft.cookieName && striped == draft.content) {
@@ -224,7 +223,7 @@ class SharedViewModel @Inject constructor(
 
         webNMBServiceClient.getComments(draft.postTargetId, targetPage).run {
             if (this is APIDataResponse.APISuccessDataResponse) {
-                val maxPage = data.getMaxPage()
+                val maxPage = data!!.getMaxPage()
                 if (targetPage != maxPage && !targetPageUpperBound) {
                     searchCommentInPost(draft, maxPage, true)
                 } else {

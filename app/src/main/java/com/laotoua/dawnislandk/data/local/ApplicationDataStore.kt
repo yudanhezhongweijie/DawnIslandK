@@ -181,8 +181,8 @@ class ApplicationDataStore @Inject constructor(
         nmbNotice = NMBNoticeDao.getLatestNMBNotice()
         webService.getNMBNotice().run {
             if (this is APIDataResponse.APISuccessDataResponse) {
-                if (nmbNotice == null || data.date > nmbNotice!!.date) {
-                    coroutineScope { launch { NMBNoticeDao.insertNMBNoticeWithTimestamp(data) } }
+                if (nmbNotice == null || data!!.date > nmbNotice!!.date) {
+                    coroutineScope { launch { NMBNoticeDao.insertNMBNoticeWithTimestamp(data!!) } }
                     nmbNotice = data
                 }
             } else {
@@ -210,7 +210,7 @@ class ApplicationDataStore @Inject constructor(
             if (this is APIDataResponse.APISuccessDataResponse) {
                 if (luweiNotice != data) {
                     luweiNotice = data
-                    coroutineScope { launch { luweiNoticeDao.insertNoticeWithTimestamp(data) } }
+                    coroutineScope { launch { luweiNoticeDao.insertNoticeWithTimestamp(data!!) } }
                 }
             } else {
                 Timber.e(message)

@@ -96,7 +96,7 @@ class SearchViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
         }
         webNMBServiceClient.getNMBSearch(query, page, cookieHash).run {
             if (this is APIDataResponse.APISuccessDataResponse) {
-                combinePagedSearchResults(data)
+                combinePagedSearchResults(data!!)
             } else {
                 Timber.e(message)
                 _loadingStatus.postValue(

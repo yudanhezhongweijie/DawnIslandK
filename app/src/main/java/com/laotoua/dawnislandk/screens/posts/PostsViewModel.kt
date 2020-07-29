@@ -56,7 +56,7 @@ class PostsViewModel @Inject constructor(private val webService: NMBServiceClien
                         SingleLiveEvent.create(LoadingStatus.ERROR, "无法读取串列表...\n$message")
                     )
                 } else if (this is APIDataResponse.APISuccessDataResponse) {
-                    convertServerData(data, fid)
+                    convertServerData(data!!, fid)
                 }
             }
         }

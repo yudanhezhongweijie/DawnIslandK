@@ -72,7 +72,7 @@ class TrendRepository @Inject constructor(
         Timber.d("Getting remote trend on page $page")
         return webService.getComments(trendId, page).run {
             if (this is APIDataResponse.APISuccessDataResponse) {
-                val targetPage = ceil(data.replyCount.toDouble() / 19).toInt()
+                val targetPage = ceil(data!!.replyCount.toDouble() / 19).toInt()
                 if (page == 1) {
                     getRemoteTrend(targetPage)
                 } else {

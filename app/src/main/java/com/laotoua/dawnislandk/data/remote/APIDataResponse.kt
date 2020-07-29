@@ -25,39 +25,25 @@ import org.apache.commons.text.StringEscapeUtils
 import retrofit2.Call
 import timber.log.Timber
 
-sealed class APIDataResponse<out T> {
-    abstract val message: String
-    abstract val data: T?
-    abstract val status: LoadingStatus
+sealed class APIDataResponse<T>(
+    val status: LoadingStatus,
+    val data: T? = null,
+    val message: String
+) {
 
     /**
      * separate class for HTTP 204 responses so that we can make ApiSuccessResponse's body non-null.
      */
-    class APIEmptyDataResponse<T>(
-        override val message: String = "EmptyResponse",
-        override val data: Nothing? = null
-    ) : APIDataResponse<T>() {
-        override val status = LoadingStatus.NO_DATA
-    }
+    class APIEmptyDataResponse<T> : APIDataResponse<T>(LoadingStatus.NO_DATA, null, "EmptyResponse")
 
-    data class APIBlankDataResponse<T>(
-        override val message: String,
-        override val data: Nothing? = null
-    ) : APIDataResponse<T>() {
-        override val status = LoadingStatus.NO_DATA
-    }
+    class APIBlankDataResponse<T>(message: String = "BlankDataResponse", data: T? = null) :
+        APIDataResponse<T>(LoadingStatus.NO_DATA, data, message)
 
-    data class APIErrorDataResponse<T>(
-        override val message: String,
-        override val data: Nothing? = null
-    ) : APIDataResponse<T>() {
-        override val status = LoadingStatus.ERROR
-    }
+    class APIErrorDataResponse<T>(message: String, data: T? = null) :
+        APIDataResponse<T>(LoadingStatus.ERROR, data, message)
 
-    data class APISuccessDataResponse<T>(override val message: String, override val data: T) :
-        APIDataResponse<T>() {
-        override val status = LoadingStatus.SUCCESS
-    }
+    class APISuccessDataResponse<T>(message: String, data: T) :
+        APIDataResponse<T>(LoadingStatus.SUCCESS, data, message)
 
     companion object {
         suspend fun <T> create(
@@ -78,12 +64,12 @@ sealed class APIDataResponse<out T> {
                     return withContext(Dispatchers.Default) {
                         try {
                             Timber.d("Trying to parse response with supplied parser...")
-                            APISuccessDataResponse("Parse success", parser.parse(resBody))
+                            APISuccessDataResponse<T>("Parse success", parser.parse(resBody))
                         } catch (e: Exception) {
                             // server returns non json string
                             Timber.e("Parse failed: $e")
                             Timber.d("Response is non JSON data...")
-                            APIBlankDataResponse<Nothing>(
+                            APIBlankDataResponse<T>(
                                 StringEscapeUtils.unescapeJava(
                                     resBody.replace("\"", "")
                                 )
@@ -100,10 +86,10 @@ sealed class APIDataResponse<out T> {
                     } else {
                         msg
                     }
-                    APIErrorDataResponse<Nothing>(errorMsg ?: "unknown error")
+                    APIErrorDataResponse<T>(errorMsg ?: "unknown error")
                 }
             } catch (e: Exception) {
-                return APIErrorDataResponse<Nothing>(e.toString())
+                return APIErrorDataResponse<T>(e.toString())
             }
         }
     }

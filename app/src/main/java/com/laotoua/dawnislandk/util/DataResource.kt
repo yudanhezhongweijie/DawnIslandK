@@ -19,37 +19,20 @@ package com.laotoua.dawnislandk.util
 
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
 
-sealed class DataResource<T> {
-    abstract val status: LoadingStatus
-    abstract val data: T?
-    abstract var message: String
+sealed class DataResource<T>(
+    val status: LoadingStatus,
+    val data: T? = null,
+    var message: String
+) {
 
-    data class SuccessDataResource<T>(
-        override val data: T
-    ) : DataResource<T>() {
-        override var message: String = ""
-        override val status: LoadingStatus = LoadingStatus.SUCCESS
-    }
+    class SuccessDataResource<T>(data: T) : DataResource<T>(LoadingStatus.SUCCESS, data, "")
 
-    data class ErrorDataResource<T>(
-        override var message: String
-    ) : DataResource<T>() {
-        override val status: LoadingStatus = LoadingStatus.ERROR
-        override val data: T? = null
-    }
+    class ErrorDataResource<T>(message: String) :
+        DataResource<T>(LoadingStatus.ERROR, null, message)
 
-    data class NoDataResource<T>(
-        override var message: String
-    ) : DataResource<T>() {
-        override val status: LoadingStatus = LoadingStatus.NO_DATA
-        override val data: T? = null
-    }
+    class NoDataResource<T>(message: String) : DataResource<T>(LoadingStatus.NO_DATA, null, message)
 
-    data class LoadingDataResource<T>(override val status: LoadingStatus = LoadingStatus.LOADING) :
-        DataResource<T>() {
-        override val data: T? = null
-        override var message: String = ""
-    }
+    class LoadingDataResource<T> : DataResource<T>(LoadingStatus.LOADING, null, "")
 
     companion object {
         fun <T> create(
@@ -64,18 +47,12 @@ sealed class DataResource<T> {
             } else if (status == LoadingStatus.LOADING) {
                 LoadingDataResource()
             } else {
-                ErrorDataResource(
-                    message
-                )
+                ErrorDataResource(message)
             }
         }
 
         fun <T> create(response: APIDataResponse<T>): DataResource<T> {
-            return create(
-                response.status,
-                response.data,
-                response.message
-            )
+            return create(response.status, response.data, response.message)
         }
     }
 }

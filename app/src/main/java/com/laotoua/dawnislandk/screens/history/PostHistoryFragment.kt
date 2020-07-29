@@ -55,10 +55,8 @@ class PostHistoryFragment : BaseNavFragment() {
         fun newInstance() = PostHistoryFragment()
     }
 
-    private var _binding: FragmentHistoryPostBinding? = null
-    private val binding: FragmentHistoryPostBinding get() = _binding!!
-    private var _mAdapter: QuickMultiBinder? = null
-    private val mAdapter: QuickMultiBinder get() = _mAdapter!!
+    private var binding: FragmentHistoryPostBinding? = null
+    private var mAdapter: QuickMultiBinder? = null
 
     private val viewModel: PostHistoryViewModel by viewModels { viewModelFactory }
 
@@ -69,8 +67,8 @@ class PostHistoryFragment : BaseNavFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        if (_mAdapter == null) {
-            _mAdapter = QuickMultiBinder(sharedVM).apply {
+        if (mAdapter == null) {
+            mAdapter = QuickMultiBinder(sharedVM).apply {
                 addItemBinder(PostHistoryBinder(sharedVM).apply {
                     addChildClickViewIds(R.id.attachedImage)
                 })
@@ -80,21 +78,21 @@ class PostHistoryFragment : BaseNavFragment() {
                 })
             }
         }
-        if (_binding != null) {
+        if (binding != null) {
             Timber.d("Fragment View Reusing!")
         } else {
             Timber.d("Fragment View Created")
-            _binding = FragmentHistoryPostBinding.inflate(inflater, container, false)
+            binding = FragmentHistoryPostBinding.inflate(inflater, container, false)
 
-            binding.recyclerView.apply {
+            binding!!.recyclerView.apply {
                 setHasFixedSize(true)
                 layoutManager = LinearLayoutManager(context)
                 adapter = mAdapter
             }
 
-            binding.startDate.text = ReadableTime.getDateString(startDate.time)
-            binding.endDate.text = ReadableTime.getDateString(endDate.time)
-            binding.startDate.setOnClickListener {
+            binding!!.startDate.text = ReadableTime.getDateString(startDate.time)
+            binding!!.endDate.text = ReadableTime.getDateString(endDate.time)
+            binding!!.startDate.setOnClickListener {
                 MaterialDialog(requireContext()).show {
                     datePicker(currentDate = startDate) { _, date ->
                         setStartDate(date)
@@ -102,7 +100,7 @@ class PostHistoryFragment : BaseNavFragment() {
                 }
             }
 
-            binding.endDate.setOnClickListener {
+            binding!!.endDate.setOnClickListener {
                 MaterialDialog(requireContext()).show {
                     datePicker(currentDate = endDate) { _, date ->
                         setEndDate(date)
@@ -110,7 +108,7 @@ class PostHistoryFragment : BaseNavFragment() {
                 }
             }
 
-            binding.confirmDate.setOnClickListener {
+            binding!!.confirmDate.setOnClickListener {
                 if (startDate.before(endDate)) {
                     viewModel.searchByDate()
                 } else {
@@ -119,14 +117,14 @@ class PostHistoryFragment : BaseNavFragment() {
                 }
             }
         }
-        return binding.root
+        return binding!!.root
     }
 
     private val listObs = Observer<List<PostHistory>> { list ->
-        if (_mAdapter == null || _binding == null) return@Observer
+        if (mAdapter == null || binding == null) return@Observer
         if (list.isEmpty()) {
-            if (!mAdapter.hasEmptyView()) mAdapter.setDefaultEmptyView()
-            mAdapter.setDiffNewData(null)
+            if (!mAdapter!!.hasEmptyView()) mAdapter!!.setDefaultEmptyView()
+            mAdapter!!.setDiffNewData(null)
             return@Observer
         }
         var lastDate: String? = null
@@ -160,11 +158,11 @@ class PostHistoryFragment : BaseNavFragment() {
                 lastDate = dateString
             }
         }
-        mAdapter.setDiffNewData(data)
-        mAdapter.setFooterView(
+        mAdapter!!.setDiffNewData(data)
+        mAdapter!!.setFooterView(
             layoutInflater.inflate(
                 R.layout.view_no_more_data,
-                binding.recyclerView,
+                binding!!.recyclerView,
                 false
             )
         )
@@ -184,13 +182,13 @@ class PostHistoryFragment : BaseNavFragment() {
     private fun setStartDate(date: Calendar) {
         startDate = date
         viewModel.setStartDate(date.time)
-        _binding?.startDate?.text = ReadableTime.getDateString(date.time)
+        binding?.startDate?.text = ReadableTime.getDateString(date.time)
     }
 
     private fun setEndDate(date: Calendar) {
         endDate = date
         viewModel.setEndDate(date.time)
-        _binding?.endDate?.text = ReadableTime.getDateString(date.time)
+        binding?.endDate?.text = ReadableTime.getDateString(date.time)
     }
 
     inner class PostHistoryBinder(private val sharedViewModel: SharedViewModel) :
@@ -282,10 +280,10 @@ class PostHistoryFragment : BaseNavFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         if (!DawnApp.applicationDataStore.viewCaching) {
-            _mAdapter = null
-            _binding = null
+            mAdapter = null
+            binding = null
         }
-        Timber.d("Fragment View Destroyed ${_binding == null}")
+        Timber.d("Fragment View Destroyed ${binding == null}")
     }
 
 }

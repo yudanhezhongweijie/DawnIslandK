@@ -115,7 +115,7 @@ class CommentsViewModel @Inject constructor(
         listeningPages.put(page, newPage)
         listeningPagesIndices.add(page)
         comments.addSource(newPage) {
-            if (it != null) combineDataResource(it, page)
+            combineDataResource(it, page)
         }
     }
 
@@ -215,6 +215,7 @@ class CommentsViewModel @Inject constructor(
         listenToNewPage(page)
     }
 
+    // TODO: add delFeed, update subscribe icon status
     fun addFeed(id: String) {
         viewModelScope.launch {
             addFeedResponse.postValue(commentRepo.addFeed(DawnApp.applicationDataStore.feedId, id))

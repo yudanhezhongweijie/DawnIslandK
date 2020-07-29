@@ -85,6 +85,7 @@ class SharedViewModel @Inject constructor(
         viewModelScope.launch {
             webNMBServiceClient.getRandomReedPicture().run {
                 if (this is APIDataResponse.APISuccessDataResponse) {
+                    // TODO: Non nullable value
                     reedPictureUrl.postValue(data)
                 }
             }

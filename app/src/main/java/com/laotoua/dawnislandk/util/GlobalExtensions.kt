@@ -93,35 +93,3 @@ fun <T> getLocalLiveDataAndRemoteResponse(
     return result
 }
 
-// combines local and remote data then emit
-// when requesting remote data only, simply pass null as cache
-fun <T> getCombinedLiveData(
-    cache: LiveData<DataResource<T>>?,
-    remote: LiveData<DataResource<T>>
-): LiveData<DataResource<T>> {
-    val result = MediatorLiveData<DataResource<T>>()
-    result.value = DataResource.create()
-    if (cache != null) {
-        result.addSource(cache) {
-            if (it.status != LoadingStatus.NO_DATA) {
-                result.value = combineCacheAndRemoteData(result.value, it, false)
-            }
-        }
-    }
-    result.addSource(remote) {
-        result.value = combineCacheAndRemoteData(result.value, it, true)
-    }
-    return result
-}
-
-private fun <T> combineCacheAndRemoteData(
-    old: DataResource<T>?,
-    new: DataResource<T>?,
-    isRemoteData: Boolean
-): DataResource<T>? {
-    return if (new?.status == LoadingStatus.ERROR && old?.status != new.status && !isRemoteData) {
-        old
-    } else {
-        new
-    }
-}

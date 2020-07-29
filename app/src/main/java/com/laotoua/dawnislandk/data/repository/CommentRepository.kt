@@ -20,6 +20,7 @@ package com.laotoua.dawnislandk.data.repository
 import android.util.ArrayMap
 import android.util.SparseArray
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.liveData
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.dao.*
@@ -151,9 +152,27 @@ class CommentRepository @Inject constructor(
         page: Int,
         remoteDataOnly: Boolean
     ): LiveData<DataResource<List<Comment>>> {
-        val cache = if (remoteDataOnly) null else getLocalData(id, page)
+        return if (remoteDataOnly) {
+            getServerData(id, page)
+        } else {
+            getCombinedData(id, page)
+        }
+    }
+
+    private fun getCombinedData(id: String, page: Int): LiveData<DataResource<List<Comment>>> {
+        val result = MediatorLiveData<DataResource<List<Comment>>>()
+        val cache = getLocalData(id, page)
         val remote = getServerData(id, page)
-        return getCombinedLiveData(cache, remote)
+        var hasRemote = false
+        result.value = DataResource.create()
+        result.addSource(cache) {
+            if (!hasRemote && cache.value?.status == LoadingStatus.SUCCESS) result.value = it
+        }
+        result.addSource(remote) {
+            hasRemote = true
+            result.value = it
+        }
+        return result
     }
 
     private fun getLocalData(id: String, page: Int): LiveData<DataResource<List<Comment>>> {

@@ -34,15 +34,15 @@ sealed class APIDataResponse<T>(
     /**
      * separate class for HTTP 204 responses so that we can make ApiSuccessResponse's body non-null.
      */
-    class APIEmptyDataResponse<T> : APIDataResponse<T>(LoadingStatus.NO_DATA, null, "EmptyResponse")
+    class Empty<T> : APIDataResponse<T>(LoadingStatus.NO_DATA, null, "EmptyResponse")
 
-    class APIBlankDataResponse<T>(message: String = "BlankDataResponse", data: T? = null) :
+    class BlankData<T>(message: String = "BlankDataResponse", data: T? = null) :
         APIDataResponse<T>(LoadingStatus.NO_DATA, data, message)
 
-    class APIErrorDataResponse<T>(message: String, data: T? = null) :
+    class Error<T>(message: String, data: T? = null) :
         APIDataResponse<T>(LoadingStatus.ERROR, data, message)
 
-    class APISuccessDataResponse<T>(message: String, data: T) :
+    class Success<T>(message: String, data: T) :
         APIDataResponse<T>(LoadingStatus.SUCCESS, data, message)
 
     companion object {
@@ -57,19 +57,19 @@ sealed class APIDataResponse<T>(
                     val body = response.body()
                     body?.close()
                     if (body == null || response.code() == 204) {
-                        return APIEmptyDataResponse()
+                        return Empty()
                     }
                     val resBody = withContext(Dispatchers.IO) { body.string() }
 
                     return withContext(Dispatchers.Default) {
                         try {
                             Timber.d("Trying to parse response with supplied parser...")
-                            APISuccessDataResponse<T>("Parse success", parser.parse(resBody))
+                            Success<T>("Parse success", parser.parse(resBody))
                         } catch (e: Exception) {
                             // server returns non json string
                             Timber.e("Parse failed: $e")
                             Timber.d("Response is non JSON data...")
-                            APIBlankDataResponse<T>(
+                            BlankData<T>(
                                 StringEscapeUtils.unescapeJava(
                                     resBody.replace("\"", "")
                                 )
@@ -86,10 +86,10 @@ sealed class APIDataResponse<T>(
                     } else {
                         msg
                     }
-                    APIErrorDataResponse<T>(errorMsg ?: "unknown error")
+                    Error<T>(errorMsg ?: "unknown error")
                 }
             } catch (e: Exception) {
-                return APIErrorDataResponse<T>(e.toString())
+                return Error<T>(e.toString())
             }
         }
     }

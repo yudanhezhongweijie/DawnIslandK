@@ -180,7 +180,7 @@ class ApplicationDataStore @Inject constructor(
     suspend fun getLatestNMBNotice(): NMBNotice? {
         nmbNotice = NMBNoticeDao.getLatestNMBNotice()
         webService.getNMBNotice().run {
-            if (this is APIDataResponse.APISuccessDataResponse) {
+            if (this is APIDataResponse.Success) {
                 if (nmbNotice == null || data!!.date > nmbNotice!!.date) {
                     coroutineScope { launch { NMBNoticeDao.insertNMBNoticeWithTimestamp(data!!) } }
                     nmbNotice = data
@@ -207,7 +207,7 @@ class ApplicationDataStore @Inject constructor(
     suspend fun getLatestLuweiNotice(): LuweiNotice? {
         luweiNotice = luweiNoticeDao.getLatestLuweiNotice()
         webService.getLuweiNotice().run {
-            if (this is APIDataResponse.APISuccessDataResponse) {
+            if (this is APIDataResponse.Success) {
                 if (luweiNotice != data) {
                     luweiNotice = data
                     coroutineScope { launch { luweiNoticeDao.insertNoticeWithTimestamp(data!!) } }
@@ -236,7 +236,7 @@ class ApplicationDataStore @Inject constructor(
 //        }
         val currentVersionCode = BuildConfig.VERSION_NAME.filter { it.isDigit() }.toInt()
         val latest = webService.getLatestRelease().run {
-            if (this is APIDataResponse.APISuccessDataResponse) data
+            if (this is APIDataResponse.Success) data
             else {
                 Timber.e(message)
                 null

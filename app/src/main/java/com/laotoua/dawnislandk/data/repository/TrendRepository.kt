@@ -71,7 +71,7 @@ class TrendRepository @Inject constructor(
     private suspend fun getRemoteTrend(page: Int): DataResource<DailyTrend>? {
         Timber.d("Getting remote trend on page $page")
         return webService.getComments(trendId, page).run {
-            if (this is APIDataResponse.APISuccessDataResponse) {
+            if (this is APIDataResponse.Success) {
                 val targetPage = ceil(data!!.replyCount.toDouble() / 19).toInt()
                 if (page == 1) {
                     getRemoteTrend(targetPage)

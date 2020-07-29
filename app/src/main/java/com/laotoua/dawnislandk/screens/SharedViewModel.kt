@@ -84,7 +84,7 @@ class SharedViewModel @Inject constructor(
     fun getRandomReedPicture() {
         viewModelScope.launch {
             webNMBServiceClient.getRandomReedPicture().run {
-                if (this is APIDataResponse.APISuccessDataResponse) {
+                if (this is APIDataResponse.Success) {
                     reedPictureUrl.postValue(data!!)
                 }
             }
@@ -178,7 +178,7 @@ class SharedViewModel @Inject constructor(
         Timber.d("Searching new Post in the first page of forum $targetFid")
         var saved = false
         webNMBServiceClient.getPosts(targetFid, 1).run {
-            if (this is APIDataResponse.APISuccessDataResponse) {
+            if (this is APIDataResponse.Success) {
                 for (post in data!!) {
                     // content may be formatted to html by server hence compared by unformatted string
                     val striped = ContentTransformation.htmlToSpanned(post.content).toString()
@@ -222,7 +222,7 @@ class SharedViewModel @Inject constructor(
         Timber.d("Searching posted comment in ${draft.postTargetId} on page $targetPage")
 
         webNMBServiceClient.getComments(draft.postTargetId, targetPage).run {
-            if (this is APIDataResponse.APISuccessDataResponse) {
+            if (this is APIDataResponse.Success) {
                 val maxPage = data!!.getMaxPage()
                 if (targetPage != maxPage && !targetPageUpperBound) {
                     searchCommentInPost(draft, maxPage, true)

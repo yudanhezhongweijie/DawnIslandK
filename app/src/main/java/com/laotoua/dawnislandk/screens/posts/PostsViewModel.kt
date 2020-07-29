@@ -50,12 +50,12 @@ class PostsViewModel @Inject constructor(private val webService: NMBServiceClien
             val fid = _currentFid ?: "-1"
             Timber.d("Getting threads from $fid on page $pageCount")
             webService.getPosts(fid, pageCount).run {
-                if (this is APIDataResponse.APIErrorDataResponse) {
+                if (this is APIDataResponse.Error) {
                     Timber.e(message)
                     _loadingStatus.postValue(
                         SingleLiveEvent.create(LoadingStatus.ERROR, "无法读取串列表...\n$message")
                     )
-                } else if (this is APIDataResponse.APISuccessDataResponse) {
+                } else if (this is APIDataResponse.Success) {
                     convertServerData(data!!, fid)
                 }
             }

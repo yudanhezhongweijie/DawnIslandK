@@ -25,14 +25,13 @@ sealed class DataResource<T>(
     var message: String
 ) {
 
-    class SuccessDataResource<T>(data: T) : DataResource<T>(LoadingStatus.SUCCESS, data, "")
+    class Success<T>(data: T) : DataResource<T>(LoadingStatus.SUCCESS, data, "")
 
-    class ErrorDataResource<T>(message: String) :
-        DataResource<T>(LoadingStatus.ERROR, null, message)
+    class Error<T>(message: String) : DataResource<T>(LoadingStatus.ERROR, null, message)
 
-    class NoDataResource<T>(message: String) : DataResource<T>(LoadingStatus.NO_DATA, null, message)
+    class NoData<T>(message: String) : DataResource<T>(LoadingStatus.NO_DATA, null, message)
 
-    class LoadingDataResource<T> : DataResource<T>(LoadingStatus.LOADING, null, "")
+    class Loading<T> : DataResource<T>(LoadingStatus.LOADING, null, "")
 
     companion object {
         fun <T> create(
@@ -41,13 +40,13 @@ sealed class DataResource<T>(
             message: String = ""
         ): DataResource<T> {
             return if (status == LoadingStatus.SUCCESS && data != null) {
-                SuccessDataResource(data)
+                Success(data)
             } else if (status == LoadingStatus.SUCCESS || status == LoadingStatus.NO_DATA) {
-                NoDataResource(message)
+                NoData(message)
             } else if (status == LoadingStatus.LOADING) {
-                LoadingDataResource()
+                Loading()
             } else {
-                ErrorDataResource(message)
+                Error(message)
             }
         }
 

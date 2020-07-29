@@ -48,23 +48,22 @@ class TrendsFragment : BaseNavFragment() {
 
     private var binding: FragmentSubscriptionTrendBinding? = null
 
-    private var _mAdapter: QuickAdapter<Trend>? = null
-    private val mAdapter get() = _mAdapter!!
+    private var mAdapter: QuickAdapter<Trend>? = null
 
     private val viewModel: TrendsViewModel by viewModels { viewModelFactory }
 
     private val trendsObs = Observer<DataResource<DailyTrend>> {
-        if (_mAdapter == null || binding == null) return@Observer
-        updateHeaderAndFooter(binding!!.srlAndRv.refreshLayout, mAdapter, EventPayload(it.status, it.message, null))
+        if (mAdapter == null || binding == null) return@Observer
+        updateHeaderAndFooter(binding!!.srlAndRv.refreshLayout, mAdapter!!, EventPayload(it.status, it.message, null))
         if (it.status == LoadingStatus.LOADING) return@Observer
         val list = it.data?.trends
         if (list.isNullOrEmpty()) {
-            if (!mAdapter.hasEmptyView()) mAdapter.setDefaultEmptyView()
-            mAdapter.setDiffNewData(null)
+            if (!mAdapter!!.hasEmptyView()) mAdapter!!.setDefaultEmptyView()
+            mAdapter!!.setDiffNewData(null)
             return@Observer
         }
-        mAdapter.setList(list.toMutableList())
-        mAdapter.setFooterView(
+        mAdapter!!.setList(list.toMutableList())
+        mAdapter!!.setFooterView(
             layoutInflater.inflate(
                 R.layout.view_no_more_data,
                 binding!!.srlAndRv.recyclerView,
@@ -77,8 +76,8 @@ class TrendsFragment : BaseNavFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        if (_mAdapter == null){
-            _mAdapter = QuickAdapter<Trend>(R.layout.list_item_trend, sharedVM).apply {
+        if (mAdapter == null){
+            mAdapter = QuickAdapter<Trend>(R.layout.list_item_trend, sharedVM).apply {
                 loadMoreModule.isEnableLoadMore = false
                 setOnItemClickListener { _, _, position ->
                     val target = getItem(position)
@@ -133,7 +132,7 @@ class TrendsFragment : BaseNavFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         if (!DawnApp.applicationDataStore.viewCaching) {
-            _mAdapter = null
+            mAdapter = null
             binding = null
         }
         Timber.d("Fragment View Destroyed ${binding == null}")

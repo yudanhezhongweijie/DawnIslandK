@@ -22,4 +22,6 @@ import android.view.View
 class SectionHeader (
     val text:String,
     val clickListener: View.OnClickListener? = null
-)
+){
+    var isExpanded = true
+}

@@ -21,11 +21,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.datetime.datePicker
@@ -63,6 +65,12 @@ class PostHistoryFragment : BaseNavFragment() {
     private var endDate = Calendar.getInstance()
     private var startDate = Calendar.getInstance().apply { add(Calendar.DATE, -30) }
 
+    private var showNewPosts = true
+    private var showReplys = true
+
+    private var postHeader = SectionHeader("发布", View.OnClickListener { togglePosts() })
+    private var replyHeader = SectionHeader("回复", View.OnClickListener { toggleReplys() })
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -71,11 +79,11 @@ class PostHistoryFragment : BaseNavFragment() {
             mAdapter = QuickMultiBinder(sharedVM).apply {
                 addItemBinder(PostHistoryBinder(sharedVM).apply {
                     addChildClickViewIds(R.id.attachedImage)
-                })
-                addItemBinder(DateStringBinder())
-                addItemBinder(SectionHeaderBinder().apply {
-                    addChildClickViewIds(R.id.button)
-                })
+                }, PostHistoryDiffer())
+                addItemBinder(DateStringBinder(), DateStringDiffer())
+                addItemBinder(SectionHeaderBinder(), SectionHeaderDiffer())
+                loadMoreModule.isEnableLoadMore = false
+                loadMoreModule.enableLoadMoreEndClick = false
             }
         }
         if (binding != null) {
@@ -127,46 +135,7 @@ class PostHistoryFragment : BaseNavFragment() {
             mAdapter!!.setDiffNewData(null)
             return@Observer
         }
-        var lastDate: String? = null
-        val data: MutableList<Any> = ArrayList()
-        list.filter { it.newPost }.run {
-            data.add(SectionHeader("发布"))
-            map {
-                val dateString = ReadableTime.getDateString(
-                    it.postDate,
-                    ReadableTime.DATE_ONLY_FORMAT
-                )
-                if (lastDate == null || dateString != lastDate) {
-                    data.add(dateString)
-                }
-                data.add(it)
-                lastDate = dateString
-            }
-        }
-        list.filterNot { it.newPost }.run {
-            data.add(SectionHeader("回复"))
-            lastDate = null
-            map {
-                val dateString = ReadableTime.getDateString(
-                    it.postDate,
-                    ReadableTime.DATE_ONLY_FORMAT
-                )
-                if (lastDate == null || dateString != lastDate) {
-                    data.add(dateString)
-                }
-                data.add(it)
-                lastDate = dateString
-            }
-        }
-        mAdapter!!.setDiffNewData(data)
-        mAdapter!!.setFooterView(
-            layoutInflater.inflate(
-                R.layout.view_no_more_data,
-                binding!!.recyclerView,
-                false
-            )
-        )
-        Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} items")
+        displayList(list)
     }
 
     override fun onResume() {
@@ -189,6 +158,67 @@ class PostHistoryFragment : BaseNavFragment() {
         endDate = date
         viewModel.setEndDate(date.time)
         binding?.endDate?.text = ReadableTime.getDateString(date.time)
+    }
+
+    private fun togglePosts() {
+        showNewPosts = !showNewPosts
+        displayList(viewModel.postHistoryList.value ?: emptyList())
+    }
+
+    private fun toggleReplys() {
+        showReplys = !showReplys
+        displayList(viewModel.postHistoryList.value ?: emptyList())
+    }
+
+    private fun displayList(list: List<PostHistory>) {
+        var lastDate: String? = null
+        val data: MutableList<Any> = ArrayList()
+        data.add(postHeader)
+        if (showNewPosts) {
+            list.filter { it.newPost }.run {
+                map {
+                    val dateString = ReadableTime.getDateString(
+                        it.postDate,
+                        ReadableTime.DATE_ONLY_FORMAT
+                    )
+                    if (lastDate == null || dateString != lastDate) {
+                        data.add(dateString)
+                    }
+                    data.add(it)
+                    lastDate = dateString
+                }
+            }
+        }
+        data.add(replyHeader)
+        if (showReplys) {
+            list.filterNot { it.newPost }.run {
+                lastDate = null
+                map {
+                    val dateString = ReadableTime.getDateString(
+                        it.postDate,
+                        ReadableTime.DATE_ONLY_FORMAT
+                    )
+                    if (lastDate == null || dateString != lastDate) {
+                        data.add(dateString)
+                    }
+                    data.add(it)
+                    lastDate = dateString
+                }
+            }
+        }
+        mAdapter!!.setDiffNewData(data)
+
+        if (!mAdapter!!.hasFooterLayout()) {
+            mAdapter!!.setFooterView(
+                layoutInflater.inflate(
+                    R.layout.view_no_more_data,
+                    binding!!.recyclerView,
+                    false
+                )
+            )
+        }
+
+        Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} items")
     }
 
     inner class PostHistoryBinder(private val sharedViewModel: SharedViewModel) :
@@ -251,19 +281,33 @@ class PostHistoryFragment : BaseNavFragment() {
         override fun convert(holder: BaseViewHolder, data: SectionHeader) {
             holder.setText(R.id.text, data.text)
             if (data.clickListener == null) {
-                holder.setGone(R.id.button, true)
+                holder.setGone(R.id.arrow, true)
             } else {
-                holder.setVisible(R.id.button, true)
+                holder.setVisible(R.id.arrow, true)
             }
         }
 
-        override fun onChildClick(
+        override fun onClick(
             holder: BaseViewHolder,
             view: View,
             data: SectionHeader,
             position: Int
         ) {
-            if (view.id == R.id.button) data.clickListener?.onClick(view)
+            if (data.clickListener == null) return
+            data.clickListener.onClick(view)
+            val icon: ImageView = holder.getView(R.id.arrow)
+            if (data.isExpanded) {
+                icon.animate().setDuration(200)
+                    .setInterpolator(DecelerateInterpolator())
+                    .rotation(0f)
+                    .start()
+            } else {
+                icon.animate().setDuration(200)
+                    .setInterpolator(DecelerateInterpolator())
+                    .rotation(90f)
+                    .start()
+            }
+            data.isExpanded = !data.isExpanded
         }
 
         override fun getLayoutId(): Int = R.layout.list_item_section_header
@@ -275,6 +319,38 @@ class PostHistoryFragment : BaseNavFragment() {
         }
 
         override fun getLayoutId(): Int = R.layout.list_item_simple_text
+    }
+
+
+    inner class PostHistoryDiffer : DiffUtil.ItemCallback<PostHistory>() {
+        override fun areItemsTheSame(oldItem: PostHistory, newItem: PostHistory): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(oldItem: PostHistory, newItem: PostHistory): Boolean {
+            return true
+        }
+    }
+
+
+    inner class SectionHeaderDiffer : DiffUtil.ItemCallback<SectionHeader>() {
+        override fun areItemsTheSame(oldItem: SectionHeader, newItem: SectionHeader): Boolean {
+            return oldItem.text == newItem.text
+        }
+
+        override fun areContentsTheSame(oldItem: SectionHeader, newItem: SectionHeader): Boolean {
+            return true
+        }
+    }
+
+    inner class DateStringDiffer : DiffUtil.ItemCallback<String>() {
+        override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
+            return oldItem == newItem
+        }
+
+        override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
+            return true
+        }
     }
 
     override fun onDestroyView() {

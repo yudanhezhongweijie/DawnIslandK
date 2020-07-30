@@ -58,9 +58,8 @@ abstract class BasePagerFragment : DaggerFragment() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
-        menu.findItem(R.id.pageIndicator).actionView.findViewById<IndicatorView>(R.id.pageIndicatorView)
-            .apply {
-                Timber.d("menu refreshed?")
+        menu.findItem(R.id.pageIndicator)?.actionView?.findViewById<IndicatorView>(R.id.pageIndicatorView)
+            ?.apply {
                 setSliderColor(
                     requireContext().getColor(R.color.lime_500),
                     requireContext().getColor(R.color.pure_light)
@@ -80,7 +79,8 @@ abstract class BasePagerFragment : DaggerFragment() {
             R.id.settings -> {
                 pageEditorClickListener.onClick(item.actionView)
                 true
-            } else -> {
+            }
+            else -> {
                 super.onOptionsItemSelected(item)
             }
         }

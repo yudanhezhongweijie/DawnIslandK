@@ -174,7 +174,8 @@
     <string name="post_options" translatable="false">串选项</string>
     <string name="report">举报</string>
     <string name="found_new_version">检测到新版本</string>
-    <string name="download_latest_version">下载最新版本</string>
+    <string name="download_from_github">从Github下载</string>
+    <string name="download_from_google_play">从谷歌商店下载</string>
     <string name="compressing_oversize_image">正在压缩超大图片</string>
     <string name="compressing_oversize_image_error">图片不存在或压缩超大图片出错。如果GIF图片超出2M，请自行压缩</string>
     <string name="app_feed_back" translatable="false">客户端反馈</string>

@@ -162,7 +162,7 @@ class SharedViewModel @Inject constructor(
             return
         }
         viewModelScope.launch {
-            delay(500L) // give some time the server to refresh
+            delay(3000L) // give some time the server to refresh
             val draft = PostHistory.Draft(
                 newPost,
                 postTargetId,

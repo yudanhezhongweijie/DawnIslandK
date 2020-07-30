@@ -314,9 +314,17 @@ class CommentsFragment : DaggerFragment() {
                             0 -> {
                                 val sendIntent: Intent = Intent().apply {
                                     action = Intent.ACTION_SEND
-                                    putExtra(Intent.EXTRA_TEXT, "${DawnConstants.nmbHost}/t/${viewModel.currentPostId}")
+                                    val shareContent = resources.getString(
+                                        R.string.external_share_content,
+                                        viewModel.getExternalShareContent(),
+                                        resources.getString(R.string.app_name)
+                                    )
+                                    putExtra(Intent.EXTRA_TEXT, shareContent)
                                     type = "text/html"
-                                    putExtra(Intent.EXTRA_TITLE, "A岛 · ${sharedVM.getForumDisplayName(viewModel.currentPostFid)} · ${viewModel.currentPostId}")
+                                    putExtra(
+                                        Intent.EXTRA_TITLE,
+                                        "A岛 · ${sharedVM.getForumDisplayName(viewModel.currentPostFid)} · ${viewModel.currentPostId}"
+                                    )
                                 }
                                 val shareIntent = Intent.createChooser(sendIntent, null)
                                 startActivity(shareIntent)

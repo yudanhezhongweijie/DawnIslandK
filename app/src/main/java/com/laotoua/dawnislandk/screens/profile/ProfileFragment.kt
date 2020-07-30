@@ -183,7 +183,7 @@ class ProfileFragment : DaggerFragment() {
                         title(R.string.view_caching)
                         message(R.string.view_caching_warning)
                         getActionButton(WhichButton.POSITIVE).isEnabled = false
-                        checkBoxPrompt(R.string.acknowledge){
+                        checkBoxPrompt(R.string.acknowledge) {
                             getActionButton(WhichButton.POSITIVE).isEnabled = it
                         }
                         positiveButton(R.string.submit) {
@@ -367,29 +367,42 @@ class ProfileFragment : DaggerFragment() {
             root.setOnClickListener {
                 MaterialDialog(requireContext()).show {
                     title(R.string.app_feed_back)
-                    val items = listOf(
-                        context.resources.getString(R.string.github),
-                        context.resources.getString(R.string.email_author)
-                    )
+                    val items =
+                        context.resources.getStringArray(R.array.app_feedback_options).toList()
                     listItems(items = items) { _, index, _ ->
-                        if (index == 0) {
-                            val intent =
-                                Intent(Intent.ACTION_VIEW, Uri.parse(DawnConstants.GITHUB_ADDRESS))
-                            if (intent.resolveActivity(requireActivity().packageManager) != null) {
-                                startActivity(intent)
-                            }
-                        } else {
-                            val intent = Intent(Intent.ACTION_SENDTO).apply {
-                                type = "*/*"
-                                data = Uri.parse("mailto:")
-                                putExtra(Intent.EXTRA_EMAIL, arrayOf(DawnConstants.AUTHOR_EMAIL))
-                                putExtra(
-                                    Intent.EXTRA_SUBJECT,
-                                    context.resources.getString(R.string.app_feed_back)
+                        when (index) {
+                            0 -> {
+                                val navAction = MainNavDirections.actionGlobalCommentsFragment(
+                                    "28951798",
+                                    "117"
                                 )
+                                findNavController().navigate(navAction)
                             }
-                            if (intent.resolveActivity(requireActivity().packageManager) != null) {
-                                startActivity(intent)
+                            1 -> {
+                                val intent = Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse(DawnConstants.GITHUB_ADDRESS)
+                                )
+                                if (intent.resolveActivity(requireActivity().packageManager) != null) {
+                                    startActivity(intent)
+                                }
+                            }
+                            else -> {
+                                val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                    type = "*/*"
+                                    data = Uri.parse("mailto:")
+                                    putExtra(
+                                        Intent.EXTRA_EMAIL,
+                                        arrayOf(DawnConstants.AUTHOR_EMAIL)
+                                    )
+                                    putExtra(
+                                        Intent.EXTRA_SUBJECT,
+                                        context.resources.getString(R.string.app_feed_back)
+                                    )
+                                }
+                                if (intent.resolveActivity(requireActivity().packageManager) != null) {
+                                    startActivity(intent)
+                                }
                             }
                         }
                     }

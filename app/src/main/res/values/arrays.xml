@@ -365,6 +365,12 @@
         <item>手动输入</item>
     </string-array>
 
+    <string-array name="app_feedback_options">
+        <item>统一串</item>
+        <item>Github</item>
+        <item>发邮件</item>
+    </string-array>
+
     <string-array name="post_options">
         <item>举报</item>
         <!--        <item>屏蔽</item>-->

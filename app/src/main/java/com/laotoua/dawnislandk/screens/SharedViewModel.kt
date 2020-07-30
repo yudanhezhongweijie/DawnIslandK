@@ -33,6 +33,7 @@ import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.data.repository.CommunityRepository
 import com.laotoua.dawnislandk.screens.util.ContentTransformation
 import com.laotoua.dawnislandk.util.SingleLiveEvent
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
@@ -161,6 +162,7 @@ class SharedViewModel @Inject constructor(
             return
         }
         viewModelScope.launch {
+            delay(500L) // give some time the server to refresh
             val draft = PostHistory.Draft(
                 newPost,
                 postTargetId,

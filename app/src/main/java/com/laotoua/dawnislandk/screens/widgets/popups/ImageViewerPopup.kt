@@ -611,12 +611,10 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
 
     private fun addPicToGallery(caller: FragmentActivity, urlObj: Any) {
         val imgUrl: String = getImageUrl(urlObj)
+        val permission = checkAndRequestExternalStoragePermission(caller)
+        if (!permission) return
 
         caller.lifecycleScope.launch(Dispatchers.IO) {
-            if (!checkAndRequestExternalStoragePermission(caller)) {
-                return@launch
-            }
-
             Timber.i("Saving image $imgUrl to Gallery... ")
             val relativeLocation = Environment.DIRECTORY_PICTURES + File.separator + "Dawn"
             var fileName = imgUrl.substringAfter("/")

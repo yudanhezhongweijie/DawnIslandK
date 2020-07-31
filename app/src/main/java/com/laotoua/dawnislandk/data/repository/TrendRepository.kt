@@ -28,7 +28,6 @@ import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.util.DataResource
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.ReadableTime
-import com.laotoua.dawnislandk.util.ReadableTime.DATE_ONLY_FORMAT
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -57,10 +56,10 @@ class TrendRepository @Inject constructor(
             page = ceil(it.lastReplyCount.toDouble() / 19).toInt()
             // trends updates daily at 1AM
             val diff = ReadableTime.getTimeAgo(System.currentTimeMillis(), it.date, true)
-            val dayTime = ReadableTime.HOUR_MILLIS * 25
+            val dayTime = ReadableTime.HOUR_MILLIS * 24
             if (diff - dayTime < 0) {
                 getRemoteData = false
-                Timber.d("It's less than 25 hours since Trend last updated. Reusing...")
+                Timber.d("It's less than 24 hours since Trend last updated. Reusing...")
             }
         }
         if (getRemoteData) {
@@ -91,13 +90,10 @@ class TrendRepository @Inject constructor(
             if (reply.userid == po) {
                 val list = reply.content.split(trendDelimiter, ignoreCase = true)
                 if (list.size == trendLength) {
-                    // keep only date in DB, e.g 2018-10-18 for "2018-10-18(四)17:55:01"
-                    val dateString = reply.now.substringBefore("(")
-                    Timber.d("Found remote trends on $dateString")
                     return DailyTrend(
                         trendId,
                         po,
-                        ReadableTime.string2Time(dateString, DATE_ONLY_FORMAT),
+                        ReadableTime.string2Time(reply.now),
                         list.map { convertStringToTrend(it) },
                         data.replyCount.toInt()
                     )

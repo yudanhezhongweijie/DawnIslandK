@@ -31,7 +31,7 @@ sealed class DataResource<T>(
 
     class NoData<T>(message: String) : DataResource<T>(LoadingStatus.NO_DATA, null, message)
 
-    class Loading<T> : DataResource<T>(LoadingStatus.LOADING, null, "")
+    class Loading<T>(message: String) : DataResource<T>(LoadingStatus.LOADING, null, message)
 
     companion object {
         fun <T> create(
@@ -44,7 +44,7 @@ sealed class DataResource<T>(
             } else if (status == LoadingStatus.SUCCESS || status == LoadingStatus.NO_DATA) {
                 NoData(message)
             } else if (status == LoadingStatus.LOADING) {
-                Loading()
+                Loading(message)
             } else {
                 Error(message)
             }

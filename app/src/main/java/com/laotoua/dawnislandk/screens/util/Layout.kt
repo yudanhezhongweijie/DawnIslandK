@@ -87,6 +87,9 @@ object Layout {
                 if (isVisible && !mAdapter.loadMoreModule.isLoading && !refreshLayout.isRefreshing) {
                     refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
                 }
+                if (!event.message.isNullOrBlank()) {
+                    Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
+                }
             }
         }
     }

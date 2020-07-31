@@ -27,8 +27,8 @@ class TrendsViewModel @Inject constructor(
     private val trendRepo: TrendRepository
 ) : ViewModel() {
 
-    var latestTrends = liveData{ emitSource(trendRepo.getLatestTrend()) }
-    private set
+    var latestTrends = liveData { emitSource(trendRepo.getLatestTrend()) }
+        private set
 
     fun getLatestTrend() {
         Timber.d("Refreshing Trend...")

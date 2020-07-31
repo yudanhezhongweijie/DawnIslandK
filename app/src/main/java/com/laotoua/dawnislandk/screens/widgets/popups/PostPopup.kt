@@ -529,8 +529,11 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
         name = findViewById<TextView>(R.id.formName).text.toString()
         email = findViewById<TextView>(R.id.formEmail).text.toString()
         title = findViewById<TextView>(R.id.formTitle).text.toString()
+        if (content.isBlank() && imageFile != null) {
+            postContent!!.setText("分享图片")
+        }
         content = postContent!!.text.toString()
-        if (content.isBlank() && imageFile == null) {
+        if (content.isBlank() || imageFile == null) {
             Toast.makeText(caller, R.string.need_content_to_post, Toast.LENGTH_SHORT).show()
             return
         }

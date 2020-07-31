@@ -326,7 +326,7 @@ class PostsFragment : BaseNavFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        if (!DawnApp.applicationDataStore.viewCaching) {
+        if (!DawnApp.applicationDataStore.getViewCaching()) {
             mAdapter = null
             binding = null
         }

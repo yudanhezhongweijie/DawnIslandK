@@ -95,27 +95,18 @@ class ProfileFragment : DaggerFragment() {
             }
         }
 
-    private var _binding: FragmentProfileBinding? = null
-    private val binding get() = _binding!!
+    private var binding: FragmentProfileBinding? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentProfileBinding.inflate(inflater, container, false)
-        return binding.root
-    }
+        binding = FragmentProfileBinding.inflate(inflater, container, false)
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        // showNav
-        (requireActivity() as MainActivity).showNav()
-
-        binding.settings.visibility = View.GONE
-        binding.feedId.apply {
-            var feedId = applicationDataStore.feedId
+        binding!!.settings.visibility = View.GONE
+        binding!!.feedId.apply {
+            var feedId = applicationDataStore.getFeedId()
             key.setText(R.string.feedId)
             summary.text = feedId
             root.setOnClickListener {
@@ -123,7 +114,7 @@ class ProfileFragment : DaggerFragment() {
                     title(R.string.feedId)
                     input(hint = feedId, prefill = feedId) { _, text ->
                         feedId = text.toString()
-                        applicationDataStore.updateFeedId(feedId)
+                        applicationDataStore.setFeedId(feedId)
                         summary.text = feedId
                     }
                     positiveButton(R.string.submit) {
@@ -134,7 +125,7 @@ class ProfileFragment : DaggerFragment() {
             }
         }
 
-        binding.timeFormat.apply {
+        binding!!.timeFormat.apply {
             key.setText(R.string.time_display_format)
             val entries = resources.getStringArray(R.array.time_format_entries)
             val values = resources.getStringArray(R.array.time_format_values)
@@ -157,58 +148,7 @@ class ProfileFragment : DaggerFragment() {
             }
         }
 
-        binding.useReadingProgress.apply {
-            key.setText(R.string.saves_reading_progress)
-            preferenceSwitch.visibility = View.VISIBLE
-            preferenceSwitch.isChecked = applicationDataStore.readingProgressStatus
-            updateSwitchSummary(R.string.reading_progress_on, R.string.reading_progress_off)
-            root.setOnClickListener {
-                toggleSwitch(
-                    applicationDataStore::setReadingProgressStatus,
-                    R.string.reading_progress_on,
-                    R.string.reading_progress_off
-                )
-                displayRestartToApplySettingsToast()
-            }
-        }
-
-        binding.viewCaching.apply {
-            key.setText(R.string.view_caching)
-            preferenceSwitch.visibility = View.VISIBLE
-            preferenceSwitch.isChecked = applicationDataStore.viewCaching
-            updateSwitchSummary(R.string.view_caching_on, R.string.view_caching_off)
-            root.setOnClickListener {
-                if (!preferenceSwitch.isChecked) {
-                    MaterialDialog(requireContext()).show {
-                        title(R.string.view_caching)
-                        message(R.string.view_caching_warning)
-                        getActionButton(WhichButton.POSITIVE).isEnabled = false
-                        checkBoxPrompt(R.string.acknowledge) {
-                            getActionButton(WhichButton.POSITIVE).isEnabled = it
-                        }
-                        positiveButton(R.string.submit) {
-                            toggleSwitch(
-                                applicationDataStore::setViewCaching,
-                                R.string.view_caching_on,
-                                R.string.view_caching_off
-                            )
-                            displayRestartToApplySettingsToast()
-                        }
-                        negativeButton(R.string.cancel)
-                    }
-                } else {
-                    toggleSwitch(
-                        applicationDataStore::setViewCaching,
-                        R.string.view_caching_on,
-                        R.string.view_caching_off
-                    )
-                    displayRestartToApplySettingsToast()
-                }
-
-            }
-        }
-
-        binding.animationSwitch.apply {
+        binding!!.animationSwitch.apply {
             key.setText(R.string.animation_settings)
             val options =
                 requireContext().resources.getStringArray(R.array.adapter_animation_options)
@@ -253,11 +193,11 @@ class ProfileFragment : DaggerFragment() {
         })
 
         viewModel.cookies.observe(viewLifecycleOwner, Observer { cookies ->
-            binding.cookieList.removeAllViews()
+            binding?.cookieList?.removeAllViews()
             cookies.map { addCookieToLayout(it) }
         })
 
-        binding.addCookie.setOnClickListener {
+        binding!!.addCookie.setOnClickListener {
             MaterialDialog(requireContext()).show {
                 title(R.string.add_cookie)
                 listItems(R.array.cookie_addition_options) { _, index, _ ->
@@ -316,30 +256,7 @@ class ProfileFragment : DaggerFragment() {
             }
         }
 
-        binding.sizeCustomization.apply {
-            key.setText(R.string.size_customization_settings)
-            preferenceSwitch.visibility = View.VISIBLE
-            preferenceSwitch.isChecked = applicationDataStore.layoutCustomizationStatus
-            updateSwitchSummary(
-                R.string.layout_customization_on,
-                R.string.layout_customization_off
-            )
-            preferenceSwitch.setOnClickListener {
-                applicationDataStore.setLayoutCustomization(preferenceSwitch.isChecked)
-                updateSwitchSummary(
-                    R.string.layout_customization_on,
-                    R.string.layout_customization_off
-                )
-                displayRestartToApplySettingsToast()
-            }
-            root.setOnClickListener {
-                val action =
-                    ProfileFragmentDirections.actionSettingsFragmentToSizeCustomizationFragment()
-                findNavController().navigate(action)
-            }
-        }
-
-        binding.clearCommentCache.apply {
+        binding!!.clearCommentCache.apply {
             key.setText(R.string.clear_comment_cache)
             root.setOnClickListener {
                 MaterialDialog(requireContext()).show {
@@ -362,7 +279,7 @@ class ProfileFragment : DaggerFragment() {
             }
         }
 
-        binding.appFeedback.apply {
+        binding!!.appFeedback.apply {
             key.setText(R.string.app_feed_back)
             root.setOnClickListener {
                 MaterialDialog(requireContext()).show {
@@ -410,7 +327,7 @@ class ProfileFragment : DaggerFragment() {
             }
         }
 
-        binding.appPrivacyAgreement.apply {
+        binding!!.appPrivacyAgreement.apply {
             key.setText(R.string.app_privacy_agreement)
             root.setOnClickListener {
                 val waitingDialog = MaterialDialog(requireContext()).show {
@@ -430,7 +347,7 @@ class ProfileFragment : DaggerFragment() {
             }
         }
 
-        binding.adnmbPrivacyAgreement.apply {
+        binding!!.adnmbPrivacyAgreement.apply {
             key.setText(R.string.adnmb_privacy_agreement)
             root.setOnClickListener {
                 val navAction = MainNavDirections.actionGlobalCommentsFragment("11689471", "")
@@ -438,23 +355,25 @@ class ProfileFragment : DaggerFragment() {
             }
         }
 
-        binding.credit.apply {
+        binding!!.credit.apply {
             text = getString(R.string.credit, BuildConfig.VERSION_NAME)
         }
 
         hideProgressBarAndShowSettings()
+        return binding!!.root
     }
 
     private fun hideProgressBarAndShowSettings() {
-        val progressBarAlphaOutAnim = ObjectAnimator.ofFloat(binding.progressBar, "alpha", 0f)
-        val settingsAlphaInAnim = ObjectAnimator.ofFloat(binding.settings, "alpha", 1f)
+        if (binding == null) return
+        val progressBarAlphaOutAnim = ObjectAnimator.ofFloat(binding!!.progressBar, "alpha", 0f)
+        val settingsAlphaInAnim = ObjectAnimator.ofFloat(binding!!.settings, "alpha", 1f)
         AnimatorSet().apply {
             duration = 250
             addListener(object : Animator.AnimatorListener {
                 override fun onAnimationRepeat(animation: Animator?) {}
                 override fun onAnimationEnd(animation: Animator?) {
-                    binding.settings.visibility = View.VISIBLE
-                    binding.progressBar.visibility = View.GONE
+                    binding!!.settings.visibility = View.VISIBLE
+                    binding!!.progressBar.visibility = View.GONE
                 }
 
                 override fun onAnimationCancel(animation: Animator?) {}
@@ -467,7 +386,8 @@ class ProfileFragment : DaggerFragment() {
     }
 
     private fun addCookieToLayout(cookie: Cookie) {
-        val view = ListItemCookieBinding.inflate(layoutInflater)
+        if (binding == null) return
+        val view = ListItemCookieBinding.inflate(layoutInflater, binding!!.root, false)
         view.cookieName.text = cookie.cookieDisplayName
         view.edit.setOnClickListener {
             MaterialDialog(requireContext()).show {
@@ -490,20 +410,25 @@ class ProfileFragment : DaggerFragment() {
         }
 
         view.remove.setOnClickListener {
+            if (binding == null) return@setOnClickListener
             viewModel.deleteCookie(cookie)
-            if (binding.cookieList.childCount < 5) {
-                binding.addCookie.isEnabled = true
+            if (binding!!.cookieList.childCount < 5) {
+                binding!!.addCookie.isEnabled = true
             }
-            binding.cookieSummary.text =
-                resources.getString(R.string.count_text, binding.cookieList.childCount, cookieLimit)
+            binding!!.cookieSummary.text =
+                resources.getString(
+                    R.string.count_text,
+                    binding!!.cookieList.childCount,
+                    cookieLimit
+                )
         }
 
-        binding.cookieList.addView(view.root)
+        binding!!.cookieList.addView(view.root)
 
-        binding.cookieSummary.text =
-            resources.getString(R.string.count_text, binding.cookieList.childCount, cookieLimit)
-        if (binding.cookieList.childCount >= 5) {
-            binding.addCookie.isEnabled = false
+        binding!!.cookieSummary.text =
+            resources.getString(R.string.count_text, binding!!.cookieList.childCount, cookieLimit)
+        if (binding!!.cookieList.childCount >= 5) {
+            binding!!.addCookie.isEnabled = false
         }
     }
 
@@ -522,16 +447,6 @@ class ProfileFragment : DaggerFragment() {
         }
     }
 
-    private fun ListItemPreferenceBinding.toggleSwitch(
-        toggleFunc: (Boolean) -> Unit,
-        summaryOn: Int,
-        summaryOff: Int
-    ) {
-        preferenceSwitch.toggle()
-        toggleFunc(preferenceSwitch.isChecked)
-        updateSwitchSummary(summaryOn, summaryOff)
-    }
-
     private fun ListItemPreferenceBinding.updateSwitchSummary(summaryOn: Int, summaryOff: Int) {
         if (preferenceSwitch.isChecked) {
             summary.setText(summaryOn)
@@ -547,11 +462,81 @@ class ProfileFragment : DaggerFragment() {
     override fun onResume() {
         super.onResume()
         (requireActivity() as MainActivity).setToolbarTitle(R.string.settings)
+            // showNav
+            (requireActivity() as MainActivity).showNav()
+
+        binding?.viewCaching?.apply {
+            key.setText(R.string.view_caching)
+            preferenceSwitch.visibility = View.VISIBLE
+            preferenceSwitch.isClickable = true
+            preferenceSwitch.isChecked = applicationDataStore.getViewCaching()
+            preferenceSwitch.setOnCheckedChangeListener { _, isChecked ->
+                applicationDataStore.setViewCaching(isChecked)
+                updateSwitchSummary(R.string.view_caching_on, R.string.view_caching_off)
+                displayRestartToApplySettingsToast()
+            }
+            updateSwitchSummary(R.string.view_caching_on, R.string.view_caching_off)
+            root.setOnClickListener {
+                if (!preferenceSwitch.isChecked) {
+                    MaterialDialog(requireContext()).show {
+                        title(R.string.view_caching)
+                        message(R.string.view_caching_warning)
+                        getActionButton(WhichButton.POSITIVE).isEnabled = false
+                        checkBoxPrompt(R.string.acknowledge) {
+                            getActionButton(WhichButton.POSITIVE).isEnabled = it
+                        }
+                        positiveButton(R.string.submit) {
+                            preferenceSwitch.toggle()
+                        }
+                        negativeButton(R.string.cancel)
+                    }
+                } else {
+                    preferenceSwitch.toggle()
+                }
+            }
+        }
+
+        binding?.layoutCustomization?.apply {
+            key.setText(R.string.layout_customization)
+            preferenceSwitch.visibility = View.VISIBLE
+            preferenceSwitch.isClickable = true
+            preferenceSwitch.isChecked = applicationDataStore.getLayoutCustomizationStatus()
+            updateSwitchSummary(R.string.layout_customization_on, R.string.layout_customization_off)
+            preferenceSwitch.setOnCheckedChangeListener { _, isChecked ->
+                applicationDataStore.setLayoutCustomizationStatus(isChecked)
+                updateSwitchSummary(
+                    R.string.layout_customization_on,
+                    R.string.layout_customization_off
+                )
+                displayRestartToApplySettingsToast()
+            }
+            root.setOnClickListener {
+                val action = ProfileFragmentDirections.actionProfileFragmentToSizeCustomizationFragment()
+                findNavController().navigate(action)
+            }
+        }
+
+
+        binding?.useReadingProgress?.apply {
+            key.setText(R.string.saves_reading_progress)
+            preferenceSwitch.visibility = View.VISIBLE
+            preferenceSwitch.isClickable = true
+            preferenceSwitch.isChecked = applicationDataStore.getReadingProgressStatus()
+            preferenceSwitch.setOnCheckedChangeListener { _, isChecked ->
+                applicationDataStore.setReadingProgressStatus(isChecked)
+                updateSwitchSummary(R.string.reading_progress_on, R.string.reading_progress_off)
+                displayRestartToApplySettingsToast()
+            }
+            updateSwitchSummary(R.string.reading_progress_on, R.string.reading_progress_off)
+            root.setOnClickListener {
+                preferenceSwitch.toggle()
+            }
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
+        binding = null
     }
 
 }

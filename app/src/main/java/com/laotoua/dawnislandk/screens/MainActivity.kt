@@ -111,7 +111,6 @@ class MainActivity : DaggerAppCompatActivity() {
     init {
         // load Resources
         lifecycleScope.launchWhenCreated { loadResources() }
-        applicationDataStore.initializeFeedId()
     }
 
     override fun onNewIntent(intent: Intent?) {

@@ -39,7 +39,7 @@ object PostCardFactory {
     val lineHeight = DawnApp.applicationDataStore.lineHeight
     val letterSpace = DawnApp.applicationDataStore.letterSpace
     val segGap = DawnApp.applicationDataStore.segGap
-    val layoutCustomization = DawnApp.applicationDataStore.layoutCustomizationStatus
+    val layoutCustomization = DawnApp.applicationDataStore.getLayoutCustomizationStatus()
 
     val cardRadius by lazyOnMainOnly {
         mmkv.getFloat(

@@ -222,7 +222,7 @@ class CommentsViewModel @Inject constructor(
 
     fun addFeed(id: String) {
         viewModelScope.launch {
-            addFeedResponse.postValue(commentRepo.addFeed(DawnApp.applicationDataStore.feedId, id))
+            addFeedResponse.postValue(commentRepo.addFeed(DawnApp.applicationDataStore.getFeedId(), id))
         }
     }
 }

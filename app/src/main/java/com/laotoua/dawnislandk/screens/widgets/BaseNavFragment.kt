@@ -66,7 +66,7 @@ open class BaseNavFragment : DaggerFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        if (!DawnApp.applicationDataStore.viewCaching) {
+        if (!DawnApp.applicationDataStore.getViewCaching()) {
             mRecyclerView?.removeOnScrollListener(navBarScrollListener)
             mRecyclerView = null
         }

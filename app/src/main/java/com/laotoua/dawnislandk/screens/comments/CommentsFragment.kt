@@ -485,7 +485,7 @@ class CommentsFragment : DaggerFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         dismissAllQuotes()
-        if (!DawnApp.applicationDataStore.viewCaching) {
+        if (!DawnApp.applicationDataStore.getViewCaching()) {
             mAdapter = null
             binding = null
         }

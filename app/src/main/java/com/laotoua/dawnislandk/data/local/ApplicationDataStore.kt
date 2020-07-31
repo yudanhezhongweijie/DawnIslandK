@@ -34,7 +34,9 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class ApplicationDataStore @Inject constructor(
     private val cookieDao: CookieDao,
     private val commentDao: CommentDao,
@@ -56,8 +58,25 @@ class ApplicationDataStore @Inject constructor(
 
     val mmkv: MMKV by lazyOnMainOnly { MMKV.defaultMMKV() }
 
-    var feedId: String = ""
-        private set
+    private var feedId: String? = null
+    fun getFeedId(): String {
+        if (feedId == null) {
+            feedId = mmkv.getString(DawnConstants.FEED_ID, "")
+        }
+        if (feedId.isNullOrBlank()) {
+            setFeedId(UUID.randomUUID().toString())
+        }
+        return feedId!!
+    }
+
+    fun setFeedId(value: String) {
+        if (feedId != value) {
+            GlobalScope.launch { feedDao.nukeTable() }
+        }
+        feedId = value
+        mmkv.putString(DawnConstants.FEED_ID, value)
+    }
+
 
     val firstTimeUse by lazyOnMainOnly { mmkv.getBoolean(DawnConstants.USE_APP_FIRST_TIME, false) }
 
@@ -71,15 +90,18 @@ class ApplicationDataStore @Inject constructor(
     val segGap by lazyOnMainOnly { mmkv.getInt(DawnConstants.SEG_GAP, 0) }
     val textSize by lazyOnMainOnly { mmkv.getFloat(DawnConstants.MAIN_TEXT_SIZE, 15f) }
 
-    val layoutCustomizationStatus by lazyOnMainOnly {
-        mmkv.getBoolean(
-            DawnConstants.LAYOUT_CUSTOMIZATION,
-            true
-        )
+    private var layoutCustomizationStatus: Boolean? = null
+
+    fun getLayoutCustomizationStatus(): Boolean {
+        if (layoutCustomizationStatus == null) {
+            layoutCustomizationStatus = mmkv.getBoolean(DawnConstants.LAYOUT_CUSTOMIZATION, true)
+        }
+        return layoutCustomizationStatus!!
     }
 
-    fun setLayoutCustomization(status: Boolean) {
-        mmkv.putBoolean(DawnConstants.LAYOUT_CUSTOMIZATION, status)
+    fun setLayoutCustomizationStatus(value: Boolean) {
+        layoutCustomizationStatus = value
+        mmkv.putBoolean(DawnConstants.LAYOUT_CUSTOMIZATION, value)
     }
 
     val displayTimeFormat by lazyOnMainOnly {
@@ -111,44 +133,31 @@ class ApplicationDataStore @Inject constructor(
     }
 
     // Reading settings
-    val readingProgressStatus by lazyOnMainOnly {
-        mmkv.getBoolean(
-            DawnConstants.READING_PROGRESS,
-            true
-        )
+    private var readingProgressStatus: Boolean? = null
+    fun getReadingProgressStatus(): Boolean {
+        if (readingProgressStatus == null) {
+            readingProgressStatus = mmkv.getBoolean(DawnConstants.READING_PROGRESS, true)
+        }
+        return readingProgressStatus!!
     }
 
-    fun setReadingProgressStatus(status: Boolean) {
-        mmkv.putBoolean(DawnConstants.READING_PROGRESS, status)
+    fun setReadingProgressStatus(value: Boolean) {
+        readingProgressStatus = value
+        mmkv.putBoolean(DawnConstants.READING_PROGRESS, value)
     }
 
     // view caching
-    val viewCaching by lazyOnMainOnly {
-        mmkv.getBoolean(
-            DawnConstants.VIEW_CACHING,
-            false
-        )
-    }
-
-    fun setViewCaching(status: Boolean) {
-        mmkv.putBoolean(DawnConstants.VIEW_CACHING, status)
-    }
-
-
-    fun initializeFeedId() {
-        feedId = mmkv.getString(DawnConstants.FEED_ID, "")!!
-        if (feedId.isBlank()) {
-            feedId = UUID.randomUUID().toString()
-            updateFeedId(feedId)
+    private var viewCaching: Boolean? = null
+    fun getViewCaching(): Boolean {
+        if (viewCaching == null) {
+            viewCaching = mmkv.getBoolean(DawnConstants.VIEW_CACHING, false)
         }
+        return viewCaching!!
     }
 
-    fun updateFeedId(id: String) {
-        if (id != feedId) {
-            GlobalScope.launch { feedDao.nukeTable() }
-        }
-        feedId = id
-        mmkv.putString(DawnConstants.FEED_ID, id)
+    fun setViewCaching(value: Boolean) {
+        viewCaching = value
+        mmkv.putBoolean(DawnConstants.VIEW_CACHING, value)
     }
 
     suspend fun loadCookies() {

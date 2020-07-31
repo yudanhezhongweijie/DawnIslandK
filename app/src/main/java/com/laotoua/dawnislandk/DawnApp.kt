@@ -30,7 +30,6 @@ import dagger.android.DaggerApplication
 import timber.log.Timber
 import javax.inject.Inject
 
-
 class DawnApp : DaggerApplication() {
 
     companion object {

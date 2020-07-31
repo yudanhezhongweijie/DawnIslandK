@@ -171,7 +171,7 @@
                 app:layout_constraintTop_toBottomOf="@id/viewCaching" />
 
             <include
-                android:id="@+id/sizeCustomization"
+                android:id="@+id/layout_customization"
                 layout="@layout/list_item_preference"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -186,7 +186,7 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
                 app:layout_constraintStart_toStartOf="@id/guidelineStart"
-                app:layout_constraintTop_toBottomOf="@id/sizeCustomization" />
+                app:layout_constraintTop_toBottomOf="@id/layout_customization" />
 
             <include
                 android:id="@+id/appFeedback"

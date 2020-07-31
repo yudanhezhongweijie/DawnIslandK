@@ -77,7 +77,7 @@ class FeedRepository @Inject constructor(
         return liveData {
             Timber.d("Querying remote Feed on $page")
             val response =
-                DataResource.create(webService.getFeeds(DawnApp.applicationDataStore.feedId, page))
+                DataResource.create(webService.getFeeds(DawnApp.applicationDataStore.getFeedId(), page))
             if (response.status == LoadingStatus.SUCCESS) {
                 emit(DataResource.create(convertFeedData(response.data!!, page), emptyList()))
             } else {
@@ -121,7 +121,7 @@ class FeedRepository @Inject constructor(
 
     suspend fun deleteFeed(feed: Feed): String {
         Timber.d("Deleting Feed ${feed.postId}")
-        return webService.delFeed(DawnApp.applicationDataStore.feedId, feed.postId).run {
+        return webService.delFeed(DawnApp.applicationDataStore.getFeedId(), feed.postId).run {
             if (this is APIMessageResponse.Success) {
                 coroutineScope { launch { feedDao.deleteFeedAndDecrementFeedIds(feed) } }
                 message

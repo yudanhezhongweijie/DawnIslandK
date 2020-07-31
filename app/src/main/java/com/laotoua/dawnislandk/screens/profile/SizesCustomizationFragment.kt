@@ -402,7 +402,7 @@ class SizesCustomizationFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        (requireActivity() as MainActivity).setToolbarTitle(R.string.size_customization_settings)
+        (requireActivity() as MainActivity).setToolbarTitle(R.string.layout_customization)
     }
 
     override fun onDestroy() {

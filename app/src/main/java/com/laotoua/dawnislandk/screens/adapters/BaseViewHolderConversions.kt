@@ -150,7 +150,7 @@ fun BaseViewHolder.convertExpandSummary(context: Context, visible: Boolean) {
 fun View.applyTextSizeAndLetterSpacing(clickable: Boolean = false) = apply {
     findViewById<TextView>(R.id.content).apply {
         if (clickable) movementMethod = ClickableMovementMethod.getInstance()
-        if (DawnApp.applicationDataStore.layoutCustomizationStatus) {
+        if (DawnApp.applicationDataStore.getLayoutCustomizationStatus()) {
             textSize = DawnApp.applicationDataStore.textSize
             letterSpacing = DawnApp.applicationDataStore.letterSpace
         }

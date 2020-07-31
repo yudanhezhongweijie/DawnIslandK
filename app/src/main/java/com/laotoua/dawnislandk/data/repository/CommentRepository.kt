@@ -92,7 +92,7 @@ class CommentRepository @Inject constructor(
 
     // get default page
     fun getLandingPage(id: String): Int {
-        return if (DawnApp.applicationDataStore.readingProgressStatus) {
+        return if (DawnApp.applicationDataStore.getReadingProgressStatus()) {
             readingPageMap[id]?.page ?: 1
         } else 1
     }

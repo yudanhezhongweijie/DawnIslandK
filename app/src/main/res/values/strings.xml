@@ -86,7 +86,6 @@
     <string name="post_history" translatable="false">发言历史</string>
     <string name="forum_refresh" translatable="false">刷新板块</string>
     <string name="general_settings" translatable="false">通用设置</string>
-    <string name="size_customization_settings" translatable="false">设置串卡片布局</string>
     <string name="trend" translatable="false">昨日热榜</string>
     <string name="basic_title" translatable="false">A岛</string>
     <string name="toolbar_subtitle" translatable="false">A岛 · adnmb.com</string>
@@ -159,6 +158,7 @@
     <string name="view_caching_off" translatable="false">不缓存上一次打开的页面以减少内存消耗</string>
     <string name="reading_progress_on" translatable="false">打开串会跳转到上次看到的页面</string>
     <string name="reading_progress_off" translatable="false">打开串会在首页</string>
+    <string name="layout_customization" translatable="false">设置串卡片布局</string>
     <string name="layout_customization_on" translatable="false">开启自定义卡片布局</string>
     <string name="layout_customization_off" translatable="false">关闭自定义卡片布局</string>
     <string name="comment_filter" translatable="false">只看Po过滤</string>

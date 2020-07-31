@@ -205,7 +205,7 @@ class SearchFragment : BaseNavFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        if (!DawnApp.applicationDataStore.viewCaching) {
+        if (!DawnApp.applicationDataStore.getViewCaching()) {
             _mAdapter = null
             _binding = null
         }

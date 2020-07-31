@@ -27,12 +27,12 @@
         android:id="@+id/srlAndRv"
         layout="@layout/widget_srl_and_rv"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bottomToolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/dp_56"
         android:background="#FFFFFF"
         android:clickable="true"
         android:focusable="true"
@@ -55,44 +55,48 @@
             android:id="@+id/addFeed"
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:text="@string/subscribe"
             app:icon="@drawable/ic_favorite_24px"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/copyAndShare"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <Button
             android:id="@+id/copyAndShare"
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:text="@string/copy_and_share"
             app:icon="@drawable/ic_label_24px"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/post"
-            app:layout_constraintStart_toEndOf="@+id/addFeed" />
+            app:layout_constraintStart_toEndOf="@+id/addFeed"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <Button
             android:id="@+id/jump"
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:text="@string/page_jump"
             app:icon="@drawable/ic_bookmarks_24px"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/post" />
+            app:layout_constraintStart_toEndOf="@+id/post"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <Button
             android:id="@+id/post"
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:text="@string/new_comment"
             app:icon="@drawable/ic_edit_24px"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/jump"
-            app:layout_constraintStart_toEndOf="@+id/copyAndShare" />
+            app:layout_constraintStart_toEndOf="@+id/copyAndShare"
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

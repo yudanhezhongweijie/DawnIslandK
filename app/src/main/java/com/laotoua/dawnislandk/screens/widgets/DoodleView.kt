@@ -365,7 +365,6 @@ class DoodleView : View {
         isLocked = true
         val res = withContext(Dispatchers.IO) {
             drawStore(mCanvas, mPaint)
-            clearStore()
             Timber.i("Saving Doodle to Gallery... ")
             val timeStamp: String = ReadableTime.getCurrentTimeFileName()
             val relativeLocation =
@@ -376,7 +375,6 @@ class DoodleView : View {
                 mBitmap!!
             )
         }
-
         isLocked = false
         mHelper?.onSavingFinished(res)
     }

@@ -372,8 +372,8 @@ class ProfileFragment : DaggerFragment() {
             addListener(object : Animator.AnimatorListener {
                 override fun onAnimationRepeat(animation: Animator?) {}
                 override fun onAnimationEnd(animation: Animator?) {
-                    binding!!.settings.visibility = View.VISIBLE
-                    binding!!.progressBar.visibility = View.GONE
+                    binding?.settings?.visibility = View.VISIBLE
+                    binding?.progressBar?.visibility = View.GONE
                 }
 
                 override fun onAnimationCancel(animation: Animator?) {}
@@ -412,23 +412,23 @@ class ProfileFragment : DaggerFragment() {
         view.remove.setOnClickListener {
             if (binding == null) return@setOnClickListener
             viewModel.deleteCookie(cookie)
-            if (binding!!.cookieList.childCount < 5) {
-                binding!!.addCookie.isEnabled = true
+            if (binding?.cookieList?.childCount ?: 0 < 5) {
+                binding?.addCookie?.isEnabled = true
             }
-            binding!!.cookieSummary.text =
+            binding?.cookieSummary?.text =
                 resources.getString(
                     R.string.count_text,
-                    binding!!.cookieList.childCount,
+                    binding?.cookieList?.childCount ?: 0,
                     cookieLimit
                 )
         }
 
-        binding!!.cookieList.addView(view.root)
+        binding?.cookieList?.addView(view.root)
 
-        binding!!.cookieSummary.text =
-            resources.getString(R.string.count_text, binding!!.cookieList.childCount, cookieLimit)
-        if (binding!!.cookieList.childCount >= 5) {
-            binding!!.addCookie.isEnabled = false
+        binding?.cookieSummary?.text =
+            resources.getString(R.string.count_text, binding?.cookieList?.childCount ?: 0, cookieLimit)
+        if (binding?.cookieList?.childCount ?: 0 >= 5) {
+            binding?.addCookie?.isEnabled = false
         }
     }
 

@@ -64,6 +64,11 @@ open class BaseNavFragment : DaggerFragment() {
         (requireActivity() as MainActivity).showNav()
     }
 
+    override fun onPause() {
+        super.onPause()
+        mRecyclerView?.stopScroll()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         if (!DawnApp.applicationDataStore.getViewCaching()) {

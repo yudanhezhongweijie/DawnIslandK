@@ -158,20 +158,30 @@ class PostsFragment : BaseNavFragment() {
                     MaterialDialog(requireContext()).show {
                         title(R.string.post_options)
                         listItems(R.array.post_options) { _, index, _ ->
-                            if (index == 0) {
-                                MaterialDialog(requireContext()).show {
-                                    title(R.string.report_reasons)
-                                    listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
-                                        postPopup.setupAndShow(
-                                            "18",//值班室
-                                            "18",
-                                            newPost = true,
-                                            quote = ">>No.${getItem(position).id}\n${context.getString(
-                                                R.string.report_reasons
-                                            )}: $text\n"
-                                        )
+                            when (index) {
+                                0 -> {
+                                    MaterialDialog(requireContext()).show {
+                                        title(R.string.report_reasons)
+                                        listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
+                                            postPopup.setupAndShow(
+                                                "18",//值班室
+                                                "18",
+                                                newPost = true,
+                                                quote = ">>No.${getItem(position).id}\n${context.getString(
+                                                    R.string.report_reasons
+                                                )}: $text\n"
+                                            )
+                                        }
+                                        cancelOnTouchOutside(false)
                                     }
-                                    cancelOnTouchOutside(false)
+                                }
+                                1 -> {
+                                    viewModel.blockPost(getItem(position))
+                                    toast(getString(R.string.blocked_post, getItem(position).id))
+                                    mAdapter?.removeAt(position)
+                                }
+                                else -> {
+                                    throw Exception("Unhandled option")
                                 }
                             }
                         }

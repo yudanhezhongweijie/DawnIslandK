@@ -15,22 +15,23 @@
  *
  */
 
-package com.laotoua.dawnislandk.screens.subscriptions
+package com.laotoua.dawnislandk.data.local.dao
 
-import androidx.lifecycle.ViewModel
-import com.laotoua.dawnislandk.data.repository.TrendRepository
-import timber.log.Timber
-import javax.inject.Inject
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import com.laotoua.dawnislandk.data.local.entity.BlockedPost
 
-class TrendsViewModel @Inject constructor(
-    private val trendRepo: TrendRepository
-) : ViewModel() {
+@Dao
+interface BlockedPostDao {
 
-    var latestTrends = trendRepo.getLatestTrend()
-        private set
+    @Query("SELECT * From BlockedPost ORDER BY lastUpdatedAt DESC")
+    suspend fun getAllBlockedPost(): List<BlockedPost>
 
-    fun getLatestTrend() {
-        Timber.d("Refreshing Trend...")
-        latestTrends = trendRepo.getLatestTrend()
-    }
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(blockedPost: BlockedPost)
+
+    @Query("DELETE FROM BlockedPost")
+    suspend fun nukeTable()
 }

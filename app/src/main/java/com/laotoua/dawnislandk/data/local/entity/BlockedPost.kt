@@ -15,22 +15,13 @@
  *
  */
 
-package com.laotoua.dawnislandk.screens.subscriptions
+package com.laotoua.dawnislandk.data.local.entity
 
-import androidx.lifecycle.ViewModel
-import com.laotoua.dawnislandk.data.repository.TrendRepository
-import timber.log.Timber
-import javax.inject.Inject
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
-class TrendsViewModel @Inject constructor(
-    private val trendRepo: TrendRepository
-) : ViewModel() {
-
-    var latestTrends = trendRepo.getLatestTrend()
-        private set
-
-    fun getLatestTrend() {
-        Timber.d("Refreshing Trend...")
-        latestTrends = trendRepo.getLatestTrend()
-    }
-}
+@Entity
+class BlockedPost(
+    @PrimaryKey val id: String, //	该串的id
+    var lastUpdatedAt: Long = 0
+)

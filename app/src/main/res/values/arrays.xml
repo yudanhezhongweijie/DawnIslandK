@@ -376,7 +376,7 @@
 
     <string-array name="post_options">
         <item>举报</item>
-        <!--        <item>屏蔽</item>-->
+        <item>屏蔽</item>
     </string-array>
 
 </resources>

@@ -42,8 +42,9 @@ import com.laotoua.dawnislandk.data.local.entity.*
         ReadingPage::class,
         BrowsingHistory::class,
         PostHistory::class,
-        Feed::class],
-    version = 15
+        Feed::class,
+        BlockedPost::class],
+    version = 16
 )
 @TypeConverters(Converter::class)
 abstract class DawnDatabase : RoomDatabase() {
@@ -59,6 +60,7 @@ abstract class DawnDatabase : RoomDatabase() {
     abstract fun browsingHistoryDao(): BrowsingHistoryDao
     abstract fun postHistoryDao(): PostHistoryDao
     abstract fun feedDao(): FeedDao
+    abstract fun blockedPostDao(): BlockedPostDao
 
     companion object {
         // Singleton prevents multiple instances of database opening at the
@@ -202,6 +204,13 @@ abstract class DawnDatabase : RoomDatabase() {
                 }
             }
 
+            // adds blockedPost
+            val migrate15To16 = object : Migration(15, 16) {
+                override fun migrate(database: SupportSQLiteDatabase) {
+                    database.execSQL("CREATE TABLE IF NOT EXISTS `BlockedPost` (`id` TEXT NOT NULL, `lastUpdatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))")
+                }
+            }
+
             synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
@@ -222,7 +231,8 @@ abstract class DawnDatabase : RoomDatabase() {
                         migrate11To12,
                         migrate12To13,
                         migrate13To14,
-                        migrate14To15
+                        migrate14To15,
+                        migrate15To16
                     )
                     .build()
                 INSTANCE = instance

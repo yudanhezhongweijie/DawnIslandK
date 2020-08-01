@@ -176,16 +176,4 @@ class ProfileViewModel @Inject constructor(
         }
         return findNameInComments(cookieHash, randomString, targetPage - 1, targetPageUpperBound)
     }
-
-    suspend fun getPrivacyAgreement():String{
-        return webNMBServiceClient.getPrivacyAgreement().run {
-            if (this is APIMessageResponse.Success){
-                dom!!.toString()
-            } else{
-                Timber.d(message)
-                ""
-            }
-        }
-    }
-
 }

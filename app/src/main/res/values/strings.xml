@@ -86,6 +86,9 @@
     <string name="post_history" translatable="false">发言历史</string>
     <string name="forum_refresh" translatable="false">刷新板块</string>
     <string name="general_settings" translatable="false">通用设置</string>
+    <string name="display_settings" translatable="false">显示设置</string>
+    <string name="custom_settings" translatable="false">自定义设置</string>
+    <string name="about" translatable="false">关于</string>
     <string name="trend" translatable="false">昨日热榜</string>
     <string name="basic_title" translatable="false">A岛</string>
     <string name="toolbar_subtitle" translatable="false">A岛 · adnmb.com</string>

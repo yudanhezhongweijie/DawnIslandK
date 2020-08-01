@@ -1,0 +1,176 @@
+/*
+ *  Copyright 2020 Fishballzzz
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  *     http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *
+ */
+
+package com.laotoua.dawnislandk.screens.profile
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.WhichButton
+import com.afollestad.materialdialogs.actions.getActionButton
+import com.afollestad.materialdialogs.actions.setActionButtonEnabled
+import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
+import com.afollestad.materialdialogs.input.input
+import com.afollestad.materialdialogs.list.listItems
+import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
+import com.laotoua.dawnislandk.R
+import com.laotoua.dawnislandk.databinding.FragmentGeneralSettingBinding
+import com.laotoua.dawnislandk.screens.MainActivity
+
+class GeneralSettingFragment : Fragment() {
+
+    private var binding:FragmentGeneralSettingBinding? = null
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        // Inflate the layout for this fragment
+        binding = FragmentGeneralSettingBinding.inflate(inflater, container,false)
+        return binding!!.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding?.feedId?.apply {
+            var feedId = applicationDataStore.getFeedId()
+            key.setText(R.string.feedId)
+            summary.text = feedId
+            root.setOnClickListener {
+                MaterialDialog(requireContext()).show {
+                    title(R.string.feedId)
+                    input(hint = feedId, prefill = feedId) { _, text ->
+                        feedId = text.toString()
+                        applicationDataStore.setFeedId(feedId)
+                        summary.text = feedId
+                    }
+                    positiveButton(R.string.submit) {
+                        displayRestartToApplySettingsToast()
+                    }
+                    negativeButton(R.string.cancel)
+                }
+            }
+        }
+
+        binding?.timeFormat?.apply {
+            key.setText(R.string.time_display_format)
+            val entries = resources.getStringArray(R.array.time_format_entries)
+            val values = resources.getStringArray(R.array.time_format_values)
+            summary.text =
+                if (values.first() == applicationDataStore.displayTimeFormat) {
+                    entries.first()
+                } else {
+                    entries.last()
+                }
+
+            root.setOnClickListener {
+                MaterialDialog(requireContext()).show {
+                    title(R.string.time_display_format)
+                    listItems(R.array.time_format_entries) { _, index, text ->
+                        applicationDataStore.setDisplayTimeFormat(values[index])
+                        summary.text = text
+                        displayRestartToApplySettingsToast()
+                    }
+                }
+            }
+        }
+        (requireActivity() as MainActivity).setToolbarTitle(R.string.general_settings)
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+
+        binding?.viewCaching?.apply {
+            key.setText(R.string.view_caching)
+            preferenceSwitch.visibility = View.VISIBLE
+            preferenceSwitch.isClickable = true
+            preferenceSwitch.isChecked = applicationDataStore.getViewCaching()
+            preferenceSwitch.setOnCheckedChangeListener { _, isChecked ->
+                applicationDataStore.setViewCaching(isChecked)
+                updateSwitchSummary(R.string.view_caching_on, R.string.view_caching_off)
+                displayRestartToApplySettingsToast()
+            }
+            updateSwitchSummary(R.string.view_caching_on, R.string.view_caching_off)
+            root.setOnClickListener {
+                if (!preferenceSwitch.isChecked) {
+                    MaterialDialog(requireContext()).show {
+                        title(R.string.view_caching)
+                        message(R.string.view_caching_warning)
+                        getActionButton(WhichButton.POSITIVE).isEnabled = false
+                        checkBoxPrompt(R.string.acknowledge) {
+                            getActionButton(WhichButton.POSITIVE).isEnabled = it
+                        }
+                        positiveButton(R.string.submit) {
+                            preferenceSwitch.toggle()
+                        }
+                        negativeButton(R.string.cancel)
+                    }
+                } else {
+                    preferenceSwitch.toggle()
+                }
+            }
+        }
+
+        binding?.useReadingProgress?.apply {
+            key.setText(R.string.saves_reading_progress)
+            preferenceSwitch.visibility = View.VISIBLE
+            preferenceSwitch.isClickable = true
+            preferenceSwitch.isChecked = applicationDataStore.getReadingProgressStatus()
+            preferenceSwitch.setOnCheckedChangeListener { _, isChecked ->
+                applicationDataStore.setReadingProgressStatus(isChecked)
+                updateSwitchSummary(R.string.reading_progress_on, R.string.reading_progress_off)
+                displayRestartToApplySettingsToast()
+            }
+            updateSwitchSummary(R.string.reading_progress_on, R.string.reading_progress_off)
+            root.setOnClickListener {
+                preferenceSwitch.toggle()
+            }
+        }
+
+        binding?.clearCommentCache?.apply {
+            key.setText(R.string.clear_comment_cache)
+            root.setOnClickListener {
+                MaterialDialog(requireContext()).show {
+                    title(R.string.clear_comment_cache)
+                    message(R.string.clear_comment_cache_confirm_message)
+                    setActionButtonEnabled(WhichButton.POSITIVE, false)
+                    checkBoxPrompt(R.string.acknowledge) { checked ->
+                        setActionButtonEnabled(WhichButton.POSITIVE, checked)
+                    }
+                    positiveButton(R.string.submit) {
+                        applicationDataStore.nukeCommentTable()
+                        Toast.makeText(
+                            context,
+                            R.string.cleared_comment_cache_message,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    negativeButton(R.string.cancel)
+                }
+            }
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
+    }
+}

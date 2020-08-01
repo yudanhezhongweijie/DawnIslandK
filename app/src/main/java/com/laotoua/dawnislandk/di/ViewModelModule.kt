@@ -25,6 +25,7 @@ import com.laotoua.dawnislandk.screens.comments.CommentsViewModel
 import com.laotoua.dawnislandk.screens.history.*
 import com.laotoua.dawnislandk.screens.posts.PostsFragment
 import com.laotoua.dawnislandk.screens.posts.PostsViewModel
+import com.laotoua.dawnislandk.screens.profile.AboutFragment
 import com.laotoua.dawnislandk.screens.profile.ProfileFragment
 import com.laotoua.dawnislandk.screens.profile.ProfileViewModel
 import com.laotoua.dawnislandk.screens.search.SearchFragment
@@ -70,6 +71,9 @@ abstract class ViewModelModule {
 
     @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
     internal abstract fun searchFragment(): SearchFragment
+
+    @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
+    internal abstract fun aboutFragment(): AboutFragment
 
     @Binds
     @IntoMap

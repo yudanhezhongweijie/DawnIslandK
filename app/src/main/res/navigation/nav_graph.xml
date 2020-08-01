@@ -24,12 +24,26 @@
         android:id="@+id/profileFragment"
         android:name="com.laotoua.dawnislandk.screens.profile.ProfileFragment">
         <action
-            android:id="@+id/action_profileFragment_to_sizeCustomizationFragment"
-            app:destination="@id/sizeCustomizationFragment"
+            android:id="@+id/action_profileFragment_to_aboutFragment"
+            app:destination="@id/aboutFragment"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right"/>
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_profileFragment_to_displaySettingFragment"
+            app:destination="@id/displaySettingFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_profileFragment_to_generalSettingFragment"
+            app:destination="@id/generalSettingFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/sizeCustomizationFragment"
@@ -60,8 +74,8 @@
             app:argType="string" />
         <argument
             android:name="targetPage"
-            app:argType="integer"
-            android:defaultValue="0" />
+            android:defaultValue="0"
+            app:argType="integer" />
     </fragment>
     <action
         android:id="@+id/action_global_commentsFragment"
@@ -70,4 +84,24 @@
         app:exitAnim="@anim/slide_out_left"
         app:popEnterAnim="@anim/slide_in_left"
         app:popExitAnim="@anim/slide_out_right" />
+    <fragment
+        android:id="@+id/aboutFragment"
+        android:name="com.laotoua.dawnislandk.screens.profile.AboutFragment"
+        tools:layout="@layout/fragment_about" />
+    <fragment
+        android:id="@+id/displaySettingFragment"
+        android:name="com.laotoua.dawnislandk.screens.profile.DisplaySettingFragment"
+        tools:layout="@layout/fragment_display_setting">
+        <action
+            android:id="@+id/action_displaySettingFragment_to_sizeCustomizationFragment"
+            app:destination="@id/sizeCustomizationFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/generalSettingFragment"
+        android:name="com.laotoua.dawnislandk.screens.profile.GeneralSettingFragment"
+        tools:layout="@layout/fragment_general_setting" />
 </navigation>

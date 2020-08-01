@@ -31,6 +31,8 @@ import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.FragmentDisplaySettingBinding
 import com.laotoua.dawnislandk.screens.MainActivity
+import com.laotoua.dawnislandk.screens.util.Layout.toast
+import com.laotoua.dawnislandk.screens.util.Layout.updateSwitchSummary
 
 
 class DisplaySettingFragment : Fragment() {
@@ -62,7 +64,7 @@ class DisplaySettingFragment : Fragment() {
                     listItemsSingleChoice(items = options.toList()) { _, index, _ ->
                         applicationDataStore.setAnimationOption(index)
                         applicationDataStore.setAnimationFirstOnly(isCheckPromptChecked())
-                        displayRestartToApplySettingsToast()
+                        toast(R.string.restart_to_apply_setting)
                         summary.text = options[index]
                     }
                     positiveButton(R.string.submit)
@@ -83,7 +85,7 @@ class DisplaySettingFragment : Fragment() {
                     R.string.layout_customization_on,
                     R.string.layout_customization_off
                 )
-                displayRestartToApplySettingsToast()
+                toast(R.string.restart_to_apply_setting)
             }
             root.setOnClickListener {
                 val action = DisplaySettingFragmentDirections.actionDisplaySettingFragmentToSizeCustomizationFragment()

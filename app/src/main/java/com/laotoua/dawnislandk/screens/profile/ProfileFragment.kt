@@ -27,7 +27,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
@@ -48,6 +47,7 @@ import com.laotoua.dawnislandk.data.local.entity.Cookie
 import com.laotoua.dawnislandk.databinding.FragmentProfileBinding
 import com.laotoua.dawnislandk.databinding.ListItemCookieBinding
 import com.laotoua.dawnislandk.screens.MainActivity
+import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.util.ImageUtil
 import com.laotoua.dawnislandk.util.IntentUtil
 import com.laotoua.dawnislandk.util.LoadingStatus
@@ -75,11 +75,7 @@ class ProfileFragment : DaggerFragment() {
                     if (res != null) {
                         saveCookieWithInputName(res)
                     } else {
-                        Toast.makeText(
-                            context,
-                            R.string.did_not_get_cookie_from_image,
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        toast(R.string.did_not_get_cookie_from_image)
                     }
                 } catch (e: Exception) {
                     // Ignore
@@ -140,7 +136,7 @@ class ProfileFragment : DaggerFragment() {
                     }
                     LoadingStatus.ERROR -> {
                         loadingDialog.dismiss()
-                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                        toast("添加饼干失败\n$message")
                     }
                     else -> {
                         loadingDialog.dismiss()

@@ -401,7 +401,7 @@ class MainActivity : DaggerAppCompatActivity() {
             StringBuffer(binding.toolbar.title),
             StringBuffer(newTitle)
         ).apply {
-            duration = animCharCount.toLong() * 60
+            duration = animCharCount.toLong() * 80
             addUpdateListener {
                 binding.toolbar.title = it.animatedValue.toString()
                 binding.toolbar.invalidate()

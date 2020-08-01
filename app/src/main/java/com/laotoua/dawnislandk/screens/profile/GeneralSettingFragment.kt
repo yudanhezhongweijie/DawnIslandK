@@ -21,7 +21,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.WhichButton
@@ -34,6 +33,8 @@ import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.FragmentGeneralSettingBinding
 import com.laotoua.dawnislandk.screens.MainActivity
+import com.laotoua.dawnislandk.screens.util.Layout.toast
+import com.laotoua.dawnislandk.screens.util.Layout.updateSwitchSummary
 
 class GeneralSettingFragment : Fragment() {
 
@@ -60,10 +61,9 @@ class GeneralSettingFragment : Fragment() {
                         feedId = text.toString()
                         applicationDataStore.setFeedId(feedId)
                         summary.text = feedId
+                        toast(R.string.restart_to_apply_setting)
                     }
-                    positiveButton(R.string.submit) {
-                        displayRestartToApplySettingsToast()
-                    }
+                    positiveButton(R.string.submit)
                     negativeButton(R.string.cancel)
                 }
             }
@@ -86,7 +86,7 @@ class GeneralSettingFragment : Fragment() {
                     listItems(R.array.time_format_entries) { _, index, text ->
                         applicationDataStore.setDisplayTimeFormat(values[index])
                         summary.text = text
-                        displayRestartToApplySettingsToast()
+                        toast(R.string.restart_to_apply_setting)
                     }
                 }
             }
@@ -106,7 +106,7 @@ class GeneralSettingFragment : Fragment() {
             preferenceSwitch.setOnCheckedChangeListener { _, isChecked ->
                 applicationDataStore.setViewCaching(isChecked)
                 updateSwitchSummary(R.string.view_caching_on, R.string.view_caching_off)
-                displayRestartToApplySettingsToast()
+                toast(R.string.restart_to_apply_setting)
             }
             updateSwitchSummary(R.string.view_caching_on, R.string.view_caching_off)
             root.setOnClickListener {
@@ -137,7 +137,7 @@ class GeneralSettingFragment : Fragment() {
             preferenceSwitch.setOnCheckedChangeListener { _, isChecked ->
                 applicationDataStore.setReadingProgressStatus(isChecked)
                 updateSwitchSummary(R.string.reading_progress_on, R.string.reading_progress_off)
-                displayRestartToApplySettingsToast()
+                toast(R.string.restart_to_apply_setting)
             }
             updateSwitchSummary(R.string.reading_progress_on, R.string.reading_progress_off)
             root.setOnClickListener {
@@ -157,11 +157,7 @@ class GeneralSettingFragment : Fragment() {
                     }
                     positiveButton(R.string.submit) {
                         applicationDataStore.nukeCommentTable()
-                        Toast.makeText(
-                            context,
-                            R.string.cleared_comment_cache_message,
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        toast(R.string.cleared_comment_cache_message)
                     }
                     negativeButton(R.string.cancel)
                 }

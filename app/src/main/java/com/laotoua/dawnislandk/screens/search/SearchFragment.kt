@@ -23,7 +23,6 @@ import android.view.*
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.text.toSpannable
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -44,6 +43,7 @@ import com.laotoua.dawnislandk.databinding.FragmentSearchBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.adapters.*
 import com.laotoua.dawnislandk.screens.posts.PostCardFactory
+import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
 import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
@@ -90,8 +90,7 @@ class SearchFragment : BaseNavFragment() {
         return when (item.itemId) {
             R.id.search -> {
                 if (DawnApp.applicationDataStore.firstCookieHash == null) {
-                    Toast.makeText(context, R.string.need_cookie_to_search, Toast.LENGTH_SHORT)
-                        .show()
+                    toast(R.string.need_cookie_to_search)
                     return true
                 }
 
@@ -105,11 +104,7 @@ class SearchFragment : BaseNavFragment() {
                                 currentPage = 0
                                 dismiss()
                             } else {
-                                Toast.makeText(
-                                    context,
-                                    R.string.please_input_valid_text,
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                toast(R.string.please_input_valid_text)
                             }
                         }
 
@@ -123,11 +118,7 @@ class SearchFragment : BaseNavFragment() {
                                     MainNavDirections.actionGlobalCommentsFragment(threadId, "")
                                 findNavController().navigate(navAction)
                             } else {
-                                Toast.makeText(
-                                    context,
-                                    R.string.please_input_valid_text,
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                toast(R.string.please_input_valid_text)
                             }
                         }
                     }

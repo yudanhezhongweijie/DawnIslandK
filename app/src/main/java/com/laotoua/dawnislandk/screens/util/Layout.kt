@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.laotoua.dawnislandk.R
+import com.laotoua.dawnislandk.databinding.ListItemPreferenceBinding
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.LoadingStatus
 import me.dkzwm.widget.srl.SmoothRefreshLayout
@@ -64,18 +65,14 @@ object Layout {
                     mAdapter.setDiffNewData(null)
                 }
                 if (!event.message.isNullOrBlank()) {
-                    Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
+                    toast(event.message, Toast.LENGTH_LONG)
                 }
             }
             LoadingStatus.NO_DATA -> {
                 refreshLayout.refreshComplete(true, headerDismissalDelayDuration)
                 mAdapter.loadMoreModule.loadMoreEnd()
                 if (!event.message.isNullOrBlank()) {
-                    Toast.makeText(
-                        context,
-                        event.message,
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    toast(event.message)
                 }
             }
             LoadingStatus.SUCCESS -> {
@@ -88,9 +85,25 @@ object Layout {
                     refreshLayout.autoRefresh(Constants.ACTION_NOTHING, false)
                 }
                 if (!event.message.isNullOrBlank()) {
-                    Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
+                    toast(event.message, Toast.LENGTH_LONG)
                 }
             }
+        }
+    }
+
+    fun Fragment.toast(resId:Int, length:Int = Toast.LENGTH_SHORT){
+        Toast.makeText(context, resId, length).show()
+    }
+
+    fun Fragment.toast(string: String, length:Int = Toast.LENGTH_SHORT){
+        Toast.makeText(context, string, length).show()
+    }
+
+    fun ListItemPreferenceBinding.updateSwitchSummary(summaryOn: Int, summaryOff: Int) {
+        if (preferenceSwitch.isChecked) {
+            summary.setText(summaryOn)
+        } else {
+            summary.setText(summaryOff)
         }
     }
 }

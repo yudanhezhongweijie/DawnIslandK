@@ -21,45 +21,38 @@ import android.Manifest
 import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.WhichButton
 import com.afollestad.materialdialogs.actions.getActionButton
-import com.afollestad.materialdialogs.actions.setActionButtonEnabled
-import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
-import com.afollestad.materialdialogs.checkbox.isCheckPromptChecked
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.input.input
 import com.afollestad.materialdialogs.list.listItems
-import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.google.android.material.animation.AnimationUtils
 import com.king.zxing.util.CodeUtils
 import com.laotoua.dawnislandk.BuildConfig
-import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
-import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Cookie
 import com.laotoua.dawnislandk.databinding.FragmentProfileBinding
 import com.laotoua.dawnislandk.databinding.ListItemCookieBinding
-import com.laotoua.dawnislandk.databinding.ListItemPreferenceBinding
 import com.laotoua.dawnislandk.screens.MainActivity
-import com.laotoua.dawnislandk.util.*
+import com.laotoua.dawnislandk.screens.util.Layout.toast
+import com.laotoua.dawnislandk.util.ImageUtil
+import com.laotoua.dawnislandk.util.IntentUtil
+import com.laotoua.dawnislandk.util.LoadingStatus
+import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import dagger.android.support.DaggerFragment
-import kotlinx.coroutines.launch
 import org.json.JSONObject
 import timber.log.Timber
 import javax.inject.Inject
@@ -82,11 +75,7 @@ class ProfileFragment : DaggerFragment() {
                     if (res != null) {
                         saveCookieWithInputName(res)
                     } else {
-                        Toast.makeText(
-                            context,
-                            R.string.did_not_get_cookie_from_image,
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        toast(R.string.did_not_get_cookie_from_image)
                     }
                 } catch (e: Exception) {
                     // Ignore
@@ -104,69 +93,33 @@ class ProfileFragment : DaggerFragment() {
     ): View? {
         binding = FragmentProfileBinding.inflate(inflater, container, false)
 
-        binding!!.settings.visibility = View.GONE
-        binding!!.feedId.apply {
-            var feedId = applicationDataStore.getFeedId()
-            key.setText(R.string.feedId)
-            summary.text = feedId
+        binding!!.profileView.visibility = View.GONE
+        binding!!.generalSettings.apply {
+            text.setText(R.string.general_settings)
+            icon.rotation = -90f
             root.setOnClickListener {
-                MaterialDialog(requireContext()).show {
-                    title(R.string.feedId)
-                    input(hint = feedId, prefill = feedId) { _, text ->
-                        feedId = text.toString()
-                        applicationDataStore.setFeedId(feedId)
-                        summary.text = feedId
-                    }
-                    positiveButton(R.string.submit) {
-                        displayRestartToApplySettingsToast()
-                    }
-                    negativeButton(R.string.cancel)
-                }
+                val action = ProfileFragmentDirections.actionProfileFragmentToGeneralSettingFragment()
+                findNavController().navigate(action)
+            }
+        }
+        binding!!.displaySettings.apply {
+            text.setText(R.string.display_settings)
+            icon.rotation = -90f
+            root.setOnClickListener {
+                val action = ProfileFragmentDirections.actionProfileFragmentToDisplaySettingFragment()
+                findNavController().navigate(action)
             }
         }
 
-        binding!!.timeFormat.apply {
-            key.setText(R.string.time_display_format)
-            val entries = resources.getStringArray(R.array.time_format_entries)
-            val values = resources.getStringArray(R.array.time_format_values)
-            summary.text =
-                if (values.first() == applicationDataStore.displayTimeFormat) {
-                    entries.first()
-                } else {
-                    entries.last()
-                }
-
+        binding!!.about.apply {
+            text.setText(R.string.about)
+            icon.rotation = -90f
             root.setOnClickListener {
-                MaterialDialog(requireContext()).show {
-                    title(R.string.time_display_format)
-                    listItems(R.array.time_format_entries) { _, index, text ->
-                        applicationDataStore.setDisplayTimeFormat(values[index])
-                        summary.text = text
-                        displayRestartToApplySettingsToast()
-                    }
-                }
+                val action = ProfileFragmentDirections.actionProfileFragmentToAboutFragment()
+                findNavController().navigate(action)
             }
         }
 
-        binding!!.animationSwitch.apply {
-            key.setText(R.string.animation_settings)
-            val options =
-                requireContext().resources.getStringArray(R.array.adapter_animation_options)
-            summary.text = options[applicationDataStore.animationOption]
-            root.setOnClickListener {
-                MaterialDialog(requireContext()).show {
-                    title(res = R.string.animation_settings)
-                    checkBoxPrompt(res = R.string.animation_first_only) {}
-                    listItemsSingleChoice(items = options.toList()) { _, index, _ ->
-                        applicationDataStore.setAnimationOption(index)
-                        applicationDataStore.setAnimationFirstOnly(isCheckPromptChecked())
-                        displayRestartToApplySettingsToast()
-                        summary.text = options[index]
-                    }
-                    positiveButton(R.string.submit)
-                }
-            }
-        }
 
         val loadingDialog by lazyOnMainOnly {
             MaterialDialog(requireContext()).apply {
@@ -183,7 +136,7 @@ class ProfileFragment : DaggerFragment() {
                     }
                     LoadingStatus.ERROR -> {
                         loadingDialog.dismiss()
-                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                        toast("添加饼干失败\n$message")
                     }
                     else -> {
                         loadingDialog.dismiss()
@@ -256,105 +209,6 @@ class ProfileFragment : DaggerFragment() {
             }
         }
 
-        binding!!.clearCommentCache.apply {
-            key.setText(R.string.clear_comment_cache)
-            root.setOnClickListener {
-                MaterialDialog(requireContext()).show {
-                    title(R.string.clear_comment_cache)
-                    message(R.string.clear_comment_cache_confirm_message)
-                    setActionButtonEnabled(WhichButton.POSITIVE, false)
-                    checkBoxPrompt(R.string.acknowledge) { checked ->
-                        setActionButtonEnabled(WhichButton.POSITIVE, checked)
-                    }
-                    positiveButton(R.string.submit) {
-                        applicationDataStore.nukeCommentTable()
-                        Toast.makeText(
-                            context,
-                            R.string.cleared_comment_cache_message,
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                    negativeButton(R.string.cancel)
-                }
-            }
-        }
-
-        binding!!.appFeedback.apply {
-            key.setText(R.string.app_feed_back)
-            root.setOnClickListener {
-                MaterialDialog(requireContext()).show {
-                    title(R.string.app_feed_back)
-                    val items =
-                        context.resources.getStringArray(R.array.app_feedback_options).toList()
-                    listItems(items = items) { _, index, _ ->
-                        when (index) {
-                            0 -> {
-                                val navAction = MainNavDirections.actionGlobalCommentsFragment(
-                                    "28951798",
-                                    "117"
-                                )
-                                findNavController().navigate(navAction)
-                            }
-                            1 -> {
-                                val intent = Intent(
-                                    Intent.ACTION_VIEW,
-                                    Uri.parse(DawnConstants.GITHUB_ADDRESS)
-                                )
-                                if (intent.resolveActivity(requireActivity().packageManager) != null) {
-                                    startActivity(intent)
-                                }
-                            }
-                            else -> {
-                                val intent = Intent(Intent.ACTION_SENDTO).apply {
-                                    type = "*/*"
-                                    data = Uri.parse("mailto:")
-                                    putExtra(
-                                        Intent.EXTRA_EMAIL,
-                                        arrayOf(DawnConstants.AUTHOR_EMAIL)
-                                    )
-                                    putExtra(
-                                        Intent.EXTRA_SUBJECT,
-                                        context.resources.getString(R.string.app_feed_back)
-                                    )
-                                }
-                                if (intent.resolveActivity(requireActivity().packageManager) != null) {
-                                    startActivity(intent)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        binding!!.appPrivacyAgreement.apply {
-            key.setText(R.string.app_privacy_agreement)
-            root.setOnClickListener {
-                val waitingDialog = MaterialDialog(requireContext()).show {
-                    title(R.string.processing)
-                    customView(R.layout.dialog_progress)
-                    cancelOnTouchOutside(false)
-                }
-                lifecycleScope.launch {
-                    val agreement = viewModel.getPrivacyAgreement()
-                    waitingDialog.dismiss()
-                    MaterialDialog(requireContext()).show {
-                        title(res = R.string.app_privacy_agreement)
-                        message(text = agreement) { html() }
-                        positiveButton(R.string.acknowledge)
-                    }
-                }
-            }
-        }
-
-        binding!!.adnmbPrivacyAgreement.apply {
-            key.setText(R.string.adnmb_privacy_agreement)
-            root.setOnClickListener {
-                val navAction = MainNavDirections.actionGlobalCommentsFragment("11689471", "")
-                findNavController().navigate(navAction)
-            }
-        }
-
         binding!!.credit.apply {
             text = getString(R.string.credit, BuildConfig.VERSION_NAME)
         }
@@ -366,13 +220,13 @@ class ProfileFragment : DaggerFragment() {
     private fun hideProgressBarAndShowSettings() {
         if (binding == null) return
         val progressBarAlphaOutAnim = ObjectAnimator.ofFloat(binding!!.progressBar, "alpha", 0f)
-        val settingsAlphaInAnim = ObjectAnimator.ofFloat(binding!!.settings, "alpha", 1f)
+        val profileViewAlphaInAnim = ObjectAnimator.ofFloat(binding!!.profileView, "alpha", 1f)
         AnimatorSet().apply {
             duration = 250
             addListener(object : Animator.AnimatorListener {
                 override fun onAnimationRepeat(animation: Animator?) {}
                 override fun onAnimationEnd(animation: Animator?) {
-                    binding?.settings?.visibility = View.VISIBLE
+                    binding?.profileView?.visibility = View.VISIBLE
                     binding?.progressBar?.visibility = View.GONE
                 }
 
@@ -380,7 +234,7 @@ class ProfileFragment : DaggerFragment() {
                 override fun onAnimationStart(animation: Animator?) {}
             })
             interpolator = AnimationUtils.FAST_OUT_LINEAR_IN_INTERPOLATOR
-            playTogether(progressBarAlphaOutAnim, settingsAlphaInAnim)
+            playTogether(progressBarAlphaOutAnim, profileViewAlphaInAnim)
             start()
         }
     }
@@ -447,91 +301,12 @@ class ProfileFragment : DaggerFragment() {
         }
     }
 
-    private fun ListItemPreferenceBinding.updateSwitchSummary(summaryOn: Int, summaryOff: Int) {
-        if (preferenceSwitch.isChecked) {
-            summary.setText(summaryOn)
-        } else {
-            summary.setText(summaryOff)
-        }
-    }
-
-    private fun displayRestartToApplySettingsToast() {
-        Toast.makeText(context, R.string.restart_to_apply_setting, Toast.LENGTH_SHORT).show()
-    }
-
     override fun onResume() {
         super.onResume()
-        (requireActivity() as MainActivity).setToolbarTitle(R.string.settings)
-            // showNav
-            (requireActivity() as MainActivity).showNav()
 
-        binding?.viewCaching?.apply {
-            key.setText(R.string.view_caching)
-            preferenceSwitch.visibility = View.VISIBLE
-            preferenceSwitch.isClickable = true
-            preferenceSwitch.isChecked = applicationDataStore.getViewCaching()
-            preferenceSwitch.setOnCheckedChangeListener { _, isChecked ->
-                applicationDataStore.setViewCaching(isChecked)
-                updateSwitchSummary(R.string.view_caching_on, R.string.view_caching_off)
-                displayRestartToApplySettingsToast()
-            }
-            updateSwitchSummary(R.string.view_caching_on, R.string.view_caching_off)
-            root.setOnClickListener {
-                if (!preferenceSwitch.isChecked) {
-                    MaterialDialog(requireContext()).show {
-                        title(R.string.view_caching)
-                        message(R.string.view_caching_warning)
-                        getActionButton(WhichButton.POSITIVE).isEnabled = false
-                        checkBoxPrompt(R.string.acknowledge) {
-                            getActionButton(WhichButton.POSITIVE).isEnabled = it
-                        }
-                        positiveButton(R.string.submit) {
-                            preferenceSwitch.toggle()
-                        }
-                        negativeButton(R.string.cancel)
-                    }
-                } else {
-                    preferenceSwitch.toggle()
-                }
-            }
-        }
-
-        binding?.layoutCustomization?.apply {
-            key.setText(R.string.layout_customization)
-            preferenceSwitch.visibility = View.VISIBLE
-            preferenceSwitch.isClickable = true
-            preferenceSwitch.isChecked = applicationDataStore.getLayoutCustomizationStatus()
-            updateSwitchSummary(R.string.layout_customization_on, R.string.layout_customization_off)
-            preferenceSwitch.setOnCheckedChangeListener { _, isChecked ->
-                applicationDataStore.setLayoutCustomizationStatus(isChecked)
-                updateSwitchSummary(
-                    R.string.layout_customization_on,
-                    R.string.layout_customization_off
-                )
-                displayRestartToApplySettingsToast()
-            }
-            root.setOnClickListener {
-                val action = ProfileFragmentDirections.actionProfileFragmentToSizeCustomizationFragment()
-                findNavController().navigate(action)
-            }
-        }
-
-
-        binding?.useReadingProgress?.apply {
-            key.setText(R.string.saves_reading_progress)
-            preferenceSwitch.visibility = View.VISIBLE
-            preferenceSwitch.isClickable = true
-            preferenceSwitch.isChecked = applicationDataStore.getReadingProgressStatus()
-            preferenceSwitch.setOnCheckedChangeListener { _, isChecked ->
-                applicationDataStore.setReadingProgressStatus(isChecked)
-                updateSwitchSummary(R.string.reading_progress_on, R.string.reading_progress_off)
-                displayRestartToApplySettingsToast()
-            }
-            updateSwitchSummary(R.string.reading_progress_on, R.string.reading_progress_off)
-            root.setOnClickListener {
-                preferenceSwitch.toggle()
-            }
-        }
+        (requireActivity() as MainActivity).setToolbarTitle(R.string.my_profile)
+        // showNav
+        (requireActivity() as MainActivity).showNav()
     }
 
     override fun onDestroyView() {

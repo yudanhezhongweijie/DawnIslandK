@@ -28,7 +28,6 @@ import android.os.SystemClock
 import android.text.style.UnderlineSpan
 import android.view.*
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.text.toSpannable
 import androidx.core.view.isVisible
@@ -56,6 +55,7 @@ import com.laotoua.dawnislandk.databinding.FragmentCommentBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
+import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.widgets.LinkifyTextView
 import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
@@ -133,10 +133,10 @@ class CommentsFragment : DaggerFragment() {
                 filterActivated = filterActivated.not()
                 if (!filterActivated) {
                     viewModel.clearFilter()
-                    Toast.makeText(context, R.string.comment_filter_off, Toast.LENGTH_SHORT).show()
+                    toast(R.string.comment_filter_off)
                 } else {
                     viewModel.onlyPo()
-                    Toast.makeText(context, R.string.comment_filter_on, Toast.LENGTH_SHORT).show()
+                    toast(R.string.comment_filter_on)
                 }
                 (binding?.srlAndRv?.recyclerView?.layoutManager as LinearLayoutManager?)?.run {
                     val startPos = findFirstVisibleItemPosition()
@@ -271,7 +271,7 @@ class CommentsFragment : DaggerFragment() {
                                 (binding!!.srlAndRv.recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
                             )?.page == 1
                         ) {
-                            Toast.makeText(context, "没有上一页了。。。", Toast.LENGTH_SHORT).show()
+                            toast("没有上一页了。。。")
                             refreshComplete(true, 100L)
                         } else {
                             viewModel.getPreviousPage()
@@ -399,7 +399,7 @@ class CommentsFragment : DaggerFragment() {
 
     private val addFeedObs = Observer<SingleLiveEvent<String>> {
         it.getContentIfNotHandled()?.let { message ->
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            toast(message)
         }
     }
 
@@ -466,11 +466,7 @@ class CommentsFragment : DaggerFragment() {
     private fun copyText(label: String, text: String) {
         getSystemService(requireContext(), ClipboardManager::class.java)
             ?.setPrimaryClip(ClipData.newPlainText(label, text))
-        Toast.makeText(
-            context,
-            resources.getString(R.string.content_copied, label),
-            Toast.LENGTH_SHORT
-        ).show()
+        toast(resources.getString(R.string.content_copied, label))
     }
 
     private fun getCurrentPage(): Int {

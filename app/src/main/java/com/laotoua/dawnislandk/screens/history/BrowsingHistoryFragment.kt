@@ -22,7 +22,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
@@ -42,6 +41,7 @@ import com.laotoua.dawnislandk.databinding.FragmentHistoryBrowsingBinding
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.*
 import com.laotoua.dawnislandk.screens.posts.PostCardFactory
+import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
 import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
 import com.laotoua.dawnislandk.util.ReadableTime
@@ -111,8 +111,7 @@ class BrowsingHistoryFragment : BaseNavFragment() {
                 if (startDate.before(endDate)) {
                     viewModel.searchByDate()
                 } else {
-                    Toast.makeText(context, R.string.data_range_selection_error, Toast.LENGTH_SHORT)
-                        .show()
+                    toast(R.string.data_range_selection_error)
                 }
             }
         }

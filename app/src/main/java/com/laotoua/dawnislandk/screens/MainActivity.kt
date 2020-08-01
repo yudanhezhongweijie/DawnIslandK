@@ -218,8 +218,11 @@ class MainActivity : DaggerAppCompatActivity() {
                         startActivity(intent)
                     }
                 }
-                negativeButton(R.string.download_from_google_play){
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.laotoua.dawnislandk"))
+                negativeButton(R.string.download_from_google_play) {
+                    val intent = Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse("https://play.google.com/store/apps/details?id=com.laotoua.dawnislandk")
+                    )
                     if (intent.resolveActivity(packageManager) != null) {
                         startActivity(intent)
                     }
@@ -278,8 +281,14 @@ class MainActivity : DaggerAppCompatActivity() {
             val navController = navHostFragment.navController
             navController.addOnDestinationChangedListener { _, destination, _ ->
                 currentFragmentId = destination.id
-                if (currentFragmentId == R.id.postsFragment){
-                    sharedVM.selectedForumId.value?.let { setToolbarTitle(sharedVM.getForumDisplayName(it))}
+                if (currentFragmentId == R.id.postsFragment) {
+                    sharedVM.selectedForumId.value?.let {
+                        setToolbarTitle(
+                            sharedVM.getForumDisplayName(
+                                it
+                            )
+                        )
+                    }
                 }
             }
             binding.bottomNavBar.setOnNavigationItemReselectedListener { item: MenuItem ->
@@ -381,17 +390,20 @@ class MainActivity : DaggerAppCompatActivity() {
         )
     }
 
-    private var toolbarAnim:Animator? = null
+    private var toolbarAnim: Animator? = null
     fun setToolbarTitle(newTitle: String) {
         val oldTitle = binding.toolbar.title.toString()
         if (oldTitle == newTitle) return
         toolbarAnim?.cancel()
         val animCharCount = max(oldTitle.length, newTitle.length)
-        toolbarAnim = ValueAnimator.ofObject(StringEvaluator(animCharCount), binding.toolbar.title, newTitle).apply {
-            duration = animCharCount.toLong() * 60
-            start()
+        toolbarAnim = ValueAnimator.ofObject(
+            StringEvaluator(animCharCount),
+            StringBuffer(binding.toolbar.title),
+            StringBuffer(newTitle)
+        ).apply {
+            duration = animCharCount.toLong() * 80
             addUpdateListener {
-                binding.toolbar.title = it.animatedValue as String
+                binding.toolbar.title = it.animatedValue.toString()
                 binding.toolbar.invalidate()
             }
         }
@@ -403,14 +415,17 @@ class MainActivity : DaggerAppCompatActivity() {
         setToolbarTitle(text)
     }
 
-    private class StringEvaluator(private val animCharCount: Int) : TypeEvaluator<String> {
-        override fun evaluate(fraction: Float, startValue: String, endValue: String): String {
+    private class StringEvaluator(private val animCharCount: Int) : TypeEvaluator<StringBuffer> {
+        override fun evaluate(
+            fraction: Float,
+            startValue: StringBuffer,
+            endValue: StringBuffer
+        ): StringBuffer {
             val ind = (fraction * animCharCount).toInt()
-            val left = endValue.substring(0, ind.coerceAtMost(endValue.length))
-            val right =
-                if (ind > startValue.length) " "
-                else startValue.substring(ind, startValue.length)
-            return left + right
+            val newChar = if (ind >= endValue.length) ' ' else endValue[ind]
+            if (ind < startValue.length) startValue.setCharAt(ind, newChar)
+            else startValue.append(newChar)
+            return startValue
         }
     }
 

@@ -18,11 +18,11 @@
 package com.laotoua.dawnislandk.screens.subscriptions
 
 import android.view.View
-import android.widget.Toast
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
+import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
 import com.laotoua.dawnislandk.screens.widgets.BasePagerFragment
 
@@ -47,8 +47,7 @@ class SubscriptionPagerFragment : BasePagerFragment() {
             title(R.string.edit_default_page)
             listItemsSingleChoice(items = items) { _, index, _ ->
                 DawnApp.applicationDataStore.setFeedPagerDefaultPage(index, 1 - index)
-                Toast.makeText(context, R.string.restart_to_apply_setting, Toast.LENGTH_SHORT)
-                    .show()
+                toast(R.string.restart_to_apply_setting)
             }
             positiveButton(R.string.submit)
             negativeButton(R.string.cancel)

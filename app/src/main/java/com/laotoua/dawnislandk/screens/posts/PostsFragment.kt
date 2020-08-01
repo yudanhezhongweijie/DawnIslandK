@@ -23,7 +23,6 @@ import android.os.Bundle
 import android.view.*
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
@@ -39,6 +38,7 @@ import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.databinding.FragmentPostBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
+import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
 import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
@@ -104,19 +104,14 @@ class PostsFragment : BaseNavFragment() {
             R.id.forumRule -> {
                 val fid = sharedVM.selectedForumId.value
                 if (fid == null) {
-                    Toast.makeText(
-                        requireContext(),
-                        R.string.please_try_again_later,
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    toast(R.string.please_try_again_later)
                     return true
                 }
                 val fidInt: Int?
                 try {
                     fidInt = fid.toInt()
                 } catch (e: Exception) {
-                    Toast.makeText(context, R.string.did_not_select_forum_id, Toast.LENGTH_SHORT)
-                        .show()
+                    toast(R.string.did_not_select_forum_id)
                     return true
                 }
                 MaterialDialog(requireContext()).show {
@@ -239,11 +234,7 @@ class PostsFragment : BaseNavFragment() {
 
             binding!!.post.setOnClickListener {
                 if (sharedVM.selectedForumId.value == null) {
-                    Toast.makeText(
-                        requireContext(),
-                        R.string.please_try_again_later,
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    toast(R.string.please_try_again_later)
                     return@setOnClickListener
                 }
                 hideFabMenu()

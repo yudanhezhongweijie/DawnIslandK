@@ -21,7 +21,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.*
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.core.text.isDigitsOnly
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -44,6 +43,7 @@ import com.laotoua.dawnislandk.data.local.entity.FeedAndPost
 import com.laotoua.dawnislandk.databinding.FragmentSubscriptionFeedBinding
 import com.laotoua.dawnislandk.screens.adapters.*
 import com.laotoua.dawnislandk.screens.posts.PostCardFactory
+import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
 import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
@@ -156,7 +156,7 @@ class FeedsFragment : BaseNavFragment() {
 
     private val delFeedResponseObs = Observer<SingleLiveEvent<String>> {
         it.getContentIfNotHandled()?.let { message ->
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            toast(message)
         }
     }
 
@@ -172,14 +172,7 @@ class FeedsFragment : BaseNavFragment() {
         if (mAdapter == null) return@Observer
         if (list.isEmpty()) {
             if (viewModel.lastJumpPage > 0) {
-                Toast.makeText(
-                    context,
-                    requireContext().getString(
-                        R.string.no_feed_on_page,
-                        viewModel.lastJumpPage
-                    ),
-                    Toast.LENGTH_SHORT
-                ).show()
+                toast(getString(R.string.no_feed_on_page, viewModel.lastJumpPage))
             }
             mAdapter!!.setDiffNewData(null)
             return@Observer

@@ -448,20 +448,24 @@ class CommentsFragment : DaggerFragment() {
     override fun onPause() {
         super.onPause()
         unsubscribeUI()
+        binding?.srlAndRv?.recyclerView?.stopScroll()
     }
 
     override fun onResume() {
         super.onResume()
         subscribeUI()
 
-        (requireActivity() as MainActivity).run {
-            setToolbarClickListener {
-                binding?.srlAndRv?.recyclerView?.layoutManager?.scrollToPosition(0)
-                showMenu()
+        if (activity != null && isAdded) {
+            (requireActivity() as MainActivity).run {
+                setToolbarClickListener {
+                    binding?.srlAndRv?.recyclerView?.layoutManager?.scrollToPosition(0)
+                    if (binding != null) showMenu()
+                }
+                hideNav()
             }
-            hideNav()
         }
     }
+
 
     private fun copyText(label: String, text: String) {
         getSystemService(requireContext(), ClipboardManager::class.java)
@@ -512,7 +516,7 @@ class CommentsFragment : DaggerFragment() {
                 override fun onAnimationStart(animation: Animator?) {}
             })
         }
-        currentAnimatorSet!!.start()
+        currentAnimatorSet?.start()
     }
 
     fun showMenu() {
@@ -537,7 +541,7 @@ class CommentsFragment : DaggerFragment() {
                 override fun onAnimationStart(animation: Animator?) {}
             })
         }
-        currentAnimatorSet!!.start()
+        currentAnimatorSet?.start()
     }
 
     private fun updateTitle() {

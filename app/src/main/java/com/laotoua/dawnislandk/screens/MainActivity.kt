@@ -318,6 +318,7 @@ class MainActivity : DaggerAppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        applicationDataStore.mmkv.sync()
         mHandler.removeCallbacks(mRunnable)
     }
 

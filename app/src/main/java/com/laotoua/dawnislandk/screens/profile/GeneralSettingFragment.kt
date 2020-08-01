@@ -163,6 +163,25 @@ class GeneralSettingFragment : Fragment() {
                 }
             }
         }
+
+        binding?.restoreBlockedPosts?.apply {
+            key.setText(R.string.restore_blocked_post)
+            root.setOnClickListener {
+                MaterialDialog(requireContext()).show {
+                    title(R.string.restore_blocked_post)
+                    message(R.string.restore_blocked_post_confirm_message)
+                    setActionButtonEnabled(WhichButton.POSITIVE, false)
+                    checkBoxPrompt(R.string.acknowledge) { checked ->
+                        setActionButtonEnabled(WhichButton.POSITIVE, checked)
+                    }
+                    positiveButton(R.string.submit) {
+                        applicationDataStore.nukeBlockedPostTable()
+                        toast(R.string.restored_blocked_post)
+                    }
+                    negativeButton(R.string.cancel)
+                }
+            }
+        }
     }
 
     override fun onDestroyView() {

@@ -44,6 +44,7 @@ class ApplicationDataStore @Inject constructor(
     private val NMBNoticeDao: NMBNoticeDao,
     private val luweiNoticeDao: LuweiNoticeDao,
     private val releaseDao: ReleaseDao,
+    private val blockedPostDao: BlockedPostDao,
     private val webService: NMBServiceClient
 ) {
 
@@ -184,6 +185,10 @@ class ApplicationDataStore @Inject constructor(
 
     fun nukeCommentTable() {
         GlobalScope.launch { commentDao.nukeTable() }
+    }
+
+    fun nukeBlockedPostTable() {
+        GlobalScope.launch { blockedPostDao.nukeTable() }
     }
 
     suspend fun getLatestNMBNotice(): NMBNotice? {

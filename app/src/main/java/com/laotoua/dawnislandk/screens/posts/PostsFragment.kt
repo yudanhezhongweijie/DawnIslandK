@@ -23,6 +23,7 @@ import android.os.Bundle
 import android.view.*
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
@@ -158,20 +159,35 @@ class PostsFragment : BaseNavFragment() {
                     MaterialDialog(requireContext()).show {
                         title(R.string.post_options)
                         listItems(R.array.post_options) { _, index, _ ->
-                            if (index == 0) {
-                                MaterialDialog(requireContext()).show {
-                                    title(R.string.report_reasons)
-                                    listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
-                                        postPopup.setupAndShow(
-                                            "18",//值班室
-                                            "18",
-                                            newPost = true,
-                                            quote = ">>No.${getItem(position).id}\n${context.getString(
-                                                R.string.report_reasons
-                                            )}: $text\n"
-                                        )
+                            when (index) {
+                                0 -> {
+                                    MaterialDialog(requireContext()).show {
+                                        title(R.string.report_reasons)
+                                        listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
+                                            postPopup.setupAndShow(
+                                                "18",//值班室
+                                                "18",
+                                                newPost = true,
+                                                quote = ">>No.${getItem(position).id}\n${context.getString(
+                                                    R.string.report_reasons
+                                                )}: $text\n"
+                                            )
+                                        }
+                                        cancelOnTouchOutside(false)
                                     }
-                                    cancelOnTouchOutside(false)
+                                }
+                                1 -> {
+                                    val post = getItem(position)
+                                    if (!post.isStickyTopBanner()) {
+                                        viewModel.blockPost(post)
+                                        toast(getString(R.string.blocked_post, post.id))
+                                        mAdapter?.removeAt(position)
+                                    } else {
+                                        toast("你真的想屏蔽这个串吗？(ᯣ ̶̵̵̵̶̶̶̶̵̫̋̋̅̅̅ᯣ )", Toast.LENGTH_LONG)
+                                    }
+                                }
+                                else -> {
+                                    throw Exception("Unhandled option")
                                 }
                             }
                         }

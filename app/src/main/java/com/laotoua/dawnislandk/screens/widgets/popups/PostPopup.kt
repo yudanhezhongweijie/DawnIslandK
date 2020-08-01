@@ -87,6 +87,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
     private var toggleContainers: ConstraintLayout? = null
     private var expansionContainer: LinearLayout? = null
     private var attachmentContainer: ConstraintLayout? = null
+    private var buttonToggleGroup: MaterialButtonToggleGroup? = null
     private var emojiContainer: RecyclerView? = null
     private val emojiAdapter by lazyOnMainOnly { QuickAdapter<String>(R.layout.grid_item_emoji) }
     private var luweiStickerContainer: ConstraintLayout? = null
@@ -180,6 +181,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
     override fun onShow() {
         super.onShow()
         KeyboardUtils.registerSoftInputChangedListener(caller.window, this) { height ->
+            if (keyboardHolder == null) return@registerSoftInputChangedListener
             if (height > 0 && keyboardHeight != height) {
                 keyboardHeight = height
                 listOf(emojiContainer!!, luweiStickerContainer!!).map {
@@ -191,6 +193,9 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
             val lp = keyboardHolder!!.layoutParams
             lp.height = height
             keyboardHolder!!.layoutParams = lp
+            if (height > 0) {
+                buttonToggleGroup?.clearChecked()
+            }
         }
     }
 
@@ -248,11 +253,15 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
                             context.packageName
                         )
                         imageFile = ImageUtil.getFileFromDrawable(caller, emojiId, resourceId)
-                        if (imageFile != null){
+                        if (imageFile != null) {
                             postImagePreview!!.setImageResource(resourceId)
                             attachmentContainer!!.visibility = View.VISIBLE
                         } else {
-                            Toast.makeText(context, R.string.cannot_load_image_file, Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                R.string.cannot_load_image_file,
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
 
@@ -303,13 +312,14 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
             send()
         }
 
-        findViewById<MaterialButtonToggleGroup>(R.id.toggleButtonGroup)
-            .addOnButtonCheckedListener { toggleGroup, checkedId, isChecked ->
+        findViewById<MaterialButtonToggleGroup>(R.id.toggleButtonGroup).apply {
+            buttonToggleGroup = this
+            addOnButtonCheckedListener { toggleGroup, checkedId, isChecked ->
                 when (checkedId) {
                     R.id.postExpand -> {
                         expansionContainer!!.visibility = if (isChecked) View.VISIBLE else View.GONE
                         toggleGroup.findViewById<Button>(R.id.postExpand)?.run {
-                            if (isChecked){
+                            if (isChecked) {
                                 animate().setDuration(200)
                                     .setInterpolator(DecelerateInterpolator())
                                     .rotation(180f)
@@ -340,6 +350,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
                     }
                 }
             }
+        }
 
         findViewById<Button>(R.id.postDoodle).setOnClickListener {
             if (!IntentUtil.checkAndRequestAllPermissions(

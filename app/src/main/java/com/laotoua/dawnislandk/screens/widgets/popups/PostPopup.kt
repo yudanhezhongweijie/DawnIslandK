@@ -193,7 +193,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
             val lp = keyboardHolder!!.layoutParams
             lp.height = height
             keyboardHolder!!.layoutParams = lp
-            if (height>0){
+            if (height > 0) {
                 buttonToggleGroup?.clearChecked()
             }
         }

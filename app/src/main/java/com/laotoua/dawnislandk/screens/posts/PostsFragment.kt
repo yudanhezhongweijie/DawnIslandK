@@ -23,6 +23,7 @@ import android.os.Bundle
 import android.view.*
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
@@ -176,9 +177,14 @@ class PostsFragment : BaseNavFragment() {
                                     }
                                 }
                                 1 -> {
-                                    viewModel.blockPost(getItem(position))
-                                    toast(getString(R.string.blocked_post, getItem(position).id))
-                                    mAdapter?.removeAt(position)
+                                    val post = getItem(position)
+                                    if (!post.isStickyTopBanner()) {
+                                        viewModel.blockPost(post)
+                                        toast(getString(R.string.blocked_post, post.id))
+                                        mAdapter?.removeAt(position)
+                                    } else {
+                                        toast("你真的想屏蔽这个串吗？(ᯣ ̶̵̵̵̶̶̶̶̵̫̋̋̅̅̅ᯣ )", Toast.LENGTH_LONG)
+                                    }
                                 }
                                 else -> {
                                     throw Exception("Unhandled option")

@@ -263,6 +263,7 @@ class MainActivity : DaggerAppCompatActivity() {
                 MaterialDialog(this).show {
                     title(res = R.string.announcement)
                     checkBoxPrompt(R.string.acknowledge) {}
+                    cancelOnTouchOutside(false)
                     message(R.string.entry_message)
                     positiveButton(R.string.close) {
                         if (isCheckPromptChecked()) {

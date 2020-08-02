@@ -108,6 +108,7 @@ class FeedsFragment : BaseNavFragment() {
                     positiveButton(R.string.submit) {
                         viewModel.jumpToPage(page)
                     }
+                    negativeButton(R.string.cancel)
                 }
                 return true
             }

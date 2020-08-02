@@ -19,12 +19,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/pageIndicator"
-        android:title="@string/edit_default_page"
+        android:title="@string/current_page"
         app:actionLayout="@layout/menu_item_page_indicator"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/settings"
-        android:icon="@drawable/ic_settings_24px"
-        android:title="@string/settings"
+        android:id="@+id/help"
+        android:icon="@drawable/ic_help_24px"
+        android:title="@string/help"
         app:showAsAction="ifRoom" />
 </menu>

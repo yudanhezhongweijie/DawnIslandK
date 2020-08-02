@@ -23,6 +23,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.afollestad.materialdialogs.MaterialDialog
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.FragmentBasePagerBinding
 import com.laotoua.dawnislandk.screens.MainActivity
@@ -33,12 +34,10 @@ import dagger.android.support.DaggerFragment
 import timber.log.Timber
 
 abstract class BasePagerFragment : DaggerFragment() {
-    private var _binding: FragmentBasePagerBinding? = null
-    private val binding: FragmentBasePagerBinding get() = _binding!!
+    private var binding: FragmentBasePagerBinding? = null
 
     abstract val pageTitleResIds: Map<Int, Int>
     abstract val pageFragmentClass: Map<Int, Class<out BaseNavFragment>>
-    abstract val pageEditorClickListener: View.OnClickListener
 
     private val titleUpdateCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
@@ -69,16 +68,19 @@ abstract class BasePagerFragment : DaggerFragment() {
                 setSliderGap(requireContext().resources.getDimension(R.dimen.dp_8))
                 setSlideMode(IndicatorSlideMode.WORM)
                 setIndicatorStyle(IndicatorStyle.CIRCLE)
-                setupWithViewPager(binding.viewPager2)
+                setupWithViewPager(binding!!.viewPager2)
             }
         super.onPrepareOptionsMenu(menu)
     }
 
-    // TODO: move page editor to setting
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.settings -> {
-                pageEditorClickListener.onClick(item.actionView)
+            R.id.help -> {
+                MaterialDialog(requireContext()).show {
+                    title(R.string.help)
+                    message(R.string.pager_usage_help)
+                    positiveButton(R.string.acknowledge)
+                }
                 true
             }
             else -> {
@@ -94,8 +96,8 @@ abstract class BasePagerFragment : DaggerFragment() {
         if (pageFragmentClass.size != pageTitleResIds.size) {
             throw Exception("Page Assertion failed")
         }
-        _binding = FragmentBasePagerBinding.inflate(inflater, container, false)
-        return binding.root
+        binding = FragmentBasePagerBinding.inflate(inflater, container, false)
+        return binding!!.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -104,9 +106,9 @@ abstract class BasePagerFragment : DaggerFragment() {
         /** workaround for https://issuetracker.google.com/issues/134912610
          *  programmatically remove over scroll edge effect
          */
-        (binding.viewPager2.getChildAt(0) as RecyclerView).overScrollMode = View.OVER_SCROLL_NEVER
+        (binding!!.viewPager2.getChildAt(0) as RecyclerView).overScrollMode = View.OVER_SCROLL_NEVER
 
-        binding.viewPager2.adapter =
+        binding!!.viewPager2.adapter =
             object : FragmentStateAdapter(childFragmentManager, viewLifecycleOwner.lifecycle) {
                 override fun getItemCount(): Int = pageFragmentClass.size
                 override fun createFragment(position: Int): Fragment {
@@ -115,13 +117,13 @@ abstract class BasePagerFragment : DaggerFragment() {
                 }
             }
 
-        binding.viewPager2.registerOnPageChangeCallback(titleUpdateCallback)
+        binding!!.viewPager2.registerOnPageChangeCallback(titleUpdateCallback)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        binding.viewPager2.unregisterOnPageChangeCallback(titleUpdateCallback)
-        _binding = null
+        binding?.viewPager2?.unregisterOnPageChangeCallback(titleUpdateCallback)
+        binding = null
         Timber.d("Pager View Destroyed")
     }
 

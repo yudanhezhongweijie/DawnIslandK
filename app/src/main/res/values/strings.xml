@@ -93,6 +93,7 @@
     <string name="timeline_filtered_count" translatable="false">时间线已经屏蔽%d个板块</string>
     <string name="please_select_timeline_filter_forums" translatable="false">请选择要屏蔽的版块</string>
     <string name="common_forum_setting_help" translatable="false"><b>点击下方板块即添加至常用分组\n\n长按上下拖曳板块可排序\n\n左右拖曳板块可从常用分组中移除\n\n编辑完成后返回即保存设置</b></string>
+    <string name="pager_usage_help" translatable="false">本页面支持左滑右滑切换内容。\n\n可在自定义设置改变默认页面</string>
     <string name="default_forum_setting" translatable="false">默认板块设置</string>
     <string name="common_posts_setting" translatable="false">常用串设置</string>
     <string name="add_common_post" translatable="false">添加常用串</string>
@@ -210,9 +211,10 @@
     <string name="forum" translatable="false">板块</string>
     <string name="announcement" translatable="false">通知</string>
     <string name="forum_rules" translatable="false">板规</string>
-    <string name="edit_default_page" translatable="false">设置默认页面</string>
     <string name="trend_and_feed" translatable="false">热榜 · 订阅</string>
+    <string name="edit_subscription_default_page" translatable="false">设置热榜 · 订阅默认页面</string>
     <string name="history" translatable="false">浏览 · 发言</string>
+    <string name="edit_history_default_page" translatable="false">设置浏览 · 发言默认页面</string>
     <string name="my_profile" translatable="false">个人</string>
     <string name="app_privacy_agreement" translatable="false">软件隐私协议</string>
     <string name="adnmb_privacy_agreement" translatable="false">A岛隐私协议</string>

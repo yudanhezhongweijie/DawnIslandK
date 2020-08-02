@@ -256,8 +256,8 @@ class MainActivity : DaggerAppCompatActivity() {
         }
 
         // first time app entry
-        applicationDataStore.firstTimeUse.let {
-            if (!it) {
+        applicationDataStore.getFirstTimeUse().let {
+            if (it) {
                 if (this.isFinishing) return@let
                 MaterialDialog(this).show {
                     title(res = R.string.announcement)

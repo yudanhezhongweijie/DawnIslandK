@@ -92,10 +92,17 @@ class ApplicationDataStore @Inject constructor(
         mmkv.putString(DawnConstants.DEFAULT_FORUM_ID, fid)
     }
 
-    val firstTimeUse by lazyOnMainOnly { mmkv.getBoolean(DawnConstants.USE_APP_FIRST_TIME, false) }
+    private var firstTimeUse: Boolean? = null
+
+    fun getFirstTimeUse(): Boolean {
+        if (firstTimeUse == null) {
+            firstTimeUse = mmkv.getBoolean(DawnConstants.USE_APP_FIRST_TIME, true)
+        }
+        return firstTimeUse!!
+    }
 
     fun setFirstTimeUse() {
-        mmkv.putBoolean(DawnConstants.USE_APP_FIRST_TIME, true)
+        mmkv.putBoolean(DawnConstants.USE_APP_FIRST_TIME, false)
     }
 
     // View settings

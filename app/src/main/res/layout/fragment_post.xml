@@ -46,6 +46,19 @@
         android:text="@string/announcement"
         android:visibility="gone"
         app:icon="@drawable/ic_announcement_24px"
+        app:layout_constraintBottom_toTopOf="@+id/search"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/search"
+        style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/search"
+        android:visibility="gone"
+        app:icon="@drawable/ic_search_24px"
         app:layout_constraintBottom_toTopOf="@+id/post"
         app:layout_constraintEnd_toEndOf="parent" />
 

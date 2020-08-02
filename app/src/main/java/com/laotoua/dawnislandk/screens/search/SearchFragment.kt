@@ -27,6 +27,7 @@ import androidx.core.text.toSpannable
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
@@ -56,9 +57,7 @@ import java.util.*
 
 class SearchFragment : BaseNavFragment() {
 
-    companion object {
-        fun newInstance() = SearchFragment()
-    }
+    private val args: SearchFragmentArgs by navArgs()
 
     private val viewModel: SearchViewModel by viewModels { viewModelFactory }
     private var _binding: FragmentSearchBinding? = null
@@ -171,8 +170,7 @@ class SearchFragment : BaseNavFragment() {
                     }
                 })
             }
-
-            mAdapter.setDefaultEmptyView()
+            viewModel.search(args.query)
         }
         return binding.root
     }

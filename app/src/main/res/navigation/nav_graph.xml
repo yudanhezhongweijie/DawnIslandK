@@ -58,7 +58,15 @@
     <fragment
         android:id="@+id/postsFragment"
         android:name="com.laotoua.dawnislandk.screens.posts.PostsFragment"
-        tools:layout="@layout/fragment_post" />
+        tools:layout="@layout/fragment_post" >
+        <action
+            android:id="@+id/action_postsFragment_to_searchFragment"
+            app:destination="@id/searchFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
 
     <fragment
         android:id="@+id/historyPagerFragment"
@@ -69,7 +77,11 @@
     <fragment
         android:id="@+id/searchFragment"
         android:name="com.laotoua.dawnislandk.screens.search.SearchFragment"
-        tools:layout="@layout/fragment_search" />
+        tools:layout="@layout/fragment_search" >
+        <argument
+            android:name="query"
+            app:argType="string" />
+    </fragment>
     <fragment
         android:id="@+id/commentsFragment"
         android:name="com.laotoua.dawnislandk.screens.comments.CommentsFragment">

@@ -22,7 +22,9 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.view.animation.AnimationUtils
+import android.widget.Button
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -30,6 +32,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.list.listItems
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.laotoua.dawnislandk.DawnApp
@@ -272,6 +275,44 @@ class PostsFragment : BaseNavFragment() {
                 }
             }
 
+            binding!!.search.setOnClickListener {
+                hideFabMenu()
+                if (DawnApp.applicationDataStore.firstCookieHash == null) {
+                    toast(R.string.need_cookie_to_search)
+                    return@setOnClickListener
+                }
+
+                MaterialDialog(requireContext()).show {
+                    title(R.string.search)
+                    customView(R.layout.dialog_search, noVerticalPadding = true).apply {
+                        findViewById<Button>(R.id.search).setOnClickListener {
+                            val query = findViewById<TextView>(R.id.searchInputText).text.toString()
+                            if (query.isNotBlank()) {
+                                dismiss()
+                                val action = PostsFragmentDirections.actionPostsFragmentToSearchFragment(query)
+                                findNavController().navigate(action)
+                            } else {
+                                toast(R.string.please_input_valid_text)
+                            }
+                        }
+
+                        findViewById<Button>(R.id.jumpToPost).setOnClickListener {
+                            val threadId = findViewById<TextView>(R.id.searchInputText).text
+                                .filter { it.isDigit() }.toString()
+                            if (threadId.isNotEmpty()) {
+                                // Does not have fid here. fid will be generated when data comes back in reply
+                                dismiss()
+                                val navAction =
+                                    MainNavDirections.actionGlobalCommentsFragment(threadId, "")
+                                findNavController().navigate(navAction)
+                            } else {
+                                toast(R.string.please_input_valid_text)
+                            }
+                        }
+                    }
+                }
+            }
+
             binding!!.flingInterceptor.bindListener {
                 (activity as MainActivity).showDrawer()
             }
@@ -308,6 +349,7 @@ class PostsFragment : BaseNavFragment() {
         )
         binding?.fabMenu?.startAnimation(rotateBackward)
         binding?.announcement?.hide()
+        binding?.search?.hide()
         binding?.post?.hide()
         isFabOpen = false
     }
@@ -319,6 +361,7 @@ class PostsFragment : BaseNavFragment() {
         )
         binding?.fabMenu?.startAnimation(rotateForward)
         binding?.announcement?.show()
+        binding?.search?.show()
         binding?.post?.show()
         isFabOpen = true
     }

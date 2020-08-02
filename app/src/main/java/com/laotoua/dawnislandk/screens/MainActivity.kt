@@ -299,7 +299,6 @@ class MainActivity : DaggerAppCompatActivity() {
                 setOf(
                     R.id.postsFragment,
                     R.id.subscriptionPagerFragment,
-                    R.id.searchFragment,
                     R.id.historyPagerFragment,
                     R.id.profileFragment
                 ),

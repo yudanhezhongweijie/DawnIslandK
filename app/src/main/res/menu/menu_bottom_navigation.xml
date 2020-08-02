@@ -29,12 +29,6 @@
         android:title="@string/trend_and_feed"/>
 
     <item
-        android:id="@+id/searchFragment"
-        android:enabled="true"
-        android:icon="@drawable/ic_search_24px"
-        android:title="@string/search"/>
-
-    <item
         android:id="@+id/historyPagerFragment"
         android:enabled="true"
         android:icon="@drawable/ic_history_24px"

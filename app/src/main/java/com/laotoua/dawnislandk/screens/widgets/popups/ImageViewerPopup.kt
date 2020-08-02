@@ -183,18 +183,14 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
         }
     }
 
-    // only preload images when reading comments and each page has >10 pages on average,
     private fun preloadImages(currentPos: Int) {
         if (urls.firstOrNull() !is Comment) return
-        val pages = urls.map { (it as Comment).page }.toSet().size
-        if (urls.isNotEmpty() && urls.size / pages > 10) {
-            if (currentPos > urls.size - 1 - prefetchItemCount && !nextPageLoading) {
-                nextPageLoader?.invoke()
-                nextPageLoading = true
-            } else if (currentPos < prefetchItemCount && !previousPageLoading) {
-                previousPageLoader?.invoke()
-                previousPageLoading = true
-            }
+        if (currentPos > urls.size - 1 - prefetchItemCount && !nextPageLoading) {
+            nextPageLoader?.invoke()
+            nextPageLoading = true
+        } else if (currentPos < prefetchItemCount && !previousPageLoading) {
+            previousPageLoader?.invoke()
+            previousPageLoading = true
         }
     }
 
@@ -206,7 +202,7 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
         nextPageLoader = task
     }
 
-    fun clearLoaders(){
+    fun clearLoaders() {
         nextPageLoader = null
         previousPageLoader = null
     }

@@ -29,7 +29,7 @@
     app:layout_optimizationLevel="standard|dimensions">
 
     <TextView
-        android:id="@+id/cookieName"
+        android:id="@+id/remark"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -50,7 +50,7 @@
         android:background="@android:color/transparent"
         android:tint="@color/gray_400"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/cookieName"
+        app:layout_constraintStart_toEndOf="@id/remark"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_create_24px"
         tools:ignore="ContentDescription" />

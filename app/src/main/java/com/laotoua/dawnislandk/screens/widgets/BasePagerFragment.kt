@@ -74,6 +74,7 @@ abstract class BasePagerFragment : DaggerFragment() {
         super.onPrepareOptionsMenu(menu)
     }
 
+    // TODO: move page editor to setting
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.settings -> {

@@ -21,7 +21,20 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-class BlockedPost(
-    @PrimaryKey val id: String, //	该串的id
-    var lastUpdatedAt: Long = 0
-)
+data class BlockedId(
+    @PrimaryKey val id: String,
+    /** type 0 refers blocking post fid (uses in timeline only)
+     *  type 1 refers blocking post id (uses in all communities)
+     */
+    val type: Int
+) {
+    fun isBlockedPost(): Boolean = type == 1
+
+    fun isTimelineBlockedForum(): Boolean = type == 0
+
+    companion object {
+        fun makeBlockedPost(id: String): BlockedId = BlockedId(id, 1)
+
+        fun makeTimelineBlockedForum(id: String): BlockedId = BlockedId(id, 0)
+    }
+}

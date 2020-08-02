@@ -42,6 +42,7 @@ object DawnConstants {
     const val TIME_FORMAT = "time_format"
     const val DEFAULT_TIME_FORMAT = "simplified"
     const val FEED_ID = "feedId"
+    const val DEFAULT_FORUM_ID = "default_forum_id"
     const val USE_APP_FIRST_TIME = "use_app_first_time"
     const val ACKNOWLEDGE_POSTING_RULES = "acknowledge_posting_rules"
     const val FEEDS_FRAG_PAGER_INDEX = "feeds_frag_page_index"

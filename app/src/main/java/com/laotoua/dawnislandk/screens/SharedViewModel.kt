@@ -69,12 +69,6 @@ class SharedViewModel @Inject constructor(
         getRandomReedPicture()
     }
 
-    fun forumRefresh() {
-        viewModelScope.launch {
-            communityRepository.refresh()
-        }
-    }
-
     fun setForumMappings(list: List<Community>) {
         val flatten = list.flatMap { it.forums }
         forumNameMapping =
@@ -267,5 +261,11 @@ class SharedViewModel @Inject constructor(
             }
         }
         searchCommentInPost(draft, targetPage - 1, targetPageUpperBound)
+    }
+
+    fun saveCommonCommunity(commonCommunity: Community){
+        viewModelScope.launch {
+            communityRepository.saveCommonCommunity(commonCommunity)
+        }
     }
 }

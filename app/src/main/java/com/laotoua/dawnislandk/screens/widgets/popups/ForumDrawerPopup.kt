@@ -24,13 +24,13 @@ import android.widget.ImageView
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.data.local.entity.Forum
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.CommunityNodeAdapter
-import com.laotoua.dawnislandk.screens.posts.PostsFragmentDirections
 import com.laotoua.dawnislandk.util.GlideApp
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.DrawerPopupView
@@ -48,7 +48,12 @@ class ForumDrawerPopup(
             override fun onForumClick(forum: Forum) {
                 Timber.d("Clicked on Forum ${forum.name}")
                 dismissWith {
-                    sharedVM.setForumId(forum.id)
+                    if (forum.isFakeForum()){
+                        val action = MainNavDirections.actionGlobalCommentsFragment(forum.id, "")
+                        (context as MainActivity).findNavController(R.id.navHostFragment).navigate(action)
+                    } else {
+                        sharedVM.setForumId(forum.id)
+                    }
                 }
             }
         })
@@ -78,11 +83,6 @@ class ForumDrawerPopup(
     override fun onCreate() {
         super.onCreate()
 
-        findViewById<Button>(R.id.forumRefresh).setOnClickListener {
-            forumListAdapter.setData(emptyList())
-            sharedVM.forumRefresh()
-        }
-
         reedImageView = findViewById(R.id.reedImageView)
         if (reedImageUrl.isNotBlank()) loadReedPicture()
         reedImageView.setOnClickListener {
@@ -102,13 +102,6 @@ class ForumDrawerPopup(
         findViewById<RecyclerView>(R.id.forumContainer).apply {
             layoutManager = LinearLayoutManager(context)
             adapter = forumListAdapter
-        }
-
-        findViewById<Button>(R.id.forumSetting).setOnClickListener {
-            dismissWith {
-                val action = PostsFragmentDirections.actionPostsFragmentToForumSettingFragment()
-                (context as MainActivity?)?.findNavController(R.id.navHostFragment)?.navigate(action)
-            }
         }
     }
 }

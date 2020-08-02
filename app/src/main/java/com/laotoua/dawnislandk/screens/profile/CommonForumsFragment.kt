@@ -15,20 +15,19 @@
  *
  */
 
-package com.laotoua.dawnislandk.screens.posts
+package com.laotoua.dawnislandk.screens.profile
 
 import android.animation.ValueAnimator
 import android.graphics.Canvas
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.afollestad.materialdialogs.MaterialDialog
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.listener.OnItemDragListener
 import com.chad.library.adapter.base.listener.OnItemSwipeListener
@@ -37,7 +36,7 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.data.local.entity.Forum
-import com.laotoua.dawnislandk.databinding.FragmentForumSettingBinding
+import com.laotoua.dawnislandk.databinding.FragmentCommonForumsBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.CommunityNodeAdapter
@@ -48,21 +47,46 @@ import com.laotoua.dawnislandk.util.LoadingStatus
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
 
+class CommonForumsFragment : DaggerFragment() {
 
-class ForumSettingFragment : DaggerFragment() {
-
-    private var binding: FragmentForumSettingBinding? = null
+    private var binding: FragmentCommonForumsBinding? = null
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
     private val sharedVM: SharedViewModel by activityViewModels { viewModelFactory }
 
+    private var commonForumAdapter : CommonForumAdapter? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_fragment_settings_forum, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.help -> {
+                MaterialDialog(requireContext()).show {
+                    title(R.string.common_forum_setting)
+                    message(R.string.common_forum_setting_help)
+                    positiveButton(R.string.acknowledge)
+                }
+                return true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentForumSettingBinding.inflate(inflater, container, false)
+        binding = FragmentCommonForumsBinding.inflate(inflater, container, false)
         if (activity != null && isAdded) {
             (requireActivity() as MainActivity).hideNav()
         }
@@ -72,9 +96,9 @@ class ForumSettingFragment : DaggerFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (requireActivity() as MainActivity).setToolbarTitle(R.string.forum_setting)
+        (requireActivity() as MainActivity).setToolbarTitle(R.string.common_forum_setting)
 
-        val commonForumAdapter = CommonForumAdapter(R.layout.list_item_forum)
+        commonForumAdapter = CommonForumAdapter(R.layout.list_item_forum)
 
         binding?.commonForums?.apply {
             layoutManager = LinearLayoutManager(context)
@@ -85,8 +109,8 @@ class ForumSettingFragment : DaggerFragment() {
         val allForumAdapter =
             CommunityNodeAdapter(object : CommunityNodeAdapter.ForumClickListener {
                 override fun onForumClick(forum: Forum) {
-                    if (!commonForumAdapter.data.contains(forum)) {
-                        commonForumAdapter.addData(forum)
+                    if (commonForumAdapter?.data?.contains(forum) == false) {
+                        commonForumAdapter?.addData(forum)
                         updateTitle()
                     }
                 }
@@ -105,7 +129,11 @@ class ForumSettingFragment : DaggerFragment() {
                 return@Observer
             }
             if (it.data.isNullOrEmpty()) return@Observer
-            allForumAdapter.setData(it.data.filter { c -> c.id != "0" })
+            val notCommon = it.data.filterNot { c -> c.isCommonForums() || c.isCommonPosts() }
+            val common = it.data.firstOrNull { c -> c.isCommonForums() }?.forums ?: emptyList()
+            allForumAdapter.setData(notCommon)
+            commonForumAdapter?.setList(common.toMutableList())
+            updateTitle()
         })
         updateTitle()
     }
@@ -116,10 +144,11 @@ class ForumSettingFragment : DaggerFragment() {
     }
 
     override fun onDestroyView() {
+        val common = Community.makeCommonForums(commonForumAdapter?.data ?: emptyList())
+        sharedVM.saveCommonCommunity(common)
+        toast(R.string.might_need_to_restart_to_apply_setting)
         super.onDestroyView()
-        if (activity != null && isAdded) {
-            (requireActivity() as MainActivity).showNav()
-        }
+        (requireActivity() as MainActivity).showNav()
     }
 
     inner class CommonForumAdapter(layoutResId: Int) :

@@ -40,6 +40,7 @@ import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.input.input
 import com.afollestad.materialdialogs.list.listItems
 import com.google.android.material.animation.AnimationUtils
+import com.google.android.material.textfield.TextInputLayout
 import com.king.zxing.util.CodeUtils
 import com.laotoua.dawnislandk.BuildConfig
 import com.laotoua.dawnislandk.R
@@ -102,6 +103,7 @@ class ProfileFragment : DaggerFragment() {
                 findNavController().navigate(action)
             }
         }
+
         binding!!.displaySettings.apply {
             text.setText(R.string.display_settings)
             icon.rotation = -90f
@@ -111,6 +113,14 @@ class ProfileFragment : DaggerFragment() {
             }
         }
 
+        binding!!.customSettings.apply {
+            text.setText(R.string.custom_settings)
+            icon.rotation = -90f
+            root.setOnClickListener {
+                val action = ProfileFragmentDirections.actionProfileFragmentToCustomSettingsFragment()
+                findNavController().navigate(action)
+            }
+        }
         binding!!.about.apply {
             text.setText(R.string.about)
             icon.rotation = -90f
@@ -172,11 +182,15 @@ class ProfileFragment : DaggerFragment() {
                         }
                         2 -> MaterialDialog(requireContext()).show {
                             title(R.string.add_cookie)
-                            customView(R.layout.dialog_cookie_addition)
+                            customView(R.layout.dialog_input_content_with_remark)
                             val submitButton = getActionButton(WhichButton.POSITIVE)
                             val neuralButton = getActionButton(WhichButton.NEUTRAL)
-                            val cookieName = findViewById<EditText>(R.id.cookieNameText)
-                            val cookieHash = findViewById<EditText>(R.id.cookieHashText)
+                            findViewById<TextInputLayout>(R.id.remark).hint =
+                                resources.getString(R.string.cookie_name)
+                            findViewById<TextInputLayout>(R.id.content).hint =
+                                resources.getString(R.string.cookie_hash)
+                            val cookieName = findViewById<EditText>(R.id.remarkText)
+                            val cookieHash = findViewById<EditText>(R.id.contentText)
                             submitButton.isEnabled = false
                             neuralButton.isEnabled = false
                             positiveButton(R.string.submit) {
@@ -242,7 +256,7 @@ class ProfileFragment : DaggerFragment() {
     private fun addCookieToLayout(cookie: Cookie) {
         if (binding == null) return
         val view = ListItemCookieBinding.inflate(layoutInflater, binding!!.root, false)
-        view.cookieName.text = cookie.cookieDisplayName
+        view.remark.text = cookie.cookieDisplayName
         view.edit.setOnClickListener {
             MaterialDialog(requireContext()).show {
                 title(R.string.edit_cookie_remark)

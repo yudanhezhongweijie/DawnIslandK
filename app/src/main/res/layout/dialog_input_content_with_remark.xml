@@ -25,22 +25,21 @@
     tools:viewBindingIgnore="true">
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/cookieName"
+        android:id="@+id/remark"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:hint="@string/cookie_name"
         app:endIconMode="clear_text"
-        app:layout_constraintBottom_toTopOf="@id/cookieHash"
+        app:layout_constraintBottom_toTopOf="@id/content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/cookieNameText"
+            android:id="@+id/remarkText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
@@ -48,20 +47,19 @@
 
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/cookieHash"
+        android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        android:hint="@string/cookie_hash"
         app:endIconMode="clear_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cookieName">
+        app:layout_constraintTop_toBottomOf="@id/remark">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/cookieHashText"
+            android:id="@+id/contentText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 

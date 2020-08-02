@@ -23,12 +23,9 @@ import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.comments.CommentsFragment
 import com.laotoua.dawnislandk.screens.comments.CommentsViewModel
 import com.laotoua.dawnislandk.screens.history.*
-import com.laotoua.dawnislandk.screens.posts.ForumSettingFragment
 import com.laotoua.dawnislandk.screens.posts.PostsFragment
 import com.laotoua.dawnislandk.screens.posts.PostsViewModel
-import com.laotoua.dawnislandk.screens.profile.AboutFragment
-import com.laotoua.dawnislandk.screens.profile.ProfileFragment
-import com.laotoua.dawnislandk.screens.profile.ProfileViewModel
+import com.laotoua.dawnislandk.screens.profile.*
 import com.laotoua.dawnislandk.screens.search.SearchFragment
 import com.laotoua.dawnislandk.screens.search.SearchViewModel
 import com.laotoua.dawnislandk.screens.subscriptions.*
@@ -77,7 +74,13 @@ abstract class ViewModelModule {
     internal abstract fun aboutFragment(): AboutFragment
 
     @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
-    internal abstract fun forumSettingFragment(): ForumSettingFragment
+    internal abstract fun commonForumsFragment(): CommonForumsFragment
+
+    @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
+    internal abstract fun commonPostsFragment(): CommonPostsFragment
+
+    @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
+    internal abstract fun customSettingFragment(): CustomSettingFragment
 
     @Binds
     @IntoMap
@@ -123,4 +126,9 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(SharedViewModel::class)
     abstract fun bindSharedViewModel(viewModel: SharedViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(CustomSettingViewModel::class)
+    abstract fun bindCustomSettingViewModel(viewModel: CustomSettingViewModel): ViewModel
 }

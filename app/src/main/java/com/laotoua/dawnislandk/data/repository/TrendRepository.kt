@@ -32,9 +32,11 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.math.ceil
 
 
+@Singleton
 class TrendRepository @Inject constructor(
     private val webService: NMBServiceClient,
     private val dailyTrendDao: DailyTrendDao

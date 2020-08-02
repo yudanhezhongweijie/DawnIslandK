@@ -33,6 +33,7 @@ import androidx.activity.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -273,22 +274,13 @@ class MainActivity : DaggerAppCompatActivity() {
         }
     }
 
-    // TODO: consolidate toolbar title update here
     private fun bindNavBarAndNavController() {
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.navHostFragment)
         if (navHostFragment is NavHostFragment) {
             val navController = navHostFragment.navController
             navController.addOnDestinationChangedListener { _, destination, _ ->
                 currentFragmentId = destination.id
-                if (currentFragmentId == R.id.postsFragment) {
-                    sharedVM.selectedForumId.value?.let {
-                        setToolbarTitle(
-                            sharedVM.getForumDisplayName(
-                                it
-                            )
-                        )
-                    }
-                }
+                updateTitleAndBottomNav(destination)
             }
             binding.bottomNavBar.setOnNavigationItemReselectedListener { item: MenuItem ->
                 if (item.itemId == R.id.postsFragment) showDrawer()
@@ -427,4 +419,59 @@ class MainActivity : DaggerAppCompatActivity() {
         }
     }
 
+    // returns null if fragment is not handled, returns "" if title should be be updated in navigation
+    private fun updateTitleAndBottomNav(destination: NavDestination) {
+        return when (destination.id) {
+            R.id.postsFragment -> {
+                sharedVM.selectedForumId.value.let {
+                    if (it != null) setToolbarTitle(sharedVM.getForumDisplayName(it))
+                }
+            }
+            R.id.historyPagerFragment, R.id.subscriptionPagerFragment -> {
+                showNav()
+            }
+            R.id.searchFragment -> {
+                setToolbarTitle(R.string.search)
+            }
+            R.id.commentsFragment -> {
+                hideNav()
+            }
+
+            R.id.aboutFragment -> {
+                setToolbarTitle(R.string.about)
+                hideNav()
+            }
+            R.id.commonForumsFragment -> {
+                setToolbarTitle(R.string.common_forum_setting)
+                hideNav()
+            }
+            R.id.commonPostsFragment -> {
+                setToolbarTitle(R.string.common_posts_setting)
+                hideNav()
+            }
+            R.id.customSettingFragment -> {
+                setToolbarTitle(R.string.custom_settings)
+                hideNav()
+            }
+            R.id.displaySettingFragment -> {
+                setToolbarTitle(R.string.display_settings)
+                hideNav()
+            }
+            R.id.generalSettingFragment -> {
+                setToolbarTitle(R.string.general_settings)
+                hideNav()
+            }
+            R.id.profileFragment -> {
+                setToolbarTitle(R.string.my_profile)
+                showNav()
+            }
+            R.id.sizeCustomizationFragment -> {
+                setToolbarTitle(R.string.layout_customization)
+                hideNav()
+            }
+            else -> {
+                Timber.e("Unhandled destination navigation $destination")
+            }
+        }
+    }
 }

@@ -32,7 +32,6 @@ import com.afollestad.materialdialogs.list.listItems
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.FragmentGeneralSettingBinding
-import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.screens.util.Layout.updateSwitchSummary
 
@@ -91,7 +90,6 @@ class GeneralSettingFragment : Fragment() {
                 }
             }
         }
-        (requireActivity() as MainActivity).setToolbarTitle(R.string.general_settings)
     }
 
     override fun onResume() {

@@ -34,7 +34,6 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.BlockedId
 import com.laotoua.dawnislandk.data.local.entity.Forum
 import com.laotoua.dawnislandk.databinding.FragmentCustomSettingBinding
-import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.util.ContentTransformation
 import com.laotoua.dawnislandk.screens.util.Layout.toast
@@ -172,12 +171,6 @@ class CustomSettingFragment : DaggerFragment() {
         return binding!!.root
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (activity != null && isAdded) {
-            (requireActivity() as MainActivity).setToolbarTitle(R.string.custom_settings)
-        }
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()

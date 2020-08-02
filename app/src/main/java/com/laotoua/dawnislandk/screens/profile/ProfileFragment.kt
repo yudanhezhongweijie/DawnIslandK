@@ -47,7 +47,6 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Cookie
 import com.laotoua.dawnislandk.databinding.FragmentProfileBinding
 import com.laotoua.dawnislandk.databinding.ListItemCookieBinding
-import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.util.ImageUtil
 import com.laotoua.dawnislandk.util.IntentUtil
@@ -117,7 +116,7 @@ class ProfileFragment : DaggerFragment() {
             text.setText(R.string.custom_settings)
             icon.rotation = -90f
             root.setOnClickListener {
-                val action = ProfileFragmentDirections.actionProfileFragmentToCustomSettingsFragment()
+                val action = ProfileFragmentDirections.actionProfileFragmentToCustomSettingFragment()
                 findNavController().navigate(action)
             }
         }
@@ -313,14 +312,6 @@ class ProfileFragment : DaggerFragment() {
                 viewModel.addNewCookie(cookieHash)
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        (requireActivity() as MainActivity).setToolbarTitle(R.string.my_profile)
-        // showNav
-        (requireActivity() as MainActivity).showNav()
     }
 
     override fun onDestroyView() {

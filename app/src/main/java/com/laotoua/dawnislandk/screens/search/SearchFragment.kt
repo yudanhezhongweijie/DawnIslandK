@@ -41,7 +41,6 @@ import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.remote.SearchResult
 import com.laotoua.dawnislandk.databinding.FragmentSearchBinding
-import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.adapters.*
 import com.laotoua.dawnislandk.screens.posts.PostCardFactory
 import com.laotoua.dawnislandk.screens.util.Layout.toast
@@ -210,7 +209,6 @@ class SearchFragment : BaseNavFragment() {
 
     override fun onResume() {
         super.onResume()
-        (requireActivity() as MainActivity).setToolbarTitle(R.string.search)
         viewModel.searchResult.observe(viewLifecycleOwner, searchResultObs)
         viewModel.loadingStatus.observe(viewLifecycleOwner, loadingStatusObs)
     }

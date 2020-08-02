@@ -30,7 +30,6 @@ import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.FragmentDisplaySettingBinding
-import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.screens.util.Layout.updateSwitchSummary
 
@@ -49,8 +48,6 @@ class DisplaySettingFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-
-        (requireActivity() as MainActivity).setToolbarTitle(R.string.display_settings)
 
         binding?.animationSwitch?.apply {
             key.setText(R.string.animation_settings)

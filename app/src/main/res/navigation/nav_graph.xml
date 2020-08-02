@@ -45,8 +45,8 @@
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
         <action
-            android:id="@+id/action_profileFragment_to_customSettingsFragment"
-            app:destination="@id/customSettingsFragment"
+            android:id="@+id/action_profileFragment_to_customSettingFragment"
+            app:destination="@id/customSettingFragment"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
@@ -128,7 +128,7 @@
         android:name="com.laotoua.dawnislandk.screens.profile.CommonForumsFragment"
         tools:layout="@layout/fragment_common_forums" />
     <fragment
-        android:id="@+id/customSettingsFragment"
+        android:id="@+id/customSettingFragment"
         android:name="com.laotoua.dawnislandk.screens.profile.CustomSettingFragment"
         tools:layout="@layout/fragment_custom_setting">
         <action

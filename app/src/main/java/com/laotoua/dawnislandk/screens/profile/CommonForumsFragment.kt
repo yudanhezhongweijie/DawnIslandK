@@ -37,7 +37,6 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.data.local.entity.Forum
 import com.laotoua.dawnislandk.databinding.FragmentCommonForumsBinding
-import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.CommunityNodeAdapter
 import com.laotoua.dawnislandk.screens.util.ContentTransformation
@@ -87,16 +86,6 @@ class CommonForumsFragment : DaggerFragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentCommonForumsBinding.inflate(inflater, container, false)
-        if (activity != null && isAdded) {
-            (requireActivity() as MainActivity).hideNav()
-        }
-        // Inflate the layout for this fragment
-        return binding!!.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        (requireActivity() as MainActivity).setToolbarTitle(R.string.common_forum_setting)
 
         commonForumAdapter = CommonForumAdapter(R.layout.list_item_forum)
 
@@ -136,6 +125,9 @@ class CommonForumsFragment : DaggerFragment() {
             updateTitle()
         })
         updateTitle()
+
+        // Inflate the layout for this fragment
+        return binding!!.root
     }
 
     private fun updateTitle() {
@@ -148,7 +140,6 @@ class CommonForumsFragment : DaggerFragment() {
         sharedVM.saveCommonCommunity(common)
         toast(R.string.might_need_to_restart_to_apply_setting)
         super.onDestroyView()
-        (requireActivity() as MainActivity).showNav()
     }
 
     inner class CommonForumAdapter(layoutResId: Int) :

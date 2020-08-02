@@ -43,7 +43,6 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.data.local.entity.Forum
 import com.laotoua.dawnislandk.databinding.FragmentCommonPostsBinding
-import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.util.ContentTransformation
 import com.laotoua.dawnislandk.screens.util.Layout.toast
@@ -92,9 +91,6 @@ class CommonPostsFragment : DaggerFragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentCommonPostsBinding.inflate(inflater, container, false)
-        if (activity != null && isAdded) {
-            (requireActivity() as MainActivity).hideNav()
-        }
 
         commonPostsAdapter = CommonPostsAdapter(R.layout.list_item_common_post).apply {
             addChildClickViewIds(R.id.edit)
@@ -196,7 +192,6 @@ class CommonPostsFragment : DaggerFragment() {
         sharedVM.saveCommonCommunity(common)
         toast(R.string.might_need_to_restart_to_apply_setting)
         super.onDestroyView()
-        (requireActivity() as MainActivity).showNav()
     }
 
     inner class CommonPostsAdapter(layoutResId: Int) :

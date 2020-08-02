@@ -31,7 +31,6 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.posts.PostCardFactory
 import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.screens.widgets.spans.RoundBackgroundColorSpan
@@ -77,8 +76,6 @@ class SizesCustomizationFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // hide NavBar
-        (requireActivity() as MainActivity).hideNav()
 
         rootView.setPaddingRelative(10, 10, 10, 10)
         rootView.orientation = LinearLayout.VERTICAL
@@ -399,11 +396,6 @@ class SizesCustomizationFragment : Fragment() {
         override fun onStopTrackingTouch(seekBar: SeekBar?) {
 
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        (requireActivity() as MainActivity).setToolbarTitle(R.string.layout_customization)
     }
 
     override fun onDestroy() {

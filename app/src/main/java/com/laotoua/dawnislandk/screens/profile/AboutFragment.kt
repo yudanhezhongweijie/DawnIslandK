@@ -34,7 +34,6 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.databinding.FragmentAboutBinding
-import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.util.DawnConstants
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.launch
@@ -143,12 +142,6 @@ class AboutFragment : DaggerFragment() {
         }
         // Inflate the layout for this fragment
         return binding!!.root
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        (requireActivity() as MainActivity).setToolbarTitle(R.string.about)
     }
 
     override fun onDestroyView() {

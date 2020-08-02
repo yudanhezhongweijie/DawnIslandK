@@ -38,7 +38,7 @@
         app:layout_constraintGuide_end="12dp" />
 
     <include
-        android:id="@+id/commonCommunity"
+        android:id="@+id/commonForums"
         layout="@layout/list_item_preference"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -47,13 +47,22 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <include
+        android:id="@+id/commonPosts"
+        layout="@layout/list_item_preference"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+        app:layout_constraintStart_toStartOf="@id/guidelineStart"
+        app:layout_constraintTop_toBottomOf="@id/commonForums" />
+
+    <include
         android:id="@+id/timelineFilter"
         layout="@layout/list_item_preference"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
         app:layout_constraintStart_toStartOf="@id/guidelineStart"
-        app:layout_constraintTop_toBottomOf="@id/commonCommunity" />
+        app:layout_constraintTop_toBottomOf="@id/commonPosts" />
 
     <include
         android:id="@+id/defaultForum"
@@ -63,14 +72,5 @@
         app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
         app:layout_constraintStart_toStartOf="@id/guidelineStart"
         app:layout_constraintTop_toBottomOf="@id/timelineFilter" />
-
-    <include
-        android:id="@+id/commonPosts"
-        layout="@layout/list_item_preference"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
-        app:layout_constraintStart_toStartOf="@id/guidelineStart"
-        app:layout_constraintTop_toBottomOf="@id/defaultForum" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

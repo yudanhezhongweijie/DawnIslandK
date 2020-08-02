@@ -61,36 +61,23 @@ class CustomSettingFragment : DaggerFragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentCustomSettingBinding.inflate(inflater, container, false)
-        binding!!.commonCommunity.apply {
+        binding!!.commonForums.apply {
             key.setText(R.string.common_forum_setting)
             root.setOnClickListener {
                 val action =
-                    CustomSettingFragmentDirections.actionCustomSettingsFragmentToCommonCommunityFragment()
+                    CustomSettingFragmentDirections.actionCustomSettingsFragmentToCommonForumsFragment()
                 findNavController().navigate(action)
             }
         }
 
-        viewModel.timelineBlockedForumIds.observe(viewLifecycleOwner, Observer {
-            blockedForumIds = it
-            binding?.timelineFilter?.summary?.text = resources.getString(
-                R.string.timeline_filtered_count,
-                it.size
-            )
-        })
-
-        sharedViewModel.communityList.observe(viewLifecycleOwner, Observer {
-            serverForums = it.data?.filterNot { c -> c.isCommonForums() }?.flatMap { c -> c.forums }
-
-            binding?.commonCommunity?.summary?.text = resources.getString(
-                R.string.common_forum_count,
-                it.data?.firstOrNull { c -> c.isCommonForums() }?.forums?.size ?: 0
-            )
-
-            binding?.commonPosts?.summary?.text = resources.getString(
-                R.string.common_posts_count,
-                it.data?.firstOrNull { c -> c.isCommonPosts() }?.forums?.size ?: 0
-            )
-        })
+        binding!!.commonPosts.apply {
+            key.setText(R.string.common_posts_setting)
+            root.setOnClickListener {
+                val action =
+                    CustomSettingFragmentDirections.actionCustomSettingsFragmentToCommonPostsFragment()
+                findNavController().navigate(action)
+            }
+        }
 
         binding!!.timelineFilter.apply {
             key.setText(R.string.timeline_filter_setting)
@@ -159,17 +146,28 @@ class CustomSettingFragment : DaggerFragment() {
             }
         }
 
-        binding!!.commonPosts.apply {
-            key.setText(R.string.common_posts_setting)
-            root.setOnClickListener {
-                val action =
-                    CustomSettingFragmentDirections.actionCustomSettingsFragmentToCommonPostsFragment()
-                findNavController().navigate(action)
-            }
-        }
+        viewModel.timelineBlockedForumIds.observe(viewLifecycleOwner, Observer {
+            blockedForumIds = it
+            binding?.timelineFilter?.summary?.text = resources.getString(
+                R.string.timeline_filtered_count,
+                it.size
+            )
+        })
 
+        sharedViewModel.communityList.observe(viewLifecycleOwner, Observer {
+            serverForums = it.data?.filterNot { c -> c.isCommonForums() || c.isCommonPosts() }?.flatMap { c -> c.forums }
 
-        // Inflate the layout for this fragment
+            binding?.commonForums?.summary?.text = resources.getString(
+                R.string.common_forum_count,
+                it.data?.firstOrNull { c -> c.isCommonForums() }?.forums?.size ?: 0
+            )
+
+            binding?.commonPosts?.summary?.text = resources.getString(
+                R.string.common_posts_count,
+                it.data?.firstOrNull { c -> c.isCommonPosts() }?.forums?.size ?: 0
+            )
+        })
+
         return binding!!.root
     }
 

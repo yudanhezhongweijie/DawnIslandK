@@ -36,7 +36,7 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.data.local.entity.Forum
-import com.laotoua.dawnislandk.databinding.FragmentCommonCommunityBinding
+import com.laotoua.dawnislandk.databinding.FragmentCommonForumsBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.CommunityNodeAdapter
@@ -47,9 +47,9 @@ import com.laotoua.dawnislandk.util.LoadingStatus
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
 
-class CommonCommunityFragment : DaggerFragment() {
+class CommonForumsFragment : DaggerFragment() {
 
-    private var binding: FragmentCommonCommunityBinding? = null
+    private var binding: FragmentCommonForumsBinding? = null
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -86,7 +86,7 @@ class CommonCommunityFragment : DaggerFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentCommonCommunityBinding.inflate(inflater, container, false)
+        binding = FragmentCommonForumsBinding.inflate(inflater, container, false)
         if (activity != null && isAdded) {
             (requireActivity() as MainActivity).hideNav()
         }
@@ -132,7 +132,7 @@ class CommonCommunityFragment : DaggerFragment() {
             val notCommon = it.data.filterNot { c -> c.isCommonForums() || c.isCommonPosts() }
             val common = it.data.firstOrNull { c -> c.isCommonForums() }?.forums ?: emptyList()
             allForumAdapter.setData(notCommon)
-            commonForumAdapter?.setNewInstance(common.toMutableList())
+            commonForumAdapter?.setList(common.toMutableList())
             updateTitle()
         })
         updateTitle()

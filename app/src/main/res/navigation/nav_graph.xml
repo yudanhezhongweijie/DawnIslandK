@@ -112,9 +112,9 @@
         android:name="com.laotoua.dawnislandk.screens.profile.GeneralSettingFragment"
         tools:layout="@layout/fragment_general_setting" />
     <fragment
-        android:id="@+id/commonCommunityFragment"
-        android:name="com.laotoua.dawnislandk.screens.profile.CommonCommunityFragment"
-        tools:layout="@layout/fragment_common_community" />
+        android:id="@+id/commonForumsFragment"
+        android:name="com.laotoua.dawnislandk.screens.profile.CommonForumsFragment"
+        tools:layout="@layout/fragment_common_forums" />
     <fragment
         android:id="@+id/customSettingsFragment"
         android:name="com.laotoua.dawnislandk.screens.profile.CustomSettingFragment"
@@ -127,8 +127,8 @@
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
         <action
-            android:id="@+id/action_customSettingsFragment_to_commonCommunityFragment"
-            app:destination="@id/commonCommunityFragment"
+            android:id="@+id/action_customSettingsFragment_to_commonForumsFragment"
+            app:destination="@id/commonForumsFragment"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"

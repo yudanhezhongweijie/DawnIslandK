@@ -159,14 +159,15 @@ object ImageUtil {
                 if (file.exists()) {
                     Timber.d("File exists in cache. Reusing...")
                 } else {
-                    val size: Long = getDirSize(caller.cacheDir)
-                    if (size + pfd.statSize > DawnConstants.CACHE_FILE_LIMIT) {
-                        Timber.d("Adding ${pfd.statSize} to cache. New size ${size + pfd.statSize} exceeds limit ${DawnConstants.CACHE_FILE_LIMIT}.")
-                        deleteBytesInDir(
-                            caller.cacheDir,
-                            pfd.statSize + size - DawnConstants.CACHE_FILE_LIMIT
-                        )
-                    }
+                    // TODO: rethink cache management
+//                    val size: Long = getDirSize(caller.cacheDir)
+//                    if (size + pfd.statSize > DawnConstants.CACHE_FILE_LIMIT) {
+//                        Timber.d("Adding ${pfd.statSize} to cache. New size ${size + pfd.statSize} exceeds limit ${DawnConstants.CACHE_FILE_LIMIT}.")
+//                        deleteBytesInDir(
+//                            caller.cacheDir,
+//                            pfd.statSize + size - DawnConstants.CACHE_FILE_LIMIT
+//                        )
+//                    }
                     Timber.d("File not found in cache. Copying...")
                     val outputStream = FileOutputStream(file)
                     inputStream.copyTo(outputStream)

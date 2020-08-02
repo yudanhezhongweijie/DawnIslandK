@@ -194,6 +194,7 @@ class CommonPostsFragment : DaggerFragment() {
     override fun onDestroyView() {
         val common = Community.makeCommonPosts(commonPostsAdapter?.data ?: emptyList())
         sharedVM.saveCommonCommunity(common)
+        toast(R.string.might_need_to_restart_to_apply_setting)
         super.onDestroyView()
         (requireActivity() as MainActivity).showNav()
     }

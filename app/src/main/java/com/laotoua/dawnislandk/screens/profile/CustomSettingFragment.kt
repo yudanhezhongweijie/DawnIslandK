@@ -106,6 +106,7 @@ class CustomSettingFragment : DaggerFragment() {
                             blockedForumIds.add(BlockedId.makeTimelineBlockedForum(nonTimeline[i].id))
                         }
                         viewModel.blockForums(blockedForumIds)
+                        toast(R.string.might_need_to_restart_to_apply_setting)
                     }
                     positiveButton(R.string.submit)
                     negativeButton(R.string.cancel)

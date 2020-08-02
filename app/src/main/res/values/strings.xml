@@ -117,6 +117,7 @@
     <string name="please_try_again" translatable="false">请重复操作</string>
     <string name="please_try_again_later" translatable="false">请稍后再试</string>
     <string name="content_copied" translatable="false">%s已复制</string>
+    <string name="might_need_to_restart_to_apply_setting" translatable="false">设置没有生效时请杀死程序后台并重新启动</string>
     <string name="restart_to_apply_setting" translatable="false">设置将在重启后生效</string>
     <string name="save_image_selection" translatable="false">要保存图片吗?</string>
     <string name="cannot_load_image_file" translatable="false">无法读取图片文件</string>

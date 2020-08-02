@@ -56,9 +56,14 @@ class PostsViewModel @Inject constructor(
             if (blockedPostIds == null || blockedForumIds == null) {
                 val blockedIds = blockedIdDao.getAllBlockedIds()
                 blockedPostIds = mutableListOf()
-                blockedPostIds!!.addAll(blockedIds.filter { it.isBlockedPost() }.map { it.id })
                 blockedForumIds = mutableListOf()
-                blockedForumIds!!.addAll(blockedIds.filter { it.isTimelineBlockedForum() }.map { it.id })
+                for (blockedId in blockedIds){
+                    if (blockedId.isBlockedPost()){
+                        blockedPostIds!!.add(blockedId.id)
+                    } else if (blockedId.isTimelineBlockedForum()){
+                        blockedForumIds!!.add(blockedId.id)
+                    }
+                }
             }
             _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.LOADING))
             val fid = _currentFid ?: "-1"

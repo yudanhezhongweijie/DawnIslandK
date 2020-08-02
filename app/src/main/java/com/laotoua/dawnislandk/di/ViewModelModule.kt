@@ -23,10 +23,10 @@ import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.comments.CommentsFragment
 import com.laotoua.dawnislandk.screens.comments.CommentsViewModel
 import com.laotoua.dawnislandk.screens.history.*
-import com.laotoua.dawnislandk.screens.posts.ForumSettingFragment
 import com.laotoua.dawnislandk.screens.posts.PostsFragment
 import com.laotoua.dawnislandk.screens.posts.PostsViewModel
 import com.laotoua.dawnislandk.screens.profile.AboutFragment
+import com.laotoua.dawnislandk.screens.profile.ForumSettingFragment
 import com.laotoua.dawnislandk.screens.profile.ProfileFragment
 import com.laotoua.dawnislandk.screens.profile.ProfileViewModel
 import com.laotoua.dawnislandk.screens.search.SearchFragment

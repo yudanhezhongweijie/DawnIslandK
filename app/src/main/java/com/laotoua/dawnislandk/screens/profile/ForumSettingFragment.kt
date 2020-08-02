@@ -15,7 +15,7 @@
  *
  */
 
-package com.laotoua.dawnislandk.screens.posts
+package com.laotoua.dawnislandk.screens.profile
 
 import android.animation.ValueAnimator
 import android.graphics.Canvas
@@ -48,6 +48,7 @@ import com.laotoua.dawnislandk.util.LoadingStatus
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
 
+// TODO: toolbar usage tips, timeline filtering, common posts edits
 
 class ForumSettingFragment : DaggerFragment() {
 
@@ -72,7 +73,7 @@ class ForumSettingFragment : DaggerFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (requireActivity() as MainActivity).setToolbarTitle(R.string.forum_setting)
+        (requireActivity() as MainActivity).setToolbarTitle(R.string.common_forum_setting)
 
         val commonForumAdapter = CommonForumAdapter(R.layout.list_item_forum)
 

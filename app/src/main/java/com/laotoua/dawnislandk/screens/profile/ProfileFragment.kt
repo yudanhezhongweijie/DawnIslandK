@@ -102,6 +102,7 @@ class ProfileFragment : DaggerFragment() {
                 findNavController().navigate(action)
             }
         }
+
         binding!!.displaySettings.apply {
             text.setText(R.string.display_settings)
             icon.rotation = -90f
@@ -111,6 +112,14 @@ class ProfileFragment : DaggerFragment() {
             }
         }
 
+        binding!!.customSettings.apply {
+            text.setText(R.string.custom_settings)
+            icon.rotation = -90f
+            root.setOnClickListener {
+                val action = ProfileFragmentDirections.actionProfileFragmentToCustomSettingsFragment()
+                findNavController().navigate(action)
+            }
+        }
         binding!!.about.apply {
             text.setText(R.string.about)
             icon.rotation = -90f

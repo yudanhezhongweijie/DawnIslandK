@@ -69,12 +69,4 @@ class CommunityRepository @Inject constructor(
         }
     }
 
-    suspend fun refresh() {
-        webService.getCommunities().run {
-            if (status == LoadingStatus.SUCCESS) {
-                updateCache(data!!, true)
-            }
-        }
-    }
-
 }

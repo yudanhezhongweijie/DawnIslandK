@@ -85,7 +85,7 @@
     <string name="browsing_history" translatable="false">浏览历史</string>
     <string name="post_history" translatable="false">发言历史</string>
     <string name="forum_refresh" translatable="false">刷新板块</string>
-    <string name="forum_setting" translatable="false">板块设置</string>
+    <string name="common_forum_setting" translatable="false">常用板块设置</string>
     <string name="general_settings" translatable="false">通用设置</string>
     <string name="display_settings" translatable="false">显示设置</string>
     <string name="custom_settings" translatable="false">自定义设置</string>

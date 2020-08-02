@@ -143,14 +143,14 @@
                 app:layout_constraintStart_toStartOf="@id/guidelineStart"
                 app:layout_constraintTop_toBottomOf="@id/generalSettings" />
 
-<!--            <include-->
-<!--                android:id="@+id/customSettings"-->
-<!--                layout="@layout/list_item_setting_header"-->
-<!--                android:layout_width="0dp"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                app:layout_constraintEnd_toEndOf="@id/guidelineEnd"-->
-<!--                app:layout_constraintStart_toStartOf="@id/guidelineStart"-->
-<!--                app:layout_constraintTop_toBottomOf="@id/displaySettings" />-->
+            <include
+                android:id="@+id/customSettings"
+                layout="@layout/list_item_setting_header"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+                app:layout_constraintStart_toStartOf="@id/guidelineStart"
+                app:layout_constraintTop_toBottomOf="@id/displaySettings" />
             <include
                 android:id="@+id/about"
                 layout="@layout/list_item_setting_header"
@@ -158,7 +158,7 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
                 app:layout_constraintStart_toStartOf="@id/guidelineStart"
-                app:layout_constraintTop_toBottomOf="@id/displaySettings" />
+                app:layout_constraintTop_toBottomOf="@id/customSettings" />
 
             <TextView
                 android:id="@+id/credit"

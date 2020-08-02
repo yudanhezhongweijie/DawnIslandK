@@ -45,7 +45,7 @@ class SharedViewModel @Inject constructor(
     private val postDao: PostDao,
     private val commentDao: CommentDao,
     private val postHistoryDao: PostHistoryDao,
-    private val communityRepository: CommunityRepository
+    communityRepository: CommunityRepository
 ) : ViewModel() {
 
     val communityList = communityRepository.communityList
@@ -67,12 +67,6 @@ class SharedViewModel @Inject constructor(
 
     init {
         getRandomReedPicture()
-    }
-
-    fun forumRefresh() {
-        viewModelScope.launch {
-            communityRepository.refresh()
-        }
     }
 
     fun setForumMappings(list: List<Community>) {

@@ -45,7 +45,7 @@ class SharedViewModel @Inject constructor(
     private val postDao: PostDao,
     private val commentDao: CommentDao,
     private val postHistoryDao: PostHistoryDao,
-    communityRepository: CommunityRepository
+    private val communityRepository: CommunityRepository
 ) : ViewModel() {
 
     val communityList = communityRepository.communityList
@@ -261,5 +261,11 @@ class SharedViewModel @Inject constructor(
             }
         }
         searchCommentInPost(draft, targetPage - 1, targetPageUpperBound)
+    }
+
+    fun saveCommonCommunity(commonCommunity: Community){
+        viewModelScope.launch {
+            communityRepository.saveCommonCommunity(commonCommunity)
+        }
     }
 }

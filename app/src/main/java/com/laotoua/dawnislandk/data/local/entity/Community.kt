@@ -30,4 +30,14 @@ data class Community(
     val name: String,
     val status: String,
     val forums: List<Forum>
-)
+){
+    fun isCommonCommunity():Boolean{
+        return id == "1000"
+    }
+
+    companion object {
+        fun makeCommonCommunity(forums: List<Forum>):Community{
+            return Community("1000", "0", "常用板块", "n", forums)
+        }
+    }
+}

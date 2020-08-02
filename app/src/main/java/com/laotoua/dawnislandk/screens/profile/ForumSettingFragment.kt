@@ -20,15 +20,14 @@ package com.laotoua.dawnislandk.screens.profile
 import android.animation.ValueAnimator
 import android.graphics.Canvas
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.afollestad.materialdialogs.MaterialDialog
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.listener.OnItemDragListener
 import com.chad.library.adapter.base.listener.OnItemSwipeListener
@@ -48,7 +47,7 @@ import com.laotoua.dawnislandk.util.LoadingStatus
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
 
-// TODO: toolbar usage tips, timeline filtering, common posts edits
+// TODO: timeline filtering, common posts edits
 
 class ForumSettingFragment : DaggerFragment() {
 
@@ -58,6 +57,32 @@ class ForumSettingFragment : DaggerFragment() {
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
     private val sharedVM: SharedViewModel by activityViewModels { viewModelFactory }
+
+    private var commonForumAdapter : CommonForumAdapter? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_fragment_settings_forum, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.help -> {
+                MaterialDialog(requireContext()).show {
+                    title(R.string.common_forum_setting)
+                    message(R.string.common_forum_setting_help)
+                    positiveButton(R.string.acknowledge)
+                }
+                return true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -75,7 +100,7 @@ class ForumSettingFragment : DaggerFragment() {
         super.onViewCreated(view, savedInstanceState)
         (requireActivity() as MainActivity).setToolbarTitle(R.string.common_forum_setting)
 
-        val commonForumAdapter = CommonForumAdapter(R.layout.list_item_forum)
+        commonForumAdapter = CommonForumAdapter(R.layout.list_item_forum)
 
         binding?.commonForums?.apply {
             layoutManager = LinearLayoutManager(context)
@@ -86,8 +111,8 @@ class ForumSettingFragment : DaggerFragment() {
         val allForumAdapter =
             CommunityNodeAdapter(object : CommunityNodeAdapter.ForumClickListener {
                 override fun onForumClick(forum: Forum) {
-                    if (!commonForumAdapter.data.contains(forum)) {
-                        commonForumAdapter.addData(forum)
+                    if (commonForumAdapter?.data?.contains(forum) == false) {
+                        commonForumAdapter?.addData(forum)
                         updateTitle()
                     }
                 }
@@ -106,7 +131,11 @@ class ForumSettingFragment : DaggerFragment() {
                 return@Observer
             }
             if (it.data.isNullOrEmpty()) return@Observer
-            allForumAdapter.setData(it.data.filter { c -> c.id != "0" })
+            val notCommon = it.data.filterNot { c -> c.isCommonCommunity() }
+            val common = it.data.firstOrNull { c -> c.isCommonCommunity() }?.forums ?: emptyList()
+            allForumAdapter.setData(notCommon)
+            commonForumAdapter?.setNewInstance(common.toMutableList())
+            updateTitle()
         })
         updateTitle()
     }
@@ -117,10 +146,10 @@ class ForumSettingFragment : DaggerFragment() {
     }
 
     override fun onDestroyView() {
+        val common = Community.makeCommonCommunity(commonForumAdapter?.data ?: emptyList())
+        sharedVM.saveCommonCommunity(common)
         super.onDestroyView()
-        if (activity != null && isAdded) {
-            (requireActivity() as MainActivity).showNav()
-        }
+        (requireActivity() as MainActivity).showNav()
     }
 
     inner class CommonForumAdapter(layoutResId: Int) :

@@ -69,4 +69,8 @@ class CommunityRepository @Inject constructor(
         }
     }
 
+    suspend fun saveCommonCommunity(community: Community){
+        dao.insert(community)
+    }
+
 }

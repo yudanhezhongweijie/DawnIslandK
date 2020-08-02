@@ -30,6 +30,9 @@ interface CommunityDao {
     suspend fun getCommunityById(id: String): Community
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(community: Community)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(communityList: List<Community>)
 
     @Delete

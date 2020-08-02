@@ -51,7 +51,15 @@
     <fragment
         android:id="@+id/postsFragment"
         android:name="com.laotoua.dawnislandk.screens.posts.PostsFragment"
-        tools:layout="@layout/fragment_post" />
+        tools:layout="@layout/fragment_post">
+        <action
+            android:id="@+id/action_postsFragment_to_forumSettingFragment"
+            app:destination="@id/forumSettingFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
 
     <fragment
         android:id="@+id/historyPagerFragment"
@@ -104,4 +112,8 @@
         android:id="@+id/generalSettingFragment"
         android:name="com.laotoua.dawnislandk.screens.profile.GeneralSettingFragment"
         tools:layout="@layout/fragment_general_setting" />
+    <fragment
+        android:id="@+id/forumSettingFragment"
+        android:name="com.laotoua.dawnislandk.screens.posts.ForumSettingFragment"
+        tools:layout="@layout/fragment_forum_setting" />
 </navigation>

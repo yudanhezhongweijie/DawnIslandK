@@ -85,6 +85,7 @@
     <string name="browsing_history" translatable="false">浏览历史</string>
     <string name="post_history" translatable="false">发言历史</string>
     <string name="forum_refresh" translatable="false">刷新板块</string>
+    <string name="forum_setting" translatable="false">板块设置</string>
     <string name="general_settings" translatable="false">通用设置</string>
     <string name="display_settings" translatable="false">显示设置</string>
     <string name="custom_settings" translatable="false">自定义设置</string>
@@ -190,6 +191,7 @@
     <string name="no_data_dots" translatable="false">没有数据。。。</string>
     <string name="no_more_data" translatable="false">没有更多数据</string>
     <string name="forum" translatable="false">板块</string>
+    <string name="common_forums_title" translatable="false">常用板块: %d</string>
     <string name="announcement" translatable="false">通知</string>
     <string name="forum_rules" translatable="false">板规</string>
     <string name="edit_default_page" translatable="false">设置默认页面</string>

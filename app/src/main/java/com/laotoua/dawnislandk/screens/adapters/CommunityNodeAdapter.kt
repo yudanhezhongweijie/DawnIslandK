@@ -62,11 +62,9 @@ class CommunityNodeAdapter(val clickListener: ForumClickListener) : BaseNodeAdap
 
 
     inner class CommunityProvider : BaseNodeProvider() {
-        override val itemViewType: Int
-            get() = 1
+        override val itemViewType: Int = 1
 
-        override val layoutId: Int
-            get() = R.layout.list_item_community
+        override val layoutId: Int = R.layout.list_item_community
 
         override fun convert(helper: BaseViewHolder, item: BaseNode) {
             val community = (item as CommunityNode).community
@@ -132,10 +130,8 @@ class CommunityNodeAdapter(val clickListener: ForumClickListener) : BaseNodeAdap
 
 
     inner class ForumProvider : BaseNodeProvider() {
-        override val itemViewType: Int
-            get() = 2
-        override val layoutId: Int
-            get() = R.layout.list_item_forum
+        override val itemViewType: Int = 2
+        override val layoutId: Int = R.layout.list_item_forum
 
         override fun convert(helper: BaseViewHolder, item: BaseNode) {
             val forum = (item as ForumNode).forum
@@ -158,19 +154,17 @@ class CommunityNodeAdapter(val clickListener: ForumClickListener) : BaseNodeAdap
 
     inner class CommunityNode(val community: Community) :
         BaseExpandNode() {
-        private val _childNode: MutableList<BaseNode> =
-            community.forums.map { ForumNode(it) }.toMutableList()
 
         init {
             isExpanded = false
         }
 
-        override val childNode: MutableList<BaseNode>?
-            get() = _childNode
+        override val childNode: MutableList<BaseNode> =
+            community.forums.map { ForumNode(it) }.toMutableList()
     }
 
     inner class ForumNode(val forum: Forum) : BaseNode() {
-        override val childNode: MutableList<BaseNode>? get() = null
+        override val childNode: MutableList<BaseNode>? = null
     }
 
     interface ForumClickListener {

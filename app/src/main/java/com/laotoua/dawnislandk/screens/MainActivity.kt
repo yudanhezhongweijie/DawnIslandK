@@ -142,13 +142,12 @@ class MainActivity : DaggerAppCompatActivity() {
                 Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
                 return@Observer
             }
-            val list = it.data
-            if (list.isNullOrEmpty()) return@Observer
-            forumDrawer.setData(list)
-            sharedVM.setForumMappings(list)
+            if (it.data.isNullOrEmpty()) return@Observer
+            forumDrawer.setData(it.data)
+            sharedVM.setForumMappings(it.data)
             // TODO: set default forum
-            if (sharedVM.selectedForumId.value == null) sharedVM.setForumId(list.first().forums.first().id)
-            Timber.i("Loaded ${list.size} communities to Adapter")
+            if (sharedVM.selectedForumId.value == null) sharedVM.setForumId(it.data.first().forums.first().id)
+            Timber.i("Loaded ${it.data.size} communities to Adapter")
         })
 
         sharedVM.reedPictureUrl.observe(this, Observer<String> {
@@ -275,6 +274,7 @@ class MainActivity : DaggerAppCompatActivity() {
         }
     }
 
+    // TODO: consolidate toolbar title update here
     private fun bindNavBarAndNavController() {
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.navHostFragment)
         if (navHostFragment is NavHostFragment) {

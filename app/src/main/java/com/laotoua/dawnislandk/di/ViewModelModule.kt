@@ -23,6 +23,7 @@ import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.comments.CommentsFragment
 import com.laotoua.dawnislandk.screens.comments.CommentsViewModel
 import com.laotoua.dawnislandk.screens.history.*
+import com.laotoua.dawnislandk.screens.posts.ForumSettingFragment
 import com.laotoua.dawnislandk.screens.posts.PostsFragment
 import com.laotoua.dawnislandk.screens.posts.PostsViewModel
 import com.laotoua.dawnislandk.screens.profile.AboutFragment
@@ -74,6 +75,9 @@ abstract class ViewModelModule {
 
     @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
     internal abstract fun aboutFragment(): AboutFragment
+
+    @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
+    internal abstract fun forumSettingFragment(): ForumSettingFragment
 
     @Binds
     @IntoMap

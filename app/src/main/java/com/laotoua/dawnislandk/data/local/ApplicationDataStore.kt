@@ -78,6 +78,19 @@ class ApplicationDataStore @Inject constructor(
         mmkv.putString(DawnConstants.FEED_ID, value)
     }
 
+    private var defaultForumId: String? = null
+
+    fun getDefaultForumId(): String {
+        if (defaultForumId == null) {
+            defaultForumId = mmkv.getString(DawnConstants.DEFAULT_FORUM_ID, "-1")
+        }
+        return defaultForumId!!
+    }
+
+    fun setDefaultForumId(fid: String) {
+        defaultForumId = fid
+        mmkv.putString(DawnConstants.DEFAULT_FORUM_ID, fid)
+    }
 
     val firstTimeUse by lazyOnMainOnly { mmkv.getBoolean(DawnConstants.USE_APP_FIRST_TIME, false) }
 

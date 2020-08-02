@@ -145,8 +145,7 @@ class MainActivity : DaggerAppCompatActivity() {
             if (it.data.isNullOrEmpty()) return@Observer
             forumDrawer.setData(it.data)
             sharedVM.setForumMappings(it.data)
-            // TODO: set default forum
-            if (sharedVM.selectedForumId.value == null) sharedVM.setForumId(it.data.first().forums.first().id)
+            if (sharedVM.selectedForumId.value == null) sharedVM.setForumId(applicationDataStore.getDefaultForumId())
             Timber.i("Loaded ${it.data.size} communities to Adapter")
         })
 

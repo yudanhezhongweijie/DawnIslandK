@@ -28,12 +28,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItemsMultiChoice
+import com.afollestad.materialdialogs.list.listItemsSingleChoice
+import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.BlockedId
 import com.laotoua.dawnislandk.data.local.entity.Forum
 import com.laotoua.dawnislandk.databinding.FragmentCustomSettingBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
+import com.laotoua.dawnislandk.screens.util.ContentTransformation
 import com.laotoua.dawnislandk.screens.util.Layout.toast
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
@@ -58,7 +61,7 @@ class CustomSettingFragment : DaggerFragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentCustomSettingBinding.inflate(inflater, container, false)
-        binding!!.commonCommunitySetting.apply {
+        binding!!.commonCommunity.apply {
             key.setText(R.string.common_forum_setting)
             root.setOnClickListener {
                 val action =
@@ -69,7 +72,7 @@ class CustomSettingFragment : DaggerFragment() {
 
         viewModel.timelineBlockedForumIds.observe(viewLifecycleOwner, Observer {
             blockedForumIds = it
-            binding?.timelineFilterSetting?.summary?.text = resources.getString(
+            binding?.timelineFilter?.summary?.text = resources.getString(
                 R.string.timeline_filtered_count,
                 it.size
             )
@@ -77,22 +80,22 @@ class CustomSettingFragment : DaggerFragment() {
 
         sharedViewModel.communityList.observe(viewLifecycleOwner, Observer {
             forums = it.data?.filterNot { c -> c.isCommonCommunity() }?.flatMap { c -> c.forums }
-                ?.filterNot { f -> f.id == "-1" }
 
-            binding?.commonCommunitySetting?.summary?.text = resources.getString(
+            binding?.commonCommunity?.summary?.text = resources.getString(
                 R.string.common_forum_count,
                 it.data?.firstOrNull { c -> c.isCommonCommunity() }?.forums?.size
             )
         })
 
-        binding!!.timelineFilterSetting.apply {
+        binding!!.timelineFilter.apply {
             key.setText(R.string.timeline_filter_setting)
             root.setOnClickListener {
                 if (blockedForumIds == null || forums == null) {
                     toast(R.string.please_try_again_later)
                 }
+                val nonTimeline = forums!!.filter { f -> f.id != "-1" }
                 val blockingFidIndex = mutableListOf<Int>()
-                for ((ind, f) in forums!!.withIndex()) {
+                for ((ind, f) in nonTimeline.withIndex()) {
                     if (blockedForumIds!!.contains(f.id)) {
                         blockingFidIndex.add(ind)
                     }
@@ -102,13 +105,13 @@ class CustomSettingFragment : DaggerFragment() {
                     title(R.string.timeline_filter_setting)
                     message(R.string.please_select_timeline_filter_forums)
                     listItemsMultiChoice(
-                        items = forums!!.map { f -> f.name },
+                        items = nonTimeline.map { f -> ContentTransformation.htmlToSpanned(f.getDisplayName()) },
                         initialSelection = blockingFidIndex.toIntArray(),
                         allowEmptySelection = true
                     ) { _, indices, _ ->
                         val blockedForumIds = mutableListOf<BlockedId>()
                         for (i in indices) {
-                            blockedForumIds.add(BlockedId.makeTimelineBlockedForum(forums!![i].id))
+                            blockedForumIds.add(BlockedId.makeTimelineBlockedForum(nonTimeline[i].id))
                         }
                         viewModel.blockForums(blockedForumIds)
                     }
@@ -118,6 +121,35 @@ class CustomSettingFragment : DaggerFragment() {
                     neutralButton(R.string.uncheck_all_items) {
                         viewModel.blockForums(emptyList())
                     }
+                }
+            }
+        }
+
+        binding!!.defaultForum.apply {
+            key.setText(R.string.default_forum_setting)
+            summary.text = ContentTransformation.htmlToSpanned(
+                sharedViewModel.getForumDisplayName(applicationDataStore.getDefaultForumId())
+            )
+            root.setOnClickListener {
+                if (forums == null) {
+                    toast(R.string.please_try_again_later)
+                }
+                MaterialDialog(requireContext()).show {
+                    title(R.string.default_forum_setting)
+                    val items =
+                        forums!!.map { ContentTransformation.htmlToSpanned(it.getDisplayName()) }
+                    listItemsSingleChoice(
+                        items = items,
+                        waitForPositiveButton = true
+                    ) { _, index, _ ->
+                        val fid = forums!![index].id
+                        applicationDataStore.setDefaultForumId(fid)
+                        summary.text = ContentTransformation.htmlToSpanned(
+                            sharedViewModel.getForumDisplayName(applicationDataStore.getDefaultForumId())
+                        )
+                    }
+                    positiveButton(R.string.submit)
+                    negativeButton(R.string.cancel)
                 }
             }
         }

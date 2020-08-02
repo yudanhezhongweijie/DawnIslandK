@@ -92,6 +92,7 @@
     <string name="timeline_filtered_count" translatable="false">时间线已经屏蔽%d个板块</string>
     <string name="please_select_timeline_filter_forums" translatable="false">请选择要屏蔽的版块</string>
     <string name="common_forum_setting_help" translatable="false"><b>点击下方板块即添加至常用分组\n\n长按上下拖曳板块可排序\n\n左右拖曳板块可从常用分组中移除\n\n编辑完成后返回即保存设置</b></string>
+    <string name="default_forum_setting" translatable="false">默认板块设置</string>
     <string name="general_settings" translatable="false">通用设置</string>
     <string name="display_settings" translatable="false">显示设置</string>
     <string name="custom_settings" translatable="false">自定义设置</string>

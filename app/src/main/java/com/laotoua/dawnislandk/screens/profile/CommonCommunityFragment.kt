@@ -36,7 +36,7 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.data.local.entity.Forum
-import com.laotoua.dawnislandk.databinding.FragmentForumSettingBinding
+import com.laotoua.dawnislandk.databinding.FragmentCommunityCommonBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.CommunityNodeAdapter
@@ -49,9 +49,9 @@ import javax.inject.Inject
 
 // TODO: timeline filtering, common posts edits
 
-class ForumSettingFragment : DaggerFragment() {
+class CommonCommunityFragment : DaggerFragment() {
 
-    private var binding: FragmentForumSettingBinding? = null
+    private var binding: FragmentCommunityCommonBinding? = null
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -88,7 +88,7 @@ class ForumSettingFragment : DaggerFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentForumSettingBinding.inflate(inflater, container, false)
+        binding = FragmentCommunityCommonBinding.inflate(inflater, container, false)
         if (activity != null && isAdded) {
             (requireActivity() as MainActivity).hideNav()
         }

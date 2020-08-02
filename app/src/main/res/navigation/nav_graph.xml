@@ -114,12 +114,12 @@
         tools:layout="@layout/fragment_general_setting" />
     <fragment
         android:id="@+id/forumSettingFragment"
-        android:name="com.laotoua.dawnislandk.screens.profile.ForumSettingFragment"
-        tools:layout="@layout/fragment_forum_setting" />
+        android:name="com.laotoua.dawnislandk.screens.profile.CommonCommunityFragment"
+        tools:layout="@layout/fragment_community_common" />
     <fragment
         android:id="@+id/customSettingsFragment"
-        android:name="com.laotoua.dawnislandk.screens.profile.CustomSettingsFragment"
-        tools:layout="@layout/fragment_custom_settings" >
+        android:name="com.laotoua.dawnislandk.screens.profile.CustomSettingFragment"
+        tools:layout="@layout/fragment_custom_setting" >
         <action
             android:id="@+id/action_customSettingsFragment_to_forumSettingFragment"
             app:destination="@id/forumSettingFragment"

@@ -24,18 +24,18 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.databinding.FragmentCustomSettingsBinding
+import com.laotoua.dawnislandk.databinding.FragmentCustomSettingBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 
-class CustomSettingsFragment : Fragment() {
+class CustomSettingFragment : Fragment() {
 
-    private var binding: FragmentCustomSettingsBinding? = null
+    private var binding: FragmentCustomSettingBinding? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentCustomSettingsBinding.inflate(inflater,container,false)
+        binding = FragmentCustomSettingBinding.inflate(inflater,container,false)
         binding!!.forumSetting.apply {
             key.setText(R.string.common_forum_setting)
             root.setOnClickListener {

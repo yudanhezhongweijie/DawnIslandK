@@ -21,6 +21,8 @@ import android.animation.ValueAnimator
 import android.graphics.Canvas
 import android.os.Bundle
 import android.view.*
+import android.widget.EditText
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -28,18 +30,21 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.WhichButton
+import com.afollestad.materialdialogs.actions.getActionButton
+import com.afollestad.materialdialogs.customview.customView
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.listener.OnItemDragListener
 import com.chad.library.adapter.base.listener.OnItemSwipeListener
 import com.chad.library.adapter.base.module.DraggableModule
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
+import com.google.android.material.textfield.TextInputLayout
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.data.local.entity.Forum
-import com.laotoua.dawnislandk.databinding.FragmentCommonCommunityBinding
+import com.laotoua.dawnislandk.databinding.FragmentCommonPostsBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
-import com.laotoua.dawnislandk.screens.adapters.CommunityNodeAdapter
 import com.laotoua.dawnislandk.screens.util.ContentTransformation
 import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.util.DataResource
@@ -47,16 +52,16 @@ import com.laotoua.dawnislandk.util.LoadingStatus
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
 
-class CommonCommunityFragment : DaggerFragment() {
+class CommonPostsFragment : DaggerFragment() {
 
-    private var binding: FragmentCommonCommunityBinding? = null
+    private var binding:FragmentCommonPostsBinding? = null
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
     private val sharedVM: SharedViewModel by activityViewModels { viewModelFactory }
 
-    private var commonForumAdapter : CommonForumAdapter? = null
+    private var commonPostsAdapter : CommonPostsAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,8 +77,8 @@ class CommonCommunityFragment : DaggerFragment() {
         return when (item.itemId) {
             R.id.help -> {
                 MaterialDialog(requireContext()).show {
-                    title(R.string.common_forum_setting)
-                    message(R.string.common_forum_setting_help)
+                    title(R.string.common_posts_setting)
+                    message(R.string.common_posts_setting_help)
                     positiveButton(R.string.acknowledge)
                 }
                 return true
@@ -86,42 +91,55 @@ class CommonCommunityFragment : DaggerFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentCommonCommunityBinding.inflate(inflater, container, false)
+        binding = FragmentCommonPostsBinding.inflate(inflater, container, false)
         if (activity != null && isAdded) {
             (requireActivity() as MainActivity).hideNav()
         }
-        // Inflate the layout for this fragment
-        return binding!!.root
-    }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        (requireActivity() as MainActivity).setToolbarTitle(R.string.common_forum_setting)
+        commonPostsAdapter = CommonPostsAdapter(R.layout.list_item_common_post).apply {
+            addChildClickViewIds(R.id.edit)
 
-        commonForumAdapter = CommonForumAdapter(R.layout.list_item_forum)
+            setOnItemChildClickListener { _, view, position ->
+                if (view.id == R.id.edit){
+                    MaterialDialog(requireContext()).show {
+                        title(R.string.common_posts_setting)
+                        customView(R.layout.dialog_input_content_with_remark)
+                        val submitButton = getActionButton(WhichButton.POSITIVE)
+                        findViewById<TextInputLayout>(R.id.remark).hint =
+                            resources.getString(R.string.add_common_post_remark)
+                        findViewById<TextInputLayout>(R.id.content).hint =
+                            resources.getString(R.string.add_common_post_id)
+                        val remark = findViewById<EditText>(R.id.remarkText)
+                        val content = findViewById<EditText>(R.id.contentText)
+                        remark.setText(getItem(position).showName)
+                        content.setText(getItem(position).id)
+                        positiveButton(R.string.submit) {
+                            val remarkText = remark.text.toString()
+                            val contentText = content.text.toString()
+                            if (remarkText.isNotBlank() && contentText.isNotBlank()) {
+                                commonPostsAdapter?.addData(Forum.makeFakeForum(contentText, remarkText))
+                            }
+                        }
+                        negativeButton(R.string.cancel)
+                        remark.doOnTextChanged { text, _, _, _ ->
+                            submitButton.isEnabled =
+                                !text.isNullOrBlank() && !content.text.isNullOrBlank()
+                        }
+                        content.doOnTextChanged { text, _, _, _ ->
+                            submitButton.isEnabled =
+                                !text.isNullOrBlank() && !remark.text.isNullOrBlank()
+                        }
 
-        binding?.commonForums?.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = commonForumAdapter
-            setHasFixedSize(true)
-        }
-
-        val allForumAdapter =
-            CommunityNodeAdapter(object : CommunityNodeAdapter.ForumClickListener {
-                override fun onForumClick(forum: Forum) {
-                    if (commonForumAdapter?.data?.contains(forum) == false) {
-                        commonForumAdapter?.addData(forum)
-                        updateTitle()
                     }
                 }
-            })
-
-        binding?.allForums?.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = allForumAdapter
-            setHasFixedSize(true)
+            }
         }
 
+        binding?.commonPosts?.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = commonPostsAdapter
+            setHasFixedSize(true)
+        }
 
         sharedVM.communityList.observe(viewLifecycleOwner, Observer<DataResource<List<Community>>> {
             if (it.status == LoadingStatus.ERROR) {
@@ -129,28 +147,58 @@ class CommonCommunityFragment : DaggerFragment() {
                 return@Observer
             }
             if (it.data.isNullOrEmpty()) return@Observer
-            val notCommon = it.data.filterNot { c -> c.isCommonForums() || c.isCommonPosts() }
-            val common = it.data.firstOrNull { c -> c.isCommonForums() }?.forums ?: emptyList()
-            allForumAdapter.setData(notCommon)
-            commonForumAdapter?.setNewInstance(common.toMutableList())
+            val common = it.data.firstOrNull { c -> c.isCommonPosts() }?.forums ?: emptyList()
+            commonPostsAdapter?.setNewInstance(common.toMutableList())
             updateTitle()
         })
         updateTitle()
+
+        binding?.addCommonPost?.setOnClickListener {
+            MaterialDialog(requireContext()).show {
+                title(R.string.common_posts_setting)
+                customView(R.layout.dialog_input_content_with_remark)
+                val submitButton = getActionButton(WhichButton.POSITIVE)
+                findViewById<TextInputLayout>(R.id.remark).hint =
+                    resources.getString(R.string.add_common_post_remark)
+                findViewById<TextInputLayout>(R.id.content).hint =
+                    resources.getString(R.string.add_common_post_id)
+                val remark = findViewById<EditText>(R.id.remarkText)
+                val content = findViewById<EditText>(R.id.contentText)
+                submitButton.isEnabled = false
+                positiveButton(R.string.submit) {
+                    val remarkText = remark.text.toString()
+                    val contentText = content.text.toString()
+                    if (remarkText.isNotBlank() && contentText.isNotBlank()) {
+                        commonPostsAdapter?.addData(Forum.makeFakeForum(contentText, remarkText))
+                    }
+                }
+                negativeButton(R.string.cancel)
+                remark.doOnTextChanged { text, _, _, _ ->
+                    submitButton.isEnabled = !text.isNullOrBlank() && !content.text.isNullOrBlank()
+                }
+                content.doOnTextChanged { text, _, _, _ ->
+                    submitButton.isEnabled = !text.isNullOrBlank() && !remark.text.isNullOrBlank()
+                }
+
+            }
+        }
+
+        return binding!!.root
     }
 
     private fun updateTitle() {
-        binding?.commonForumTitle?.communityName?.text =
-            getString(R.string.common_forums_title, binding?.commonForums?.adapter?.itemCount)
+        binding?.commonPostsTitle?.communityName?.text =
+            getString(R.string.common_posts_title, binding?.commonPosts?.adapter?.itemCount)
     }
 
     override fun onDestroyView() {
-        val common = Community.makeCommonForums(commonForumAdapter?.data ?: emptyList())
+        val common = Community.makeCommonPosts(commonPostsAdapter?.data ?: emptyList())
         sharedVM.saveCommonCommunity(common)
         super.onDestroyView()
         (requireActivity() as MainActivity).showNav()
     }
 
-    inner class CommonForumAdapter(layoutResId: Int) :
+    inner class CommonPostsAdapter(layoutResId: Int) :
         BaseQuickAdapter<Forum, BaseViewHolder>(layoutResId),
         DraggableModule {
 
@@ -221,17 +269,14 @@ class CommonCommunityFragment : DaggerFragment() {
 
 
         override fun convert(holder: BaseViewHolder, item: Forum) {
-            val biId = if (item.id.toInt() > 0) item.id.toInt() else 1
-            val resourceId: Int = context.resources.getIdentifier(
-                "bi_$biId", "drawable",
-                context.packageName
-            )
             holder.setText(
-                R.id.forumName,
+                R.id.remark,
                 ContentTransformation.transformForumName(item.getDisplayName())
             )
-            holder.setImageResource(R.id.forumIcon, resourceId)
+
+            holder.setText(R.id.content, "No. ${item.id}")
         }
+
     }
 
 }

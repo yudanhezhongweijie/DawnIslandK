@@ -77,6 +77,9 @@ abstract class ViewModelModule {
     internal abstract fun commonCommunityFragment(): CommonCommunityFragment
 
     @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
+    internal abstract fun commonPostsFragment(): CommonPostsFragment
+
+    @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
     internal abstract fun customSettingFragment(): CustomSettingFragment
 
     @Binds

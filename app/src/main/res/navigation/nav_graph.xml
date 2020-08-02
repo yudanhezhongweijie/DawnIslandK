@@ -50,7 +50,7 @@
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right"/>
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/sizeCustomizationFragment"
@@ -58,8 +58,7 @@
     <fragment
         android:id="@+id/postsFragment"
         android:name="com.laotoua.dawnislandk.screens.posts.PostsFragment"
-        tools:layout="@layout/fragment_post">
-    </fragment>
+        tools:layout="@layout/fragment_post" />
 
     <fragment
         android:id="@+id/historyPagerFragment"
@@ -113,19 +112,30 @@
         android:name="com.laotoua.dawnislandk.screens.profile.GeneralSettingFragment"
         tools:layout="@layout/fragment_general_setting" />
     <fragment
-        android:id="@+id/forumSettingFragment"
+        android:id="@+id/commonCommunityFragment"
         android:name="com.laotoua.dawnislandk.screens.profile.CommonCommunityFragment"
-        tools:layout="@layout/fragment_community_common" />
+        tools:layout="@layout/fragment_common_community" />
     <fragment
         android:id="@+id/customSettingsFragment"
         android:name="com.laotoua.dawnislandk.screens.profile.CustomSettingFragment"
-        tools:layout="@layout/fragment_custom_setting" >
+        tools:layout="@layout/fragment_custom_setting">
         <action
-            android:id="@+id/action_customSettingsFragment_to_forumSettingFragment"
-            app:destination="@id/forumSettingFragment"
+            android:id="@+id/action_customSettingsFragment_to_commonPostsFragment"
+            app:destination="@id/commonPostsFragment"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right"/>
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_customSettingsFragment_to_commonCommunityFragment"
+            app:destination="@id/commonCommunityFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
+    <fragment
+        android:id="@+id/commonPostsFragment"
+        android:name="com.laotoua.dawnislandk.screens.profile.CommonPostsFragment"
+        tools:layout="@layout/fragment_common_posts" />
 </navigation>

@@ -38,4 +38,14 @@ data class Forum(
     val status: String = ""
 ) {
     fun getDisplayName(): String =  if (showName.isNotBlank()) showName else name
+
+    fun isFakeForum():Boolean = fgroup == "42" && sort == "42" && name == "42"  && msg == "42"
+
+    fun isValidForum():Boolean = !isFakeForum()
+
+    companion object{
+        fun makeFakeForum(id: String, showName: String):Forum{
+            return Forum(id, "42", "42", "42", showName, "42")
+        }
+    }
 }

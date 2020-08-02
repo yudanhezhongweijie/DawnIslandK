@@ -182,7 +182,7 @@ class ProfileFragment : DaggerFragment() {
                         }
                         2 -> MaterialDialog(requireContext()).show {
                             title(R.string.add_cookie)
-                            customView(R.layout.dialog_cookie_addition)
+                            customView(R.layout.dialog_input_content_with_remark)
                             val submitButton = getActionButton(WhichButton.POSITIVE)
                             val neuralButton = getActionButton(WhichButton.NEUTRAL)
                             findViewById<TextInputLayout>(R.id.remark).hint =

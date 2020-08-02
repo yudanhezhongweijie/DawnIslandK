@@ -88,11 +88,19 @@
     <string name="forum_refresh" translatable="false">刷新板块</string>
     <string name="common_forum_setting" translatable="false">常用板块设置</string>
     <string name="common_forum_count" translatable="false">常用板块包含%d个板块</string>
+    <string name="common_forums_title" translatable="false">常用板块: %d</string>
     <string name="timeline_filter_setting" translatable="false">时间线屏蔽设置</string>
     <string name="timeline_filtered_count" translatable="false">时间线已经屏蔽%d个板块</string>
     <string name="please_select_timeline_filter_forums" translatable="false">请选择要屏蔽的版块</string>
     <string name="common_forum_setting_help" translatable="false"><b>点击下方板块即添加至常用分组\n\n长按上下拖曳板块可排序\n\n左右拖曳板块可从常用分组中移除\n\n编辑完成后返回即保存设置</b></string>
     <string name="default_forum_setting" translatable="false">默认板块设置</string>
+    <string name="common_posts_setting" translatable="false">常用串设置</string>
+    <string name="add_common_post" translatable="false">添加常用串</string>
+    <string name="add_common_post_remark" translatable="false">常用串备注</string>
+    <string name="add_common_post_id" translatable="false">常用串串号</string>
+    <string name="common_posts_title" translatable="false">常用串: %d</string>
+    <string name="common_posts_setting_help" translatable="false"><b>输入串号备注添加至常用串\n\n长按上下拖曳板块可排序\n\n左右拖曳串可从常用串中移除\n\n编辑完成后返回即保存设置</b></string>
+    <string name="common_posts_count" translatable="false">常用串包含%d个串</string>
     <string name="general_settings" translatable="false">通用设置</string>
     <string name="display_settings" translatable="false">显示设置</string>
     <string name="custom_settings" translatable="false">自定义设置</string>
@@ -199,7 +207,6 @@
     <string name="no_data_dots" translatable="false">没有数据。。。</string>
     <string name="no_more_data" translatable="false">没有更多数据</string>
     <string name="forum" translatable="false">板块</string>
-    <string name="common_forums_title" translatable="false">常用板块: %d</string>
     <string name="announcement" translatable="false">通知</string>
     <string name="forum_rules" translatable="false">板规</string>
     <string name="edit_default_page" translatable="false">设置默认页面</string>

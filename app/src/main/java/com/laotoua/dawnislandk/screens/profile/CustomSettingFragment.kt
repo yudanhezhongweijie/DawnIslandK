@@ -54,7 +54,7 @@ class CustomSettingFragment : DaggerFragment() {
 
     private var blockedForumIds: List<String>? = null
 
-    private var forums: List<Forum>? = null
+    private var serverForums: List<Forum>? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -65,7 +65,7 @@ class CustomSettingFragment : DaggerFragment() {
             key.setText(R.string.common_forum_setting)
             root.setOnClickListener {
                 val action =
-                    CustomSettingFragmentDirections.actionCustomSettingsFragmentToForumSettingFragment()
+                    CustomSettingFragmentDirections.actionCustomSettingsFragmentToCommonCommunityFragment()
                 findNavController().navigate(action)
             }
         }
@@ -79,21 +79,26 @@ class CustomSettingFragment : DaggerFragment() {
         })
 
         sharedViewModel.communityList.observe(viewLifecycleOwner, Observer {
-            forums = it.data?.filterNot { c -> c.isCommonCommunity() }?.flatMap { c -> c.forums }
+            serverForums = it.data?.filterNot { c -> c.isCommonForums() }?.flatMap { c -> c.forums }
 
             binding?.commonCommunity?.summary?.text = resources.getString(
                 R.string.common_forum_count,
-                it.data?.firstOrNull { c -> c.isCommonCommunity() }?.forums?.size
+                it.data?.firstOrNull { c -> c.isCommonForums() }?.forums?.size ?: 0
+            )
+
+            binding?.commonPosts?.summary?.text = resources.getString(
+                R.string.common_posts_count,
+                it.data?.firstOrNull { c -> c.isCommonPosts() }?.forums?.size ?: 0
             )
         })
 
         binding!!.timelineFilter.apply {
             key.setText(R.string.timeline_filter_setting)
             root.setOnClickListener {
-                if (blockedForumIds == null || forums == null) {
+                if (blockedForumIds == null || serverForums == null) {
                     toast(R.string.please_try_again_later)
                 }
-                val nonTimeline = forums!!.filter { f -> f.id != "-1" }
+                val nonTimeline = serverForums!!.filter { f -> f.id != "-1" }
                 val blockingFidIndex = mutableListOf<Int>()
                 for ((ind, f) in nonTimeline.withIndex()) {
                     if (blockedForumIds!!.contains(f.id)) {
@@ -131,18 +136,18 @@ class CustomSettingFragment : DaggerFragment() {
                 sharedViewModel.getForumDisplayName(applicationDataStore.getDefaultForumId())
             )
             root.setOnClickListener {
-                if (forums == null) {
+                if (serverForums == null) {
                     toast(R.string.please_try_again_later)
                 }
                 MaterialDialog(requireContext()).show {
                     title(R.string.default_forum_setting)
                     val items =
-                        forums!!.map { ContentTransformation.htmlToSpanned(it.getDisplayName()) }
+                        serverForums!!.map { ContentTransformation.htmlToSpanned(it.getDisplayName()) }
                     listItemsSingleChoice(
                         items = items,
                         waitForPositiveButton = true
                     ) { _, index, _ ->
-                        val fid = forums!![index].id
+                        val fid = serverForums!![index].id
                         applicationDataStore.setDefaultForumId(fid)
                         summary.text = ContentTransformation.htmlToSpanned(
                             sharedViewModel.getForumDisplayName(applicationDataStore.getDefaultForumId())
@@ -153,6 +158,16 @@ class CustomSettingFragment : DaggerFragment() {
                 }
             }
         }
+
+        binding!!.commonPosts.apply {
+            key.setText(R.string.common_posts_setting)
+            root.setOnClickListener {
+                val action =
+                    CustomSettingFragmentDirections.actionCustomSettingsFragmentToCommonPostsFragment()
+                findNavController().navigate(action)
+            }
+        }
+
 
         // Inflate the layout for this fragment
         return binding!!.root

@@ -31,13 +31,21 @@ data class Community(
     val status: String,
     val forums: List<Forum>
 ){
-    fun isCommonCommunity():Boolean{
+    fun isCommonForums():Boolean{
         return id == "1000"
     }
 
+    fun isCommonPosts():Boolean {
+        return id == "1001"
+    }
+
     companion object {
-        fun makeCommonCommunity(forums: List<Forum>):Community{
+        fun makeCommonForums(forums: List<Forum>):Community{
             return Community("1000", "0", "常用板块", "n", forums)
+        }
+
+        fun makeCommonPosts(fakeForums: List<Forum>):Community{
+            return Community("1001", "-1", "常用串", "n", fakeForums)
         }
     }
 }

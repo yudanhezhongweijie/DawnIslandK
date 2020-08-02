@@ -53,11 +53,24 @@ class CommunityNodeAdapter(val clickListener: ForumClickListener) : BaseNodeAdap
     }
 
     fun setData(list: List<Community>) {
-        val l = list.map {
-            CommunityNode(it)
+        val commonForumIds = list.firstOrNull { it.isCommonForums() }?.forums?.map { it.id } ?: emptyList()
+
+        val nodes = mutableListOf<CommunityNode>()
+        for (c in list){
+            if (c.isCommonForums() || c.isCommonPosts()){
+                nodes.add(CommunityNode(c))
+            } else {
+                val noDuplicateCommunity = Community(
+                    c.id,
+                    c.sort,
+                    c.name,
+                    c.status,
+                    c.forums.filterNot { f -> commonForumIds.contains(f.id) })
+                nodes.add(CommunityNode(noDuplicateCommunity))
+            }
         }
 
-        setList(l)
+        setList(nodes)
     }
 
 
@@ -139,6 +152,12 @@ class CommunityNodeAdapter(val clickListener: ForumClickListener) : BaseNodeAdap
                 val biId = if (forum.id.toInt() > 0) forum.id.toInt() else 1
                 val resourceId: Int = context.resources.getIdentifier(
                     "bi_$biId", "drawable",
+                    context.packageName
+                )
+                helper.setImageResource(R.id.forumIcon, resourceId)
+            } else {
+                val resourceId: Int = context.resources.getIdentifier(
+                    "ic_label_24px", "drawable",
                     context.packageName
                 )
                 helper.setImageResource(R.id.forumIcon, resourceId)

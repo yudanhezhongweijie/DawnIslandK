@@ -117,7 +117,7 @@ class CommonPostsFragment : DaggerFragment() {
                             val remarkText = remark.text.toString()
                             val contentText = content.text.toString()
                             if (remarkText.isNotBlank() && contentText.isNotBlank()) {
-                                commonPostsAdapter?.addData(Forum.makeFakeForum(contentText, remarkText))
+                                commonPostsAdapter?.setData(position, Forum.makeFakeForum(contentText, remarkText))
                             }
                         }
                         negativeButton(R.string.cancel)

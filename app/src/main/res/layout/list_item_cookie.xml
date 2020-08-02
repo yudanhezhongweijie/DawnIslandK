@@ -52,7 +52,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/remark"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_create_24px"
+        app:srcCompat="@drawable/ic_edit_24px"
         tools:ignore="ContentDescription" />
 
     <ImageButton

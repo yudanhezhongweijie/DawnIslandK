@@ -17,26 +17,36 @@
 
 package com.laotoua.dawnislandk.data.local.dao
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import com.laotoua.dawnislandk.data.local.entity.BlockedIds
+import androidx.lifecycle.LiveData
+import androidx.room.*
+import com.laotoua.dawnislandk.data.local.entity.BlockedId
 
 @Dao
-interface BlockedIdsDao {
+interface BlockedIdDao {
 
     // returns both blocked post Ids & forum Ids
-    @Query("SELECT * From BlockedIds")
-    suspend fun getAllBlockedIds(): List<BlockedIds>
+    @Query("SELECT * From BlockedId")
+    suspend fun getAllBlockedIds(): List<BlockedId>
+
+    @Query("SELECT * From BlockedId")
+    fun getLiveAllBlockedIds(): LiveData<List<BlockedId>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(blockedIds: BlockedIds)
+    suspend fun insert(blockedId: BlockedId)
 
-    @Query("DELETE FROM BlockedIds WHERE type=0")
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(blockedIds: List<BlockedId>)
+
+    @Transaction
+    suspend fun updateBlockedForumIds(blockedIds: List<BlockedId>){
+        nukeTimelineForumIds()
+        if (blockedIds.isNotEmpty()) insertAll(blockedIds)
+    }
+
+    @Query("DELETE FROM BlockedId WHERE type=0")
     suspend fun nukeTimelineForumIds()
 
-    @Query("DELETE FROM BlockedIds WHERE type=1")
+    @Query("DELETE FROM BlockedId WHERE type=1")
     suspend fun nukeBlockedPostIds()
 
 }

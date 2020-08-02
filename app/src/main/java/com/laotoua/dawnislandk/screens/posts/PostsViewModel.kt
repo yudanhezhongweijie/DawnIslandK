@@ -21,8 +21,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.laotoua.dawnislandk.data.local.dao.BlockedIdsDao
-import com.laotoua.dawnislandk.data.local.entity.BlockedIds
+import com.laotoua.dawnislandk.data.local.dao.BlockedIdDao
+import com.laotoua.dawnislandk.data.local.entity.BlockedId
 import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
@@ -35,7 +35,7 @@ import javax.inject.Inject
 
 class PostsViewModel @Inject constructor(
     private val webService: NMBServiceClient,
-    private val blockedIdsDao: BlockedIdsDao
+    private val blockedIdDao: BlockedIdDao
 ) : ViewModel() {
     private var blockedPostIds: MutableList<String>? = null
     private var blockedForumIds: MutableList<String>? = null
@@ -54,7 +54,7 @@ class PostsViewModel @Inject constructor(
     fun getPosts() {
         viewModelScope.launch {
             if (blockedPostIds == null || blockedForumIds == null) {
-                val blockedIds = blockedIdsDao.getAllBlockedIds()
+                val blockedIds = blockedIdDao.getAllBlockedIds()
                 blockedPostIds = mutableListOf()
                 blockedPostIds!!.addAll(blockedIds.filter { it.isBlockedPost() }.map { it.id })
                 blockedForumIds = mutableListOf()
@@ -82,7 +82,7 @@ class PostsViewModel @Inject constructor(
         val noDuplicates = data
             .filterNot { postIds.contains(it.id) }
             .filterNot { blockedPostIds?.contains(it.id) ?: false }
-            .filterNot { fid == "-1" && (blockedForumIds?.contains(it.id) ?: false) }
+            .filterNot { fid == "-1" && (blockedForumIds?.contains(it.fid) ?: false) }
         pageCount += 1
         if (noDuplicates.isNotEmpty()) {
             postIds.addAll(noDuplicates.map { it.id })
@@ -127,7 +127,7 @@ class PostsViewModel @Inject constructor(
         postList.remove(post)
         postIds.remove(post.id)
         viewModelScope.launch {
-            blockedIdsDao.insert(BlockedIds.makeBlockedPost(post.id))
+            blockedIdDao.insert(BlockedId.makeBlockedPost(post.id))
         }
     }
 }

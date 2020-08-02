@@ -42,6 +42,7 @@
 
     <string name="submit" translatable="false">确认</string>
     <string name="delete" translatable="false">删除</string>
+    <string name="uncheck_all_items" translatable="false">清除全部选择</string>
     <string name="cancel" translatable="false">取消</string>
     <string name="close" translatable="false">关闭</string>
     <string name="save" translatable="false">保存</string>
@@ -86,6 +87,10 @@
     <string name="post_history" translatable="false">发言历史</string>
     <string name="forum_refresh" translatable="false">刷新板块</string>
     <string name="common_forum_setting" translatable="false">常用板块设置</string>
+    <string name="common_forum_count" translatable="false">常用板块包含%d个板块</string>
+    <string name="timeline_filter_setting" translatable="false">时间线屏蔽设置</string>
+    <string name="timeline_filtered_count" translatable="false">时间线已经屏蔽%d个板块</string>
+    <string name="please_select_timeline_filter_forums" translatable="false">请选择要屏蔽的版块</string>
     <string name="common_forum_setting_help" translatable="false"><b>点击下方板块即添加至常用分组\n\n长按上下拖曳板块可排序\n\n左右拖曳板块可从常用分组中移除\n\n编辑完成后返回即保存设置</b></string>
     <string name="general_settings" translatable="false">通用设置</string>
     <string name="display_settings" translatable="false">显示设置</string>
@@ -176,8 +181,8 @@
     <string name="clear_comment_cache" translatable="false">清除本地串缓存</string>
     <string name="clear_comment_cache_confirm_message" translatable="false">将要清除串的本地缓存，不会清除阅读进度和饼干。清除后数据不能恢复！确认清除吗？</string>
     <string name="cleared_comment_cache_message" translatable="false">串的本地缓存已经清除</string>
-    <string name="restore_blocked_post" translatable="false">清除屏蔽串</string>
-    <string name="restore_blocked_post_confirm_message" translatable="false">将要清除屏蔽串的记录，被屏蔽的串将被恢复。确认清除吗？</string>
+    <string name="restore_blocked_post" translatable="false">恢复屏蔽串</string>
+    <string name="restore_blocked_post_confirm_message" translatable="false">将要清除本地屏蔽串的记录，被屏蔽的串将被恢复。确认恢复吗？</string>
     <string name="restored_blocked_post" translatable="false">本地记录的屏蔽串已经被恢复</string>
     <string name="acknowledge" translatable="false">我知道了</string>
     <string name="post_options" translatable="false">串选项</string>

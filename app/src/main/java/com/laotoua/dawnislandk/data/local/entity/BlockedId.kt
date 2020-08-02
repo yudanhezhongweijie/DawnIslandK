@@ -21,7 +21,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class BlockedIds(
+data class BlockedId(
     @PrimaryKey val id: String,
     /** type 0 refers blocking post fid (uses in timeline only)
      *  type 1 refers blocking post id (uses in all communities)
@@ -33,8 +33,8 @@ data class BlockedIds(
     fun isTimelineBlockedForum(): Boolean = type == 0
 
     companion object {
-        fun makeBlockedPost(id: String): BlockedIds = BlockedIds(id, 1)
+        fun makeBlockedPost(id: String): BlockedId = BlockedId(id, 1)
 
-        fun makeTimelineBlockedForum(id: String): BlockedIds = BlockedIds(id, 0)
+        fun makeTimelineBlockedForum(id: String): BlockedId = BlockedId(id, 0)
     }
 }

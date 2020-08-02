@@ -121,7 +121,7 @@ object DatabaseModule {
     @JvmStatic
     @Provides
     @Singleton
-    fun provideBlockedIdsDao(dawnDatabase: DawnDatabase): BlockedIdsDao {
-        return dawnDatabase.blockedIdsDao()
+    fun provideBlockedIdDao(dawnDatabase: DawnDatabase): BlockedIdDao {
+        return dawnDatabase.blockedIdDao()
     }
 }

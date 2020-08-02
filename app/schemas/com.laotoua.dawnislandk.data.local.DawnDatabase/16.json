@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 16,
-    "identityHash": "fb2cd26e4211847b65baaabe456fd06b",
+    "identityHash": "a0d554a168dda8e6d27c90108bc13c0a",
     "entities": [
       {
         "tableName": "Community",
@@ -690,7 +690,7 @@
         "foreignKeys": []
       },
       {
-        "tableName": "BlockedIds",
+        "tableName": "BlockedId",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `type` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
@@ -719,7 +719,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fb2cd26e4211847b65baaabe456fd06b')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a0d554a168dda8e6d27c90108bc13c0a')"
     ]
   }
 }

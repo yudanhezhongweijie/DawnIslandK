@@ -47,7 +47,7 @@ import com.laotoua.dawnislandk.util.LoadingStatus
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
 
-// TODO: timeline filtering, common posts edits
+// TODO: common posts edits
 
 class CommonCommunityFragment : DaggerFragment() {
 

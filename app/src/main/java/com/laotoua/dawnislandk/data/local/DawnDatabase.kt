@@ -43,7 +43,7 @@ import com.laotoua.dawnislandk.data.local.entity.*
         BrowsingHistory::class,
         PostHistory::class,
         Feed::class,
-        BlockedIds::class],
+        BlockedId::class],
     version = 16
 )
 @TypeConverters(Converter::class)
@@ -60,7 +60,7 @@ abstract class DawnDatabase : RoomDatabase() {
     abstract fun browsingHistoryDao(): BrowsingHistoryDao
     abstract fun postHistoryDao(): PostHistoryDao
     abstract fun feedDao(): FeedDao
-    abstract fun blockedIdsDao(): BlockedIdsDao
+    abstract fun blockedIdDao(): BlockedIdDao
 
     companion object {
         // Singleton prevents multiple instances of database opening at the
@@ -207,7 +207,7 @@ abstract class DawnDatabase : RoomDatabase() {
             // adds blockedIds
             val migrate15To16 = object : Migration(15, 16) {
                 override fun migrate(database: SupportSQLiteDatabase) {
-                    database.execSQL("CREATE TABLE IF NOT EXISTS `BlockedIds` (`id` TEXT NOT NULL, `type` INTEGER NOT NULL, PRIMARY KEY(`id`))")
+                    database.execSQL("CREATE TABLE IF NOT EXISTS `BlockedId` (`id` TEXT NOT NULL, `type` INTEGER NOT NULL, PRIMARY KEY(`id`))")
                 }
             }
 

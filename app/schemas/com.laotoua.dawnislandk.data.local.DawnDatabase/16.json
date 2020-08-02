@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 16,
-    "identityHash": "c8b2ac390124b6b91eb8440edb0ef6a8",
+    "identityHash": "fb2cd26e4211847b65baaabe456fd06b",
     "entities": [
       {
         "tableName": "Community",
@@ -690,8 +690,8 @@
         "foreignKeys": []
       },
       {
-        "tableName": "BlockedPost",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `lastUpdatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "tableName": "BlockedIds",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `type` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -700,8 +700,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "lastUpdatedAt",
-            "columnName": "lastUpdatedAt",
+            "fieldPath": "type",
+            "columnName": "type",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -719,7 +719,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c8b2ac390124b6b91eb8440edb0ef6a8')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fb2cd26e4211847b65baaabe456fd06b')"
     ]
   }
 }

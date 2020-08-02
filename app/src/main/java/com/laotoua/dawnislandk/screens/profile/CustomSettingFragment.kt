@@ -39,7 +39,7 @@ class CustomSettingFragment : Fragment() {
         binding!!.forumSetting.apply {
             key.setText(R.string.common_forum_setting)
             root.setOnClickListener {
-                val action = CustomSettingsFragmentDirections.actionCustomSettingsFragmentToForumSettingFragment()
+                val action = CustomSettingFragmentDirections.actionCustomSettingsFragmentToForumSettingFragment()
                 findNavController().navigate(action)
             }
         }

@@ -21,17 +21,22 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.laotoua.dawnislandk.data.local.entity.BlockedPost
+import com.laotoua.dawnislandk.data.local.entity.BlockedIds
 
 @Dao
-interface BlockedPostDao {
+interface BlockedIdsDao {
 
-    @Query("SELECT * From BlockedPost ORDER BY lastUpdatedAt DESC")
-    suspend fun getAllBlockedPost(): List<BlockedPost>
+    // returns both blocked post Ids & forum Ids
+    @Query("SELECT * From BlockedIds")
+    suspend fun getAllBlockedIds(): List<BlockedIds>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(blockedPost: BlockedPost)
+    suspend fun insert(blockedIds: BlockedIds)
 
-    @Query("DELETE FROM BlockedPost")
-    suspend fun nukeTable()
+    @Query("DELETE FROM BlockedIds WHERE type=0")
+    suspend fun nukeTimelineForumIds()
+
+    @Query("DELETE FROM BlockedIds WHERE type=1")
+    suspend fun nukeBlockedPostIds()
+
 }

@@ -21,8 +21,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.laotoua.dawnislandk.data.local.dao.BlockedPostDao
-import com.laotoua.dawnislandk.data.local.entity.BlockedPost
+import com.laotoua.dawnislandk.data.local.dao.BlockedIdsDao
+import com.laotoua.dawnislandk.data.local.entity.BlockedIds
 import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
@@ -31,14 +31,14 @@ import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.SingleLiveEvent
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.*
 import javax.inject.Inject
 
 class PostsViewModel @Inject constructor(
     private val webService: NMBServiceClient,
-    private val blockedPostDao: BlockedPostDao
+    private val blockedIdsDao: BlockedIdsDao
 ) : ViewModel() {
     private var blockedPostIds: MutableList<String>? = null
+    private var blockedForumIds: MutableList<String>? = null
     private val postList = mutableListOf<Post>()
     private val postIds = mutableSetOf<String>()
     private var _posts = MutableLiveData<MutableList<Post>>()
@@ -53,9 +53,12 @@ class PostsViewModel @Inject constructor(
 
     fun getPosts() {
         viewModelScope.launch {
-            if (blockedPostIds == null) {
+            if (blockedPostIds == null || blockedForumIds == null) {
+                val blockedIds = blockedIdsDao.getAllBlockedIds()
                 blockedPostIds = mutableListOf()
-                blockedPostIds!!.addAll(blockedPostDao.getAllBlockedPost().map { it.id })
+                blockedPostIds!!.addAll(blockedIds.filter { it.isBlockedPost() }.map { it.id })
+                blockedForumIds = mutableListOf()
+                blockedForumIds!!.addAll(blockedIds.filter { it.isTimelineBlockedForum() }.map { it.id })
             }
             _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.LOADING))
             val fid = _currentFid ?: "-1"
@@ -79,6 +82,7 @@ class PostsViewModel @Inject constructor(
         val noDuplicates = data
             .filterNot { postIds.contains(it.id) }
             .filterNot { blockedPostIds?.contains(it.id) ?: false }
+            .filterNot { fid == "-1" && (blockedForumIds?.contains(it.id) ?: false) }
         pageCount += 1
         if (noDuplicates.isNotEmpty()) {
             postIds.addAll(noDuplicates.map { it.id })
@@ -118,12 +122,12 @@ class PostsViewModel @Inject constructor(
         getPosts()
     }
 
-    fun blockPost(post: Post){
+    fun blockPost(post: Post) {
         blockedPostIds?.add(post.id)
         postList.remove(post)
         postIds.remove(post.id)
         viewModelScope.launch {
-            blockedPostDao.insert(BlockedPost(post.id, Date().time))
+            blockedIdsDao.insert(BlockedIds.makeBlockedPost(post.id))
         }
     }
 }

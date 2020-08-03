@@ -253,7 +253,9 @@ class QuickAdapter<T>(
                             && oldItem.title == newItem.title
                             && oldItem.name == newItem.name
                 }
-                (oldItem is Trend && newItem is Trend) -> true
+                (oldItem is Trend && newItem is Trend) -> {
+                    oldItem.rank == newItem.rank && oldItem.hits == newItem.hits
+                }
                 else -> throw Exception("Unhandled type comparison")
             }
         }

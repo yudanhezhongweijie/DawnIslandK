@@ -544,7 +544,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
             postContent!!.setText("分享图片")
         }
         content = postContent!!.text.toString()
-        if (content.isBlank() || imageFile == null) {
+        if (content.isBlank() && imageFile == null) {
             Toast.makeText(caller, R.string.need_content_to_post, Toast.LENGTH_SHORT).show()
             return
         }

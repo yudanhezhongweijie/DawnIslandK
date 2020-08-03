@@ -59,7 +59,7 @@ class ForumDrawerPopup(
         })
 
     private var reedImageUrl: String = ""
-    private lateinit var reedImageView: ImageView
+    private var reedImageView: ImageView? = null
 
     fun setData(list: List<Community>) {
         forumListAdapter.setData(list)
@@ -73,11 +73,13 @@ class ForumDrawerPopup(
     }
 
     fun loadReedPicture() {
-        GlideApp.with(reedImageView)
-            .load(reedImageUrl)
-            .placeholder(R.drawable.placeholder)
-            .fitCenter()
-            .into(reedImageView)
+        reedImageView?.run {
+            GlideApp.with(this)
+                .load(reedImageUrl)
+                .placeholder(R.drawable.placeholder)
+                .fitCenter()
+                .into(this)
+        }
     }
 
     override fun onCreate() {
@@ -85,7 +87,7 @@ class ForumDrawerPopup(
 
         reedImageView = findViewById(R.id.reedImageView)
         if (reedImageUrl.isNotBlank()) loadReedPicture()
-        reedImageView.setOnClickListener {
+        reedImageView!!.setOnClickListener {
             if (reedImageUrl.isBlank()) return@setOnClickListener
             val viewerPopup = ImageViewerPopup(context)
             viewerPopup.setSingleSrcView(reedImageView, reedImageUrl)
@@ -95,8 +97,8 @@ class ForumDrawerPopup(
         }
 
         findViewById<Button>(R.id.ReedPictureRefresh).setOnClickListener {
-            sharedVM.getRandomReedPicture()
             reedImageUrl = ""
+            sharedVM.getRandomReedPicture()
         }
 
         findViewById<RecyclerView>(R.id.forumContainer).apply {

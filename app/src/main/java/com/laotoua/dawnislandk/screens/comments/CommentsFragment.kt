@@ -170,7 +170,8 @@ class CommentsFragment : DaggerFragment() {
                     R.id.expandSummary,
                     R.id.comment,
                     R.id.content,
-                    R.id.copy,
+                    R.id.copyContent,
+                    R.id.copyId,
                     R.id.report
                 )
 
@@ -196,9 +197,14 @@ class CommentsFragment : DaggerFragment() {
                                 quote = content
                             )
                         }
-                        R.id.copy -> {
+                        R.id.copyContent -> {
                             mAdapter?.getViewByPosition(position, R.id.content)?.let {
-                                copyText("评论", (it as TextView).text.toString())
+                                copyText("内容", (it as TextView).text.toString())
+                            }
+                        }
+                        R.id.copyId -> {
+                            mAdapter?.getViewByPosition(position, R.id.refId)?.let {
+                                copyText("串号", ">>${(it as TextView).text}")
                             }
                         }
                         R.id.report -> {
@@ -308,7 +314,7 @@ class CommentsFragment : DaggerFragment() {
                     BasicGridItem(R.drawable.ic_content_copy_black_48dp, "复制串号")
                 )
                 MaterialDialog(requireContext(), BottomSheet(LayoutMode.WRAP_CONTENT)).show {
-                    title(R.string.copy_and_share)
+                    title(R.string.share)
                     gridItems(items) { _, index, _ ->
                         when (index) {
                             0 -> {

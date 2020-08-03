@@ -108,7 +108,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
     private fun updateTitle(targetId: String?, newPost: Boolean) {
         findViewById<TextView>(R.id.postTitle).text =
             if (newPost) "${context.getString(R.string.new_post)} > ${getForumTitle(targetId!!)}"
-            else "${context.getString(R.string.new_comment)} > $targetId"
+            else "${context.getString(R.string.reply_comment)} > $targetId"
     }
 
     private fun getForumTitle(targetId: String): String {

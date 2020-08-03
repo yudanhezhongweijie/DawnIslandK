@@ -68,9 +68,9 @@
     <string name="new_post" translatable="false">发布新串</string>
     <string name="please_comply_rules" translatable="false">请遵守A岛版规</string>
     <string name="acknowledge_post_rules" translatable="false">我已阅读理解并同意遵守全部版规和免责声明</string>
-    <string name="new_comment" translatable="false">回复</string>
-    <string name="reply_comment" translatable="false">回复评论</string>
-    <string name="copy_comment" translatable="false">复制评论</string>
+    <string name="reply_comment" translatable="false">回复</string>
+    <string name="copy_comment" translatable="false">内容</string>
+    <string name="copy_id" translatable="false">串号</string>
     <string name="my_feed" translatable="false">我的订阅</string>
     <string name="feedId" translatable="false">订阅ID</string>
     <string name="edit_cookie_remark" translatable="false">编辑饼干备注</string>
@@ -168,7 +168,7 @@
     <string name="page_jump" translatable="false">跳页</string>
     <string name="subscribe" translatable="false">收藏</string>
     <string name="see_po_only" translatable="false">只看Po</string>
-    <string name="copy_and_share" translatable="false">复制 · 分享</string>
+    <string name="share" translatable="false">分享</string>
     <string name="please_select_target_forum" translatable="false">请选择发布板块</string>
     <string name="cookie_name" translatable="false">饼干名字</string>
     <string name="cookie_hash" translatable="false">饼干序列</string>
@@ -219,7 +219,7 @@
     <string name="app_privacy_agreement" translatable="false">软件隐私协议</string>
     <string name="adnmb_privacy_agreement" translatable="false">A岛隐私协议</string>
     <string name="credit" translatable="false">版本号: %s\n鸣谢：@紫岛作者Hippo(代码) @柔柔(代码) @五(设计) @安之(产品) @bug触发器(测试) @第九龙琦(趋势榜) @赛璐璐夙志(APP图标) \n如果您为软件做出了贡献，请通过反馈让作者为您署名</string>
-    <string name="entry_message" translatable="false">本软件作者是安卓初学者，功能尚未完全实现，有建议或者发现bug请通过个人菜单-客户端反馈告诉作者。\n\n一些使用技巧：\n\n本客户端将交互大部分放在了屏幕下半部分以方便单手操作，推荐使用全面手势。\n\n板块页面再按一次板块按钮或者左滑可以呼出板块列表。\n\n大多数页面双击工具栏能返回顶部、支持上拉刷新。\n\n进入、退出串掉帧的用户可以尝试使用缓存页面的功能（Alpha、m<b>缓存页面会消耗内存，可能会造成手机内存不足、程序崩溃，手机内存小于4G不建议使用</b></string>
+    <string name="entry_message" translatable="false">本软件作者是安卓初学者，功能尚未完全实现，有建议或者发现bug请通过个人菜单-客户端反馈告诉作者。\n\n一些使用技巧：\n\n本客户端将交互大部分放在了屏幕下半部分以方便单手操作，推荐使用全面手势。\n\n板块页面再按一次板块按钮或者左滑可以呼出板块列表。\n\n大多数页面双击工具栏能返回顶部、支持上拉刷新。\n\n进入、退出串掉帧的用户可以尝试使用缓存页面的功能（Alpha)<b>缓存页面会消耗内存，可能会造成手机内存不足、程序崩溃，手机内存小于4G不建议使用</b></string>
     <string name="need_cookie_to_search" translatable="false">有饼干才能搜索嗷</string>
     <string name="show_original_post" translatable="false">显示原串</string>
     <string name="blocked_post" translatable="false">No.%s 已经被屏蔽</string>

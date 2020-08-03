@@ -64,6 +64,7 @@ class SharedViewModel @Inject constructor(
 
     private var forumMsgMapping = mapOf<String, String>()
 
+    var forumRefresh = false
 
     init {
         getRandomReedPicture()
@@ -88,6 +89,7 @@ class SharedViewModel @Inject constructor(
 
     fun setForumId(fid: String) {
         Timber.d("Setting forum to id: $fid")
+        forumRefresh = _selectedForumId.value == fid
         _selectedForumId.value = fid
     }
 

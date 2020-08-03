@@ -82,8 +82,16 @@ class PostsFragment : BaseNavFragment() {
 
     private val forumIdObs = Observer<String> {
         if (mAdapter == null) return@Observer
-        if (viewModel.currentFid != it) mAdapter!!.setList(emptyList())
-        viewModel.setForum(it)
+        if (viewModel.currentFid != it) {
+            mAdapter!!.setList(emptyList())
+            viewModel.setForum(it)
+            sharedVM.forumRefresh = false
+        } else if (sharedVM.forumRefresh) {
+            mAdapter!!.setList(emptyList())
+            binding?.srlAndRv?.recyclerView?.scrollToPosition(0)
+            viewModel.refresh()
+            sharedVM.forumRefresh = false
+        }
     }
 
     private val loadingObs = Observer<SingleLiveEvent<EventPayload<Nothing>>> {

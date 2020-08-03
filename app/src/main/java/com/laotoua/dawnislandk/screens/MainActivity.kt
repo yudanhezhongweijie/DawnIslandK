@@ -382,15 +382,16 @@ class MainActivity : DaggerAppCompatActivity() {
     }
 
     private var toolbarAnim: Animator? = null
-    fun setToolbarTitle(newTitle: String) {
-        val oldTitle = binding.toolbar.title.toString()
+    fun setToolbarTitle(str: String) {
+        val oldTitle = StringBuilder(binding.toolbar.title)
+        val newTitle = StringBuilder(str)
         if (oldTitle == newTitle) return
         toolbarAnim?.cancel()
         val animCharCount = max(oldTitle.length, newTitle.length)
         toolbarAnim = ValueAnimator.ofObject(
-            StringEvaluator(animCharCount),
-            StringBuffer(binding.toolbar.title),
-            StringBuffer(newTitle)
+            ToolbarTitleEvaluator(animCharCount),
+            StringBuilder(binding.toolbar.title),
+            StringBuilder(newTitle)
         ).apply {
             duration = animCharCount.toLong() * 80
             addUpdateListener {
@@ -406,12 +407,12 @@ class MainActivity : DaggerAppCompatActivity() {
         setToolbarTitle(text)
     }
 
-    private class StringEvaluator(private val animCharCount: Int) : TypeEvaluator<StringBuffer> {
+    private class ToolbarTitleEvaluator(private val animCharCount: Int) : TypeEvaluator<StringBuilder> {
         override fun evaluate(
             fraction: Float,
-            startValue: StringBuffer,
-            endValue: StringBuffer
-        ): StringBuffer {
+            startValue: StringBuilder,
+            endValue: StringBuilder
+        ): StringBuilder {
             val ind = (fraction * animCharCount).toInt()
             val newChar = if (ind >= endValue.length) ' ' else endValue[ind]
             if (ind < startValue.length) startValue.setCharAt(ind, newChar)
@@ -427,12 +428,14 @@ class MainActivity : DaggerAppCompatActivity() {
                 sharedVM.selectedForumId.value.let {
                     if (it != null) setToolbarTitle(sharedVM.getForumDisplayName(it))
                 }
+                showNav()
             }
             R.id.historyPagerFragment, R.id.subscriptionPagerFragment -> {
                 showNav()
             }
             R.id.searchFragment -> {
                 setToolbarTitle(R.string.search)
+                showNav()
             }
             R.id.commentsFragment -> {
                 hideNav()

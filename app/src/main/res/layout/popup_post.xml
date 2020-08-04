@@ -24,13 +24,6 @@
     android:layout_height="match_parent"
     tools:viewBindingIgnore="true">
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_half"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.4" />
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/dialogContainer"
         android:layout_width="match_parent"
@@ -57,7 +50,7 @@
         <Button
             android:id="@+id/postForum"
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/choose_forum"
             app:icon="@drawable/ic_arrow_drop_down_black_24px"
@@ -150,12 +143,12 @@
         <Button
             android:id="@+id/postCookie"
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/missing_cookie"
             android:textAllCaps="false"
             app:icon="@drawable/ic_cookie_black_24px"
-            app:iconGravity="start"
+            app:iconGravity="textStart"
             app:layout_constraintBottom_toTopOf="@+id/ButtonGroupContainer"
             app:layout_constraintEnd_toEndOf="@+id/postContent"
             app:layout_constraintStart_toEndOf="@+id/postForum"

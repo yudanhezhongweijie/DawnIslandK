@@ -60,7 +60,7 @@ class CustomSettingFragment : DaggerFragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentCustomSettingBinding.inflate(inflater, container, false)
-        binding!!.commonForums.apply {
+        binding?.commonForums?.apply {
             key.setText(R.string.common_forum_setting)
             root.setOnClickListener {
                 val action =
@@ -69,7 +69,7 @@ class CustomSettingFragment : DaggerFragment() {
             }
         }
 
-        binding!!.commonPosts.apply {
+        binding?.commonPosts?.apply {
             key.setText(R.string.common_posts_setting)
             root.setOnClickListener {
                 val action =
@@ -78,7 +78,7 @@ class CustomSettingFragment : DaggerFragment() {
             }
         }
 
-        binding!!.timelineFilter.apply {
+        binding?.timelineFilter?.apply {
             key.setText(R.string.timeline_filter_setting)
             root.setOnClickListener {
                 if (blockedForumIds == null || serverForums == null) {
@@ -117,7 +117,7 @@ class CustomSettingFragment : DaggerFragment() {
             }
         }
 
-        binding!!.defaultForum.apply {
+        binding?.defaultForum?.apply {
             key.setText(R.string.default_forum_setting)
             summary.text = ContentTransformation.htmlToSpanned(
                 sharedViewModel.getForumDisplayName(applicationDataStore.getDefaultForumId())
@@ -146,7 +146,7 @@ class CustomSettingFragment : DaggerFragment() {
             }
         }
 
-        binding!!.defaultSubscriptionPage.apply {
+        binding?.defaultSubscriptionPage?.apply {
             key.setText(R.string.edit_subscription_default_page)
             val items = listOf(getString(R.string.trend), getString(R.string.my_feed))
             val trendIndex = applicationDataStore.getFeedPagerPageIndices().first
@@ -173,7 +173,7 @@ class CustomSettingFragment : DaggerFragment() {
             }
         }
 
-        binding!!.defaultHistoryPage.apply {
+        binding?.defaultHistoryPage?.apply {
             key.setText(R.string.edit_history_default_page)
             val items = listOf(getString(R.string.browsing_history), getString(R.string.post_history))
             val browsingHistoryIndex = applicationDataStore.getHistoryPagerPageIndices().first

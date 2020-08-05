@@ -101,6 +101,7 @@ class PostHistoryFragment : BaseNavFragment() {
             binding!!.startDate.text = ReadableTime.getDateString(startDate.time)
             binding!!.endDate.text = ReadableTime.getDateString(endDate.time)
             binding!!.startDate.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
                 MaterialDialog(requireContext()).show {
                     datePicker(currentDate = startDate) { _, date ->
                         setStartDate(date)
@@ -109,6 +110,7 @@ class PostHistoryFragment : BaseNavFragment() {
             }
 
             binding!!.endDate.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
                 MaterialDialog(requireContext()).show {
                     datePicker(currentDate = endDate) { _, date ->
                         setEndDate(date)
@@ -117,6 +119,7 @@ class PostHistoryFragment : BaseNavFragment() {
             }
 
             binding!!.confirmDate.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
                 if (startDate.before(endDate)) {
                     viewModel.searchByDate()
                 } else {
@@ -124,27 +127,16 @@ class PostHistoryFragment : BaseNavFragment() {
                 }
             }
         }
+        viewModel.postHistoryList.observe(viewLifecycleOwner, Observer<List<PostHistory>> { list ->
+            if (mAdapter == null || binding == null || activity == null || !isAdded) return@Observer
+            if (list.isEmpty()) {
+                if (!mAdapter!!.hasEmptyView()) mAdapter!!.setDefaultEmptyView()
+                mAdapter!!.setDiffNewData(null)
+                return@Observer
+            }
+            displayList(list)
+        })
         return binding!!.root
-    }
-
-    private val listObs = Observer<List<PostHistory>> { list ->
-        if (mAdapter == null || binding == null) return@Observer
-        if (list.isEmpty()) {
-            if (!mAdapter!!.hasEmptyView()) mAdapter!!.setDefaultEmptyView()
-            mAdapter!!.setDiffNewData(null)
-            return@Observer
-        }
-        displayList(list)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.postHistoryList.observe(viewLifecycleOwner, listObs)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        viewModel.postHistoryList.removeObserver(listObs)
     }
 
     private fun setStartDate(date: Calendar) {
@@ -252,6 +244,7 @@ class PostHistoryFragment : BaseNavFragment() {
             data: PostHistory,
             position: Int
         ) {
+            if (activity == null || !isAdded) return
             if (view.id == R.id.attachedImage) {
                 val viewerPopup = ImageViewerPopup(context)
                 viewerPopup.setSingleSrcView(view as ImageView?, data)
@@ -262,6 +255,7 @@ class PostHistoryFragment : BaseNavFragment() {
         }
 
         override fun onClick(holder: BaseViewHolder, view: View, data: PostHistory, position: Int) {
+            if (activity == null || !isAdded) return
             if (data.newPost) {
                 val navAction =
                     MainNavDirections.actionGlobalCommentsFragment(data.id, data.postTargetFid)
@@ -275,7 +269,7 @@ class PostHistoryFragment : BaseNavFragment() {
         }
     }
 
-    private class SectionHeaderBinder :
+    inner class SectionHeaderBinder :
         QuickItemBinder<SectionHeader>() {
         override fun convert(holder: BaseViewHolder, data: SectionHeader) {
             holder.setText(R.id.text, data.text)
@@ -292,6 +286,7 @@ class PostHistoryFragment : BaseNavFragment() {
             data: SectionHeader,
             position: Int
         ) {
+            if (activity == null || !isAdded) return
             if (data.clickListener == null) return
             data.clickListener.onClick(view)
             data.isExpanded = !data.isExpanded
@@ -330,7 +325,6 @@ class PostHistoryFragment : BaseNavFragment() {
             return true
         }
     }
-
 
     inner class SectionHeaderDiffer : DiffUtil.ItemCallback<SectionHeader>() {
         override fun areItemsTheSame(oldItem: SectionHeader, newItem: SectionHeader): Boolean {

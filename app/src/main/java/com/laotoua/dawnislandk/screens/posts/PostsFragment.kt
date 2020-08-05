@@ -65,42 +65,6 @@ class PostsFragment : BaseNavFragment() {
     private val postPopup: PostPopup by lazyOnMainOnly { PostPopup(requireActivity(), sharedVM) }
     private var isFabOpen = false
 
-    private val postObs = Observer<List<Post>> {
-        if (mAdapter == null) return@Observer
-        if (it.isEmpty()) {
-            if (!mAdapter!!.hasEmptyView()) mAdapter!!.setDefaultEmptyView()
-            mAdapter!!.setDiffNewData(null)
-            return@Observer
-        }
-        // set forum when navigate from website url
-        if (sharedVM.selectedForumId.value == null) {
-            sharedVM.setForumId(it.first().fid)
-        }
-        mAdapter!!.setDiffNewData(it.toMutableList())
-        Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
-    }
-
-    private val forumIdObs = Observer<String> {
-        if (mAdapter == null) return@Observer
-        if (viewModel.currentFid != it) {
-            mAdapter!!.setList(emptyList())
-            viewModel.setForum(it)
-            sharedVM.forumRefresh = false
-        } else if (sharedVM.forumRefresh) {
-            mAdapter!!.setList(emptyList())
-            binding?.srlAndRv?.recyclerView?.scrollToPosition(0)
-            viewModel.refresh()
-            sharedVM.forumRefresh = false
-        }
-    }
-
-    private val loadingObs = Observer<SingleLiveEvent<EventPayload<Nothing>>> {
-        if (mAdapter == null || binding == null) return@Observer
-        it.getContentIfNotHandled()?.run {
-            updateHeaderAndFooter(binding!!.srlAndRv.refreshLayout, mAdapter!!, this)
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -114,6 +78,7 @@ class PostsFragment : BaseNavFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.forumRule -> {
+                if (activity == null || !isAdded) return true
                 val fid = sharedVM.selectedForumId.value
                 if (fid == null) {
                     toast(R.string.please_try_again_later)
@@ -160,13 +125,14 @@ class PostsFragment : BaseNavFragment() {
         if (mAdapter == null) {
             mAdapter = QuickAdapter<Post>(R.layout.list_item_post, sharedVM).apply {
                 setOnItemClickListener { _, _, position ->
+                    if (activity == null || !isAdded) return@setOnItemClickListener
                     getItem(position).run {
-                        val navAction =
-                            MainNavDirections.actionGlobalCommentsFragment(id, fid)
+                        val navAction = MainNavDirections.actionGlobalCommentsFragment(id, fid)
                         findNavController().navigate(navAction)
                     }
                 }
                 setOnItemLongClickListener { _, _, position ->
+                    if (activity == null || !isAdded) return@setOnItemLongClickListener true
                     MaterialDialog(requireContext()).show {
                         title(R.string.post_options)
                         listItems(R.array.post_options) { _, index, _ ->
@@ -208,6 +174,7 @@ class PostsFragment : BaseNavFragment() {
 
                 addChildClickViewIds(R.id.attachedImage)
                 setOnItemChildClickListener { _, view, position ->
+                    if (activity == null || !isAdded) return@setOnItemChildClickListener
                     if (view.id == R.id.attachedImage) {
                         val viewerPopup = ImageViewerPopup(requireContext())
                         viewerPopup.setSingleSrcView(view as ImageView?, getItem(position))
@@ -243,6 +210,7 @@ class PostsFragment : BaseNavFragment() {
                 setHasFixedSize(true)
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                        if (activity == null || !isAdded) return
                         if (dy > 0) {
                             hideFabMenu()
                             binding?.fabMenu?.hide()
@@ -256,10 +224,12 @@ class PostsFragment : BaseNavFragment() {
             }
 
             binding!!.fabMenu.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
                 toggleFabMenu()
             }
 
             binding!!.post.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
                 if (sharedVM.selectedForumId.value == null) {
                     toast(R.string.please_try_again_later)
                     return@setOnClickListener
@@ -273,6 +243,7 @@ class PostsFragment : BaseNavFragment() {
             }
 
             binding!!.announcement.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
                 hideFabMenu()
                 DawnApp.applicationDataStore.nmbNotice?.let { notice ->
                     MaterialDialog(requireContext()).show {
@@ -284,6 +255,7 @@ class PostsFragment : BaseNavFragment() {
             }
 
             binding!!.search.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
                 hideFabMenu()
                 if (DawnApp.applicationDataStore.firstCookieHash == null) {
                     toast(R.string.need_cookie_to_search)
@@ -297,7 +269,10 @@ class PostsFragment : BaseNavFragment() {
                             val query = findViewById<TextView>(R.id.searchInputText).text.toString()
                             if (query.isNotBlank()) {
                                 dismiss()
-                                val action = PostsFragmentDirections.actionPostsFragmentToSearchFragment(query)
+                                val action =
+                                    PostsFragmentDirections.actionPostsFragmentToSearchFragment(
+                                        query
+                                    )
                                 findNavController().navigate(action)
                             } else {
                                 toast(R.string.please_input_valid_text)
@@ -322,9 +297,49 @@ class PostsFragment : BaseNavFragment() {
             }
 
             binding!!.flingInterceptor.bindListener {
+                if (activity == null || !isAdded) return@bindListener
                 (activity as MainActivity).showDrawer()
             }
         }
+
+        viewModel.loadingStatus.observe(
+            viewLifecycleOwner,
+            Observer<SingleLiveEvent<EventPayload<Nothing>>> {
+                if (mAdapter == null || binding == null || activity == null || !isAdded) return@Observer
+                it.getContentIfNotHandled()?.run {
+                    updateHeaderAndFooter(binding!!.srlAndRv.refreshLayout, mAdapter!!, this)
+                }
+            })
+
+        viewModel.posts.observe(viewLifecycleOwner, Observer<List<Post>> {
+            if (mAdapter == null || binding == null || activity == null || !isAdded) return@Observer
+            if (it.isEmpty()) {
+                if (!mAdapter!!.hasEmptyView()) mAdapter!!.setDefaultEmptyView()
+                mAdapter!!.setDiffNewData(null)
+                return@Observer
+            }
+            // set forum when navigate from website url
+            if (sharedVM.selectedForumId.value == null) {
+                sharedVM.setForumId(it.first().fid)
+            }
+            mAdapter!!.setDiffNewData(it.toMutableList())
+            Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
+        })
+
+        sharedVM.selectedForumId.observe(viewLifecycleOwner, Observer<String> {
+            if (mAdapter == null || binding == null || activity == null || !isAdded) return@Observer
+            if (viewModel.currentFid != it) {
+                mAdapter?.setList(emptyList())
+                viewModel.setForum(it)
+                sharedVM.forumRefresh = false
+            } else if (sharedVM.forumRefresh) {
+                mAdapter?.setList(emptyList())
+                binding?.srlAndRv?.recyclerView?.scrollToPosition(0)
+                viewModel.refresh()
+                sharedVM.forumRefresh = false
+            }
+        })
+
         return binding!!.root
     }
 
@@ -332,29 +347,12 @@ class PostsFragment : BaseNavFragment() {
         super.onResume()
         // initial load
         if (viewModel.posts.value.isNullOrEmpty()) {
-            binding?.srlAndRv?.refreshLayout?.autoRefresh(
-                Constants.ACTION_NOTHING,
-                false
-            )
+            binding?.srlAndRv?.refreshLayout?.autoRefresh(Constants.ACTION_NOTHING, false)
         }
-
-        viewModel.loadingStatus.observe(viewLifecycleOwner, loadingObs)
-        viewModel.posts.observe(viewLifecycleOwner, postObs)
-        sharedVM.selectedForumId.observe(viewLifecycleOwner, forumIdObs)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        viewModel.loadingStatus.removeObserver(loadingObs)
-        viewModel.posts.removeObserver(postObs)
-        sharedVM.selectedForumId.removeObserver(forumIdObs)
     }
 
     private fun hideFabMenu() {
-        val rotateBackward = AnimationUtils.loadAnimation(
-            requireContext(),
-            R.anim.rotate_backward
-        )
+        val rotateBackward = AnimationUtils.loadAnimation(requireContext(), R.anim.rotate_backward)
         binding?.fabMenu?.startAnimation(rotateBackward)
         binding?.announcement?.hide()
         binding?.search?.hide()
@@ -363,10 +361,7 @@ class PostsFragment : BaseNavFragment() {
     }
 
     private fun showFabMenu() {
-        val rotateForward = AnimationUtils.loadAnimation(
-            requireContext(),
-            R.anim.rotate_forward
-        )
+        val rotateForward = AnimationUtils.loadAnimation(requireContext(), R.anim.rotate_forward)
         binding?.fabMenu?.startAnimation(rotateForward)
         binding?.announcement?.show()
         binding?.search?.show()

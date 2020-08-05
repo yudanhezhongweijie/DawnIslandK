@@ -98,6 +98,7 @@ class ProfileFragment : DaggerFragment() {
             text.setText(R.string.general_settings)
             icon.rotation = -90f
             root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
                 val action = ProfileFragmentDirections.actionProfileFragmentToGeneralSettingFragment()
                 findNavController().navigate(action)
             }
@@ -107,6 +108,7 @@ class ProfileFragment : DaggerFragment() {
             text.setText(R.string.display_settings)
             icon.rotation = -90f
             root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
                 val action = ProfileFragmentDirections.actionProfileFragmentToDisplaySettingFragment()
                 findNavController().navigate(action)
             }
@@ -116,6 +118,7 @@ class ProfileFragment : DaggerFragment() {
             text.setText(R.string.custom_settings)
             icon.rotation = -90f
             root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
                 val action = ProfileFragmentDirections.actionProfileFragmentToCustomSettingFragment()
                 findNavController().navigate(action)
             }
@@ -124,6 +127,7 @@ class ProfileFragment : DaggerFragment() {
             text.setText(R.string.about)
             icon.rotation = -90f
             root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
                 val action = ProfileFragmentDirections.actionProfileFragmentToAboutFragment()
                 findNavController().navigate(action)
             }
@@ -160,6 +164,7 @@ class ProfileFragment : DaggerFragment() {
         })
 
         binding!!.addCookie.setOnClickListener {
+            if (activity == null || !isAdded) return@setOnClickListener
             MaterialDialog(requireContext()).show {
                 title(R.string.add_cookie)
                 listItems(R.array.cookie_addition_options) { _, index, _ ->
@@ -277,7 +282,7 @@ class ProfileFragment : DaggerFragment() {
         }
 
         view.remove.setOnClickListener {
-            if (binding == null) return@setOnClickListener
+            if (activity == null || !isAdded || binding == null) return@setOnClickListener
             viewModel.deleteCookie(cookie)
             if (binding?.cookieList?.childCount ?: 0 < 5) {
                 binding?.addCookie?.isEnabled = true

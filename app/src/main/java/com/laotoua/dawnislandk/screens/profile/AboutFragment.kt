@@ -56,6 +56,7 @@ class AboutFragment : DaggerFragment() {
         binding!!.appFeedback.apply {
             key.setText(R.string.app_feed_back)
             root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
                 MaterialDialog(requireContext()).show {
                     title(R.string.app_feed_back)
                     val items =
@@ -104,6 +105,7 @@ class AboutFragment : DaggerFragment() {
         binding!!.appPrivacyAgreement.apply {
             key.setText(R.string.app_privacy_agreement)
             root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
                 val waitingDialog = MaterialDialog(requireContext()).show {
                     title(R.string.processing)
                     customView(R.layout.dialog_progress)
@@ -132,6 +134,7 @@ class AboutFragment : DaggerFragment() {
         binding!!.adnmbPrivacyAgreement.apply {
             key.setText(R.string.adnmb_privacy_agreement)
             root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
                 val navAction = MainNavDirections.actionGlobalCommentsFragment("11689471", "")
                 findNavController().navigate(navAction)
             }

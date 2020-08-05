@@ -63,6 +63,7 @@ class CustomSettingFragment : DaggerFragment() {
         binding?.commonForums?.apply {
             key.setText(R.string.common_forum_setting)
             root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
                 val action =
                     CustomSettingFragmentDirections.actionCustomSettingsFragmentToCommonForumsFragment()
                 findNavController().navigate(action)
@@ -72,6 +73,7 @@ class CustomSettingFragment : DaggerFragment() {
         binding?.commonPosts?.apply {
             key.setText(R.string.common_posts_setting)
             root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
                 val action =
                     CustomSettingFragmentDirections.actionCustomSettingsFragmentToCommonPostsFragment()
                 findNavController().navigate(action)
@@ -81,6 +83,7 @@ class CustomSettingFragment : DaggerFragment() {
         binding?.timelineFilter?.apply {
             key.setText(R.string.timeline_filter_setting)
             root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
                 if (blockedForumIds == null || serverForums == null) {
                     toast(R.string.please_try_again_later)
                 }
@@ -123,6 +126,7 @@ class CustomSettingFragment : DaggerFragment() {
                 sharedViewModel.getForumDisplayName(applicationDataStore.getDefaultForumId())
             )
             root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
                 if (serverForums == null) {
                     toast(R.string.please_try_again_later)
                 }
@@ -156,6 +160,7 @@ class CustomSettingFragment : DaggerFragment() {
                 summary.text = getString(R.string.my_feed)
             }
             root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
                 MaterialDialog(requireContext()).show {
                     title(R.string.edit_subscription_default_page)
                     listItemsSingleChoice(items = items) { _, index, _ ->
@@ -183,6 +188,7 @@ class CustomSettingFragment : DaggerFragment() {
                 summary.text = getString(R.string.post_history)
             }
             root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
                 MaterialDialog(requireContext()).show {
                     title(R.string.edit_history_default_page)
                     listItemsSingleChoice(items = items) { _, index, _ ->

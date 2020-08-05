@@ -38,22 +38,19 @@ import com.laotoua.dawnislandk.screens.util.Layout.updateSwitchSummary
 class GeneralSettingFragment : Fragment() {
 
     private var binding:FragmentGeneralSettingBinding? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
         binding = FragmentGeneralSettingBinding.inflate(inflater, container,false)
-        return binding!!.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         binding?.feedId?.apply {
             var feedId = applicationDataStore.getFeedId()
             key.setText(R.string.feedId)
             summary.text = feedId
             root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
                 MaterialDialog(requireContext()).show {
                     title(R.string.feedId)
                     input(hint = feedId, prefill = feedId) { _, text ->
@@ -80,6 +77,7 @@ class GeneralSettingFragment : Fragment() {
                 }
 
             root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
                 MaterialDialog(requireContext()).show {
                     title(R.string.time_display_format)
                     listItems(R.array.time_format_entries) { _, index, text ->
@@ -90,11 +88,6 @@ class GeneralSettingFragment : Fragment() {
                 }
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-
 
         binding?.viewCaching?.apply {
             key.setText(R.string.view_caching)
@@ -108,6 +101,7 @@ class GeneralSettingFragment : Fragment() {
             }
             updateSwitchSummary(R.string.view_caching_on, R.string.view_caching_off)
             root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
                 if (!preferenceSwitch.isChecked) {
                     MaterialDialog(requireContext()).show {
                         title(R.string.view_caching)
@@ -146,6 +140,7 @@ class GeneralSettingFragment : Fragment() {
         binding?.clearCommentCache?.apply {
             key.setText(R.string.clear_comment_cache)
             root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
                 MaterialDialog(requireContext()).show {
                     title(R.string.clear_comment_cache)
                     message(R.string.clear_comment_cache_confirm_message)
@@ -165,6 +160,7 @@ class GeneralSettingFragment : Fragment() {
         binding?.restoreBlockedPosts?.apply {
             key.setText(R.string.restore_blocked_post)
             root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
                 MaterialDialog(requireContext()).show {
                     title(R.string.restore_blocked_post)
                     message(R.string.restore_blocked_post_confirm_message)
@@ -180,6 +176,7 @@ class GeneralSettingFragment : Fragment() {
                 }
             }
         }
+        return binding!!.root
     }
 
     override fun onDestroyView() {

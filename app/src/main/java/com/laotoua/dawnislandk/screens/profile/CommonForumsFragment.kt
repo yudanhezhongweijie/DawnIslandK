@@ -55,7 +55,7 @@ class CommonForumsFragment : DaggerFragment() {
 
     private val sharedVM: SharedViewModel by activityViewModels { viewModelFactory }
 
-    private var commonForumAdapter : CommonForumAdapter? = null
+    private var commonForumAdapter: CommonForumAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,6 +70,7 @@ class CommonForumsFragment : DaggerFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.help -> {
+                if (activity == null || !isAdded) return true
                 MaterialDialog(requireContext()).show {
                     title(R.string.common_forum_setting)
                     message(R.string.common_forum_setting_help)

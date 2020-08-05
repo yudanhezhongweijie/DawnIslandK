@@ -42,19 +42,12 @@ class DisplaySettingFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentDisplaySettingBinding.inflate(inflater,container, false)
-        // Inflate the layout for this fragment
-        return binding!!.root
-    }
-
-    override fun onResume() {
-        super.onResume()
-
         binding?.animationSwitch?.apply {
             key.setText(R.string.animation_settings)
-            val options =
-                requireContext().resources.getStringArray(R.array.adapter_animation_options)
+            val options = resources.getStringArray(R.array.adapter_animation_options)
             summary.text = options[applicationDataStore.animationOption]
             root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
                 MaterialDialog(requireContext()).show {
                     title(res = R.string.animation_settings)
                     checkBoxPrompt(res = R.string.animation_first_only) {}
@@ -85,10 +78,12 @@ class DisplaySettingFragment : Fragment() {
                 toast(R.string.restart_to_apply_setting)
             }
             root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
                 val action = DisplaySettingFragmentDirections.actionDisplaySettingFragmentToSizeCustomizationFragment()
                 findNavController().navigate(action)
             }
         }
+        return binding!!.root
     }
 
     override fun onDestroyView() {

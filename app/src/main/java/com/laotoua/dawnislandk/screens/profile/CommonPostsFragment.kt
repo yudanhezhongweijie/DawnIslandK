@@ -75,6 +75,7 @@ class CommonPostsFragment : DaggerFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.help -> {
+                if (activity == null || !isAdded) return true
                 MaterialDialog(requireContext()).show {
                     title(R.string.common_posts_setting)
                     message(R.string.common_posts_setting_help)
@@ -97,6 +98,7 @@ class CommonPostsFragment : DaggerFragment() {
 
             setOnItemChildClickListener { _, view, position ->
                 if (view.id == R.id.edit){
+                    if (activity == null || !isAdded) return@setOnItemChildClickListener
                     MaterialDialog(requireContext()).show {
                         title(R.string.common_posts_setting)
                         customView(R.layout.dialog_input_content_with_remark)
@@ -150,6 +152,7 @@ class CommonPostsFragment : DaggerFragment() {
         updateTitle()
 
         binding?.addCommonPost?.setOnClickListener {
+            if (activity == null || !isAdded) return@setOnClickListener
             MaterialDialog(requireContext()).show {
                 title(R.string.common_posts_setting)
                 customView(R.layout.dialog_input_content_with_remark)

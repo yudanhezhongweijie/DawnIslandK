@@ -414,14 +414,15 @@ class MainActivity : DaggerAppCompatActivity() {
             endValue: StringBuilder
         ): StringBuilder {
             val ind = (fraction * animCharCount).toInt()
-            val newChar = if (ind >= endValue.length) ' ' else endValue[ind]
-            if (ind < startValue.length) startValue.setCharAt(ind, newChar)
-            else startValue.append(newChar)
+            for (i in 0 .. ind) {
+                val newChar = if (i >= endValue.length) ' ' else endValue[i]
+                if (i < startValue.length) startValue.setCharAt(i, newChar)
+                else startValue.append(newChar)
+            }
             return startValue
         }
     }
 
-    // returns null if fragment is not handled, returns "" if title should be be updated in navigation
     private fun updateTitleAndBottomNav(destination: NavDestination) {
         return when (destination.id) {
             R.id.postsFragment -> {

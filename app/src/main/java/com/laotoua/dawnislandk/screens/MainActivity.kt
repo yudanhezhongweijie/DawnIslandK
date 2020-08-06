@@ -381,16 +381,15 @@ class MainActivity : DaggerAppCompatActivity() {
         )
     }
 
+    private var oldTitle = ""
     private var toolbarAnim: Animator? = null
-    fun setToolbarTitle(str: String) {
-        val oldTitle = StringBuilder(binding.toolbar.title)
-        val newTitle = StringBuilder(str)
+    fun setToolbarTitle(newTitle: String) {
         if (oldTitle == newTitle) return
         toolbarAnim?.cancel()
         val animCharCount = max(oldTitle.length, newTitle.length)
         toolbarAnim = ValueAnimator.ofObject(
             ToolbarTitleEvaluator(animCharCount),
-            StringBuilder(binding.toolbar.title),
+            StringBuilder(oldTitle),
             StringBuilder(newTitle)
         ).apply {
             duration = animCharCount.toLong() * 80
@@ -399,6 +398,7 @@ class MainActivity : DaggerAppCompatActivity() {
                 binding.toolbar.invalidate()
             }
         }
+        oldTitle = newTitle
         toolbarAnim?.start()
     }
 

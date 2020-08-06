@@ -102,7 +102,6 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
     private var postImagePreview: ImageView? = null
 
     // keyboard height listener
-    private var keyboardHeight = -1
     private var keyboardHolder: LinearLayout? = null
 
     private fun updateTitle(targetId: String?, newPost: Boolean) {
@@ -180,30 +179,30 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
 
     override fun onShow() {
         super.onShow()
+
         KeyboardUtils.registerSoftInputChangedListener(caller.window, this) { height ->
-            if (keyboardHolder == null) return@registerSoftInputChangedListener
-            if (height > 0 && keyboardHeight != height) {
-                keyboardHeight = height
-                listOf(emojiContainer!!, luweiStickerContainer!!).map {
-                    val lp = it.layoutParams
-                    lp.height = keyboardHeight
-                    it.layoutParams = lp
+            if (height > 0) {
+                listOf(emojiContainer, luweiStickerContainer).map {
+                    val lp = it?.layoutParams
+                    lp?.height = height
+                    it?.layoutParams = lp
                 }
             }
-            val lp = keyboardHolder!!.layoutParams
-            lp.height = height
-            keyboardHolder!!.layoutParams = lp
+            val lp = keyboardHolder?.layoutParams
+            lp?.height = height
+            keyboardHolder?.layoutParams = lp
             if (height > 0) {
-                buttonToggleGroup?.clearChecked()
+                buttonToggleGroup?.uncheck(R.id.postFace)
+                buttonToggleGroup?.uncheck(R.id.postLuwei)
             }
         }
     }
 
     override fun onCreate() {
         super.onCreate()
+
         postContent = findViewById<EditText>(R.id.postContent).apply {
-            KeyboardUtils.showSoftInput(this)
-            setOnClickListener { view -> KeyboardUtils.showSoftInput(view) }
+            setOnClickListener { view ->KeyboardUtils.showSoftInput(view)            }
         }
 
         toggleContainers = findViewById<ConstraintLayout>(R.id.toggleContainers).also {
@@ -449,6 +448,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
 
         findViewById<Button>(R.id.postClose).setOnClickListener {
             KeyboardUtils.hideSoftInput(postContent!!)
+            buttonToggleGroup?.clearChecked()
             dismiss()
 //            dismissWith {
 //                val lp = keyboardHolder!!.layoutParams
@@ -456,6 +456,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
 //                keyboardHolder!!.layoutParams = lp
 //            }
         }
+
     }
 
     private fun compressAndPreviewImage(uri: Uri?) {

@@ -59,8 +59,8 @@ class SearchFragment : BaseNavFragment() {
     private val args: SearchFragmentArgs by navArgs()
 
     private val viewModel: SearchViewModel by viewModels { viewModelFactory }
-    private var _binding: FragmentSearchBinding? = null
-    private val binding: FragmentSearchBinding get() = _binding!!
+    private var binding: FragmentSearchBinding? = null
+    private var viewCaching = false
 
     private var _mAdapter: QuickMultiBinder? = null
     private val mAdapter: QuickMultiBinder get() = _mAdapter!!
@@ -110,10 +110,10 @@ class SearchFragment : BaseNavFragment() {
                             val threadId = findViewById<TextView>(R.id.searchInputText).text
                                 .filter { it.isDigit() }.toString()
                             if (threadId.isNotEmpty()) {
-                                // Does not have fid here. fid will be generated when data comes back in reply
                                 dismiss()
-                                val navAction =
-                                    MainNavDirections.actionGlobalCommentsFragment(threadId, "")
+                                viewCaching = DawnApp.applicationDataStore.getViewCaching()
+                                // Does not have fid here. fid will be generated when data comes back in reply
+                                val navAction = MainNavDirections.actionGlobalCommentsFragment(threadId, "")
                                 findNavController().navigate(navAction)
                             } else {
                                 toast(R.string.please_input_valid_text)
@@ -143,18 +143,18 @@ class SearchFragment : BaseNavFragment() {
                 }
             }
         }
-        if (_binding != null) {
+        if (binding != null) {
             Timber.d("Fragment View Reusing!")
         } else {
             Timber.d("Fragment View Created")
-            _binding = FragmentSearchBinding.inflate(inflater, container, false)
-            binding.srlAndRv.recyclerView.apply {
+            binding = FragmentSearchBinding.inflate(inflater, container, false)
+            binding?.srlAndRv?.recyclerView?.apply {
                 setHasFixedSize(true)
                 layoutManager = LinearLayoutManager(context)
                 adapter = mAdapter
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                        if (_binding == null) return
+                        if (activity == null || !isAdded || binding == null) return
                         val firstVisiblePos =
                             (layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
                         if (firstVisiblePos > 0 && firstVisiblePos < mAdapter.data.lastIndex) {
@@ -171,52 +171,44 @@ class SearchFragment : BaseNavFragment() {
             }
             viewModel.search(args.query)
         }
-        return binding.root
+
+        viewModel.loadingStatus.observe(viewLifecycleOwner, Observer<SingleLiveEvent<EventPayload<Nothing>>> {
+            if (binding == null || _mAdapter == null) return@Observer
+            it.getContentIfNotHandled()?.run {
+                updateHeaderAndFooter(binding!!.srlAndRv.refreshLayout, mAdapter, this)
+            }
+        })
+
+
+        viewModel.searchResult.observe(viewLifecycleOwner, Observer<List<SearchResult>> { list ->
+            if (_mAdapter == null) return@Observer
+            if (list.isEmpty()) {
+                mAdapter.setDiffNewData(null)
+                hideCurrentPageText()
+                return@Observer
+            }
+            if (currentPage == 0) updateCurrentPage(1)
+            val data: MutableList<Any> = ArrayList()
+            data.add("搜索： ${list.firstOrNull()?.query}")
+            list.map {
+                data.add("结果页数: ${it.page}")
+                data.addAll(it.hits)
+            }
+            mAdapter.setDiffNewData(data)
+        })
+
+        viewCaching = false
+        return binding!!.root
     }
 
-    private val searchResultObs = Observer<List<SearchResult>> { list ->
-        if (_mAdapter == null) return@Observer
-        if (list.isEmpty()) {
-            mAdapter.setDiffNewData(null)
-            hideCurrentPageText()
-            return@Observer
-        }
-        if (currentPage == 0) updateCurrentPage(1)
-        val data: MutableList<Any> = ArrayList()
-        data.add("搜索： ${list.firstOrNull()?.query}")
-        list.map {
-            data.add("结果页数: ${it.page}")
-            data.addAll(it.hits)
-        }
-        mAdapter.setDiffNewData(data)
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        if (!DawnApp.applicationDataStore.getViewCaching()) {
+        if (!viewCaching) {
             _mAdapter = null
-            _binding = null
+            binding = null
         }
-        Timber.d("Fragment View Destroyed ${_binding == null}")
-    }
-
-    private val loadingStatusObs = Observer<SingleLiveEvent<EventPayload<Nothing>>> {
-        if (_binding == null || _mAdapter == null) return@Observer
-        it.getContentIfNotHandled()?.run {
-            updateHeaderAndFooter(binding.srlAndRv.refreshLayout, mAdapter, this)
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.searchResult.observe(viewLifecycleOwner, searchResultObs)
-        viewModel.loadingStatus.observe(viewLifecycleOwner, loadingStatusObs)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        viewModel.searchResult.removeObserver(searchResultObs)
-        viewModel.loadingStatus.removeObserver(loadingStatusObs)
+        Timber.d("Fragment View Destroyed ${binding == null}")
     }
 
     private fun updateCurrentPage(page: Int) {
@@ -263,6 +255,7 @@ class SearchFragment : BaseNavFragment() {
             data: SearchResult.Hit,
             position: Int
         ) {
+            viewCaching = DawnApp.applicationDataStore.getViewCaching()
             val navAction = MainNavDirections.actionGlobalCommentsFragment(data.getPostId(), "")
             findNavController().navigate(navAction)
         }

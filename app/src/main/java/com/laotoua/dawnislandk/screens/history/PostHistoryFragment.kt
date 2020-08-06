@@ -59,6 +59,7 @@ class PostHistoryFragment : BaseNavFragment() {
 
     private var binding: FragmentHistoryPostBinding? = null
     private var mAdapter: QuickMultiBinder? = null
+    private var viewCaching = false
 
     private val viewModel: PostHistoryViewModel by viewModels { viewModelFactory }
 
@@ -136,6 +137,7 @@ class PostHistoryFragment : BaseNavFragment() {
             }
             displayList(list)
         })
+        viewCaching = false
         return binding!!.root
     }
 
@@ -256,6 +258,7 @@ class PostHistoryFragment : BaseNavFragment() {
 
         override fun onClick(holder: BaseViewHolder, view: View, data: PostHistory, position: Int) {
             if (activity == null || !isAdded) return
+            viewCaching = DawnApp.applicationDataStore.getViewCaching()
             if (data.newPost) {
                 val navAction =
                     MainNavDirections.actionGlobalCommentsFragment(data.id, data.postTargetFid)
@@ -348,7 +351,7 @@ class PostHistoryFragment : BaseNavFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        if (!DawnApp.applicationDataStore.getViewCaching()) {
+        if (!viewCaching) {
             mAdapter = null
             binding = null
         }

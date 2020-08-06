@@ -88,6 +88,7 @@ class CommentsFragment : DaggerFragment() {
     private val sharedVM: SharedViewModel by activityViewModels { viewModelFactory }
 
     private var mAdapter: QuickAdapter<Comment>? = null
+    private var viewCaching = false
 
     // last visible item indicates the current page, uses for remembering last read page
     private var currentPage = 0
@@ -399,6 +400,7 @@ class CommentsFragment : DaggerFragment() {
             }
         }
         subscribeUI()
+        viewCaching = false
         return binding!!.root
     }
 
@@ -486,7 +488,7 @@ class CommentsFragment : DaggerFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         dismissAllQuotes()
-        if (!DawnApp.applicationDataStore.getViewCaching()) {
+        if (!viewCaching) {
             mAdapter = null
             binding = null
         }
@@ -633,6 +635,7 @@ class CommentsFragment : DaggerFragment() {
         lifecycleScope.launch {
             delay(100L)
             if (activity == null || !isAdded) return@launch
+            viewCaching = DawnApp.applicationDataStore.getViewCaching()
             val navAction = MainNavDirections.actionGlobalCommentsFragment(id, "")
             findNavController().navigate(navAction)
         }

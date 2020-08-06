@@ -50,6 +50,8 @@ class TrendsFragment : BaseNavFragment() {
 
     private var mAdapter: QuickAdapter<Trend>? = null
 
+    private var viewCaching = false
+
     private val viewModel: TrendsViewModel by viewModels { viewModelFactory }
 
     private val trendsObs = Observer<DataResource<DailyTrend>> {
@@ -81,6 +83,7 @@ class TrendsFragment : BaseNavFragment() {
                 loadMoreModule.isEnableLoadMore = false
                 setOnItemClickListener { _, _, position ->
                     val target = getItem(position)
+                    viewCaching = DawnApp.applicationDataStore.getViewCaching()
                     getItem(position).toPost(sharedVM.getForumIdByName(target.forum)).run {
                         val navAction =
                             MainNavDirections.actionGlobalCommentsFragment(id, fid)
@@ -110,17 +113,10 @@ class TrendsFragment : BaseNavFragment() {
             }
 
         }
-        return binding!!.root
-    }
 
-    override fun onResume() {
-        super.onResume()
         viewModel.latestTrends.observe(viewLifecycleOwner, trendsObs)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        viewModel.latestTrends.removeObserver(trendsObs)
+        viewCaching = false
+        return binding!!.root
     }
 
     private fun refreshTrends(){
@@ -131,7 +127,7 @@ class TrendsFragment : BaseNavFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        if (!DawnApp.applicationDataStore.getViewCaching()) {
+        if (!viewCaching) {
             mAdapter = null
             binding = null
         }

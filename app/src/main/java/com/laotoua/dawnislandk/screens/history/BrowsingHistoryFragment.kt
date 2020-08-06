@@ -60,6 +60,8 @@ class BrowsingHistoryFragment : BaseNavFragment() {
 
     private var mAdapter: QuickMultiBinder? = null
 
+    private var viewCaching = false
+
     private val viewModel: BrowsingHistoryViewModel by viewModels { viewModelFactory }
 
     private var endDate = Calendar.getInstance()
@@ -152,6 +154,7 @@ class BrowsingHistoryFragment : BaseNavFragment() {
                 )
                 Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} items")
             })
+        viewCaching = false
         return binding!!.root
     }
 
@@ -200,6 +203,7 @@ class BrowsingHistoryFragment : BaseNavFragment() {
 
         override fun onClick(holder: BaseViewHolder, view: View, data: Post, position: Int) {
             if (activity == null || !isAdded) return
+            viewCaching = DawnApp.applicationDataStore.getViewCaching()
             val navAction = MainNavDirections.actionGlobalCommentsFragment(data.id, data.fid)
             findNavController().navigate(navAction)
         }
@@ -218,7 +222,7 @@ class BrowsingHistoryFragment : BaseNavFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        if (!DawnApp.applicationDataStore.getViewCaching()) {
+        if (!viewCaching) {
             mAdapter = null
             binding = null
         }

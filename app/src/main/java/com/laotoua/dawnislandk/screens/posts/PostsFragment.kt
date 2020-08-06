@@ -64,6 +64,7 @@ class PostsFragment : BaseNavFragment() {
     private val viewModel: PostsViewModel by viewModels { viewModelFactory }
     private val postPopup: PostPopup by lazyOnMainOnly { PostPopup(requireActivity(), sharedVM) }
     private var isFabOpen = false
+    private var viewCaching = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -126,6 +127,7 @@ class PostsFragment : BaseNavFragment() {
             mAdapter = QuickAdapter<Post>(R.layout.list_item_post, sharedVM).apply {
                 setOnItemClickListener { _, _, position ->
                     if (activity == null || !isAdded) return@setOnItemClickListener
+                    viewCaching = DawnApp.applicationDataStore.getViewCaching()
                     getItem(position).run {
                         val navAction = MainNavDirections.actionGlobalCommentsFragment(id, fid)
                         findNavController().navigate(navAction)
@@ -269,6 +271,7 @@ class PostsFragment : BaseNavFragment() {
                             val query = findViewById<TextView>(R.id.searchInputText).text.toString()
                             if (query.isNotBlank()) {
                                 dismiss()
+                                viewCaching = DawnApp.applicationDataStore.getViewCaching()
                                 val action =
                                     PostsFragmentDirections.actionPostsFragmentToSearchFragment(
                                         query
@@ -285,6 +288,7 @@ class PostsFragment : BaseNavFragment() {
                             if (threadId.isNotEmpty()) {
                                 // Does not have fid here. fid will be generated when data comes back in reply
                                 dismiss()
+                                viewCaching = DawnApp.applicationDataStore.getViewCaching()
                                 val navAction =
                                     MainNavDirections.actionGlobalCommentsFragment(threadId, "")
                                 findNavController().navigate(navAction)
@@ -340,6 +344,8 @@ class PostsFragment : BaseNavFragment() {
             }
         })
 
+        viewCaching = false
+
         return binding!!.root
     }
 
@@ -379,7 +385,7 @@ class PostsFragment : BaseNavFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        if (!DawnApp.applicationDataStore.getViewCaching()) {
+        if (!viewCaching) {
             mAdapter = null
             binding = null
         }

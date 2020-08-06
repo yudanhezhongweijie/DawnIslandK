@@ -50,8 +50,8 @@
     <string name="select_picture" translatable="false">选择图片</string>
     <string name="report_reasons" translatable="false">举报理由</string>
     <string name="pick_color" translatable="false">选择颜色</string>
-    <string name="check_forum_msg" translatable="false">查看板规</string>
-    <string name="choose_forum" translatable="false">选择板块</string>
+    <string name="check_forum_msg" translatable="false">查看版规</string>
+    <string name="choose_forum" translatable="false">选择版块</string>
     <string name="edit_text_hint" translatable="false">在这里输入文字</string>
     <string name="please_input_valid_text" translatable="false">请输入有效文字</string>
     <string name="please_input_page_number" translatable="false">请输入页数</string>
@@ -81,26 +81,26 @@
     <string name="cookie_management" translatable="false">饼干管理</string>
     <string name="add_cookie" translatable="false">添加饼干</string>
     <string name="select_cookie" translatable="false">选择饼干</string>
-    <string name="select_target_forum" translatable="false">选择发布板块</string>
+    <string name="select_target_forum" translatable="false">选择发布版块</string>
     <string name="settings" translatable="false">设置</string>
     <string name="browsing_history" translatable="false">浏览历史</string>
     <string name="post_history" translatable="false">发言历史</string>
-    <string name="forum_refresh" translatable="false">刷新板块</string>
-    <string name="common_forum_setting" translatable="false">常用板块设置</string>
-    <string name="common_forum_count" translatable="false">常用板块包含%d个板块</string>
-    <string name="common_forums_title" translatable="false">常用板块: %d</string>
+    <string name="forum_refresh" translatable="false">刷新版块</string>
+    <string name="common_forum_setting" translatable="false">常用版块设置</string>
+    <string name="common_forum_count" translatable="false">常用版块包含%d个版块</string>
+    <string name="common_forums_title" translatable="false">常用版块: %d</string>
     <string name="timeline_filter_setting" translatable="false">时间线屏蔽设置</string>
-    <string name="timeline_filtered_count" translatable="false">时间线已经屏蔽%d个板块</string>
+    <string name="timeline_filtered_count" translatable="false">时间线已经屏蔽%d个版块</string>
     <string name="please_select_timeline_filter_forums" translatable="false">请选择要屏蔽的版块</string>
-    <string name="common_forum_setting_help" translatable="false"><b>点击下方板块即添加至常用分组\n\n长按上下拖曳板块可排序\n\n左右拖曳板块可从常用分组中移除\n\n编辑完成后返回即保存设置</b></string>
+    <string name="common_forum_setting_help" translatable="false"><b>点击下方版块即添加至常用分组\n\n长按上下拖曳版块可排序\n\n左右拖曳版块可从常用分组中移除\n\n编辑完成后返回即保存设置</b></string>
     <string name="pager_usage_help" translatable="false">本页面支持左滑右滑切换内容。\n\n可在自定义设置改变默认页面</string>
-    <string name="default_forum_setting" translatable="false">默认板块设置</string>
+    <string name="default_forum_setting" translatable="false">默认版块设置</string>
     <string name="common_posts_setting" translatable="false">常用串设置</string>
     <string name="add_common_post" translatable="false">添加常用串</string>
     <string name="add_common_post_remark" translatable="false">常用串备注</string>
     <string name="add_common_post_id" translatable="false">常用串串号</string>
     <string name="common_posts_title" translatable="false">常用串: %d</string>
-    <string name="common_posts_setting_help" translatable="false"><b>输入串号备注添加至常用串\n\n长按上下拖曳板块可排序\n\n左右拖曳串可从常用串中移除\n\n编辑完成后返回即保存设置</b></string>
+    <string name="common_posts_setting_help" translatable="false"><b>输入串号备注添加至常用串\n\n长按上下拖曳版块可排序\n\n左右拖曳串可从常用串中移除\n\n编辑完成后返回即保存设置</b></string>
     <string name="common_posts_count" translatable="false">常用串包含%d个串</string>
     <string name="general_settings" translatable="false">通用设置</string>
     <string name="display_settings" translatable="false">显示设置</string>
@@ -126,7 +126,7 @@
     <string name="sending" translatable="false">正在发送中...</string>
     <string name="processing" translatable="false">正在处理中...</string>
     <string name="something_went_wrong" translatable="false">发生未知错误...</string>
-    <string name="did_not_select_forum_id" translatable="false">发生错误：没有选择板块</string>
+    <string name="did_not_select_forum_id" translatable="false">发生错误：没有选择版块</string>
     <string name="image_does_not_exist" translatable="false">图片不存在</string>
     <string name="image_saved" translatable="false">图片保存在Pictures/Dawn</string>
     <string name="image_already_exists_in_picture" translatable="false">已保存图片，同时检测到图库中有相同名字的图片。默认图库可能不会显示新图片，但是在文件管理器下可见，请勿重复保存</string>
@@ -169,7 +169,7 @@
     <string name="subscribe" translatable="false">收藏</string>
     <string name="see_po_only" translatable="false">只看Po</string>
     <string name="share" translatable="false">分享</string>
-    <string name="please_select_target_forum" translatable="false">请选择发布板块</string>
+    <string name="please_select_target_forum" translatable="false">请选择发布版块</string>
     <string name="cookie_name" translatable="false">饼干名字</string>
     <string name="cookie_hash" translatable="false">饼干序列</string>
     <string name="cookie_slots" translatable="false">饼干槽:</string>
@@ -208,9 +208,9 @@
     <string name="no_feed_on_page" translatable="false">第 %d 页订阅没有数据嗷</string>
     <string name="no_data_dots" translatable="false">没有数据。。。</string>
     <string name="no_more_data" translatable="false">没有更多数据</string>
-    <string name="forum" translatable="false">板块</string>
+    <string name="forum" translatable="false">版块</string>
     <string name="announcement" translatable="false">通知</string>
-    <string name="forum_rules" translatable="false">板规</string>
+    <string name="forum_rules" translatable="false">版规</string>
     <string name="trend_and_feed" translatable="false">热榜 · 订阅</string>
     <string name="edit_subscription_default_page" translatable="false">设置热榜 · 订阅默认页面</string>
     <string name="history" translatable="false">浏览 · 发言</string>
@@ -219,7 +219,7 @@
     <string name="app_privacy_agreement" translatable="false">软件隐私协议</string>
     <string name="adnmb_privacy_agreement" translatable="false">A岛隐私协议</string>
     <string name="credit" translatable="false">版本号: %s\n鸣谢：@紫岛作者Hippo(代码) @柔柔(代码) @五(设计) @安之(产品) @bug触发器(测试) @第九龙琦(趋势榜) @赛璐璐夙志(APP图标) \n如果您为软件做出了贡献，请通过反馈让作者为您署名</string>
-    <string name="entry_message" translatable="false">本软件作者是安卓初学者，功能尚未完全实现，有建议或者发现bug请通过个人菜单-客户端反馈告诉作者。\n\n一些使用技巧：\n\n本客户端将交互大部分放在了屏幕下半部分以方便单手操作，推荐使用全面手势。\n\n板块页面再按一次板块按钮或者左滑可以呼出板块列表。\n\n大多数页面双击工具栏能返回顶部、支持上拉刷新。\n\n进入、退出串掉帧的用户可以尝试使用缓存页面的功能（Alpha)<b>缓存页面会消耗内存，可能会造成手机内存不足、程序崩溃，手机内存小于4G不建议使用</b></string>
+    <string name="entry_message" translatable="false">本软件作者是安卓初学者，功能尚未完全实现，有建议或者发现bug请通过个人菜单-客户端反馈告诉作者。\n\n一些使用技巧：\n\n本客户端将交互大部分放在了屏幕下半部分以方便单手操作，推荐使用全面手势。\n\n版块页面再按一次版块按钮或者左滑可以呼出版块列表。\n\n大多数页面双击工具栏能返回顶部、支持上拉刷新。\n\n进入、退出串掉帧的用户可以尝试使用缓存页面的功能（Alpha)<b>缓存页面会消耗内存，可能会造成手机内存不足、程序崩溃，手机内存小于4G不建议使用</b></string>
     <string name="need_cookie_to_search" translatable="false">有饼干才能搜索嗷</string>
     <string name="show_original_post" translatable="false">显示原串</string>
     <string name="blocked_post" translatable="false">No.%s 已经被屏蔽</string>

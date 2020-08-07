@@ -32,6 +32,8 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.FragmentDisplaySettingBinding
 import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.screens.util.Layout.updateSwitchSummary
+import com.laotoua.dawnislandk.util.IntentUtil
+import timber.log.Timber
 
 
 class DisplaySettingFragment : Fragment() {
@@ -62,7 +64,6 @@ class DisplaySettingFragment : Fragment() {
             }
         }
 
-
         binding?.layoutCustomization?.apply {
             key.setText(R.string.layout_customization)
             preferenceSwitch.visibility = View.VISIBLE
@@ -81,6 +82,17 @@ class DisplaySettingFragment : Fragment() {
                 if (activity == null || !isAdded) return@setOnClickListener
                 val action = DisplaySettingFragmentDirections.actionDisplaySettingFragmentToSizeCustomizationFragment()
                 findNavController().navigate(action)
+            }
+        }
+
+        binding?.toolbarCustomization?.apply {
+            key.setText(R.string.toolbar_customization)
+            root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
+                IntentUtil.setToolbarBackgroundImage(requireActivity()){uri->
+                    // TODO: use
+                    Timber.d("res $uri")
+                }
             }
         }
         return binding!!.root

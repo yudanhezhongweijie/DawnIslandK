@@ -60,13 +60,11 @@ class SearchFragment : BaseNavFragment() {
 
     private val viewModel: SearchViewModel by viewModels { viewModelFactory }
     private var binding: FragmentSearchBinding? = null
-    private var viewCaching = false
-
-    private var _mAdapter: QuickMultiBinder? = null
-    private val mAdapter: QuickMultiBinder get() = _mAdapter!!
-
+    private var mAdapter: QuickMultiBinder? = null
     private var pageCounter: TextView? = null
 
+    private var viewCaching = false
+    private var refreshing = false
     private var currentPage = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,6 +96,7 @@ class SearchFragment : BaseNavFragment() {
                         findViewById<Button>(R.id.search).setOnClickListener {
                             val query = findViewById<TextView>(R.id.searchInputText).text.toString()
                             if (query.isNotBlank() && query != viewModel.query) {
+                                refreshing = true
                                 viewModel.search(query)
                                 currentPage = 0
                                 dismiss()
@@ -131,8 +130,8 @@ class SearchFragment : BaseNavFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        if (_mAdapter == null) {
-            _mAdapter = QuickMultiBinder(sharedVM).apply {
+        if (mAdapter == null) {
+            mAdapter = QuickMultiBinder(sharedVM).apply {
                 addItemBinder(SimpleTextBinder())
                 addItemBinder(HitBinder().apply {
                     addChildClickViewIds(R.id.attachedImage)
@@ -154,13 +153,13 @@ class SearchFragment : BaseNavFragment() {
                 adapter = mAdapter
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                        if (activity == null || !isAdded || binding == null) return
+                        if (activity == null || !isAdded || binding == null || mAdapter == null) return
                         val firstVisiblePos =
                             (layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-                        if (firstVisiblePos > 0 && firstVisiblePos < mAdapter.data.lastIndex) {
-                            if (mAdapter.getItem(firstVisiblePos) is String) {
+                        if (firstVisiblePos > 0 && firstVisiblePos < mAdapter!!.data.lastIndex) {
+                            if (mAdapter!!.getItem(firstVisiblePos) is String) {
                                 updateCurrentPage(
-                                    (mAdapter.getItem(firstVisiblePos) as String).substringAfter(
+                                    (mAdapter!!.getItem(firstVisiblePos) as String).substringAfter(
                                         ":"
                                     ).trim().toInt()
                                 )
@@ -173,17 +172,17 @@ class SearchFragment : BaseNavFragment() {
         }
 
         viewModel.loadingStatus.observe(viewLifecycleOwner, Observer<SingleLiveEvent<EventPayload<Nothing>>> {
-            if (binding == null || _mAdapter == null) return@Observer
+            if (binding == null || mAdapter == null) return@Observer
             it.getContentIfNotHandled()?.run {
-                updateHeaderAndFooter(binding!!.srlAndRv.refreshLayout, mAdapter, this)
+                updateHeaderAndFooter(binding!!.srlAndRv.refreshLayout, mAdapter!!, this)
             }
         })
 
 
         viewModel.searchResult.observe(viewLifecycleOwner, Observer<List<SearchResult>> { list ->
-            if (_mAdapter == null) return@Observer
+            if (mAdapter == null) return@Observer
             if (list.isEmpty()) {
-                mAdapter.setDiffNewData(null)
+                mAdapter!!.setDiffNewData(null)
                 hideCurrentPageText()
                 return@Observer
             }
@@ -194,7 +193,9 @@ class SearchFragment : BaseNavFragment() {
                 data.add("结果页数: ${it.page}")
                 data.addAll(it.hits)
             }
-            mAdapter.setDiffNewData(data)
+            if (refreshing) mAdapter!!.setList(data)
+            else mAdapter!!.setDiffNewData(data)
+            refreshing = false
         })
 
         viewCaching = false
@@ -205,7 +206,7 @@ class SearchFragment : BaseNavFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         if (!viewCaching) {
-            _mAdapter = null
+            mAdapter = null
             binding = null
         }
         Timber.d("Fragment View Destroyed ${binding == null}")

@@ -68,6 +68,7 @@ class FeedsFragment : BaseNavFragment() {
     private val viewModel: FeedsViewModel by viewModels { viewModelFactory }
 
     private var viewCaching = false
+    private var refreshing = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -101,6 +102,7 @@ class FeedsFragment : BaseNavFragment() {
                         dialog.setActionButtonEnabled(WhichButton.POSITIVE, isValid)
                     }
                     positiveButton(R.string.submit) {
+                        refreshing = true
                         viewModel.jumpToPage(page)
                     }
                     negativeButton(R.string.cancel)
@@ -180,7 +182,9 @@ class FeedsFragment : BaseNavFragment() {
                     data.add(it)
                 }
             }
-            mAdapter!!.setDiffNewData(data)
+            if (refreshing) mAdapter!!.setList(data)
+            else mAdapter!!.setDiffNewData(data)
+            refreshing = false
             Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} feeds")
         })
 

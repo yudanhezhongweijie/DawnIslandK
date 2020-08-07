@@ -65,6 +65,7 @@ class PostsFragment : BaseNavFragment() {
     private val postPopup: PostPopup by lazyOnMainOnly { PostPopup(requireActivity(), sharedVM) }
     private var isFabOpen = false
     private var viewCaching = false
+    private var refreshing = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -326,19 +327,20 @@ class PostsFragment : BaseNavFragment() {
             if (sharedVM.selectedForumId.value == null) {
                 sharedVM.setForumId(it.first().fid)
             }
-            mAdapter!!.setDiffNewData(it.toMutableList())
+            if (refreshing) mAdapter!!.setList(it.toMutableList())
+            else mAdapter!!.setDiffNewData(it.toMutableList())
+            refreshing = false
             Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
         })
 
         sharedVM.selectedForumId.observe(viewLifecycleOwner, Observer<String> {
             if (mAdapter == null || binding == null || activity == null || !isAdded) return@Observer
             if (viewModel.currentFid != it) {
-                mAdapter?.setList(emptyList())
+                refreshing = true
                 viewModel.setForum(it)
                 sharedVM.forumRefresh = false
             } else if (sharedVM.forumRefresh) {
-                mAdapter?.setList(emptyList())
-                binding?.srlAndRv?.recyclerView?.scrollToPosition(0)
+                refreshing = true
                 viewModel.refresh()
                 sharedVM.forumRefresh = false
             }

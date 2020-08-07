@@ -89,6 +89,7 @@ class CommentsFragment : DaggerFragment() {
 
     private var mAdapter: QuickAdapter<Comment>? = null
     private var viewCaching = false
+    private var refreshing = false
 
     // last visible item indicates the current page, uses for remembering last read page
     private var currentPage = 0
@@ -383,7 +384,7 @@ class CommentsFragment : DaggerFragment() {
                                     Constants.ACTION_NOTHING,
                                     false
                                 )
-                                mAdapter?.setList(emptyList())
+                                refreshing = true
                                 Timber.i("Jumping to ${jumpPopup.targetPage}...")
                                 viewModel.jumpTo(jumpPopup.targetPage)
                             }
@@ -434,7 +435,9 @@ class CommentsFragment : DaggerFragment() {
                 updateTitle()
                 requireTitleUpdate = false
             }
-            mAdapter?.setDiffNewData(it.toMutableList())
+            if (refreshing) mAdapter?.setList(it.toMutableList())
+            else mAdapter?.setDiffNewData(it.toMutableList())
+            refreshing = false
             updateCurrentlyAvailableImages(it)
             mAdapter?.setPo(viewModel.po)
             Timber.i("${this.javaClass.simpleName} Adapter will have ${mAdapter?.data?.size} comments")

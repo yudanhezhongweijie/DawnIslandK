@@ -89,6 +89,51 @@ class GeneralSettingFragment : Fragment() {
             }
         }
 
+        binding?.clearCommentCache?.apply {
+            key.setText(R.string.clear_comment_cache)
+            root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
+                MaterialDialog(requireContext()).show {
+                    title(R.string.clear_comment_cache)
+                    message(R.string.clear_comment_cache_confirm_message)
+                    setActionButtonEnabled(WhichButton.POSITIVE, false)
+                    checkBoxPrompt(R.string.acknowledge) { checked ->
+                        setActionButtonEnabled(WhichButton.POSITIVE, checked)
+                    }
+                    positiveButton(R.string.submit) {
+                        applicationDataStore.nukeCommentTable()
+                        toast(R.string.cleared_comment_cache_message)
+                    }
+                    negativeButton(R.string.cancel)
+                }
+            }
+        }
+
+        binding?.restoreBlockedPosts?.apply {
+            key.setText(R.string.restore_blocked_post)
+            root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
+                MaterialDialog(requireContext()).show {
+                    title(R.string.restore_blocked_post)
+                    message(R.string.restore_blocked_post_confirm_message)
+                    setActionButtonEnabled(WhichButton.POSITIVE, false)
+                    checkBoxPrompt(R.string.acknowledge) { checked ->
+                        setActionButtonEnabled(WhichButton.POSITIVE, checked)
+                    }
+                    positiveButton(R.string.submit) {
+                        applicationDataStore.nukeBlockedPostTable()
+                        toast(R.string.restored_blocked_post)
+                    }
+                    negativeButton(R.string.cancel)
+                }
+            }
+        }
+        return binding!!.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+
         binding?.viewCaching?.apply {
             key.setText(R.string.view_caching)
             preferenceSwitch.visibility = View.VISIBLE
@@ -136,47 +181,6 @@ class GeneralSettingFragment : Fragment() {
                 preferenceSwitch.toggle()
             }
         }
-
-        binding?.clearCommentCache?.apply {
-            key.setText(R.string.clear_comment_cache)
-            root.setOnClickListener {
-                if (activity == null || !isAdded) return@setOnClickListener
-                MaterialDialog(requireContext()).show {
-                    title(R.string.clear_comment_cache)
-                    message(R.string.clear_comment_cache_confirm_message)
-                    setActionButtonEnabled(WhichButton.POSITIVE, false)
-                    checkBoxPrompt(R.string.acknowledge) { checked ->
-                        setActionButtonEnabled(WhichButton.POSITIVE, checked)
-                    }
-                    positiveButton(R.string.submit) {
-                        applicationDataStore.nukeCommentTable()
-                        toast(R.string.cleared_comment_cache_message)
-                    }
-                    negativeButton(R.string.cancel)
-                }
-            }
-        }
-
-        binding?.restoreBlockedPosts?.apply {
-            key.setText(R.string.restore_blocked_post)
-            root.setOnClickListener {
-                if (activity == null || !isAdded) return@setOnClickListener
-                MaterialDialog(requireContext()).show {
-                    title(R.string.restore_blocked_post)
-                    message(R.string.restore_blocked_post_confirm_message)
-                    setActionButtonEnabled(WhichButton.POSITIVE, false)
-                    checkBoxPrompt(R.string.acknowledge) { checked ->
-                        setActionButtonEnabled(WhichButton.POSITIVE, checked)
-                    }
-                    positiveButton(R.string.submit) {
-                        applicationDataStore.nukeBlockedPostTable()
-                        toast(R.string.restored_blocked_post)
-                    }
-                    negativeButton(R.string.cancel)
-                }
-            }
-        }
-        return binding!!.root
     }
 
     override fun onDestroyView() {

@@ -184,6 +184,9 @@
     <string name="layout_customization_on" translatable="false">开启自定义卡片布局</string>
     <string name="layout_customization_off" translatable="false">关闭自定义卡片布局</string>
     <string name="toolbar_customization" translatable="false">设置顶部栏背景</string>
+    <string name="toolbar_customization_on" translatable="false">开启自定义顶部栏背景</string>
+    <string name="toolbar_customization_off" translatable="false">关闭自定义顶部栏背景</string>
+    <string name="toolbar_customization_error" translatable="false">无法读取自定义顶部栏背景，请重新设置</string>
     <string name="comment_filter" translatable="false">只看Po过滤</string>
     <string name="comment_filter_off" translatable="false">只看Po过滤关闭</string>
     <string name="comment_filter_on" translatable="false">只看Po过滤开启。新的非Po评论将被折叠</string>

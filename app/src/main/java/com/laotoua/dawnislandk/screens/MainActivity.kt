@@ -28,8 +28,10 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewPropertyAnimator
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.core.net.toUri
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -130,6 +132,7 @@ class MainActivity : DaggerAppCompatActivity() {
             setSubtitle(R.string.toolbar_subtitle)
         }
         immersiveToolbarInitialization()
+        customToolbarBackground()
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
 
@@ -476,6 +479,19 @@ class MainActivity : DaggerAppCompatActivity() {
             }
             else -> {
                 Timber.e("Unhandled destination navigation $destination")
+            }
+        }
+    }
+
+
+    private fun customToolbarBackground() {
+        if (applicationDataStore.getCustomToolbarImageStatus()) {
+            try {
+                val path = applicationDataStore.getCustomToolbarImagePath().toUri()
+                binding.imageView.setImageURI(path)
+                binding.imageView.scaleType = ImageView.ScaleType.CENTER_CROP
+            } catch (e:Exception){
+                Toast.makeText(this, R.string.toolbar_customization_error, Toast.LENGTH_SHORT).show()
             }
         }
     }

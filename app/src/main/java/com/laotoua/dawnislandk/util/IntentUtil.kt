@@ -29,13 +29,13 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.CallSuper
 import androidx.appcompat.widget.Toolbar
-import androidx.core.view.marginTop
 import androidx.fragment.app.FragmentActivity
 import com.king.zxing.Intents
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.screens.tasks.DoodleActivity
 import com.laotoua.dawnislandk.screens.tasks.QRCookieActivity
 import com.laotoua.dawnislandk.screens.tasks.ToolbarBackgroundCropActivity
+import com.laotoua.dawnislandk.screens.util.ToolBar
 import timber.log.Timber
 import java.io.File
 
@@ -178,9 +178,8 @@ object IntentUtil {
     internal class CropToolbarImage : ActivityResultContract<FragmentActivity, Uri?>() {
         override fun createIntent(context: Context, input: FragmentActivity): Intent {
             val intent = Intent(input, ToolbarBackgroundCropActivity::class.java)
-            val width = input.findViewById<Toolbar>(R.id.toolbar).measuredWidth
-            val topMargin = input.findViewById<Toolbar>(R.id.toolbar).marginTop
-            val height = input.findViewById<Toolbar>(R.id.toolbar).measuredHeight + topMargin
+            val width = input.findViewById<Toolbar>(R.id.toolbar).measuredWidth + 100
+            val height = input.findViewById<Toolbar>(R.id.toolbar).measuredHeight + ToolBar.getStatusBarHeight() + 200
             intent.putExtra("w", width.toFloat())
             intent.putExtra("h", height.toFloat())
             return intent

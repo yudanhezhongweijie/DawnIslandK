@@ -19,12 +19,14 @@ package com.laotoua.dawnislandk.screens.tasks
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import com.laotoua.dawnislandk.R
+import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.IntentUtil
 import com.yalantis.ucrop.UCrop
 import com.yalantis.ucrop.model.AspectRatio
@@ -36,19 +38,20 @@ class ToolbarBackgroundCropActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        IntentUtil.getImageFromGallery(this,"image/*"){ uri: Uri? ->
-            if (uri == null) {
-                Toast.makeText(this, R.string.cannot_load_image_file, Toast.LENGTH_SHORT)
-                    .show()
+        IntentUtil.getImageFromGallery(this,"image/*"){ source: Uri? ->
+            if (source == null) {
+                val intent = Intent()
+                setResult(RESULT_CANCELED, intent)
+                finish()
             } else {
                 try {
-                    val file = File(this.filesDir, "toolbar_bg.png")
                     val width = intent.getFloatExtra("w", 0f)
                     val height = intent.getFloatExtra("h", 0f)
                     val options = UCrop.Options()
                     options.setFreeStyleCropEnabled(true)
                     options.setAspectRatioOptions(0, AspectRatio("默认", width, height))
-                    UCrop.of(uri, file.toUri())
+                    options.setCompressionFormat(Bitmap.CompressFormat.JPEG)
+                    UCrop.of(source, File(this.filesDir, DawnConstants.DEFAULT_TOOLBAR_IMAGE_NAME).toUri())
                         .withOptions(options)
                         .start(this)
                 } catch (e: Exception) {
@@ -68,18 +71,22 @@ class ToolbarBackgroundCropActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
+        if (requestCode == UCrop.REQUEST_CROP && resultCode == Activity.RESULT_OK) {
             val intent = Intent()
             val resultUri = UCrop.getOutput(data!!)
             intent.data = resultUri
             setResult(RESULT_OK, intent)
             finish()
-        } else if (resultCode == UCrop.RESULT_ERROR) {
-            val cropError = UCrop.getError(data!!)
-            Timber.e(cropError)
+        } else if (requestCode == UCrop.REQUEST_CROP &&
+            (resultCode == UCrop.RESULT_ERROR || resultCode == Activity.RESULT_CANCELED)) {
+            if (data != null ){
+                Timber.e(UCrop.getError(data))
+            }
             val intent = Intent()
             setResult(RESULT_CANCELED, intent)
             finish()
+        } else {
+            Timber.e("unhandled intent $requestCode $resultCode $data")
         }
     }
 }

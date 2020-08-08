@@ -53,7 +53,6 @@ import com.laotoua.dawnislandk.util.SingleLiveEvent
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
-import me.dkzwm.widget.srl.config.Constants
 import timber.log.Timber
 
 
@@ -349,14 +348,6 @@ class PostsFragment : BaseNavFragment() {
         viewCaching = false
 
         return binding!!.root
-    }
-
-    override fun onResume() {
-        super.onResume()
-        // initial load
-        if (viewModel.posts.value.isNullOrEmpty()) {
-            binding?.srlAndRv?.refreshLayout?.autoRefresh(Constants.ACTION_NOTHING, false)
-        }
     }
 
     private fun hideFabMenu() {

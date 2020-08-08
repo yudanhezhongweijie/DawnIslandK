@@ -187,11 +187,11 @@ class FeedsFragment : BaseNavFragment() {
             refreshing = false
             Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} feeds")
         })
+        if (viewModel.feeds.value.isNullOrEmpty()) {
+            binding?.srlAndRv?.refreshLayout?.autoRefresh(Constants.ACTION_NOTIFY, false)
+        }
 
         viewCaching = false
-        if (viewModel.feeds.value.isNullOrEmpty()) {
-            binding?.srlAndRv?.refreshLayout?.autoRefresh(Constants.ACTION_NOTHING, false)
-        }
         return binding!!.root
     }
 

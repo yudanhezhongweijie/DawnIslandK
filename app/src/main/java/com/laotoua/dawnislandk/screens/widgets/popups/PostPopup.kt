@@ -154,12 +154,12 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
         targetPage: Int = 1,
         quote: String? = null
     ) {
+        this.targetPage = targetPage
+        this.targetFid = targetFid
         XPopup.Builder(context)
             .setPopupCallback(object : SimpleCallback() {
                 override fun beforeShow(popupView: BasePopupView?) {
                     super.beforeShow(popupView)
-                    (popupView as PostPopup?)?.targetPage = targetPage
-                    popupView?.targetFid = targetFid
                     updateView(targetId, newPost, quote)
                 }
             })

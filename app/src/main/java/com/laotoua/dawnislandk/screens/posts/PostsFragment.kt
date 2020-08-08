@@ -326,7 +326,10 @@ class PostsFragment : BaseNavFragment() {
             if (sharedVM.selectedForumId.value == null) {
                 sharedVM.setForumId(it.first().fid)
             }
-            if (refreshing) mAdapter!!.setList(it.toMutableList())
+            if (refreshing) {
+                mAdapter!!.setList(it.toMutableList())
+                binding?.srlAndRv?.recyclerView?.scrollToPosition(0)
+            }
             else mAdapter!!.setDiffNewData(it.toMutableList())
             refreshing = false
             Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")

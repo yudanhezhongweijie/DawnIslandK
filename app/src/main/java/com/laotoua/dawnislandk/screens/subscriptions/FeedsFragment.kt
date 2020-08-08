@@ -182,7 +182,10 @@ class FeedsFragment : BaseNavFragment() {
                     data.add(it)
                 }
             }
-            if (refreshing) mAdapter!!.setList(data)
+            if (refreshing) {
+                mAdapter!!.setList(data)
+                binding?.srlAndRv?.recyclerView?.scrollToPosition(0)
+            }
             else mAdapter!!.setDiffNewData(data)
             refreshing = false
             Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} feeds")

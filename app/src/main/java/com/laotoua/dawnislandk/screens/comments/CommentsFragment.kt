@@ -435,7 +435,10 @@ class CommentsFragment : DaggerFragment() {
                 updateTitle()
                 requireTitleUpdate = false
             }
-            if (refreshing) mAdapter?.setList(it.toMutableList())
+            if (refreshing) {
+                mAdapter?.setList(it.toMutableList())
+                binding?.srlAndRv?.recyclerView?.scrollToPosition(0)
+            }
             else mAdapter?.setDiffNewData(it.toMutableList())
             refreshing = false
             updateCurrentlyAvailableImages(it)

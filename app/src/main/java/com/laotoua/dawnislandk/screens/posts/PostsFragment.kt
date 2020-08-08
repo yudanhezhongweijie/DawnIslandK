@@ -53,7 +53,6 @@ import com.laotoua.dawnislandk.util.SingleLiveEvent
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
-import me.dkzwm.widget.srl.config.Constants
 import timber.log.Timber
 
 
@@ -327,7 +326,10 @@ class PostsFragment : BaseNavFragment() {
             if (sharedVM.selectedForumId.value == null) {
                 sharedVM.setForumId(it.first().fid)
             }
-            if (refreshing) mAdapter!!.setList(it.toMutableList())
+            if (refreshing) {
+                mAdapter!!.setList(it.toMutableList())
+                binding?.srlAndRv?.recyclerView?.scrollToPosition(0)
+            }
             else mAdapter!!.setDiffNewData(it.toMutableList())
             refreshing = false
             Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
@@ -349,14 +351,6 @@ class PostsFragment : BaseNavFragment() {
         viewCaching = false
 
         return binding!!.root
-    }
-
-    override fun onResume() {
-        super.onResume()
-        // initial load
-        if (viewModel.posts.value.isNullOrEmpty()) {
-            binding?.srlAndRv?.refreshLayout?.autoRefresh(Constants.ACTION_NOTHING, false)
-        }
     }
 
     private fun hideFabMenu() {

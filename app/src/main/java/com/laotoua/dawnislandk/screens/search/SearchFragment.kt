@@ -168,7 +168,7 @@ class SearchFragment : BaseNavFragment() {
                     }
                 })
             }
-            viewModel.search(args.query)
+            if  (viewModel.query.isBlank()) viewModel.search(args.query)
         }
 
         viewModel.loadingStatus.observe(viewLifecycleOwner, Observer<SingleLiveEvent<EventPayload<Nothing>>> {
@@ -188,12 +188,14 @@ class SearchFragment : BaseNavFragment() {
             }
             if (currentPage == 0) updateCurrentPage(1)
             val data: MutableList<Any> = ArrayList()
-            data.add("搜索： ${list.firstOrNull()?.query}")
             list.map {
-                data.add("结果页数: ${it.page}")
+                data.add("搜索: ${list.firstOrNull()?.query} 页数: ${it.page}")
                 data.addAll(it.hits)
             }
-            if (refreshing) mAdapter!!.setList(data)
+            if (refreshing) {
+                mAdapter!!.setList(data)
+                binding?.srlAndRv?.recyclerView?.scrollToPosition(0)
+            }
             else mAdapter!!.setDiffNewData(data)
             refreshing = false
         })

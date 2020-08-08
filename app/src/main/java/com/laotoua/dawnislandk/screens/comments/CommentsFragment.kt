@@ -435,7 +435,10 @@ class CommentsFragment : DaggerFragment() {
                 updateTitle()
                 requireTitleUpdate = false
             }
-            if (refreshing) mAdapter?.setList(it.toMutableList())
+            if (refreshing) {
+                mAdapter?.setList(it.toMutableList())
+                binding?.srlAndRv?.recyclerView?.scrollToPosition(0)
+            }
             else mAdapter?.setDiffNewData(it.toMutableList())
             refreshing = false
             updateCurrentlyAvailableImages(it)
@@ -561,11 +564,12 @@ class CommentsFragment : DaggerFragment() {
     private fun updateCurrentPage() {
         if (mAdapter == null || binding == null) return
         val page = getCurrentPage()
-        if (page != currentPage || pageCounter?.text?.isBlank() == true) {
+        if (page != currentPage ) {
             viewModel.saveReadingProgress(page)
-            pageCounter?.text =
-                (page.toString() + " / " + viewModel.maxPage.toString()).toSpannable()
-                    .apply { setSpan(UnderlineSpan(), 0, length, 0) }
+        }
+        val newText = "$page / ${viewModel.maxPage}"
+        if (pageCounter?.text != newText){
+            pageCounter?.text = newText.toSpannable().apply { setSpan(UnderlineSpan(), 0, length, 0) }
         }
         currentPage = page
     }

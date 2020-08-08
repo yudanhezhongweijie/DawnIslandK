@@ -72,6 +72,11 @@
         </activity>
         <activity android:name="com.laotoua.dawnislandk.screens.tasks.DoodleActivity" />
         <activity android:name="com.laotoua.dawnislandk.screens.tasks.QRCookieActivity" />
+        <activity android:name="com.laotoua.dawnislandk.screens.tasks.ToolbarBackgroundCropActivity" />
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
     </application>
 
 </manifest>

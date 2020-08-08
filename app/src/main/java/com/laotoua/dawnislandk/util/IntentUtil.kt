@@ -28,11 +28,14 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.CallSuper
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.FragmentActivity
 import com.king.zxing.Intents
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.screens.tasks.DoodleActivity
 import com.laotoua.dawnislandk.screens.tasks.QRCookieActivity
+import com.laotoua.dawnislandk.screens.tasks.ToolbarBackgroundCropActivity
+import com.laotoua.dawnislandk.screens.util.ToolBar
 import timber.log.Timber
 import java.io.File
 
@@ -140,20 +143,13 @@ object IntentUtil {
         caller.registerForActivityResult(MakeDoodle(), callback).launch(caller)
     }
 
-    internal class MakeDoodle :
-        ActivityResultContract<FragmentActivity, Uri?>() {
+    internal class MakeDoodle : ActivityResultContract<FragmentActivity, Uri?>() {
         @CallSuper
-        override fun createIntent(
-            context: Context,
-            input: FragmentActivity
-        ): Intent {
+        override fun createIntent(context: Context, input: FragmentActivity): Intent {
             return Intent(input, DoodleActivity::class.java)
         }
 
-        override fun parseResult(
-            resultCode: Int,
-            intent: Intent?
-        ): Uri? {
+        override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
             return if (intent == null || resultCode != Activity.RESULT_OK) null else intent.data
         }
     }
@@ -162,23 +158,36 @@ object IntentUtil {
         caller.registerForActivityResult(ScanQRCode(), callback).launch(caller)
     }
 
-    internal class ScanQRCode :
-        ActivityResultContract<FragmentActivity, String?>() {
+    fun setToolbarBackgroundImage(caller: FragmentActivity, callback: (Uri?) -> Unit) {
+        caller.registerForActivityResult(CropToolbarImage(), callback).launch(caller)
+    }
+
+    internal class ScanQRCode : ActivityResultContract<FragmentActivity, String?>() {
         @CallSuper
-        override fun createIntent(
-            context: Context,
-            input: FragmentActivity
-        ): Intent {
+        override fun createIntent(context: Context, input: FragmentActivity): Intent {
             return Intent(input, QRCookieActivity::class.java)
         }
 
-        override fun parseResult(
-            resultCode: Int,
-            intent: Intent?
-        ): String? {
+        override fun parseResult(resultCode: Int, intent: Intent?): String? {
             return if (intent == null || resultCode != Activity.RESULT_OK) null else intent.getStringExtra(
                 Intents.Scan.RESULT
             )
         }
+    }
+
+    internal class CropToolbarImage : ActivityResultContract<FragmentActivity, Uri?>() {
+        override fun createIntent(context: Context, input: FragmentActivity): Intent {
+            val intent = Intent(input, ToolbarBackgroundCropActivity::class.java)
+            val width = input.findViewById<Toolbar>(R.id.toolbar).measuredWidth + 100
+            val height = input.findViewById<Toolbar>(R.id.toolbar).measuredHeight + ToolBar.getStatusBarHeight() + 200
+            intent.putExtra("w", width.toFloat())
+            intent.putExtra("h", height.toFloat())
+            return intent
+        }
+
+        override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
+            return if (intent == null || resultCode != Activity.RESULT_OK) null else intent.data
+        }
+
     }
 }

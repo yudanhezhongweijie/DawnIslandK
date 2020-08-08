@@ -165,6 +165,8 @@ dependencies {
     implementation "me.dkzwm.widget.srl:ext-util:$srl_version"
     implementation "me.dkzwm.widget.srl:ext-material:$srl_version"
 
+    implementation 'com.github.yalantis:ucrop:2.2.5'
+
     implementation 'com.king.zxing:zxing-lite:1.1.9-androidx'
 
     implementation 'com.github.zhpanvip:viewpagerindicator:1.0.4'

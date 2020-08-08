@@ -17,6 +17,7 @@
 
 package com.laotoua.dawnislandk.screens.profile
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -32,6 +33,7 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.FragmentDisplaySettingBinding
 import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.screens.util.Layout.updateSwitchSummary
+import com.laotoua.dawnislandk.util.IntentUtil
 
 
 class DisplaySettingFragment : Fragment() {
@@ -62,6 +64,11 @@ class DisplaySettingFragment : Fragment() {
             }
         }
 
+        return binding!!.root
+    }
+
+    override fun onResume() {
+        super.onResume()
 
         binding?.layoutCustomization?.apply {
             key.setText(R.string.layout_customization)
@@ -83,7 +90,33 @@ class DisplaySettingFragment : Fragment() {
                 findNavController().navigate(action)
             }
         }
-        return binding!!.root
+
+        binding?.toolbarCustomization?.apply {
+            key.setText(R.string.toolbar_customization)
+            preferenceSwitch.visibility = View.VISIBLE
+            preferenceSwitch.isClickable = true
+            preferenceSwitch.isChecked = applicationDataStore.getCustomToolbarImageStatus()
+            updateSwitchSummary(R.string.toolbar_customization_on, R.string.toolbar_customization_off)
+            preferenceSwitch.setOnCheckedChangeListener { _, isChecked ->
+                applicationDataStore.setCustomToolbarImageStatus(isChecked)
+                updateSwitchSummary(
+                    R.string.toolbar_customization_on,
+                    R.string.toolbar_customization_off
+                )
+                toast(R.string.restart_to_apply_setting)
+            }
+            root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
+                IntentUtil.setToolbarBackgroundImage(requireActivity()){ uri: Uri? ->
+                    if (uri != null) {
+                        applicationDataStore.setCustomToolbarImagePath(uri.toString())
+                        toast(R.string.restart_to_apply_setting)
+                    } else {
+                        toast(R.string.cannot_load_image_file)
+                    }
+                }
+            }
+        }
     }
 
     override fun onDestroyView() {

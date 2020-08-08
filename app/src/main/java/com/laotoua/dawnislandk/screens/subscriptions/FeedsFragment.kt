@@ -182,16 +182,19 @@ class FeedsFragment : BaseNavFragment() {
                     data.add(it)
                 }
             }
-            if (refreshing) mAdapter!!.setList(data)
+            if (refreshing) {
+                mAdapter!!.setList(data)
+                binding?.srlAndRv?.recyclerView?.scrollToPosition(0)
+            }
             else mAdapter!!.setDiffNewData(data)
             refreshing = false
             Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} feeds")
         })
+        if (viewModel.feeds.value.isNullOrEmpty()) {
+            binding?.srlAndRv?.refreshLayout?.autoRefresh(Constants.ACTION_NOTIFY, false)
+        }
 
         viewCaching = false
-        if (viewModel.feeds.value.isNullOrEmpty()) {
-            binding?.srlAndRv?.refreshLayout?.autoRefresh(Constants.ACTION_NOTHING, false)
-        }
         return binding!!.root
     }
 

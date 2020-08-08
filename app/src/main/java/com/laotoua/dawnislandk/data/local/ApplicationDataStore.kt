@@ -125,6 +125,32 @@ class ApplicationDataStore @Inject constructor(
         mmkv.putBoolean(DawnConstants.LAYOUT_CUSTOMIZATION, value)
     }
 
+    private var customToolbarImageStatus: Boolean? = null
+    fun getCustomToolbarImageStatus(): Boolean {
+        if (customToolbarImageStatus == null) {
+            customToolbarImageStatus = mmkv.getBoolean(DawnConstants.CUSTOM_TOOLBAR_STATUS, false)
+        }
+        return customToolbarImageStatus!!
+    }
+
+    fun setCustomToolbarImageStatus(value: Boolean) {
+        customToolbarImageStatus = value
+        mmkv.putBoolean(DawnConstants.CUSTOM_TOOLBAR_STATUS, value)
+    }
+
+    private var customToolbarImagePath: String? = null
+    fun getCustomToolbarImagePath(): String {
+        if (customToolbarImagePath == null) {
+            customToolbarImagePath = mmkv.getString(DawnConstants.TOOLBAR_IMAGE_PATH, "")
+        }
+        return customToolbarImagePath!!
+    }
+
+    fun setCustomToolbarImagePath(value: String) {
+        customToolbarImagePath = value
+        mmkv.putString(DawnConstants.TOOLBAR_IMAGE_PATH, value)
+    }
+
     val displayTimeFormat by lazyOnMainOnly {
         mmkv.getString(
             DawnConstants.TIME_FORMAT,

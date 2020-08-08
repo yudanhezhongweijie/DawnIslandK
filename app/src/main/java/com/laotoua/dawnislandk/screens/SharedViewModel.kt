@@ -323,4 +323,33 @@ class SharedViewModel @Inject constructor(
             communityRepository.saveCommonCommunity(commonCommunity)
         }
     }
+
+    suspend fun getLatestPostId(): Pair<String, String> {
+        var id = "0"
+        var time = ""
+        webNMBServiceClient.getPosts("-1", 1).run {
+            if (this is APIDataResponse.Success) {
+                data?.map { post ->
+                    if (post.id > id) {
+                        id = post.id
+                        time = post.now
+                    }
+                    post.comments.map { comment ->
+                        if (comment.id > id) {
+                            id = comment.id
+                            time = comment.now
+                        }
+                    }
+                }
+            } else {
+                Timber.e(message)
+            }
+        }
+        return Pair(
+            if (id == "0") {
+                "没有读取到串号。。"
+            } else id, time
+        )
+
+    }
 }

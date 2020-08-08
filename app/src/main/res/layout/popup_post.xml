@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ /* Copyright 2020 Fishballzzz
   ~  *
   ~  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -155,8 +156,24 @@
             app:icon="@drawable/ic_cookie_black_24px"
             app:iconGravity="textStart"
             app:layout_constraintBottom_toTopOf="@+id/ButtonGroupContainer"
+            app:layout_constraintEnd_toStartOf="@id/rollCheat"
+            app:layout_constraintStart_toEndOf="@+id/postForum"
+            app:strokeWidth="0dp" />
+
+        <Button
+            android:id="@+id/rollCheat"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/roll_cheat"
+            android:textAllCaps="false"
+            android:visibility="gone"
+            app:icon="@drawable/ic_adjust_24px"
+            app:iconGravity="textStart"
+            app:layout_constraintBottom_toTopOf="@+id/ButtonGroupContainer"
             app:layout_constraintEnd_toEndOf="@+id/postContent"
-            app:layout_constraintStart_toEndOf="@+id/postForum" />
+            app:layout_constraintStart_toEndOf="@id/postCookie"
+            app:strokeWidth="0dp" />
 
         <HorizontalScrollView
             android:id="@+id/ButtonGroupContainer"

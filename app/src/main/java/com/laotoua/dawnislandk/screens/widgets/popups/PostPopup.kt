@@ -79,6 +79,7 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
     private var selectedCookie: Cookie? = null
     private var postCookie: Button? = null
     private var postForum: Button? = null
+    private var rollCheat: Button? = null
 
     private var toggleContainers: ConstraintLayout? = null
     private var expansionContainer: LinearLayout? = null
@@ -299,6 +300,18 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
                             }
                         }
                     }
+                }
+            }
+        }
+
+        findViewById<Button>(R.id.rollCheat).apply{
+            rollCheat = this
+            visibility = if (!newPost && targetFid == "111")  View.VISIBLE else View.GONE
+
+            setOnClickListener {
+                caller.lifecycleScope.launch {
+                    val id = sharedVM.getLatestPostId()
+                    Toast.makeText(context, "${id.second}\nNo.${id.first}", Toast.LENGTH_LONG).show()
                 }
             }
         }

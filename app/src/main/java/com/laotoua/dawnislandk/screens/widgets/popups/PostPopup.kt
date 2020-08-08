@@ -144,12 +144,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
         updateTitle(targetId, newPost)
         updateCookies()
         updateForumButton(targetId, newPost)
-        quote?.run {
-            postContent!!.text.insert(
-                0,
-                quote
-            )
-        }
+        quote?.run { postContent?.text?.insert(0, quote) }
     }
 
     fun setupAndShow(
@@ -169,6 +164,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
                 }
             })
             .enableDrag(false)
+            .moveUpToKeyboard(false)
             .asCustom(this)
             .show()
     }
@@ -202,7 +198,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
         super.onCreate()
 
         postContent = findViewById<EditText>(R.id.postContent).apply {
-            setOnClickListener { view ->KeyboardUtils.showSoftInput(view)            }
+            setOnClickListener { view -> KeyboardUtils.showSoftInput(view) }
         }
 
         toggleContainers = findViewById<ConstraintLayout>(R.id.toggleContainers).also {
@@ -450,11 +446,6 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
             KeyboardUtils.hideSoftInput(postContent!!)
             buttonToggleGroup?.clearChecked()
             dismiss()
-//            dismissWith {
-//                val lp = keyboardHolder!!.layoutParams
-//                lp.height = 0
-//                keyboardHolder!!.layoutParams = lp
-//            }
         }
 
     }

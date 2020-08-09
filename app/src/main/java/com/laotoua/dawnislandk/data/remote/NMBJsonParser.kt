@@ -163,6 +163,7 @@ abstract class NMBJsonParser<T> {
                                 sourceObject.optString("email"),
                                 sourceObject.optString("content")
                             )
+                            hit.page = page
                             hitsList.add(hit)
                         }
                     }

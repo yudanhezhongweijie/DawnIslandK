@@ -36,6 +36,7 @@ data class SearchResult(
         val email: String,
         val content: String
     ) {
+        var page:Int = 0 // to be set when data comes back
         fun getImgUrl(): String = img + ext
         fun getPostId(): String = if (resto == "0") id else resto
     }

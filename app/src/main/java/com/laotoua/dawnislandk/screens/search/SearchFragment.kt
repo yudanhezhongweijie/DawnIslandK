@@ -50,6 +50,7 @@ import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.SingleLiveEvent
 import com.lxj.xpopup.XPopup
+import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import timber.log.Timber
 import java.util.*
 
@@ -147,6 +148,13 @@ class SearchFragment : BaseNavFragment() {
         } else {
             Timber.d("Fragment View Created")
             binding = FragmentSearchBinding.inflate(inflater, container, false)
+            binding?.srlAndRv?.refreshLayout?.setOnRefreshListener(object :
+                RefreshingListenerAdapter() {
+                override fun onRefreshing() {
+                    binding?.srlAndRv?.refreshLayout?.refreshComplete(true)
+                }
+            })
+
             binding?.srlAndRv?.recyclerView?.apply {
                 setHasFixedSize(true)
                 layoutManager = LinearLayoutManager(context)
@@ -157,18 +165,14 @@ class SearchFragment : BaseNavFragment() {
                         val firstVisiblePos =
                             (layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
                         if (firstVisiblePos > 0 && firstVisiblePos < mAdapter!!.data.lastIndex) {
-                            if (mAdapter!!.getItem(firstVisiblePos) is String) {
-                                updateCurrentPage(
-                                    (mAdapter!!.getItem(firstVisiblePos) as String).substringAfter(
-                                        ":"
-                                    ).trim().toInt()
-                                )
+                            if (mAdapter!!.getItem(firstVisiblePos) is SearchResult.Hit) {
+                                updateCurrentPage((mAdapter!!.getItem(firstVisiblePos) as SearchResult.Hit).page)
                             }
                         }
                     }
                 })
             }
-            if  (viewModel.query.isBlank()) viewModel.search(args.query)
+            if (viewModel.query.isBlank()) viewModel.search(args.query)
         }
 
         viewModel.loadingStatus.observe(viewLifecycleOwner, Observer<SingleLiveEvent<EventPayload<Nothing>>> {
@@ -195,8 +199,7 @@ class SearchFragment : BaseNavFragment() {
             if (refreshing) {
                 mAdapter!!.setList(data)
                 binding?.srlAndRv?.recyclerView?.scrollToPosition(0)
-            }
-            else mAdapter!!.setDiffNewData(data)
+            } else mAdapter!!.setDiffNewData(data)
             refreshing = false
         })
 
@@ -215,7 +218,7 @@ class SearchFragment : BaseNavFragment() {
     }
 
     private fun updateCurrentPage(page: Int) {
-        if (page != currentPage) {
+        if (page != currentPage || pageCounter?.text?.isBlank() == true) {
             pageCounter?.text =
                 (page.toString() + " / " + viewModel.maxPage.toString()).toSpannable()
                     .apply { setSpan(UnderlineSpan(), 0, length, 0) }

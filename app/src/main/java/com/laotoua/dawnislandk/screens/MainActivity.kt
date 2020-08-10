@@ -162,6 +162,11 @@ class MainActivity : DaggerAppCompatActivity() {
                 setToolbarTitle(sharedVM.getForumDisplayName(it))
             }
         })
+
+        // TODO: use notifications
+        sharedVM.notifications.observe(this, Observer {
+            Timber.d("notifications: ${it.size}")
+        })
     }
 
     private fun handleIntentFilterNavigation(intent: Intent?) {
@@ -287,7 +292,7 @@ class MainActivity : DaggerAppCompatActivity() {
                 updateTitleAndBottomNav(destination)
             }
             binding.bottomNavBar.setOnNavigationItemReselectedListener { item: MenuItem ->
-                if (item.itemId == R.id.postsFragment) showDrawer()
+                if (item.itemId == R.id.postsFragment && currentFragmentId == R.id.postsFragment) showDrawer()
             }
             binding.bottomNavBar.setupWithNavController(navController)
             // up button

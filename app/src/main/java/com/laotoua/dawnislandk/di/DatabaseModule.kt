@@ -124,4 +124,11 @@ object DatabaseModule {
     fun provideBlockedIdDao(dawnDatabase: DawnDatabase): BlockedIdDao {
         return dawnDatabase.blockedIdDao()
     }
+
+    @JvmStatic
+    @Provides
+    @Singleton
+    fun provideNotificationDao(dawnDatabase: DawnDatabase): NotificationDao {
+        return dawnDatabase.notificationDao()
+    }
 }

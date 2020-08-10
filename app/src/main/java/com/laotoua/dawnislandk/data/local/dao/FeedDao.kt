@@ -31,8 +31,12 @@ interface FeedDao {
     @Query("SELECT * From Feed")
     fun getAllFeedAndPost(): LiveData<List<FeedAndPost>>
 
-    @Query("SELECT * From FEED where postId=:postId")
+    @Query("SELECT * From Feed where postId=:postId")
     suspend fun findFeedByPostId(postId: String): Feed?
+
+    @Transaction
+    @Query("SELECT * From Feed,Post where Feed.postId == Post.id And :targetTime>Post.lastUpdatedAt ORDER BY Feed.lastUpdatedAt ASC, Post.lastUpdatedAt ASC LIMIT 1")
+    suspend fun findMostOutdatedFeedAndPost(targetTime:Long): FeedAndPost?
 
     @Transaction
     @Query("SELECT * From Feed WHERE page==:page ORDER BY id ASC")

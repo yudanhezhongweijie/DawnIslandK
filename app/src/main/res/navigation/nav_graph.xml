@@ -66,6 +66,13 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_postsFragment_to_notificationFragment"
+            app:destination="@id/notificationFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <fragment
@@ -150,4 +157,8 @@
         android:id="@+id/commonPostsFragment"
         android:name="com.laotoua.dawnislandk.screens.profile.CommonPostsFragment"
         tools:layout="@layout/fragment_common_posts" />
+    <fragment
+        android:id="@+id/notificationFragment"
+        android:name="com.laotoua.dawnislandk.screens.notification.NotificationFragment"
+        tools:layout="@layout/fragment_notification" />
 </navigation>

@@ -23,6 +23,8 @@ import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.comments.CommentsFragment
 import com.laotoua.dawnislandk.screens.comments.CommentsViewModel
 import com.laotoua.dawnislandk.screens.history.*
+import com.laotoua.dawnislandk.screens.notification.NotificationFragment
+import com.laotoua.dawnislandk.screens.notification.NotificationViewModel
 import com.laotoua.dawnislandk.screens.posts.PostsFragment
 import com.laotoua.dawnislandk.screens.posts.PostsViewModel
 import com.laotoua.dawnislandk.screens.profile.*
@@ -82,6 +84,9 @@ abstract class ViewModelModule {
     @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
     internal abstract fun customSettingFragment(): CustomSettingFragment
 
+    @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
+    internal abstract fun notificationFragment(): NotificationFragment
+
     @Binds
     @IntoMap
     @ViewModelKey(PostsViewModel::class)
@@ -131,4 +136,9 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(CustomSettingViewModel::class)
     abstract fun bindCustomSettingViewModel(viewModel: CustomSettingViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(NotificationViewModel::class)
+    abstract fun bindNotificationViewModel(viewModel: NotificationViewModel): ViewModel
 }

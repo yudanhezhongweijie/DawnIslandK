@@ -22,10 +22,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.view.animation.AnimationUtils
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
@@ -38,6 +35,7 @@ import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
+import com.laotoua.dawnislandk.data.local.entity.Notification
 import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.databinding.FragmentPostBinding
 import com.laotoua.dawnislandk.screens.MainActivity
@@ -60,6 +58,8 @@ class PostsFragment : BaseNavFragment() {
 
     private var binding: FragmentPostBinding? = null
     private var mAdapter: QuickAdapter<Post>? = null
+    private var redCircle: FrameLayout? = null
+    private var countTextView: TextView? = null
     private val viewModel: PostsViewModel by viewModels { viewModelFactory }
     private val postPopup: PostPopup by lazyOnMainOnly { PostPopup(requireActivity(), sharedVM) }
     private var isFabOpen = false
@@ -74,6 +74,25 @@ class PostsFragment : BaseNavFragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_fragment_post, menu)
         super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        val rootView = menu.findItem(R.id.feedNotification)
+        rootView.actionView.apply {
+            redCircle = findViewById(R.id.viewAlertRedCircle)
+            countTextView = findViewById(R.id.viewAlertCountTextView)
+            // sometimes menu is prepared after sharedVM observation, add a catch update here
+            val count = sharedVM.notifications.value?.filterNot { n -> n.read }?.size ?: 0
+            updateFeedNotificationIcon(count)
+            setOnClickListener { onOptionsItemSelected(rootView) }
+        }
+        super.onPrepareOptionsMenu(menu)
+    }
+
+    private fun updateFeedNotificationIcon(count: Int) {
+        // if alert count extends into two digits, just show the red circle
+        countTextView?.text = if (count in 1..9) "$count" else ""
+        redCircle?.visibility = if (count > 0) View.VISIBLE else View.GONE
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -113,6 +132,11 @@ class PostsFragment : BaseNavFragment() {
                     }
                     positiveButton(R.string.acknowledge)
                 }
+                return true
+            }
+            R.id.feedNotification -> {
+                val action = PostsFragmentDirections.actionPostsFragmentToNotificationFragment()
+                findNavController().navigate(action)
                 return true
             }
             else -> super.onOptionsItemSelected(item)
@@ -329,8 +353,7 @@ class PostsFragment : BaseNavFragment() {
             if (refreshing) {
                 mAdapter!!.setList(it.toMutableList())
                 binding?.srlAndRv?.recyclerView?.scrollToPosition(0)
-            }
-            else mAdapter!!.setDiffNewData(it.toMutableList())
+            } else mAdapter!!.setDiffNewData(it.toMutableList())
             refreshing = false
             Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
         })
@@ -348,8 +371,12 @@ class PostsFragment : BaseNavFragment() {
             }
         })
 
-        viewCaching = false
+        sharedVM.notifications.observe(viewLifecycleOwner, Observer<List<Notification>> { list ->
+            val count = list.filterNot { it.read }.size
+            updateFeedNotificationIcon(count)
+        })
 
+        viewCaching = false
         return binding!!.root
     }
 

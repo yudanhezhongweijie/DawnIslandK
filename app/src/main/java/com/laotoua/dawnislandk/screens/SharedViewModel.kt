@@ -21,17 +21,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.laotoua.dawnislandk.data.local.dao.CommentDao
-import com.laotoua.dawnislandk.data.local.dao.PostDao
-import com.laotoua.dawnislandk.data.local.dao.PostHistoryDao
-import com.laotoua.dawnislandk.data.local.entity.Community
-import com.laotoua.dawnislandk.data.local.entity.Post
-import com.laotoua.dawnislandk.data.local.entity.PostHistory
+import com.laotoua.dawnislandk.DawnApp
+import com.laotoua.dawnislandk.data.local.dao.*
+import com.laotoua.dawnislandk.data.local.entity.*
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.data.repository.CommunityRepository
 import com.laotoua.dawnislandk.screens.util.ContentTransformation
+import com.laotoua.dawnislandk.util.LoadingStatus
+import com.laotoua.dawnislandk.util.ReadableTime
 import com.laotoua.dawnislandk.util.SingleLiveEvent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -45,10 +44,14 @@ class SharedViewModel @Inject constructor(
     private val postDao: PostDao,
     private val commentDao: CommentDao,
     private val postHistoryDao: PostHistoryDao,
+    private val feedDao: FeedDao,
+    private val notificationDao: NotificationDao,
     private val communityRepository: CommunityRepository
 ) : ViewModel() {
 
     val communityList = communityRepository.communityList
+
+    val notifications = notificationDao.getLiveAllNotifications()
 
     val reedPictureUrl = MutableLiveData<String>()
     private var _selectedForumId = MutableLiveData<String>()
@@ -68,6 +71,61 @@ class SharedViewModel @Inject constructor(
 
     init {
         getRandomReedPicture()
+        if (DawnApp.applicationDataStore.getAutoUpdateFeed()) autoUpdateFeeds()
+    }
+
+    /** scan cache feed daily, update the most outdated feed
+     *  updates 1 feed per 5 minutes
+     */
+    private fun autoUpdateFeeds() {
+        viewModelScope.launch {
+            while (true) {
+                Timber.d("Auto Update Feed is on. Looping...")
+                val currentTime = System.currentTimeMillis() - ReadableTime.DAY_MILLIS
+                val outDatedFeedAndPost = feedDao.findMostOutdatedFeedAndPost(currentTime) ?: break
+                Timber.d("Found outdated Feed ${outDatedFeedAndPost.feed.postId}. Updating...")
+                updateOutdatedFeedAndPost(outDatedFeedAndPost)
+                delay(ReadableTime.MINUTE_MILLIS * 5)
+            }
+        }
+    }
+
+    // update Post, Comment, Notification, Feed
+    private suspend fun updateOutdatedFeedAndPost(outDatedFeedAndPost: FeedAndPost) {
+        val id: String = outDatedFeedAndPost.post?.id ?: outDatedFeedAndPost.feed.postId
+        val page: Int = outDatedFeedAndPost.post?.getMaxPage() ?: 1
+        webNMBServiceClient.getComments(id, page).run {
+            if (this.status == LoadingStatus.SUCCESS) {
+                if (data == null) {
+                    Timber.e("Server returns no data but status is success")
+                    return@run
+                }
+                // save Post & Comment
+                postDao.insertWithTimeStamp(data)
+                val noAd = data.comments.filter { it.isNotAd() }
+                noAd.map { it.page = page; it.parentId = id }
+                commentDao.insertAllWithTimeStamp(noAd)
+
+                // update notification, only if there are new replies
+                val replyCount: Int = try {
+                    data.replyCount.toInt() - (outDatedFeedAndPost.post?.replyCount?.toInt() ?: 0)
+                } catch (e: Exception) {
+                    Timber.e("error in replyCount conversion $e")
+                    data.replyCount.toInt()
+                }
+                if (replyCount > 0) {
+                    Timber.d("Found feed ${data.id} with new reply. Updating...")
+                    val notification = Notification.makeNotification(data.id, data.fid, replyCount)
+                    notificationDao.insertOrUpdateNotification(notification)
+                }
+
+                // update feed
+                outDatedFeedAndPost.feed.let {
+                    it.lastUpdatedAt = Date().time
+                    feedDao.insertFeed(it)
+                }
+            }
+        }
     }
 
     fun setForumMappings(list: List<Community>) {
@@ -265,7 +323,7 @@ class SharedViewModel @Inject constructor(
         searchCommentInPost(draft, targetPage - 1, targetPageUpperBound)
     }
 
-    fun saveCommonCommunity(commonCommunity: Community){
+    fun saveCommonCommunity(commonCommunity: Community) {
         viewModelScope.launch {
             communityRepository.saveCommonCommunity(commonCommunity)
         }

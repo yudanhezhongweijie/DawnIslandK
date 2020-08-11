@@ -19,14 +19,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/feedNotification"
-        app:actionLayout="@layout/view_feed_notification_badge"
-        android:title="@string/feed_notification"
-        app:showAsAction="ifRoom"/>
-
-    <item
-        android:id="@+id/forumRule"
-        android:icon="@drawable/ic_info_24px"
-        android:title="@string/forum_rules"
-        app:showAsAction="ifRoom"/>
+        android:id="@+id/help"
+        android:icon="@drawable/ic_help_24px"
+        android:title="@string/help"
+        app:showAsAction="ifRoom" />
 </menu>

@@ -287,7 +287,7 @@ class MainActivity : DaggerAppCompatActivity() {
                 updateTitleAndBottomNav(destination)
             }
             binding.bottomNavBar.setOnNavigationItemReselectedListener { item: MenuItem ->
-                if (item.itemId == R.id.postsFragment) showDrawer()
+                if (item.itemId == R.id.postsFragment && currentFragmentId == R.id.postsFragment) showDrawer()
             }
             binding.bottomNavBar.setupWithNavController(navController)
             // up button
@@ -475,6 +475,10 @@ class MainActivity : DaggerAppCompatActivity() {
             }
             R.id.sizeCustomizationFragment -> {
                 setToolbarTitle(R.string.layout_customization)
+                hideNav()
+            }
+            R.id.notificationFragment -> {
+                setToolbarTitle(R.string.feed_notification)
                 hideNav()
             }
             else -> {

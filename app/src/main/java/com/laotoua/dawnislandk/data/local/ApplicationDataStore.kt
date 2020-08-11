@@ -207,6 +207,18 @@ class ApplicationDataStore @Inject constructor(
         mmkv.putBoolean(DawnConstants.VIEW_CACHING, value)
     }
 
+    private var autoUpdateFeed:Boolean? = null
+    fun getAutoUpdateFeed():Boolean {
+        if (autoUpdateFeed == null){
+            autoUpdateFeed = mmkv.getBoolean(DawnConstants.AUTO_UPDATE_FEED, false)
+        }
+        return autoUpdateFeed!!
+    }
+    fun setAutoUpdateFeed(value: Boolean){
+        autoUpdateFeed = value
+        mmkv.putBoolean(DawnConstants.AUTO_UPDATE_FEED, value)
+    }
+
     suspend fun loadCookies() {
         mCookies = cookieDao.getAll().toMutableList()
     }
@@ -289,6 +301,7 @@ class ApplicationDataStore @Inject constructor(
 
     suspend fun getLatestRelease(): Release? {
         // TODO: add update check frequency
+        // TODO: store releases, show release changelog on new installation
 //        val currentVersion = releaseDao.getLatestRelease()
 //        if (currentVersion == null) {
 //            val currentRelease = Release(1, BuildConfig.VERSION_NAME, "", "default entry",Date().time)

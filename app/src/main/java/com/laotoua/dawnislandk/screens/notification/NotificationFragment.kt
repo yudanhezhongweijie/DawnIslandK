@@ -29,6 +29,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -99,10 +100,14 @@ class NotificationFragment : DaggerFragment() {
             setOnItemClickListener { _, _, position ->
                 mAdapter?.getItem(position)?.let {
                     viewModel.readNotification(it.notification)
-                    val action = MainNavDirections.actionGlobalCommentsFragment(it.notification.id, it.notification.fid)
+                    val action = MainNavDirections.actionGlobalCommentsFragment(
+                        it.notification.id,
+                        it.notification.fid
+                    )
                     findNavController().navigate(action)
                 }
             }
+            setDiffCallback(NotificationDiffer())
         }
 
         binding?.recyclerView?.apply {
@@ -111,12 +116,32 @@ class NotificationFragment : DaggerFragment() {
             setHasFixedSize(true)
         }
 
-        viewModel.notificationAndPost.observe(viewLifecycleOwner, Observer<List<NotificationAndPost>> { list ->
-            mAdapter?.setList(list)
-        })
+        mAdapter?.setEmptyView(R.layout.view_no_data)
+        viewModel.notificationAndPost.observe(
+            viewLifecycleOwner,
+            Observer<List<NotificationAndPost>> { list ->
+                if (list.isNullOrEmpty()) mAdapter?.setList(null)
+                else mAdapter?.setDiffNewData(list.toMutableList())
+            })
 
         // Inflate the layout for this fragment
         return binding!!.root
+    }
+
+    inner class NotificationDiffer : DiffUtil.ItemCallback<NotificationAndPost>() {
+        override fun areItemsTheSame(
+            oldItem: NotificationAndPost,
+            newItem: NotificationAndPost
+        ): Boolean {
+            return oldItem.notification.id == newItem.notification.id
+        }
+
+        override fun areContentsTheSame(
+            oldItem: NotificationAndPost,
+            newItem: NotificationAndPost
+        ): Boolean {
+            return oldItem.notification == newItem.notification
+        }
     }
 
     inner class NotificationAdapter(private val layoutResId: Int) :
@@ -199,8 +224,12 @@ class NotificationFragment : DaggerFragment() {
 
         override fun convert(holder: BaseViewHolder, item: NotificationAndPost) {
             holder.setText(R.id.refId, "No. ${item.notification.id}")
-            holder.setText(R.id.timestamp, ContentTransformation.transformTime(item.notification.lastUpdatedAt))
-            val content = if (item.notification.message.isBlank()) item.post?.content else item.notification.message
+            holder.setText(
+                R.id.timestamp,
+                ContentTransformation.transformTime(item.notification.lastUpdatedAt)
+            )
+            val content =
+                if (item.notification.message.isBlank()) item.post?.content else item.notification.message
             holder.setText(R.id.content, content)
             holder.setGone(R.id.newReplyCount, item.notification.read)
             val forumName = SpannableString(sharedVM.getForumDisplayName(item.notification.fid))

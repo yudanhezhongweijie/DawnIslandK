@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 17,
-    "identityHash": "ede368d2170b3332301e9eec549be44f",
+    "identityHash": "6296dc822b1913a9785aaee9d8af3470",
     "entities": [
       {
         "tableName": "Community",
@@ -717,7 +717,7 @@
       },
       {
         "tableName": "Notification",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `forumName` TEXT NOT NULL, `newReplyCount` INTEGER NOT NULL, `contentAbbr` TEXT NOT NULL, `message` TEXT NOT NULL, `lastUpdatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `forumName` TEXT NOT NULL, `newReplyCount` INTEGER NOT NULL, `contentAbbr` TEXT NOT NULL, `message` TEXT NOT NULL, `read` INTEGER NOT NULL, `lastUpdatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -750,6 +750,12 @@
             "notNull": true
           },
           {
+            "fieldPath": "read",
+            "columnName": "read",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
             "fieldPath": "lastUpdatedAt",
             "columnName": "lastUpdatedAt",
             "affinity": "INTEGER",
@@ -769,7 +775,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ede368d2170b3332301e9eec549be44f')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6296dc822b1913a9785aaee9d8af3470')"
     ]
   }
 }

@@ -28,6 +28,7 @@ data class Notification(
     var newReplyCount: Int,
     val contentAbbr: String,
     val message: String = "", // feed subscription update do not use this field, it is reserved for other notifications
+    var read:Boolean = false,
     var lastUpdatedAt: Long
 ) {
     // valid targetId should be all digits, here only checking the first digit should be sufficient
@@ -50,7 +51,7 @@ data class Notification(
             // only store at most 20 words in cache
             val abbrLength = content.length.coerceAtMost(20)
             val contentAbbr = content.substring(0, abbrLength)
-            return Notification(targetId, forumName, newReplyCount,contentAbbr, message ?: "", Date().time)
+            return Notification(targetId, forumName, newReplyCount,contentAbbr, message ?: "", false, Date().time)
         }
     }
 }

@@ -45,6 +45,7 @@
             android:textSize="14sp"
             app:layout_constraintBaseline_toBaselineOf="@id/forumRule"
             app:layout_constraintEnd_toStartOf="@+id/forumRule"
+            app:layout_constraintHorizontal_chainStyle="spread_inside"
             app:layout_constraintStart_toStartOf="@+id/postContent" />
 
         <Button
@@ -64,13 +65,11 @@
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="4dp"
             android:text="@string/close"
             app:icon="@drawable/ic_close_24px"
             app:iconGravity="textEnd"
-            app:layout_constraintBottom_toBottomOf="@id/forumRule"
             app:layout_constraintEnd_toEndOf="@id/postContent"
+            app:layout_constraintStart_toEndOf="@+id/forumRule"
             app:layout_constraintTop_toTopOf="@id/forumRule" />
 
         <EditText
@@ -425,6 +424,7 @@
             app:icon="@drawable/ic_info_24px"
             app:iconGravity="textEnd"
             app:layout_constraintBottom_toTopOf="@id/postContent"
+            app:layout_constraintEnd_toStartOf="@+id/postClose"
             app:layout_constraintStart_toEndOf="@id/postTitle"
             app:layout_constraintTop_toTopOf="parent"
             app:strokeWidth="0dp" />

@@ -20,12 +20,17 @@ package com.laotoua.dawnislandk.data.local.dao
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.laotoua.dawnislandk.data.local.entity.Notification
+import com.laotoua.dawnislandk.data.local.entity.NotificationAndPost
 
 @Dao
 interface NotificationDao {
 
     @Query("SELECT * FROM Notification ORDER BY lastUpdatedAt DESC")
     fun getLiveAllNotifications():LiveData<List<Notification>>
+
+    @Transaction
+    @Query("SELECT * From Notification ORDER BY lastUpdatedAt DESC")
+    fun getLiveAllNotificationsAndPosts(): LiveData<List<NotificationAndPost>>
 
     @Query("SELECT * FROM Notification WHERE id=:id LIMIT 1")
     suspend fun getNotificationByIdSync(id:String):Notification?
@@ -41,6 +46,9 @@ interface NotificationDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertNotification(notification: Notification)
+
+    @Delete
+    suspend fun deleteNotifications(vararg notifications: Notification)
 
     @Query("DELETE FROM Notification WHERE id=:id")
     suspend fun deleteNotificationById(id: String)

@@ -217,7 +217,7 @@ abstract class DawnDatabase : RoomDatabase() {
             // adds Notification
             val migrate16To17 = object : Migration(16, 17) {
                 override fun migrate(database: SupportSQLiteDatabase) {
-                    database.execSQL("CREATE TABLE IF NOT EXISTS `Notification` (`id` TEXT NOT NULL, `forumName` TEXT NOT NULL, `newReplyCount` INTEGER NOT NULL, `contentAbbr` TEXT NOT NULL, `message` TEXT NOT NULL, `read` INTEGER NOT NULL, `lastUpdatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))")
+                    database.execSQL("CREATE TABLE IF NOT EXISTS `Notification` (`id` TEXT NOT NULL, `fid` TEXT NOT NULL, `newReplyCount` INTEGER NOT NULL, `message` TEXT NOT NULL, `read` INTEGER NOT NULL, `lastUpdatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))")
                 }
             }
 

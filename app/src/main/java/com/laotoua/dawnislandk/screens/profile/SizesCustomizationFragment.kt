@@ -17,7 +17,6 @@
 
 package com.laotoua.dawnislandk.screens.profile
 
-import android.graphics.Color
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.Spanned
@@ -98,10 +97,7 @@ class SizesCustomizationFragment : Fragment() {
 
         val threadForumAndReplyCount = SpannableString(requireContext().getString(R.string.sample_forum_and_reply_count))
         threadForumAndReplyCount.setSpan(
-            RoundBackgroundColorSpan(
-                Color.parseColor("#12DBD1"),
-                Color.parseColor("#FFFFFF")
-            ), 0, threadForumAndReplyCount.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+            RoundBackgroundColorSpan(), 0, threadForumAndReplyCount.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
 
         demoCard.findViewById<TextView>(R.id.forumAndReplyCount)

@@ -21,7 +21,9 @@ import android.graphics.*
 import android.graphics.Paint.FontMetricsInt
 import android.text.style.ReplacementSpan
 
-class RoundBackgroundColorSpan(private val bgColor: Int, private val textColor: Int) :
+class RoundBackgroundColorSpan(private val bgColor1Str: String = "#2195da",
+                               private val bgColor2Str: String = "#3ae4cd",
+                               private val textColorStr: String = "#FFFFFF") :
     ReplacementSpan() {
     private var radius = 20
     var size = 0
@@ -73,8 +75,8 @@ class RoundBackgroundColorSpan(private val bgColor: Int, private val textColor: 
             top.toFloat(),
             (x + paint.measureText(text, start, end).toInt() + radius * 2),
             bottom.toFloat(),
-            Color.parseColor("#2195da"),
-            Color.parseColor("#3ae4cd"),
+            Color.parseColor(bgColor1Str),
+            Color.parseColor(bgColor2Str),
             Shader.TileMode.CLAMP
         )
         paint.shader = linearGradient
@@ -87,7 +89,7 @@ class RoundBackgroundColorSpan(private val bgColor: Int, private val textColor: 
             ), radius.toFloat(), radius.toFloat(), paint
         )
         paint.shader = defaultShader
-        paint.color = textColor
+        paint.color = Color.parseColor(textColorStr)
         canvas.drawText(text, start, end, x + radius, y.toFloat(), paint)
         paint.color = color1
         paint.alpha = alpha

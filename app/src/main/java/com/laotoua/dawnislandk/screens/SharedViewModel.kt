@@ -115,12 +115,7 @@ class SharedViewModel @Inject constructor(
                 }
                 if (replyCount > 0) {
                     Timber.d("Found feed ${data.id} with new reply. Updating...")
-                    val notification = Notification.makeNotification(
-                        data.id,
-                        getForumDisplayName(data.fid),
-                        replyCount,
-                        data.content
-                    )
+                    val notification = Notification.makeNotification(data.id, data.fid, replyCount)
                     notificationDao.insertOrUpdateNotification(notification)
                 }
 

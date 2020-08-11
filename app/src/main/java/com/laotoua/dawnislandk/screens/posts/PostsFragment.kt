@@ -58,8 +58,8 @@ class PostsFragment : BaseNavFragment() {
 
     private var binding: FragmentPostBinding? = null
     private var mAdapter: QuickAdapter<Post>? = null
-    private var redCircle:FrameLayout? = null
-    private var countTextView:TextView? = null
+    private var redCircle: FrameLayout? = null
+    private var countTextView: TextView? = null
     private val viewModel: PostsViewModel by viewModels { viewModelFactory }
     private val postPopup: PostPopup by lazyOnMainOnly { PostPopup(requireActivity(), sharedVM) }
     private var isFabOpen = false
@@ -77,17 +77,19 @@ class PostsFragment : BaseNavFragment() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
-        menu.findItem(R.id.feedNotification).actionView.apply {
+        val rootView = menu.findItem(R.id.feedNotification)
+        rootView.actionView.apply {
             redCircle = findViewById(R.id.viewAlertRedCircle)
             countTextView = findViewById(R.id.viewAlertCountTextView)
             // sometimes menu is prepared after sharedVM observation, add a catch update here
             val count = sharedVM.notifications.value?.filterNot { n -> n.read }?.size ?: 0
             updateFeedNotificationIcon(count)
+            setOnClickListener { onOptionsItemSelected(rootView) }
         }
         super.onPrepareOptionsMenu(menu)
     }
 
-    private fun updateFeedNotificationIcon(count:Int) {
+    private fun updateFeedNotificationIcon(count: Int) {
         // if alert count extends into two digits, just show the red circle
         countTextView?.text = if (count in 1..9) "$count" else ""
         redCircle?.visibility = if (count > 0) View.VISIBLE else View.GONE
@@ -132,9 +134,9 @@ class PostsFragment : BaseNavFragment() {
                 }
                 return true
             }
-            // TODO
             R.id.feedNotification -> {
-                toast("TOdo")
+                val action = PostsFragmentDirections.actionPostsFragmentToNotificationFragment()
+                findNavController().navigate(action)
                 return true
             }
             else -> super.onOptionsItemSelected(item)
@@ -351,8 +353,7 @@ class PostsFragment : BaseNavFragment() {
             if (refreshing) {
                 mAdapter!!.setList(it.toMutableList())
                 binding?.srlAndRv?.recyclerView?.scrollToPosition(0)
-            }
-            else mAdapter!!.setDiffNewData(it.toMutableList())
+            } else mAdapter!!.setDiffNewData(it.toMutableList())
             refreshing = false
             Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
         })
@@ -370,9 +371,8 @@ class PostsFragment : BaseNavFragment() {
             }
         })
 
-        sharedVM.notifications.observe(viewLifecycleOwner, Observer<List<Notification>> { list->
+        sharedVM.notifications.observe(viewLifecycleOwner, Observer<List<Notification>> { list ->
             val count = list.filterNot { it.read }.size
-            Timber.d("notificaiont Count $count redcircle $redCircle countTV $countTextView")
             updateFeedNotificationIcon(count)
         })
 

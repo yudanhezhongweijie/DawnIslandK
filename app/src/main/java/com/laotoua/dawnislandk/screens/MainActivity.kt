@@ -162,11 +162,6 @@ class MainActivity : DaggerAppCompatActivity() {
                 setToolbarTitle(sharedVM.getForumDisplayName(it))
             }
         })
-
-        // TODO: use notifications
-        sharedVM.notifications.observe(this, Observer {
-            Timber.d("notifications: ${it.size}")
-        })
     }
 
     private fun handleIntentFilterNavigation(intent: Intent?) {
@@ -480,6 +475,10 @@ class MainActivity : DaggerAppCompatActivity() {
             }
             R.id.sizeCustomizationFragment -> {
                 setToolbarTitle(R.string.layout_customization)
+                hideNav()
+            }
+            R.id.notificationFragment -> {
+                setToolbarTitle(R.string.feed_notification)
                 hideNav()
             }
             else -> {

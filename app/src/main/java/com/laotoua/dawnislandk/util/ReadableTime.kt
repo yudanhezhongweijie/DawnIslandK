@@ -43,13 +43,6 @@ object ReadableTime {
         MINUTE_MILLIS,
         SECOND_MILLIS
     )
-    val UNITS = intArrayOf(
-        R.plurals.year,
-        R.plurals.day,
-        R.plurals.hour,
-        R.plurals.minute,
-        R.plurals.second
-    )
     private val mCalendar = Calendar.getInstance()
     private val localInstance get() = Locale.getDefault()
 
@@ -142,7 +135,6 @@ object ReadableTime {
         synchronized(
             sDateFormatLock1
         ) {
-
             val now = System.currentTimeMillis()
             mCalendar.time =
                 if (applyTimezoneOffset) {

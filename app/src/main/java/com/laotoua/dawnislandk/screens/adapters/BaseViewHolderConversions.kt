@@ -56,10 +56,7 @@ fun BaseViewHolder.convertForumAndReplyCount(replyCount: String, forumDisplayNam
     val suffix = if (replyCount.isNotBlank()) " • $replyCount" else ""
     val spannableString = SpannableString(forumDisplayName + suffix)
     spannableString.setSpan(
-        RoundBackgroundColorSpan(
-            Color.parseColor("#12DBD1"),
-            Color.parseColor("#FFFFFF")
-        ), 0, spannableString.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        RoundBackgroundColorSpan(), 0, spannableString.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
     )
     getView<TextView>(R.id.forumAndReplyCount).setText(
         spannableString,

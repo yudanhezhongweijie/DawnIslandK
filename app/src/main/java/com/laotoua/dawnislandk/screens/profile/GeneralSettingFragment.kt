@@ -181,6 +181,22 @@ class GeneralSettingFragment : Fragment() {
                 preferenceSwitch.toggle()
             }
         }
+
+        binding?.autoUpdateFeed?.apply {
+            key.setText(R.string.auto_update_feed)
+            preferenceSwitch.visibility = View.VISIBLE
+            preferenceSwitch.isClickable = true
+            preferenceSwitch.isChecked = applicationDataStore.getAutoUpdateFeed()
+            preferenceSwitch.setOnCheckedChangeListener { _, isChecked ->
+                applicationDataStore.setAutoUpdateFeed(isChecked)
+                updateSwitchSummary(R.string.auto_update_feed_on, R.string.auto_update_feed_off)
+                toast(R.string.restart_to_apply_setting)
+            }
+            updateSwitchSummary(R.string.auto_update_feed_on, R.string.auto_update_feed_off)
+            root.setOnClickListener {
+                preferenceSwitch.toggle()
+            }
+        }
     }
 
     override fun onDestroyView() {

@@ -207,6 +207,18 @@ class ApplicationDataStore @Inject constructor(
         mmkv.putBoolean(DawnConstants.VIEW_CACHING, value)
     }
 
+    private var autoUpdateFeed:Boolean? = null
+    fun getAutoUpdateFeed():Boolean {
+        if (autoUpdateFeed == null){
+            autoUpdateFeed = mmkv.getBoolean(DawnConstants.AUTO_UPDATE_FEED, false)
+        }
+        return autoUpdateFeed!!
+    }
+    fun setAutoUpdateFeed(value: Boolean){
+        autoUpdateFeed = value
+        mmkv.putBoolean(DawnConstants.AUTO_UPDATE_FEED, value)
+    }
+
     suspend fun loadCookies() {
         mCookies = cookieDao.getAll().toMutableList()
     }

@@ -21,6 +21,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.dao.*
 import com.laotoua.dawnislandk.data.local.entity.*
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
@@ -70,7 +71,7 @@ class SharedViewModel @Inject constructor(
 
     init {
         getRandomReedPicture()
-        autoUpdateFeeds()
+        if (DawnApp.applicationDataStore.getAutoUpdateFeed()) autoUpdateFeeds()
     }
 
     /** scan cache feed daily, update the most outdated feed
@@ -79,11 +80,11 @@ class SharedViewModel @Inject constructor(
     private fun autoUpdateFeeds() {
         viewModelScope.launch {
             while (true) {
+                Timber.d("Auto Update Feed is on. Looping...")
                 val currentTime = System.currentTimeMillis() - ReadableTime.DAY_MILLIS
-                val outDatedFeedAndPost = feedDao.findMostOutdatedFeedAndPost(currentTime)
-                if (outDatedFeedAndPost != null) {
-                    updateOutdatedFeedAndPost(outDatedFeedAndPost)
-                }
+                val outDatedFeedAndPost = feedDao.findMostOutdatedFeedAndPost(currentTime) ?: break
+                Timber.d("Found outdated Feed ${outDatedFeedAndPost.feed.postId}. Updating...")
+                updateOutdatedFeedAndPost(outDatedFeedAndPost)
                 delay(ReadableTime.MINUTE_MILLIS * 5)
             }
         }
@@ -113,6 +114,7 @@ class SharedViewModel @Inject constructor(
                     data.replyCount.toInt()
                 }
                 if (replyCount > 0) {
+                    Timber.d("Found feed ${data.id} with new reply. Updating...")
                     val notification = Notification.makeNotification(
                         data.id,
                         getForumDisplayName(data.fid),

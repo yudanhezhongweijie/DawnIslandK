@@ -197,7 +197,7 @@ class NotificationFragment : DaggerFragment() {
             override fun clearView(viewHolder: RecyclerView.ViewHolder, pos: Int) {}
 
             override fun onItemSwiped(viewHolder: RecyclerView.ViewHolder, pos: Int) {
-                mAdapter?.getItem(pos)?.let {
+                viewModel.notificationAndPost.value?.get(pos)?.let {
                     viewModel.deleteNotification(it.notification)
                 }
             }
@@ -229,8 +229,8 @@ class NotificationFragment : DaggerFragment() {
                 ContentTransformation.transformTime(item.notification.lastUpdatedAt)
             )
             val content =
-                if (item.notification.message.isBlank()) item.post?.content else item.notification.message
-            holder.setText(R.id.content, content)
+                if (item.notification.message.isBlank()) item.post?.content ?: "" else item.notification.message
+            holder.setText(R.id.content, ContentTransformation.transformContent(context, content))
             holder.setGone(R.id.newReplyCount, item.notification.read)
             val forumName = SpannableString(sharedVM.getForumDisplayName(item.notification.fid))
             forumName.setSpan(

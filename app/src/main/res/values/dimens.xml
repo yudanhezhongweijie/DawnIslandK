@@ -21,4 +21,9 @@
     <dimen name="dp_40">40dp</dimen>
     <dimen name="dp_56">56dp</dimen>
     <dimen name="dp_8">8dp</dimen>
+
+    <!-- general dimensions for all custom menu items -->
+    <dimen name="menu_item_icon_size">24dp</dimen>
+    <dimen name="menu_item_size">48dp</dimen>
+    <dimen name="menu_item_ripple_size">28dp</dimen>
 </resources>

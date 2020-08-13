@@ -39,6 +39,7 @@ object DawnConstants {
     const val READING_PROGRESS = "reading_progress"
     const val VIEW_CACHING = "view_caching"
     const val AUTO_UPDATE_FEED = "auto_update_feed"
+    const val AUTO_UPDATE_FEED_DOT = "auto_update_feed_dot"
     const val LAYOUT_CUSTOMIZATION = "layout_customization"
     const val TIME_FORMAT = "time_format"
     const val DEFAULT_TIME_FORMAT = "simplified"

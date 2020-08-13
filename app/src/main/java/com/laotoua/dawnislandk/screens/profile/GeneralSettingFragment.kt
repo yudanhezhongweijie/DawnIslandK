@@ -43,7 +43,6 @@ class GeneralSettingFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = FragmentGeneralSettingBinding.inflate(inflater, container,false)
         binding?.feedId?.apply {
             var feedId = applicationDataStore.getFeedId()
@@ -193,6 +192,21 @@ class GeneralSettingFragment : Fragment() {
                 toast(R.string.restart_to_apply_setting)
             }
             updateSwitchSummary(R.string.auto_update_feed_on, R.string.auto_update_feed_off)
+            root.setOnClickListener {
+                preferenceSwitch.toggle()
+            }
+        }
+
+        binding?.autoUpdateFeedDot?.apply {
+            key.setText(R.string.auto_update_feed_dot)
+            preferenceSwitch.visibility = View.VISIBLE
+            preferenceSwitch.isClickable = true
+            preferenceSwitch.isChecked = applicationDataStore.getAutoUpdateFeedDot()
+            preferenceSwitch.setOnCheckedChangeListener { _, isChecked ->
+                applicationDataStore.setAutoUpdateFeedDot(isChecked)
+                updateSwitchSummary(R.string.auto_update_feed_dot_on, R.string.auto_update_feed_dot_off)
+            }
+            updateSwitchSummary(R.string.auto_update_feed_dot_on, R.string.auto_update_feed_dot_off)
             root.setOnClickListener {
                 preferenceSwitch.toggle()
             }

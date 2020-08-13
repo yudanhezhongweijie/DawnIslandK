@@ -90,9 +90,11 @@ class PostsFragment : BaseNavFragment() {
     }
 
     private fun updateFeedNotificationIcon(count: Int) {
-        // if alert count extends into two digits, just show the red circle
-        countTextView?.text = if (count in 1..9) "$count" else ""
-        redCircle?.visibility = if (count > 0) View.VISIBLE else View.GONE
+        if (DawnApp.applicationDataStore.getAutoUpdateFeedDot()) {
+            // if alert count extends into two digits, just show the red circle
+            countTextView?.text = if (count in 1..9) "$count" else ""
+            redCircle?.visibility = if (count > 0) View.VISIBLE else View.GONE
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

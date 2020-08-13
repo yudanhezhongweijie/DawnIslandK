@@ -64,6 +64,7 @@ class AboutFragment : DaggerFragment() {
                     listItems(items = items) { _, index, _ ->
                         when (index) {
                             0 -> {
+                                dismiss()
                                 val navAction = MainNavDirections.actionGlobalCommentsFragment(
                                     "28951798",
                                     "117"
@@ -71,6 +72,7 @@ class AboutFragment : DaggerFragment() {
                                 findNavController().navigate(navAction)
                             }
                             1 -> {
+                                dismiss()
                                 val intent = Intent(
                                     Intent.ACTION_VIEW,
                                     Uri.parse(DawnConstants.GITHUB_ADDRESS)
@@ -80,6 +82,7 @@ class AboutFragment : DaggerFragment() {
                                 }
                             }
                             else -> {
+                                dismiss()
                                 val intent = Intent(Intent.ACTION_SENDTO).apply {
                                     type = "*/*"
                                     data = Uri.parse("mailto:")
@@ -122,6 +125,7 @@ class AboutFragment : DaggerFragment() {
                     }
 
                     waitingDialog.dismiss()
+                    if (activity == null || !isAdded) return@launch
                     MaterialDialog(requireContext()).show {
                         title(res = R.string.app_privacy_agreement)
                         message(text = agreement) { html() }
@@ -135,7 +139,7 @@ class AboutFragment : DaggerFragment() {
             key.setText(R.string.adnmb_privacy_agreement)
             root.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
-                val navAction = MainNavDirections.actionGlobalCommentsFragment("11689471", "")
+                val navAction = MainNavDirections.actionGlobalCommentsFragment("11689471", "117")
                 findNavController().navigate(navAction)
             }
         }

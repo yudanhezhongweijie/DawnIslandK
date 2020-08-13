@@ -250,14 +250,14 @@ class CommentRepository @Inject constructor(
         postDao.insertWithTimeStamp(post)
     }
 
-    suspend fun addFeed(uuid: String, id: String): SingleLiveEvent<String> {
+    suspend fun addFeed(id: String): SingleLiveEvent<String> {
         Timber.d("Adding Feed $id")
         val cachedFeed = feedDao.findFeedByPostId(id)
         if (cachedFeed != null) {
             return SingleLiveEvent.create("已经订阅过了哦")
         }
 
-        return webService.addFeed(uuid, id).run {
+        return webService.addFeed(DawnApp.applicationDataStore.getFeedId(), id).run {
             if (this is APIMessageResponse.Success && messageType == APIMessageResponse.MessageType.String) {
                 coroutineScope {
                     launch {
@@ -269,6 +269,19 @@ class CommentRepository @Inject constructor(
             } else {
                 Timber.e("Response type: ${this.javaClass.simpleName}\n $message")
                 SingleLiveEvent.create("订阅失败...是不是已经订阅了或者网络出问题了呢?")
+            }
+        }
+    }
+
+    suspend fun deleteFeed(id: String): SingleLiveEvent<String>{
+        Timber.d("Deleting Feed $id")
+        return webService.delFeed(DawnApp.applicationDataStore.getFeedId(), id).run {
+            if (this is APIMessageResponse.Success) {
+                coroutineScope { launch { feedDao.deleteFeedAndDecrementFeedIdsById(id) } }
+                SingleLiveEvent.create(message)
+            } else {
+                Timber.e(message)
+                SingleLiveEvent.create("删除订阅失败...\n$message")
             }
         }
     }

@@ -395,9 +395,17 @@ class CommentsFragment : DaggerFragment() {
                     .show()
             }
 
-            binding!!.addFeed.setOnClickListener {
-                if (activity == null || !isAdded) return@setOnClickListener
-                viewModel.addFeed(viewModel.currentPostId)
+            binding!!.feed.apply {
+                setOnClickListener {
+                    if (activity == null || !isAdded) return@setOnClickListener
+                    viewModel.addFeed(viewModel.currentPostId)
+                }
+                setOnLongClickListener {
+                    if (activity != null && isAdded) {
+                        viewModel.delFeed(viewModel.currentPostId)
+                    }
+                    true
+                }
             }
         }
         subscribeUI()
@@ -413,7 +421,7 @@ class CommentsFragment : DaggerFragment() {
     }
 
     private fun subscribeUI() {
-        viewModel.addFeedResponse.observe(viewLifecycleOwner, Observer<SingleLiveEvent<String>> {
+        viewModel.feedResponse.observe(viewLifecycleOwner, Observer<SingleLiveEvent<String>> {
             it.getContentIfNotHandled()?.let { message ->
                 toast(message)
             }

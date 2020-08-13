@@ -19,7 +19,6 @@ package com.laotoua.dawnislandk.screens.comments
 
 import android.util.SparseArray
 import androidx.lifecycle.*
-import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.entity.Comment
 import com.laotoua.dawnislandk.data.repository.CommentRepository
 import com.laotoua.dawnislandk.data.repository.QuoteRepository
@@ -53,7 +52,7 @@ class CommentsViewModel @Inject constructor(
 
     val loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
 
-    val addFeedResponse = MutableLiveData<SingleLiveEvent<String>>()
+    val feedResponse = MutableLiveData<SingleLiveEvent<String>>()
 
     fun getQuote(id: String): LiveData<DataResource<Comment>> = liveData {
         // try to find quote in current post, if not then in local cache or remote data
@@ -222,7 +221,13 @@ class CommentsViewModel @Inject constructor(
 
     fun addFeed(id: String) {
         viewModelScope.launch {
-            addFeedResponse.postValue(commentRepo.addFeed(DawnApp.applicationDataStore.getFeedId(), id))
+            feedResponse.postValue(commentRepo.addFeed(id))
+        }
+    }
+
+    fun delFeed(id:String){
+        viewModelScope.launch {
+            feedResponse.postValue(commentRepo.deleteFeed(id))
         }
     }
 }

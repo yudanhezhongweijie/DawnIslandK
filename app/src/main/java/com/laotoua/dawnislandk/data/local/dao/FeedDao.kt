@@ -56,6 +56,14 @@ interface FeedDao {
         deleteFeedByPostId(feed.postId)
     }
 
+    @Transaction
+    suspend fun deleteFeedAndDecrementFeedIdsById(id: String){
+        findFeedByPostId(id)?.let {
+            decrementFeedIdsAfter(it.id, it.page)
+            deleteFeedByPostId(it.postId)
+        }
+    }
+
     @Query("UPDATE Feed SET id=id+1 WHERE id>=:id AND page=:page")
     suspend fun incrementFeedIdsAfter(id: Int, page:Int)
 

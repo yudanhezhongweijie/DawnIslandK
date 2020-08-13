@@ -28,6 +28,9 @@ interface NotificationDao {
     @Query("SELECT * FROM Notification ORDER BY lastUpdatedAt DESC")
     fun getLiveAllNotifications():LiveData<List<Notification>>
 
+    @Query("SELECT COUNT(*) FROM Notification WHERE read=0 ORDER BY lastUpdatedAt DESC")
+    fun getLiveUnreadNotificationsCount():LiveData<Int>
+
     @Transaction
     @Query("SELECT * From Notification ORDER BY lastUpdatedAt DESC")
     fun getLiveAllNotificationsAndPosts(): LiveData<List<NotificationAndPost>>

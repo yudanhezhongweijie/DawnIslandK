@@ -29,6 +29,7 @@ import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.data.repository.CommunityRepository
 import com.laotoua.dawnislandk.screens.util.ContentTransformation
+import com.laotoua.dawnislandk.util.DataResource
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.ReadableTime
 import com.laotoua.dawnislandk.util.SingleLiveEvent
@@ -49,9 +50,9 @@ class SharedViewModel @Inject constructor(
     private val communityRepository: CommunityRepository
 ) : ViewModel() {
 
-    val communityList = communityRepository.communityList
+    val communityList: LiveData<DataResource<List<Community>>> = communityRepository.communityList
 
-    val notifications = notificationDao.getLiveAllNotifications()
+    val notifications:LiveData<Int> = notificationDao.getLiveUnreadNotificationsCount()
 
     val reedPictureUrl = MutableLiveData<String>()
     private var _selectedForumId = MutableLiveData<String>()

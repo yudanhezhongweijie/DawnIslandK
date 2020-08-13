@@ -35,7 +35,6 @@ import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.data.local.entity.Notification
 import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.databinding.FragmentPostBinding
 import com.laotoua.dawnislandk.screens.MainActivity
@@ -82,7 +81,7 @@ class PostsFragment : BaseNavFragment() {
             redCircle = findViewById(R.id.viewAlertRedCircle)
             countTextView = findViewById(R.id.viewAlertCountTextView)
             // sometimes menu is prepared after sharedVM observation, add a catch update here
-            val count = sharedVM.notifications.value?.filterNot { n -> n.read }?.size ?: 0
+            val count = sharedVM.notifications.value ?: 0
             updateFeedNotificationIcon(count)
             setOnClickListener { onOptionsItemSelected(rootView) }
         }
@@ -373,8 +372,7 @@ class PostsFragment : BaseNavFragment() {
             }
         })
 
-        sharedVM.notifications.observe(viewLifecycleOwner, Observer<List<Notification>> { list ->
-            val count = list.filterNot { it.read }.size
+        sharedVM.notifications.observe(viewLifecycleOwner, Observer<Int> { count ->
             updateFeedNotificationIcon(count)
         })
 

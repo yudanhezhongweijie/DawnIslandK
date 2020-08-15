@@ -49,6 +49,7 @@
         android:layout_height="wrap_content"
         android:visibility="gone"
         android:text="@string/show_original_post"
+        android:textColor="?android:attr/textColorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/quote" />
 </androidx.constraintlayout.widget.ConstraintLayout>

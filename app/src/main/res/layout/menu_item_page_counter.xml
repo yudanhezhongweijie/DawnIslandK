@@ -28,5 +28,5 @@
         android:layout_height="wrap_content"
         android:textSize="18sp"
         android:layout_gravity="center"
-        android:textColor="@color/pure_dark"/>
+        android:textColor="?android:attr/textColorPrimary"/>
 </FrameLayout>

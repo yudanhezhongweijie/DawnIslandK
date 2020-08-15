@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ /* Copyright 2020 Fishballzzz
   ~  *
   ~  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,6 +41,7 @@
             android:layout_marginEnd="16dp"
             android:text="@string/reply_comment"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="14sp"
             app:layout_constraintBaseline_toBaselineOf="@id/forumRule"
             app:layout_constraintEnd_toStartOf="@+id/forumRule"
@@ -80,7 +80,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="15dp"
             android:autofillHints="在这里输入文字"
-            android:background="#EAEAEA"
+            android:background="?android:attr/textColorPrimaryInverse"
             android:ems="10"
             android:gravity="clip_horizontal"
             android:hint="@string/edit_text_hint"
@@ -120,6 +120,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/watermark"
+                android:textColor="?android:attr/textColorPrimary"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/postImagePreview"
@@ -379,7 +380,8 @@
                         style="?attr/materialButtonOutlinedStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/transparent_white" />
+                        android:text="@string/transparent_white"
+                        android:textColor="?android:attr/textColorPrimary" />
 
                     <Button
                         android:id="@+id/luweiStickerColor"

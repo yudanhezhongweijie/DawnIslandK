@@ -40,14 +40,13 @@
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         android:focusable="false"
-        android:theme="@style/Theme.MaterialComponents.DayNight.DarkActionBar"
         app:contentInsetStartWithNavigation="0dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:subtitle="adnmb.com"
-        app:subtitleTextColor="#FFFFFF"
+        app:subtitleTextColor="?android:attr/textColorPrimary"
         app:title="时间线"
-        app:titleTextColor="#FFFFFF" />
+        app:titleTextColor="?android:attr/textColorPrimary" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/navHostFragment"

@@ -22,7 +22,7 @@
     android:layout_width="300dp"
     android:layout_height="match_parent"
     android:layout_gravity="start"
-    android:background="#FFFFFF"
+    android:background="?android:attr/windowBackground"
     app:layout_optimizationLevel="standard|dimensions"
     tools:viewBindingIgnore="true">
 

@@ -30,14 +30,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-
-    <!--    <View-->
-    <!--        android:id="@+id/view"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:background="@drawable/shadow_left" />-->
-
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/sideMenu"
         android:layout_width="wrap_content"
@@ -69,6 +61,7 @@
                     android:layout_height="48dp"
                     android:background="?attr/selectableItemBackground"
                     android:padding="12dp"
+                    android:tint="?android:attr/textColorPrimary"
                     app:srcCompat="@drawable/ic_palette_24px"
                     tools:ignore="ContentDescription" />
 
@@ -78,6 +71,7 @@
                     android:layout_height="48dp"
                     android:background="?attr/selectableItemBackground"
                     android:padding="12dp"
+                    android:tint="?android:attr/textColorPrimary"
                     app:srcCompat="@drawable/ic_line_weight_24px"
                     tools:ignore="ContentDescription" />
 
@@ -87,6 +81,7 @@
                     android:layout_height="48dp"
                     android:background="?attr/selectableItemBackground"
                     android:padding="12dp"
+                    android:tint="?android:attr/textColorPrimary"
                     android:src="@drawable/ic_brush_black_24px"
                     tools:ignore="ContentDescription" />
 
@@ -96,6 +91,7 @@
                     android:layout_height="48dp"
                     android:background="?attr/selectableItemBackground"
                     android:padding="12dp"
+                    android:tint="?android:attr/textColorPrimary"
                     android:src="@drawable/ic_insert_image_24px"
                     tools:ignore="ContentDescription" />
 
@@ -105,6 +101,7 @@
                     android:layout_height="48dp"
                     android:background="?attr/selectableItemBackground"
                     android:padding="12dp"
+                    android:tint="?android:attr/textColorPrimary"
                     android:src="@drawable/ic_undo_24px"
                     tools:ignore="ContentDescription" />
 
@@ -114,6 +111,7 @@
                     android:layout_height="48dp"
                     android:background="?attr/selectableItemBackground"
                     android:padding="12dp"
+                    android:tint="?android:attr/textColorPrimary"
                     android:src="@drawable/ic_redo_24px"
                     tools:ignore="ContentDescription" />
 
@@ -123,6 +121,7 @@
                     android:layout_height="48dp"
                     android:background="?attr/selectableItemBackground"
                     android:padding="12dp"
+                    android:tint="?android:attr/textColorPrimary"
                     app:srcCompat="@drawable/ic_delete_24px"
                     tools:ignore="ContentDescription" />
 
@@ -138,7 +137,7 @@
             android:id="@+id/view"
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:background="@color/pure_dark"
+            android:background="?android:attr/textColorPrimary"
             app:layout_constraintBottom_toTopOf="@+id/ok"
             app:layout_constraintEnd_toEndOf="@id/ok"
             app:layout_constraintStart_toStartOf="@id/ok" />
@@ -151,6 +150,7 @@
             android:padding="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            android:tint="?android:attr/textColorPrimary"
             app:srcCompat="@drawable/ic_check_circle_24px"
             tools:ignore="ContentDescription" />
 
@@ -162,10 +162,11 @@
         android:layout_height="wrap_content"
         android:background="?attr/selectableItemBackground"
         android:padding="12dp"
-        android:tint="#101010"
+        android:tint="?android:attr/textColorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_menu_white_24px"
+        app:srcCompat="@drawable/ic_menu_24px"
+
         tools:ignore="ContentDescription" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -72,27 +72,32 @@
             app:layout_constraintStart_toEndOf="@+id/forumRule"
             app:layout_constraintTop_toTopOf="@id/forumRule" />
 
-        <EditText
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/postContent"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="15dp"
-            android:autofillHints="在这里输入文字"
-            android:background="?android:attr/textColorPrimaryInverse"
-            android:ems="10"
-            android:gravity="clip_horizontal"
-            android:hint="@string/edit_text_hint"
-            android:inputType="textMultiLine"
-            android:maxLines="15"
-            android:minLines="6"
-            android:padding="6dp"
-            android:textSize="15sp"
             app:layout_constraintBottom_toTopOf="@id/attachmentContainer"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/postTitle" />
+            app:layout_constraintTop_toBottomOf="@id/postTitle"
+            app:boxStrokeWidth="0dp"
+            app:boxStrokeWidthFocused="0dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:gravity="clip_horizontal"
+                android:inputType="textMultiLine"
+                android:maxLines="15"
+                android:minLines="6"
+                android:padding="6dp"
+                android:textSize="15sp"
+                android:autofillHints="" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/attachmentContainer"

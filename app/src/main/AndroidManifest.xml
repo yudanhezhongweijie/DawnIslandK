@@ -47,7 +47,6 @@
 
         <activity
             android:name=".screens.MainActivity"
-            android:windowSoftInputMode="adjustResize"
             android:launchMode="singleTask">
 
             <intent-filter>

@@ -167,6 +167,7 @@ class QuickAdapter<T>(
 
     private fun BaseViewHolder.convertComment(item: Comment, po: String) {
         convertUserId(item.userid, item.admin, po)
+        setGone(R.id.OPHighlight, item.userid != po)
         convertTimeStamp(item.now, item.isAd())
         convertSage(item.sage)
         convertRefId(context, item.id, item.isAd())

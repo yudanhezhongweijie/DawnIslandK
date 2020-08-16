@@ -38,8 +38,6 @@ import com.laotoua.dawnislandk.screens.widgets.spans.RoundBackgroundColorSpan
 import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.GlideApp
 
-
-// TODO add more visually obvious po effect(i.e. extra icon on po)
 fun BaseViewHolder.convertUserId(userId: String, admin: String, po: String = "") {
     setText(R.id.userId, ContentTransformation.transformCookie(userId, admin, po))
 }

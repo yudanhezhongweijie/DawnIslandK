@@ -102,6 +102,7 @@ class ApplicationDataStore @Inject constructor(
     }
 
     fun setFirstTimeUse() {
+        firstTimeUse = false
         mmkv.putBoolean(DawnConstants.USE_APP_FIRST_TIME, false)
     }
 

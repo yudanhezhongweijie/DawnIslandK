@@ -284,13 +284,14 @@ class ProfileFragment : DaggerFragment() {
         view.remove.setOnClickListener {
             if (activity == null || !isAdded || binding == null) return@setOnClickListener
             viewModel.deleteCookie(cookie)
-            if (binding?.cookieList?.childCount ?: 0 < 5) {
+            val newCount = (binding?.cookieList?.childCount ?: 1) - 1
+            if (newCount < 5) {
                 binding?.addCookie?.isEnabled = true
             }
             binding?.cookieSummary?.text =
                 resources.getString(
                     R.string.count_text,
-                    binding?.cookieList?.childCount ?: 0,
+                    newCount,
                     cookieLimit
                 )
         }

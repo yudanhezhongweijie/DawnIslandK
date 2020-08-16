@@ -48,6 +48,7 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Cookie
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
+import com.laotoua.dawnislandk.screens.util.Layout
 import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.ImageUtil
 import com.laotoua.dawnislandk.util.IntentUtil
@@ -432,7 +433,10 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
                     "bi_$biId", "drawable",
                     context.packageName
                 )
-                icon(resourceId)
+                context.getDrawable(resourceId)?.let {
+                    it.setTint(Layout.getThemeInverseColor(context))
+                    icon(drawable = it)
+                }
                 title(text = sharedVM.getForumDisplayName(fid))
                 message(text = sharedVM.getForumMsg(fid)) { html() }
                 positiveButton(R.string.acknowledge)

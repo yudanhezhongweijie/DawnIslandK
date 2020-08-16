@@ -55,6 +55,7 @@ import com.laotoua.dawnislandk.databinding.FragmentCommentBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
+import com.laotoua.dawnislandk.screens.util.Layout
 import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.widgets.LinkifyTextView
@@ -126,6 +127,7 @@ class CommentsFragment : DaggerFragment() {
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         pageCounter = menu.findItem(R.id.pageCounter).actionView.findViewById(R.id.text)
+        context?.let { menu.findItem(R.id.filter).icon.setTint(Layout.getThemeInverseColor(it))}
         super.onPrepareOptionsMenu(menu)
     }
 

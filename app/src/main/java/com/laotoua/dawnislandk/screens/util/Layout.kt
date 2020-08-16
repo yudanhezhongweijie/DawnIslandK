@@ -18,6 +18,7 @@
 package com.laotoua.dawnislandk.screens.util
 
 import android.content.Context
+import android.content.res.Configuration
 import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.widget.Toast
@@ -49,6 +50,12 @@ object Layout {
         return pix / context.resources.displayMetrics.density
     }
 
+    fun getThemeInverseColor(context: Context) = when (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
+        Configuration.UI_MODE_NIGHT_YES -> {
+            context.resources.getColor(R.color.pure_light, null)
+        }
+        else -> {context.resources.getColor(R.color.pure_dark, null)}
+    }
     fun <AdapterType, PayloadType> Fragment.updateHeaderAndFooter(
         refreshLayout: SmoothRefreshLayout,
         mAdapter: BaseQuickAdapter<AdapterType, BaseViewHolder>,

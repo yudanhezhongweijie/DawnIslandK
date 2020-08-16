@@ -60,6 +60,7 @@ class DisplaySettingFragment : Fragment() {
                         summary.text = options[index]
                     }
                     positiveButton(R.string.submit)
+                    negativeButton(R.string.cancel)
                 }
             }
         }

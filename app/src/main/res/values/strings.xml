@@ -88,12 +88,14 @@
     <string name="common_posts_setting_help" translatable="false"><b>输入串号备注添加至常用串\n\n长按上下拖曳版块可排序\n\n左右拖曳串可从常用串中移除\n\n编辑完成后返回即保存设置</b></string>
     <string name="common_posts_count" translatable="false">常用串包含%d个串</string>
     <string name="emoji_setting_help" translatable="false"><b>输入添加颜文字\n\n颜文字默认按最后使用顺序排序\n\n长按上下颜文字可排序\n\n左右拖曳可移除颜文字\n\n编辑完成后返回即保存设置</b></string>
+    <string name="emoji_restore" translatable="false"><b>恢复颜文字至默认设置\n\n此次操作将删除用户自定义颜文字\n\n是否确认删除?\n\n</b></string>
     <string name="emoji_remark" translatable="false">颜文字备注</string>
     <string name="emoji_value" translatable="false">颜文字内容</string>
     <string name="general_settings" translatable="false">通用设置</string>
     <string name="display_settings" translatable="false">显示设置</string>
     <string name="custom_settings" translatable="false">自定义设置</string>
     <string name="help" translatable="false">帮助</string>
+    <string name="restore" translatable="false">恢复默认设置</string>
     <string name="about" translatable="false">关于</string>
     <string name="trend" translatable="false">昨日热榜</string>
     <string name="basic_title" translatable="false">A岛</string>

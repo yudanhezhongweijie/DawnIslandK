@@ -144,4 +144,9 @@ abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(NotificationViewModel::class)
     abstract fun bindNotificationViewModel(viewModel: NotificationViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(EmojiSettingViewModel::class)
+    abstract fun bindEmojiSettingViewModel(viewModel: EmojiSettingViewModel): ViewModel
 }

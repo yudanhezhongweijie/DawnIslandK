@@ -23,7 +23,7 @@ import android.os.Bundle
 import android.view.*
 import android.widget.EditText
 import androidx.core.widget.doOnTextChanged
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -32,6 +32,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.WhichButton
 import com.afollestad.materialdialogs.actions.getActionButton
+import com.afollestad.materialdialogs.actions.setActionButtonEnabled
+import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
 import com.afollestad.materialdialogs.customview.customView
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.listener.OnItemDragListener
@@ -42,7 +44,6 @@ import com.google.android.material.textfield.TextInputLayout
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Emoji
 import com.laotoua.dawnislandk.databinding.FragmentEmojiSettingBinding
-import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.util.Layout
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.launch
@@ -56,7 +57,7 @@ class EmojiSettingFragment : DaggerFragment() {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
-    private val sharedVM: SharedViewModel by activityViewModels { viewModelFactory }
+    private val viewModel: EmojiSettingViewModel by viewModels { viewModelFactory }
 
     private var emojiAdapter: EmojiAdapter? = null
 
@@ -66,8 +67,11 @@ class EmojiSettingFragment : DaggerFragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_fragment_base_with_help, menu)
-        context?.let { menu.findItem(R.id.help)?.icon?.setTint(Layout.getThemeInverseColor(it)) }
+        inflater.inflate(R.menu.menu_fragment_emoji_setting, menu)
+        context?.let {
+            menu.findItem(R.id.help)?.icon?.setTint(Layout.getThemeInverseColor(it))
+            menu.findItem(R.id.restore)?.icon?.setTint(Layout.getThemeInverseColor(it))
+        }
         super.onCreateOptionsMenu(menu, inflater)
     }
 
@@ -79,6 +83,26 @@ class EmojiSettingFragment : DaggerFragment() {
                     title(R.string.emoji_setting)
                     message(R.string.emoji_setting_help)
                     positiveButton(R.string.acknowledge)
+                }
+                return true
+            }
+            R.id.restore -> {
+                if (activity == null || !isAdded) return true
+                MaterialDialog(requireContext()).show {
+                    title(R.string.restore)
+                    message(R.string.emoji_setting_help)
+                    setActionButtonEnabled(WhichButton.POSITIVE, false)
+                    checkBoxPrompt(R.string.acknowledge) { checked ->
+                        setActionButtonEnabled(WhichButton.POSITIVE, checked)
+                    }
+                    positiveButton(R.string.submit) {
+                        viewModel.resetEmoji()
+                        this@EmojiSettingFragment.lifecycleScope.launch {
+                            if (activity == null || !isAdded) return@launch
+                            emojiAdapter?.setList(viewModel.getAllEmoji().toMutableList())
+                        }
+                    }
+                    negativeButton(R.string.cancel)
                 }
                 return true
             }
@@ -142,7 +166,7 @@ class EmojiSettingFragment : DaggerFragment() {
         }
 
         lifecycleScope.launch {
-            emojiAdapter?.setList(sharedVM.getAllEmoji().toMutableList())
+            emojiAdapter?.setList(viewModel.getAllEmoji().toMutableList())
         }
 
         binding?.addEmoji?.setOnClickListener {
@@ -162,7 +186,7 @@ class EmojiSettingFragment : DaggerFragment() {
                     val remarkText = remark.text.toString()
                     val contentText = content.text.toString()
                     if (remarkText.isNotBlank() && contentText.isNotBlank()) {
-                        emojiAdapter?.addData(Emoji(remarkText, contentText, true, Date().time))
+                        emojiAdapter?.addData(0, Emoji(remarkText, contentText, true, Date().time))
                     }
                 }
                 negativeButton(R.string.cancel)
@@ -180,7 +204,7 @@ class EmojiSettingFragment : DaggerFragment() {
     }
 
     override fun onDestroyView() {
-        emojiAdapter?.data?.let { sharedVM.setEmojiList(it) }
+        emojiAdapter?.data?.let { viewModel.setEmojiList(it) }
         super.onDestroyView()
     }
 

@@ -91,12 +91,6 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun setEmojiList(list: List<Emoji>) {
-        viewModelScope.launch {
-            emojiDao.insertAll(list)
-        }
-    }
-
     /** scan cache feed daily, update the most outdated feed
      *  updates 1 feed per 5 minutes
      */

@@ -85,9 +85,15 @@ class SharedViewModel @Inject constructor(
         return res
     }
 
-    fun setLastUsedEmoji(emoji: Emoji){
+    fun setLastUsedEmoji(emoji: Emoji) {
         viewModelScope.launch {
             emojiDao.setLastUsedEmoji(emoji)
+        }
+    }
+
+    fun setEmojiList(list: List<Emoji>) {
+        viewModelScope.launch {
+            emojiDao.insertAll(list)
         }
     }
 

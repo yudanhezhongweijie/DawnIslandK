@@ -20,40 +20,29 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".screens.profile.CommonPostsFragment">
+    tools:context=".screens.profile.EmojiSettingFragment">
 
-    <include
-        android:id="@+id/commonPostsTitle"
-        layout="@layout/list_item_community"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/emojiRV"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:overScrollMode="never"
+        android:scrollbars="vertical"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/commonPosts"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        android:overScrollMode="never"
-        android:scrollbars="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/commonPostsTitle" />
-
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/addCommonPost"
+        android:id="@+id/addEmoji"
         style="@style/Widget.MaterialComponents.FloatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="70dp"
         android:visibility="visible"
+        app:iconTint="?android:attr/textColorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_add_black_48px"
-        app:iconTint="?android:attr/textColorPrimary" />
+        app:srcCompat="@drawable/ic_add_black_48px" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

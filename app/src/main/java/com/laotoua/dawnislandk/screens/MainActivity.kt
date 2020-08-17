@@ -481,6 +481,10 @@ class MainActivity : DaggerAppCompatActivity() {
                 setToolbarTitle(R.string.feed_notification)
                 hideNav()
             }
+            R.id.emojiSettingFragment -> {
+                setToolbarTitle(R.string.emoji_setting)
+                hideNav()
+            }
             else -> {
                 Timber.e("Unhandled destination navigation $destination")
             }

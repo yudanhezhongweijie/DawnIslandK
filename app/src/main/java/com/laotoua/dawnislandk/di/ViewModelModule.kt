@@ -87,6 +87,9 @@ abstract class ViewModelModule {
     @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
     internal abstract fun notificationFragment(): NotificationFragment
 
+    @ContributesAndroidInjector(modules = [ViewModelBuilder::class])
+    internal abstract fun emojiSettingFragment(): EmojiSettingFragment
+
     @Binds
     @IntoMap
     @ViewModelKey(PostsViewModel::class)

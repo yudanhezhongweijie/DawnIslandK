@@ -90,7 +90,7 @@ class EmojiSettingFragment : DaggerFragment() {
                 if (activity == null || !isAdded) return true
                 MaterialDialog(requireContext()).show {
                     title(R.string.restore)
-                    message(R.string.emoji_setting_help)
+                    message(R.string.emoji_restore)
                     setActionButtonEnabled(WhichButton.POSITIVE, false)
                     checkBoxPrompt(R.string.acknowledge) { checked ->
                         setActionButtonEnabled(WhichButton.POSITIVE, checked)

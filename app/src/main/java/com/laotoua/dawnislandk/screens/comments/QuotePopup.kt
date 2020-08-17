@@ -44,12 +44,14 @@ import com.lxj.xpopup.util.XPopupUtils
 @SuppressLint("ViewConstructor")
 // uses caller fragment's context, should not live without fragment
 class QuotePopup(
-    private val caller: CommentsFragment,
-    private val liveQuote: LiveData<DataResource<Comment>>,
-    private val currentPostId:String,
+    caller: CommentsFragment,
+    liveQuote: LiveData<DataResource<Comment>>,
+    private val currentPostId: String,
     private val po: String
 ) : CenterPopupView(caller.requireContext()) {
 
+    private var mCaller: CommentsFragment? = caller
+    private var mLiveQuote: LiveData<DataResource<Comment>>? = liveQuote
     override fun getImplLayoutId(): Int = R.layout.popup_quote
 
     override fun getMaxWidth(): Int = (XPopupUtils.getWindowWidth(context) * .9f).toInt()
@@ -73,11 +75,11 @@ class QuotePopup(
     fun listenToLiveQuote(lifecycleOwner: LifecycleOwner) {
         findViewById<ProgressBar>(R.id.progressBar).visibility = View.VISIBLE
         findViewById<ConstraintLayout>(R.id.quote).visibility = View.GONE
-        liveQuote.observe(lifecycleOwner, liveQuoteObs)
+        mLiveQuote?.observe(lifecycleOwner, liveQuoteObs)
     }
 
     private fun convertQuote(quote: Comment, po: String) {
-        liveQuote.removeObserver(liveQuoteObs)
+        mLiveQuote?.removeObserver(liveQuoteObs)
 
         findViewById<TextView>(R.id.userId).text = transformCookie(quote.userid, quote.admin, po)
 
@@ -140,7 +142,9 @@ class QuotePopup(
 
         val referenceClickListener = object : ReferenceSpan.ReferenceClickHandler {
             override fun handleReference(id: String) {
-                caller.displayQuote(id)
+                if (isShow) {
+                    mCaller?.displayQuote(id)
+                }
             }
         }
 
@@ -164,13 +168,17 @@ class QuotePopup(
         findViewById<Button>(R.id.jumpToQuotedPost).run {
             visibility = if (quote.parentId != currentPostId) View.VISIBLE else View.GONE
             setOnClickListener {
-                caller.jumpToNewPost(quote.parentId)
+                if (isShow) {
+                    mCaller?.jumpToNewPost(quote.parentId)
+                }
             }
         }
     }
 
     override fun onDismiss() {
-        liveQuote.removeObserver(liveQuoteObs)
+        mLiveQuote?.removeObserver(liveQuoteObs)
+        mLiveQuote = null
+        mCaller = null
         super.onDismiss()
     }
 }

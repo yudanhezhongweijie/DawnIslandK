@@ -667,13 +667,14 @@ class CommentsFragment : DaggerFragment() {
                     quotePopups.remove(popupView)
                 }
             })
+            .isDestroyOnDismiss(true)
             .asCustom(top)
             .show()
     }
 
     private fun dismissAllQuotes() {
         for (i in quotePopups.indices.reversed()) {
-            quotePopups[i].destroy()
+            quotePopups[i].dismiss()
         }
     }
 

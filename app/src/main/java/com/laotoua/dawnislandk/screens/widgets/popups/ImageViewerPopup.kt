@@ -147,6 +147,7 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
         tvPagerIndicator = findViewById(R.id.tv_pager_indicator)
         saveButton = findViewById(R.id.save_button)
         saveButton!!.setOnClickListener {
+            if (!isShow) return@setOnClickListener
             addPicToGallery(
                 context as FragmentActivity,
                 urls[position]
@@ -508,6 +509,10 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
     }
 
     override fun onDragChange(dy: Int, scale: Float, fraction: Float) {
+        if (!isShow) {
+            dismiss()
+            return
+        }
         tvPagerIndicator!!.alpha = 1 - fraction
         if (customView != null) customView!!.alpha = 1 - fraction
         if (isShowSaveBtn) saveButton!!.alpha = 1 - fraction
@@ -563,6 +568,7 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
             }
             container.addView(photoView)
             photoView.setOnClickListener {
+                if (!isShow) return@setOnClickListener
                 uiShown = if (uiShown) {
                     saveButton?.hide()
                     saveButton?.isClickable = false

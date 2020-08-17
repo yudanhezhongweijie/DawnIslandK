@@ -91,7 +91,7 @@ class ForumDrawerPopup(
         reedImageView = findViewById(R.id.reedImageView)
         if (reedImageUrl.isNotBlank()) loadReedPicture()
         reedImageView!!.setOnClickListener {
-            if (reedImageUrl.isBlank()) return@setOnClickListener
+            if (!isShow || reedImageUrl.isBlank()) return@setOnClickListener
             val viewerPopup = ImageViewerPopup(context)
             viewerPopup.setSingleSrcView(reedImageView, reedImageUrl)
             XPopup.Builder(context)
@@ -100,6 +100,7 @@ class ForumDrawerPopup(
         }
 
         findViewById<Button>(R.id.ReedPictureRefresh).setOnClickListener {
+            if (!isShow) return@setOnClickListener
             reedImageUrl = ""
             sharedVM.getRandomReedPicture()
         }
@@ -126,6 +127,7 @@ class ForumDrawerPopup(
                 }
             }
             setOnClickListener {
+                if (!isShow) return@setOnClickListener
                 dismissWith{
                     if (nightModeOn) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
                     else AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)

@@ -120,10 +120,7 @@ class CommentsViewModel @Inject constructor(
     }
 
 
-    private fun combineDataResource(
-        dataResource: DataResource<List<Comment>>,
-        targetPage: Int
-    ) {
+    private fun combineDataResource(dataResource: DataResource<List<Comment>>, targetPage: Int) {
         var status = dataResource.status
         if (dataResource.status == LoadingStatus.SUCCESS || dataResource.status == LoadingStatus.NO_DATA) {
             // assign fid if missing
@@ -140,13 +137,15 @@ class CommentsViewModel @Inject constructor(
                 commentRepo.getHeaderPost(currentPostId)?.let { list.add(0, it) }
             }
             dataResource.data?.let { list.addAll(it) }
-            // inform user latest page is the same as error by setting status to no_data instead of success
-            val noAdOldPage = commentList.filter { it.page == targetPage && it.isNotAd() }
-            val noAdNewPage = list.filter { it.isNotAd() }
-            if (noAdNewPage.size < 19) {
+            /** inform user this page is the end by setting status to no_data instead of success,
+             *  if this page reach page max count: 20 if has Ad, 19 otherwise
+             */
+            if (list.size < 19 + if (list.firstOrNull()?.isAd() == true) 1 else 0) {
                 status = LoadingStatus.NO_DATA
             }
-            if (!noAdOldPage.equalsWithServerComments(noAdNewPage)) {
+
+            val noAdOldPage = commentList.filter { it.page == targetPage && it.isNotAd() }
+            if (!noAdOldPage.equalsWithServerComments(list)) {
                 mergeList(list, targetPage)
             }
         }
@@ -215,7 +214,7 @@ class CommentsViewModel @Inject constructor(
         listenToNewPage(page)
     }
 
-    fun getExternalShareContent():String{
+    fun getExternalShareContent(): String {
         return "${ContentTransformation.htmlToSpanned(commentRepo.getHeaderPost(currentPostId)?.content.toString())}\n\n${DawnConstants.nmbHost}/t/${currentPostId}\n"
     }
 
@@ -225,7 +224,7 @@ class CommentsViewModel @Inject constructor(
         }
     }
 
-    fun delFeed(id:String){
+    fun delFeed(id: String) {
         viewModelScope.launch {
             feedResponse.postValue(commentRepo.deleteFeed(id))
         }

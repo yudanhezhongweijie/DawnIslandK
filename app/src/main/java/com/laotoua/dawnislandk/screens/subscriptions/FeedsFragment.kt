@@ -24,7 +24,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.text.isDigitsOnly
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -49,8 +48,6 @@ import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
 import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
-import com.laotoua.dawnislandk.util.EventPayload
-import com.laotoua.dawnislandk.util.SingleLiveEvent
 import com.lxj.xpopup.XPopup
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import me.dkzwm.widget.srl.config.Constants
@@ -98,7 +95,7 @@ class FeedsFragment : BaseNavFragment() {
                 setHasFixedSize(true)
                 layoutManager = LinearLayoutManager(context)
                 adapter = mAdapter
-                addOnScrollListener(object :RecyclerView.OnScrollListener(){
+                addOnScrollListener(object : RecyclerView.OnScrollListener() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                         if (activity == null || !isAdded) return
                         if (dy > 0) {
@@ -150,25 +147,25 @@ class FeedsFragment : BaseNavFragment() {
             }
         }
 
-        viewModel.delFeedResponse.observe(viewLifecycleOwner, Observer<SingleLiveEvent<String>> {
+        viewModel.delFeedResponse.observe(viewLifecycleOwner, {
             it.getContentIfNotHandled()?.let { message ->
                 toast(message)
             }
         })
-        viewModel.loadingStatus.observe(viewLifecycleOwner, Observer<SingleLiveEvent<EventPayload<Nothing>>> {
-            if (mAdapter == null || binding == null) return@Observer
+        viewModel.loadingStatus.observe(viewLifecycleOwner) {
+            if (mAdapter == null || binding == null) return@observe
             it.getContentIfNotHandled()?.run {
                 updateHeaderAndFooter(binding!!.srlAndRv.refreshLayout, mAdapter!!, this)
             }
-        })
-        viewModel.feeds.observe(viewLifecycleOwner, Observer<List<FeedAndPost>> { list ->
-            if (mAdapter == null) return@Observer
+        }
+        viewModel.feeds.observe(viewLifecycleOwner) { list ->
+            if (mAdapter == null) return@observe
             if (list.isEmpty()) {
                 if (viewModel.lastJumpPage > 0) {
                     toast(getString(R.string.no_feed_on_page, viewModel.lastJumpPage))
                 }
                 mAdapter!!.setDiffNewData(null)
-                return@Observer
+                return@observe
             }
 
             val data: MutableList<Any> = ArrayList()
@@ -185,11 +182,10 @@ class FeedsFragment : BaseNavFragment() {
             if (refreshing) {
                 mAdapter!!.setList(data)
                 binding?.srlAndRv?.recyclerView?.scrollToPosition(0)
-            }
-            else mAdapter!!.setDiffNewData(data)
+            } else mAdapter!!.setDiffNewData(data)
             refreshing = false
             Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} feeds")
-        })
+        }
         if (viewModel.feeds.value.isNullOrEmpty()) {
             binding?.srlAndRv?.refreshLayout?.autoRefresh(Constants.ACTION_NOTIFY, false)
         }

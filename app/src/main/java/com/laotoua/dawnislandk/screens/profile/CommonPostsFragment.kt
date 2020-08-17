@@ -24,7 +24,6 @@ import android.view.*
 import android.widget.EditText
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -47,7 +46,6 @@ import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.util.ContentTransformation
 import com.laotoua.dawnislandk.screens.util.Layout
 import com.laotoua.dawnislandk.screens.util.Layout.toast
-import com.laotoua.dawnislandk.util.DataResource
 import com.laotoua.dawnislandk.util.LoadingStatus
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
@@ -141,16 +139,17 @@ class CommonPostsFragment : DaggerFragment() {
             setHasFixedSize(true)
         }
 
-        sharedVM.communityList.observe(viewLifecycleOwner, Observer<DataResource<List<Community>>> {
+        sharedVM.communityList.observe(viewLifecycleOwner) {
             if (it.status == LoadingStatus.ERROR) {
                 toast(it.message)
-                return@Observer
+                return@observe
             }
-            if (it.data.isNullOrEmpty()) return@Observer
+            if (it.data.isNullOrEmpty()) return@observe
             val common = it.data.firstOrNull { c -> c.isCommonPosts() }?.forums ?: emptyList()
             commonPostsAdapter?.setNewInstance(common.toMutableList())
             updateTitle()
-        })
+        }
+
         updateTitle()
 
         binding?.addCommonPost?.setOnClickListener {

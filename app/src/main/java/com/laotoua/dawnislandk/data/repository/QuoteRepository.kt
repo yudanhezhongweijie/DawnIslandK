@@ -60,13 +60,14 @@ class QuoteRepository @Inject constructor(
     }
 
     private fun getServerData(id: String): LiveData<DataResource<Comment>> {
-        return liveData<DataResource<Comment>> {
+        return liveData {
             val response = DataResource.create(webService.getQuote(id))
             if (response.status == LoadingStatus.SUCCESS) {
                 convertServerData(id, response.data!!)
             } else {
-                val message = if (response.status == LoadingStatus.NO_DATA) "无法获取引用" else response.message
-                emit(DataResource.create(LoadingStatus.ERROR, null, message))
+                val message =
+                    if (response.status == LoadingStatus.NO_DATA) "无法获取引用" else response.message
+                emit(DataResource.create<Comment>(LoadingStatus.ERROR, null, message))
             }
         }
     }

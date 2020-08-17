@@ -26,7 +26,6 @@ import android.view.*
 import android.widget.TextView
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
@@ -123,18 +122,16 @@ class NotificationFragment : DaggerFragment() {
         }
 
         mAdapter?.setEmptyView(R.layout.view_no_data)
-        viewModel.notificationAndPost.observe(
-            viewLifecycleOwner,
-            Observer<List<NotificationAndPost>> { list ->
-                if (list.isNullOrEmpty()) mAdapter?.setList(null)
-                else mAdapter?.setDiffNewData(list.toMutableList())
-            })
+        viewModel.notificationAndPost.observe(viewLifecycleOwner) { list ->
+            if (list.isNullOrEmpty()) mAdapter?.setList(null)
+            else mAdapter?.setDiffNewData(list.toMutableList())
+        }
 
         // Inflate the layout for this fragment
         return binding!!.root
     }
 
-    inner class NotificationDiffer : DiffUtil.ItemCallback<NotificationAndPost>() {
+    class NotificationDiffer : DiffUtil.ItemCallback<NotificationAndPost>() {
         override fun areItemsTheSame(
             oldItem: NotificationAndPost,
             newItem: NotificationAndPost
@@ -235,7 +232,8 @@ class NotificationFragment : DaggerFragment() {
                 ContentTransformation.transformTime(item.notification.lastUpdatedAt)
             )
             val content =
-                if (item.notification.message.isBlank()) item.post?.content ?: "" else item.notification.message
+                if (item.notification.message.isBlank()) item.post?.content
+                    ?: "" else item.notification.message
             holder.setText(R.id.content, ContentTransformation.transformContent(context, content))
             holder.setGone(R.id.newReplyCount, item.notification.read)
             val forumName = SpannableString(sharedVM.getForumDisplayName(item.notification.fid))

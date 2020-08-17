@@ -24,7 +24,6 @@ import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -69,8 +68,8 @@ class PostHistoryFragment : BaseNavFragment() {
     private var showNewPosts = true
     private var showReplys = true
 
-    private var postHeader = SectionHeader("发布", View.OnClickListener { togglePosts() })
-    private var replyHeader = SectionHeader("回复", View.OnClickListener { toggleReplys() })
+    private var postHeader = SectionHeader("发布") { togglePosts() }
+    private var replyHeader = SectionHeader("回复") { toggleReplys() }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -128,15 +127,15 @@ class PostHistoryFragment : BaseNavFragment() {
                 }
             }
         }
-        viewModel.postHistoryList.observe(viewLifecycleOwner, Observer<List<PostHistory>> { list ->
-            if (mAdapter == null || binding == null || activity == null || !isAdded) return@Observer
+        viewModel.postHistoryList.observe(viewLifecycleOwner) { list ->
+            if (mAdapter == null || binding == null || activity == null || !isAdded) return@observe
             if (list.isEmpty()) {
                 if (!mAdapter!!.hasEmptyView()) mAdapter!!.setDefaultEmptyView()
                 mAdapter!!.setDiffNewData(null)
-                return@Observer
+                return@observe
             }
             displayList(list)
-        })
+        }
         viewCaching = false
         return binding!!.root
     }
@@ -319,7 +318,7 @@ class PostHistoryFragment : BaseNavFragment() {
     }
 
 
-    inner class PostHistoryDiffer : DiffUtil.ItemCallback<PostHistory>() {
+    class PostHistoryDiffer : DiffUtil.ItemCallback<PostHistory>() {
         override fun areItemsTheSame(oldItem: PostHistory, newItem: PostHistory): Boolean {
             return oldItem.id == newItem.id
         }
@@ -329,7 +328,7 @@ class PostHistoryFragment : BaseNavFragment() {
         }
     }
 
-    inner class SectionHeaderDiffer : DiffUtil.ItemCallback<SectionHeader>() {
+    class SectionHeaderDiffer : DiffUtil.ItemCallback<SectionHeader>() {
         override fun areItemsTheSame(oldItem: SectionHeader, newItem: SectionHeader): Boolean {
             return oldItem.text == newItem.text
         }
@@ -339,7 +338,7 @@ class PostHistoryFragment : BaseNavFragment() {
         }
     }
 
-    inner class DateStringDiffer : DiffUtil.ItemCallback<String>() {
+    class DateStringDiffer : DiffUtil.ItemCallback<String>() {
         override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
             return oldItem == newItem
         }

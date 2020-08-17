@@ -24,7 +24,6 @@ import android.view.*
 import android.view.animation.AnimationUtils
 import android.widget.*
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -46,8 +45,6 @@ import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
 import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
 import com.laotoua.dawnislandk.screens.widgets.popups.PostPopup
 import com.laotoua.dawnislandk.util.DawnConstants
-import com.laotoua.dawnislandk.util.EventPayload
-import com.laotoua.dawnislandk.util.SingleLiveEvent
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
@@ -86,7 +83,7 @@ class PostsFragment : BaseNavFragment() {
             updateFeedNotificationIcon(count)
             setOnClickListener { onOptionsItemSelected(rootView) }
         }
-        context?.let { menu.findItem(R.id.forumRule).icon.setTint(getThemeInverseColor(it))}
+        context?.let { menu.findItem(R.id.forumRule).icon.setTint(getThemeInverseColor(it)) }
         super.onPrepareOptionsMenu(menu)
     }
 
@@ -177,9 +174,11 @@ class PostsFragment : BaseNavFragment() {
                                                 "18",//值班室
                                                 "18",
                                                 newPost = true,
-                                                quote = ">>No.${getItem(position).id}\n${context.getString(
-                                                    R.string.report_reasons
-                                                )}: $text\n"
+                                                quote = ">>No.${getItem(position).id}\n${
+                                                    context.getString(
+                                                        R.string.report_reasons
+                                                    )
+                                                }: $text\n"
                                             )
                                         }
                                         cancelOnTouchOutside(false)
@@ -297,8 +296,9 @@ class PostsFragment : BaseNavFragment() {
                 MaterialDialog(requireContext()).show {
                     title(R.string.search)
                     customView(R.layout.dialog_search, noVerticalPadding = true).apply {
+                        val searchInputText = findViewById<TextView>(R.id.searchInputText)
                         findViewById<Button>(R.id.search).setOnClickListener {
-                            val query = findViewById<TextView>(R.id.searchInputText).text.toString()
+                            val query = searchInputText.text.toString()
                             if (query.isNotBlank()) {
                                 dismiss()
                                 viewCaching = DawnApp.applicationDataStore.getViewCaching()
@@ -313,7 +313,7 @@ class PostsFragment : BaseNavFragment() {
                         }
 
                         findViewById<Button>(R.id.jumpToPost).setOnClickListener {
-                            val threadId = findViewById<TextView>(R.id.searchInputText).text
+                            val threadId = searchInputText.text
                                 .filter { it.isDigit() }.toString()
                             if (threadId.isNotEmpty()) {
                                 // Does not have fid here. fid will be generated when data comes back in reply
@@ -336,21 +336,19 @@ class PostsFragment : BaseNavFragment() {
             }
         }
 
-        viewModel.loadingStatus.observe(
-            viewLifecycleOwner,
-            Observer<SingleLiveEvent<EventPayload<Nothing>>> {
-                if (mAdapter == null || binding == null || activity == null || !isAdded) return@Observer
-                it.getContentIfNotHandled()?.run {
-                    updateHeaderAndFooter(binding!!.srlAndRv.refreshLayout, mAdapter!!, this)
-                }
-            })
+        viewModel.loadingStatus.observe(viewLifecycleOwner) {
+            if (mAdapter == null || binding == null || activity == null || !isAdded) return@observe
+            it.getContentIfNotHandled()?.run {
+                updateHeaderAndFooter(binding!!.srlAndRv.refreshLayout, mAdapter!!, this)
+            }
+        }
 
-        viewModel.posts.observe(viewLifecycleOwner, Observer<List<Post>> {
-            if (mAdapter == null || binding == null || activity == null || !isAdded) return@Observer
+        viewModel.posts.observe(viewLifecycleOwner) {
+            if (mAdapter == null || binding == null || activity == null || !isAdded) return@observe
             if (it.isEmpty()) {
                 if (!mAdapter!!.hasEmptyView()) mAdapter!!.setDefaultEmptyView()
                 mAdapter!!.setDiffNewData(null)
-                return@Observer
+                return@observe
             }
             // set forum when navigate from website url
             if (sharedVM.selectedForumId.value == null) {
@@ -362,10 +360,10 @@ class PostsFragment : BaseNavFragment() {
             } else mAdapter!!.setDiffNewData(it.toMutableList())
             refreshing = false
             Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
-        })
+        }
 
-        sharedVM.selectedForumId.observe(viewLifecycleOwner, Observer<String> {
-            if (mAdapter == null || binding == null || activity == null || !isAdded) return@Observer
+        sharedVM.selectedForumId.observe(viewLifecycleOwner) {
+            if (mAdapter == null || binding == null || activity == null || !isAdded) return@observe
             if (viewModel.currentFid != it) {
                 refreshing = true
                 viewModel.setForum(it)
@@ -375,11 +373,9 @@ class PostsFragment : BaseNavFragment() {
                 viewModel.refresh()
                 sharedVM.forumRefresh = false
             }
-        })
+        }
 
-        sharedVM.notifications.observe(viewLifecycleOwner, Observer<Int> { count ->
-            updateFeedNotificationIcon(count)
-        })
+        sharedVM.notifications.observe(viewLifecycleOwner) { updateFeedNotificationIcon(it) }
 
         viewCaching = false
         return binding!!.root

@@ -23,7 +23,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.afollestad.materialdialogs.MaterialDialog
@@ -181,7 +180,8 @@ class CustomSettingFragment : DaggerFragment() {
 
         binding?.defaultHistoryPage?.apply {
             key.setText(R.string.edit_history_default_page)
-            val items = listOf(getString(R.string.browsing_history), getString(R.string.post_history))
+            val items =
+                listOf(getString(R.string.browsing_history), getString(R.string.post_history))
             val browsingHistoryIndex = applicationDataStore.getHistoryPagerPageIndices().first
             if (browsingHistoryIndex == 0) {
                 summary.text = getString(R.string.browsing_history)
@@ -217,15 +217,15 @@ class CustomSettingFragment : DaggerFragment() {
             }
         }
 
-        viewModel.timelineBlockedForumIds.observe(viewLifecycleOwner, Observer {
+        viewModel.timelineBlockedForumIds.observe(viewLifecycleOwner) {
             blockedForumIds = it
             binding?.timelineFilter?.summary?.text = resources.getString(
                 R.string.timeline_filtered_count,
                 it.size
             )
-        })
+        }
 
-        sharedViewModel.communityList.observe(viewLifecycleOwner, Observer {
+        sharedViewModel.communityList.observe(viewLifecycleOwner) {
             serverForums = it.data?.filterNot { c -> c.isCommonForums() || c.isCommonPosts() }
                 ?.map { c -> c.forums }?.flatten()
 
@@ -238,7 +238,7 @@ class CustomSettingFragment : DaggerFragment() {
                 R.string.common_posts_count,
                 it.data?.firstOrNull { c -> c.isCommonPosts() }?.forums?.size ?: 0
             )
-        })
+        }
 
         return binding!!.root
     }

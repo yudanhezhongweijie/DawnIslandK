@@ -36,7 +36,7 @@ class CustomAnimation2 : BaseAnimation {
         return arrayOf(translationX)
     }
 
-    internal inner class MyInterpolator2 : Interpolator {
+    internal class MyInterpolator2 : Interpolator {
         override fun getInterpolation(input: Float): Float {
             val factor = 0.7f
             return ((2.0.pow(-10.0 * input) * kotlin.math.sin((input - factor / 4) * (2 * PI) / factor) + 1).toFloat())

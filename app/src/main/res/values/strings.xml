@@ -47,7 +47,6 @@
     <string name="email_address" translatable="false">邮箱</string>
     <string name="name" translatable="false">名称</string>
     <string name="need_cookie_to_read" translatable="false">没有饼干! 不能看99页以后的内容...</string>
-    <string name="post" translatable="false">发布</string>
     <string name="search" translatable="false">搜索</string>
     <string name="jump_to_post" translatable="false">跳转至串</string>
     <string name="new_post" translatable="false">发布新串</string>
@@ -70,7 +69,6 @@
     <string name="settings" translatable="false">设置</string>
     <string name="browsing_history" translatable="false">浏览历史</string>
     <string name="post_history" translatable="false">发言历史</string>
-    <string name="forum_refresh" translatable="false">刷新版块</string>
     <string name="common_forum_setting" translatable="false">常用版块设置</string>
     <string name="common_forum_count" translatable="false">常用版块包含%d个版块</string>
     <string name="common_forums_title" translatable="false">常用版块: %d</string>
@@ -157,7 +155,6 @@
     <string name="total_page" translatable="false">总页数:</string>
     <string name="page_jump" translatable="false">跳页</string>
     <string name="subscribe" translatable="false">收藏</string>
-    <string name="see_po_only" translatable="false">只看Po</string>
     <string name="share" translatable="false">分享</string>
     <string name="please_select_target_forum" translatable="false">请选择发布版块</string>
     <string name="cookie_name" translatable="false">饼干名字</string>
@@ -183,7 +180,7 @@
     <string name="toolbar_customization_on" translatable="false">开启自定义顶部栏背景</string>
     <string name="toolbar_customization_off" translatable="false">关闭自定义顶部栏背景</string>
     <string name="toolbar_customization_error" translatable="false">无法读取自定义顶部栏背景，请重新设置</string>
-    <string name="comment_filter" translatable="false">只看Po过滤</string>
+    <string name="comment_filter" translatable="false">只看Po</string>
     <string name="comment_filter_off" translatable="false">只看Po过滤关闭</string>
     <string name="comment_filter_on" translatable="false">只看Po过滤开启。新的非Po评论将被折叠</string>
     <string name="checked_filtered_comment" translatable="false">查看隐藏%dcm</string>

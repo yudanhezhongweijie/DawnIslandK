@@ -41,7 +41,7 @@ class ProfileViewModel @Inject constructor(
     private val postDao: PostDao
 ) :
     ViewModel() {
-    private val _cookies = MutableLiveData<List<Cookie>>(applicationDataStore.cookies)
+    private val _cookies = MutableLiveData(applicationDataStore.cookies)
     val cookies: LiveData<List<Cookie>> get() = _cookies
 
     private val _loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()

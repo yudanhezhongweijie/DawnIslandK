@@ -30,7 +30,6 @@ import android.widget.EditText
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.afollestad.materialdialogs.MaterialDialog
@@ -109,7 +108,8 @@ class ProfileFragment : DaggerFragment() {
             icon.rotation = -90f
             root.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
-                val action = ProfileFragmentDirections.actionProfileFragmentToDisplaySettingFragment()
+                val action =
+                    ProfileFragmentDirections.actionProfileFragmentToDisplaySettingFragment()
                 findNavController().navigate(action)
             }
         }
@@ -119,7 +119,8 @@ class ProfileFragment : DaggerFragment() {
             icon.rotation = -90f
             root.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
-                val action = ProfileFragmentDirections.actionProfileFragmentToCustomSettingFragment()
+                val action =
+                    ProfileFragmentDirections.actionProfileFragmentToCustomSettingFragment()
                 findNavController().navigate(action)
             }
         }
@@ -141,7 +142,7 @@ class ProfileFragment : DaggerFragment() {
                 cancelOnTouchOutside(false)
             }
         }
-        viewModel.loadingStatus.observe(viewLifecycleOwner, Observer {
+        viewModel.loadingStatus.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.run {
                 when (loadingStatus) {
                     LoadingStatus.LOADING -> {
@@ -156,12 +157,12 @@ class ProfileFragment : DaggerFragment() {
                     }
                 }
             }
-        })
+        }
 
-        viewModel.cookies.observe(viewLifecycleOwner, Observer { cookies ->
+        viewModel.cookies.observe(viewLifecycleOwner) { cookies ->
             binding?.cookieList?.removeAllViews()
             cookies.map { addCookieToLayout(it) }
-        })
+        }
 
         binding!!.addCookie.setOnClickListener {
             if (activity == null || !isAdded) return@setOnClickListener
@@ -299,7 +300,11 @@ class ProfileFragment : DaggerFragment() {
         binding?.cookieList?.addView(view.root)
 
         binding?.cookieSummary?.text =
-            resources.getString(R.string.count_text, binding?.cookieList?.childCount ?: 0, cookieLimit)
+            resources.getString(
+                R.string.count_text,
+                binding?.cookieList?.childCount ?: 0,
+                cookieLimit
+            )
         if (binding?.cookieList?.childCount ?: 0 >= 5) {
             binding?.addCookie?.isEnabled = false
         }
@@ -319,7 +324,7 @@ class ProfileFragment : DaggerFragment() {
                     viewModel.addNewCookie(cookieHash)
                 }
             }
-        } catch (e:Exception){
+        } catch (e: Exception) {
             toast("没有读取到有效饼干。请检查图片有效性。如果确认图片为合理饼干，请通过软件反馈联系作者并附上$cookieJson")
         }
     }

@@ -53,11 +53,12 @@ class CommunityNodeAdapter(val clickListener: ForumClickListener) : BaseNodeAdap
     }
 
     fun setData(list: List<Community>) {
-        val commonForumIds = list.firstOrNull { it.isCommonForums() }?.forums?.map { it.id } ?: emptyList()
+        val commonForumIds =
+            list.firstOrNull { it.isCommonForums() }?.forums?.map { it.id } ?: emptyList()
 
         val nodes = mutableListOf<CommunityNode>()
-        for (c in list){
-            if (c.isCommonForums() || c.isCommonPosts()){
+        for (c in list) {
+            if (c.isCommonForums() || c.isCommonPosts()) {
                 nodes.add(CommunityNode(c))
             } else {
                 val noDuplicateCommunity = Community(
@@ -173,8 +174,7 @@ class CommunityNodeAdapter(val clickListener: ForumClickListener) : BaseNodeAdap
         }
     }
 
-    inner class CommunityNode(val community: Community) :
-        BaseExpandNode() {
+    class CommunityNode(val community: Community) : BaseExpandNode() {
 
         init {
             isExpanded = false
@@ -184,7 +184,7 @@ class CommunityNodeAdapter(val clickListener: ForumClickListener) : BaseNodeAdap
             community.forums.map { ForumNode(it) }.toMutableList()
     }
 
-    inner class ForumNode(val forum: Forum) : BaseNode() {
+    class ForumNode(val forum: Forum) : BaseNode() {
         override val childNode: MutableList<BaseNode>? = null
     }
 

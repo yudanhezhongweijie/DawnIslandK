@@ -23,7 +23,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
@@ -35,7 +34,6 @@ import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.data.local.entity.BrowsingHistoryAndPost
 import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.databinding.FragmentHistoryBrowsingBinding
 import com.laotoua.dawnislandk.screens.SharedViewModel
@@ -120,40 +118,38 @@ class BrowsingHistoryFragment : BaseNavFragment() {
                 }
             }
         }
-        viewModel.browsingHistoryList.observe(
-            viewLifecycleOwner,
-            Observer<List<BrowsingHistoryAndPost>> { list ->
-                if (mAdapter == null || binding == null) return@Observer
-                if (list.isEmpty()) {
-                    if (!mAdapter!!.hasEmptyView()) mAdapter?.setDefaultEmptyView()
-                    mAdapter!!.setDiffNewData(null)
-                    return@Observer
-                }
-                var lastDate: String? = null
-                val data: MutableList<Any> = ArrayList()
-                list.map {
-                    val dateString = ReadableTime.getDateString(
-                        it.browsingHistory.browsedDate,
-                        ReadableTime.DATE_ONLY_FORMAT
-                    )
-                    if (lastDate == null || dateString != lastDate) {
-                        data.add(dateString)
-                    }
-                    if (it.post != null) {
-                        data.add(it.post)
-                        lastDate = dateString
-                    }
-                }
-                mAdapter!!.setDiffNewData(data)
-                mAdapter!!.setFooterView(
-                    layoutInflater.inflate(
-                        R.layout.view_no_more_data,
-                        binding!!.recyclerView,
-                        false
-                    )
+        viewModel.browsingHistoryList.observe(viewLifecycleOwner) { list ->
+            if (mAdapter == null || binding == null) return@observe
+            if (list.isEmpty()) {
+                if (!mAdapter!!.hasEmptyView()) mAdapter?.setDefaultEmptyView()
+                mAdapter!!.setDiffNewData(null)
+                return@observe
+            }
+            var lastDate: String? = null
+            val data: MutableList<Any> = ArrayList()
+            list.map {
+                val dateString = ReadableTime.getDateString(
+                    it.browsingHistory.browsedDate,
+                    ReadableTime.DATE_ONLY_FORMAT
                 )
-                Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} items")
-            })
+                if (lastDate == null || dateString != lastDate) {
+                    data.add(dateString)
+                }
+                if (it.post != null) {
+                    data.add(it.post)
+                    lastDate = dateString
+                }
+            }
+            mAdapter!!.setDiffNewData(data)
+            mAdapter!!.setFooterView(
+                layoutInflater.inflate(
+                    R.layout.view_no_more_data,
+                    binding!!.recyclerView,
+                    false
+                )
+            )
+            Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} items")
+        }
         viewCaching = false
         return binding!!.root
     }

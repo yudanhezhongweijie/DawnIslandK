@@ -178,8 +178,9 @@ object IntentUtil {
     internal class CropToolbarImage : ActivityResultContract<FragmentActivity, Uri?>() {
         override fun createIntent(context: Context, input: FragmentActivity): Intent {
             val intent = Intent(input, ToolbarBackgroundCropActivity::class.java)
-            val width = input.findViewById<Toolbar>(R.id.toolbar).measuredWidth + 100
-            val height = input.findViewById<Toolbar>(R.id.toolbar).measuredHeight + ToolBar.getStatusBarHeight() + 200
+            val toolbar = input.findViewById<Toolbar>(R.id.toolbar)
+            val width = toolbar.measuredWidth + 100
+            val height = toolbar.measuredHeight + ToolBar.getStatusBarHeight() + 200
             intent.putExtra("w", width.toFloat())
             intent.putExtra("h", height.toFloat())
             return intent

@@ -35,7 +35,6 @@ import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -70,8 +69,6 @@ import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
 import com.laotoua.dawnislandk.screens.widgets.popups.PostPopup
 import com.laotoua.dawnislandk.screens.widgets.spans.ReferenceSpan
 import com.laotoua.dawnislandk.util.DawnConstants
-import com.laotoua.dawnislandk.util.EventPayload
-import com.laotoua.dawnislandk.util.SingleLiveEvent
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BasePopupView
@@ -228,9 +225,11 @@ class CommentsFragment : DaggerFragment() {
                                         "18",//值班室
                                         "18",
                                         newPost = true,
-                                        quote = ">>No.${getItem(position).id}\n${context.getString(
-                                            R.string.report_reasons
-                                        )}: $text\n"
+                                        quote = ">>No.${getItem(position).id}\n${
+                                            context.getString(
+                                                R.string.report_reasons
+                                            )
+                                        }: $text\n"
                                     )
                                 }
                                 cancelOnTouchOutside(false)
@@ -380,7 +379,8 @@ class CommentsFragment : DaggerFragment() {
                 MaterialDialog(requireContext()).show {
                     val maxPage = viewModel.maxPage
                     var targetPage = page
-                    var canNotJump = DawnApp.applicationDataStore.firstCookieHash == null && targetPage > 99
+                    var canNotJump =
+                        DawnApp.applicationDataStore.firstCookieHash == null && targetPage > 99
                     customView(R.layout.popup_jump)
                     val submitButton = getActionButton(WhichButton.POSITIVE)
                     val pageInput = getCustomView().findViewById<TextInputLayout>(R.id.pageInput)
@@ -392,17 +392,21 @@ class CommentsFragment : DaggerFragment() {
                             if (submitButton.isEnabled) {
                                 targetPage = pageInput.editText!!.text.toString().toInt()
                             }
-                            canNotJump = DawnApp.applicationDataStore.firstCookieHash == null && targetPage > 99
-                            pageInput.error = if (canNotJump) context.resources.getString(R.string.need_cookie_to_read) else null
-                        } catch (e:Exception){
+                            canNotJump =
+                                DawnApp.applicationDataStore.firstCookieHash == null && targetPage > 99
+                            pageInput.error =
+                                if (canNotJump) context.resources.getString(R.string.need_cookie_to_read) else null
+                        } catch (e: Exception) {
                             submitButton.isEnabled = false
                             targetPage = page
                         }
                     }
                     pageInput.editText!!.setText(targetPage.toString())
-                    pageInput.error = if (canNotJump) context.resources.getString(R.string.need_cookie_to_read) else null
+                    pageInput.error =
+                        if (canNotJump) context.resources.getString(R.string.need_cookie_to_read) else null
 
-                    getCustomView().findViewById<TextView>(R.id.currentPage).text = currentPage.toString()
+                    getCustomView().findViewById<TextView>(R.id.currentPage).text =
+                        currentPage.toString()
                     getCustomView().findViewById<TextView>(R.id.maxPage).text = maxPage.toString()
                     getCustomView().findViewById<ImageButton>(R.id.firstPage).setOnClickListener {
                         targetPage = 1
@@ -454,23 +458,19 @@ class CommentsFragment : DaggerFragment() {
     }
 
     private fun subscribeUI() {
-        viewModel.feedResponse.observe(viewLifecycleOwner, Observer<SingleLiveEvent<String>> {
-            it.getContentIfNotHandled()?.let { message ->
-                toast(message)
+        viewModel.feedResponse.observe(viewLifecycleOwner) {
+            it.getContentIfNotHandled()?.let { message -> toast(message) }
+        }
+
+        viewModel.loadingStatus.observe(viewLifecycleOwner) {
+            if (binding == null || mAdapter == null) return@observe
+            it.getContentIfNotHandled()?.run {
+                updateHeaderAndFooter(binding!!.srlAndRv.refreshLayout, mAdapter!!, this)
             }
-        })
+        }
 
-        viewModel.loadingStatus.observe(
-            viewLifecycleOwner,
-            Observer<SingleLiveEvent<EventPayload<Nothing>>> {
-                if (binding == null || mAdapter == null) return@Observer
-                it.getContentIfNotHandled()?.run {
-                    updateHeaderAndFooter(binding!!.srlAndRv.refreshLayout, mAdapter!!, this)
-                }
-            })
-
-        viewModel.comments.observe(viewLifecycleOwner, Observer<MutableList<Comment>> {
-            if (mAdapter == null || it.isEmpty()) return@Observer
+        viewModel.comments.observe(viewLifecycleOwner) {
+            if (mAdapter == null || it.isEmpty()) return@observe
             updateCurrentPage()
             if (requireTitleUpdate) {
                 updateTitle()
@@ -484,16 +484,15 @@ class CommentsFragment : DaggerFragment() {
             updateCurrentlyAvailableImages(it)
             mAdapter?.setPo(viewModel.po)
             Timber.i("${this.javaClass.simpleName} Adapter will have ${mAdapter?.data?.size} comments")
-        })
-        sharedVM.savePostStatus.observe(
-            viewLifecycleOwner,
-            Observer<SingleLiveEvent<Boolean>> { event ->
-                event.getContentIfNotHandled()?.let {
-                    if (it && currentPage >= viewModel.maxPage - 1) {
-                        mAdapter?.loadMoreModule?.loadMoreToLoading()
-                    }
+        }
+
+        sharedVM.savePostStatus.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let {
+                if (it && currentPage >= viewModel.maxPage - 1) {
+                    mAdapter?.loadMoreModule?.loadMoreToLoading()
                 }
-            })
+            }
+        }
     }
 
     override fun onPause() {
@@ -608,8 +607,9 @@ class CommentsFragment : DaggerFragment() {
             viewModel.saveReadingProgress(page)
         }
         val newText = "$page / ${viewModel.maxPage}"
-        if (pageCounter?.text != newText){
-            pageCounter?.text = newText.toSpannable().apply { setSpan(UnderlineSpan(), 0, length, 0) }
+        if (pageCounter?.text != newText) {
+            pageCounter?.text =
+                newText.toSpannable().apply { setSpan(UnderlineSpan(), 0, length, 0) }
         }
         currentPage = page
     }

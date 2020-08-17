@@ -32,7 +32,6 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.net.toUri
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavDestination
@@ -48,13 +47,11 @@ import com.google.android.material.animation.AnimationUtils
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.databinding.ActivityMainBinding
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbarInitialization
 import com.laotoua.dawnislandk.screens.widgets.DoubleClickListener
 import com.laotoua.dawnislandk.screens.widgets.popups.ForumDrawerPopup
-import com.laotoua.dawnislandk.util.DataResource
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
@@ -141,27 +138,25 @@ class MainActivity : DaggerAppCompatActivity() {
 
         handleIntentFilterNavigation(intent)
 
-        sharedVM.communityList.observe(this, Observer<DataResource<List<Community>>> {
+        sharedVM.communityList.observe(this) {
             if (it.status == LoadingStatus.ERROR) {
                 Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
-                return@Observer
+                return@observe
             }
-            if (it.data.isNullOrEmpty()) return@Observer
+            if (it.data.isNullOrEmpty()) return@observe
             forumDrawer.setData(it.data)
             sharedVM.setForumMappings(it.data)
             if (sharedVM.selectedForumId.value == null) sharedVM.setForumId(applicationDataStore.getDefaultForumId())
             Timber.i("Loaded ${it.data.size} communities to Adapter")
-        })
+        }
 
-        sharedVM.reedPictureUrl.observe(this, Observer<String> {
-            forumDrawer.setReedPicture(it)
-        })
+        sharedVM.reedPictureUrl.observe(this) { forumDrawer.setReedPicture(it) }
 
-        sharedVM.selectedForumId.observe(this, Observer<String> {
+        sharedVM.selectedForumId.observe(this) {
             if (currentFragmentId == R.id.postsFragment) {
                 setToolbarTitle(sharedVM.getForumDisplayName(it))
             }
-        })
+        }
     }
 
     private fun handleIntentFilterNavigation(intent: Intent?) {
@@ -410,14 +405,15 @@ class MainActivity : DaggerAppCompatActivity() {
         setToolbarTitle(text)
     }
 
-    private class ToolbarTitleEvaluator(private val animCharCount: Int) : TypeEvaluator<StringBuilder> {
+    private class ToolbarTitleEvaluator(private val animCharCount: Int) :
+        TypeEvaluator<StringBuilder> {
         override fun evaluate(
             fraction: Float,
             startValue: StringBuilder,
             endValue: StringBuilder
         ): StringBuilder {
             val ind = (fraction * animCharCount).toInt()
-            for (i in 0 .. ind) {
+            for (i in 0..ind) {
                 val newChar = if (i >= endValue.length) ' ' else endValue[i]
                 if (i < startValue.length) startValue.setCharAt(i, newChar)
                 else startValue.append(newChar)
@@ -498,8 +494,9 @@ class MainActivity : DaggerAppCompatActivity() {
                 val path = applicationDataStore.getCustomToolbarImagePath().toUri()
                 binding.imageView.setImageURI(path)
                 binding.imageView.scaleType = ImageView.ScaleType.CENTER_CROP
-            } catch (e:Exception){
-                Toast.makeText(this, R.string.toolbar_customization_error, Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(this, R.string.toolbar_customization_error, Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }

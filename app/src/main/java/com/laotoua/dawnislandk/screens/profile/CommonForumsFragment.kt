@@ -22,7 +22,6 @@ import android.graphics.Canvas
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -42,7 +41,6 @@ import com.laotoua.dawnislandk.screens.adapters.CommunityNodeAdapter
 import com.laotoua.dawnislandk.screens.util.ContentTransformation
 import com.laotoua.dawnislandk.screens.util.Layout
 import com.laotoua.dawnislandk.screens.util.Layout.toast
-import com.laotoua.dawnislandk.util.DataResource
 import com.laotoua.dawnislandk.util.LoadingStatus
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
@@ -115,18 +113,19 @@ class CommonForumsFragment : DaggerFragment() {
         }
 
 
-        sharedVM.communityList.observe(viewLifecycleOwner, Observer<DataResource<List<Community>>> {
+        sharedVM.communityList.observe(viewLifecycleOwner) {
             if (it.status == LoadingStatus.ERROR) {
                 toast(it.message)
-                return@Observer
+                return@observe
             }
-            if (it.data.isNullOrEmpty()) return@Observer
+            if (it.data.isNullOrEmpty()) return@observe
             val notCommon = it.data.filterNot { c -> c.isCommonForums() || c.isCommonPosts() }
             val common = it.data.firstOrNull { c -> c.isCommonForums() }?.forums ?: emptyList()
             allForumAdapter.setData(notCommon)
             commonForumAdapter?.setList(common.toMutableList())
             updateTitle()
-        })
+        }
+
         updateTitle()
 
         // Inflate the layout for this fragment

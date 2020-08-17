@@ -39,7 +39,8 @@
             android:layout_height="@dimen/menu_item_icon_size"
             android:layout_gravity="center"
             android:src="@drawable/ic_notifications_24px"
-            android:tint="?android:attr/textColorPrimary"/>
+            android:tint="?android:attr/textColorPrimary"
+            tools:ignore="ContentDescription" />
 
         <FrameLayout
             android:id="@+id/viewAlertRedCircle"

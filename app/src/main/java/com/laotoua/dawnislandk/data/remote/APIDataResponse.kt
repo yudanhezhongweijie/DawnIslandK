@@ -69,11 +69,7 @@ sealed class APIDataResponse<T>(
                             // server returns non json string
                             Timber.e("Parse failed: $e")
                             Timber.d("Response is non JSON data...")
-                            BlankData<T>(
-                                StringEscapeUtils.unescapeJava(
-                                    resBody.replace("\"", "")
-                                )
-                            )
+                            BlankData(StringEscapeUtils.unescapeJava(resBody.replace("\"", "")))
                         }
                     }
 
@@ -86,7 +82,7 @@ sealed class APIDataResponse<T>(
                     } else {
                         msg
                     }
-                    Error<T>(errorMsg ?: "unknown error")
+                    Error(errorMsg ?: "unknown error")
                 }
             } catch (e: Exception) {
                 return Error(e.toString())

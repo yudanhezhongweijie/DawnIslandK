@@ -25,7 +25,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.text.toSpannable
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -47,8 +46,6 @@ import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
 import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
-import com.laotoua.dawnislandk.util.EventPayload
-import com.laotoua.dawnislandk.util.SingleLiveEvent
 import com.lxj.xpopup.XPopup
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import timber.log.Timber
@@ -94,8 +91,9 @@ class SearchFragment : BaseNavFragment() {
                 MaterialDialog(requireContext()).show {
                     title(R.string.search)
                     customView(R.layout.dialog_search, noVerticalPadding = true).apply {
+                        val searchInputText = findViewById<TextView>(R.id.searchInputText)
                         findViewById<Button>(R.id.search).setOnClickListener {
-                            val query = findViewById<TextView>(R.id.searchInputText).text.toString()
+                            val query = searchInputText.text.toString()
                             if (query.isNotBlank() && query != viewModel.query) {
                                 refreshing = true
                                 viewModel.search(query)
@@ -107,13 +105,14 @@ class SearchFragment : BaseNavFragment() {
                         }
 
                         findViewById<Button>(R.id.jumpToPost).setOnClickListener {
-                            val threadId = findViewById<TextView>(R.id.searchInputText).text
+                            val threadId = searchInputText.text
                                 .filter { it.isDigit() }.toString()
                             if (threadId.isNotEmpty()) {
                                 dismiss()
                                 viewCaching = DawnApp.applicationDataStore.getViewCaching()
                                 // Does not have fid here. fid will be generated when data comes back in reply
-                                val navAction = MainNavDirections.actionGlobalCommentsFragment(threadId, "")
+                                val navAction =
+                                    MainNavDirections.actionGlobalCommentsFragment(threadId, "")
                                 findNavController().navigate(navAction)
                             } else {
                                 toast(R.string.please_input_valid_text)
@@ -175,20 +174,20 @@ class SearchFragment : BaseNavFragment() {
             if (viewModel.query.isBlank()) viewModel.search(args.query)
         }
 
-        viewModel.loadingStatus.observe(viewLifecycleOwner, Observer<SingleLiveEvent<EventPayload<Nothing>>> {
-            if (binding == null || mAdapter == null) return@Observer
+        viewModel.loadingStatus.observe(viewLifecycleOwner) {
+            if (binding == null || mAdapter == null) return@observe
             it.getContentIfNotHandled()?.run {
                 updateHeaderAndFooter(binding!!.srlAndRv.refreshLayout, mAdapter!!, this)
             }
-        })
+        }
 
 
-        viewModel.searchResult.observe(viewLifecycleOwner, Observer<List<SearchResult>> { list ->
-            if (mAdapter == null) return@Observer
+        viewModel.searchResult.observe(viewLifecycleOwner) { list ->
+            if (mAdapter == null) return@observe
             if (list.isEmpty()) {
                 mAdapter!!.setDiffNewData(null)
                 hideCurrentPageText()
-                return@Observer
+                return@observe
             }
             if (currentPage == 0) updateCurrentPage(1)
             val data: MutableList<Any> = ArrayList()
@@ -201,7 +200,7 @@ class SearchFragment : BaseNavFragment() {
                 binding?.srlAndRv?.recyclerView?.scrollToPosition(0)
             } else mAdapter!!.setDiffNewData(data)
             refreshing = false
-        })
+        }
 
         viewCaching = false
         return binding!!.root

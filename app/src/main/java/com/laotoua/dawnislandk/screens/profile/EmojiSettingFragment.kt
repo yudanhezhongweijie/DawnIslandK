@@ -23,15 +23,17 @@ import android.os.Bundle
 import android.view.*
 import android.widget.EditText
 import androidx.core.widget.doOnTextChanged
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.WhichButton
 import com.afollestad.materialdialogs.actions.getActionButton
+import com.afollestad.materialdialogs.actions.setActionButtonEnabled
+import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
 import com.afollestad.materialdialogs.customview.customView
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.listener.OnItemDragListener
@@ -40,28 +42,24 @@ import com.chad.library.adapter.base.module.DraggableModule
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.google.android.material.textfield.TextInputLayout
 import com.laotoua.dawnislandk.R
-import com.laotoua.dawnislandk.data.local.entity.Community
-import com.laotoua.dawnislandk.data.local.entity.Forum
-import com.laotoua.dawnislandk.databinding.FragmentCommonPostsBinding
-import com.laotoua.dawnislandk.screens.SharedViewModel
-import com.laotoua.dawnislandk.screens.util.ContentTransformation
+import com.laotoua.dawnislandk.data.local.entity.Emoji
+import com.laotoua.dawnislandk.databinding.FragmentEmojiSettingBinding
 import com.laotoua.dawnislandk.screens.util.Layout
-import com.laotoua.dawnislandk.screens.util.Layout.toast
-import com.laotoua.dawnislandk.util.DataResource
-import com.laotoua.dawnislandk.util.LoadingStatus
 import dagger.android.support.DaggerFragment
+import kotlinx.coroutines.launch
+import java.util.*
 import javax.inject.Inject
 
-class CommonPostsFragment : DaggerFragment() {
+class EmojiSettingFragment : DaggerFragment() {
 
-    private var binding:FragmentCommonPostsBinding? = null
+    private var binding: FragmentEmojiSettingBinding? = null
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
-    private val sharedVM: SharedViewModel by activityViewModels { viewModelFactory }
+    private val viewModel: EmojiSettingViewModel by viewModels { viewModelFactory }
 
-    private var commonPostsAdapter : CommonPostsAdapter? = null
+    private var emojiAdapter: EmojiAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,8 +67,11 @@ class CommonPostsFragment : DaggerFragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_fragment_base_with_help, menu)
-        context?.let { menu.findItem(R.id.help)?.icon?.setTint(Layout.getThemeInverseColor(it)) }
+        inflater.inflate(R.menu.menu_fragment_emoji_setting, menu)
+        context?.let {
+            menu.findItem(R.id.help)?.icon?.setTint(Layout.getThemeInverseColor(it))
+            menu.findItem(R.id.restore)?.icon?.setTint(Layout.getThemeInverseColor(it))
+        }
         super.onCreateOptionsMenu(menu, inflater)
     }
 
@@ -79,9 +80,29 @@ class CommonPostsFragment : DaggerFragment() {
             R.id.help -> {
                 if (activity == null || !isAdded) return true
                 MaterialDialog(requireContext()).show {
-                    title(R.string.common_posts_setting)
-                    message(R.string.common_posts_setting_help)
+                    title(R.string.emoji_setting)
+                    message(R.string.emoji_setting_help)
                     positiveButton(R.string.acknowledge)
+                }
+                return true
+            }
+            R.id.restore -> {
+                if (activity == null || !isAdded) return true
+                MaterialDialog(requireContext()).show {
+                    title(R.string.restore)
+                    message(R.string.emoji_setting_help)
+                    setActionButtonEnabled(WhichButton.POSITIVE, false)
+                    checkBoxPrompt(R.string.acknowledge) { checked ->
+                        setActionButtonEnabled(WhichButton.POSITIVE, checked)
+                    }
+                    positiveButton(R.string.submit) {
+                        viewModel.resetEmoji()
+                        this@EmojiSettingFragment.lifecycleScope.launch {
+                            if (activity == null || !isAdded) return@launch
+                            emojiAdapter?.setList(viewModel.getAllEmoji().toMutableList())
+                        }
+                    }
+                    negativeButton(R.string.cancel)
                 }
                 return true
             }
@@ -93,31 +114,34 @@ class CommonPostsFragment : DaggerFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentCommonPostsBinding.inflate(inflater, container, false)
+        binding = FragmentEmojiSettingBinding.inflate(inflater, container, false)
 
-        commonPostsAdapter = CommonPostsAdapter(R.layout.list_item_content_with_remark).apply {
+        emojiAdapter = EmojiAdapter(R.layout.list_item_content_with_remark).apply {
             addChildClickViewIds(R.id.edit)
 
             setOnItemChildClickListener { _, view, position ->
                 if (view.id == R.id.edit) {
                     if (activity == null || !isAdded) return@setOnItemChildClickListener
                     MaterialDialog(requireContext()).show {
-                        title(R.string.common_posts_setting)
+                        title(R.string.emoji_setting)
                         customView(R.layout.dialog_input_content_with_remark)
                         val submitButton = getActionButton(WhichButton.POSITIVE)
                         findViewById<TextInputLayout>(R.id.remark).hint =
-                            resources.getString(R.string.add_common_post_remark)
+                            resources.getString(R.string.emoji_remark)
                         findViewById<TextInputLayout>(R.id.content).hint =
-                            resources.getString(R.string.add_common_post_id)
+                            resources.getString(R.string.emoji_value)
                         val remark = findViewById<EditText>(R.id.remarkText)
                         val content = findViewById<EditText>(R.id.contentText)
-                        remark.setText(getItem(position).showName)
-                        content.setText(getItem(position).id)
+                        remark.setText(getItem(position).name)
+                        content.setText(getItem(position).value)
                         positiveButton(R.string.submit) {
                             val remarkText = remark.text.toString()
                             val contentText = content.text.toString()
                             if (remarkText.isNotBlank() && contentText.isNotBlank()) {
-                                commonPostsAdapter?.setData(position, Forum.makeFakeForum(contentText, remarkText))
+                                emojiAdapter?.setData(
+                                    position,
+                                    Emoji(remarkText, contentText, true, Date().time)
+                                )
                             }
                         }
                         negativeButton(R.string.cancel)
@@ -135,34 +159,26 @@ class CommonPostsFragment : DaggerFragment() {
             }
         }
 
-        binding?.commonPosts?.apply {
+        binding?.emojiRV?.apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = commonPostsAdapter
+            adapter = emojiAdapter
             setHasFixedSize(true)
         }
 
-        sharedVM.communityList.observe(viewLifecycleOwner, Observer<DataResource<List<Community>>> {
-            if (it.status == LoadingStatus.ERROR) {
-                toast(it.message)
-                return@Observer
-            }
-            if (it.data.isNullOrEmpty()) return@Observer
-            val common = it.data.firstOrNull { c -> c.isCommonPosts() }?.forums ?: emptyList()
-            commonPostsAdapter?.setNewInstance(common.toMutableList())
-            updateTitle()
-        })
-        updateTitle()
+        lifecycleScope.launch {
+            emojiAdapter?.setList(viewModel.getAllEmoji().toMutableList())
+        }
 
-        binding?.addCommonPost?.setOnClickListener {
+        binding?.addEmoji?.setOnClickListener {
             if (activity == null || !isAdded) return@setOnClickListener
             MaterialDialog(requireContext()).show {
-                title(R.string.common_posts_setting)
+                title(R.string.emoji_setting)
                 customView(R.layout.dialog_input_content_with_remark)
                 val submitButton = getActionButton(WhichButton.POSITIVE)
                 findViewById<TextInputLayout>(R.id.remark).hint =
-                    resources.getString(R.string.add_common_post_remark)
+                    resources.getString(R.string.emoji_remark)
                 findViewById<TextInputLayout>(R.id.content).hint =
-                    resources.getString(R.string.add_common_post_id)
+                    resources.getString(R.string.emoji_value)
                 val remark = findViewById<EditText>(R.id.remarkText)
                 val content = findViewById<EditText>(R.id.contentText)
                 submitButton.isEnabled = false
@@ -170,7 +186,7 @@ class CommonPostsFragment : DaggerFragment() {
                     val remarkText = remark.text.toString()
                     val contentText = content.text.toString()
                     if (remarkText.isNotBlank() && contentText.isNotBlank()) {
-                        commonPostsAdapter?.addData(Forum.makeFakeForum(contentText, remarkText))
+                        emojiAdapter?.addData(0, Emoji(remarkText, contentText, true, Date().time))
                     }
                 }
                 negativeButton(R.string.cancel)
@@ -187,20 +203,13 @@ class CommonPostsFragment : DaggerFragment() {
         return binding!!.root
     }
 
-    private fun updateTitle() {
-        binding?.commonPostsTitle?.communityName?.text =
-            getString(R.string.common_posts_title, binding?.commonPosts?.adapter?.itemCount)
-    }
-
     override fun onDestroyView() {
-        val common = Community.makeCommonPosts(commonPostsAdapter?.data ?: emptyList())
-        sharedVM.saveCommonCommunity(common)
-        toast(R.string.might_need_to_restart_to_apply_setting)
+        emojiAdapter?.data?.let { viewModel.setEmojiList(it) }
         super.onDestroyView()
     }
 
-    inner class CommonPostsAdapter(layoutResId: Int) :
-        BaseQuickAdapter<Forum, BaseViewHolder>(layoutResId),
+    inner class EmojiAdapter(layoutResId: Int) :
+        BaseQuickAdapter<Emoji, BaseViewHolder>(layoutResId),
         DraggableModule {
 
         private val dragListener: OnItemDragListener = object : OnItemDragListener {
@@ -246,7 +255,6 @@ class CommonPostsFragment : DaggerFragment() {
             override fun clearView(viewHolder: RecyclerView.ViewHolder, pos: Int) {}
 
             override fun onItemSwiped(viewHolder: RecyclerView.ViewHolder, pos: Int) {
-                updateTitle()
             }
 
             override fun onItemSwipeMoving(
@@ -269,15 +277,10 @@ class CommonPostsFragment : DaggerFragment() {
         }
 
 
-        override fun convert(holder: BaseViewHolder, item: Forum) {
-            holder.setText(
-                R.id.remark,
-                ContentTransformation.transformForumName(item.getDisplayName())
-            )
-
-            holder.setText(R.id.content, "No. ${item.id}")
+        override fun convert(holder: BaseViewHolder, item: Emoji) {
+            holder.setText(R.id.remark, item.name)
+            holder.setText(R.id.content, item.value)
         }
 
     }
-
 }

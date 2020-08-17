@@ -187,7 +187,7 @@ class CommentRepository @Inject constructor(
             if (response.status == LoadingStatus.SUCCESS) {
                 emit(convertServerData(id, response.data!!, page))
             } else {
-                emit(DataResource.create(response.status, emptyList(), response.message))
+                emit(DataResource.create<List<Comment>>(response.status, emptyList(), response.message))
             }
         }
     }

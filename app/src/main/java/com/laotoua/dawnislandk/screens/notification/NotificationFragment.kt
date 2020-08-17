@@ -72,7 +72,7 @@ class NotificationFragment : DaggerFragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_fragment_settings_forum, menu)
+        inflater.inflate(R.menu.menu_fragment_base_with_help, menu)
         super.onCreateOptionsMenu(menu, inflater)
     }
 

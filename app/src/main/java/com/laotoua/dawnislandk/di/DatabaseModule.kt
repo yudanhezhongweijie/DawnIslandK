@@ -27,108 +27,99 @@ import javax.inject.Singleton
 @Module
 object DatabaseModule {
 
-    @JvmStatic
     @Provides
     @Singleton
     fun provideDawnDB(applicationContext: Context): DawnDatabase {
         return DawnDatabase.getDatabase(applicationContext)
     }
 
-    @JvmStatic
     @Provides
     @Singleton
     fun provideCommunityDao(dawnDatabase: DawnDatabase): CommunityDao {
         return dawnDatabase.communityDao()
     }
 
-    @JvmStatic
     @Provides
     @Singleton
     fun provideCookieDao(dawnDatabase: DawnDatabase): CookieDao {
         return dawnDatabase.cookieDao()
     }
 
-    @JvmStatic
     @Provides
     @Singleton
     fun provideCommentDao(dawnDatabase: DawnDatabase): CommentDao {
         return dawnDatabase.commentDao()
     }
 
-    @JvmStatic
     @Provides
     @Singleton
     fun providePostDao(dawnDatabase: DawnDatabase): PostDao {
         return dawnDatabase.postDao()
     }
 
-    @JvmStatic
     @Provides
     @Singleton
     fun provideDailyTrendDao(dawnDatabase: DawnDatabase): DailyTrendDao {
         return dawnDatabase.dailyTrendDao()
     }
 
-    @JvmStatic
     @Provides
     @Singleton
     fun provideNMBNoticeDao(dawnDatabase: DawnDatabase): NMBNoticeDao {
         return dawnDatabase.nmbNoticeDao()
     }
 
-    @JvmStatic
     @Provides
     @Singleton
     fun provideLuweiNoticeDao(dawnDatabase: DawnDatabase): LuweiNoticeDao {
         return dawnDatabase.luweiNoticeDao()
     }
 
-    @JvmStatic
     @Provides
     @Singleton
     fun provideReleaseDao(dawnDatabase: DawnDatabase): ReleaseDao {
         return dawnDatabase.releaseDao()
     }
 
-    @JvmStatic
     @Provides
     @Singleton
     fun provideReadingPageDao(dawnDatabase: DawnDatabase): ReadingPageDao {
         return dawnDatabase.readingPageDao()
     }
 
-    @JvmStatic
     @Provides
     @Singleton
     fun provideBrowsingHistoryDao(dawnDatabase: DawnDatabase): BrowsingHistoryDao {
         return dawnDatabase.browsingHistoryDao()
     }
 
-    @JvmStatic
     @Provides
     @Singleton
     fun providePostHistoryDao(dawnDatabase: DawnDatabase): PostHistoryDao {
         return dawnDatabase.postHistoryDao()
     }
 
-    @JvmStatic
     @Provides
     @Singleton
     fun provideFeedDao(dawnDatabase: DawnDatabase): FeedDao {
         return dawnDatabase.feedDao()
     }
 
-    @JvmStatic
     @Provides
     @Singleton
     fun provideBlockedIdDao(dawnDatabase: DawnDatabase): BlockedIdDao {
         return dawnDatabase.blockedIdDao()
     }
 
-    @JvmStatic
     @Provides
     @Singleton
     fun provideNotificationDao(dawnDatabase: DawnDatabase): NotificationDao {
         return dawnDatabase.notificationDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideEmojiDao(dawnDatabase: DawnDatabase): EmojiDao {
+        return dawnDatabase.emojiDao()
     }
 }

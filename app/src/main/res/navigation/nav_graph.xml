@@ -152,6 +152,13 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_customSettingFragment_to_emojiSettingFragment"
+            app:destination="@id/emojiSettingFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/commonPostsFragment"
@@ -161,4 +168,7 @@
         android:id="@+id/notificationFragment"
         android:name="com.laotoua.dawnislandk.screens.notification.NotificationFragment"
         tools:layout="@layout/fragment_notification" />
+    <fragment
+        android:id="@+id/emojiSettingFragment"
+        android:name="com.laotoua.dawnislandk.screens.profile.EmojiSettingFragment" />
 </navigation>

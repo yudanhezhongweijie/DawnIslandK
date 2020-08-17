@@ -45,8 +45,9 @@ import com.laotoua.dawnislandk.data.local.entity.*
         PostHistory::class,
         Feed::class,
         BlockedId::class,
-        Notification::class],
-    version = 18
+        Notification::class,
+        Emoji::class],
+    version = 19
 )
 @TypeConverters(Converter::class)
 abstract class DawnDatabase : RoomDatabase() {
@@ -64,6 +65,7 @@ abstract class DawnDatabase : RoomDatabase() {
     abstract fun feedDao(): FeedDao
     abstract fun blockedIdDao(): BlockedIdDao
     abstract fun notificationDao(): NotificationDao
+    abstract fun emojiDao(): EmojiDao
 
     companion object {
         // Singleton prevents multiple instances of database opening at the
@@ -231,6 +233,12 @@ abstract class DawnDatabase : RoomDatabase() {
                 }
             }
 
+            // allow custom Emoji
+            val migrate18To19 = object : Migration(18, 19) {
+                override fun migrate(database: SupportSQLiteDatabase) {
+                    database.execSQL("CREATE TABLE IF NOT EXISTS `Emoji` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `value` TEXT NOT NULL, `userDefined` INTEGER NOT NULL, `lastUsedAt` INTEGER NOT NULL)")
+                }
+            }
             synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
@@ -254,7 +262,8 @@ abstract class DawnDatabase : RoomDatabase() {
                         migrate14To15,
                         migrate15To16,
                         migrate16To17,
-                        migrate17To18
+                        migrate17To18,
+                        migrate18To19
                     )
                     .build()
                 INSTANCE = instance

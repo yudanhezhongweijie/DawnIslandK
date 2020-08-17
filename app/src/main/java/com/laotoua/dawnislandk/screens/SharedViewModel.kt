@@ -47,6 +47,7 @@ class SharedViewModel @Inject constructor(
     private val postHistoryDao: PostHistoryDao,
     private val feedDao: FeedDao,
     private val notificationDao: NotificationDao,
+    private val emojiDao: EmojiDao,
     private val communityRepository: CommunityRepository
 ) : ViewModel() {
 
@@ -73,6 +74,21 @@ class SharedViewModel @Inject constructor(
     init {
         getRandomReedPicture()
         if (DawnApp.applicationDataStore.getAutoUpdateFeed()) autoUpdateFeeds()
+    }
+
+    suspend fun getAllEmoji():List<Emoji>{
+        var res = emojiDao.getAllEmoji()
+        if (res.isEmpty()){
+            emojiDao.resetEmoji()
+            res = emojiDao.getAllEmoji()
+        }
+        return res
+    }
+
+    fun setLastUsedEmoji(emoji: Emoji) {
+        viewModelScope.launch {
+            emojiDao.setLastUsedEmoji(emoji)
+        }
     }
 
     /** scan cache feed daily, update the most outdated feed

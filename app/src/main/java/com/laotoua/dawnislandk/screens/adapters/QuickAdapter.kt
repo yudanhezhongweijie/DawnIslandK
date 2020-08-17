@@ -32,6 +32,7 @@ import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Comment
+import com.laotoua.dawnislandk.data.local.entity.Emoji
 import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.data.local.entity.Trend
 import com.laotoua.dawnislandk.screens.SharedViewModel
@@ -104,7 +105,7 @@ class QuickAdapter<T>(
             holder.convertComment(item, po)
         } else if (layoutResId == R.layout.list_item_trend && item is Trend) {
             holder.convertTrend(item)
-        } else if (layoutResId == R.layout.grid_item_emoji && item is String) {
+        } else if (layoutResId == R.layout.grid_item_emoji && item is Emoji) {
             holder.convertEmoji(item)
         } else if (layoutResId == R.layout.grid_item_luwei_sticker && item is String) {
             holder.convertLuweiSticker(item)
@@ -204,8 +205,8 @@ class QuickAdapter<T>(
         convertContent(context, item.content)
     }
 
-    private fun BaseViewHolder.convertEmoji(item: String) {
-        setText(R.id.emoji, item)
+    private fun BaseViewHolder.convertEmoji(item: Emoji) {
+        setText(R.id.emoji, item.name)
     }
 
     private fun BaseViewHolder.convertLuweiSticker(item: String) {
@@ -230,6 +231,7 @@ class QuickAdapter<T>(
                     }
                 }
                 (oldItem is Trend && newItem is Trend) -> oldItem.id == newItem.id
+                (oldItem is Emoji && newItem is Emoji) -> oldItem == newItem
                 (oldItem is String && newItem is String) -> oldItem == newItem
                 else -> throw Exception("Unhandled type comparison")
             }
@@ -257,6 +259,8 @@ class QuickAdapter<T>(
                 (oldItem is Trend && newItem is Trend) -> {
                     oldItem.rank == newItem.rank && oldItem.hits == newItem.hits
                 }
+                (oldItem is Emoji && newItem is Emoji) -> true
+                (oldItem is String && newItem is String) -> true
                 else -> throw Exception("Unhandled type comparison")
             }
         }

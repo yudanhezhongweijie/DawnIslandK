@@ -206,6 +206,16 @@ class CustomSettingFragment : DaggerFragment() {
             }
         }
 
+        binding?.emojiSetting?.apply {
+            key.setText(R.string.emoji_setting)
+            root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
+                val action =
+                    CustomSettingFragmentDirections.actionCustomSettingFragmentToEmojiSettingFragment()
+                findNavController().navigate(action)
+            }
+        }
+
         viewModel.timelineBlockedForumIds.observe(viewLifecycleOwner, Observer {
             blockedForumIds = it
             binding?.timelineFilter?.summary?.text = resources.getString(

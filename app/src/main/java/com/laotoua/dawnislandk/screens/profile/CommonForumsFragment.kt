@@ -64,7 +64,7 @@ class CommonForumsFragment : DaggerFragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_fragment_settings_forum, menu)
+        inflater.inflate(R.menu.menu_fragment_base_with_help, menu)
         context?.let { menu.findItem(R.id.help)?.icon?.setTint(Layout.getThemeInverseColor(it)) }
         super.onCreateOptionsMenu(menu, inflater)
     }

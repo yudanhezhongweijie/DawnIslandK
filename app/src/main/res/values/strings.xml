@@ -77,17 +77,17 @@
     <string name="timeline_filter_setting" translatable="false">时间线屏蔽设置</string>
     <string name="timeline_filtered_count" translatable="false">时间线已经屏蔽%d个版块</string>
     <string name="please_select_timeline_filter_forums" translatable="false">请选择要屏蔽的版块</string>
-    <string name="common_forum_setting_help" translatable="false"><b>点击下方版块即添加至常用分组\n\n长按上下拖曳版块可排序\n\n左右拖曳版块可从常用分组中移除\n\n编辑完成后返回即保存设置</b></string>
+    <string name="common_forum_setting_help" translatable="false"><b>点击下方版块即添加至常用分组\n\n长按并上下拖曳版块可排序\n\n长按并左右拖曳版块可从常用分组中移除\n\n编辑完成后返回即保存设置</b></string>
     <string name="pager_usage_help" translatable="false">本页面支持左滑右滑切换内容。\n\n可在自定义设置改变默认页面</string>
-    <string name="default_forum_setting" translatable="false">默认版块设置</string>
+    <string name="default_forum_setting" translatable="false">App启动默认打开版块设置</string>
     <string name="common_posts_setting" translatable="false">常用串设置</string>
     <string name="add_common_post" translatable="false">添加常用串</string>
     <string name="add_common_post_remark" translatable="false">常用串备注</string>
     <string name="add_common_post_id" translatable="false">常用串串号</string>
     <string name="common_posts_title" translatable="false">常用串: %d</string>
-    <string name="common_posts_setting_help" translatable="false"><b>输入串号备注添加至常用串\n\n长按上下拖曳版块可排序\n\n左右拖曳串可从常用串中移除\n\n编辑完成后返回即保存设置</b></string>
+    <string name="common_posts_setting_help" translatable="false"><b>输入串号备注添加至常用串\n\n长按并上下拖曳串可排序\n\n长按并左右拖曳串可从常用串中移除\n\n编辑完成后返回即保存设置</b></string>
     <string name="common_posts_count" translatable="false">常用串包含%d个串</string>
-    <string name="emoji_setting_help" translatable="false"><b>输入添加颜文字\n\n颜文字默认按添加顺序排序，可设置为按最后使用时间排序\n\n长按上下颜文字可排序\n\n左右拖曳可移除颜文字\n\n编辑完成后返回即保存设置</b></string>
+    <string name="emoji_setting_help" translatable="false"><b>输入添加颜文字\n\n颜文字默认按添加顺序排序，可设置为按最后使用时间排序\n\n长按并上下拖曳颜文字可排序\n\n长按并左右拖曳可移除颜文字\n\n编辑完成后返回即保存设置</b></string>
     <string name="emoji_restore" translatable="false"><b>恢复颜文字至默认设置\n\n此次操作将删除用户自定义颜文字\n\n是否确认删除?</b></string>
     <string name="emoji_remark" translatable="false">颜文字备注</string>
     <string name="emoji_value" translatable="false">颜文字内容</string>

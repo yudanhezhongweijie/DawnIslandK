@@ -81,6 +81,9 @@ class QuotePopup(
 
         findViewById<TextView>(R.id.userId).text = transformCookie(quote.userid, quote.admin, po)
 
+        findViewById<ImageView>(R.id.OPHighlight).visibility =
+            if (quote.userid == po) View.VISIBLE else View.GONE
+
         findViewById<TextView>(R.id.timestamp).text = transformTime(quote.now)
 
         findViewById<TextView>(R.id.refId).text =

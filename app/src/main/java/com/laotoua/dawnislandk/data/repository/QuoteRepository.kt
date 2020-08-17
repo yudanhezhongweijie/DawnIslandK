@@ -37,8 +37,8 @@ class QuoteRepository @Inject constructor(
     private val webService: NMBServiceClient,
     private val commentDao: CommentDao
 ) {
-    // remember last 30 quote
-    private val cacheCap = 30
+    // remember last 10 quote
+    private val cacheCap = 10
     private val quoteMap = ArrayMap<String, LiveData<DataResource<Comment>>>(cacheCap)
     private val fifoQuoteList = mutableListOf<String>()
 

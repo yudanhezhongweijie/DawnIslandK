@@ -46,10 +46,10 @@ class CommentRepository @Inject constructor(
     private val feedDao: FeedDao
 ) {
 
-    /** remember all pages for last 15 posts, using threadId and page as index
+    /** remember all pages for last 10 posts, using threadId and page as index
      *  pop posts by fifo
      */
-    private val cacheCap = 15
+    private val cacheCap = 10
     private val postMap = ArrayMap<String, Post>(cacheCap)
     private val commentsMap =
         ArrayMap<String, SparseArray<LiveData<DataResource<List<Comment>>>>>(cacheCap)

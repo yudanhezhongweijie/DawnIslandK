@@ -142,12 +142,12 @@ dependencies {
     implementation 'com.jakewharton.timber:timber:4.7.1'
 
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
-    implementation "com.squareup.okhttp3:okhttp:4.7.2"
-    implementation "com.squareup.moshi:moshi-kotlin:1.9.2"
-    kapt "com.squareup.moshi:moshi-kotlin-codegen:1.9.2"
+    implementation 'com.squareup.okhttp3:okhttp:4.8.1'
+    implementation 'com.squareup.moshi:moshi-kotlin:1.9.3'
+    kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.9.3'
 
     implementation 'org.jsoup:jsoup:1.13.1'
-    implementation 'org.apache.commons:commons-text:1.8'
+    implementation 'org.apache.commons:commons-text:1.9'
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.4'
 
     implementation 'com.lxj:xpopup:2.0.8-rc5'
@@ -185,7 +185,7 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
 
-    def dagger_version = "2.27"
+    def dagger_version = '2.28.3'
     implementation "com.google.dagger:dagger:$dagger_version"
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
 //    implementation "com.google.dagger:dagger-android:$dagger_version"

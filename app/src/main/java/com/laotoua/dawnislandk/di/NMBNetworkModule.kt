@@ -30,7 +30,6 @@ import javax.inject.Singleton
 @Module
 object NMBNetworkModule {
 
-    @JvmStatic
     @Provides
     @Singleton
     fun provideNMBService(): NMBService {
@@ -46,7 +45,6 @@ object NMBNetworkModule {
             .create(NMBService::class.java)
     }
 
-    @JvmStatic
     @Provides
     @Singleton
     fun provideNMBServiceClient(service: NMBService): NMBServiceClient {

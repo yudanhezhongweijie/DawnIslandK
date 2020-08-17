@@ -19,11 +19,14 @@ package com.laotoua.dawnislandk.screens.widgets.popups
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Configuration
 import android.widget.Button
 import android.widget.ImageView
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
 import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Community
@@ -104,6 +107,31 @@ class ForumDrawerPopup(
         findViewById<RecyclerView>(R.id.forumContainer).apply {
             layoutManager = LinearLayoutManager(context)
             adapter = forumListAdapter
+        }
+
+        var nightModeOn = false
+        findViewById<MaterialButton>(R.id.themeToggle).apply {
+            when (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
+                Configuration.UI_MODE_NIGHT_YES -> {
+                    text = "开灯"
+                    icon = context.getDrawable(R.drawable.ic_brightness_5_24px)
+                    setIconTintResource(R.color.pure_light)
+                    nightModeOn = true
+                }
+                Configuration.UI_MODE_NIGHT_NO -> {
+                    text = "关灯"
+                    icon = context.getDrawable(R.drawable.ic_brightness_2_24px)
+                    setIconTintResource(R.color.pure_dark)
+                    nightModeOn = false
+                }
+            }
+            setOnClickListener {
+                dismissWith{
+                    if (nightModeOn) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                    else AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                    nightModeOn = !nightModeOn
+                }
+            }
         }
     }
 }

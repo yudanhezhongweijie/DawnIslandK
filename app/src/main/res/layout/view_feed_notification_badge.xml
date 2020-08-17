@@ -38,7 +38,8 @@
             android:layout_width="@dimen/menu_item_icon_size"
             android:layout_height="@dimen/menu_item_icon_size"
             android:layout_gravity="center"
-            android:src="@drawable/ic_notifications_24px"/>
+            android:src="@drawable/ic_notifications_24px"
+            android:tint="?android:attr/textColorPrimary"/>
 
         <FrameLayout
             android:id="@+id/viewAlertRedCircle"
@@ -54,7 +55,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:textColor="@color/pure_light"
+                android:textColor="?android:attr/textColorPrimary"
                 android:textSize="10sp"/>
 
         </FrameLayout>

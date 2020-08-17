@@ -27,6 +27,7 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.FragmentBasePagerBinding
 import com.laotoua.dawnislandk.screens.MainActivity
+import com.laotoua.dawnislandk.screens.util.Layout
 import com.zhpan.indicator.IndicatorView
 import com.zhpan.indicator.enums.IndicatorSlideMode
 import com.zhpan.indicator.enums.IndicatorStyle
@@ -70,6 +71,7 @@ abstract class BasePagerFragment : DaggerFragment() {
                 setIndicatorStyle(IndicatorStyle.CIRCLE)
                 setupWithViewPager(binding!!.viewPager2)
             }
+        context?.let { menu.findItem(R.id.help)?.icon?.setTint(Layout.getThemeInverseColor(it)) }
         super.onPrepareOptionsMenu(menu)
     }
 

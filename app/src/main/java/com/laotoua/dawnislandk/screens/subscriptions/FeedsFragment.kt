@@ -18,7 +18,9 @@
 package com.laotoua.dawnislandk.screens.subscriptions
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.text.isDigitsOnly
 import androidx.fragment.app.viewModels
@@ -26,6 +28,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.WhichButton
 import com.afollestad.materialdialogs.actions.setActionButtonEnabled
@@ -70,49 +73,6 @@ class FeedsFragment : BaseNavFragment() {
     private var viewCaching = false
     private var refreshing = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_fragment_feed, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.jump -> {
-                MaterialDialog(requireContext()).show {
-                    title(R.string.page_jump)
-                    var page = 0
-                    input(
-                        waitForPositiveButton = false,
-                        hintRes = R.string.please_input_page_number
-                    ) { dialog, text ->
-                        val inputField = getInputField()
-                        page = if (text.isNotBlank() && text.isDigitsOnly()) {
-                            text.toString().toInt()
-                        } else {
-                            0
-                        }
-                        val isValid = page > 0
-                        inputField.error =
-                            if (isValid) null else context.resources.getString(R.string.please_input_page_number)
-                        dialog.setActionButtonEnabled(WhichButton.POSITIVE, isValid)
-                    }
-                    positiveButton(R.string.submit) {
-                        refreshing = true
-                        viewModel.jumpToPage(page)
-                    }
-                    negativeButton(R.string.cancel)
-                }
-                return true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -138,6 +98,19 @@ class FeedsFragment : BaseNavFragment() {
                 setHasFixedSize(true)
                 layoutManager = LinearLayoutManager(context)
                 adapter = mAdapter
+                addOnScrollListener(object :RecyclerView.OnScrollListener(){
+                    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                        if (activity == null || !isAdded) return
+                        if (dy > 0) {
+                            binding?.jump?.hide()
+                            binding?.jump?.isClickable = false
+                        } else if (dy < 0) {
+                            binding?.jump?.show()
+                            binding?.jump?.isClickable = true
+                        }
+                    }
+
+                })
             }
 
             mAdapter!!.setDefaultEmptyView()
@@ -147,6 +120,33 @@ class FeedsFragment : BaseNavFragment() {
                         viewModel.refreshOrGetPreviousPage()
                     }
                 })
+            }
+
+            binding!!.jump.setOnClickListener {
+                MaterialDialog(requireContext()).show {
+                    title(R.string.page_jump)
+                    var page = 0
+                    input(
+                        waitForPositiveButton = false,
+                        hintRes = R.string.please_input_page_number
+                    ) { dialog, text ->
+                        val inputField = getInputField()
+                        page = if (text.isNotBlank() && text.isDigitsOnly()) {
+                            text.toString().toInt()
+                        } else {
+                            0
+                        }
+                        val isValid = page > 0
+                        inputField.error =
+                            if (isValid) null else context.resources.getString(R.string.please_input_page_number)
+                        dialog.setActionButtonEnabled(WhichButton.POSITIVE, isValid)
+                    }
+                    positiveButton(R.string.submit) {
+                        refreshing = true
+                        viewModel.jumpToPage(page)
+                    }
+                    negativeButton(R.string.cancel)
+                }
             }
         }
 

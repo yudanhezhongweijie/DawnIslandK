@@ -28,6 +28,7 @@
         android:id="@+id/flingInterceptor"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <include
             android:id="@+id/srlAndRv"
             layout="@layout/widget_srl_and_rv"
@@ -44,8 +45,10 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:text="@string/announcement"
+        android:textColor="?android:attr/textColorPrimary"
         android:visibility="gone"
         app:icon="@drawable/ic_announcement_24px"
+        app:iconTint="?android:attr/textColorPrimary"
         app:layout_constraintBottom_toTopOf="@+id/search"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -57,8 +60,10 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:text="@string/search"
+        android:textColor="?android:attr/textColorPrimary"
         android:visibility="gone"
         app:icon="@drawable/ic_search_24px"
+        app:iconTint="?android:attr/textColorPrimary"
         app:layout_constraintBottom_toTopOf="@+id/post"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -70,8 +75,10 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:text="@string/new_post"
+        android:textColor="?android:attr/textColorPrimary"
         android:visibility="gone"
         app:icon="@drawable/ic_edit_24px"
+        app:iconTint="?android:attr/textColorPrimary"
         app:layout_constraintBottom_toTopOf="@+id/fabMenu"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -83,6 +90,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="70dp"
         android:visibility="visible"
+        app:tint="?android:attr/textColorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_add_black_48px" />

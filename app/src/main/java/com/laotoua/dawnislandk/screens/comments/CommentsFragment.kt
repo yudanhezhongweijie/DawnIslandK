@@ -27,10 +27,12 @@ import android.os.Bundle
 import android.os.SystemClock
 import android.text.style.UnderlineSpan
 import android.view.*
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.text.toSpannable
 import androidx.core.view.isVisible
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -42,11 +44,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.LayoutMode
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.WhichButton
+import com.afollestad.materialdialogs.actions.getActionButton
 import com.afollestad.materialdialogs.bottomsheets.BasicGridItem
 import com.afollestad.materialdialogs.bottomsheets.BottomSheet
 import com.afollestad.materialdialogs.bottomsheets.gridItems
+import com.afollestad.materialdialogs.customview.customView
+import com.afollestad.materialdialogs.customview.getCustomView
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.google.android.material.animation.AnimationUtils
+import com.google.android.material.textfield.TextInputLayout
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
@@ -55,6 +62,7 @@ import com.laotoua.dawnislandk.databinding.FragmentCommentBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
+import com.laotoua.dawnislandk.screens.util.Layout
 import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.widgets.LinkifyTextView
@@ -126,6 +134,7 @@ class CommentsFragment : DaggerFragment() {
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         pageCounter = menu.findItem(R.id.pageCounter).actionView.findViewById(R.id.text)
+        context?.let { menu.findItem(R.id.filter).icon.setTint(Layout.getThemeInverseColor(it)) }
         super.onPrepareOptionsMenu(menu)
     }
 
@@ -368,31 +377,55 @@ class CommentsFragment : DaggerFragment() {
                     return@setOnClickListener
                 }
                 val page = getCurrentPage()
-                val jumpPopup = JumpPopup(requireContext())
-                XPopup.Builder(context)
-                    .setPopupCallback(object : SimpleCallback() {
-                        override fun beforeShow(popupView: BasePopupView?) {
-                            super.beforeShow(popupView)
-                            jumpPopup.updatePages(page, viewModel.maxPage)
-                        }
-
-                        override fun onDismiss(popupView: BasePopupView?) {
-                            super.onDismiss(popupView)
-                            if (binding == null || mAdapter == null) return
-                            if (jumpPopup.submit) {
-                                binding!!.srlAndRv.refreshLayout.autoRefresh(
-                                    Constants.ACTION_NOTHING,
-                                    false
-                                )
-                                refreshing = true
-                                Timber.i("Jumping to ${jumpPopup.targetPage}...")
-                                viewModel.jumpTo(jumpPopup.targetPage)
+                MaterialDialog(requireContext()).show {
+                    val maxPage = viewModel.maxPage
+                    var targetPage = page
+                    var canNotJump = DawnApp.applicationDataStore.firstCookieHash == null && targetPage > 99
+                    customView(R.layout.popup_jump)
+                    val submitButton = getActionButton(WhichButton.POSITIVE)
+                    val pageInput = getCustomView().findViewById<TextInputLayout>(R.id.pageInput)
+                    pageInput.editText!!.doOnTextChanged { text, _, _, _ ->
+                        try {
+                            submitButton.isEnabled = !(text.isNullOrBlank()
+                                    || text.length > maxPage.toString().length
+                                    || text.toString().toInt() > maxPage)
+                            if (submitButton.isEnabled) {
+                                targetPage = pageInput.editText!!.text.toString().toInt()
                             }
+                            canNotJump = DawnApp.applicationDataStore.firstCookieHash == null && targetPage > 99
+                            pageInput.error = if (canNotJump) context.resources.getString(R.string.need_cookie_to_read) else null
+                        } catch (e:Exception){
+                            submitButton.isEnabled = false
+                            targetPage = page
                         }
-                    })
-                    .isDestroyOnDismiss(true)
-                    .asCustom(jumpPopup)
-                    .show()
+                    }
+                    pageInput.editText!!.setText(targetPage.toString())
+                    pageInput.error = if (canNotJump) context.resources.getString(R.string.need_cookie_to_read) else null
+
+                    getCustomView().findViewById<TextView>(R.id.currentPage).text = currentPage.toString()
+                    getCustomView().findViewById<TextView>(R.id.maxPage).text = maxPage.toString()
+                    getCustomView().findViewById<ImageButton>(R.id.firstPage).setOnClickListener {
+                        targetPage = 1
+                        pageInput.editText!!.setText(targetPage.toString())
+                    }
+
+                    getCustomView().findViewById<ImageButton>(R.id.lastPage).setOnClickListener {
+                        targetPage = maxPage
+                        pageInput.editText!!.setText(targetPage.toString())
+                    }
+
+                    positiveButton(R.string.submit) {
+                        if (binding == null || mAdapter == null) dismiss()
+                        binding!!.srlAndRv.refreshLayout.autoRefresh(
+                            Constants.ACTION_NOTHING,
+                            false
+                        )
+                        refreshing = true
+                        Timber.i("Jumping to $targetPage...")
+                        viewModel.jumpTo(targetPage)
+                    }
+                    negativeButton(R.string.cancel)
+                }
             }
 
             binding!!.feed.apply {
@@ -446,8 +479,7 @@ class CommentsFragment : DaggerFragment() {
             if (refreshing) {
                 mAdapter?.setList(it.toMutableList())
                 binding?.srlAndRv?.recyclerView?.scrollToPosition(0)
-            }
-            else mAdapter?.setDiffNewData(it.toMutableList())
+            } else mAdapter?.setDiffNewData(it.toMutableList())
             refreshing = false
             updateCurrentlyAvailableImages(it)
             mAdapter?.setPo(viewModel.po)
@@ -572,7 +604,7 @@ class CommentsFragment : DaggerFragment() {
     private fun updateCurrentPage() {
         if (mAdapter == null || binding == null) return
         val page = getCurrentPage()
-        if (page != currentPage ) {
+        if (page != currentPage) {
             viewModel.saveReadingProgress(page)
         }
         val newText = "$page / ${viewModel.maxPage}"

@@ -35,7 +35,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="4dp"
         android:textAppearance="@style/PreferenceItemKey"
-        android:textColor="@color/gray_400"
+        android:textColor="?android:attr/textColorPrimary"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -48,7 +48,7 @@
         android:layout_marginTop="4dp"
         android:layout_marginBottom="4dp"
         android:background="@android:color/transparent"
-        android:tint="@color/gray_400"
+        android:tint="?android:attr/textColorSecondary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/remark"
         app:layout_constraintTop_toTopOf="parent"
@@ -66,6 +66,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:tint="?android:attr/textColorSecondary"
         app:srcCompat="@drawable/ic_remove_circle_black_24px"
         tools:ignore="ContentDescription" />
 </androidx.constraintlayout.widget.ConstraintLayout>

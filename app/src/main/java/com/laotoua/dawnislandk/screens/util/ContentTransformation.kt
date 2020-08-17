@@ -60,16 +60,12 @@ object ContentTransformation {
     fun transformCookie(userId: String, admin: String, po: String = ""): Spannable {
         /**
          * 处理饼干
-         * PO需要加粗
-         * 普通饼干是灰色，po是黑色，红名是红色
+         * 普通饼干是灰色，红名是红色
          */
         val cookie = SpannableString(userId)
         if (admin == "1") {
             val adminColor = ForegroundColorSpan(Color.parseColor("#FF0F0F"))
             cookie.setSpan(adminColor, 0, cookie.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
-        } else if (userId == po) {
-            val poColor = ForegroundColorSpan(Color.parseColor("#000000"))
-            cookie.setSpan(poColor, 0, cookie.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
         }
         if (userId == po) {
             cookie.setSpan(

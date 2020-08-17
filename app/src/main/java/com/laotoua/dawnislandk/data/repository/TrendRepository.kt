@@ -75,7 +75,7 @@ class TrendRepository @Inject constructor(
         return webService.getComments(trendId, page).run {
             if (this is APIDataResponse.Success) {
                 val targetPage = ceil(data!!.replyCount.toDouble() / 19).toInt()
-                if (page == 1) {
+                if (page == 1 || targetPage != page) {
                     getRemoteTrend(targetPage)
                 } else {
                     convertLatestTrend(targetPage, data)
@@ -85,24 +85,6 @@ class TrendRepository @Inject constructor(
                 DataResource.create(LoadingStatus.ERROR, null, "无法读取A岛热榜...\n$message")
             }
         }
-    }
-
-    private fun extractLatestTrend(data: Post): DailyTrend? {
-        for (reply in data.comments.reversed()) {
-            if (reply.userid == po) {
-                val list = reply.content.split(trendDelimiter, ignoreCase = true)
-                if (list.size == trendLength) {
-                    return DailyTrend(
-                        trendId,
-                        po,
-                        ReadableTime.string2Time(reply.now),
-                        list.map { convertStringToTrend(it) },
-                        data.replyCount.toInt()
-                    )
-                }
-            }
-        }
-        return null
     }
 
     private suspend fun convertLatestTrend(targetPage: Int, data: Post): DataResource<DailyTrend>? {
@@ -129,6 +111,23 @@ class TrendRepository @Inject constructor(
         }
     }
 
+    private fun extractLatestTrend(data: Post): DailyTrend? {
+        for (reply in data.comments.reversed()) {
+            if (reply.userid == po) {
+                val list = reply.content.split(trendDelimiter, ignoreCase = true)
+                if (list.size == trendLength) {
+                    return DailyTrend(
+                        trendId,
+                        po,
+                        ReadableTime.string2Time(reply.now),
+                        list.map { convertStringToTrend(it) },
+                        data.replyCount.toInt()
+                    )
+                }
+            }
+        }
+        return null
+    }
 
     /**
      * sample

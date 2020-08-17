@@ -28,7 +28,6 @@
         android:id="@+id/dateRangeToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#FFFFFF"
         android:clickable="true"
         android:focusable="true"
         android:paddingStart="4dp"

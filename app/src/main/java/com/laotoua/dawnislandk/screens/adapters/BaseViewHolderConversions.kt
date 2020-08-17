@@ -38,7 +38,6 @@ import com.laotoua.dawnislandk.screens.widgets.spans.RoundBackgroundColorSpan
 import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.GlideApp
 
-
 fun BaseViewHolder.convertUserId(userId: String, admin: String, po: String = "") {
     setText(R.id.userId, ContentTransformation.transformCookie(userId, admin, po))
 }
@@ -97,8 +96,8 @@ fun BaseViewHolder.convertTitleAndName(
     setGone(R.id.name, name.isBlank() || !visible)
 }
 
-fun BaseViewHolder.convertSage(sage: String?, skipConversion:Boolean = false) {
-    if (sage == "1" && !skipConversion) setVisible(R.id.sage,true)
+fun BaseViewHolder.convertSage(sage: String?, skipConversion: Boolean = false) {
+    if (sage == "1" && !skipConversion) setVisible(R.id.sage, true)
     else setGone(R.id.sage, true)
 }
 

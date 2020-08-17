@@ -90,7 +90,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:text="@string/cookie_slots"
-                android:textColor="@color/gray_400"
+                android:textColor="?android:attr/textColorSecondary"
                 app:layout_constraintBaseline_toBaselineOf="@id/addCookie"
                 app:layout_constraintStart_toStartOf="@id/cookieList" />
 
@@ -100,7 +100,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:textColor="@color/gray_400"
+                android:textColor="?android:attr/textColorSecondary"
                 app:layout_constraintStart_toEndOf="@+id/cookieSummaryPrefix"
                 app:layout_constraintTop_toTopOf="@id/cookieSummaryPrefix" />
 
@@ -151,6 +151,7 @@
                 app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
                 app:layout_constraintStart_toStartOf="@id/guidelineStart"
                 app:layout_constraintTop_toBottomOf="@id/displaySettings" />
+
             <include
                 android:id="@+id/about"
                 layout="@layout/list_item_setting_header"
@@ -164,8 +165,8 @@
                 android:id="@+id/credit"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_10"
                 android:layout_marginStart="8dp"
+                android:layout_marginTop="@dimen/dp_10"
                 android:layout_marginEnd="8dp"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textSize="14sp"

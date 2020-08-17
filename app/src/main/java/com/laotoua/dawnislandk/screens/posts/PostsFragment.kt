@@ -39,6 +39,7 @@ import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.databinding.FragmentPostBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
+import com.laotoua.dawnislandk.screens.util.Layout.getThemeInverseColor
 import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
@@ -85,6 +86,7 @@ class PostsFragment : BaseNavFragment() {
             updateFeedNotificationIcon(count)
             setOnClickListener { onOptionsItemSelected(rootView) }
         }
+        context?.let { menu.findItem(R.id.forumRule).icon.setTint(getThemeInverseColor(it))}
         super.onPrepareOptionsMenu(menu)
     }
 
@@ -118,7 +120,10 @@ class PostsFragment : BaseNavFragment() {
                         "bi_$biId", "drawable",
                         context.packageName
                     )
-                    icon(resourceId)
+                    context.getDrawable(resourceId)?.let {
+                        it.setTint(getThemeInverseColor(context))
+                        icon(drawable = it)
+                    }
                     title(text = sharedVM.getForumDisplayName(fid))
                     message(text = sharedVM.getForumMsg(fid)) {
                         html { link ->

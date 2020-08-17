@@ -42,11 +42,13 @@ import com.afollestad.materialdialogs.checkbox.isCheckPromptChecked
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.google.android.material.button.MaterialButtonToggleGroup
+import com.google.android.material.textfield.TextInputLayout
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Cookie
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
+import com.laotoua.dawnislandk.screens.util.Layout
 import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.ImageUtil
 import com.laotoua.dawnislandk.util.IntentUtil
@@ -98,7 +100,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
         resources.getStringArray(R.array.LuweiStickersColor).toMutableList()
     }
     private val luweiStickerAdapter by lazyOnMainOnly { QuickAdapter<String>(R.layout.grid_item_luwei_sticker) }
-    private var postContent: EditText? = null
+    private var postContent: TextInputLayout? = null
     private var postImagePreview: ImageView? = null
 
     // keyboard height listener
@@ -144,7 +146,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
         updateTitle(targetId, newPost)
         updateCookies()
         updateForumButton(targetId, newPost)
-        quote?.run { postContent?.text?.insert(0, quote) }
+        quote?.run { postContent?.editText?.text?.insert(0, quote) }
     }
 
     fun setupAndShow(
@@ -197,7 +199,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
     override fun onCreate() {
         super.onCreate()
 
-        postContent = findViewById<EditText>(R.id.postContent).apply {
+        postContent = findViewById<TextInputLayout>(R.id.postContent).apply {
             setOnClickListener { view -> KeyboardUtils.showSoftInput(view) }
         }
 
@@ -208,8 +210,8 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
             emojiContainer!!.layoutManager = GridLayoutManager(context, 3)
             emojiContainer!!.adapter = emojiAdapter.also { adapter ->
                 adapter.setOnItemClickListener { _, view, _ ->
-                    postContent!!.text.insert(
-                        postContent!!.selectionStart,
+                    postContent?.editText?.text?.insert(
+                        postContent!!.editText!!.selectionStart,
                         ((view as TextView).text)
                     )
                 }
@@ -284,7 +286,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
                         }
                     }.onDismiss {
                         if (targetId == null) return@onDismiss
-                        postContent!!.hint =
+                        postContent?.editText?.hint =
                             applicationDataStore.luweiNotice?.nmbForums?.firstOrNull { f -> f.id == targetId }
                                 ?.getPostRule()
                         updateTitle(targetId, newPost)
@@ -292,7 +294,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
                             MaterialDialog(context).show {
                                 title(R.string.report_reasons)
                                 listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
-                                    postContent!!.append("\n${context.getString(R.string.report_reasons)}: $text")
+                                    postContent?.editText?.append("\n${context.getString(R.string.report_reasons)}: $text")
                                 }
                                 cancelOnTouchOutside(false)
                             }
@@ -431,7 +433,10 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
                     "bi_$biId", "drawable",
                     context.packageName
                 )
-                icon(resourceId)
+                context.getDrawable(resourceId)?.let {
+                    it.setTint(Layout.getThemeInverseColor(context))
+                    icon(drawable = it)
+                }
                 title(text = sharedVM.getForumDisplayName(fid))
                 message(text = sharedVM.getForumMsg(fid)) { html() }
                 positiveButton(R.string.acknowledge)
@@ -488,7 +493,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
     }
 
     private fun clearEntries() {
-        postContent!!.text.clear()
+        postContent?.editText?.text?.clear()
         findViewById<TextView>(R.id.formName).text = ""
         findViewById<TextView>(R.id.formEmail).text = ""
         findViewById<TextView>(R.id.formTitle).text = ""
@@ -532,10 +537,10 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
         name = findViewById<TextView>(R.id.formName).text.toString()
         email = findViewById<TextView>(R.id.formEmail).text.toString()
         title = findViewById<TextView>(R.id.formTitle).text.toString()
-        content = postContent!!.text.toString()
+        content = postContent!!.editText!!.text.toString()
         if (content.isBlank()) {
             if (imageFile != null) {
-                postContent!!.setText("分享图片")
+                postContent!!.editText!!.setText("分享图片")
                 content = "分享图片"
             } else {
                 Toast.makeText(caller, R.string.need_content_to_post, Toast.LENGTH_SHORT).show()

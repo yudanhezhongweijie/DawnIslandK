@@ -213,6 +213,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
     private val defaultColors by lazyOnMainOnly {
         arrayListOf(
             binding.doodleView.paintColor,
+            Color.WHITE,
             Color.BLACK,
             Color.GRAY,
             ColorUtils.compositeColors(getColor(R.color.red_500), Color.WHITE),

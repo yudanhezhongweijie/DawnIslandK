@@ -41,17 +41,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/userId" />
 
-    <TextView
-        android:id="@+id/refId"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:clickable="false"
-        android:focusable="false"
-        android:textAppearance="@style/SecondaryText"
-        android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="parent"
+    <ImageView
+        android:id="@+id/OPHighlight"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginEnd="2dp"
+        android:tint="@color/colorAccent"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintBaseline_toBaselineOf="@id/userId"
+        app:srcCompat="@drawable/ic_label_important_24px"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/userId"
@@ -59,10 +59,23 @@
         android:layout_height="wrap_content"
         android:clickable="false"
         android:focusable="false"
-        android:textAppearance="@style/SecondaryText"
+        android:textColor="?android:attr/textColorSecondary"
         android:textSize="14sp"
+        app:layout_constraintStart_toEndOf="@id/OPHighlight"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/refId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="false"
+        android:focusable="false"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 
     <TextView
         android:id="@+id/timestamp"
@@ -70,7 +83,7 @@
         android:layout_height="wrap_content"
         android:clickable="false"
         android:focusable="false"
-        android:textAppearance="@style/SecondaryText"
+        android:textColor="?android:attr/textColorSecondary"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -84,7 +97,7 @@
         android:focusable="false"
         android:paddingBottom="2dp"
         android:scrollbars="vertical"
-        android:textColor="@color/pure_dark"
+        android:textColor="?android:attr/textColorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/barrier" />

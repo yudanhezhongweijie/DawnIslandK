@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ /* Copyright 2020 Fishballzzz
   ~  *
   ~  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,6 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:text="@string/current_page"
+            android:textColor="?android:attr/textColorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/currentPage"
             app:layout_constraintStart_toStartOf="parent"
@@ -56,6 +56,7 @@
             android:layout_marginStart="8dp"
             android:text="@string/sample_int"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="?android:attr/textColorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/maxPageSuffix"
             app:layout_constraintStart_toEndOf="@+id/currentPageSuffix"
@@ -70,6 +71,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
             android:text="@string/total_page"
+            android:textColor="?android:attr/textColorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/maxPage"
             app:layout_constraintStart_toEndOf="@+id/currentPage"
@@ -84,6 +86,7 @@
             android:layout_marginStart="8dp"
             android:text="@string/sample_int"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="?android:attr/textColorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/maxPageSuffix"
@@ -99,6 +102,7 @@
         android:layout_marginTop="8dp"
         android:text="@string/page_jump"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="?android:attr/textColorPrimary"
         android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@id/pageCountContainer"
         app:layout_constraintEnd_toEndOf="parent"
@@ -111,26 +115,28 @@
         android:layout_height="wrap_content"
         android:background="?attr/selectableItemBackground"
         android:tint="@color/colorPrimary"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/pageInput"
-        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintEnd_toStartOf="@+id/pageInput"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/pageInput"
         app:srcCompat="@drawable/ic_first_page_black_48px"
         tools:ignore="ContentDescription" />
 
-    <EditText
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/pageInput"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="number"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/lastPage"
-        app:layout_constraintHorizontal_weight="2"
-        app:layout_constraintStart_toEndOf="@+id/firstPage"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="Autofill,LabelFor" />
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/firstPage">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="number" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <ImageButton
         android:id="@+id/lastPage"
@@ -138,32 +144,12 @@
         android:layout_height="wrap_content"
         android:background="?attr/selectableItemBackground"
         android:tint="@color/colorPrimary"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/pageInput"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/pageInput"
         app:srcCompat="@drawable/ic_last_page_black_48px"
         tools:ignore="ContentDescription"
         tools:layout_constraintHorizontal_weight="1" />
-
-    <Button
-        android:id="@+id/submit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:text="@string/submit"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/lastPage" />
-
-    <Button
-        android:id="@+id/cancel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:text="@string/cancel"
-        app:layout_constraintBottom_toBottomOf="@+id/submit"
-        app:layout_constraintEnd_toStartOf="@+id/submit"
-        app:layout_constraintTop_toTopOf="@+id/submit" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

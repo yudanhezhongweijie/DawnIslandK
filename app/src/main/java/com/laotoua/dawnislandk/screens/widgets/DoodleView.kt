@@ -19,6 +19,7 @@ package com.laotoua.dawnislandk.screens.widgets
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.*
 import android.net.Uri
 import android.os.Environment
@@ -89,11 +90,19 @@ class DoodleView : View {
     private fun init(context: Context) {
         mBitmapPaint =
             Paint(Paint.DITHER_FLAG or Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
-//        mBgColor = ResourcesUtils.getAttrColor(context, R.attr.colorPure)
-//        paintColor = ResourcesUtils.getAttrColor(context, R.attr.colorPureInverse)
 
-        mBgColor = resources.getColor(R.color.pure_light, null)
-        paintColor = resources.getColor(R.color.pure_dark, null)
+
+        when (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
+            Configuration.UI_MODE_NIGHT_NO -> {
+                mBgColor = resources.getColor(R.color.pure_light, null)
+                paintColor = resources.getColor(R.color.pure_dark, null)
+            }
+            Configuration.UI_MODE_NIGHT_YES -> {
+                mBgColor = resources.getColor(R.color.pure_dark, null)
+                paintColor = resources.getColor(R.color.pure_light, null)
+            }
+        }
+
         paintThickness = Layout.dip2px(context, 4.5f)
         mPath = Path()
         mPaint = Paint()

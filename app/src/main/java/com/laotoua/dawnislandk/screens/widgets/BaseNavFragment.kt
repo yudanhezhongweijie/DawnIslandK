@@ -22,7 +22,6 @@ import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
-import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
@@ -57,13 +56,13 @@ open class BaseNavFragment : DaggerFragment() {
 
     override fun onResume() {
         super.onResume()
-        if (activity != null && isAdded) {
-            (requireActivity() as MainActivity).setToolbarClickListener {
+        (requireActivity() as MainActivity).setToolbarClickListener {
+            if (activity != null && isAdded) {
                 mRecyclerView?.layoutManager?.scrollToPosition(0)
                 (requireActivity() as MainActivity).showNav()
             }
-            (requireActivity() as MainActivity).showNav()
         }
+        (requireActivity() as MainActivity).showNav()
     }
 
     override fun onPause() {
@@ -73,9 +72,7 @@ open class BaseNavFragment : DaggerFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        if (!DawnApp.applicationDataStore.getViewCaching()) {
-            mRecyclerView?.removeOnScrollListener(navBarScrollListener)
-            mRecyclerView = null
-        }
+        mRecyclerView?.removeOnScrollListener(navBarScrollListener)
+        mRecyclerView = null
     }
 }

@@ -24,7 +24,14 @@ import java.util.*
 @Dao
 interface EmojiDao {
     @Query("SELECT * From Emoji ORDER BY lastUsedAt DESC, id ASC")
-    suspend fun getAllEmoji(): List<Emoji>
+    suspend fun getAllEmojiByLastUsedAtDESC(): List<Emoji>
+
+    @Query("SELECT * From Emoji ORDER BY id ASC")
+    suspend fun getAllEmojiByIdASC(): List<Emoji>
+
+    suspend fun getAllEmoji(sort: Boolean): List<Emoji> {
+        return if (sort) getAllEmojiByLastUsedAtDESC() else getAllEmojiByIdASC()
+    }
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(emoji: Emoji)

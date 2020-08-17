@@ -19,6 +19,7 @@ package com.laotoua.dawnislandk.screens.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.dao.EmojiDao
 import com.laotoua.dawnislandk.data.local.entity.Emoji
 import kotlinx.coroutines.launch
@@ -27,10 +28,10 @@ import javax.inject.Inject
 class EmojiSettingViewModel @Inject constructor(private val emojiDao: EmojiDao) : ViewModel() {
 
     suspend fun getAllEmoji(): List<Emoji> {
-        var res = emojiDao.getAllEmoji()
+        var res = emojiDao.getAllEmoji(DawnApp.applicationDataStore.getSortEmojiByLastUsedStatus())
         if (res.isEmpty()) {
             emojiDao.resetEmoji()
-            res = emojiDao.getAllEmoji()
+            res = emojiDao.getAllEmoji(DawnApp.applicationDataStore.getSortEmojiByLastUsedStatus())
         }
         return res
     }

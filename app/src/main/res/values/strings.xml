@@ -87,7 +87,7 @@
     <string name="common_posts_title" translatable="false">常用串: %d</string>
     <string name="common_posts_setting_help" translatable="false"><b>输入串号备注添加至常用串\n\n长按上下拖曳版块可排序\n\n左右拖曳串可从常用串中移除\n\n编辑完成后返回即保存设置</b></string>
     <string name="common_posts_count" translatable="false">常用串包含%d个串</string>
-    <string name="emoji_setting_help" translatable="false"><b>输入添加颜文字\n\n颜文字默认按最后使用顺序排序\n\n长按上下颜文字可排序\n\n左右拖曳可移除颜文字\n\n编辑完成后返回即保存设置</b></string>
+    <string name="emoji_setting_help" translatable="false"><b>输入添加颜文字\n\n颜文字默认按添加顺序排序，可设置为按最后使用时间排序\n\n长按上下颜文字可排序\n\n左右拖曳可移除颜文字\n\n编辑完成后返回即保存设置</b></string>
     <string name="emoji_restore" translatable="false"><b>恢复颜文字至默认设置\n\n此次操作将删除用户自定义颜文字\n\n是否确认删除?\n\n</b></string>
     <string name="emoji_remark" translatable="false">颜文字备注</string>
     <string name="emoji_value" translatable="false">颜文字内容</string>
@@ -218,6 +218,8 @@
     <string name="history" translatable="false">浏览 · 发言</string>
     <string name="edit_history_default_page" translatable="false">设置浏览 · 发言默认页面</string>
     <string name="emoji_setting" translatable="false">设置颜文字</string>
+    <string name="emoji_sort_by_last_used_at_on" translatable="false">颜文字按最后使用时间排序</string>
+    <string name="emoji_sort_by_last_used_at_off" translatable="false">颜文字按添加顺序排序</string>
     <string name="my_profile" translatable="false">个人</string>
     <string name="app_privacy_agreement" translatable="false">软件隐私协议</string>
     <string name="adnmb_privacy_agreement" translatable="false">A岛隐私协议</string>

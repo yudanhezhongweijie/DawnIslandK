@@ -124,7 +124,6 @@ class ApplicationDataStore @Inject constructor(
     val textSize by lazyOnMainOnly { mmkv.getFloat(DawnConstants.MAIN_TEXT_SIZE, 15f) }
 
     private var layoutCustomizationStatus: Boolean? = null
-
     fun getLayoutCustomizationStatus(): Boolean {
         if (layoutCustomizationStatus == null) {
             layoutCustomizationStatus = mmkv.getBoolean(DawnConstants.LAYOUT_CUSTOMIZATION, true)
@@ -136,6 +135,21 @@ class ApplicationDataStore @Inject constructor(
         layoutCustomizationStatus = value
         mmkv.putBoolean(DawnConstants.LAYOUT_CUSTOMIZATION, value)
     }
+
+    private var sortEmojiByLastUsedStatus: Boolean? = null
+    fun getSortEmojiByLastUsedStatus(): Boolean {
+        if (sortEmojiByLastUsedStatus == null) {
+            sortEmojiByLastUsedStatus =
+                mmkv.getBoolean(DawnConstants.SORT_EMOJI_BY_LAST_USED_AT, false)
+        }
+        return sortEmojiByLastUsedStatus!!
+    }
+
+    fun setSortEmojiByLastUsedStatus(value: Boolean) {
+        sortEmojiByLastUsedStatus = value
+        mmkv.putBoolean(DawnConstants.SORT_EMOJI_BY_LAST_USED_AT, value)
+    }
+
 
     private var customToolbarImageStatus: Boolean? = null
     fun getCustomToolbarImageStatus(): Boolean {

@@ -37,6 +37,7 @@ import com.laotoua.dawnislandk.databinding.FragmentCustomSettingBinding
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.util.ContentTransformation
 import com.laotoua.dawnislandk.screens.util.Layout.toast
+import com.laotoua.dawnislandk.screens.util.Layout.updateSwitchSummary
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
 
@@ -154,7 +155,7 @@ class CustomSettingFragment : DaggerFragment() {
             key.setText(R.string.edit_subscription_default_page)
             val items = listOf(getString(R.string.trend), getString(R.string.my_feed))
             val trendIndex = applicationDataStore.getFeedPagerPageIndices().first
-            if (trendIndex == 0){
+            if (trendIndex == 0) {
                 summary.text = getString(R.string.trend)
             } else {
                 summary.text = getString(R.string.my_feed)
@@ -166,7 +167,7 @@ class CustomSettingFragment : DaggerFragment() {
                     listItemsSingleChoice(items = items) { _, index, _ ->
                         applicationDataStore.setFeedPagerDefaultPage(index, 1 - index)
                         toast(R.string.restart_to_apply_setting)
-                        if (index == 0){
+                        if (index == 0) {
                             summary.text = getString(R.string.trend)
                         } else {
                             summary.text = getString(R.string.my_feed)
@@ -182,7 +183,7 @@ class CustomSettingFragment : DaggerFragment() {
             key.setText(R.string.edit_history_default_page)
             val items = listOf(getString(R.string.browsing_history), getString(R.string.post_history))
             val browsingHistoryIndex = applicationDataStore.getHistoryPagerPageIndices().first
-            if (browsingHistoryIndex == 0){
+            if (browsingHistoryIndex == 0) {
                 summary.text = getString(R.string.browsing_history)
             } else {
                 summary.text = getString(R.string.post_history)
@@ -194,7 +195,7 @@ class CustomSettingFragment : DaggerFragment() {
                     listItemsSingleChoice(items = items) { _, index, _ ->
                         applicationDataStore.setHistoryPagerDefaultPage(index, 1 - index)
                         toast(R.string.restart_to_apply_setting)
-                        if (index == 0){
+                        if (index == 0) {
                             summary.text = getString(R.string.browsing_history)
                         } else {
                             summary.text = getString(R.string.post_history)
@@ -226,7 +227,7 @@ class CustomSettingFragment : DaggerFragment() {
 
         sharedViewModel.communityList.observe(viewLifecycleOwner, Observer {
             serverForums = it.data?.filterNot { c -> c.isCommonForums() || c.isCommonPosts() }
-                ?.flatMap { c -> c.forums }
+                ?.map { c -> c.forums }?.flatten()
 
             binding?.commonForums?.summary?.text = resources.getString(
                 R.string.common_forum_count,
@@ -242,6 +243,25 @@ class CustomSettingFragment : DaggerFragment() {
         return binding!!.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        binding?.emojiSetting?.apply {
+            preferenceSwitch.visibility = View.VISIBLE
+            preferenceSwitch.isClickable = true
+            preferenceSwitch.isChecked = applicationDataStore.getSortEmojiByLastUsedStatus()
+            updateSwitchSummary(
+                R.string.emoji_sort_by_last_used_at_on,
+                R.string.emoji_sort_by_last_used_at_off
+            )
+            preferenceSwitch.setOnCheckedChangeListener { _, isChecked ->
+                applicationDataStore.setSortEmojiByLastUsedStatus(isChecked)
+                updateSwitchSummary(
+                    R.string.emoji_sort_by_last_used_at_on,
+                    R.string.emoji_sort_by_last_used_at_off
+                )
+            }
+        }
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

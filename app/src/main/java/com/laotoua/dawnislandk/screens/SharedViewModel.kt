@@ -77,17 +77,19 @@ class SharedViewModel @Inject constructor(
     }
 
     suspend fun getAllEmoji():List<Emoji>{
-        var res = emojiDao.getAllEmoji()
+        var res = emojiDao.getAllEmoji(DawnApp.applicationDataStore.getSortEmojiByLastUsedStatus())
         if (res.isEmpty()){
             emojiDao.resetEmoji()
-            res = emojiDao.getAllEmoji()
+            res = emojiDao.getAllEmoji(DawnApp.applicationDataStore.getSortEmojiByLastUsedStatus())
         }
         return res
     }
 
     fun setLastUsedEmoji(emoji: Emoji) {
-        viewModelScope.launch {
-            emojiDao.setLastUsedEmoji(emoji)
+        if (DawnApp.applicationDataStore.getSortEmojiByLastUsedStatus()) {
+            viewModelScope.launch {
+                emojiDao.setLastUsedEmoji(emoji)
+            }
         }
     }
 
@@ -146,7 +148,7 @@ class SharedViewModel @Inject constructor(
     }
 
     fun setForumMappings(list: List<Community>) {
-        val flatten = list.flatMap { it.forums }
+        val flatten = list.map { it.forums }.flatten()
         forumNameMapping =
             flatten.associateBy(keySelector = { it.id }, valueTransform = { it.name })
         forumMsgMapping = flatten.associateBy(keySelector = { it.id }, valueTransform = { it.msg })

@@ -24,7 +24,8 @@ import androidx.room.PrimaryKey
 data class Cookie(
     @PrimaryKey val cookieHash: String,
     val cookieName: String,
-    var cookieDisplayName: String
+    var cookieDisplayName: String,
+    var lastUsedAt:Long = 0
 ){
     fun getApiHeaderCookieHash():String = "userhash=$cookieHash"
 }

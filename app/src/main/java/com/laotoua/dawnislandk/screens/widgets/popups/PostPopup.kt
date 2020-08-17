@@ -581,6 +581,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
                             content
                         )
                         clearEntries()
+                        selectedCookie?.let { applicationDataStore.setLastUsedCookie(it)}
                     }
                 }
                 Toast.makeText(caller, message, Toast.LENGTH_LONG).show()

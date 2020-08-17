@@ -19,11 +19,12 @@ package com.laotoua.dawnislandk.data.local.dao
 
 import androidx.room.*
 import com.laotoua.dawnislandk.data.local.entity.Cookie
+import java.util.*
 
 
 @Dao
 interface CookieDao {
-    @Query("SELECT * FROM Cookie")
+    @Query("SELECT * FROM Cookie ORDER BY lastUsedAt DESC")
     suspend fun getAll(): List<Cookie>
 
     @Query("SELECT * FROM Cookie WHERE cookieHash=:cookieHash")
@@ -41,6 +42,10 @@ interface CookieDao {
         insertAll(cookieList)
     }
 
+    suspend fun setLastUsedCookie(cookie: Cookie){
+        cookie.lastUsedAt = Date().time
+        updateCookie(cookie)
+    }
     @Update
     suspend fun updateCookie(cookie: Cookie)
 

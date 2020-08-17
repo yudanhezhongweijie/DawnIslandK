@@ -51,6 +51,17 @@ class ApplicationDataStore @Inject constructor(
     private var mCookies = mutableListOf<Cookie>()
     val cookies: List<Cookie> get() = mCookies
     val firstCookieHash get() = cookies.firstOrNull()?.getApiHeaderCookieHash()
+
+    fun setLastUsedCookie(cookie: Cookie){
+        if (cookie != cookies.firstOrNull()) {
+            mCookies.remove(cookie)
+            mCookies.add(0, cookie)
+            GlobalScope.launch {
+                cookieDao.setLastUsedCookie(cookie)
+            }
+        }
+    }
+
     var luweiNotice: LuweiNotice? = null
         private set
 

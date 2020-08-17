@@ -127,10 +127,11 @@ class SharedViewModel @Inject constructor(
 
                 // update notification, only if there are new replies
                 val replyCount: Int = try {
-                    data.replyCount.toInt() - (outDatedFeedAndPost.post?.replyCount?.toInt() ?: 0)
+                    data.replyCount.toInt() - (outDatedFeedAndPost.post?.replyCount?.toInt()
+                        ?: data.replyCount.toInt())
                 } catch (e: Exception) {
                     Timber.e("error in replyCount conversion $e")
-                    data.replyCount.toInt()
+                    0
                 }
                 if (replyCount > 0) {
                     Timber.d("Found feed ${data.id} with new reply. Updating...")

@@ -229,7 +229,7 @@ class NotificationFragment : DaggerFragment() {
             holder.setText(R.id.refId, "No. ${item.notification.id}")
             holder.setText(
                 R.id.timestamp,
-                ContentTransformation.transformTime(item.notification.lastUpdatedAt)
+                "检查时间: ${ContentTransformation.transformTime(item.notification.lastUpdatedAt)}"
             )
             val content =
                 if (item.notification.message.isBlank()) item.post?.content

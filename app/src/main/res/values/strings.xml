@@ -209,7 +209,7 @@
     <string name="announcement" translatable="false">通知</string>
     <string name="forum_rules" translatable="false">版规</string>
     <string name="feed_notification" translatable="false">订阅通知</string>
-    <string name="feed_notification_help" translatable="false">在设置开启订阅通知后，黎明岛会在您使用软件的过程中定时更新您的订阅串。\n\n滑动拖曳可删除通知\n\n在使用此功能时请确保使用正确的订阅ID，同时请先预载一遍您的订阅。\n\n<b>每个订阅串每天最多更新一次</b></string>
+    <string name="feed_notification_help" translatable="false">在设置开启订阅通知后，黎明岛会在您使用软件的过程中定时更新您的订阅串。\n\n点击串将消除更新数量提示, 滑动拖曳可删除通知\n\n在使用此功能时请确保使用正确的订阅ID，同时请先预载一遍您的订阅。\n初始化记录不会提示更新数量。后续如果有更新会提示数量\n\n<b><u>每个订阅串每天最多更新一次</u></b></string>
     <string name="trend_and_feed" translatable="false">热榜 · 订阅</string>
     <string name="edit_subscription_default_page" translatable="false">设置热榜 · 订阅默认页面</string>
     <string name="history" translatable="false">浏览 · 发言</string>

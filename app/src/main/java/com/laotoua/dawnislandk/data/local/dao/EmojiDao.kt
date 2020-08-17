@@ -33,7 +33,7 @@ interface EmojiDao {
     suspend fun insertAll(emojiList: List<Emoji>)
 
     @Transaction
-    suspend fun updateLastUsedEmoji(emoji: Emoji) {
+    suspend fun setLastUsedEmoji(emoji: Emoji) {
         emoji.lastUsedAt = Date().time
         updateEmoji(emoji)
     }
@@ -143,7 +143,7 @@ interface EmojiDao {
         default.add(Emoji("( *・ω・)✄╰ひ╯", "( *・ω・)✄╰ひ╯", false, 0))
         default.add(Emoji("༼　•͟ ͜ •　༽\n༽ つд⊂ ༼", "༼　•͟ ͜ •　༽\n༽ つд⊂ ༼", false, 0))
         default.add(Emoji("(ᯣ ̶̵̵̵̶̶̶̶̵̫̋̋̅̅̅ᯣ )", "(ᯣ ̶̵̵̵̶̶̶̶̵̫̋̋̅̅̅ᯣ )", false, 0))
-        default.add(Emoji("[h][/h]", "[h][/h]", false, 0))
+        default.add(Emoji("隐藏符", "[h][/h]", false, 0))
         default.add(Emoji("(ﾉ)`ω´(ヾ)", "(ﾉ)`ω´(ヾ)", false, 0))
         default.add(Emoji("( ´◔ ‸◔`)", "( ´◔ ‸◔`)", false, 0))
         default.add(Emoji("( ﾟᯅ 。)", "( ﾟᯅ 。)", false, 0))

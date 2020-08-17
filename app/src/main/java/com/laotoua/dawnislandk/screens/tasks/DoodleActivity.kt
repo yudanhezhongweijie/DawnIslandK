@@ -293,7 +293,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
     private fun saveDoodle() {
         if (mExitWaitingDialog == null) {
             mExitWaitingDialog = MaterialDialog(this).apply {
-                customView(R.layout.dialog_progress)
+                customView(R.layout.widget_loading)
                 cancelable(false)
                 title(R.string.saving_image)
             }

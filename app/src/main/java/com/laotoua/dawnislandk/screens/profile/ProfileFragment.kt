@@ -137,7 +137,7 @@ class ProfileFragment : DaggerFragment() {
         val loadingDialog by lazyOnMainOnly {
             MaterialDialog(requireContext()).apply {
                 title(R.string.processing)
-                customView(R.layout.dialog_progress)
+                customView(R.layout.widget_loading)
                 cancelOnTouchOutside(false)
             }
         }

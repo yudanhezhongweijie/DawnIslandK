@@ -156,8 +156,7 @@
             app:iconGravity="textStart"
             app:layout_constraintBottom_toTopOf="@+id/ButtonGroupContainer"
             app:layout_constraintEnd_toEndOf="@+id/postContent"
-            app:layout_constraintStart_toEndOf="@+id/postForum"
-            app:strokeWidth="0dp" />
+            app:layout_constraintStart_toEndOf="@+id/postForum" />
 
         <HorizontalScrollView
             android:id="@+id/ButtonGroupContainer"

@@ -46,13 +46,13 @@ import com.google.android.material.textfield.TextInputLayout
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Cookie
+import com.laotoua.dawnislandk.data.local.entity.Emoji
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout
 import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.ImageUtil
 import com.laotoua.dawnislandk.util.IntentUtil
-import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BasePopupView
 import com.lxj.xpopup.core.BottomPopupView
@@ -80,8 +80,6 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
     private var targetPage = 1
     private var targetFid = ""
 
-    private var cookies = listOf<Cookie>()
-
     private var selectedCookie: Cookie? = null
     private var postCookie: Button? = null
     private var postForum: Button? = null
@@ -91,15 +89,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
     private var attachmentContainer: ConstraintLayout? = null
     private var buttonToggleGroup: MaterialButtonToggleGroup? = null
     private var emojiContainer: RecyclerView? = null
-    private val emojiAdapter by lazyOnMainOnly { QuickAdapter<String>(R.layout.grid_item_emoji) }
     private var luweiStickerContainer: ConstraintLayout? = null
-    private val stickersWhite by lazyOnMainOnly {
-        resources.getStringArray(R.array.LuweiStickersWhite).toMutableList()
-    }
-    private val stickersColor by lazyOnMainOnly {
-        resources.getStringArray(R.array.LuweiStickersColor).toMutableList()
-    }
-    private val luweiStickerAdapter by lazyOnMainOnly { QuickAdapter<String>(R.layout.grid_item_luwei_sticker) }
     private var postContent: TextInputLayout? = null
     private var postImagePreview: ImageView? = null
 
@@ -127,13 +117,12 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
     }
 
     private fun updateCookies() {
-        cookies = applicationDataStore.cookies
-        if (selectedCookie == null || cookies.isNullOrEmpty()) {
+        if (selectedCookie == null || applicationDataStore.cookies.isNullOrEmpty()) {
             findViewById<Button>(R.id.postCookie)?.run {
-                text = if (cookies.isNullOrEmpty()) {
+                text = if (applicationDataStore.cookies.isNullOrEmpty()) {
                     context.getString(R.string.missing_cookie)
                 } else {
-                    selectedCookie = cookies[0]
+                    selectedCookie = applicationDataStore.cookies[0]
                     selectedCookie!!.cookieName
                 }
             }
@@ -203,29 +192,38 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
             setOnClickListener { view -> KeyboardUtils.showSoftInput(view) }
         }
 
+        val emojiAdapter = QuickAdapter<Emoji>(R.layout.grid_item_emoji).apply {
+            setOnItemClickListener { _, _, position ->
+                postContent?.editText?.text?.insert(
+                    postContent!!.editText!!.selectionStart,
+                    data[position].value
+                )
+                sharedVM.setLastUsedEmoji(data[position])
+            }
+        }
+
+        val luweiStickerAdapter = QuickAdapter<String>(R.layout.grid_item_luwei_sticker)
+
         toggleContainers = findViewById<ConstraintLayout>(R.id.toggleContainers).also {
             expansionContainer = findViewById(R.id.expansionContainer)
             keyboardHolder = findViewById(R.id.keyboardHolder)
             emojiContainer = findViewById(R.id.emojiContainer)
             emojiContainer!!.layoutManager = GridLayoutManager(context, 3)
-            emojiContainer!!.adapter = emojiAdapter.also { adapter ->
-                adapter.setOnItemClickListener { _, view, _ ->
-                    postContent?.editText?.text?.insert(
-                        postContent!!.editText!!.selectionStart,
-                        ((view as TextView).text)
-                    )
-                }
-                adapter.setDiffNewData(resources.getStringArray(R.array.emoji).toMutableList())
-            }
+
+            emojiContainer!!.adapter = emojiAdapter
 
             // add luweiSticker
             luweiStickerContainer = findViewById(R.id.luweiStickerContainer)
             luweiStickerContainer.apply {
                 findViewById<MaterialButtonToggleGroup>(R.id.luweiStickerToggle).addOnButtonCheckedListener { _, checkedId, isChecked ->
                     if (checkedId == R.id.luweiStickerWhite && isChecked) {
-                        luweiStickerAdapter.setDiffNewData(stickersWhite)
+                        luweiStickerAdapter.setDiffNewData(
+                            resources.getStringArray(R.array.LuweiStickersWhite).toMutableList()
+                        )
                     } else if (checkedId == R.id.luweiStickerColor && isChecked) {
-                        luweiStickerAdapter.setDiffNewData(stickersColor)
+                        luweiStickerAdapter.setDiffNewData(
+                            resources.getStringArray(R.array.LuweiStickersColor).toMutableList()
+                        )
                     }
                 }
 
@@ -333,6 +331,13 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
                     R.id.postFace -> {
                         if (isChecked) {
                             KeyboardUtils.hideSoftInput(postContent!!)
+                            if (emojiAdapter.data.isNullOrEmpty()) {
+                                caller.lifecycleScope.launch {
+                                    emojiAdapter.setDiffNewData(
+                                        sharedVM.getAllEmoji().toMutableList()
+                                    )
+                                }
+                            }
                         }
                         emojiContainer!!.visibility = if (isChecked) View.VISIBLE else View.GONE
 
@@ -373,12 +378,12 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
 
         postCookie = findViewById<Button>(R.id.postCookie).apply {
             setOnClickListener {
-                if (!cookies.isNullOrEmpty()) {
+                if (!applicationDataStore.cookies.isNullOrEmpty()) {
                     KeyboardUtils.hideSoftInput(postContent!!)
                     MaterialDialog(context).show {
                         title(R.string.select_cookie)
-                        listItemsSingleChoice(items = cookies.map { c -> c.cookieDisplayName }) { _, ind, text ->
-                            selectedCookie = cookies[ind]
+                        listItemsSingleChoice(items = applicationDataStore.cookies.map { c -> c.cookieDisplayName }) { _, ind, text ->
+                            selectedCookie = applicationDataStore.cookies[ind]
                             postCookie!!.text = text
                         }
                     }
@@ -462,7 +467,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
         }
         val compressDialog = MaterialDialog(context).show {
             title(R.string.compressing_oversize_image)
-            customView(R.layout.dialog_progress)
+            customView(R.layout.widget_loading)
             cancelable(false)
         }
         compressDialog.show()
@@ -553,7 +558,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
 
         val postProgressDialog = MaterialDialog(context).show {
             title(R.string.sending)
-            customView(R.layout.dialog_progress)
+            customView(R.layout.widget_loading)
             cancelable(false)
         }
         Timber.i("Posting...")
@@ -581,7 +586,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
                             content
                         )
                         clearEntries()
-                        selectedCookie?.let { applicationDataStore.setLastUsedCookie(it)}
+                        selectedCookie?.let { applicationDataStore.setLastUsedCookie(it) }
                     }
                 }
                 Toast.makeText(caller, message, Toast.LENGTH_LONG).show()

@@ -111,7 +111,7 @@ class AboutFragment : DaggerFragment() {
                 if (activity == null || !isAdded) return@setOnClickListener
                 val waitingDialog = MaterialDialog(requireContext()).show {
                     title(R.string.processing)
-                    customView(R.layout.dialog_progress)
+                    customView(R.layout.widget_loading)
                     cancelOnTouchOutside(false)
                 }
                 lifecycleScope.launch {

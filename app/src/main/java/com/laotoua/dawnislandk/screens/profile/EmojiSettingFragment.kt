@@ -138,10 +138,9 @@ class EmojiSettingFragment : DaggerFragment() {
                             val remarkText = remark.text.toString()
                             val contentText = content.text.toString()
                             if (remarkText.isNotBlank() && contentText.isNotBlank()) {
-                                emojiAdapter?.setData(
-                                    position,
-                                    Emoji(remarkText, contentText, true, Date().time)
-                                )
+                                val emoji = Emoji(remarkText, contentText, true, Date().time)
+                                emoji.id = emojiAdapter?.getItem(position)?.id ?: 0
+                                emojiAdapter?.setData(position, emoji)
                             }
                         }
                         negativeButton(R.string.cancel)

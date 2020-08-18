@@ -105,7 +105,7 @@ interface EmojiDao {
         default.add(Emoji("( ` ・´)", "( ` ・´)", false, 0))
         default.add(Emoji("( ´д`)", "( ´д`)", false, 0))
         default.add(Emoji("( -д-)", "( -д-)", false, 0))
-        default.add(Emoji("(>д&lt;)", "(>д&lt;)", false, 0))
+        default.add(Emoji("(>д<)", "(>д<)", false, 0))
         default.add(Emoji("･ﾟ( ﾉд`ﾟ)", "･ﾟ( ﾉд`ﾟ)", false, 0))
         default.add(Emoji("( TдT)", "( TдT)", false, 0))
         default.add(Emoji("(￣∇￣)", "(￣∇￣)", false, 0))

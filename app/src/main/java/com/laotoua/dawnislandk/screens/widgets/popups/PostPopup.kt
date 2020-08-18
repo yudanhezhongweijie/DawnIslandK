@@ -156,6 +156,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
             })
             .enableDrag(false)
             .moveUpToKeyboard(false)
+            .autoFocusEditText(false)
             .asCustom(this)
             .show()
     }
@@ -164,9 +165,8 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
         return R.layout.popup_post
     }
 
-    override fun onCreate() {
-        super.onCreate()
-
+    override fun onShow() {
+        super.onShow()
         KeyboardUtils.registerSoftInputChangedListener(caller.window, this) { height ->
             if (height > 0) {
                 listOf(emojiContainer, luweiStickerContainer).map {
@@ -183,7 +183,10 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
                 buttonToggleGroup?.uncheck(R.id.postLuwei)
             }
         }
+    }
 
+    override fun onCreate() {
+        super.onCreate()
         postContent = findViewById<TextInputLayout>(R.id.postContent).apply {
             setOnClickListener { view -> KeyboardUtils.showSoftInput(view) }
         }

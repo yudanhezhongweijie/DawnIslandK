@@ -228,7 +228,7 @@ abstract class DawnDatabase : RoomDatabase() {
                 override fun migrate(database: SupportSQLiteDatabase) {
                     try {
                         database.execSQL("CREATE TABLE IF NOT EXISTS `Cookie2` (`cookieHash` TEXT NOT NULL, `cookieName` TEXT NOT NULL, `cookieDisplayName` TEXT NOT NULL, `lastUsedAt` INTEGER NOT NULL, PRIMARY KEY(`cookieHash`))")
-                        database.execSQL("INSERT OR REPLACE INTO `Cookie2` VALUES((SELECT cookieHash FROM Cookie), (SELECT cookieName FROM Cookie), (SELECT cookieDisplayName FROM Cookie), 0)")
+                        database.execSQL("INSERT OR REPLACE INTO `Cookie2` SELECT cookieHash, cookieName, cookieDisplayName, 0 FROM Cookie")
                         database.execSQL("DROP TABLE Cookie")
                         database.execSQL("ALTER TABLE Cookie2 RENAME TO Cookie")
                     } catch (e: Exception) {
@@ -244,6 +244,7 @@ abstract class DawnDatabase : RoomDatabase() {
                     database.execSQL("CREATE TABLE IF NOT EXISTS `Emoji` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `value` TEXT NOT NULL, `userDefined` INTEGER NOT NULL, `lastUsedAt` INTEGER NOT NULL)")
                 }
             }
+
             synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,

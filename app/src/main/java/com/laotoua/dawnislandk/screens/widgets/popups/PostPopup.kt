@@ -154,9 +154,9 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
                     updateView(targetId, newPost, quote)
                 }
             })
+            .autoFocusEditText(false)
             .enableDrag(false)
             .moveUpToKeyboard(false)
-            .autoFocusEditText(false)
             .asCustom(this)
             .show()
     }
@@ -183,6 +183,10 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
                 buttonToggleGroup?.uncheck(R.id.postLuwei)
             }
         }
+        /** On some system, EditText automatically grab focus then the keyboard is show,
+         *  manually hiding the soft input on those systems. will cause a view flash...
+         */
+        KeyboardUtils.hideSoftInput(postContent)
     }
 
     override fun onCreate() {
@@ -201,7 +205,26 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
             }
         }
 
-        val luweiStickerAdapter = QuickAdapter<String>(R.layout.grid_item_luwei_sticker)
+        val luweiStickerAdapter = QuickAdapter<String>(R.layout.grid_item_luwei_sticker).apply {
+            setOnItemClickListener { _, _, pos ->
+                val emojiId = getItem(pos)
+                val resourceId: Int = context.resources.getIdentifier(
+                    "le$emojiId", "drawable",
+                    context.packageName
+                )
+                imageFile = ImageUtil.getFileFromDrawable(caller, emojiId, resourceId)
+                if (imageFile != null) {
+                    postImagePreview!!.setImageResource(resourceId)
+                    attachmentContainer!!.visibility = View.VISIBLE
+                } else {
+                    Toast.makeText(
+                        context,
+                        R.string.cannot_load_image_file,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
 
         toggleContainers = findViewById<ConstraintLayout>(R.id.toggleContainers).also {
             expansionContainer = findViewById(R.id.expansionContainer)
@@ -240,25 +263,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
                 findViewById<RecyclerView>(R.id.luweiStickerRecyclerView).apply {
                     layoutManager = GridLayoutManager(context, 3)
                     adapter = luweiStickerAdapter
-                    luweiStickerAdapter.setOnItemClickListener { _, _, pos ->
-                        val emojiId = luweiStickerAdapter.getItem(pos)
-                        val resourceId: Int = context.resources.getIdentifier(
-                            "le$emojiId", "drawable",
-                            context.packageName
-                        )
-                        imageFile = ImageUtil.getFileFromDrawable(caller, emojiId, resourceId)
-                        if (imageFile != null) {
-                            postImagePreview!!.setImageResource(resourceId)
-                            attachmentContainer!!.visibility = View.VISIBLE
-                        } else {
-                            Toast.makeText(
-                                context,
-                                R.string.cannot_load_image_file,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-
+                    luweiStickerAdapter.removeEmptyView()
                 }
             }
         }

@@ -23,6 +23,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.loadmore.BaseLoadMoreView
 import com.chad.library.adapter.base.module.LoadMoreModule
@@ -82,13 +83,13 @@ class QuickAdapter<T>(
         }
     }
 
-    fun setPo(po: String) {
-        this.po = po
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        setEmptyView(R.layout.view_no_data)
     }
 
-    // only works after adapter has been bind to recyclerview
-    fun setDefaultEmptyView(){
-        setEmptyView(R.layout.view_no_data)
+    fun setPo(po: String) {
+        this.po = po
     }
 
     fun setReferenceClickListener(referenceClickListener: ReferenceSpan.ReferenceClickHandler) {

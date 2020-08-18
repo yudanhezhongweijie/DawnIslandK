@@ -130,8 +130,7 @@ class PostHistoryFragment : BaseNavFragment() {
         viewModel.postHistoryList.observe(viewLifecycleOwner) { list ->
             if (mAdapter == null || binding == null || activity == null || !isAdded) return@observe
             if (list.isEmpty()) {
-                if (!mAdapter!!.hasEmptyView()) mAdapter!!.setDefaultEmptyView()
-                mAdapter!!.setDiffNewData(null)
+                mAdapter?.setList(null)
                 return@observe
             }
             displayList(list)
@@ -198,17 +197,14 @@ class PostHistoryFragment : BaseNavFragment() {
                 }
             }
         }
-        mAdapter!!.setDiffNewData(data)
-
-        if (!mAdapter!!.hasFooterLayout()) {
-            mAdapter!!.setFooterView(
-                layoutInflater.inflate(
-                    R.layout.view_no_more_data,
-                    binding!!.recyclerView,
-                    false
-                )
+        mAdapter?.setDiffNewData(data)
+        mAdapter?.setFooterView(
+            layoutInflater.inflate(
+                R.layout.view_no_more_data,
+                binding!!.recyclerView,
+                false
             )
-        }
+        )
 
         Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} items")
     }
@@ -264,7 +260,10 @@ class PostHistoryFragment : BaseNavFragment() {
                 findNavController().navigate(navAction)
             } else {
                 val navAction =
-                    MainNavDirections.actionGlobalCommentsFragment(data.postTargetId, data.postTargetFid)
+                    MainNavDirections.actionGlobalCommentsFragment(
+                        data.postTargetId,
+                        data.postTargetFid
+                    )
                 navAction.targetPage = data.postTargetPage
                 findNavController().navigate(navAction)
             }
@@ -318,7 +317,7 @@ class PostHistoryFragment : BaseNavFragment() {
     }
 
 
-    class PostHistoryDiffer : DiffUtil.ItemCallback<PostHistory>() {
+    private class PostHistoryDiffer : DiffUtil.ItemCallback<PostHistory>() {
         override fun areItemsTheSame(oldItem: PostHistory, newItem: PostHistory): Boolean {
             return oldItem.id == newItem.id
         }
@@ -328,7 +327,7 @@ class PostHistoryFragment : BaseNavFragment() {
         }
     }
 
-    class SectionHeaderDiffer : DiffUtil.ItemCallback<SectionHeader>() {
+    private class SectionHeaderDiffer : DiffUtil.ItemCallback<SectionHeader>() {
         override fun areItemsTheSame(oldItem: SectionHeader, newItem: SectionHeader): Boolean {
             return oldItem.text == newItem.text
         }
@@ -338,7 +337,7 @@ class PostHistoryFragment : BaseNavFragment() {
         }
     }
 
-    class DateStringDiffer : DiffUtil.ItemCallback<String>() {
+    private class DateStringDiffer : DiffUtil.ItemCallback<String>() {
         override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
             return oldItem == newItem
         }

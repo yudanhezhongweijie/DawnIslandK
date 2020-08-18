@@ -17,6 +17,7 @@
 
 package com.laotoua.dawnislandk.screens.adapters
 
+import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter.base.BaseBinderAdapter
 import com.chad.library.adapter.base.module.LoadMoreModule
 import com.laotoua.dawnislandk.DawnApp
@@ -51,8 +52,8 @@ class QuickMultiBinder(sharedViewModel: SharedViewModel):BaseBinderAdapter(), Lo
         loadMoreModule.loadMoreView = QuickAdapter.DawnLoadMoreView(sharedViewModel)
     }
 
-    // only works after adapter has been bind to recyclerview
-    fun setDefaultEmptyView(){
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
         setEmptyView(R.layout.view_no_data)
     }
 }

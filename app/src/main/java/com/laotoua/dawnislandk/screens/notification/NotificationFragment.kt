@@ -131,7 +131,7 @@ class NotificationFragment : DaggerFragment() {
         return binding!!.root
     }
 
-    class NotificationDiffer : DiffUtil.ItemCallback<NotificationAndPost>() {
+    private class NotificationDiffer : DiffUtil.ItemCallback<NotificationAndPost>() {
         override fun areItemsTheSame(
             oldItem: NotificationAndPost,
             newItem: NotificationAndPost
@@ -264,6 +264,10 @@ class NotificationFragment : DaggerFragment() {
 
         }
 
+        override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+            super.onAttachedToRecyclerView(recyclerView)
+            setEmptyView(R.layout.view_no_data)
+        }
     }
 
 }

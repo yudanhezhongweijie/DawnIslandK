@@ -470,16 +470,22 @@ class CommentsFragment : DaggerFragment() {
         }
 
         viewModel.comments.observe(viewLifecycleOwner) {
-            if (mAdapter == null || it.isEmpty()) return@observe
+            if (mAdapter == null) return@observe
+            if (it.isNullOrEmpty()) {
+                mAdapter?.setList(null)
+                return@observe
+            }
             updateCurrentPage()
             if (requireTitleUpdate) {
                 updateTitle()
                 requireTitleUpdate = false
             }
             if (refreshing) {
-                mAdapter?.setList(it.toMutableList())
                 binding?.srlAndRv?.recyclerView?.scrollToPosition(0)
-            } else mAdapter?.setDiffNewData(it.toMutableList())
+                mAdapter?.setNewInstance(it.toMutableList())
+            } else {
+                mAdapter?.setDiffNewData(it.toMutableList())
+            }
             refreshing = false
             updateCurrentlyAvailableImages(it)
             mAdapter?.setPo(viewModel.po)

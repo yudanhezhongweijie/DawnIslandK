@@ -56,16 +56,19 @@ class TrendsFragment : BaseNavFragment() {
 
     private val trendsObs = Observer<DataResource<DailyTrend>> {
         if (mAdapter == null || binding == null) return@Observer
-        updateHeaderAndFooter(binding!!.srlAndRv.refreshLayout, mAdapter!!, EventPayload(it.status, it.message, null))
+        updateHeaderAndFooter(
+            binding!!.srlAndRv.refreshLayout,
+            mAdapter!!,
+            EventPayload(it.status, it.message, null)
+        )
         if (it.status == LoadingStatus.LOADING) return@Observer
         val list = it.data?.trends
         if (list.isNullOrEmpty()) {
-            if (!mAdapter!!.hasEmptyView()) mAdapter!!.setDefaultEmptyView()
-            mAdapter!!.setDiffNewData(null)
+            mAdapter?.setList(null)
             return@Observer
         }
-        mAdapter!!.setList(list.toMutableList())
-        mAdapter!!.setFooterView(
+        mAdapter?.setDiffNewData(list.toMutableList())
+        mAdapter?.setFooterView(
             layoutInflater.inflate(
                 R.layout.view_no_more_data,
                 binding!!.srlAndRv.recyclerView,
@@ -111,7 +114,6 @@ class TrendsFragment : BaseNavFragment() {
                 layoutManager = LinearLayoutManager(context)
                 adapter = mAdapter
             }
-
         }
 
         viewModel.latestTrends.observe(viewLifecycleOwner, trendsObs)

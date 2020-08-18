@@ -346,8 +346,7 @@ class PostsFragment : BaseNavFragment() {
         viewModel.posts.observe(viewLifecycleOwner) {
             if (mAdapter == null || binding == null || activity == null || !isAdded) return@observe
             if (it.isEmpty()) {
-                if (!mAdapter!!.hasEmptyView()) mAdapter!!.setDefaultEmptyView()
-                mAdapter!!.setDiffNewData(null)
+                mAdapter?.setList(null)
                 return@observe
             }
             // set forum when navigate from website url
@@ -355,9 +354,11 @@ class PostsFragment : BaseNavFragment() {
                 sharedVM.setForumId(it.first().fid)
             }
             if (refreshing) {
-                mAdapter!!.setList(it.toMutableList())
                 binding?.srlAndRv?.recyclerView?.scrollToPosition(0)
-            } else mAdapter!!.setDiffNewData(it.toMutableList())
+                mAdapter?.setNewInstance(it.toMutableList())
+            } else {
+                mAdapter?.setDiffNewData(it.toMutableList())
+            }
             refreshing = false
             Timber.i("${this.javaClass.simpleName} Adapter will have ${it.size} threads")
         }

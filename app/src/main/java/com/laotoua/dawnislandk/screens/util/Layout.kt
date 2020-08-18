@@ -69,7 +69,7 @@ object Layout {
                 mAdapter.loadMoreModule.loadMoreFail()
                 if (mAdapter.data.isNullOrEmpty()) {
                     if (!mAdapter.hasEmptyView()) mAdapter.setEmptyView(R.layout.view_no_data)
-                    mAdapter.setDiffNewData(null)
+                    mAdapter.setList(null)
                 }
                 if (!event.message.isNullOrBlank()) {
                     toast(event.message, Toast.LENGTH_LONG)

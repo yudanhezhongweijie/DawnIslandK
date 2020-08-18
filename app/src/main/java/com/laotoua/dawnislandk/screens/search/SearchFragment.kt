@@ -27,6 +27,7 @@ import androidx.core.text.toSpannable
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
@@ -42,6 +43,7 @@ import com.laotoua.dawnislandk.data.remote.SearchResult
 import com.laotoua.dawnislandk.databinding.FragmentSearchBinding
 import com.laotoua.dawnislandk.screens.adapters.*
 import com.laotoua.dawnislandk.screens.posts.PostCardFactory
+import com.laotoua.dawnislandk.screens.util.Layout
 import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
@@ -77,6 +79,7 @@ class SearchFragment : BaseNavFragment() {
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         pageCounter = menu.findItem(R.id.pageCounter).actionView.findViewById(R.id.text)
+        context?.let { menu.findItem(R.id.search).icon.setTint(Layout.getThemeInverseColor(it)) }
         super.onPrepareOptionsMenu(menu)
     }
 
@@ -132,10 +135,10 @@ class SearchFragment : BaseNavFragment() {
     ): View? {
         if (mAdapter == null) {
             mAdapter = QuickMultiBinder(sharedVM).apply {
-                addItemBinder(SimpleTextBinder())
+                addItemBinder(SimpleTextBinder(), SimpleTextDiffer())
                 addItemBinder(HitBinder().apply {
                     addChildClickViewIds(R.id.attachedImage)
-                })
+                }, HitDiffer())
 
                 loadMoreModule.setOnLoadMoreListener {
                     viewModel.getNextPage()
@@ -185,7 +188,7 @@ class SearchFragment : BaseNavFragment() {
         viewModel.searchResult.observe(viewLifecycleOwner) { list ->
             if (mAdapter == null) return@observe
             if (list.isEmpty()) {
-                mAdapter!!.setDiffNewData(null)
+                mAdapter?.setList(null)
                 hideCurrentPageText()
                 return@observe
             }
@@ -196,9 +199,11 @@ class SearchFragment : BaseNavFragment() {
                 data.addAll(it.hits)
             }
             if (refreshing) {
-                mAdapter!!.setList(data)
                 binding?.srlAndRv?.recyclerView?.scrollToPosition(0)
-            } else mAdapter!!.setDiffNewData(data)
+                mAdapter?.setNewInstance(data)
+            } else {
+                mAdapter?.setDiffNewData(data)
+            }
             refreshing = false
         }
 
@@ -278,6 +283,32 @@ class SearchFragment : BaseNavFragment() {
                     .asCustom(viewerPopup)
                     .show()
             }
+        }
+    }
+
+    private class SimpleTextDiffer : DiffUtil.ItemCallback<String>() {
+        override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
+            return oldItem == newItem
+        }
+
+        override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
+            return true
+        }
+    }
+
+    private class HitDiffer : DiffUtil.ItemCallback<SearchResult.Hit>() {
+        override fun areItemsTheSame(
+            oldItem: SearchResult.Hit,
+            newItem: SearchResult.Hit
+        ): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(
+            oldItem: SearchResult.Hit,
+            newItem: SearchResult.Hit
+        ): Boolean {
+            return true
         }
     }
 }

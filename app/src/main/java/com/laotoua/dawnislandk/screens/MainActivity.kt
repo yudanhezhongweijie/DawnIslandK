@@ -495,6 +495,7 @@ class MainActivity : DaggerAppCompatActivity() {
                 binding.imageView.setImageURI(path)
                 binding.imageView.scaleType = ImageView.ScaleType.CENTER_CROP
             } catch (e: Exception) {
+                binding.imageView.setImageResource(R.drawable.appbar)
                 Toast.makeText(this, R.string.toolbar_customization_error, Toast.LENGTH_SHORT)
                     .show()
             }

@@ -110,7 +110,6 @@ class FeedsFragment : BaseNavFragment() {
                 })
             }
 
-            mAdapter!!.setDefaultEmptyView()
             binding!!.srlAndRv.refreshLayout.apply {
                 setOnRefreshListener(object : RefreshingListenerAdapter() {
                     override fun onRefreshing() {
@@ -164,7 +163,7 @@ class FeedsFragment : BaseNavFragment() {
                 if (viewModel.lastJumpPage > 0) {
                     toast(getString(R.string.no_feed_on_page, viewModel.lastJumpPage))
                 }
-                mAdapter!!.setDiffNewData(null)
+                mAdapter?.setList(null)
                 return@observe
             }
 
@@ -180,9 +179,11 @@ class FeedsFragment : BaseNavFragment() {
                 }
             }
             if (refreshing) {
-                mAdapter!!.setList(data)
                 binding?.srlAndRv?.recyclerView?.scrollToPosition(0)
-            } else mAdapter!!.setDiffNewData(data)
+                mAdapter?.setNewInstance(data)
+            } else {
+                mAdapter?.setDiffNewData(data)
+            }
             refreshing = false
             Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} feeds")
         }

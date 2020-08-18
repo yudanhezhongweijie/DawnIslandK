@@ -24,6 +24,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.datetime.datePicker
@@ -71,10 +72,10 @@ class BrowsingHistoryFragment : BaseNavFragment() {
     ): View? {
         if (mAdapter == null) {
             mAdapter = QuickMultiBinder(sharedVM).apply {
-                addItemBinder(DateStringBinder())
+                addItemBinder(DateStringBinder(), DateStringDiffer())
                 addItemBinder(PostBinder(sharedVM).apply {
                     addChildClickViewIds(R.id.attachedImage)
-                })
+                }, PostDiffer())
             }
         }
         if (binding != null) {
@@ -118,11 +119,11 @@ class BrowsingHistoryFragment : BaseNavFragment() {
                 }
             }
         }
+
         viewModel.browsingHistoryList.observe(viewLifecycleOwner) { list ->
             if (mAdapter == null || binding == null) return@observe
             if (list.isEmpty()) {
-                if (!mAdapter!!.hasEmptyView()) mAdapter?.setDefaultEmptyView()
-                mAdapter!!.setDiffNewData(null)
+                mAdapter?.setList(null)
                 return@observe
             }
             var lastDate: String? = null
@@ -140,8 +141,8 @@ class BrowsingHistoryFragment : BaseNavFragment() {
                     lastDate = dateString
                 }
             }
-            mAdapter!!.setDiffNewData(data)
-            mAdapter!!.setFooterView(
+            mAdapter?.setDiffNewData(data)
+            mAdapter?.setFooterView(
                 layoutInflater.inflate(
                     R.layout.view_no_more_data,
                     binding!!.recyclerView,
@@ -213,6 +214,31 @@ class BrowsingHistoryFragment : BaseNavFragment() {
                     .asCustom(viewerPopup)
                     .show()
             }
+        }
+    }
+
+    private class PostDiffer : DiffUtil.ItemCallback<Post>() {
+        override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean {
+            return oldItem.id == newItem.id && oldItem.fid == newItem.fid
+        }
+
+        override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean {
+            return oldItem.now == newItem.now
+                    && oldItem.sage == newItem.sage
+                    && oldItem.replyCount == newItem.replyCount
+                    && oldItem.content == newItem.content
+                    && oldItem.title == newItem.title
+                    && oldItem.name == newItem.name
+        }
+    }
+
+    private class DateStringDiffer : DiffUtil.ItemCallback<String>() {
+        override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
+            return oldItem == newItem
+        }
+
+        override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
+            return true
         }
     }
 

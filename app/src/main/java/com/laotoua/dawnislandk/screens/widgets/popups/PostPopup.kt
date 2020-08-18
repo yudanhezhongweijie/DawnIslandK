@@ -164,8 +164,8 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
         return R.layout.popup_post
     }
 
-    override fun onShow() {
-        super.onShow()
+    override fun onCreate() {
+        super.onCreate()
 
         KeyboardUtils.registerSoftInputChangedListener(caller.window, this) { height ->
             if (height > 0) {
@@ -183,10 +183,6 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
                 buttonToggleGroup?.uncheck(R.id.postLuwei)
             }
         }
-    }
-
-    override fun onCreate() {
-        super.onCreate()
 
         postContent = findViewById<TextInputLayout>(R.id.postContent).apply {
             setOnClickListener { view -> KeyboardUtils.showSoftInput(view) }

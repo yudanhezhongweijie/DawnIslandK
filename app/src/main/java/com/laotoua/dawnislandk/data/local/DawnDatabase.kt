@@ -226,10 +226,15 @@ abstract class DawnDatabase : RoomDatabase() {
             // adds timestamp to Cookie to order cookie by last used time
             val migrate17To18 = object : Migration(17, 18) {
                 override fun migrate(database: SupportSQLiteDatabase) {
-                    database.execSQL("CREATE TABLE IF NOT EXISTS `Cookie2` (`cookieHash` TEXT NOT NULL, `cookieName` TEXT NOT NULL, `cookieDisplayName` TEXT NOT NULL, `lastUsedAt` INTEGER NOT NULL, PRIMARY KEY(`cookieHash`))")
-                    database.execSQL("INSERT OR REPLACE INTO `Cookie2` VALUES((SELECT cookieHash FROM Cookie), (SELECT cookieName FROM Cookie), (SELECT cookieDisplayName FROM Cookie), 0)")
-                    database.execSQL("DROP TABLE Cookie")
-                    database.execSQL("ALTER TABLE Cookie2 RENAME TO Cookie")
+                    try {
+                        database.execSQL("CREATE TABLE IF NOT EXISTS `Cookie2` (`cookieHash` TEXT NOT NULL, `cookieName` TEXT NOT NULL, `cookieDisplayName` TEXT NOT NULL, `lastUsedAt` INTEGER NOT NULL, PRIMARY KEY(`cookieHash`))")
+                        database.execSQL("INSERT OR REPLACE INTO `Cookie2` VALUES((SELECT cookieHash FROM Cookie), (SELECT cookieName FROM Cookie), (SELECT cookieDisplayName FROM Cookie), 0)")
+                        database.execSQL("DROP TABLE Cookie")
+                        database.execSQL("ALTER TABLE Cookie2 RENAME TO Cookie")
+                    } catch (e: Exception) {
+                        database.execSQL("DROP TABLE Cookie")
+                        database.execSQL("CREATE TABLE IF NOT EXISTS `Cookie` (`cookieHash` TEXT NOT NULL, `cookieName` TEXT NOT NULL, `cookieDisplayName` TEXT NOT NULL, `lastUsedAt` INTEGER NOT NULL, PRIMARY KEY(`cookieHash`))")
+                    }
                 }
             }
 

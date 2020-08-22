@@ -20,6 +20,7 @@ This app uses Retrofit2(& okhttp) for API calls, Dagger2 for Dependency Injectio
 
 [Release Asset](https://github.com/fishballzzz/DawnIslandK/releases/latest) 
 
+# [ChangeLog 更新日志](https://github.com/fishballzzz/DawnIslandK/blob/master/CHANGELOG.md)
 
 # Thanks 鸣谢
 - [Nimingban](https://github.com/seven332/Nimingban)

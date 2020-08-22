@@ -26,22 +26,25 @@ import com.laotoua.dawnislandk.data.local.entity.NotificationAndPost
 interface NotificationDao {
 
     @Query("SELECT * FROM Notification ORDER BY lastUpdatedAt DESC")
-    fun getLiveAllNotifications():LiveData<List<Notification>>
+    fun getLiveAllNotifications(): LiveData<List<Notification>>
 
     @Query("SELECT COUNT(*) FROM Notification WHERE read=0 ORDER BY lastUpdatedAt DESC")
-    fun getLiveUnreadNotificationsCount():LiveData<Int>
+    fun getLiveUnreadNotificationsCount(): LiveData<Int>
 
     @Transaction
     @Query("SELECT * From Notification ORDER BY lastUpdatedAt DESC")
     fun getLiveAllNotificationsAndPosts(): LiveData<List<NotificationAndPost>>
 
     @Query("SELECT * FROM Notification WHERE id=:id LIMIT 1")
-    suspend fun getNotificationByIdSync(id:String):Notification?
+    suspend fun getNotificationByIdSync(id: String): Notification?
+
+    @Query("UPDATE Notification SET read=1, newReplyCount=0 WHERE id=:id")
+    suspend fun readNotificationByIdSync(id: String)
 
     @Transaction
-    suspend fun insertOrUpdateNotification(notification: Notification){
+    suspend fun insertOrUpdateNotification(notification: Notification) {
         val cache = getNotificationByIdSync(notification.id)
-        if (cache != null){
+        if (cache != null && !cache.read) {
             notification.newReplyCount += cache.newReplyCount
         }
         insertNotification(notification)

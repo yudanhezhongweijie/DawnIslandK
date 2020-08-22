@@ -36,6 +36,7 @@ class NotificationViewModel @Inject constructor(private val notificationDao: Not
     fun readNotification(notification: Notification){
         viewModelScope.launch {
             notification.read = true
+            notification.newReplyCount = 0
             notificationDao.insertNotification(notification)
         }
     }

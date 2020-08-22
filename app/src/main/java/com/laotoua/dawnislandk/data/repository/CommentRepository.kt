@@ -44,7 +44,8 @@ class CommentRepository @Inject constructor(
     private val postDao: PostDao,
     private val readingPageDao: ReadingPageDao,
     private val browsingHistoryDao: BrowsingHistoryDao,
-    private val feedDao: FeedDao
+    private val feedDao: FeedDao,
+    private val notificationDao: NotificationDao
 ) {
 
     /** remember all pages for last 10 posts, using threadId and page as index
@@ -74,6 +75,7 @@ class CommentRepository @Inject constructor(
         if (postMap[id] == null) postMap[id] = postDao.findPostByIdSync(id)
         if (readingPageMap[id] == null) readingPageMap[id] = getReadingPageOnId(id)
         if (browsingHistoryMap[id] == null) browsingHistoryMap[id] = getBrowsingHistoryOnId(id, fid)
+        notificationDao.readNotificationByIdSync(id)
     }
 
     private suspend fun getReadingPageOnId(id: String): ReadingPage {

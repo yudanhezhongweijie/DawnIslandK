@@ -114,13 +114,13 @@ class ForumDrawerPopup(
         findViewById<MaterialButton>(R.id.themeToggle).apply {
             when (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
                 Configuration.UI_MODE_NIGHT_YES -> {
-                    text = "开灯"
+                    text = "光来 (╬ﾟдﾟ)"
                     icon = context.getDrawable(R.drawable.ic_brightness_5_24px)
                     setIconTintResource(R.color.pure_light)
                     nightModeOn = true
                 }
                 Configuration.UI_MODE_NIGHT_NO -> {
-                    text = "关灯"
+                    text = "光走 (;´Д`)"
                     icon = context.getDrawable(R.drawable.ic_brightness_2_24px)
                     setIconTintResource(R.color.pure_dark)
                     nightModeOn = false

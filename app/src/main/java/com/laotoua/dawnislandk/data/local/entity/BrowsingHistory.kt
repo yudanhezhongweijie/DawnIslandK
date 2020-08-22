@@ -24,6 +24,6 @@ data class BrowsingHistory(
     val browsedDate: Long, // timestamp indicates date
     var browsedTime: Long, // timestamp indicates HH:mm:ss since above date
     val postId: String,
-    var postFid: String, // number of pages read
-    var pages: MutableSet<Int>
+    var postFid: String,
+    var pages: MutableSet<Int> // number of pages read
 )

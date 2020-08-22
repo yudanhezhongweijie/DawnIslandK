@@ -223,12 +223,7 @@ class BrowsingHistoryFragment : BaseNavFragment() {
         }
 
         override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean {
-            return oldItem.now == newItem.now
-                    && oldItem.sage == newItem.sage
-                    && oldItem.replyCount == newItem.replyCount
-                    && oldItem.content == newItem.content
-                    && oldItem.title == newItem.title
-                    && oldItem.name == newItem.name
+            return true
         }
     }
 

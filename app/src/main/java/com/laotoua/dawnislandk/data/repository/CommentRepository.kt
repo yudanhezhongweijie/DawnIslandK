@@ -28,6 +28,7 @@ import com.laotoua.dawnislandk.data.local.entity.*
 import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.util.*
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -134,14 +135,15 @@ class CommentRepository @Inject constructor(
     fun getCommentsOnPage(
         id: String,
         page: Int,
-        remoteDataOnly: Boolean
+        remoteDataOnly: Boolean,
+        localDataOnly: Boolean
     ): LiveData<DataResource<List<Comment>>> {
         if (commentsMap[id] == null) {
             commentsMap[id] = SparseArray()
         }
         commentsMap[id]!!.let {
             if (it[page] == null || remoteDataOnly) {
-                it.put(page, getLivePage(id, page, remoteDataOnly))
+                it.put(page, getLivePage(id, page, remoteDataOnly, localDataOnly))
             }
             return it[page]
         }
@@ -150,12 +152,19 @@ class CommentRepository @Inject constructor(
     private fun getLivePage(
         id: String,
         page: Int,
-        remoteDataOnly: Boolean
+        remoteDataOnly: Boolean,
+        localDataOnly: Boolean
     ): LiveData<DataResource<List<Comment>>> {
-        return if (remoteDataOnly) {
-            getServerData(id, page)
-        } else {
-            getCombinedData(id, page)
+        return when {
+            localDataOnly -> {
+                getLocalData(id, page, localDataOnly)
+            }
+            remoteDataOnly -> {
+                getServerData(id, page)
+            }
+            else -> {
+                getCombinedData(id, page)
+            }
         }
     }
 
@@ -166,17 +175,44 @@ class CommentRepository @Inject constructor(
         var hasRemote = false
         result.value = DataResource.create()
         result.addSource(cache) {
-            if (!hasRemote && cache.value?.status == LoadingStatus.SUCCESS) result.value = it
+            if ((!hasRemote || remote.value?.status == LoadingStatus.NO_DATA)
+                && cache.value?.status == LoadingStatus.SUCCESS
+            ) {
+                result.value = it
+            }
         }
         result.addSource(remote) {
-            hasRemote = true
-            result.value = it
+            // probably post is deleted on server but I have cache, so show message but keep data
+            if (cache.value?.status == LoadingStatus.SUCCESS && it.status == LoadingStatus.NO_DATA) {
+                result.value =
+                    DataResource.create(cache.value!!.status, cache.value!!.data, it.message)
+            } else {
+                hasRemote = true
+                result.value = it
+            }
         }
         return result
     }
 
-    private fun getLocalData(id: String, page: Int): LiveData<DataResource<List<Comment>>> {
+    /** localDataOnly is true only if post is deleted from server,
+     *  but local cache has data.
+     *  *****************************************************
+     *  Note: local data does not guarantee having all pages in db,
+     *  hence when trying to load a page without actual cache, error is shown
+     */
+    private fun getLocalData(
+        id: String,
+        page: Int,
+        localDataOnly: Boolean = false
+    ): LiveData<DataResource<List<Comment>>> {
         Timber.d("Querying local data for Post $id on $page")
+        if (localDataOnly) {
+            browsingHistoryMap[id]?.let {
+                it.browsedTime = getTimeElapsedToday()
+                it.pages.add(page)
+                GlobalScope.launch { browsingHistoryDao.insertBrowsingHistory(it) }
+            }
+        }
         return getLocalListDataResource(commentDao.findDistinctPageByParentId(id, page))
     }
 

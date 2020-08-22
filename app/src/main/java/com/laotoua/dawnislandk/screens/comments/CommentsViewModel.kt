@@ -47,6 +47,9 @@ class CommentsViewModel @Inject constructor(
 
     val comments = MediatorLiveData<MutableList<Comment>>()
 
+    // use to indicate whether post deleted message should be shown
+    private var postDeleted = false
+
     private val listeningPages = SparseArray<LiveData<DataResource<List<Comment>>>>()
     private val listeningPagesIndices = mutableSetOf<Int>()
 
@@ -111,7 +114,7 @@ class CommentsViewModel @Inject constructor(
     private fun listenToNewPage(page: Int) {
         val hasCache = listeningPages[page] != null
         if (hasCache) comments.removeSource(listeningPages[page])
-        val newPage = commentRepo.getCommentsOnPage(currentPostId, page, hasCache)
+        val newPage = commentRepo.getCommentsOnPage(currentPostId, page, hasCache, postDeleted)
         listeningPages.put(page, newPage)
         listeningPagesIndices.add(page)
         comments.addSource(newPage) {
@@ -122,6 +125,7 @@ class CommentsViewModel @Inject constructor(
 
     private fun combineDataResource(dataResource: DataResource<List<Comment>>, targetPage: Int) {
         var status = dataResource.status
+        var message = dataResource.message
         if (dataResource.status == LoadingStatus.SUCCESS || dataResource.status == LoadingStatus.NO_DATA) {
             // assign fid if missing
             if (currentPostFid.isBlank()) {
@@ -149,7 +153,12 @@ class CommentsViewModel @Inject constructor(
                 mergeList(list, targetPage)
             }
         }
-        setLoadingStatus(status, dataResource.message)
+        if (postDeleted && targetPage >= maxPage - 1) message =
+            "\u8be5\u4e3b\u9898\u4e0d\u5b58\u5728"
+        setLoadingStatus(status, message)
+        if (!postDeleted && status == LoadingStatus.SUCCESS && dataResource.message == "\u8be5\u4e3b\u9898\u4e0d\u5b58\u5728") {
+            postDeleted = true
+        }
     }
 
     private fun mergeList(

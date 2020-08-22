@@ -228,7 +228,7 @@
         android:layout_width="match_parent"
         android:layout_height="1.2dp"
         android:layout_marginTop="4dp"
-        android:background="#E0E0E0"
+        android:background="#A1A1A1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/commentMenu" />
 

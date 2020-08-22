@@ -27,6 +27,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:paddingTop="30dp"
+        android:clickable="false"
+        android:focusable="false"
         android:scaleType="centerCrop"
         app:layout_constraintBottom_toBottomOf="@id/toolbar"
         app:layout_constraintStart_toStartOf="parent"
@@ -34,7 +36,7 @@
         app:srcCompat="@drawable/appbar"
         tools:ignore="ContentDescription" />
 
-    <androidx.appcompat.widget.Toolbar
+    <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -46,7 +48,8 @@
         app:subtitle="adnmb.com"
         app:subtitleTextColor="?android:attr/textColorPrimary"
         app:title="时间线"
-        app:titleTextColor="?android:attr/textColorPrimary" />
+        app:titleTextColor="?android:attr/textColorPrimary"
+        android:paddingBottom="1dp" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/navHostFragment"

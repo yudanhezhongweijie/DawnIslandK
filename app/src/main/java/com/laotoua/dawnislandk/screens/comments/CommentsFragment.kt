@@ -609,7 +609,7 @@ class CommentsFragment : DaggerFragment() {
     private fun updateCurrentPage() {
         if (mAdapter == null || binding == null) return
         val page = getCurrentPage()
-        if (page != currentPage) {
+        if (currentPage != 0 && page != currentPage) {
             viewModel.saveReadingProgress(page)
         }
         val newText = "$page / ${viewModel.maxPage}"

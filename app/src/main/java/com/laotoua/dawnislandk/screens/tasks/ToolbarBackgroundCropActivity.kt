@@ -50,8 +50,11 @@ class ToolbarBackgroundCropActivity : AppCompatActivity() {
                     val options = UCrop.Options()
                     options.setFreeStyleCropEnabled(true)
                     options.setAspectRatioOptions(0, AspectRatio("默认", width, height))
-                    options.setCompressionFormat(Bitmap.CompressFormat.JPEG)
-                    UCrop.of(source, File(this.filesDir, DawnConstants.DEFAULT_TOOLBAR_IMAGE_NAME).toUri())
+                    options.setCompressionFormat(Bitmap.CompressFormat.WEBP)
+                    UCrop.of(
+                        source,
+                        File(this.filesDir, DawnConstants.DEFAULT_TOOLBAR_IMAGE_NAME).toUri()
+                    )
                         .withOptions(options)
                         .start(this)
                 } catch (e: Exception) {

@@ -210,6 +210,7 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
 
 
     private fun setupPlaceholder() {
+        if (placeholderView == null || rect == null) return
         placeholderView!!.visibility = if (isShowPlaceholder) View.VISIBLE else View.INVISIBLE
         if (isShowPlaceholder) {
             if (placeholderColor != -1) {
@@ -231,9 +232,9 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
     private fun showPagerIndicator() {
         if (urls.size > 1) {
             val pos = if (isInfinite) position % urls.size else position
-            tvPagerIndicator!!.text = resources.getString(R.string.count_text, (pos + 1), urls.size)
+            tvPagerIndicator?.text = resources.getString(R.string.count_text, (pos + 1), urls.size)
         }
-        if (isShowSaveBtn && uiShown) saveButton!!.visibility = View.VISIBLE
+        if (isShowSaveBtn && uiShown) saveButton?.visibility = View.VISIBLE
     }
 
     private fun addOrUpdateSnapshot() {

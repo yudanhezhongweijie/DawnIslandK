@@ -133,6 +133,15 @@
             </LinearLayout>
         </ScrollView>
 
+        <View
+            android:id="@+id/view"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:background="@color/pure_dark"
+            app:layout_constraintBottom_toTopOf="@+id/ok"
+            app:layout_constraintEnd_toEndOf="@id/ok"
+            app:layout_constraintStart_toStartOf="@id/ok" />
+
         <ImageButton
             android:id="@+id/ok"
             android:layout_width="48dp"

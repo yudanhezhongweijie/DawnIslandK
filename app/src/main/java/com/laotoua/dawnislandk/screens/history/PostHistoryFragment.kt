@@ -216,15 +216,15 @@ class PostHistoryFragment : BaseNavFragment() {
                 DawnApp.applicationDataStore.getCookieDisplayName(data.cookieName)
                     ?: data.cookieName
             holder.convertUserId(cookieDisplayName, "", cookieDisplayName)
-            holder.convertRefId(context, data.id)
-            holder.convertTitleAndName("", "")
-            holder.convertTimeStamp(data.postDate)
-            holder.convertForumAndReplyCount(
-                "",
-                sharedViewModel.getForumDisplayName(data.postTargetFid)
-            )
-            holder.convertContent(context, data.content)
-            holder.convertImage(data.getImgUrl())
+                .convertRefId(context, data.id)
+                .convertTitleAndName("", "")
+                .convertTimeStamp(data.postDate)
+                .convertForumAndReplyCount(
+                    "",
+                    sharedViewModel.getForumDisplayName(data.postTargetFid)
+                )
+                .convertContent(context, data.content)
+                .convertImage(data.getImgUrl())
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {

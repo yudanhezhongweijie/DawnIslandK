@@ -215,14 +215,14 @@ class FeedsFragment : BaseNavFragment() {
     inner class FeedAndPostBinder : QuickItemBinder<FeedAndPost>() {
         override fun convert(holder: BaseViewHolder, data: FeedAndPost) {
             holder.convertUserId(data.post!!.userid, "0")
-            holder.convertRefId(context, data.post.id)
-            holder.convertTimeStamp(data.post.now)
-            holder.convertTitleAndName(
-                data.post.getSimplifiedTitle(),
-                data.post.getSimplifiedName()
-            )
-            holder.convertImage(data.post.getImgUrl())
-            holder.convertContent(context, data.post.content)
+                .convertRefId(context, data.post.id)
+                .convertTimeStamp(data.post.now)
+                .convertTitleAndName(
+                    data.post.getSimplifiedTitle(),
+                    data.post.getSimplifiedName()
+                )
+                .convertImage(data.post.getImgUrl())
+                .convertContent(context, data.post.content)
         }
 
         override fun getLayoutId(): Int = R.layout.list_item_post

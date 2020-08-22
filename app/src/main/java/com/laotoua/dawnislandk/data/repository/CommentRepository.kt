@@ -254,7 +254,7 @@ class CommentRepository @Inject constructor(
         Timber.d("Adding Feed $id")
         val cachedFeed = feedDao.findFeedByPostId(id)
         if (cachedFeed != null) {
-            return SingleLiveEvent.create("已经订阅过了哦")
+            return SingleLiveEvent.create("已经订阅过了哦\n取消订阅请长按按钮")
         }
 
         return webService.addFeed(DawnApp.applicationDataStore.getFeedId(), id).run {

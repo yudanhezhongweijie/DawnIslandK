@@ -38,20 +38,26 @@ import com.laotoua.dawnislandk.screens.widgets.spans.RoundBackgroundColorSpan
 import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.GlideApp
 
-fun BaseViewHolder.convertUserId(userId: String, admin: String, po: String = "") {
+fun BaseViewHolder.convertUserId(userId: String, admin: String, po: String = ""): BaseViewHolder {
     setText(R.id.userId, ContentTransformation.transformCookie(userId, admin, po))
+    return this
 }
 
-fun BaseViewHolder.convertTimeStamp(now: String, isAd: Boolean = false) {
+fun BaseViewHolder.convertTimeStamp(now: String, isAd: Boolean = false): BaseViewHolder {
     setText(R.id.timestamp, ContentTransformation.transformTime(now))
     setGone(R.id.timestamp, isAd)
+    return this
 }
 
-fun BaseViewHolder.convertTimeStamp(now: Long) {
+fun BaseViewHolder.convertTimeStamp(now: Long): BaseViewHolder {
     setText(R.id.timestamp, ContentTransformation.transformTime(now))
+    return this
 }
 
-fun BaseViewHolder.convertForumAndReplyCount(replyCount: String, forumDisplayName: String) {
+fun BaseViewHolder.convertForumAndReplyCount(
+    replyCount: String,
+    forumDisplayName: String
+): BaseViewHolder {
     val suffix = if (replyCount.isNotBlank()) " • $replyCount" else ""
     val spannableString = SpannableString(forumDisplayName + suffix)
     spannableString.setSpan(
@@ -61,11 +67,17 @@ fun BaseViewHolder.convertForumAndReplyCount(replyCount: String, forumDisplayNam
         spannableString,
         TextView.BufferType.SPANNABLE
     )
+    return this
 }
 
-fun BaseViewHolder.convertRefId(context: Context, id: String, isAd: Boolean = false) {
+fun BaseViewHolder.convertRefId(
+    context: Context,
+    id: String,
+    isAd: Boolean = false
+): BaseViewHolder {
     setText(R.id.refId, context.resources.getString(R.string.ref_id_formatted, id))
     setGone(R.id.refId, isAd)
+    return this
 }
 
 fun BaseViewHolder.convertTitleAndName(
@@ -73,7 +85,7 @@ fun BaseViewHolder.convertTitleAndName(
     name: String,
     visible: Boolean = true,
     isAd: Boolean = false
-) {
+): BaseViewHolder {
     if (title.isNotBlank() && visible) {
         val span = SpannableString(title)
         if (isAd) {
@@ -94,14 +106,16 @@ fun BaseViewHolder.convertTitleAndName(
         setText(R.id.name, name)
     }
     setGone(R.id.name, name.isBlank() || !visible)
+    return this
 }
 
-fun BaseViewHolder.convertSage(sage: String?, skipConversion: Boolean = false) {
+fun BaseViewHolder.convertSage(sage: String?, skipConversion: Boolean = false): BaseViewHolder {
     if (sage == "1" && !skipConversion) setVisible(R.id.sage, true)
     else setGone(R.id.sage, true)
+    return this
 }
 
-fun BaseViewHolder.convertImage(imgUrl: String, visible: Boolean = true) {
+fun BaseViewHolder.convertImage(imgUrl: String, visible: Boolean = true): BaseViewHolder {
     if (imgUrl.isNotBlank() && visible) {
         val imageView = getView<ImageView>(R.id.attachedImage)
         GlideApp.with(imageView)
@@ -113,6 +127,7 @@ fun BaseViewHolder.convertImage(imgUrl: String, visible: Boolean = true) {
     } else {
         setGone(R.id.attachedImage, true)
     }
+    return this
 }
 
 fun BaseViewHolder.convertContent(
@@ -120,7 +135,7 @@ fun BaseViewHolder.convertContent(
     content: String,
     referenceClickListener: ReferenceSpan.ReferenceClickHandler? = null,
     visible: Boolean = true
-) {
+): BaseViewHolder {
     val res = ContentTransformation.transformContent(
         context = context,
         content = content,
@@ -128,9 +143,10 @@ fun BaseViewHolder.convertContent(
     )
     if (res.isNotBlank()) setText(R.id.content, res)
     setGone(R.id.content, res.isBlank() || !visible)
+    return this
 }
 
-fun BaseViewHolder.convertExpandSummary(context: Context, visible: Boolean) {
+fun BaseViewHolder.convertExpandSummary(context: Context, visible: Boolean): BaseViewHolder {
     if (!visible) {
         setText(
             R.id.expandSummary,
@@ -141,6 +157,7 @@ fun BaseViewHolder.convertExpandSummary(context: Context, visible: Boolean) {
         )
     }
     setGone(R.id.expandSummary, visible)
+    return this
 }
 
 fun View.applyTextSizeAndLetterSpacing(clickable: Boolean = false) = apply {

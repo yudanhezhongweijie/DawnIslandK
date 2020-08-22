@@ -245,10 +245,10 @@ class SearchFragment : BaseNavFragment() {
     inner class HitBinder : QuickItemBinder<SearchResult.Hit>() {
         override fun convert(holder: BaseViewHolder, data: SearchResult.Hit) {
             holder.convertUserId(data.userid, "0")
-            holder.convertRefId(context, data.id)
-            holder.convertTimeStamp(data.now)
-            holder.convertImage(data.getImgUrl())
-            holder.convertContent(context, data.content)
+                .convertRefId(context, data.id)
+                .convertTimeStamp(data.now)
+                .convertImage(data.getImgUrl())
+                .convertContent(context, data.content)
         }
 
         override fun getLayoutId(): Int = R.layout.list_item_post

@@ -121,7 +121,7 @@ class QuotePopup(
 
         // load image
         findViewById<ImageView>(R.id.attachedImage).run {
-            visibility = if (quote.img != "") {
+            visibility = if (quote.img.isNotBlank()) {
                 GlideApp.with(context)
                     .load(DawnConstants.thumbCDN + quote.img + quote.ext)
 //                    .override(250, 250)
@@ -149,11 +149,7 @@ class QuotePopup(
         }
 
         findViewById<TextView>(R.id.content).run {
-            /** when TextView is scrolled, resetting text does not reset scroll position
-             *  WITHOUT scroll reset, text is not shown
-             */
             maxLines = 15
-            scrollY = 0
             movementMethod = LinkMovementMethod.getInstance()
             text = transformContent(
                 context,

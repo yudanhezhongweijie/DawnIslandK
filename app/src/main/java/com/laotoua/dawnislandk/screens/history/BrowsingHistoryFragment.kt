@@ -178,16 +178,16 @@ class BrowsingHistoryFragment : BaseNavFragment() {
     inner class PostBinder(private val sharedViewModel: SharedViewModel) : QuickItemBinder<Post>() {
         override fun convert(holder: BaseViewHolder, data: Post) {
             holder.convertUserId(data.userid, data.admin)
-            holder.convertTitleAndName(data.getSimplifiedTitle(), data.getSimplifiedName())
-            holder.convertRefId(context, data.id)
-            holder.convertTimeStamp(data.now)
-            holder.convertForumAndReplyCount(
-                data.replyCount,
-                sharedViewModel.getForumDisplayName(data.fid)
-            )
-            holder.convertSage(data.sage, data.isStickyTopBanner())
-            holder.convertImage(data.getImgUrl())
-            holder.convertContent(context, data.content)
+                .convertTitleAndName(data.getSimplifiedTitle(), data.getSimplifiedName())
+                .convertRefId(context, data.id)
+                .convertTimeStamp(data.now)
+                .convertForumAndReplyCount(
+                    data.replyCount,
+                    sharedViewModel.getForumDisplayName(data.fid)
+                )
+                .convertSage(data.sage, data.isStickyTopBanner())
+                .convertImage(data.getImgUrl())
+                .convertContent(context, data.content)
         }
 
         override fun getLayoutId(): Int = R.layout.list_item_post

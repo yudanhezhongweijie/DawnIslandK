@@ -17,7 +17,7 @@
 
 package com.laotoua.dawnislandk.data.repository
 
-import android.util.ArrayMap
+import android.util.SparseArray
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.liveData
@@ -43,10 +43,10 @@ class FeedRepository @Inject constructor(
     private val webService: NMBServiceClient,
     private val feedDao: FeedDao
 ) {
-    private val feedsMap = ArrayMap<Int, LiveData<DataResource<List<FeedAndPost>>>>()
+    private val feedsMap = SparseArray<LiveData<DataResource<List<FeedAndPost>>>>()
 
     fun getLiveFeedPage(page: Int): LiveData<DataResource<List<FeedAndPost>>> {
-        feedsMap[page] = getCombinedFeedPage(page)
+        feedsMap.put(page, getCombinedFeedPage(page))
         return feedsMap[page]!!
     }
 

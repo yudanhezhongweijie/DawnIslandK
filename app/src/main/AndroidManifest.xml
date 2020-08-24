@@ -66,6 +66,10 @@
                 <data android:host="adnmb2.com" />
                 <data android:pathPrefix="/t/" />
                 <data android:scheme="adnmb" android:host="f" android:pathPrefix="/"/>
+                <data
+                    android:scheme="adnmb"
+                    android:host="t"
+                    android:pathPrefix="/" />
             </intent-filter>
 
         </activity>

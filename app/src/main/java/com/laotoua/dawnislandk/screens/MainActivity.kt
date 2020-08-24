@@ -169,20 +169,35 @@ class MainActivity : DaggerAppCompatActivity() {
             val raw = data.toString().substringAfterLast("/")
             if (raw.isNotBlank()) {
                 val id = if (raw.contains("?")) raw.substringBefore("?") else raw
-                if (count == 1) {
-                    sharedVM.setForumId(id)
-                } else if (count == 2) {
-                    if (path[1] == 't') {
-                        val navAction = MainNavDirections.actionGlobalCommentsFragment(id, "")
-                        val navHostFragment =
-                            supportFragmentManager.findFragmentById(R.id.navHostFragment)
-                        if (navHostFragment is NavHostFragment) {
-                            navHostFragment.navController.navigate(navAction)
-                        }
-                    } else if (path[1] == 'f') {
-                        val fid = sharedVM.getForumIdByName(URLDecoder.decode(id, "UTF-8"))
-                        sharedVM.setForumId(fid)
+                if ((count == 1 && data.host == "t")
+                    || (count == 2 && path[1] == 't')
+                ) {
+                    val navAction = MainNavDirections.actionGlobalCommentsFragment(id, "")
+                    val navHostFragment =
+                        supportFragmentManager.findFragmentById(R.id.navHostFragment)
+                    if (navHostFragment is NavHostFragment) {
+                        navHostFragment.navController.navigate(navAction)
                     }
+
+                } else if ((count == 2 && path[1] == 'f')) {
+                    val navHostFragment =
+                        supportFragmentManager.findFragmentById(R.id.navHostFragment)
+                    if (navHostFragment is NavHostFragment) {
+                        if (navHostFragment.navController.currentDestination?.id != R.id.postsFragment) {
+                            navHostFragment.navController.popBackStack(R.id.postsFragment, false)
+                        }
+                    }
+                    val fid = sharedVM.getForumIdByName(URLDecoder.decode(id, "UTF-8"))
+                    sharedVM.setForumId(fid)
+                } else if (count == 1 && data.host == "f") {
+                    val navHostFragment =
+                        supportFragmentManager.findFragmentById(R.id.navHostFragment)
+                    if (navHostFragment is NavHostFragment) {
+                        if (navHostFragment.navController.currentDestination?.id != R.id.postsFragment) {
+                            navHostFragment.navController.popBackStack(R.id.postsFragment, false)
+                        }
+                    }
+                    sharedVM.setForumId(id)
                 }
             }
         }

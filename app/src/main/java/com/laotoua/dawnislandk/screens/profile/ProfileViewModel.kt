@@ -31,6 +31,7 @@ import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.SingleLiveEvent
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -50,6 +51,8 @@ class ProfileViewModel @Inject constructor(
     private val cookieNameTestPostId = "26165309"
     private val charPool = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890"
     private val randomTestLength = 40
+
+    private var cookieTestMaxPage = 0
 
 
     fun updateCookie(cookie: Cookie) {
@@ -102,6 +105,8 @@ class ProfileViewModel @Inject constructor(
             _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.ERROR, message))
             return ""
         }
+        delay(2000L)
+        cookieTestMaxPage = 0
         return findNameInComments(cookieHash, randomString, targetPage, false)
     }
 
@@ -137,7 +142,7 @@ class ProfileViewModel @Inject constructor(
         targetPage: Int,
         targetPageUpperBound: Boolean
     ): String {
-        if (targetPage < 1) {
+        if (targetPage < cookieTestMaxPage - 5 && cookieTestMaxPage > 0) {
             _loadingStatus.postValue(
                 SingleLiveEvent.create(
                     LoadingStatus.ERROR,
@@ -146,9 +151,14 @@ class ProfileViewModel @Inject constructor(
             )
             return ""
         }
-        return webNMBServiceClient.getComments(cookieNameTestPostId, targetPage).run {
+        return webNMBServiceClient.getComments(
+            cookieNameTestPostId,
+            targetPage,
+            "userhash=$cookieHash"
+        ).run {
             if (this is APIDataResponse.Success) {
                 val maxPage = data!!.getMaxPage()
+                if (cookieTestMaxPage == 0) cookieTestMaxPage = maxPage
                 if (targetPage != maxPage && !targetPageUpperBound) {
                     findNameInComments(cookieHash, randomString, maxPage, true)
                 } else {

@@ -22,12 +22,9 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
-import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
-import android.widget.SeekBar
-import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.ColorUtils
@@ -37,6 +34,7 @@ import com.afollestad.materialdialogs.WhichButton
 import com.afollestad.materialdialogs.actions.getActionButton
 import com.afollestad.materialdialogs.color.colorChooser
 import com.afollestad.materialdialogs.customview.customView
+import com.google.android.material.slider.Slider
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.ActivityDoodleBinding
 import com.laotoua.dawnislandk.screens.util.Layout
@@ -185,7 +183,10 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
         if (mShowSide) {
             mShowSide = false
             mSideAnimator.cancel()
-            mSideAnimator.setFloatValues(binding.sideMenu.translationX, -binding.sideMenu.width.toFloat())
+            mSideAnimator.setFloatValues(
+                binding.sideMenu.translationX,
+                -binding.sideMenu.width.toFloat()
+            )
             mSideAnimator.start()
         }
     }
@@ -258,31 +259,9 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
             previewView.setColor(binding.doodleView.paintColor)
             previewView.setThickness(thickness)
 
-            val thicknessTextView = findViewById<TextView>(R.id.thickness)
-            thicknessTextView.text =
-                (Layout.pix2dp(context, thickness).toInt() + 1).toString()
-            thicknessTextView.typeface = Typeface.DEFAULT_BOLD
-
-            findViewById<SeekBar>(R.id.thicknessSlider).apply {
-                progress = Layout.pix2dp(context, thickness).toInt()
-                setOnSeekBarChangeListener(object :
-                    SeekBar.OnSeekBarChangeListener {
-                    override fun onProgressChanged(
-                        seekBar: SeekBar?,
-                        progress: Int,
-                        fromUser: Boolean
-                    ) {
-                        thickness = Layout.dp2pix(context, progress.toFloat())
-                        previewView.setThickness(thickness)
-                        thicknessTextView.text = (progress + 1).toString()
-                    }
-
-                    override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                    }
-
-                    override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                    }
-                })
+            findViewById<Slider>(R.id.thicknessSlider).addOnChangeListener { _, value, _ ->
+                thickness = Layout.dp2pix(context, value)
+                previewView.setThickness(thickness)
             }
             positiveButton(R.string.submit) {
                 binding.doodleView.paintThickness = thickness

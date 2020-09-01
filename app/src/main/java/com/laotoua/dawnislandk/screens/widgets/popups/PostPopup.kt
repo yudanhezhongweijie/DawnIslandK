@@ -414,8 +414,8 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
 
         findViewById<Button>(R.id.postImageDelete).setOnClickListener {
             imageFile = null
-            postImagePreview!!.setImageResource(android.R.color.transparent)
-            attachmentContainer!!.visibility = View.GONE
+            postImagePreview?.setImageDrawable(null)
+            attachmentContainer?.visibility = View.GONE
         }
 
         findViewById<Button>(R.id.postCamera).setOnClickListener {
@@ -507,8 +507,8 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
         findViewById<TextView>(R.id.formEmail).text = ""
         findViewById<TextView>(R.id.formTitle).text = ""
         imageFile = null
-        postImagePreview!!.setImageResource(0)
-        attachmentContainer!!.visibility = View.GONE
+        postImagePreview?.setImageDrawable(null)
+        attachmentContainer?.visibility = View.GONE
         findViewById<MaterialButtonToggleGroup>(R.id.toggleButtonGroup).clearChecked()
         findViewById<MaterialButtonToggleGroup>(R.id.luweiStickerToggle).clearChecked()
     }

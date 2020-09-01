@@ -24,51 +24,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
-import android.widget.*
+import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
-import com.google.android.material.card.MaterialCardView
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
+import com.laotoua.dawnislandk.databinding.FragmentSizeCustomizationBinding
 import com.laotoua.dawnislandk.screens.posts.PostCardFactory
 import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.screens.widgets.spans.RoundBackgroundColorSpan
 import com.laotoua.dawnislandk.screens.widgets.spans.SegmentSpacingSpan
 import com.laotoua.dawnislandk.util.DawnConstants
-import kotlinx.android.synthetic.main.list_item_post.view.*
 
 class SizesCustomizationFragment : Fragment() {
-
-    private val mainTextSize = 0
-    private val radius = 1
-    private val elevation = 2
-    private val cardMarginTop = 3
-    private val cardMarginLeft = 4
-    private val cardMarginRight = 5
-    private val contentMarginTop = 6
-    private val contentMarginLeft = 7
-    private val contentMarginRight = 8
-    private val contentMarginBottom = 9
-    private val headBarMarginTop = 10
-    private val letterSpace = 11
-    private val lineHeight = 12
-    private val segGap = 13
 
     private var settingsChanged = false
     private val mmkv = DawnApp.applicationDataStore.mmkv
 
-    private val rootView by lazy { LinearLayout(context) }
-    private val demoCard by lazy {
-        layoutInflater.inflate(
-            R.layout.list_item_post,
-            rootView,
-            false
-        ) as MaterialCardView
-    }
-    private val demoCardContainer: ConstraintLayout by lazy { demoCard.cardContainer }
-    private var charSequence: CharSequence? = null
-
-    private val progressContainer by lazy { LinearLayout(requireContext()) }
+    private var binding: FragmentSizeCustomizationBinding? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -76,328 +49,255 @@ class SizesCustomizationFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        rootView.setPaddingRelative(10, 10, 10, 10)
-        rootView.orientation = LinearLayout.VERTICAL
-
-        PostCardFactory.applySettings(demoCard)
-
-        demoCard.findViewById<TextView>(R.id.title).apply {
-            visibility = View.VISIBLE
-            text = "标题： 无标题"
-        }
-        demoCard.findViewById<TextView>(R.id.name).apply {
-            visibility = View.VISIBLE
-            text = "名称： 无名氏"
-        }
-
-        demoCard.findViewById<TextView>(R.id.refId).setText(R.string.sample_ref_id)
-        demoCard.findViewById<TextView>(R.id.userId).setText(R.string.sample_user_id)
-        demoCard.findViewById<TextView>(R.id.timestamp).setText(R.string.sample_timestamp_simplified)
-        demoCard.findViewById<ImageView>(R.id.attachedImage).setImageResource(R.mipmap.ic_launcher)
-
-        val threadForumAndReplyCount = SpannableString(requireContext().getString(R.string.sample_forum_and_reply_count))
-        threadForumAndReplyCount.setSpan(
-            RoundBackgroundColorSpan(), 0, threadForumAndReplyCount.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
-
-        demoCard.findViewById<TextView>(R.id.forumAndReplyCount)
-            .setText(threadForumAndReplyCount, TextView.BufferType.SPANNABLE)
-
-        val threadContent = SpannableString(requireContext().getString(R.string.sample_post_content))
-        threadContent.setSpan(
-            SegmentSpacingSpan(
-                PostCardFactory.lineHeight,
-                PostCardFactory.segGap
-            ), 0, threadContent.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE
-        )
-        demoCard.content.apply {
-            setText(threadContent, TextView.BufferType.SPANNABLE)
-            letterSpacing = PostCardFactory.letterSpace
-            textSize = PostCardFactory.mainTextSize
-        }
-        rootView.addView(demoCard)
-
-        progressContainer.orientation = LinearLayout.VERTICAL
-
-        progressContainer.layoutParams = LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-
-        generateSeekBar(radius, requireContext().getString(R.string.radius)).let {
-            it?.findViewWithTag<SeekBar>("SeekBar")?.progress = PostCardFactory.cardRadius.toInt()
-            progressContainer.addView(it)
-        }
-
-        generateSeekBar(elevation, requireContext().getString(R.string.elevation)).let {
-            it?.findViewWithTag<SeekBar>("SeekBar")?.progress =
-                PostCardFactory.cardElevation.toInt()
-            progressContainer.addView(it)
-        }
-
-        generateSeekBar(
-            mainTextSize,
-            requireContext().getString(R.string.main_text_size),
-            20
-        ).let {
-            it?.findViewWithTag<SeekBar>("SeekBar")?.progress =
-                PostCardFactory.mainTextSize.toInt() - 10
-            progressContainer.addView(it)
-        }
-
-        generateSeekBar(lineHeight, requireContext().getString(R.string.line_height), 40).let {
-            it?.findViewWithTag<SeekBar>("SeekBar")?.progress = PostCardFactory.lineHeight
-            progressContainer.addView(it)
-        }
-
-        generateSeekBar(segGap, requireContext().getString(R.string.seg_gap), 40).let {
-            it?.findViewWithTag<SeekBar>("SeekBar")?.progress = PostCardFactory.segGap
-            progressContainer.addView(it)
-        }
-
-        generateSeekBar(letterSpace, requireContext().getString(R.string.letter_space), 40).let {
-            it?.findViewWithTag<SeekBar>("SeekBar")?.progress =
-                (PostCardFactory.letterSpace * 50f).toInt()
-            progressContainer.addView(it)
-        }
-
-        generateSeekBar(cardMarginTop, requireContext().getString(R.string.card_margin_top)).let {
-            it?.findViewWithTag<SeekBar>("SeekBar")?.progress = PostCardFactory.cardMarginTop
-            progressContainer.addView(it)
-        }
-
-        generateSeekBar(
-            cardMarginLeft,
-            requireContext().getString(R.string.card_margin_left)
-        ).let {
-            it?.findViewWithTag<SeekBar>("SeekBar")?.progress = PostCardFactory.cardMarginLeft
-            progressContainer.addView(it)
-        }
-
-        generateSeekBar(
-            cardMarginRight,
-            requireContext().getString(R.string.card_margin_right)
-        ).let {
-            it?.findViewWithTag<SeekBar>("SeekBar")?.progress = PostCardFactory.cardMarginRight
-            progressContainer.addView(it)
-        }
-
-        generateSeekBar(
-            headBarMarginTop,
-            requireContext().getString(R.string.head_bar_margin_top)
-        ).let {
-            it?.findViewWithTag<SeekBar>("SeekBar")?.progress = PostCardFactory.headBarMarginTop
-            progressContainer.addView(it)
-        }
-
-        generateSeekBar(
-            contentMarginTop,
-            requireContext().getString(R.string.content_margin_top)
-        ).let {
-            it?.findViewWithTag<SeekBar>("SeekBar")?.progress = PostCardFactory.contentMarginTop
-            progressContainer.addView(it)
-        }
-
-        generateSeekBar(
-            contentMarginLeft,
-            requireContext().getString(R.string.content_margin_left)
-        ).let {
-            it?.findViewWithTag<SeekBar>("SeekBar")?.progress = PostCardFactory.contentMarginLeft
-            progressContainer.addView(it)
-        }
-
-        generateSeekBar(
-            contentMarginRight,
-            requireContext().getString(R.string.content_margin_right)
-        ).let {
-            it?.findViewWithTag<SeekBar>("SeekBar")?.progress = PostCardFactory.contentMarginRight
-            progressContainer.addView(it)
-        }
-
-        generateSeekBar(
-            contentMarginBottom,
-            requireContext().getString(R.string.content_margin_bottom)
-        ).let {
-            it?.findViewWithTag<SeekBar>("SeekBar")?.progress =
-                PostCardFactory.contentMarginBottom
-            progressContainer.addView(it)
-        }
+        binding = FragmentSizeCustomizationBinding.inflate(inflater, container, false)
 
 
-        val scrollView = ScrollView(context)
-        scrollView.overScrollMode = View.OVER_SCROLL_NEVER
-        progressContainer.setPadding(0, 50, 0, 50)
-        scrollView.addView(progressContainer)
+        binding?.demoCard?.apply {
+            title.visibility = View.VISIBLE
+            title.text = "标题： 无标题"
+            name.visibility = View.VISIBLE
+            name.text = "名称： 无名氏"
+            refId.setText(R.string.sample_ref_id)
+            userId.setText(R.string.sample_user_id)
+            timestamp.setText(R.string.sample_timestamp_simplified)
+            attachedImage.setImageResource(R.mipmap.ic_launcher)
+            val threadForumAndReplyCount =
+                SpannableString(requireContext().getString(R.string.sample_forum_and_reply_count))
+            threadForumAndReplyCount.setSpan(
+                RoundBackgroundColorSpan(),
+                0,
+                threadForumAndReplyCount.length,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            forumAndReplyCount.setText(threadForumAndReplyCount, TextView.BufferType.SPANNABLE)
 
-        rootView.addView(scrollView)
-
-        val wrapper =
-            inflater.inflate(R.layout.fragment_empty_linear, container, false) as LinearLayout
-        wrapper.addView(rootView)
-        return wrapper
-
-    }
-
-
-    private fun generateSeekBar(id: Int, itemName: String, max: Int = 100): LinearLayout? {
-        val layoutParams = LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-
-        val linearLayout = LinearLayout(context)
-        linearLayout.layoutParams = layoutParams
-        linearLayout.setPadding(8, 8, 8, 0)
-        val textView = TextView(context)
-        textView.text = itemName
-        val number = TextView(context)
-        number.tag = "ProgressText"
-        val seekBar = SeekBar(context)
-        seekBar.tag = "SeekBar"
-        seekBar.id = id
-        seekBar.max = max
-        linearLayout.addView(textView)
-        linearLayout.addView(number)
-        linearLayout.addView(seekBar, layoutParams)
-        seekBar.setOnSeekBarChangeListener(CardSettingSeekBar())
-        return linearLayout
-    }
-
-    inner class CardSettingSeekBar :
-        SeekBar.OnSeekBarChangeListener {
-        override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-            if (fromUser) settingsChanged = true
-            var res = progress
-            val cardLayoutParams = demoCard.layoutParams as MarginLayoutParams
-            val contentView: View = demoCard.findViewById(R.id.content)
-            when (seekBar.id) {
-                mainTextSize -> {
-                    res += DawnConstants.MAIN_TEXT_MIN_SIZE
-                    (contentView as TextView).textSize = res.toFloat()
-                    mmkv.putFloat(DawnConstants.MAIN_TEXT_SIZE, res.toFloat())
-                }
-                radius -> {
-                    demoCard.radius = res.toFloat()
-                    mmkv.putFloat(DawnConstants.CARD_RADIUS, res.toFloat())
-                }
-                elevation -> {
-                    demoCard.elevation = res.toFloat()
-                    mmkv.putFloat(DawnConstants.CARD_ELEVATION, res.toFloat())
-                }
-                cardMarginTop -> {
-                    cardLayoutParams.topMargin = res
-                    demoCard.layoutParams = cardLayoutParams
-                    mmkv.putInt(DawnConstants.CARD_MARGIN_TOP, res)
-                }
-                cardMarginLeft -> {
-                    cardLayoutParams.marginStart = res
-                    demoCard.layoutParams = cardLayoutParams
-                    mmkv.putInt(DawnConstants.CARD_MARGIN_LEFT, res)
-
-                }
-                cardMarginRight -> {
-                    cardLayoutParams.marginEnd = res
-                    demoCard.layoutParams = cardLayoutParams
-                    mmkv.putInt(DawnConstants.CARD_MARGIN_RIGHT, res)
-                }
-                headBarMarginTop -> {
-                    demoCardContainer.setPadding(
-                        demoCardContainer.paddingLeft,
-                        res,
-                        demoCardContainer.paddingRight,
-                        demoCardContainer.paddingBottom
-                    )
-
-                    mmkv.putInt(DawnConstants.HEAD_BAR_MARGIN_TOP, res)
-                }
-                contentMarginTop -> {
-                    val contentLayoutParams =
-                        contentView.layoutParams as ConstraintLayout.LayoutParams
-                    contentLayoutParams.topMargin = res
-                    contentView.layoutParams = contentLayoutParams
-                    mmkv.putInt(DawnConstants.CONTENT_MARGIN_TOP, res)
-                }
-                contentMarginLeft -> {
-                    demoCardContainer.setPadding(
-                        res,
-                        demoCardContainer.paddingTop,
-                        demoCardContainer.paddingRight,
-                        demoCardContainer.paddingBottom
-                    )
-                    mmkv.putInt(DawnConstants.CONTENT_MARGIN_LEFT, res)
-                }
-                contentMarginRight -> {
-                    demoCardContainer.setPadding(
-                        demoCardContainer.paddingLeft,
-                        demoCardContainer.paddingTop,
-                        res,
-                        demoCardContainer.paddingBottom
-                    )
-                    mmkv.putInt(DawnConstants.CONTENT_MARGIN_RIGHT, res)
-                }
-                contentMarginBottom -> {
-                    demoCardContainer.setPadding(
-                        demoCardContainer.paddingLeft,
-                        demoCardContainer.paddingTop,
-                        demoCardContainer.paddingRight,
-                        res
-                    )
-                    mmkv.putInt(DawnConstants.CONTENT_MARGIN_BOTTOM, res)
-                }
-                letterSpace -> {
-                    var i = res * 1.0f
-                    i /= 50f
-                    (contentView as TextView).letterSpacing = i
-                    mmkv.putFloat(DawnConstants.LETTER_SPACE, i)
-                }
-                lineHeight -> {
-                    charSequence = (contentView as TextView).text
-                    if (charSequence is SpannableString) {
-
-                        val segmentSpacingSpans: Array<SegmentSpacingSpan> =
-                            (charSequence as SpannableString).getSpans(
-                                0, (charSequence as SpannableString).length,
-                                SegmentSpacingSpan::class.java
-                            )
-                        segmentSpacingSpans[0].setHeight(res)
-                    }
-                    contentView.requestLayout()
-                    mmkv.putInt(DawnConstants.LINE_HEIGHT, res)
-                }
-                segGap -> {
-                    charSequence = (contentView as TextView).text
-                    if (charSequence is SpannableString) {
-                        val segmentSpacingSpans: Array<SegmentSpacingSpan> =
-                            (charSequence as SpannableString).getSpans(
-                                0, (charSequence as SpannableString).length,
-                                SegmentSpacingSpan::class.java
-                            )
-                        segmentSpacingSpans[0].setSegmentGap(res)
-                    }
-                    contentView.requestLayout()
-                    mmkv.putInt(DawnConstants.SEG_GAP, res)
-                }
-                else -> {
-                }
+            val threadContent =
+                SpannableString(requireContext().getString(R.string.sample_post_content))
+            threadContent.setSpan(
+                SegmentSpacingSpan(
+                    PostCardFactory.lineHeight,
+                    PostCardFactory.segGap
+                ), 0, threadContent.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+            )
+            content.apply {
+                setText(threadContent, TextView.BufferType.SPANNABLE)
+                letterSpacing = PostCardFactory.letterSpace
+                textSize = PostCardFactory.mainTextSize
             }
-
-            (seekBar.parent as LinearLayout)
-                .findViewWithTag<TextView>("ProgressText").text = res.toString()
-
         }
 
-        override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
+        binding?.radius?.apply {
+            title.setText(R.string.radius)
+            slider.value = PostCardFactory.cardRadius
+            slider.valueFrom = 0f
+            slider.valueTo = 100f
+            slider.addOnChangeListener { _, value, fromUser ->
+                if (fromUser) settingsChanged = true
+                binding?.demoCard?.card?.radius = value
+                mmkv.putFloat(DawnConstants.CARD_RADIUS, value)
+            }
         }
 
-        override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
+        binding?.elevation?.apply {
+            title.setText(R.string.elevation)
+            slider.value = PostCardFactory.cardElevation
+            slider.valueFrom = 0f
+            slider.valueTo = 100f
+            slider.addOnChangeListener { _, value, fromUser ->
+                if (fromUser) settingsChanged = true
+                binding?.demoCard?.card?.elevation = value
+                mmkv.putFloat(DawnConstants.CARD_ELEVATION, value)
+            }
         }
+
+        binding?.mainTextSize?.apply {
+            title.setText(R.string.main_text_size)
+            slider.value = 10f.coerceAtLeast(PostCardFactory.mainTextSize)
+            slider.valueFrom = 10f
+            slider.valueTo = 25f
+            slider.addOnChangeListener { _, value, fromUser ->
+                if (fromUser) settingsChanged = true
+                binding?.demoCard?.content?.textSize = value
+                mmkv.putFloat(DawnConstants.MAIN_TEXT_SIZE, value)
+            }
+        }
+
+        binding?.lineHeight?.apply {
+            title.setText(R.string.line_height)
+            slider.value = PostCardFactory.lineHeight.toFloat()
+            slider.valueFrom = 0f
+            slider.valueTo = 40f
+            slider.addOnChangeListener { _, value, fromUser ->
+                if (fromUser) settingsChanged = true
+                val cs = binding?.demoCard?.content?.text
+                if (cs is SpannableString) {
+                    val segmentSpacingSpans: Array<SegmentSpacingSpan> =
+                        cs.getSpans(0, cs.length, SegmentSpacingSpan::class.java)
+                    segmentSpacingSpans[0].setHeight(value.toInt())
+                }
+                binding?.demoCard?.content?.requestLayout()
+                mmkv.putInt(DawnConstants.LINE_HEIGHT, value.toInt())
+            }
+        }
+
+        binding?.segGap?.apply {
+            title.setText(R.string.seg_gap)
+            slider.value = PostCardFactory.segGap.toFloat()
+            slider.valueFrom = 0f
+            slider.valueTo = 40f
+            slider.addOnChangeListener { _, value, fromUser ->
+                if (fromUser) settingsChanged = true
+                val cs = binding?.demoCard?.content?.text
+                if (cs is SpannableString) {
+                    val segmentSpacingSpans: Array<SegmentSpacingSpan> =
+                        cs.getSpans(0, cs.length, SegmentSpacingSpan::class.java)
+                    segmentSpacingSpans[0].setSegmentGap(value.toInt())
+                }
+                binding?.demoCard?.content?.requestLayout()
+                mmkv.putInt(DawnConstants.SEG_GAP, value.toInt())
+            }
+        }
+
+        binding?.letterSpace?.apply {
+            title.setText(R.string.letter_space)
+            slider.value = PostCardFactory.letterSpace * 50f
+            slider.valueFrom = 0f
+            slider.valueTo = 40f
+            slider.addOnChangeListener { _, value, fromUser ->
+                if (fromUser) settingsChanged = true
+                binding?.demoCard?.content?.letterSpacing = value / 50f
+                mmkv.putFloat(DawnConstants.LETTER_SPACE, value / 50f)
+            }
+        }
+
+        binding?.cardMarginTop?.apply {
+            title.setText(R.string.card_margin_top)
+            slider.value = PostCardFactory.cardMarginTop.toFloat()
+            slider.valueFrom = 0f
+            slider.valueTo = 100f
+            slider.addOnChangeListener { _, value, fromUser ->
+                if (fromUser) settingsChanged = true
+                val cardLayoutParams = binding?.demoCard?.root?.layoutParams as MarginLayoutParams?
+                cardLayoutParams?.topMargin = value.toInt()
+                binding?.demoCard?.root?.layoutParams = cardLayoutParams
+                mmkv.putInt(DawnConstants.CARD_MARGIN_TOP, value.toInt())
+            }
+        }
+
+        binding?.cardMarginLeft?.apply {
+            title.setText(R.string.card_margin_left)
+            slider.value = PostCardFactory.cardMarginLeft.toFloat()
+            slider.valueFrom = 0f
+            slider.valueTo = 100f
+            slider.addOnChangeListener { _, value, fromUser ->
+                if (fromUser) settingsChanged = true
+                val cardLayoutParams = binding?.demoCard?.root?.layoutParams as MarginLayoutParams?
+                cardLayoutParams?.leftMargin = value.toInt()
+                binding?.demoCard?.root?.layoutParams = cardLayoutParams
+                mmkv.putInt(DawnConstants.CARD_MARGIN_LEFT, value.toInt())
+            }
+        }
+
+        binding?.cardMarginRight?.apply {
+            title.setText(R.string.card_margin_right)
+            slider.value = PostCardFactory.cardMarginRight.toFloat()
+            slider.valueFrom = 0f
+            slider.valueTo = 100f
+            slider.addOnChangeListener { _, value, fromUser ->
+                if (fromUser) settingsChanged = true
+                val cardLayoutParams = binding?.demoCard?.root?.layoutParams as MarginLayoutParams?
+                cardLayoutParams?.rightMargin = value.toInt()
+                binding?.demoCard?.root?.layoutParams = cardLayoutParams
+                mmkv.putInt(DawnConstants.CARD_MARGIN_RIGHT, value.toInt())
+            }
+        }
+
+        binding?.headBarMarginTop?.apply {
+            title.setText(R.string.head_bar_margin_top)
+            slider.value = PostCardFactory.headBarMarginTop.toFloat()
+            slider.valueFrom = 0f
+            slider.valueTo = 100f
+            slider.addOnChangeListener { _, value, fromUser ->
+                if (fromUser) settingsChanged = true
+                binding?.demoCard?.cardContainer?.setPadding(
+                    binding?.demoCard?.cardContainer!!.paddingLeft,
+                    value.toInt(),
+                    binding?.demoCard?.cardContainer!!.paddingRight,
+                    binding?.demoCard?.cardContainer!!.paddingBottom
+                )
+                mmkv.putInt(DawnConstants.HEAD_BAR_MARGIN_TOP, value.toInt())
+            }
+        }
+
+        binding?.contentMarginTop?.apply {
+            title.setText(R.string.content_margin_top)
+            slider.value = PostCardFactory.contentMarginTop.toFloat()
+            slider.valueFrom = 0f
+            slider.valueTo = 100f
+            slider.addOnChangeListener { _, value, fromUser ->
+                if (fromUser) settingsChanged = true
+                val contentLayoutParams =
+                    binding?.demoCard?.content?.layoutParams as ConstraintLayout.LayoutParams?
+                contentLayoutParams?.topMargin = value.toInt()
+                binding?.demoCard?.content?.layoutParams = contentLayoutParams
+                mmkv.putInt(DawnConstants.CONTENT_MARGIN_TOP, value.toInt())
+            }
+        }
+
+        binding?.contentMarginLeft?.apply {
+            title.setText(R.string.content_margin_left)
+            slider.value = PostCardFactory.contentMarginLeft.toFloat()
+            slider.valueFrom = 0f
+            slider.valueTo = 100f
+            slider.addOnChangeListener { _, value, fromUser ->
+                if (fromUser) settingsChanged = true
+                val contentLayoutParams =
+                    binding?.demoCard?.content?.layoutParams as ConstraintLayout.LayoutParams?
+                contentLayoutParams?.leftMargin = value.toInt()
+                binding?.demoCard?.content?.layoutParams = contentLayoutParams
+                mmkv.putInt(DawnConstants.CONTENT_MARGIN_LEFT, value.toInt())
+            }
+        }
+
+        binding?.contentMarginRight?.apply {
+            title.setText(R.string.content_margin_right)
+            slider.value = PostCardFactory.contentMarginRight.toFloat()
+            slider.valueFrom = 0f
+            slider.valueTo = 100f
+            slider.addOnChangeListener { _, value, fromUser ->
+                if (fromUser) settingsChanged = true
+                val contentLayoutParams =
+                    binding?.demoCard?.content?.layoutParams as ConstraintLayout.LayoutParams?
+                contentLayoutParams?.rightMargin = value.toInt()
+                binding?.demoCard?.content?.layoutParams = contentLayoutParams
+                mmkv.putInt(DawnConstants.CONTENT_MARGIN_RIGHT, value.toInt())
+            }
+        }
+
+        binding?.contentMarginBottom?.apply {
+            title.setText(R.string.content_margin_bottom)
+            slider.value = PostCardFactory.contentMarginBottom.toFloat()
+            slider.valueFrom = 0f
+            slider.valueTo = 100f
+            slider.addOnChangeListener { _, value, fromUser ->
+                if (fromUser) settingsChanged = true
+                val contentLayoutParams =
+                    binding?.demoCard?.content?.layoutParams as ConstraintLayout.LayoutParams?
+                contentLayoutParams?.bottomMargin = value.toInt()
+                binding?.demoCard?.content?.layoutParams = contentLayoutParams
+                mmkv.putInt(DawnConstants.CONTENT_MARGIN_BOTTOM, value.toInt())
+            }
+        }
+
+        return binding!!.root
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
         if (settingsChanged) {
             toast(R.string.restart_to_apply_setting)
         }
     }
+
 }

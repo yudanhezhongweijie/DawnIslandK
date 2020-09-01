@@ -64,12 +64,16 @@
                 <data android:host="adnmb.com" />
                 <data android:host="adnmb1.com" />
                 <data android:host="adnmb2.com" />
+                <data android:host="adnmb3.com" />
                 <data android:pathPrefix="/t/" />
-                <data android:scheme="adnmb" android:host="f" android:pathPrefix="/"/>
                 <data
-                    android:scheme="adnmb"
+                    android:host="f"
+                    android:pathPrefix="/"
+                    android:scheme="adnmb" />
+                <data
                     android:host="t"
-                    android:pathPrefix="/" />
+                    android:pathPrefix="/"
+                    android:scheme="adnmb" />
             </intent-filter>
 
         </activity>
@@ -79,7 +83,7 @@
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
     </application>
 
 </manifest>

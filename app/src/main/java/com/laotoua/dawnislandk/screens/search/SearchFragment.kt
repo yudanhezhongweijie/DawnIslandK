@@ -23,6 +23,7 @@ import android.view.*
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.text.isDigitsOnly
 import androidx.core.text.toSpannable
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -31,7 +32,11 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.WhichButton
+import com.afollestad.materialdialogs.actions.setActionButtonEnabled
 import com.afollestad.materialdialogs.customview.customView
+import com.afollestad.materialdialogs.input.getInputField
+import com.afollestad.materialdialogs.input.input
 import com.chad.library.adapter.base.binder.QuickItemBinder
 import com.chad.library.adapter.base.util.getItemView
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
@@ -50,6 +55,7 @@ import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
 import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
 import com.lxj.xpopup.XPopup
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
+import me.dkzwm.widget.srl.config.Constants
 import timber.log.Timber
 import java.util.*
 
@@ -108,8 +114,7 @@ class SearchFragment : BaseNavFragment() {
                         }
 
                         findViewById<Button>(R.id.jumpToPost).setOnClickListener {
-                            val threadId = searchInputText.text
-                                .filter { it.isDigit() }.toString()
+                            val threadId = searchInputText.text.filter { it.isDigit() }.toString()
                             if (threadId.isNotEmpty()) {
                                 dismiss()
                                 viewCaching = DawnApp.applicationDataStore.getViewCaching()
@@ -159,11 +164,13 @@ class SearchFragment : BaseNavFragment() {
 
             binding?.srlAndRv?.recyclerView?.apply {
                 setHasFixedSize(true)
-                layoutManager = LinearLayoutManager(context)
+                val llm = LinearLayoutManager(context)
+                layoutManager = llm
                 adapter = mAdapter
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                         if (activity == null || !isAdded || binding == null || mAdapter == null) return
+
                         val firstVisiblePos =
                             (layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
                         if (firstVisiblePos > 0 && firstVisiblePos < mAdapter!!.data.lastIndex) {
@@ -171,10 +178,55 @@ class SearchFragment : BaseNavFragment() {
                                 updateCurrentPage((mAdapter!!.getItem(firstVisiblePos) as SearchResult.Hit).page)
                             }
                         }
+                        if (dy > 0) {
+                            binding?.jump?.hide()
+                            binding?.jump?.isClickable = false
+                            if (llm.findLastVisibleItemPosition() + 4
+                                >= (mAdapter?.data?.size ?: Int.MAX_VALUE)
+                                && currentPage < viewModel.maxPage
+                                && !binding!!.srlAndRv.refreshLayout.isRefreshing
+                            ) {
+                                mAdapter?.loadMoreModule?.loadMoreToLoading()
+                            }
+                        } else if (dy < 0) {
+                            binding?.jump?.show()
+                            binding?.jump?.isClickable = true
+                        }
                     }
                 })
             }
-            if (viewModel.query.isBlank()) viewModel.search(args.query)
+
+            binding!!.jump.setOnClickListener {
+                MaterialDialog(requireContext()).show {
+                    title(R.string.page_jump)
+                    var page = 0
+                    input(
+                        waitForPositiveButton = false,
+                        hintRes = R.string.please_input_page_number
+                    ) { dialog, text ->
+                        val inputField = getInputField()
+                        page = if (text.isNotBlank() && text.isDigitsOnly()) {
+                            text.toString().toInt()
+                        } else {
+                            0
+                        }
+                        val isValid = page > 0
+                        inputField.error =
+                            if (isValid) null else context.resources.getString(R.string.please_input_page_number)
+                        dialog.setActionButtonEnabled(WhichButton.POSITIVE, isValid)
+                    }
+                    positiveButton(R.string.submit) {
+                        refreshing = true
+                        viewModel.jumpToPage(page)
+                    }
+                    negativeButton(R.string.cancel)
+                }
+            }
+
+            if (viewModel.query.isBlank()) {
+                viewModel.search(args.query)
+                binding?.srlAndRv?.refreshLayout?.autoRefresh(Constants.ACTION_NOTHING, true)
+            }
         }
 
         viewModel.loadingStatus.observe(viewLifecycleOwner) {
@@ -188,6 +240,9 @@ class SearchFragment : BaseNavFragment() {
         viewModel.searchResult.observe(viewLifecycleOwner) { list ->
             if (mAdapter == null) return@observe
             if (list.isEmpty()) {
+                if (viewModel.lastJumpPage > 0) {
+                    toast(getString(R.string.no_data_on_page, viewModel.lastJumpPage))
+                }
                 mAdapter?.setList(null)
                 hideCurrentPageText()
                 return@observe

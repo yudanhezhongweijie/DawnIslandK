@@ -51,6 +51,10 @@ class SearchViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
     private val _searchResult = MutableLiveData<List<SearchResult>>()
     val searchResult: LiveData<List<SearchResult>> get() = _searchResult
 
+    // use to flag jumps to a page without any feed
+    var lastJumpPage = 0
+        private set
+
     fun search(q: String) {
         if (q == query || q.isBlank()) return
         pageResults.clear()
@@ -74,18 +78,33 @@ class SearchViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
         }
     }
 
+    fun jumpToPage(page: Int) {
+        Timber.d("Jumping to Feeds on page $page")
+        pageResults.clear()
+        lastJumpPage = page
+        nextPage = page
+        foundHits = 0
+        maxPage = 0
+        getNextPage()
+    }
+
     private fun combinePagedSearchResults(page: SearchResult) {
+        if (page.page <= pageResults.size) {
+            _loadingStatus.postValue(
+                SingleLiveEvent.create(
+                    LoadingStatus.SUCCESS
+                )
+            )
+            return
+        }
         if (!page.hits.isNullOrEmpty()) {
             pageResults.add(page)
         }
         foundHits += page.hits.size
         if (page.hits.size == 20) nextPage += 1
         if (maxPage == 0) maxPage = ceil(page.queryHits.toDouble() / 20).toInt()
-        _loadingStatus.postValue(
-            SingleLiveEvent.create(
-                LoadingStatus.SUCCESS
-            )
-        )
+        val status = if (page.page == maxPage) LoadingStatus.NO_DATA else LoadingStatus.SUCCESS
+        _loadingStatus.postValue(SingleLiveEvent.create(status))
         _searchResult.value = pageResults
     }
 

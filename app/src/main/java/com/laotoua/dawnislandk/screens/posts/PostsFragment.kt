@@ -236,7 +236,8 @@ class PostsFragment : BaseNavFragment() {
             }
 
             binding!!.srlAndRv.recyclerView.apply {
-                layoutManager = LinearLayoutManager(context)
+                val llm = LinearLayoutManager(context)
+                layoutManager = llm
                 adapter = mAdapter
                 setHasFixedSize(true)
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -246,6 +247,11 @@ class PostsFragment : BaseNavFragment() {
                             hideFabMenu()
                             binding?.fabMenu?.hide()
                             binding?.fabMenu?.isClickable = false
+                            if (llm.findLastVisibleItemPosition() + 4 >= (mAdapter?.data?.size
+                                    ?: Int.MAX_VALUE) && !binding!!.srlAndRv.refreshLayout.isRefreshing
+                            ) {
+                                mAdapter?.loadMoreModule?.loadMoreToLoading()
+                            }
                         } else if (dy < 0) {
                             binding?.fabMenu?.show()
                             binding?.fabMenu?.isClickable = true

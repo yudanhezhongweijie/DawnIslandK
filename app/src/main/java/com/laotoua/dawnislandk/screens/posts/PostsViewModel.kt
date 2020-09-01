@@ -46,6 +46,9 @@ class PostsViewModel @Inject constructor(
     private var _currentFid: String? = null
     val currentFid: String? get() = _currentFid
     private var pageCount = 1
+    private var duplicateCount =
+        0 // allow certain attempts on auto getting next page, afterwards require user interaction
+    private val maxDuplicateCount = 5
 
     private var _loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
     val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>>
@@ -90,6 +93,7 @@ class PostsViewModel @Inject constructor(
             .filterNot { fid == "-1" && (blockedForumIds?.contains(it.fid) ?: false) }
         pageCount += 1
         if (noDuplicates.isNotEmpty()) {
+            duplicateCount = 0
             postIds.addAll(noDuplicates.map { it.id })
             postList.addAll(noDuplicates)
             Timber.d(
@@ -104,7 +108,17 @@ class PostsViewModel @Inject constructor(
             // possible page X+1's data is identical page X's data when server updates too quickly
         } else {
             Timber.d("Last page were all duplicates. Making new request")
-            getPosts()
+            duplicateCount += 1
+            if (duplicateCount < maxDuplicateCount) {
+                getPosts()
+            } else {
+                duplicateCount = 0
+                _loadingStatus.postValue(
+                    SingleLiveEvent.create(
+                        LoadingStatus.NO_DATA, "已经刷新了5页但是依然没有找到新数据。。。"
+                    )
+                )
+            }
         }
     }
 

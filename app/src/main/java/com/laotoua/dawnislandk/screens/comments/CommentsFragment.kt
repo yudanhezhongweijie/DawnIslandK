@@ -308,6 +308,13 @@ class CommentsFragment : DaggerFragment() {
                         if (activity == null || !isAdded || binding == null) return
                         if (dy > 0) {
                             hideMenu()
+                            if (llm.findLastVisibleItemPosition() + 4 >=
+                                (mAdapter?.data?.size ?: Int.MAX_VALUE)
+                                && !binding!!.srlAndRv.refreshLayout.isRefreshing
+                                && currentPage < viewModel.maxPage
+                            ) {
+                                mAdapter?.loadMoreModule?.loadMoreToLoading()
+                            }
                         } else if (dy < 0) {
                             showMenu()
                             if (llm.findFirstVisibleItemPosition() <= 2 && !binding!!.srlAndRv.refreshLayout.isRefreshing) {

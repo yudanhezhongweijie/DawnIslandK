@@ -93,7 +93,8 @@ class FeedsFragment : BaseNavFragment() {
             binding = FragmentSubscriptionFeedBinding.inflate(inflater, container, false)
             binding!!.srlAndRv.recyclerView.apply {
                 setHasFixedSize(true)
-                layoutManager = LinearLayoutManager(context)
+                val llm = LinearLayoutManager(context)
+                layoutManager = llm
                 adapter = mAdapter
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -101,6 +102,11 @@ class FeedsFragment : BaseNavFragment() {
                         if (dy > 0) {
                             binding?.jump?.hide()
                             binding?.jump?.isClickable = false
+                            if (llm.findLastVisibleItemPosition() + 4 >= (mAdapter?.data?.size
+                                    ?: Int.MAX_VALUE) && !binding!!.srlAndRv.refreshLayout.isRefreshing
+                            ) {
+                                mAdapter?.loadMoreModule?.loadMoreToLoading()
+                            }
                         } else if (dy < 0) {
                             binding?.jump?.show()
                             binding?.jump?.isClickable = true
@@ -161,7 +167,7 @@ class FeedsFragment : BaseNavFragment() {
             if (mAdapter == null) return@observe
             if (list.isEmpty()) {
                 if (viewModel.lastJumpPage > 0) {
-                    toast(getString(R.string.no_feed_on_page, viewModel.lastJumpPage))
+                    toast(getString(R.string.no_data_on_page, viewModel.lastJumpPage))
                 }
                 mAdapter?.setList(null)
                 return@observe

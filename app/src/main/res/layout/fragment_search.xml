@@ -23,6 +23,19 @@
     android:background="?android:attr/windowBackground"
     tools:context=".screens.search.SearchFragment">
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/jump"
+        style="@style/Widget.MaterialComponents.FloatingActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="70dp"
+        android:visibility="visible"
+        app:tint="?android:attr/textColorPrimary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/ic_bookmarks_24px" />
+
     <include
         android:id="@+id/srlAndRv"
         layout="@layout/widget_srl_and_rv"

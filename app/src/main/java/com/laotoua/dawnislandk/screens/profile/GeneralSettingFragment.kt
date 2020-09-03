@@ -27,6 +27,7 @@ import com.afollestad.materialdialogs.WhichButton
 import com.afollestad.materialdialogs.actions.getActionButton
 import com.afollestad.materialdialogs.actions.setActionButtonEnabled
 import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
+import com.afollestad.materialdialogs.input.getInputField
 import com.afollestad.materialdialogs.input.input
 import com.afollestad.materialdialogs.list.listItems
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
@@ -37,13 +38,13 @@ import com.laotoua.dawnislandk.screens.util.Layout.updateSwitchSummary
 
 class GeneralSettingFragment : Fragment() {
 
-    private var binding:FragmentGeneralSettingBinding? = null
+    private var binding: FragmentGeneralSettingBinding? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentGeneralSettingBinding.inflate(inflater, container,false)
+        binding = FragmentGeneralSettingBinding.inflate(inflater, container, false)
         binding?.feedId?.apply {
             var feedId = applicationDataStore.getFeedId()
             key.setText(R.string.feedId)
@@ -127,6 +128,35 @@ class GeneralSettingFragment : Fragment() {
                 }
             }
         }
+
+        binding?.setBaseCdn?.apply {
+            key.setText(R.string.set_base_cdn)
+            var baseCDN = applicationDataStore.getBaseCDN()
+            summary.text = baseCDN
+            root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
+                MaterialDialog(requireContext()).show {
+                    title(R.string.set_base_cdn)
+                    message(R.string.set_base_cdn_prompt)
+                    input(
+                        hint = baseCDN,
+                        prefill = baseCDN,
+                        waitForPositiveButton = false
+                    ) { dialog, text ->
+                        val inputField = dialog.getInputField()
+                        val isValid = text.startsWith("https://", true)
+                        inputField.error = if (isValid) null else "必须以https://开始"
+                        dialog.setActionButtonEnabled(WhichButton.POSITIVE, isValid)
+                    }
+                    positiveButton(R.string.submit) {
+                        baseCDN = getInputField().text.toString()
+                        summary.text = baseCDN
+                        applicationDataStore.setBaseCDN(baseCDN)
+                    }
+                    negativeButton(R.string.cancel)
+                }
+            }
+        }
         return binding!!.root
     }
 
@@ -204,7 +234,10 @@ class GeneralSettingFragment : Fragment() {
             preferenceSwitch.isChecked = applicationDataStore.getAutoUpdateFeedDot()
             preferenceSwitch.setOnCheckedChangeListener { _, isChecked ->
                 applicationDataStore.setAutoUpdateFeedDot(isChecked)
-                updateSwitchSummary(R.string.auto_update_feed_dot_on, R.string.auto_update_feed_dot_off)
+                updateSwitchSummary(
+                    R.string.auto_update_feed_dot_on,
+                    R.string.auto_update_feed_dot_off
+                )
             }
             updateSwitchSummary(R.string.auto_update_feed_dot_on, R.string.auto_update_feed_dot_off)
             root.setOnClickListener {

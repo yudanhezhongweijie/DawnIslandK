@@ -27,6 +27,7 @@ import com.tencent.mmkv.MMKVLogLevel
 import com.tencent.mmkv.MMKVRecoverStrategic
 import dagger.android.AndroidInjector
 import dagger.android.DaggerApplication
+import me.jessyan.retrofiturlmanager.RetrofitUrlManager
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -48,6 +49,7 @@ class DawnApp : DaggerApplication() {
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
             FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false)
+            RetrofitUrlManager.getInstance().setDebug(true)
         } else {
             FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)
         }
@@ -59,6 +61,9 @@ class DawnApp : DaggerApplication() {
         MMKV.registerHandler(handler)
         // Time
         ReadableTime.initialize(this)
+
+        // base CDN
+        RetrofitUrlManager.getInstance().putDomain("adnmb", applicationDataStore.getBaseCDN())
     }
 
     private val handler = object : MMKVHandler {

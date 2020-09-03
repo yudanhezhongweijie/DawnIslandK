@@ -57,8 +57,8 @@ android {
         applicationId "com.laotoua.dawnislandk"
         minSdkVersion 23
         targetSdkVersion 29
-        versionCode 35
-        versionName "v1.2.8"
+        versionCode 36
+        versionName "v1.2.9"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -142,6 +142,8 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.8.1'
     implementation 'com.squareup.moshi:moshi-kotlin:1.9.3'
     kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.9.3'
+
+    implementation 'me.jessyan:retrofit-url-manager:1.4.0'
 
     implementation 'org.jsoup:jsoup:1.13.1'
     implementation 'org.apache.commons:commons-text:1.9'

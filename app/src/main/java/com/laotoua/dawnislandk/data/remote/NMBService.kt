@@ -48,24 +48,31 @@ interface NMBService {
         @Header("Host") host: String
     ): Call<ResponseBody>
 
+    @Headers("Domain-Name: adnmb")
     @GET("Api/getForumList")
     fun getNMBForumList(): Call<ResponseBody>
 
+    @Headers("Domain-Name: adnmb")
     @GET("Api/showf")
     fun getNMBPosts(@Query("id") fid: String, @Query("page") page: Int): Call<ResponseBody>
 
+    @Headers("Domain-Name: adnmb")
     @GET("Api/feed")
     fun getNMBFeeds(@Query("uuid") uuid: String, @Query("page") page: Int): Call<ResponseBody>
 
+    @Headers("Domain-Name: adnmb")
     @GET("Api/addFeed")
     fun addNMBFeed(@Query("uuid") uuid: String, @Query("tid") tid: String): Call<ResponseBody>
 
+    @Headers("Domain-Name: adnmb")
     @GET("Api/delFeed")
     fun delNMBFeed(@Query("uuid") uuid: String, @Query("tid") tid: String): Call<ResponseBody>
 
+    @Headers("Domain-Name: adnmb")
     @GET("Api/timeline")
     fun getNMBTimeLine(@Query("page") page: Int): Call<ResponseBody>
 
+    @Headers("Domain-Name: adnmb")
     @GET("Api/thread")
     fun getNMBComments(
         @Header("Cookie") hash: String?,
@@ -73,7 +80,7 @@ interface NMBService {
         @Query("page") page: Int
     ): Call<ResponseBody>
 
-    @GET("https://adnmb2.com/Home/Forum/ref")
+    @GET("Home/Forum/ref")
     fun getNMBQuote(@Query("id") id: String): Call<ResponseBody>
 
     @Multipart

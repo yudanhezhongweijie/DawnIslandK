@@ -31,6 +31,7 @@ import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import me.jessyan.retrofiturlmanager.RetrofitUrlManager
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
@@ -52,7 +53,7 @@ class ApplicationDataStore @Inject constructor(
     val cookies: List<Cookie> get() = mCookies
     val firstCookieHash get() = cookies.firstOrNull()?.getApiHeaderCookieHash()
 
-    fun setLastUsedCookie(cookie: Cookie){
+    fun setLastUsedCookie(cookie: Cookie) {
         if (cookie != cookies.firstOrNull()) {
             mCookies.remove(cookie)
             mCookies.add(0, cookie)
@@ -69,6 +70,20 @@ class ApplicationDataStore @Inject constructor(
         private set
 
     val mmkv: MMKV by lazyOnMainOnly { MMKV.defaultMMKV() }
+
+    private var baseCDN: String? = null
+    fun getBaseCDN(): String {
+        if (baseCDN == null) {
+            baseCDN = mmkv.getString(DawnConstants.DEFAULT_CDN, DawnConstants.nmbHost)
+        }
+        return baseCDN!!
+    }
+
+    fun setBaseCDN(newHost: String) {
+        baseCDN = newHost
+        mmkv.putString(DawnConstants.DEFAULT_CDN, newHost)
+        RetrofitUrlManager.getInstance().putDomain("adnmb", baseCDN)
+    }
 
     private var feedId: String? = null
     fun getFeedId(): String {
@@ -233,26 +248,28 @@ class ApplicationDataStore @Inject constructor(
         mmkv.putBoolean(DawnConstants.VIEW_CACHING, value)
     }
 
-    private var autoUpdateFeed:Boolean? = null
-    fun getAutoUpdateFeed():Boolean {
-        if (autoUpdateFeed == null){
+    private var autoUpdateFeed: Boolean? = null
+    fun getAutoUpdateFeed(): Boolean {
+        if (autoUpdateFeed == null) {
             autoUpdateFeed = mmkv.getBoolean(DawnConstants.AUTO_UPDATE_FEED, false)
         }
         return autoUpdateFeed!!
     }
-    fun setAutoUpdateFeed(value: Boolean){
+
+    fun setAutoUpdateFeed(value: Boolean) {
         autoUpdateFeed = value
         mmkv.putBoolean(DawnConstants.AUTO_UPDATE_FEED, value)
     }
 
-    private var autoUpdateFeedDot:Boolean? = null
-    fun getAutoUpdateFeedDot():Boolean {
-        if (autoUpdateFeedDot == null){
+    private var autoUpdateFeedDot: Boolean? = null
+    fun getAutoUpdateFeedDot(): Boolean {
+        if (autoUpdateFeedDot == null) {
             autoUpdateFeedDot = mmkv.getBoolean(DawnConstants.AUTO_UPDATE_FEED_DOT, true)
         }
         return autoUpdateFeedDot!!
     }
-    fun setAutoUpdateFeedDot(value: Boolean){
+
+    fun setAutoUpdateFeedDot(value: Boolean) {
         autoUpdateFeedDot = value
         mmkv.putBoolean(DawnConstants.AUTO_UPDATE_FEED_DOT, value)
     }

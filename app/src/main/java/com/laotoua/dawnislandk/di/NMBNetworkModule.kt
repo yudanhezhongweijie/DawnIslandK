@@ -22,10 +22,12 @@ import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.util.DawnConstants
 import dagger.Module
 import dagger.Provides
+import me.jessyan.retrofiturlmanager.RetrofitUrlManager
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
+
 
 @Module
 object NMBNetworkModule {
@@ -33,7 +35,7 @@ object NMBNetworkModule {
     @Provides
     @Singleton
     fun provideNMBService(): NMBService {
-        val okHttpClient = OkHttpClient().newBuilder()
+        val okHttpClient = RetrofitUrlManager.getInstance().with(OkHttpClient.Builder())
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)

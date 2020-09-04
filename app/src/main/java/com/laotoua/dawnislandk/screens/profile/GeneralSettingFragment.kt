@@ -157,23 +157,18 @@ class GeneralSettingFragment : Fragment() {
                 }
             }
         }
-        return binding!!.root
-    }
-
-    override fun onResume() {
-        super.onResume()
 
         binding?.viewCaching?.apply {
             key.setText(R.string.view_caching)
             preferenceSwitch.visibility = View.VISIBLE
             preferenceSwitch.isClickable = true
             preferenceSwitch.isChecked = applicationDataStore.getViewCaching()
+            updateSwitchSummary(R.string.view_caching_on, R.string.view_caching_off)
             preferenceSwitch.setOnCheckedChangeListener { _, isChecked ->
                 applicationDataStore.setViewCaching(isChecked)
                 updateSwitchSummary(R.string.view_caching_on, R.string.view_caching_off)
                 toast(R.string.restart_to_apply_setting)
             }
-            updateSwitchSummary(R.string.view_caching_on, R.string.view_caching_off)
             root.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
                 if (!preferenceSwitch.isChecked) {
@@ -200,12 +195,12 @@ class GeneralSettingFragment : Fragment() {
             preferenceSwitch.visibility = View.VISIBLE
             preferenceSwitch.isClickable = true
             preferenceSwitch.isChecked = applicationDataStore.getReadingProgressStatus()
+            updateSwitchSummary(R.string.reading_progress_on, R.string.reading_progress_off)
             preferenceSwitch.setOnCheckedChangeListener { _, isChecked ->
                 applicationDataStore.setReadingProgressStatus(isChecked)
                 updateSwitchSummary(R.string.reading_progress_on, R.string.reading_progress_off)
                 toast(R.string.restart_to_apply_setting)
             }
-            updateSwitchSummary(R.string.reading_progress_on, R.string.reading_progress_off)
             root.setOnClickListener {
                 preferenceSwitch.toggle()
             }
@@ -216,12 +211,12 @@ class GeneralSettingFragment : Fragment() {
             preferenceSwitch.visibility = View.VISIBLE
             preferenceSwitch.isClickable = true
             preferenceSwitch.isChecked = applicationDataStore.getAutoUpdateFeed()
+            updateSwitchSummary(R.string.auto_update_feed_on, R.string.auto_update_feed_off)
             preferenceSwitch.setOnCheckedChangeListener { _, isChecked ->
                 applicationDataStore.setAutoUpdateFeed(isChecked)
                 updateSwitchSummary(R.string.auto_update_feed_on, R.string.auto_update_feed_off)
                 toast(R.string.restart_to_apply_setting)
             }
-            updateSwitchSummary(R.string.auto_update_feed_on, R.string.auto_update_feed_off)
             root.setOnClickListener {
                 preferenceSwitch.toggle()
             }
@@ -232,6 +227,7 @@ class GeneralSettingFragment : Fragment() {
             preferenceSwitch.visibility = View.VISIBLE
             preferenceSwitch.isClickable = true
             preferenceSwitch.isChecked = applicationDataStore.getAutoUpdateFeedDot()
+            updateSwitchSummary(R.string.auto_update_feed_dot_on, R.string.auto_update_feed_dot_off)
             preferenceSwitch.setOnCheckedChangeListener { _, isChecked ->
                 applicationDataStore.setAutoUpdateFeedDot(isChecked)
                 updateSwitchSummary(
@@ -239,11 +235,11 @@ class GeneralSettingFragment : Fragment() {
                     R.string.auto_update_feed_dot_off
                 )
             }
-            updateSwitchSummary(R.string.auto_update_feed_dot_on, R.string.auto_update_feed_dot_off)
             root.setOnClickListener {
                 preferenceSwitch.toggle()
             }
         }
+        return binding!!.root
     }
 
     override fun onDestroyView() {

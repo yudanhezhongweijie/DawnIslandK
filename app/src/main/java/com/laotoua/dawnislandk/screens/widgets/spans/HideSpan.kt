@@ -71,8 +71,8 @@ class HideSpan(val start: Int, val end: Int) : ClickableSpan() {
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
         // Don't hide text if there are clickable spans already
-        if (charSequence.getSpans(start + 3, end - 4, URLSpan::class.java).isEmpty() &&
-            charSequence.getSpans(start + 3, end - 4, ReferenceSpan::class.java).isEmpty()
+        if (charSequence.getSpans(start, end, URLSpan::class.java).isEmpty() &&
+            charSequence.getSpans(start, end, ReferenceSpan::class.java).isEmpty()
         ) {
             hasForegroundColorSpan = true
             charSequence.setSpan(

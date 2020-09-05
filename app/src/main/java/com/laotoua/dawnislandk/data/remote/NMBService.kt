@@ -86,6 +86,7 @@ interface NMBService {
     @GET("Home/Forum/ref")
     fun getNMBQuote(@Query("id") id: String): Call<ResponseBody>
 
+    @Headers("Domain-Name: adnmb")
     @Multipart
     @POST("Home/Forum/doReplyThread.html")
     fun postComment(
@@ -95,6 +96,7 @@ interface NMBService {
         @Part image: MultipartBody.Part?, @Header("Cookie") hash: String
     ): Call<ResponseBody>
 
+    @Headers("Domain-Name: adnmb")
     @Multipart
     @POST("Home/Forum/doPostThread.html")
     fun postNewPost(

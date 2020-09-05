@@ -149,7 +149,10 @@ class CommentsFragment : DaggerFragment() {
                 (binding?.srlAndRv?.recyclerView?.layoutManager as LinearLayoutManager?)?.run {
                     val startPos = findFirstVisibleItemPosition()
                     val itemCount = findLastVisibleItemPosition() - startPos
-                    mAdapter?.notifyItemRangeChanged(startPos, itemCount + initialPrefetchItemCount)
+                    mAdapter?.notifyItemRangeChanged(
+                        startPos + mAdapter!!.headerLayoutCount,
+                        itemCount + initialPrefetchItemCount - mAdapter!!.footerLayoutCount
+                    )
                 }
                 return true
             }

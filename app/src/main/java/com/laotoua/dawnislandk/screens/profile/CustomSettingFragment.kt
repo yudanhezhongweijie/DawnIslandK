@@ -240,11 +240,6 @@ class CustomSettingFragment : DaggerFragment() {
             )
         }
 
-        return binding!!.root
-    }
-
-    override fun onResume() {
-        super.onResume()
         binding?.emojiSetting?.apply {
             preferenceSwitch.visibility = View.VISIBLE
             preferenceSwitch.isClickable = true
@@ -261,6 +256,8 @@ class CustomSettingFragment : DaggerFragment() {
                 )
             }
         }
+
+        return binding!!.root
     }
 
     override fun onDestroyView() {

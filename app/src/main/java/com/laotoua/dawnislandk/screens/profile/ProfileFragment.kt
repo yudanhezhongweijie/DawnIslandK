@@ -18,9 +18,6 @@
 package com.laotoua.dawnislandk.screens.profile
 
 import android.Manifest
-import android.animation.Animator
-import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -38,7 +35,6 @@ import com.afollestad.materialdialogs.actions.getActionButton
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.input.input
 import com.afollestad.materialdialogs.list.listItems
-import com.google.android.material.animation.AnimationUtils
 import com.google.android.material.textfield.TextInputLayout
 import com.king.zxing.util.CodeUtils
 import com.laotoua.dawnislandk.BuildConfig
@@ -92,7 +88,7 @@ class ProfileFragment : DaggerFragment() {
     ): View? {
         binding = FragmentProfileBinding.inflate(inflater, container, false)
 
-        binding!!.profileView.visibility = View.GONE
+//        binding!!.profileView.visibility = View.GONE
         binding!!.generalSettings.apply {
             text.setText(R.string.general_settings)
             icon.rotation = -90f
@@ -232,31 +228,31 @@ class ProfileFragment : DaggerFragment() {
             text = getString(R.string.credit, BuildConfig.VERSION_NAME)
         }
 
-        hideProgressBarAndShowSettings()
+//        hideProgressBarAndShowSettings()
         return binding!!.root
     }
 
-    private fun hideProgressBarAndShowSettings() {
-        if (binding == null) return
-        val progressBarAlphaOutAnim = ObjectAnimator.ofFloat(binding!!.progressBar, "alpha", 0f)
-        val profileViewAlphaInAnim = ObjectAnimator.ofFloat(binding!!.profileView, "alpha", 1f)
-        AnimatorSet().apply {
-            duration = 250
-            addListener(object : Animator.AnimatorListener {
-                override fun onAnimationRepeat(animation: Animator?) {}
-                override fun onAnimationEnd(animation: Animator?) {
-                    binding?.profileView?.visibility = View.VISIBLE
-                    binding?.progressBar?.visibility = View.GONE
-                }
-
-                override fun onAnimationCancel(animation: Animator?) {}
-                override fun onAnimationStart(animation: Animator?) {}
-            })
-            interpolator = AnimationUtils.FAST_OUT_LINEAR_IN_INTERPOLATOR
-            playTogether(progressBarAlphaOutAnim, profileViewAlphaInAnim)
-            start()
-        }
-    }
+//    private fun hideProgressBarAndShowSettings() {
+//        if (binding == null) return
+//        val progressBarAlphaOutAnim = ObjectAnimator.ofFloat(binding!!.progressBar, "alpha", 0f)
+//        val profileViewAlphaInAnim = ObjectAnimator.ofFloat(binding!!.profileView, "alpha", 1f)
+//        AnimatorSet().apply {
+//            duration = 250
+//            addListener(object : Animator.AnimatorListener {
+//                override fun onAnimationRepeat(animation: Animator?) {}
+//                override fun onAnimationEnd(animation: Animator?) {
+//                    binding?.profileView?.visibility = View.VISIBLE
+//                    binding?.progressBar?.visibility = View.GONE
+//                }
+//
+//                override fun onAnimationCancel(animation: Animator?) {}
+//                override fun onAnimationStart(animation: Animator?) {}
+//            })
+//            interpolator = AnimationUtils.FAST_OUT_LINEAR_IN_INTERPOLATOR
+//            playTogether(progressBarAlphaOutAnim, profileViewAlphaInAnim)
+//            start()
+//        }
+//    }
 
     private fun addCookieToLayout(cookie: Cookie) {
         if (binding == null) return

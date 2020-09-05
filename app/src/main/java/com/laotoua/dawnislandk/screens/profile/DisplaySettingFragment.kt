@@ -65,12 +65,6 @@ class DisplaySettingFragment : Fragment() {
             }
         }
 
-        return binding!!.root
-    }
-
-    override fun onResume() {
-        super.onResume()
-
         binding?.layoutCustomization?.apply {
             key.setText(R.string.layout_customization)
             preferenceSwitch.visibility = View.VISIBLE
@@ -87,7 +81,8 @@ class DisplaySettingFragment : Fragment() {
             }
             root.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
-                val action = DisplaySettingFragmentDirections.actionDisplaySettingFragmentToSizeCustomizationFragment()
+                val action =
+                    DisplaySettingFragmentDirections.actionDisplaySettingFragmentToSizeCustomizationFragment()
                 findNavController().navigate(action)
             }
         }
@@ -97,7 +92,10 @@ class DisplaySettingFragment : Fragment() {
             preferenceSwitch.visibility = View.VISIBLE
             preferenceSwitch.isClickable = true
             preferenceSwitch.isChecked = applicationDataStore.getCustomToolbarImageStatus()
-            updateSwitchSummary(R.string.toolbar_customization_on, R.string.toolbar_customization_off)
+            updateSwitchSummary(
+                R.string.toolbar_customization_on,
+                R.string.toolbar_customization_off
+            )
             preferenceSwitch.setOnCheckedChangeListener { _, isChecked ->
                 applicationDataStore.setCustomToolbarImageStatus(isChecked)
                 updateSwitchSummary(
@@ -108,7 +106,7 @@ class DisplaySettingFragment : Fragment() {
             }
             root.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
-                IntentUtil.setToolbarBackgroundImage(requireActivity()){ uri: Uri? ->
+                IntentUtil.setToolbarBackgroundImage(requireActivity()) { uri: Uri? ->
                     if (uri != null) {
                         applicationDataStore.setCustomToolbarImagePath(uri.toString())
                         toast(R.string.restart_to_apply_setting)
@@ -118,6 +116,8 @@ class DisplaySettingFragment : Fragment() {
                 }
             }
         }
+
+        return binding!!.root
     }
 
     override fun onDestroyView() {

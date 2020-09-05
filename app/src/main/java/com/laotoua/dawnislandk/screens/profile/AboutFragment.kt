@@ -144,6 +144,36 @@ class AboutFragment : DaggerFragment() {
             }
         }
 
+        binding!!.changeLog.apply {
+            key.setText(R.string.change_log)
+            root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
+                val waitingDialog = MaterialDialog(requireContext()).show {
+                    title(R.string.processing)
+                    customView(R.layout.widget_loading)
+                    cancelOnTouchOutside(false)
+                }
+                lifecycleScope.launch {
+                    val agreement = webNMBServiceClient.getChangeLog().run {
+                        if (this is APIMessageResponse.Success) {
+                            message
+                        } else {
+                            Timber.d(message)
+                            ""
+                        }
+                    }
+
+                    waitingDialog.dismiss()
+                    if (activity == null || !isAdded) return@launch
+                    MaterialDialog(requireContext()).show {
+                        title(res = R.string.change_log)
+                        message(text = agreement)
+                        positiveButton(R.string.acknowledge)
+                    }
+                }
+            }
+        }
+
         binding!!.credit.apply {
             text = getString(R.string.credit, BuildConfig.VERSION_NAME)
         }

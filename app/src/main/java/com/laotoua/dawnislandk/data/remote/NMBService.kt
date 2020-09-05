@@ -24,6 +24,9 @@ import retrofit2.Call
 import retrofit2.http.*
 
 interface NMBService {
+    @GET("https://raw.githubusercontent.com/fishballzzz/DawnIslandK/master/CHANGELOG.md")
+    fun getChangeLog(): Call<ResponseBody>
+
     @GET("https://raw.githubusercontent.com/fishballzzz/DawnIslandK/master/privacy_policy_CN.html")
     fun getPrivacyAgreement(): Call<ResponseBody>
 

@@ -48,6 +48,10 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
         return APIMessageResponse.create(service.getPrivacyAgreement())
     }
 
+    suspend fun getChangeLog(): APIMessageResponse {
+        return APIMessageResponse.create(service.getChangeLog())
+    }
+
     suspend fun getRandomReedPicture(): APIDataResponse<String> {
         Timber.d("Getting Random Reed Picture...")
         return APIDataResponse.create(

@@ -86,6 +86,7 @@ class CustomSettingFragment : DaggerFragment() {
                 if (activity == null || !isAdded) return@setOnClickListener
                 if (blockedForumIds == null || serverForums == null) {
                     toast(R.string.please_try_again_later)
+                    return@setOnClickListener
                 }
                 val nonTimeline = serverForums!!.filter { f -> f.id != "-1" }
                 val blockingFidIndex = mutableListOf<Int>()
@@ -129,6 +130,7 @@ class CustomSettingFragment : DaggerFragment() {
                 if (activity == null || !isAdded) return@setOnClickListener
                 if (serverForums == null) {
                     toast(R.string.please_try_again_later)
+                    return@setOnClickListener
                 }
                 MaterialDialog(requireContext()).show {
                     title(R.string.default_forum_setting)
@@ -153,11 +155,10 @@ class CustomSettingFragment : DaggerFragment() {
         binding?.defaultSubscriptionPage?.apply {
             key.setText(R.string.edit_subscription_default_page)
             val items = listOf(getString(R.string.trend), getString(R.string.my_feed))
-            val trendIndex = applicationDataStore.getFeedPagerPageIndices().first
-            if (trendIndex == 0) {
-                summary.text = getString(R.string.trend)
+            summary.text = if (applicationDataStore.getFeedPagerPageIndices().first == 0) {
+                getString(R.string.trend)
             } else {
-                summary.text = getString(R.string.my_feed)
+                getString(R.string.my_feed)
             }
             root.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
@@ -182,11 +183,10 @@ class CustomSettingFragment : DaggerFragment() {
             key.setText(R.string.edit_history_default_page)
             val items =
                 listOf(getString(R.string.browsing_history), getString(R.string.post_history))
-            val browsingHistoryIndex = applicationDataStore.getHistoryPagerPageIndices().first
-            if (browsingHistoryIndex == 0) {
-                summary.text = getString(R.string.browsing_history)
+            summary.text = if (applicationDataStore.getHistoryPagerPageIndices().first == 0) {
+                getString(R.string.browsing_history)
             } else {
-                summary.text = getString(R.string.post_history)
+                getString(R.string.post_history)
             }
             root.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
@@ -209,6 +209,20 @@ class CustomSettingFragment : DaggerFragment() {
 
         binding?.emojiSetting?.apply {
             key.setText(R.string.emoji_setting)
+            preferenceSwitch.visibility = View.VISIBLE
+            preferenceSwitch.isClickable = true
+            preferenceSwitch.isChecked = applicationDataStore.getSortEmojiByLastUsedStatus()
+            updateSwitchSummary(
+                R.string.emoji_sort_by_last_used_at_on,
+                R.string.emoji_sort_by_last_used_at_off
+            )
+            preferenceSwitch.setOnCheckedChangeListener { _, isChecked ->
+                applicationDataStore.setSortEmojiByLastUsedStatus(isChecked)
+                updateSwitchSummary(
+                    R.string.emoji_sort_by_last_used_at_on,
+                    R.string.emoji_sort_by_last_used_at_off
+                )
+            }
             root.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
                 val action =
@@ -238,23 +252,6 @@ class CustomSettingFragment : DaggerFragment() {
                 R.string.common_posts_count,
                 it.data?.firstOrNull { c -> c.isCommonPosts() }?.forums?.size ?: 0
             )
-        }
-
-        binding?.emojiSetting?.apply {
-            preferenceSwitch.visibility = View.VISIBLE
-            preferenceSwitch.isClickable = true
-            preferenceSwitch.isChecked = applicationDataStore.getSortEmojiByLastUsedStatus()
-            updateSwitchSummary(
-                R.string.emoji_sort_by_last_used_at_on,
-                R.string.emoji_sort_by_last_used_at_off
-            )
-            preferenceSwitch.setOnCheckedChangeListener { _, isChecked ->
-                applicationDataStore.setSortEmojiByLastUsedStatus(isChecked)
-                updateSwitchSummary(
-                    R.string.emoji_sort_by_last_used_at_on,
-                    R.string.emoji_sort_by_last_used_at_off
-                )
-            }
         }
 
         return binding!!.root

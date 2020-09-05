@@ -158,6 +158,35 @@ class GeneralSettingFragment : Fragment() {
             }
         }
 
+        binding?.setRefCdn?.apply {
+            key.setText(R.string.set_ref_cdn)
+            var refCDN = applicationDataStore.getRefCDN()
+            summary.text = refCDN
+            root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
+                MaterialDialog(requireContext()).show {
+                    title(R.string.set_ref_cdn)
+                    message(R.string.set_ref_cdn_prompt)
+                    input(
+                        hint = refCDN,
+                        prefill = refCDN,
+                        waitForPositiveButton = false
+                    ) { dialog, text ->
+                        val inputField = dialog.getInputField()
+                        val isValid = text.startsWith("https://", true)
+                        inputField.error = if (isValid) null else "必须以https://开始"
+                        dialog.setActionButtonEnabled(WhichButton.POSITIVE, isValid)
+                    }
+                    positiveButton(R.string.submit) {
+                        refCDN = getInputField().text.toString()
+                        summary.text = refCDN
+                        applicationDataStore.setRefCDN(refCDN)
+                    }
+                    negativeButton(R.string.cancel)
+                }
+            }
+        }
+
         binding?.viewCaching?.apply {
             key.setText(R.string.view_caching)
             preferenceSwitch.visibility = View.VISIBLE

@@ -56,6 +56,7 @@ object DawnConstants {
     const val TOOLBAR_IMAGE_PATH = "toolbar_image_path"
     const val DEFAULT_TOOLBAR_IMAGE_NAME = "toolbar_bg.jpeg"
     const val DEFAULT_CDN = "default_cdn"
+    const val REF_CDN = "ref_cdn"
     const val nmbHost = "https://adnmb3.com"
     const val fastMirrorHost = "nmb.fastmirror.org"
     private const val imgCDN = "https://nmbimg.fastmirror.org/"

@@ -46,9 +46,10 @@ class PostsViewModel @Inject constructor(
     private var _currentFid: String? = null
     val currentFid: String? get() = _currentFid
     private var pageCount = 1
-    private var duplicateCount =
-        0 // allow certain attempts on auto getting next page, afterwards require user interaction
-    private val maxDuplicateCount = 5
+
+    // allow certain attempts on auto getting next page, afterwards require user interaction
+    private var duplicateCount = 0
+    private val maxDuplicateCount = 3
 
     private var _loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
     val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>>
@@ -60,10 +61,10 @@ class PostsViewModel @Inject constructor(
                 val blockedIds = blockedIdDao.getAllBlockedIds()
                 blockedPostIds = mutableListOf()
                 blockedForumIds = mutableListOf()
-                for (blockedId in blockedIds){
-                    if (blockedId.isBlockedPost()){
+                for (blockedId in blockedIds) {
+                    if (blockedId.isBlockedPost()) {
                         blockedPostIds!!.add(blockedId.id)
-                    } else if (blockedId.isTimelineBlockedForum()){
+                    } else if (blockedId.isTimelineBlockedForum()) {
                         blockedForumIds!!.add(blockedId.id)
                     }
                 }
@@ -115,7 +116,7 @@ class PostsViewModel @Inject constructor(
                 duplicateCount = 0
                 _loadingStatus.postValue(
                     SingleLiveEvent.create(
-                        LoadingStatus.NO_DATA, "已经刷新了5页但是依然没有找到新数据。。。"
+                        LoadingStatus.NO_DATA, "已经刷新了${maxDuplicateCount}页但是依然没有找到新数据。。。"
                     )
                 )
             }

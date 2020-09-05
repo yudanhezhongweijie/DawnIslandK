@@ -83,6 +83,7 @@ interface NMBService {
         @Query("page") page: Int
     ): Call<ResponseBody>
 
+    @Headers("Domain-Name: adnmb-ref")
     @GET("Home/Forum/ref")
     fun getNMBQuote(@Query("id") id: String): Call<ResponseBody>
 

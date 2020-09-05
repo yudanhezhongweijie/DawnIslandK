@@ -85,6 +85,20 @@ class ApplicationDataStore @Inject constructor(
         RetrofitUrlManager.getInstance().putDomain("adnmb", baseCDN)
     }
 
+    private var refCDN: String? = null
+    fun getRefCDN(): String {
+        if (refCDN == null) {
+            refCDN = mmkv.getString(DawnConstants.REF_CDN, DawnConstants.nmbHost)
+        }
+        return refCDN!!
+    }
+
+    fun setRefCDN(newHost: String) {
+        refCDN = newHost
+        mmkv.putString(DawnConstants.REF_CDN, newHost)
+        RetrofitUrlManager.getInstance().putDomain("adnmb-ref", refCDN)
+    }
+
     private var feedId: String? = null
     fun getFeedId(): String {
         if (feedId == null) {

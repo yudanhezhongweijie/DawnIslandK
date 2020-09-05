@@ -64,6 +64,8 @@ class DawnApp : DaggerApplication() {
 
         // base CDN
         RetrofitUrlManager.getInstance().putDomain("adnmb", applicationDataStore.getBaseCDN())
+        // Reference CDN
+        RetrofitUrlManager.getInstance().putDomain("adnmb-ref", applicationDataStore.getRefCDN())
     }
 
     private val handler = object : MMKVHandler {

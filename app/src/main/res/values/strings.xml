@@ -193,7 +193,9 @@
     <string name="restore_blocked_post_confirm_message" translatable="false">将要清除本地屏蔽串的记录，被屏蔽的串将被恢复。确认恢复吗？</string>
     <string name="restored_blocked_post" translatable="false">本地记录的屏蔽串已经被恢复</string>
     <string name="set_base_cdn" translatable="false">设置默认请求CDN</string>
-    <string name="set_base_cdn_prompt" translatable="false">CDN格式如下:\n\n<b>https://adnmb3.com\n</b><b>https://nmb.fastmirror.org\n\n</b><b>注意!错误更改CDN会导致无法读取数据！</b></string>
+    <string name="set_ref_cdn" translatable="false">设置引用请求CDN</string>
+    <string name="set_base_cdn_prompt" translatable="false">CDN格式如下:\n<b>https://adnmb3.com\n</b><b>https://nmb.fastmirror.org\n\n</b><b>本设置将影响看串发串功能\n注意!错误更改CDN会导致无法读取数据！</b></string>
+    <string name="set_ref_cdn_prompt" translatable="false">CDN格式如下:\n<b>https://adnmb3.com\n</b><b>https://nmb.fastmirror.org\n\n</b><b>本设置将影响查看串外引用功能\n注意!错误更改CDN会导致无法读取数据！</b></string>
     <string name="acknowledge" translatable="false">我知道了</string>
     <string name="post_options" translatable="false">串选项</string>
     <string name="report">举报</string>

@@ -186,7 +186,9 @@ class SearchFragment : BaseNavFragment() {
                                 && currentPage < viewModel.maxPage
                                 && !binding!!.srlAndRv.refreshLayout.isRefreshing
                             ) {
-                                mAdapter?.loadMoreModule?.loadMoreToLoading()
+                                recyclerView.post {
+                                    mAdapter?.loadMoreModule?.loadMoreToLoading()
+                                }
                             }
                         } else if (dy < 0) {
                             binding?.jump?.show()

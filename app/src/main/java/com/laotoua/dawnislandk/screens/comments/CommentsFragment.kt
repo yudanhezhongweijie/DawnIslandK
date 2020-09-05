@@ -313,7 +313,9 @@ class CommentsFragment : DaggerFragment() {
                                 && !binding!!.srlAndRv.refreshLayout.isRefreshing
                                 && currentPage < viewModel.maxPage
                             ) {
-                                mAdapter?.loadMoreModule?.loadMoreToLoading()
+                                recyclerView.post {
+                                    mAdapter?.loadMoreModule?.loadMoreToLoading()
+                                }
                             }
                         } else if (dy < 0) {
                             showMenu()

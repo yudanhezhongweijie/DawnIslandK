@@ -250,7 +250,9 @@ class PostsFragment : BaseNavFragment() {
                             if (llm.findLastVisibleItemPosition() + 4 >= (mAdapter?.data?.size
                                     ?: Int.MAX_VALUE) && !binding!!.srlAndRv.refreshLayout.isRefreshing
                             ) {
-                                mAdapter?.loadMoreModule?.loadMoreToLoading()
+                                recyclerView.post {
+                                    mAdapter?.loadMoreModule?.loadMoreToLoading()
+                                }
                             }
                         } else if (dy < 0) {
                             binding?.fabMenu?.show()

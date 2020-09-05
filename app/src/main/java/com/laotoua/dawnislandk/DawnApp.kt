@@ -17,9 +17,11 @@
 
 package com.laotoua.dawnislandk
 
+import androidx.appcompat.app.AppCompatDelegate
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.laotoua.dawnislandk.data.local.ApplicationDataStore
 import com.laotoua.dawnislandk.di.DaggerDawnAppComponent
+import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.ReadableTime
 import com.tencent.mmkv.MMKV
 import com.tencent.mmkv.MMKVHandler
@@ -59,14 +61,35 @@ class DawnApp : DaggerApplication() {
         // MMKV
         MMKV.initialize(this)
         MMKV.registerHandler(handler)
+        setDefaultDayNightMode()
         // Time
         ReadableTime.initialize(this)
 
         // base CDN
-        RetrofitUrlManager.getInstance().putDomain("adnmb", applicationDataStore.getBaseCDN())
+        if (applicationDataStore.getBaseCDN() != DawnConstants.nmbHost) {
+            RetrofitUrlManager.getInstance().putDomain("adnmb", applicationDataStore.getBaseCDN())
+        }
         // Reference CDN
-        RetrofitUrlManager.getInstance().putDomain("adnmb-ref", applicationDataStore.getRefCDN())
+        if (applicationDataStore.getRefCDN() != DawnConstants.nmbHost) {
+            RetrofitUrlManager.getInstance()
+                .putDomain("adnmb-ref", applicationDataStore.getRefCDN())
+        }
+
     }
+
+    private fun setDefaultDayNightMode() {
+        when (applicationDataStore.defaultTheme) {
+            1 -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+            2 -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            }
+            else -> {
+            }
+        }
+    }
+
 
     private val handler = object : MMKVHandler {
         override fun onMMKVCRCCheckFail(p0: String?): MMKVRecoverStrategic {

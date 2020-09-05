@@ -43,7 +43,7 @@ object DawnConstants {
     const val LAYOUT_CUSTOMIZATION = "layout_customization"
     const val SORT_EMOJI_BY_LAST_USED_AT = "sort_emoji_by_last_used_at"
     const val TIME_FORMAT = "time_format"
-    const val DEFAULT_TIME_FORMAT = "simplified"
+    const val DEFAULT_TIME_FORMAT = 1
     const val FEED_ID = "feedId"
     const val DEFAULT_FORUM_ID = "default_forum_id"
     const val USE_APP_FIRST_TIME = "use_app_first_time"
@@ -54,6 +54,7 @@ object DawnConstants {
     const val POST_HISTORY_FRAG_PAGER_INDEX = "post_history_frag_pager_index"
     const val CUSTOM_TOOLBAR_STATUS = "custom_toolbar_status"
     const val TOOLBAR_IMAGE_PATH = "toolbar_image_path"
+    const val DEFAULT_THEME = "default_theme"
     const val DEFAULT_TOOLBAR_IMAGE_NAME = "toolbar_bg.jpeg"
     const val DEFAULT_CDN = "default_cdn"
     const val REF_CDN = "ref_cdn"

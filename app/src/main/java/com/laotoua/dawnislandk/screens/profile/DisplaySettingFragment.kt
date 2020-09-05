@@ -27,6 +27,7 @@ import androidx.navigation.fragment.findNavController
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
 import com.afollestad.materialdialogs.checkbox.isCheckPromptChecked
+import com.afollestad.materialdialogs.list.listItems
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
@@ -43,7 +44,43 @@ class DisplaySettingFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentDisplaySettingBinding.inflate(inflater,container, false)
+        binding = FragmentDisplaySettingBinding.inflate(inflater, container, false)
+
+
+        binding?.defaultTheme?.apply {
+            key.setText(R.string.default_theme_setting)
+            val entries = resources.getStringArray(R.array.default_theme_options).toList()
+            summary.text = entries[applicationDataStore.defaultTheme]
+
+            root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
+                MaterialDialog(requireContext()).show {
+                    title(R.string.default_theme_setting)
+                    listItems(items = entries) { _, index, text ->
+                        applicationDataStore.setDefaultTheme(index)
+                        summary.text = text
+                    }
+                }
+            }
+        }
+
+        binding?.timeFormat?.apply {
+            key.setText(R.string.time_display_format)
+            val entries = resources.getStringArray(R.array.time_format_options).toList()
+            summary.text = entries[applicationDataStore.displayTimeFormat]
+            root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
+                MaterialDialog(requireContext()).show {
+                    title(R.string.time_display_format)
+                    listItems(items = entries) { _, index, text ->
+                        applicationDataStore.setDisplayTimeFormat(index)
+                        summary.text = text
+                        toast(R.string.restart_to_apply_setting)
+                    }
+                }
+            }
+        }
+
         binding?.animationSwitch?.apply {
             key.setText(R.string.animation_settings)
             val options = resources.getStringArray(R.array.adapter_animation_options)

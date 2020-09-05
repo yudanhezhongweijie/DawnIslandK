@@ -133,7 +133,6 @@ class MainActivity : DaggerAppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
 
-
         bindNavBarAndNavController()
 
         handleIntentFilterNavigation(intent)
@@ -501,7 +500,6 @@ class MainActivity : DaggerAppCompatActivity() {
             }
         }
     }
-
 
     private fun customToolbarBackground() {
         if (applicationDataStore.getCustomToolbarImageStatus()) {

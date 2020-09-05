@@ -26,6 +26,10 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.WhichButton
+import com.afollestad.materialdialogs.actions.setActionButtonEnabled
+import com.afollestad.materialdialogs.input.getInputField
+import com.afollestad.materialdialogs.input.input
 import com.afollestad.materialdialogs.list.listItemsMultiChoice
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
@@ -228,6 +232,64 @@ class CustomSettingFragment : DaggerFragment() {
                 val action =
                     CustomSettingFragmentDirections.actionCustomSettingFragmentToEmojiSettingFragment()
                 findNavController().navigate(action)
+            }
+        }
+
+        binding?.setBaseCdn?.apply {
+            key.setText(R.string.set_base_cdn)
+            var baseCDN = applicationDataStore.getBaseCDN()
+            summary.text = baseCDN
+            root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
+                MaterialDialog(requireContext()).show {
+                    title(R.string.set_base_cdn)
+                    message(R.string.set_base_cdn_prompt)
+                    input(
+                        hint = baseCDN,
+                        prefill = baseCDN,
+                        waitForPositiveButton = false
+                    ) { dialog, text ->
+                        val inputField = dialog.getInputField()
+                        val isValid = text.startsWith("https://", true)
+                        inputField.error = if (isValid) null else "必须以https://开始"
+                        dialog.setActionButtonEnabled(WhichButton.POSITIVE, isValid)
+                    }
+                    positiveButton(R.string.submit) {
+                        baseCDN = getInputField().text.toString()
+                        summary.text = baseCDN
+                        applicationDataStore.setBaseCDN(baseCDN)
+                    }
+                    negativeButton(R.string.cancel)
+                }
+            }
+        }
+
+        binding?.setRefCdn?.apply {
+            key.setText(R.string.set_ref_cdn)
+            var refCDN = applicationDataStore.getRefCDN()
+            summary.text = refCDN
+            root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
+                MaterialDialog(requireContext()).show {
+                    title(R.string.set_ref_cdn)
+                    message(R.string.set_ref_cdn_prompt)
+                    input(
+                        hint = refCDN,
+                        prefill = refCDN,
+                        waitForPositiveButton = false
+                    ) { dialog, text ->
+                        val inputField = dialog.getInputField()
+                        val isValid = text.startsWith("https://", true)
+                        inputField.error = if (isValid) null else "必须以https://开始"
+                        dialog.setActionButtonEnabled(WhichButton.POSITIVE, isValid)
+                    }
+                    positiveButton(R.string.submit) {
+                        refCDN = getInputField().text.toString()
+                        summary.text = refCDN
+                        applicationDataStore.setRefCDN(refCDN)
+                    }
+                    negativeButton(R.string.cancel)
+                }
             }
         }
 

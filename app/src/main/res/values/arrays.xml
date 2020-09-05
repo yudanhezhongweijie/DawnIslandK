@@ -233,13 +233,9 @@
         <item>c_0080_081</item>
     </string-array>
     <!-- Time Format Preference -->
-    <string-array name="time_format_entries">
+    <string-array name="time_format_options">
         <item>原始</item>
         <item>简易</item>
-    </string-array>
-    <string-array name="time_format_values">
-        <item>original</item>
-        <item>simplified</item>
     </string-array>
 
     <string-array name="report_reasons">
@@ -277,6 +273,12 @@
     <string-array name="post_options">
         <item>举报</item>
         <item>屏蔽</item>
+    </string-array>
+
+    <string-array name="default_theme_options">
+        <item>跟随系统</item>
+        <item>光</item>
+        <item>暗</item>
     </string-array>
 
 </resources>

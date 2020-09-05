@@ -71,6 +71,14 @@ class ApplicationDataStore @Inject constructor(
 
     val mmkv: MMKV by lazyOnMainOnly { MMKV.defaultMMKV() }
 
+    val defaultTheme: Int by lazyOnMainOnly {
+        mmkv.getInt(DawnConstants.DEFAULT_THEME, 0)
+    }
+
+    fun setDefaultTheme(theme: Int) {
+        mmkv.putInt(DawnConstants.DEFAULT_THEME, theme)
+    }
+
     private var baseCDN: String? = null
     fun getBaseCDN(): String {
         if (baseCDN == null) {
@@ -207,14 +215,14 @@ class ApplicationDataStore @Inject constructor(
     }
 
     val displayTimeFormat by lazyOnMainOnly {
-        mmkv.getString(
+        mmkv.getInt(
             DawnConstants.TIME_FORMAT,
             DawnConstants.DEFAULT_TIME_FORMAT
-        )!!
+        )
     }
 
-    fun setDisplayTimeFormat(format: String) {
-        mmkv.putString(DawnConstants.TIME_FORMAT, format)
+    fun setDisplayTimeFormat(format: Int) {
+        mmkv.putInt(DawnConstants.TIME_FORMAT, format)
     }
 
     // adapter settings

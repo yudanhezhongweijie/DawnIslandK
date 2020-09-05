@@ -27,7 +27,7 @@ import java.util.*
 
 object ReadableTime {
     private var sResources: Resources? = null
-    private var timeFormat: String? = null
+    private var timeFormat: Int = 1
     const val SECOND_MILLIS: Long = 1000
     const val MINUTE_MILLIS = 60 * SECOND_MILLIS
     const val HOUR_MILLIS = 60 * MINUTE_MILLIS
@@ -95,16 +95,16 @@ object ReadableTime {
 
     fun getDisplayTime(time: String): String {
         return when (timeFormat) {
-            "simplified" -> getDisplayTimeAgo(string2Time(time))
-            "original" -> getPlainDisplayTime(string2Time(time))
+            1 -> getDisplayTimeAgo(string2Time(time))
+            0 -> getPlainDisplayTime(string2Time(time))
             else -> throw Exception("Unhandled time format")
         }
     }
 
     fun getDisplayTime(time: Long): String {
         return when (timeFormat) {
-            "simplified" -> getDisplayTimeAgo(time)
-            "original" -> getPlainDisplayTime(time)
+            1 -> getDisplayTimeAgo(time)
+            0 -> getPlainDisplayTime(time)
             else -> throw Exception("Unhandled time format")
         }
     }

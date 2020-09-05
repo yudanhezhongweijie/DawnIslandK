@@ -27,9 +27,7 @@ import com.afollestad.materialdialogs.WhichButton
 import com.afollestad.materialdialogs.actions.getActionButton
 import com.afollestad.materialdialogs.actions.setActionButtonEnabled
 import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
-import com.afollestad.materialdialogs.input.getInputField
 import com.afollestad.materialdialogs.input.input
-import com.afollestad.materialdialogs.list.listItems
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.FragmentGeneralSettingBinding
@@ -61,30 +59,6 @@ class GeneralSettingFragment : Fragment() {
                     }
                     positiveButton(R.string.submit)
                     negativeButton(R.string.cancel)
-                }
-            }
-        }
-
-        binding?.timeFormat?.apply {
-            key.setText(R.string.time_display_format)
-            val entries = resources.getStringArray(R.array.time_format_entries)
-            val values = resources.getStringArray(R.array.time_format_values)
-            summary.text =
-                if (values.first() == applicationDataStore.displayTimeFormat) {
-                    entries.first()
-                } else {
-                    entries.last()
-                }
-
-            root.setOnClickListener {
-                if (activity == null || !isAdded) return@setOnClickListener
-                MaterialDialog(requireContext()).show {
-                    title(R.string.time_display_format)
-                    listItems(R.array.time_format_entries) { _, index, text ->
-                        applicationDataStore.setDisplayTimeFormat(values[index])
-                        summary.text = text
-                        toast(R.string.restart_to_apply_setting)
-                    }
                 }
             }
         }
@@ -123,64 +97,6 @@ class GeneralSettingFragment : Fragment() {
                     positiveButton(R.string.submit) {
                         applicationDataStore.nukeBlockedPostTable()
                         toast(R.string.restored_blocked_post)
-                    }
-                    negativeButton(R.string.cancel)
-                }
-            }
-        }
-
-        binding?.setBaseCdn?.apply {
-            key.setText(R.string.set_base_cdn)
-            var baseCDN = applicationDataStore.getBaseCDN()
-            summary.text = baseCDN
-            root.setOnClickListener {
-                if (activity == null || !isAdded) return@setOnClickListener
-                MaterialDialog(requireContext()).show {
-                    title(R.string.set_base_cdn)
-                    message(R.string.set_base_cdn_prompt)
-                    input(
-                        hint = baseCDN,
-                        prefill = baseCDN,
-                        waitForPositiveButton = false
-                    ) { dialog, text ->
-                        val inputField = dialog.getInputField()
-                        val isValid = text.startsWith("https://", true)
-                        inputField.error = if (isValid) null else "必须以https://开始"
-                        dialog.setActionButtonEnabled(WhichButton.POSITIVE, isValid)
-                    }
-                    positiveButton(R.string.submit) {
-                        baseCDN = getInputField().text.toString()
-                        summary.text = baseCDN
-                        applicationDataStore.setBaseCDN(baseCDN)
-                    }
-                    negativeButton(R.string.cancel)
-                }
-            }
-        }
-
-        binding?.setRefCdn?.apply {
-            key.setText(R.string.set_ref_cdn)
-            var refCDN = applicationDataStore.getRefCDN()
-            summary.text = refCDN
-            root.setOnClickListener {
-                if (activity == null || !isAdded) return@setOnClickListener
-                MaterialDialog(requireContext()).show {
-                    title(R.string.set_ref_cdn)
-                    message(R.string.set_ref_cdn_prompt)
-                    input(
-                        hint = refCDN,
-                        prefill = refCDN,
-                        waitForPositiveButton = false
-                    ) { dialog, text ->
-                        val inputField = dialog.getInputField()
-                        val isValid = text.startsWith("https://", true)
-                        inputField.error = if (isValid) null else "必须以https://开始"
-                        dialog.setActionButtonEnabled(WhichButton.POSITIVE, isValid)
-                    }
-                    positiveButton(R.string.submit) {
-                        refCDN = getInputField().text.toString()
-                        summary.text = refCDN
-                        applicationDataStore.setRefCDN(refCDN)
                     }
                     negativeButton(R.string.cancel)
                 }

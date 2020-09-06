@@ -20,6 +20,7 @@ package com.laotoua.dawnislandk.screens.adapters
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
+import android.widget.Toast
 import com.chad.library.adapter.base.BaseNodeAdapter
 import com.chad.library.adapter.base.entity.node.BaseExpandNode
 import com.chad.library.adapter.base.entity.node.BaseNode
@@ -29,6 +30,7 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.data.local.entity.Forum
 import com.laotoua.dawnislandk.screens.util.ContentTransformation.transformForumName
+import timber.log.Timber
 
 
 class CommunityNodeAdapter(val clickListener: ForumClickListener) : BaseNodeAdapter() {
@@ -41,6 +43,8 @@ class CommunityNodeAdapter(val clickListener: ForumClickListener) : BaseNodeAdap
         addFullSpanNodeProvider(CommunityProvider())
         addFullSpanNodeProvider(ForumProvider())
     }
+
+    private var skipImages = false
 
     override fun getItemType(data: List<BaseNode>, position: Int): Int {
         val node = data[position]
@@ -149,19 +153,27 @@ class CommunityNodeAdapter(val clickListener: ForumClickListener) : BaseNodeAdap
 
         override fun convert(helper: BaseViewHolder, item: BaseNode) {
             val forum = (item as ForumNode).forum
-            if (forum.isValidForum()) {
-                val biId = if (forum.id.toInt() > 0) forum.id.toInt() else 1
-                val resourceId: Int = context.resources.getIdentifier(
-                    "bi_$biId", "drawable",
-                    context.packageName
-                )
-                helper.setImageResource(R.id.forumIcon, resourceId)
-            } else {
-                val resourceId: Int = context.resources.getIdentifier(
-                    "ic_label_24px", "drawable",
-                    context.packageName
-                )
-                helper.setImageResource(R.id.forumIcon, resourceId)
+            if (!skipImages) {
+                try {
+                    if (forum.isValidForum()) {
+                        val biId = if (forum.id.toInt() > 0) forum.id.toInt() else 1
+                        val resourceId: Int = context.resources.getIdentifier(
+                            "bi_$biId", "drawable",
+                            context.packageName
+                        )
+                        helper.setImageResource(R.id.forumIcon, resourceId)
+                    } else {
+                        val resourceId: Int = context.resources.getIdentifier(
+                            "ic_label_24px", "drawable",
+                            context.packageName
+                        )
+                        helper.setImageResource(R.id.forumIcon, resourceId)
+                    }
+                } catch (e: Exception) {
+                    skipImages = true
+                    Timber.e(e)
+                    Toast.makeText(context, "板块列表无法设置图片\n$e", Toast.LENGTH_SHORT).show()
+                }
             }
             helper.setText(
                 R.id.forumName,

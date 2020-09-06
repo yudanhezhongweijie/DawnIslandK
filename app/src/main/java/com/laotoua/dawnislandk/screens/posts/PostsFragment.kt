@@ -354,7 +354,7 @@ class PostsFragment : BaseNavFragment() {
         viewModel.posts.observe(viewLifecycleOwner) {
             if (mAdapter == null || binding == null || activity == null || !isAdded) return@observe
             if (it.isEmpty()) {
-                mAdapter?.setList(null)
+                mAdapter?.showNoData()
                 return@observe
             }
             // set forum when navigate from website url

@@ -259,6 +259,7 @@ class CustomSettingFragment : DaggerFragment() {
                         baseCDN = getInputField().text.toString()
                         summary.text = baseCDN
                         applicationDataStore.setBaseCDN(baseCDN)
+                        toast(R.string.restart_to_apply_setting)
                     }
                     negativeButton(R.string.cancel)
                 }
@@ -292,6 +293,7 @@ class CustomSettingFragment : DaggerFragment() {
                         refCDN = getInputField().text.toString()
                         summary.text = refCDN
                         applicationDataStore.setRefCDN(refCDN)
+                        toast(R.string.restart_to_apply_setting)
                     }
                     negativeButton(R.string.cancel)
                 }

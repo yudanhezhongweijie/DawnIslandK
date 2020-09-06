@@ -64,7 +64,7 @@ class TrendsFragment : BaseNavFragment() {
         if (it.status == LoadingStatus.LOADING) return@Observer
         val list = it.data?.trends
         if (list.isNullOrEmpty()) {
-            mAdapter?.setList(null)
+            mAdapter?.showNoData()
             return@Observer
         }
         mAdapter?.setDiffNewData(list.toMutableList())

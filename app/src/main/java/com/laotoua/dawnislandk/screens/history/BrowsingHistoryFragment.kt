@@ -123,7 +123,7 @@ class BrowsingHistoryFragment : BaseNavFragment() {
         viewModel.browsingHistoryList.observe(viewLifecycleOwner) { list ->
             if (mAdapter == null || binding == null) return@observe
             if (list.isEmpty()) {
-                mAdapter?.setList(null)
+                mAdapter?.showNoData()
                 return@observe
             }
             var lastDate: String? = null

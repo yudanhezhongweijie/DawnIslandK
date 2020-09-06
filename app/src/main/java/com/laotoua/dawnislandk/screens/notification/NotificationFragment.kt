@@ -123,7 +123,7 @@ class NotificationFragment : DaggerFragment() {
 
         mAdapter?.setEmptyView(R.layout.view_no_data)
         viewModel.notificationAndPost.observe(viewLifecycleOwner) { list ->
-            if (list.isNullOrEmpty()) mAdapter?.setList(null)
+            if (list.isNullOrEmpty()) mAdapter?.showNoData()
             else mAdapter?.setDiffNewData(list.toMutableList())
         }
 
@@ -264,9 +264,9 @@ class NotificationFragment : DaggerFragment() {
 
         }
 
-        override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
-            super.onAttachedToRecyclerView(recyclerView)
-            setEmptyView(R.layout.view_no_data)
+        fun showNoData() {
+            if (!hasEmptyView()) setEmptyView(R.layout.view_no_data)
+            setList(null)
         }
     }
 

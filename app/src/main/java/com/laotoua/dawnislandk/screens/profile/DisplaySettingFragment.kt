@@ -17,6 +17,7 @@
 
 package com.laotoua.dawnislandk.screens.profile
 
+import android.Manifest
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -143,6 +144,16 @@ class DisplaySettingFragment : Fragment() {
             }
             root.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
+                if (!IntentUtil.checkAndRequestAllPermissions(
+                        requireActivity(),
+                        arrayOf(
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE
+                        )
+                    )
+                ) {
+                    return@setOnClickListener
+                }
                 IntentUtil.setToolbarBackgroundImage(requireActivity()) { uri: Uri? ->
                     if (uri != null) {
                         applicationDataStore.setCustomToolbarImagePath(uri.toString())

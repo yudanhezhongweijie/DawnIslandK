@@ -17,7 +17,6 @@
 
 package com.laotoua.dawnislandk.screens.adapters
 
-import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter.base.BaseBinderAdapter
 import com.chad.library.adapter.base.module.LoadMoreModule
 import com.laotoua.dawnislandk.DawnApp
@@ -26,7 +25,7 @@ import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.animators.CustomAnimation1
 import com.laotoua.dawnislandk.screens.adapters.animators.CustomAnimation2
 
-class QuickMultiBinder(sharedViewModel: SharedViewModel):BaseBinderAdapter(), LoadMoreModule {
+class QuickMultiBinder(sharedViewModel: SharedViewModel) : BaseBinderAdapter(), LoadMoreModule {
 
     init {
         // 所有数据加载完成后，是否允许点击（默认为false）
@@ -36,7 +35,8 @@ class QuickMultiBinder(sharedViewModel: SharedViewModel):BaseBinderAdapter(), Lo
         loadMoreModule.isEnableLoadMoreIfNotFullPage = false
 
         when (DawnApp.applicationDataStore.animationOption) {
-            0 -> {}
+            0 -> {
+            }
             1 -> setAnimationWithDefault(AnimationType.AlphaIn)
             2 -> setAnimationWithDefault(AnimationType.ScaleIn)
             3 -> setAnimationWithDefault(AnimationType.SlideInBottom)
@@ -52,8 +52,8 @@ class QuickMultiBinder(sharedViewModel: SharedViewModel):BaseBinderAdapter(), Lo
         loadMoreModule.loadMoreView = QuickAdapter.DawnLoadMoreView(sharedViewModel)
     }
 
-    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
-        super.onAttachedToRecyclerView(recyclerView)
-        setEmptyView(R.layout.view_no_data)
+    fun showNoData() {
+        if (!hasEmptyView()) setEmptyView(R.layout.view_no_data)
+        setList(null)
     }
 }

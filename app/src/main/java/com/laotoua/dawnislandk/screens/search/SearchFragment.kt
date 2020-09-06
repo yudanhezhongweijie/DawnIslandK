@@ -245,7 +245,7 @@ class SearchFragment : BaseNavFragment() {
                 if (viewModel.lastJumpPage > 0) {
                     toast(getString(R.string.no_data_on_page, viewModel.lastJumpPage))
                 }
-                mAdapter?.setList(null)
+                mAdapter?.showNoData()
                 hideCurrentPageText()
                 return@observe
             }

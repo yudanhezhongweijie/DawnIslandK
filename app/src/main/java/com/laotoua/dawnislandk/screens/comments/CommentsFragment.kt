@@ -484,7 +484,7 @@ class CommentsFragment : DaggerFragment() {
         viewModel.comments.observe(viewLifecycleOwner) {
             if (mAdapter == null) return@observe
             if (it.isNullOrEmpty()) {
-                mAdapter?.setList(null)
+                mAdapter?.showNoData()
                 return@observe
             }
             updateCurrentPage()

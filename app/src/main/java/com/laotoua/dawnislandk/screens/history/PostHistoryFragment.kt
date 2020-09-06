@@ -130,7 +130,7 @@ class PostHistoryFragment : BaseNavFragment() {
         viewModel.postHistoryList.observe(viewLifecycleOwner) { list ->
             if (mAdapter == null || binding == null || activity == null || !isAdded) return@observe
             if (list.isEmpty()) {
-                mAdapter?.setList(null)
+                mAdapter?.showNoData()
                 return@observe
             }
             displayList(list)

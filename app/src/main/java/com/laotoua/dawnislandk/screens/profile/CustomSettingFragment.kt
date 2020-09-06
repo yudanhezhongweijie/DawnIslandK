@@ -41,6 +41,7 @@ import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.util.ContentTransformation
 import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.screens.util.Layout.updateSwitchSummary
+import com.laotoua.dawnislandk.util.DawnConstants
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
 
@@ -279,8 +280,12 @@ class CustomSettingFragment : DaggerFragment() {
                         waitForPositiveButton = false
                     ) { dialog, text ->
                         val inputField = dialog.getInputField()
-                        val isValid = text.startsWith("https://", true)
-                        inputField.error = if (isValid) null else "必须以https://开始"
+                        val isValid = text.startsWith(
+                            "https://",
+                            true
+                        ) && !text.endsWith(DawnConstants.fastMirrorHost, true)
+                        inputField.error =
+                            if (isValid) null else "必须以https://开始且不能使用https://nmb.fastmirror.org"
                         dialog.setActionButtonEnabled(WhichButton.POSITIVE, isValid)
                     }
                     positiveButton(R.string.submit) {

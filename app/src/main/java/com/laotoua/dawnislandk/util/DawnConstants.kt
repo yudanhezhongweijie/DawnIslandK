@@ -42,7 +42,7 @@ object DawnConstants {
     const val AUTO_UPDATE_FEED_DOT = "auto_update_feed_dot"
     const val LAYOUT_CUSTOMIZATION = "layout_customization"
     const val SORT_EMOJI_BY_LAST_USED_AT = "sort_emoji_by_last_used_at"
-    const val TIME_FORMAT = "time_format"
+    const val DISPLAY_TIME_FORMAT = "display_time_format"
     const val DEFAULT_TIME_FORMAT = 1
     const val FEED_ID = "feedId"
     const val DEFAULT_FORUM_ID = "default_forum_id"

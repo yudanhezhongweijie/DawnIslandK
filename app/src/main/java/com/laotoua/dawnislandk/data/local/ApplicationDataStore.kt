@@ -214,15 +214,15 @@ class ApplicationDataStore @Inject constructor(
         mmkv.putString(DawnConstants.TOOLBAR_IMAGE_PATH, value)
     }
 
-    val displayTimeFormat by lazyOnMainOnly {
+    val displayTimeFormat: Int by lazyOnMainOnly {
         mmkv.getInt(
-            DawnConstants.TIME_FORMAT,
+            DawnConstants.DISPLAY_TIME_FORMAT,
             DawnConstants.DEFAULT_TIME_FORMAT
         )
     }
 
     fun setDisplayTimeFormat(format: Int) {
-        mmkv.putInt(DawnConstants.TIME_FORMAT, format)
+        mmkv.putInt(DawnConstants.DISPLAY_TIME_FORMAT, format)
     }
 
     // adapter settings

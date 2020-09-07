@@ -22,15 +22,15 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
 import com.laotoua.dawnislandk.screens.widgets.BasePagerFragment
 
-class HistoryPagerFragment:BasePagerFragment() {
-    private val pageIndices = DawnApp.applicationDataStore.getHistoryPagerPageIndices()
-    override val pageTitleResIds = mutableMapOf<Int,Int>().apply {
-        put(pageIndices.first, R.string.browsing_history)
-        put(pageIndices.second, R.string.post_history)
+class HistoryPagerFragment : BasePagerFragment() {
+    private val browsingIndex = DawnApp.applicationDataStore.getHistoryPagerBrowsingIndex()
+    override val pageTitleResIds = mutableMapOf<Int, Int>().apply {
+        put(browsingIndex, R.string.browsing_history)
+        put(1 - browsingIndex, R.string.post_history)
     }
 
     override val pageFragmentClass = mutableMapOf<Int, Class<out BaseNavFragment>>().apply {
-        put(pageIndices.first, BrowsingHistoryFragment::class.java)
-        put(pageIndices.second, PostHistoryFragment::class.java)
+        put(browsingIndex, BrowsingHistoryFragment::class.java)
+        put(1 - browsingIndex, PostHistoryFragment::class.java)
     }
 }

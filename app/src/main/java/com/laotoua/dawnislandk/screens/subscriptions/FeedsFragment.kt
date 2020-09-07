@@ -167,7 +167,7 @@ class FeedsFragment : BaseNavFragment() {
         }
         viewModel.feeds.observe(viewLifecycleOwner) { list ->
             if (mAdapter == null) return@observe
-            if (list.isEmpty()) {
+            if (list.isNullOrEmpty()) {
                 if (viewModel.lastJumpPage > 0) {
                     toast(getString(R.string.no_data_on_page, viewModel.lastJumpPage))
                 }

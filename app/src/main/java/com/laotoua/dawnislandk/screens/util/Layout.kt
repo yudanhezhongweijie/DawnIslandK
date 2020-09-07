@@ -78,6 +78,10 @@ object Layout {
             LoadingStatus.NO_DATA -> {
                 refreshLayout.refreshComplete(true, headerDismissalDelayDuration)
                 mAdapter.loadMoreModule.loadMoreEnd()
+                if (mAdapter.data.isNullOrEmpty()) {
+                    if (!mAdapter.hasEmptyView()) mAdapter.setEmptyView(R.layout.view_no_data)
+                    mAdapter.setList(null)
+                }
                 if (!event.message.isNullOrBlank()) {
                     toast(event.message)
                 }

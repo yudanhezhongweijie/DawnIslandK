@@ -399,27 +399,30 @@ class ApplicationDataStore @Inject constructor(
         return null
     }
 
-    fun setFeedPagerDefaultPage(trendsIndex: Int, feedsIndex: Int) {
-        mmkv.putInt(DawnConstants.TRENDS_FRAG_PAGER_INDEX, trendsIndex)
-        mmkv.putInt(DawnConstants.FEEDS_FRAG_PAGER_INDEX, feedsIndex)
+    private var subscriptionPagerFeedIndex: Int? = null
+    fun getSubscriptionPagerFeedIndex(): Int {
+        if (subscriptionPagerFeedIndex == null) {
+            subscriptionPagerFeedIndex = mmkv.getInt(DawnConstants.SUBSCRIPTION_PAGER_FEED_INDEX, 1)
+        }
+        return subscriptionPagerFeedIndex!!
     }
 
-    fun getFeedPagerPageIndices(): Pair<Int, Int> {
-        return Pair(
-            mmkv.getInt(DawnConstants.TRENDS_FRAG_PAGER_INDEX, 0),
-            mmkv.getInt(DawnConstants.FEEDS_FRAG_PAGER_INDEX, 1)
-        )
+    fun setSubscriptionPagerFeedIndex(feedPageIndex: Int) {
+        subscriptionPagerFeedIndex = feedPageIndex
+        mmkv.putInt(DawnConstants.SUBSCRIPTION_PAGER_FEED_INDEX, feedPageIndex)
     }
 
-    fun setHistoryPagerDefaultPage(browseIndex: Int, postIndex: Int) {
-        mmkv.putInt(DawnConstants.BROWSING_HISTORY_FRAG_PAGER_INDEX, browseIndex)
-        mmkv.putInt(DawnConstants.POST_HISTORY_FRAG_PAGER_INDEX, postIndex)
+    private var historyPagerBrowsingIndex: Int? = null
+    fun getHistoryPagerBrowsingIndex(): Int {
+        if (historyPagerBrowsingIndex == null) {
+            historyPagerBrowsingIndex = mmkv.getInt(DawnConstants.HISTORY_PAGER_BROWSING_INDEX, 0)
+        }
+        return historyPagerBrowsingIndex!!
     }
 
-    fun getHistoryPagerPageIndices(): Pair<Int, Int> {
-        return Pair(
-            mmkv.getInt(DawnConstants.BROWSING_HISTORY_FRAG_PAGER_INDEX, 0),
-            mmkv.getInt(DawnConstants.POST_HISTORY_FRAG_PAGER_INDEX, 1)
-        )
+    fun setHistoryPagerBrowsingIndex(browseIndex: Int) {
+        historyPagerBrowsingIndex = browseIndex
+        mmkv.putInt(DawnConstants.HISTORY_PAGER_BROWSING_INDEX, browseIndex)
     }
+
 }

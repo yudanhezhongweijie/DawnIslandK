@@ -94,13 +94,17 @@ class CommentsViewModel @Inject constructor(
         viewModelScope.launch { commentRepo.saveReadingProgress(currentPostId, page) }
     }
 
-    fun getNextPage(incrementPage: Boolean = true, readingProgress: Int? = null) {
+    fun getNextPage(
+        incrementPage: Boolean = true,
+        readingProgress: Int? = null,
+        forceUpdate: Boolean = true
+    ) {
         var nextPage = readingProgress ?: (commentList.lastOrNull()?.page ?: 1)
         if (incrementPage && commentRepo.checkFullPage(currentPostId, nextPage)) nextPage += 1
-        listenToNewPage(nextPage)
+        listenToNewPage(nextPage, forceUpdate)
     }
 
-    fun getPreviousPage() {
+    fun getPreviousPage(forceUpdate: Boolean = true) {
         // Refresh when no data, usually error occurs
         if (commentList.isNullOrEmpty()) {
             getNextPage()
@@ -108,11 +112,12 @@ class CommentsViewModel @Inject constructor(
         }
         val lastPage = (commentList.firstOrNull()?.page ?: 1) - 1
         if (lastPage < 1) return
-        listenToNewPage(lastPage)
+        listenToNewPage(lastPage, forceUpdate)
     }
 
-    private fun listenToNewPage(page: Int) {
+    private fun listenToNewPage(page: Int, forceUpdate: Boolean) {
         val hasCache = listeningPages[page] != null
+        if (hasCache && !forceUpdate) return
         if (hasCache) comments.removeSource(listeningPages[page])
         val newPage = commentRepo.getCommentsOnPage(currentPostId, page, hasCache, postDeleted)
         listeningPages.put(page, newPage)
@@ -220,7 +225,7 @@ class CommentsViewModel @Inject constructor(
     fun jumpTo(page: Int) {
         Timber.i("Jumping to page $page... Clearing old data")
         clearCache(false)
-        listenToNewPage(page)
+        listenToNewPage(page, true)
     }
 
     fun getExternalShareContent(): String {

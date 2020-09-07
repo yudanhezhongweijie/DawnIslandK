@@ -711,8 +711,8 @@ class CommentsFragment : DaggerFragment() {
     private fun getImageViewerPopup(): ImageViewerPopup {
         if (imageViewerPopup == null) {
             imageViewerPopup = ImageViewerPopup(requireContext()).apply {
-                setNextPageLoader { viewModel.getNextPage() }
-                setPreviousPageLoader { viewModel.getPreviousPage() }
+                setNextPageLoader { viewModel.getNextPage(forceUpdate = false) }
+                setPreviousPageLoader { viewModel.getPreviousPage(forceUpdate = false) }
             }
         }
         return imageViewerPopup!!

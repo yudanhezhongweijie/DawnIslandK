@@ -35,6 +35,7 @@ import com.afollestad.materialdialogs.actions.getActionButton
 import com.afollestad.materialdialogs.actions.setActionButtonEnabled
 import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
 import com.afollestad.materialdialogs.customview.customView
+import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.listener.OnItemDragListener
 import com.chad.library.adapter.base.listener.OnItemSwipeListener
@@ -80,6 +81,7 @@ class EmojiSettingFragment : DaggerFragment() {
             R.id.help -> {
                 if (activity == null || !isAdded) return true
                 MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@EmojiSettingFragment)
                     title(R.string.emoji_setting)
                     message(R.string.emoji_setting_help)
                     positiveButton(R.string.acknowledge)
@@ -89,6 +91,7 @@ class EmojiSettingFragment : DaggerFragment() {
             R.id.restore -> {
                 if (activity == null || !isAdded) return true
                 MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@EmojiSettingFragment)
                     title(R.string.restore)
                     message(R.string.emoji_restore)
                     setActionButtonEnabled(WhichButton.POSITIVE, false)
@@ -123,6 +126,7 @@ class EmojiSettingFragment : DaggerFragment() {
                 if (view.id == R.id.edit) {
                     if (activity == null || !isAdded) return@setOnItemChildClickListener
                     MaterialDialog(requireContext()).show {
+                        lifecycleOwner(this@EmojiSettingFragment)
                         title(R.string.emoji_setting)
                         customView(R.layout.dialog_input_content_with_remark)
                         val submitButton = getActionButton(WhichButton.POSITIVE)
@@ -171,6 +175,7 @@ class EmojiSettingFragment : DaggerFragment() {
         binding?.addEmoji?.setOnClickListener {
             if (activity == null || !isAdded) return@setOnClickListener
             MaterialDialog(requireContext()).show {
+                lifecycleOwner(this@EmojiSettingFragment)
                 title(R.string.emoji_setting)
                 customView(R.layout.dialog_input_content_with_remark)
                 val submitButton = getActionButton(WhichButton.POSITIVE)

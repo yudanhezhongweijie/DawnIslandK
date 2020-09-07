@@ -33,6 +33,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.listener.OnItemDragListener
 import com.chad.library.adapter.base.listener.OnItemSwipeListener
@@ -85,6 +86,7 @@ class NotificationFragment : DaggerFragment() {
             R.id.help -> {
                 if (activity == null || !isAdded) return true
                 MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@NotificationFragment)
                     title(R.string.feed_notification)
                     message(R.string.feed_notification_help)
                     positiveButton(R.string.acknowledge)

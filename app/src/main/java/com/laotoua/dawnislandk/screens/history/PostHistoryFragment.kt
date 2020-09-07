@@ -29,6 +29,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.datetime.datePicker
+import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
 import com.chad.library.adapter.base.binder.QuickItemBinder
 import com.chad.library.adapter.base.util.getItemView
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
@@ -103,6 +104,7 @@ class PostHistoryFragment : BaseNavFragment() {
             binding!!.startDate.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
                 MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@PostHistoryFragment)
                     datePicker(currentDate = startDate) { _, date ->
                         setStartDate(date)
                     }
@@ -112,6 +114,7 @@ class PostHistoryFragment : BaseNavFragment() {
             binding!!.endDate.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
                 MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@PostHistoryFragment)
                     datePicker(currentDate = endDate) { _, date ->
                         setEndDate(date)
                     }

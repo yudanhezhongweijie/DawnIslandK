@@ -27,7 +27,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
-import com.afollestad.materialdialogs.list.listItems
+import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
+import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.laotoua.dawnislandk.BuildConfig
 import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
@@ -58,10 +59,11 @@ class AboutFragment : DaggerFragment() {
             root.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
                 MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@AboutFragment)
                     title(R.string.app_feed_back)
                     val items =
                         context.resources.getStringArray(R.array.app_feedback_options).toList()
-                    listItems(items = items) { _, index, _ ->
+                    listItemsSingleChoice(items = items) { _, index, _ ->
                         when (index) {
                             0 -> {
                                 dismiss()
@@ -110,6 +112,7 @@ class AboutFragment : DaggerFragment() {
             root.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
                 val waitingDialog = MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@AboutFragment)
                     title(R.string.processing)
                     customView(R.layout.widget_loading)
                     cancelOnTouchOutside(false)
@@ -127,6 +130,7 @@ class AboutFragment : DaggerFragment() {
                     waitingDialog.dismiss()
                     if (activity == null || !isAdded) return@launch
                     MaterialDialog(requireContext()).show {
+                        lifecycleOwner(this@AboutFragment)
                         title(res = R.string.app_privacy_agreement)
                         message(text = agreement) { html() }
                         positiveButton(R.string.acknowledge)
@@ -149,6 +153,7 @@ class AboutFragment : DaggerFragment() {
             root.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
                 val waitingDialog = MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@AboutFragment)
                     title(R.string.processing)
                     customView(R.layout.widget_loading)
                     cancelOnTouchOutside(false)
@@ -166,6 +171,7 @@ class AboutFragment : DaggerFragment() {
                     waitingDialog.dismiss()
                     if (activity == null || !isAdded) return@launch
                     MaterialDialog(requireContext()).show {
+                        lifecycleOwner(this@AboutFragment)
                         title(res = R.string.change_log)
                         message(text = agreement)
                         positiveButton(R.string.acknowledge)

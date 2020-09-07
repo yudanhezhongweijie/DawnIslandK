@@ -34,6 +34,7 @@ import com.afollestad.materialdialogs.WhichButton
 import com.afollestad.materialdialogs.actions.getActionButton
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.input.input
+import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
 import com.afollestad.materialdialogs.list.listItems
 import com.google.android.material.textfield.TextInputLayout
 import com.king.zxing.util.CodeUtils
@@ -133,6 +134,7 @@ class ProfileFragment : DaggerFragment() {
 
         val loadingDialog by lazyOnMainOnly {
             MaterialDialog(requireContext()).apply {
+                lifecycleOwner(this@ProfileFragment)
                 title(R.string.processing)
                 customView(R.layout.widget_loading)
                 cancelOnTouchOutside(false)
@@ -163,6 +165,7 @@ class ProfileFragment : DaggerFragment() {
         binding!!.addCookie.setOnClickListener {
             if (activity == null || !isAdded) return@setOnClickListener
             MaterialDialog(requireContext()).show {
+                lifecycleOwner(this@ProfileFragment)
                 title(R.string.add_cookie)
                 listItems(R.array.cookie_addition_options) { _, index, _ ->
                     when (index) {
@@ -182,6 +185,7 @@ class ProfileFragment : DaggerFragment() {
                             }
                         }
                         2 -> MaterialDialog(requireContext()).show {
+                            lifecycleOwner(this@ProfileFragment)
                             title(R.string.add_cookie)
                             customView(R.layout.dialog_input_content_with_remark)
                             val submitButton = getActionButton(WhichButton.POSITIVE)
@@ -260,6 +264,7 @@ class ProfileFragment : DaggerFragment() {
         view.remark.text = cookie.cookieDisplayName
         view.edit.setOnClickListener {
             MaterialDialog(requireContext()).show {
+                lifecycleOwner(this@ProfileFragment)
                 title(R.string.edit_cookie_remark)
                 input(
                     prefill = cookie.cookieDisplayName,
@@ -310,6 +315,7 @@ class ProfileFragment : DaggerFragment() {
         try {
             val cookieHash = JSONObject(cookieJson).getString("cookie")
             MaterialDialog(requireContext()).show {
+                lifecycleOwner(this@ProfileFragment)
                 title(R.string.edit_cookie_remark)
                 cancelable(false)
                 input(hint = cookieHash) { _, text ->

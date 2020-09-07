@@ -40,6 +40,7 @@ import com.afollestad.materialdialogs.callbacks.onDismiss
 import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
 import com.afollestad.materialdialogs.checkbox.isCheckPromptChecked
 import com.afollestad.materialdialogs.customview.customView
+import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.textfield.TextInputLayout
@@ -278,6 +279,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
                     KeyboardUtils.hideSoftInput(postContent!!)
 
                     MaterialDialog(context).show {
+                        lifecycleOwner(caller)
                         title(R.string.select_target_forum)
                         val mapping = sharedVM.forumNameMapping
                         //去除时间线
@@ -294,6 +296,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
                         updateTitle(targetId, newPost)
                         if (postForum!!.text == "值班室") {
                             MaterialDialog(context).show {
+                                lifecycleOwner(caller)
                                 title(R.string.report_reasons)
                                 listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
                                     postContent?.editText?.append("\n${context.getString(R.string.report_reasons)}: $text")
@@ -385,6 +388,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
                 if (!applicationDataStore.cookies.isNullOrEmpty()) {
                     KeyboardUtils.hideSoftInput(postContent!!)
                     MaterialDialog(context).show {
+                        lifecycleOwner(caller)
                         title(R.string.select_cookie)
                         listItemsSingleChoice(items = applicationDataStore.cookies.map { c -> c.cookieDisplayName }) { _, ind, text ->
                             selectedCookie = applicationDataStore.cookies[ind]
@@ -436,6 +440,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
 
         findViewById<Button>(R.id.forumRule).setOnClickListener {
             MaterialDialog(context).show {
+                lifecycleOwner(caller)
                 val fid = if (newPost && targetId != null) targetId!! else targetFid
                 val biId = if (fid.toInt() > 0) fid.toInt() else 1
                 val resourceId: Int = context.resources.getIdentifier(
@@ -470,6 +475,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
             return
         }
         val compressDialog = MaterialDialog(context).show {
+            lifecycleOwner(caller)
             title(R.string.compressing_oversize_image)
             customView(R.layout.widget_loading)
             cancelable(false)
@@ -516,6 +522,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
     private fun send() {
         if (!applicationDataStore.checkAcknowledgementPostingRule()) {
             MaterialDialog(context).show {
+                lifecycleOwner(caller)
                 title(R.string.please_comply_rules)
                 cancelOnTouchOutside(false)
                 checkBoxPrompt(R.string.acknowledge_post_rules) {
@@ -561,6 +568,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
         selectedCookie?.let { cookieHash = it.getApiHeaderCookieHash() }
 
         val postProgressDialog = MaterialDialog(context).show {
+            lifecycleOwner(caller)
             title(R.string.sending)
             customView(R.layout.widget_loading)
             cancelable(false)

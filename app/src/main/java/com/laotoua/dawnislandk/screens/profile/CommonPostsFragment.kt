@@ -32,6 +32,7 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.WhichButton
 import com.afollestad.materialdialogs.actions.getActionButton
 import com.afollestad.materialdialogs.customview.customView
+import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.listener.OnItemDragListener
 import com.chad.library.adapter.base.listener.OnItemSwipeListener
@@ -77,6 +78,7 @@ class CommonPostsFragment : DaggerFragment() {
             R.id.help -> {
                 if (activity == null || !isAdded) return true
                 MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@CommonPostsFragment)
                     title(R.string.common_posts_setting)
                     message(R.string.common_posts_setting_help)
                     positiveButton(R.string.acknowledge)
@@ -100,6 +102,7 @@ class CommonPostsFragment : DaggerFragment() {
                 if (view.id == R.id.edit) {
                     if (activity == null || !isAdded) return@setOnItemChildClickListener
                     MaterialDialog(requireContext()).show {
+                        lifecycleOwner(this@CommonPostsFragment)
                         title(R.string.common_posts_setting)
                         customView(R.layout.dialog_input_content_with_remark)
                         val submitButton = getActionButton(WhichButton.POSITIVE)
@@ -155,6 +158,7 @@ class CommonPostsFragment : DaggerFragment() {
         binding?.addCommonPost?.setOnClickListener {
             if (activity == null || !isAdded) return@setOnClickListener
             MaterialDialog(requireContext()).show {
+                lifecycleOwner(this@CommonPostsFragment)
                 title(R.string.common_posts_setting)
                 customView(R.layout.dialog_input_content_with_remark)
                 val submitButton = getActionButton(WhichButton.POSITIVE)

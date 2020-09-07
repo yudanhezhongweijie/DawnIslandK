@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.FragmentBasePagerBinding
 import com.laotoua.dawnislandk.screens.MainActivity
@@ -79,6 +80,7 @@ abstract class BasePagerFragment : DaggerFragment() {
         return when (item.itemId) {
             R.id.help -> {
                 MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@BasePagerFragment)
                     title(R.string.help)
                     message(R.string.pager_usage_help)
                     positiveButton(R.string.acknowledge)

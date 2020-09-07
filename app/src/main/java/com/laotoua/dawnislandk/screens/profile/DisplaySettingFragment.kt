@@ -28,7 +28,7 @@ import androidx.navigation.fragment.findNavController
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
 import com.afollestad.materialdialogs.checkbox.isCheckPromptChecked
-import com.afollestad.materialdialogs.list.listItems
+import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
@@ -56,8 +56,9 @@ class DisplaySettingFragment : Fragment() {
             root.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
                 MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@DisplaySettingFragment)
                     title(R.string.default_theme_setting)
-                    listItems(items = entries) { _, index, text ->
+                    listItemsSingleChoice(items = entries) { _, index, text ->
                         applicationDataStore.setDefaultTheme(index)
                         summary.text = text
                     }
@@ -72,8 +73,9 @@ class DisplaySettingFragment : Fragment() {
             root.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
                 MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@DisplaySettingFragment)
                     title(R.string.time_display_format)
-                    listItems(items = entries) { _, index, text ->
+                    listItemsSingleChoice(items = entries) { _, index, text ->
                         applicationDataStore.setDisplayTimeFormat(index)
                         summary.text = text
                         toast(R.string.restart_to_apply_setting)
@@ -89,6 +91,7 @@ class DisplaySettingFragment : Fragment() {
             root.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
                 MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@DisplaySettingFragment)
                     title(res = R.string.animation_settings)
                     checkBoxPrompt(res = R.string.animation_first_only) {}
                     listItemsSingleChoice(items = options.toList()) { _, index, _ ->

@@ -33,6 +33,7 @@ import com.afollestad.materialdialogs.WhichButton
 import com.afollestad.materialdialogs.actions.setActionButtonEnabled
 import com.afollestad.materialdialogs.input.getInputField
 import com.afollestad.materialdialogs.input.input
+import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
 import com.chad.library.adapter.base.binder.QuickItemBinder
 import com.chad.library.adapter.base.util.getItemView
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
@@ -128,6 +129,7 @@ class FeedsFragment : BaseNavFragment() {
 
             binding!!.jump.setOnClickListener {
                 MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@FeedsFragment)
                     title(R.string.page_jump)
                     var page = 0
                     input(
@@ -261,6 +263,7 @@ class FeedsFragment : BaseNavFragment() {
         ): Boolean {
             val id = data.feed.postId
             MaterialDialog(context).show {
+                lifecycleOwner(this@FeedsFragment)
                 title(text = "删除订阅 $id?")
                 positiveButton(R.string.delete) {
                     viewModel.deleteFeed(data.feed)

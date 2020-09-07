@@ -50,6 +50,7 @@ import com.afollestad.materialdialogs.bottomsheets.BottomSheet
 import com.afollestad.materialdialogs.bottomsheets.gridItems
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.customview.getCustomView
+import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.google.android.material.animation.AnimationUtils
 import com.google.android.material.textfield.TextInputLayout
@@ -222,6 +223,7 @@ class CommentsFragment : DaggerFragment() {
                         }
                         R.id.report -> {
                             MaterialDialog(requireContext()).show {
+                                lifecycleOwner(this@CommentsFragment)
                                 title(R.string.report_reasons)
                                 listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
                                     postPopup.setupAndShow(
@@ -339,6 +341,7 @@ class CommentsFragment : DaggerFragment() {
                     BasicGridItem(R.drawable.ic_content_copy_black_48dp, "复制串号")
                 )
                 MaterialDialog(requireContext(), BottomSheet(LayoutMode.WRAP_CONTENT)).show {
+                    lifecycleOwner(this@CommentsFragment)
                     title(R.string.share)
                     gridItems(items) { _, index, _ ->
                         when (index) {
@@ -389,6 +392,7 @@ class CommentsFragment : DaggerFragment() {
                 }
                 val page = getCurrentPage()
                 MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@CommentsFragment)
                     val maxPage = viewModel.maxPage
                     var targetPage = page
                     var canNotJump =

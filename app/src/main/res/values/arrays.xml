@@ -281,4 +281,16 @@
         <item>暗</item>
     </string-array>
 
+    <string-array name="base_cdn_options">
+        <item>https://adnmb2.com</item>
+        <item>https://adnmb3.com</item>
+        <item>https://nmb.fastmirror.org</item>
+        <item>自定义</item>
+    </string-array>
+
+    <string-array name="ref_cdn_options">
+        <item>https://adnmb2.com</item>
+        <item>https://adnmb3.com</item>
+        <item>自定义</item>
+    </string-array>
 </resources>

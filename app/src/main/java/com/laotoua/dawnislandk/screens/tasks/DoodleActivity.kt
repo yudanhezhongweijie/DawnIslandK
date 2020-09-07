@@ -34,6 +34,7 @@ import com.afollestad.materialdialogs.WhichButton
 import com.afollestad.materialdialogs.actions.getActionButton
 import com.afollestad.materialdialogs.color.colorChooser
 import com.afollestad.materialdialogs.customview.customView
+import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
 import com.google.android.material.slider.Slider
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.ActivityDoodleBinding
@@ -149,6 +150,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
 
     override fun onBackPressed() {
         MaterialDialog(this).show {
+            lifecycleOwner(this@DoodleActivity)
             message(R.string.save_image_selection)
             positiveButton(R.string.save) {
                 saveDoodle()
@@ -238,6 +240,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
     private fun showPickColorDialog() {
         defaultColors[0] = binding.doodleView.paintColor
         MaterialDialog(this).show {
+            lifecycleOwner(this@DoodleActivity)
             title(R.string.pick_color)
             colorChooser(
                 colors = defaultColors.toIntArray(),
@@ -253,6 +256,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
 
     private fun showThicknessDialog() {
         MaterialDialog(this).show {
+            lifecycleOwner(this@DoodleActivity)
             customView(R.layout.dialog_thickness)
             var thickness = binding.doodleView.paintThickness
             val previewView = findViewById<ThicknessPreviewView>(R.id.thicknessPreviewView)
@@ -272,6 +276,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
     private fun saveDoodle() {
         if (mExitWaitingDialog == null) {
             mExitWaitingDialog = MaterialDialog(this).apply {
+                lifecycleOwner(this@DoodleActivity)
                 customView(R.layout.widget_loading)
                 cancelable(false)
                 title(R.string.saving_image)

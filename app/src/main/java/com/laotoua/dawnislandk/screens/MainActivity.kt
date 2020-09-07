@@ -43,6 +43,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
 import com.afollestad.materialdialogs.checkbox.isCheckPromptChecked
+import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
 import com.google.android.material.animation.AnimationUtils
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.MainNavDirections
@@ -220,6 +221,7 @@ class MainActivity : DaggerAppCompatActivity() {
         applicationDataStore.getLatestRelease()?.let { release ->
             if (this.isFinishing) return@let
             MaterialDialog(this).show {
+                lifecycleOwner(this@MainActivity)
                 title(R.string.found_new_version)
                 icon(R.mipmap.ic_launcher)
                 message(text = release.message) { html() }
@@ -250,6 +252,7 @@ class MainActivity : DaggerAppCompatActivity() {
         applicationDataStore.getLatestNMBNotice()?.let { notice ->
             if (this.isFinishing) return@let
             MaterialDialog(this).show {
+                lifecycleOwner(this@MainActivity)
                 title(res = R.string.announcement)
                 checkBoxPrompt(R.string.acknowledge) {}
                 message(text = notice.content) { html() }
@@ -273,6 +276,7 @@ class MainActivity : DaggerAppCompatActivity() {
             if (it) {
                 if (this.isFinishing) return@let
                 MaterialDialog(this).show {
+                    lifecycleOwner(this@MainActivity)
                     title(res = R.string.announcement)
                     checkBoxPrompt(R.string.acknowledge) {}
                     cancelOnTouchOutside(false)

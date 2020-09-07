@@ -28,6 +28,7 @@ import com.afollestad.materialdialogs.actions.getActionButton
 import com.afollestad.materialdialogs.actions.setActionButtonEnabled
 import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
 import com.afollestad.materialdialogs.input.input
+import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.FragmentGeneralSettingBinding
@@ -50,6 +51,7 @@ class GeneralSettingFragment : Fragment() {
             root.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
                 MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@GeneralSettingFragment)
                     title(R.string.feedId)
                     input(hint = feedId, prefill = feedId) { _, text ->
                         feedId = text.toString()
@@ -68,6 +70,7 @@ class GeneralSettingFragment : Fragment() {
             root.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
                 MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@GeneralSettingFragment)
                     title(R.string.clear_comment_cache)
                     message(R.string.clear_comment_cache_confirm_message)
                     setActionButtonEnabled(WhichButton.POSITIVE, false)
@@ -88,6 +91,7 @@ class GeneralSettingFragment : Fragment() {
             root.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
                 MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@GeneralSettingFragment)
                     title(R.string.restore_blocked_post)
                     message(R.string.restore_blocked_post_confirm_message)
                     setActionButtonEnabled(WhichButton.POSITIVE, false)
@@ -118,6 +122,7 @@ class GeneralSettingFragment : Fragment() {
                 if (activity == null || !isAdded) return@setOnClickListener
                 if (!preferenceSwitch.isChecked) {
                     MaterialDialog(requireContext()).show {
+                        lifecycleOwner(this@GeneralSettingFragment)
                         title(R.string.view_caching)
                         message(R.string.view_caching_warning)
                         getActionButton(WhichButton.POSITIVE).isEnabled = false

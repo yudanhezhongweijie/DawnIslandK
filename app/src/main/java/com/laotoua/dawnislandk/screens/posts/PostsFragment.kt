@@ -29,6 +29,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
+import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
 import com.afollestad.materialdialogs.list.listItems
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.laotoua.dawnislandk.DawnApp
@@ -112,6 +113,7 @@ class PostsFragment : BaseNavFragment() {
                     return true
                 }
                 MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@PostsFragment)
                     val biId = if (fidInt > 0) fidInt else 1
                     val resourceId: Int = context.resources.getIdentifier(
                         "bi_$biId", "drawable",
@@ -163,11 +165,13 @@ class PostsFragment : BaseNavFragment() {
                 setOnItemLongClickListener { _, _, position ->
                     if (activity == null || !isAdded) return@setOnItemLongClickListener true
                     MaterialDialog(requireContext()).show {
+                        lifecycleOwner(this@PostsFragment)
                         title(R.string.post_options)
                         listItems(R.array.post_options) { _, index, _ ->
                             when (index) {
                                 0 -> {
                                     MaterialDialog(requireContext()).show {
+                                        lifecycleOwner(this@PostsFragment)
                                         title(R.string.report_reasons)
                                         listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
                                             postPopup.setupAndShow(
@@ -286,6 +290,7 @@ class PostsFragment : BaseNavFragment() {
                 hideFabMenu()
                 DawnApp.applicationDataStore.nmbNotice?.let { notice ->
                     MaterialDialog(requireContext()).show {
+                        lifecycleOwner(this@PostsFragment)
                         title(res = R.string.announcement)
                         message(text = notice.content) { html() }
                         positiveButton(R.string.close)
@@ -302,6 +307,7 @@ class PostsFragment : BaseNavFragment() {
                 }
 
                 MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@PostsFragment)
                     title(R.string.search)
                     customView(R.layout.dialog_search, noVerticalPadding = true).apply {
                         val searchInputText = findViewById<TextView>(R.id.searchInputText)

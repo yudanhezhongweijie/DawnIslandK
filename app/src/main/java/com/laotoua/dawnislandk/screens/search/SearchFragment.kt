@@ -37,6 +37,7 @@ import com.afollestad.materialdialogs.actions.setActionButtonEnabled
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.input.getInputField
 import com.afollestad.materialdialogs.input.input
+import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
 import com.chad.library.adapter.base.binder.QuickItemBinder
 import com.chad.library.adapter.base.util.getItemView
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
@@ -98,6 +99,7 @@ class SearchFragment : BaseNavFragment() {
                 }
 
                 MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@SearchFragment)
                     title(R.string.search)
                     customView(R.layout.dialog_search, noVerticalPadding = true).apply {
                         val searchInputText = findViewById<TextView>(R.id.searchInputText)
@@ -200,6 +202,7 @@ class SearchFragment : BaseNavFragment() {
 
             binding!!.jump.setOnClickListener {
                 MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@SearchFragment)
                     title(R.string.page_jump)
                     var page = 0
                     input(

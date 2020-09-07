@@ -131,7 +131,10 @@ class CommentsFragment : DaggerFragment() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
-        pageCounter = menu.findItem(R.id.pageCounter).actionView.findViewById(R.id.text)
+        menu.findItem(R.id.pageCounter).actionView.apply {
+            pageCounter = findViewById(R.id.text)
+            setOnClickListener { showJumpPageDialog() }
+        }
         context?.let { menu.findItem(R.id.filter).icon.setTint(Layout.getThemeInverseColor(it)) }
         super.onPrepareOptionsMenu(menu)
     }
@@ -385,67 +388,7 @@ class CommentsFragment : DaggerFragment() {
             }
 
             binding!!.jump.setOnClickListener {
-                if (binding == null || mAdapter == null || activity == null || !isAdded) return@setOnClickListener
-                if (binding!!.srlAndRv.refreshLayout.isRefreshing || mAdapter?.loadMoreModule?.isLoading == true) {
-                    Timber.d("Loading data...Holding on jump...")
-                    return@setOnClickListener
-                }
-                val page = getCurrentPage()
-                MaterialDialog(requireContext()).show {
-                    lifecycleOwner(this@CommentsFragment)
-                    val maxPage = viewModel.maxPage
-                    var targetPage = page
-                    var canNotJump =
-                        DawnApp.applicationDataStore.firstCookieHash == null && targetPage > 99
-                    customView(R.layout.popup_jump)
-                    val submitButton = getActionButton(WhichButton.POSITIVE)
-                    val pageInput = getCustomView().findViewById<TextInputLayout>(R.id.pageInput)
-                    pageInput.editText!!.doOnTextChanged { text, _, _, _ ->
-                        try {
-                            submitButton.isEnabled = !(text.isNullOrBlank()
-                                    || text.length > maxPage.toString().length
-                                    || text.toString().toInt() > maxPage)
-                            if (submitButton.isEnabled) {
-                                targetPage = pageInput.editText!!.text.toString().toInt()
-                            }
-                            canNotJump =
-                                DawnApp.applicationDataStore.firstCookieHash == null && targetPage > 99
-                            pageInput.error =
-                                if (canNotJump) context.resources.getString(R.string.need_cookie_to_read) else null
-                        } catch (e: Exception) {
-                            submitButton.isEnabled = false
-                            targetPage = page
-                        }
-                    }
-                    pageInput.editText!!.setText(targetPage.toString())
-                    pageInput.error =
-                        if (canNotJump) context.resources.getString(R.string.need_cookie_to_read) else null
-
-                    getCustomView().findViewById<TextView>(R.id.currentPage).text =
-                        currentPage.toString()
-                    getCustomView().findViewById<TextView>(R.id.maxPage).text = maxPage.toString()
-                    getCustomView().findViewById<ImageButton>(R.id.firstPage).setOnClickListener {
-                        targetPage = 1
-                        pageInput.editText!!.setText(targetPage.toString())
-                    }
-
-                    getCustomView().findViewById<ImageButton>(R.id.lastPage).setOnClickListener {
-                        targetPage = maxPage
-                        pageInput.editText!!.setText(targetPage.toString())
-                    }
-
-                    positiveButton(R.string.submit) {
-                        if (binding == null || mAdapter == null) dismiss()
-                        binding!!.srlAndRv.refreshLayout.autoRefresh(
-                            Constants.ACTION_NOTHING,
-                            false
-                        )
-                        refreshing = true
-                        Timber.i("Jumping to $targetPage...")
-                        viewModel.jumpTo(targetPage)
-                    }
-                    negativeButton(R.string.cancel)
-                }
+                showJumpPageDialog()
             }
 
             binding!!.feed.apply {
@@ -536,6 +479,70 @@ class CommentsFragment : DaggerFragment() {
         }
     }
 
+    private fun showJumpPageDialog() {
+        if (binding == null || mAdapter == null || activity == null || !isAdded) return
+        if (binding!!.srlAndRv.refreshLayout.isRefreshing || mAdapter?.loadMoreModule?.isLoading == true) {
+            Timber.d("Loading data...Holding on jump...")
+            return
+        }
+        val page = getCurrentPage()
+        MaterialDialog(requireContext()).show {
+            lifecycleOwner(this@CommentsFragment)
+            val maxPage = viewModel.maxPage
+            var targetPage = page
+            var canJump = DawnApp.applicationDataStore.firstCookieHash != null || targetPage < 100
+            customView(R.layout.popup_jump)
+            val submitButton = getActionButton(WhichButton.POSITIVE)
+            getCustomView().apply {
+                val pageInput = findViewById<TextInputLayout>(R.id.pageInput)
+                pageInput.editText!!.doOnTextChanged { text, _, _, _ ->
+                    try {
+                        submitButton.isEnabled = !(text.isNullOrBlank()
+                                || text.length > maxPage.toString().length
+                                || text.toString().toInt() > maxPage)
+                        if (submitButton.isEnabled) {
+                            targetPage = pageInput.editText!!.text.toString().toInt()
+                        }
+                        canJump = DawnApp.applicationDataStore.firstCookieHash != null
+                                || targetPage < 100
+                        pageInput.error =
+                            if (!canJump) context.resources.getString(R.string.need_cookie_to_read) else null
+                        submitButton.isEnabled = canJump
+                    } catch (e: Exception) {
+                        submitButton.isEnabled = false
+                        targetPage = page
+                    }
+                }
+                pageInput.editText!!.setText(targetPage.toString())
+                pageInput.error =
+                    if (!canJump) context.resources.getString(R.string.need_cookie_to_read) else null
+
+                findViewById<TextView>(R.id.currentPage).text = currentPage.toString()
+                findViewById<TextView>(R.id.maxPage).text = maxPage.toString()
+                findViewById<ImageButton>(R.id.firstPage).setOnClickListener {
+                    targetPage = 1
+                    pageInput.editText!!.setText(targetPage.toString())
+                }
+
+                findViewById<ImageButton>(R.id.lastPage).setOnClickListener {
+                    targetPage = maxPage
+                    pageInput.editText!!.setText(targetPage.toString())
+                }
+            }
+
+            positiveButton(R.string.submit) {
+                if (binding == null || mAdapter == null) dismiss()
+                binding!!.srlAndRv.refreshLayout.autoRefresh(
+                    Constants.ACTION_NOTHING,
+                    false
+                )
+                refreshing = true
+                Timber.i("Jumping to $targetPage...")
+                viewModel.jumpTo(targetPage)
+            }
+            negativeButton(R.string.cancel)
+        }
+    }
 
     private fun copyText(label: String, text: String) {
         getSystemService(requireContext(), ClipboardManager::class.java)

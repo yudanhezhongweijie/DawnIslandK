@@ -175,14 +175,12 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
                     lp?.height = height
                     it?.layoutParams = lp
                 }
+                buttonToggleGroup?.uncheck(R.id.postFace)
+                buttonToggleGroup?.uncheck(R.id.postLuwei)
             }
             val lp = keyboardHolder?.layoutParams
             lp?.height = height
             keyboardHolder?.layoutParams = lp
-            if (height > 0) {
-                buttonToggleGroup?.uncheck(R.id.postFace)
-                buttonToggleGroup?.uncheck(R.id.postLuwei)
-            }
         }
         /** On some system, EditText automatically grab focus then the keyboard is show,
          *  manually hiding the soft input on those systems. will cause a view flash...

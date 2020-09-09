@@ -34,11 +34,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
-import com.afollestad.materialdialogs.WhichButton
-import com.afollestad.materialdialogs.actions.getActionButton
 import com.afollestad.materialdialogs.callbacks.onDismiss
-import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
-import com.afollestad.materialdialogs.checkbox.isCheckPromptChecked
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
@@ -522,19 +518,16 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
             MaterialDialog(context).show {
                 lifecycleOwner(caller)
                 title(R.string.please_comply_rules)
-                cancelOnTouchOutside(false)
-                checkBoxPrompt(R.string.acknowledge_post_rules) {
+                message(R.string.acknowledge_post_rules)
+                positiveButton(R.string.submit) {
+                    applicationDataStore.acknowledgementPostingRule()
                     val uri = DawnConstants.nmbHost + "/forum"
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uri))
                     if (intent.resolveActivity(caller.packageManager) != null) {
                         startActivity(caller, intent, null)
                     }
-                    getActionButton(WhichButton.POSITIVE).isEnabled = isCheckPromptChecked()
                 }
-                positiveButton(R.string.acknowledge) {
-                    applicationDataStore.acknowledgementPostingRule()
-                }
-                getActionButton(WhichButton.POSITIVE).isEnabled = false
+                negativeButton(R.string.cancel)
             }
             return
         }

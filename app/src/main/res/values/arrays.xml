@@ -293,4 +293,10 @@
         <item>https://adnmb3.com</item>
         <item>自定义</item>
     </string-array>
+
+    <string-array name="download_options">
+        <item>A岛(下载前请检查版本)</item>
+        <item>Github</item>
+        <item>Google Play</item>
+    </string-array>
 </resources>

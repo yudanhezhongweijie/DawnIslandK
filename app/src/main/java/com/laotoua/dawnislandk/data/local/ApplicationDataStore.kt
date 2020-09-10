@@ -378,7 +378,6 @@ class ApplicationDataStore @Inject constructor(
 
     suspend fun getLatestRelease(): Release? {
         // TODO: add update check frequency
-        // TODO: store releases, show release changelog on new installation
 //        val currentVersion = releaseDao.getLatestRelease()
 //        if (currentVersion == null) {
 //            val currentRelease = Release(1, BuildConfig.VERSION_NAME, "", "default entry",Date().time)

@@ -67,7 +67,7 @@ class TrendsFragment : BaseNavFragment() {
             mAdapter?.showNoData()
             return@Observer
         }
-        mAdapter?.setDiffNewData(list.toMutableList())
+        mAdapter?.setList(list.toMutableList())
         mAdapter?.setFooterView(
             layoutInflater.inflate(
                 R.layout.view_no_more_data,

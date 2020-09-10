@@ -703,8 +703,8 @@ class CommentsFragment : DaggerFragment() {
     }
 
     private fun dismissAllQuotes() {
-        for (i in quotePopups.indices.reversed()) {
-            quotePopups[i].dismiss()
+        for (q in quotePopups.reversed()) {
+            q.dismiss()
         }
     }
 

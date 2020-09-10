@@ -204,7 +204,7 @@ class PostsFragment : BaseNavFragment() {
                             }
                         }
                     }
-                    true
+                    return@setOnItemLongClickListener true
                 }
 
                 addChildClickViewIds(R.id.attachedImage)
@@ -214,6 +214,7 @@ class PostsFragment : BaseNavFragment() {
                         val viewerPopup = ImageViewerPopup(requireContext())
                         viewerPopup.setSingleSrcView(view as ImageView?, getItem(position))
                         XPopup.Builder(context)
+                            .isDestroyOnDismiss(true)
                             .asCustom(viewerPopup)
                             .show()
                     }

@@ -340,6 +340,7 @@ class SearchFragment : BaseNavFragment() {
                 val viewerPopup = ImageViewerPopup(context)
                 viewerPopup.setSingleSrcView(view as ImageView?, data)
                 XPopup.Builder(context)
+                    .isDestroyOnDismiss(true)
                     .asCustom(viewerPopup)
                     .show()
             }

@@ -283,6 +283,7 @@ class FeedsFragment : BaseNavFragment() {
                 val viewerPopup = ImageViewerPopup(context)
                 viewerPopup.setSingleSrcView(view as ImageView?, data.post!!)
                 XPopup.Builder(context)
+                    .isDestroyOnDismiss(true)
                     .asCustom(viewerPopup)
                     .show()
             }

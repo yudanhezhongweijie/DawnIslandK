@@ -20,7 +20,11 @@ package com.laotoua.dawnislandk.screens
 import android.animation.Animator
 import android.animation.TypeEvaluator
 import android.animation.ValueAnimator
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -81,9 +85,15 @@ class MainActivity : DaggerAppCompatActivity() {
 
     private val sharedVM: SharedViewModel by viewModels { viewModelFactory }
 
+    // The BroadcastReceiver that tracks network connectivity changes.
+    private var networkStateReceiver: NetworkReceiver? = null
+    private var lastNetworkTestTime: Long = 0
+
+
     private var doubleBackToExitPressedOnce = false
     private val mHandler = Handler()
     private val mRunnable = Runnable { doubleBackToExitPressedOnce = false }
+    private var reselectCDNRunnable: Runnable? = null
 
     enum class NavScrollSate {
         UP,
@@ -145,6 +155,12 @@ class MainActivity : DaggerAppCompatActivity() {
         bindNavBarAndNavController()
 
         handleIntentFilterNavigation(intent)
+
+        if (networkStateReceiver == null) {
+            val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+            networkStateReceiver = NetworkReceiver()
+            registerReceiver(networkStateReceiver, filter)
+        }
 
         sharedVM.communityList.observe(this) {
             if (it.status == LoadingStatus.ERROR) {
@@ -356,6 +372,8 @@ class MainActivity : DaggerAppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         mHandler.removeCallbacks(mRunnable)
+        reselectCDNRunnable?.let { mHandler.removeCallbacks(it) }
+        networkStateReceiver?.let { unregisterReceiver(it) }
     }
 
     fun hideNav() {
@@ -541,11 +559,17 @@ class MainActivity : DaggerAppCompatActivity() {
     }
 
     private fun autoSelectCDNs() {
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - 20000 <= lastNetworkTestTime) {
+            Timber.d("CDN was set less than 20 seconds ago, skipping...")
+            return
+        }
+        lastNetworkTestTime = currentTime
         // base CDN
         val base = applicationDataStore.getBaseCDN()
-        val availableBaseConnections = sortedMapOf<Long, String>()
         if (base == "auto") {
-            Timber.i("Auto selecting base CDN...")
+            Timber.i("Auto selecting Base CDN...")
+            val availableBaseConnections = sortedMapOf<Long, String>()
             for (url in resources.getStringArray(R.array.base_cdn_options).drop(1).dropLast(1)) {
                 lifecycleScope.launch(Dispatchers.IO) {
                     var connection: HttpsURLConnection? = null
@@ -564,7 +588,7 @@ class MainActivity : DaggerAppCompatActivity() {
                             ) {
                                 val timeElapsed = System.currentTimeMillis() - startTime
                                 availableBaseConnections[timeElapsed] = url
-                                Timber.d("Available Base Choices: $availableBaseConnections")
+                                Timber.d("Available Base CDN: $availableBaseConnections")
                                 if (availableBaseConnections.firstKey() == timeElapsed) {
                                     Timber.d("Using $url for Base")
                                     RetrofitUrlManager.getInstance().putDomain("adnmb", url)
@@ -583,8 +607,8 @@ class MainActivity : DaggerAppCompatActivity() {
 
         // Reference CDN
         val ref = applicationDataStore.getRefCDN()
-        val availableRefConnections = sortedMapOf<Long, String>()
         if (ref == "auto") {
+            val availableRefConnections = sortedMapOf<Long, String>()
             Timber.i("Auto selecting ref CDN...")
             for (url in resources.getStringArray(R.array.ref_cdn_options).drop(1).dropLast(1)) {
                 lifecycleScope.launch(Dispatchers.IO) {
@@ -598,13 +622,10 @@ class MainActivity : DaggerAppCompatActivity() {
                             requestMethod = "GET"
                             val startTime = System.currentTimeMillis()
                             connect()
-                            if (responseCode == HttpsURLConnection.HTTP_OK
-                                // fastmirror forbids base get but might works
-                                || responseCode == HttpsURLConnection.HTTP_FORBIDDEN
-                            ) {
+                            if (responseCode == HttpsURLConnection.HTTP_OK) {
                                 val timeElapsed = System.currentTimeMillis() - startTime
                                 availableRefConnections[timeElapsed] = url
-                                Timber.d("Available Ref Choices: $availableRefConnections")
+                                Timber.d("Available Ref CDN: $availableRefConnections")
                                 if (availableRefConnections.firstKey() == timeElapsed) {
                                     Timber.d("Using $url for Ref")
                                     RetrofitUrlManager.getInstance().putDomain("adnmb-ref", url)
@@ -621,4 +642,23 @@ class MainActivity : DaggerAppCompatActivity() {
             RetrofitUrlManager.getInstance().putDomain("adnmb-ref", ref)
         }
     }
+
+    private class NetworkReceiver : BroadcastReceiver() {
+        private var lastConnectionType: Int? = null
+        override fun onReceive(context: Context, intent: Intent) {
+            val info =
+                (context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager).activeNetworkInfo
+            if (info?.type != lastConnectionType && info?.isConnected == true) {
+                (context as? MainActivity)?.run {
+                    reselectCDNRunnable = Runnable {
+                        Timber.d("Re-selecting CDNs after network changes")
+                        autoSelectCDNs()
+                    }
+                    mHandler.postDelayed(reselectCDNRunnable!!, 3000)
+                }
+            }
+            lastConnectionType = info?.type
+        }
+    }
+
 }

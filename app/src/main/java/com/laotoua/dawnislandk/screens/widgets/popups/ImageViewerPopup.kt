@@ -28,14 +28,12 @@ import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.os.Environment
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
-import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.FragmentActivity
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
@@ -51,6 +49,7 @@ import com.laotoua.dawnislandk.data.local.entity.Comment
 import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.data.local.entity.PostHistory
 import com.laotoua.dawnislandk.data.remote.SearchResult
+import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.ImageUtil
 import com.laotoua.dawnislandk.util.ReadableTime
 import com.laotoua.dawnislandk.util.SingleLiveEvent
@@ -68,6 +67,9 @@ import com.lxj.xpopup.widget.HackyViewPager
 import com.lxj.xpopup.widget.PhotoViewContainer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import me.jessyan.progressmanager.ProgressListener
+import me.jessyan.progressmanager.ProgressManager
+import me.jessyan.progressmanager.body.ProgressInfo
 import timber.log.Timber
 import java.io.File
 
@@ -76,6 +78,7 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
     private var container: FrameLayout = findViewById(R.id.container)
     private var photoViewContainer: PhotoViewContainer? = null
     private var placeholderView: BlankView? = null
+    private var progressBar: ProgressBar? = null
     private var tvPagerIndicator: TextView? = null
     private var pager: HackyViewPager? = null
     private var argbEvaluator = ArgbEvaluator()
@@ -154,6 +157,7 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
             )
         }
         placeholderView = findViewById(R.id.placeholderView)
+        progressBar = findViewById(R.id.progressBar)
         photoViewContainer = findViewById(R.id.photoViewContainer)
         photoViewContainer!!.setOnDragChangeListener(this)
         pager = findViewById(R.id.pager)
@@ -542,6 +546,21 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
         srcViewUpdateListener = null
     }
 
+    private fun getGlideListener() = object : ProgressListener {
+        override fun onProgress(progressInfo: ProgressInfo) {
+            progressBar?.progress = progressInfo.percent
+            if (progressInfo.isFinish) progressBar?.visibility = View.GONE
+            else progressBar?.visibility = View.VISIBLE
+        }
+
+        override fun onError(id: Long, e: java.lang.Exception?) {
+            Handler().post {
+                progressBar?.progress = 0
+                progressBar?.visibility = View.GONE
+            }
+        }
+    }
+
     open inner class PhotoViewAdapter : PagerAdapter() {
         override fun getCount(): Int {
             return if (isInfinite) Int.MAX_VALUE / 2 else urls.size
@@ -554,11 +573,10 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
             val photoView = PhotoView(container.context)
             if (imageLoader != null) {
-                imageLoader?.loadImage(
-                    position,
-                    getImageUrl(urls[if (isInfinite) position % urls.size else position]),
-                    photoView
-                )
+                val url = getImageUrl(urls[if (isInfinite) position % urls.size else position])
+                val listener = getGlideListener()
+                ProgressManager.getInstance().addResponseListener(url, listener)
+                imageLoader?.loadImage(position, url, photoView)
             }
             photoView.setOnMatrixChangeListener {
                 if (snapshotView != null) {
@@ -646,7 +664,7 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
     }
 
     private fun getImageUrl(urlObj: Any): String {
-        return when (urlObj) {
+        val uri = when (urlObj) {
             is Post -> {
                 urlObj.getImgUrl()
             }
@@ -666,5 +684,7 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
                 throw Exception("Unhandled url getter for type $urlObj")
             }
         }
+
+        return if (uri.startsWith("http")) uri else DawnConstants.imageCDN + uri
     }
 }

@@ -244,7 +244,7 @@ class CustomSettingFragment : DaggerFragment() {
         binding?.setBaseCdn?.apply {
             key.setText(R.string.set_base_cdn)
             var baseCDN = applicationDataStore.getBaseCDN()
-            summary.text = baseCDN
+            summary.text = if (baseCDN == "auto") "自动" else baseCDN
             root.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
                 MaterialDialog(requireActivity()).show {
@@ -252,13 +252,13 @@ class CustomSettingFragment : DaggerFragment() {
                     title(R.string.set_base_cdn)
                     listItemsSingleChoice(R.array.base_cdn_options) { _, index, text ->
                         when (index) {
-                            0, 1, 2 -> {
-                                baseCDN = text.toString()
+                            0, 1, 2, 3 -> {
+                                baseCDN = if (index == 0) "auto" else text.toString()
                                 applicationDataStore.setBaseCDN(baseCDN)
-                                summary.text = baseCDN
+                                summary.text = if (index == 0) "自动" else baseCDN
                                 toast(R.string.restart_to_apply_setting)
                             }
-                            3 -> {
+                            4 -> {
                                 MaterialDialog(requireActivity()).show {
                                     lifecycleOwner(this@CustomSettingFragment)
                                     title(R.string.set_base_cdn)
@@ -291,7 +291,7 @@ class CustomSettingFragment : DaggerFragment() {
         binding?.setRefCdn?.apply {
             key.setText(R.string.set_ref_cdn)
             var refCDN = applicationDataStore.getRefCDN()
-            summary.text = refCDN
+            summary.text = if (refCDN == "auto") "自动" else refCDN
             root.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
                 MaterialDialog(requireActivity()).show {
@@ -299,13 +299,13 @@ class CustomSettingFragment : DaggerFragment() {
                     lifecycleOwner(this@CustomSettingFragment)
                     listItemsSingleChoice(R.array.ref_cdn_options) { _, index, text ->
                         when (index) {
-                            0, 1 -> {
-                                refCDN = text.toString()
-                                summary.text = refCDN
+                            0, 1, 2 -> {
+                                refCDN = if (index == 0) "auto" else text.toString()
+                                summary.text = if (index == 0) "自动" else refCDN
                                 applicationDataStore.setRefCDN(refCDN)
                                 toast(R.string.restart_to_apply_setting)
                             }
-                            2 -> {
+                            3 -> {
                                 MaterialDialog(requireActivity()).show {
                                     lifecycleOwner(this@CustomSettingFragment)
                                     title(R.string.set_ref_cdn)

@@ -282,6 +282,7 @@
     </string-array>
 
     <string-array name="base_cdn_options">
+        <item>自动</item>
         <item>https://adnmb2.com</item>
         <item>https://adnmb3.com</item>
         <item>https://nmb.fastmirror.org</item>
@@ -289,6 +290,7 @@
     </string-array>
 
     <string-array name="ref_cdn_options">
+        <item>自动</item>
         <item>https://adnmb2.com</item>
         <item>https://adnmb3.com</item>
         <item>自定义</item>

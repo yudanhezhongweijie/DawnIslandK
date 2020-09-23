@@ -61,10 +61,14 @@ import com.lxj.xpopup.core.BasePopupView
 import com.lxj.xpopup.enums.PopupPosition
 import com.lxj.xpopup.interfaces.SimpleCallback
 import dagger.android.support.DaggerAppCompatActivity
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import me.jessyan.retrofiturlmanager.RetrofitUrlManager
 import timber.log.Timber
+import java.net.URL
 import java.net.URLDecoder
 import javax.inject.Inject
+import javax.net.ssl.HttpsURLConnection
 import kotlin.math.max
 
 
@@ -112,7 +116,10 @@ class MainActivity : DaggerAppCompatActivity() {
 
     init {
         // load Resources
-        lifecycleScope.launchWhenCreated { loadResources() }
+        lifecycleScope.launchWhenCreated {
+            autoSelectCDNs()
+            loadResources()
+        }
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -455,10 +462,10 @@ class MainActivity : DaggerAppCompatActivity() {
     }
 
     private fun updateTitleAndBottomNav(destination: NavDestination) {
-        return when (destination.id) {
+        when (destination.id) {
             R.id.postsFragment -> {
-                sharedVM.selectedForumId.value.let {
-                    if (it != null) setToolbarTitle(sharedVM.getForumDisplayName(it))
+                sharedVM.selectedForumId.value?.let {
+                    setToolbarTitle(sharedVM.getForumDisplayName(it))
                 }
                 showNav()
             }
@@ -530,6 +537,88 @@ class MainActivity : DaggerAppCompatActivity() {
                 Toast.makeText(this, R.string.toolbar_customization_error, Toast.LENGTH_SHORT)
                     .show()
             }
+        }
+    }
+
+    private fun autoSelectCDNs() {
+        // base CDN
+        val base = applicationDataStore.getBaseCDN()
+        val availableBaseConnections = sortedMapOf<Long, String>()
+        if (base == "auto") {
+            Timber.i("Auto selecting base CDN...")
+            for (url in resources.getStringArray(R.array.base_cdn_options).drop(1).dropLast(1)) {
+                lifecycleScope.launch(Dispatchers.IO) {
+                    var connection: HttpsURLConnection? = null
+                    try {
+                        Timber.d("Testing base $url...")
+                        connection = (URL(url).openConnection() as? HttpsURLConnection)
+                        connection?.run {
+                            readTimeout = 3000
+                            connectTimeout = 3000
+                            requestMethod = "GET"
+                            val startTime = System.currentTimeMillis()
+                            connect()
+                            if (responseCode == HttpsURLConnection.HTTP_OK
+                                // fastmirror forbids base get but might works
+                                || responseCode == HttpsURLConnection.HTTP_FORBIDDEN
+                            ) {
+                                val timeElapsed = System.currentTimeMillis() - startTime
+                                availableBaseConnections[timeElapsed] = url
+                                Timber.d("Available Base Choices: $availableBaseConnections")
+                                if (availableBaseConnections.firstKey() == timeElapsed) {
+                                    Timber.d("Using $url for Base")
+                                    RetrofitUrlManager.getInstance().putDomain("adnmb", url)
+                                }
+                            }
+                        }
+                    } finally {
+                        connection?.disconnect()
+                    }
+                }
+            }
+        } else {
+            Timber.i("Base CDN is set to $base...")
+            RetrofitUrlManager.getInstance().putDomain("adnmb", base)
+        }
+
+        // Reference CDN
+        val ref = applicationDataStore.getRefCDN()
+        val availableRefConnections = sortedMapOf<Long, String>()
+        if (ref == "auto") {
+            Timber.i("Auto selecting ref CDN...")
+            for (url in resources.getStringArray(R.array.ref_cdn_options).drop(1).dropLast(1)) {
+                lifecycleScope.launch(Dispatchers.IO) {
+                    var connection: HttpsURLConnection? = null
+                    try {
+                        Timber.d("Testing ref $url...")
+                        connection = (URL(url).openConnection() as? HttpsURLConnection)
+                        connection?.run {
+                            readTimeout = 3000
+                            connectTimeout = 3000
+                            requestMethod = "GET"
+                            val startTime = System.currentTimeMillis()
+                            connect()
+                            if (responseCode == HttpsURLConnection.HTTP_OK
+                                // fastmirror forbids base get but might works
+                                || responseCode == HttpsURLConnection.HTTP_FORBIDDEN
+                            ) {
+                                val timeElapsed = System.currentTimeMillis() - startTime
+                                availableRefConnections[timeElapsed] = url
+                                Timber.d("Available Ref Choices: $availableRefConnections")
+                                if (availableRefConnections.firstKey() == timeElapsed) {
+                                    Timber.d("Using $url for Ref")
+                                    RetrofitUrlManager.getInstance().putDomain("adnmb-ref", url)
+                                }
+                            }
+                        }
+                    } finally {
+                        connection?.disconnect()
+                    }
+                }
+            }
+        } else {
+            Timber.d("Setting ref CDN to $ref")
+            RetrofitUrlManager.getInstance().putDomain("adnmb-ref", ref)
         }
     }
 }

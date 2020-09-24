@@ -59,7 +59,6 @@ import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbarInitializati
 import com.laotoua.dawnislandk.screens.widgets.DoubleClickListener
 import com.laotoua.dawnislandk.screens.widgets.popups.ForumDrawerPopup
 import com.laotoua.dawnislandk.util.LoadingStatus
-import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BasePopupView
 import com.lxj.xpopup.enums.PopupPosition
@@ -103,12 +102,7 @@ class MainActivity : DaggerAppCompatActivity() {
     private var currentState: NavScrollSate? = null
     private var currentAnimatorSet: ViewPropertyAnimator? = null
 
-    private val forumDrawer by lazyOnMainOnly {
-        ForumDrawerPopup(
-            this,
-            sharedVM
-        )
-    }
+    private var forumDrawer: ForumDrawerPopup? = null
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_activity_main, menu)
@@ -168,13 +162,13 @@ class MainActivity : DaggerAppCompatActivity() {
                 return@observe
             }
             if (it.data.isNullOrEmpty()) return@observe
-            forumDrawer.setData(it.data)
+            forumDrawer?.setData(it.data)
             sharedVM.setForumMappings(it.data)
             if (sharedVM.selectedForumId.value == null) sharedVM.setForumId(applicationDataStore.getDefaultForumId())
             Timber.i("Loaded ${it.data.size} communities to Adapter")
         }
 
-        sharedVM.reedPictureUrl.observe(this) { forumDrawer.setReedPicture(it) }
+        sharedVM.reedPictureUrl.observe(this) { forumDrawer?.setReedPicture(it) }
 
         sharedVM.selectedForumId.observe(this) {
             if (currentFragmentId == R.id.postsFragment) {
@@ -228,16 +222,29 @@ class MainActivity : DaggerAppCompatActivity() {
     }
 
     fun showDrawer() {
-        XPopup.Builder(this)
-            .setPopupCallback(object : SimpleCallback() {
-                override fun beforeShow(popupView: BasePopupView?) {
-                    super.beforeShow(popupView)
-                    forumDrawer.loadReedPicture()
-                }
-            })
-            .popupPosition(PopupPosition.Left)
-            .asCustom(forumDrawer)
-            .show()
+        if (forumDrawer == null) {
+            forumDrawer = ForumDrawerPopup(this, sharedVM)
+        }
+        forumDrawer!!.let { drawer ->
+            XPopup.Builder(this)
+                .setPopupCallback(object : SimpleCallback() {
+                    override fun beforeShow(popupView: BasePopupView?) {
+                        super.beforeShow(popupView)
+                        sharedVM.communityList.value?.data?.let { drawer.setData(it) }
+                        sharedVM.reedPictureUrl.value?.let { drawer.setReedPicture(it) }
+                        drawer.loadReedPicture()
+                    }
+
+                    override fun onDismiss(popupView: BasePopupView?) {
+                        super.onDismiss(popupView)
+                        forumDrawer = null
+                    }
+                })
+                .popupPosition(PopupPosition.Left)
+                .isDestroyOnDismiss(true)
+                .asCustom(drawer)
+                .show()
+        }
     }
 
     // initialize Global resources

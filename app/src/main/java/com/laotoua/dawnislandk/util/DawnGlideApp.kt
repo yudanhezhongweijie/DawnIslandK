@@ -17,8 +17,29 @@
 
 package com.laotoua.dawnislandk.util
 
+import android.content.Context
+import com.bumptech.glide.Glide
+import com.bumptech.glide.Registry
 import com.bumptech.glide.annotation.GlideModule
+import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader
+import com.bumptech.glide.load.model.GlideUrl
 import com.bumptech.glide.module.AppGlideModule
+import me.jessyan.progressmanager.ProgressManager
+import okhttp3.OkHttpClient
+import java.io.InputStream
+
 
 @GlideModule
-class DawnGlideApp : AppGlideModule()
+class DawnGlideApp : AppGlideModule() {
+    override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
+        //Glide 底层默认使用 HttpConnection 进行网络请求,这里替换为 Okhttp 后才能使用本框架,进行 Glide 的加载进度监听
+        registry.replace(
+            GlideUrl::class.java,
+            InputStream::class.java,
+            OkHttpUrlLoader.Factory(
+                ProgressManager.getInstance().with(OkHttpClient.Builder())
+                    .build()
+            )
+        )
+    }
+}

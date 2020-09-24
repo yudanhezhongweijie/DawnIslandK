@@ -144,6 +144,7 @@ dependencies {
     kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.9.3'
 
     implementation 'me.jessyan:retrofit-url-manager:1.4.0'
+    implementation 'me.jessyan:progressmanager:1.5.0'
 
     implementation 'org.jsoup:jsoup:1.13.1'
     implementation 'org.apache.commons:commons-text:1.9'
@@ -173,6 +174,8 @@ dependencies {
 
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     kapt 'com.github.bumptech.glide:compiler:4.11.0'
+    implementation 'com.github.bumptech.glide:okhttp3-integration:4.11.0'
+
     implementation 'id.zelory:compressor:3.0.0'
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.19'
 

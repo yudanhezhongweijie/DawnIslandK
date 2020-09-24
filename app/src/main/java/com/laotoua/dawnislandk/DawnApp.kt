@@ -21,7 +21,6 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.laotoua.dawnislandk.data.local.ApplicationDataStore
 import com.laotoua.dawnislandk.di.DaggerDawnAppComponent
-import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.ReadableTime
 import com.tencent.mmkv.MMKV
 import com.tencent.mmkv.MMKVHandler
@@ -64,17 +63,6 @@ class DawnApp : DaggerApplication() {
         setDefaultDayNightMode()
         // Time
         ReadableTime.initialize(this)
-
-        // base CDN
-        if (applicationDataStore.getBaseCDN() != DawnConstants.nmbHost) {
-            RetrofitUrlManager.getInstance().putDomain("adnmb", applicationDataStore.getBaseCDN())
-        }
-        // Reference CDN
-        if (applicationDataStore.getRefCDN() != DawnConstants.nmbHost) {
-            RetrofitUrlManager.getInstance()
-                .putDomain("adnmb-ref", applicationDataStore.getRefCDN())
-        }
-
     }
 
     private fun setDefaultDayNightMode() {

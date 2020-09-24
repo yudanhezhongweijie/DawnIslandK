@@ -82,7 +82,7 @@ class ApplicationDataStore @Inject constructor(
     private var baseCDN: String? = null
     fun getBaseCDN(): String {
         if (baseCDN == null) {
-            baseCDN = mmkv.getString(DawnConstants.DEFAULT_CDN, DawnConstants.nmbHost)
+            baseCDN = mmkv.getString(DawnConstants.DEFAULT_CDN, "auto")
         }
         return baseCDN!!
     }
@@ -90,13 +90,13 @@ class ApplicationDataStore @Inject constructor(
     fun setBaseCDN(newHost: String) {
         baseCDN = newHost
         mmkv.putString(DawnConstants.DEFAULT_CDN, newHost)
-        RetrofitUrlManager.getInstance().putDomain("adnmb", baseCDN)
+        if (newHost != "auto") RetrofitUrlManager.getInstance().putDomain("adnmb", baseCDN)
     }
 
     private var refCDN: String? = null
     fun getRefCDN(): String {
         if (refCDN == null) {
-            refCDN = mmkv.getString(DawnConstants.REF_CDN, DawnConstants.nmbHost)
+            refCDN = mmkv.getString(DawnConstants.REF_CDN, "auto")
         }
         return refCDN!!
     }
@@ -104,7 +104,7 @@ class ApplicationDataStore @Inject constructor(
     fun setRefCDN(newHost: String) {
         refCDN = newHost
         mmkv.putString(DawnConstants.REF_CDN, newHost)
-        RetrofitUrlManager.getInstance().putDomain("adnmb-ref", refCDN)
+        if (newHost != "auto") RetrofitUrlManager.getInstance().putDomain("adnmb-ref", refCDN)
     }
 
     private var feedId: String? = null

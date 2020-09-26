@@ -574,80 +574,62 @@ class MainActivity : DaggerAppCompatActivity() {
         lastNetworkTestTime = currentTime
         // base CDN
         val base = applicationDataStore.getBaseCDN()
-        if (base == "auto") {
-            Timber.i("Auto selecting Base CDN...")
-            val availableBaseConnections = sortedMapOf<Long, String>()
-            for (url in resources.getStringArray(R.array.base_cdn_options).drop(1).dropLast(1)) {
-                lifecycleScope.launch(Dispatchers.IO) {
-                    var connection: HttpsURLConnection? = null
-                    try {
-                        Timber.d("Testing base $url...")
-                        connection = (URL(url).openConnection() as? HttpsURLConnection)
-                        connection?.run {
-                            readTimeout = 3000
-                            connectTimeout = 3000
-                            requestMethod = "GET"
-                            val startTime = System.currentTimeMillis()
-                            connect()
-                            if (responseCode == HttpsURLConnection.HTTP_OK
-                                // fastmirror forbids base get but might works
-                                || responseCode == HttpsURLConnection.HTTP_FORBIDDEN
-                            ) {
-                                val timeElapsed = System.currentTimeMillis() - startTime
-                                availableBaseConnections[timeElapsed] = url
-                                Timber.d("Available Base CDN: $availableBaseConnections")
-                                if (availableBaseConnections.firstKey() == timeElapsed) {
-                                    Timber.d("Using $url for Base")
-                                    RetrofitUrlManager.getInstance().putDomain("adnmb", url)
-                                }
-                            }
-                        }
-                    } finally {
-                        connection?.disconnect()
-                    }
-                }
-            }
-        } else {
-            Timber.i("Base CDN is set to $base...")
-            RetrofitUrlManager.getInstance().putDomain("adnmb", base)
-        }
-
         // Reference CDN
         val ref = applicationDataStore.getRefCDN()
-        if (ref == "auto") {
-            val availableRefConnections = sortedMapOf<Long, String>()
-            Timber.i("Auto selecting ref CDN...")
-            for (url in resources.getStringArray(R.array.ref_cdn_options).drop(1).dropLast(1)) {
-                lifecycleScope.launch(Dispatchers.IO) {
-                    var connection: HttpsURLConnection? = null
-                    try {
-                        Timber.d("Testing ref $url...")
-                        connection = (URL(url).openConnection() as? HttpsURLConnection)
-                        connection?.run {
-                            readTimeout = 3000
-                            connectTimeout = 3000
-                            requestMethod = "GET"
-                            val startTime = System.currentTimeMillis()
-                            connect()
-                            if (responseCode == HttpsURLConnection.HTTP_OK) {
-                                val timeElapsed = System.currentTimeMillis() - startTime
-                                availableRefConnections[timeElapsed] = url
-                                Timber.d("Available Ref CDN: $availableRefConnections")
-                                if (availableRefConnections.firstKey() == timeElapsed) {
-                                    Timber.d("Using $url for Ref")
-                                    RetrofitUrlManager.getInstance().putDomain("adnmb-ref", url)
-                                }
-                            }
-                        }
-                    } finally {
-                        connection?.disconnect()
-                    }
-                }
-            }
-        } else {
+        if (ref != "auto") {
             Timber.d("Setting ref CDN to $ref")
             RetrofitUrlManager.getInstance().putDomain("adnmb-ref", ref)
         }
+
+        if (base != "auto") {
+            Timber.i("Setting base CDN to $base...")
+            RetrofitUrlManager.getInstance().putDomain("adnmb", base)
+        }
+        if (ref != "auto" && base != "auto") return
+        Timber.i("Auto selecting CDNs...")
+        val availableConnections = sortedMapOf<Long, String>()
+        val baseCDNs = resources.getStringArray(R.array.base_cdn_options).drop(1).dropLast(1)
+        val refCDNs = resources.getStringArray(R.array.ref_cdn_options).drop(1).dropLast(1)
+        for (url in if (base == "auto") baseCDNs else refCDNs) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                var connection: HttpsURLConnection? = null
+                try {
+                    Timber.d("Testing $url...")
+                    connection = (URL(url).openConnection() as? HttpsURLConnection)
+                    connection?.run {
+                        readTimeout = 3000
+                        connectTimeout = 3000
+                        requestMethod = "GET"
+                        val startTime = System.currentTimeMillis()
+                        connect()
+                        if (responseCode == HttpsURLConnection.HTTP_OK
+                            // fastmirror forbids base get but might works
+                            || responseCode == HttpsURLConnection.HTTP_FORBIDDEN
+                        ) {
+                            val timeElapsed = System.currentTimeMillis() - startTime
+                            availableConnections[timeElapsed] = url
+                            Timber.d("Available CDNs: $availableConnections")
+                            // Base
+                            if (availableConnections.firstKey() == timeElapsed) {
+                                Timber.d("Using $url for Base")
+                                RetrofitUrlManager.getInstance().putDomain("adnmb", url)
+                            }
+                            // Ref
+                            availableConnections.values.toList().firstOrNull { it in refCDNs }
+                                ?.let {
+                                    Timber.d("Using $it for Ref")
+                                    RetrofitUrlManager.getInstance().putDomain("adnmb", url)
+                                }
+                        }
+                    }
+                } catch (e: Exception) {
+                    Timber.e("$url test failed with $e")
+                } finally {
+                    connection?.disconnect()
+                }
+                }
+            }
+
     }
 
     private class NetworkReceiver : BroadcastReceiver() {

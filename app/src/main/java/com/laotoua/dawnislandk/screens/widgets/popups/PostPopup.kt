@@ -165,6 +165,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
     override fun onShow() {
         super.onShow()
         KeyboardUtils.registerSoftInputChangedListener(caller.window, this) { height ->
+            if (popupInfo == null) return@registerSoftInputChangedListener
             if (height > 0) {
                 listOf(emojiContainer, luweiStickerContainer).map {
                     val lp = it?.layoutParams

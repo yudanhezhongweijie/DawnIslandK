@@ -24,6 +24,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.os.SystemClock
 import android.text.style.UnderlineSpan
 import android.view.*
@@ -36,7 +37,6 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -75,8 +75,6 @@ import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BasePopupView
 import com.lxj.xpopup.interfaces.SimpleCallback
 import dagger.android.support.DaggerFragment
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import me.dkzwm.widget.srl.config.Constants
 import timber.log.Timber
@@ -692,9 +690,9 @@ class CommentsFragment : DaggerFragment() {
                     top.listenToLiveQuote(viewLifecycleOwner)
                 }
 
-                override fun beforeDismiss(popupView: BasePopupView?) {
-                    super.beforeDismiss(popupView)
+                override fun onDismiss(popupView: BasePopupView?) {
                     quotePopups.remove(popupView)
+                    super.onDismiss(popupView)
                 }
             })
             .isDestroyOnDismiss(true)
@@ -704,19 +702,18 @@ class CommentsFragment : DaggerFragment() {
 
     private fun dismissAllQuotes() {
         for (q in quotePopups.reversed()) {
-            q.dismiss()
+            q.smartDismiss()
         }
     }
 
     fun jumpToNewPost(id: String) {
-        dismissAllQuotes()
-        lifecycleScope.launch {
-            delay(100L)
-            if (activity == null || !isAdded) return@launch
+        Handler().postDelayed({
+            if (activity == null || !isAdded) return@postDelayed
             viewCaching = DawnApp.applicationDataStore.getViewCaching()
             val navAction = MainNavDirections.actionGlobalCommentsFragment(id, "")
             findNavController().navigate(navAction)
-        }
+        }, (XPopup.getAnimationDuration() + 50) * quotePopups.size + 100L)
+        dismissAllQuotes()
     }
 
     private fun getImageViewerPopup(): ImageViewerPopup {

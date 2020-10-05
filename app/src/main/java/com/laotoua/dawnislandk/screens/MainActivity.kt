@@ -249,6 +249,7 @@ class MainActivity : DaggerAppCompatActivity() {
 
     // initialize Global resources
     private suspend fun loadResources() {
+        applicationDataStore.loadCookies()
         applicationDataStore.getLatestRelease()?.let { release ->
             if (this.isFinishing) return@let
             MaterialDialog(this).show {
@@ -292,7 +293,6 @@ class MainActivity : DaggerAppCompatActivity() {
             }
         }
 
-        applicationDataStore.loadCookies()
         applicationDataStore.getLatestNMBNotice()?.let { notice ->
             if (this.isFinishing) return@let
             MaterialDialog(this).show {

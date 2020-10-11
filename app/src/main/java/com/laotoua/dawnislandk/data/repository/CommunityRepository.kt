@@ -55,8 +55,8 @@ class CommunityRepository @Inject constructor(
             if (response.status == LoadingStatus.ERROR) {
                 response.message = "无法读取板块列表...\n${response.message}"
             }
-            emit(response)
             if (response.status == LoadingStatus.SUCCESS) {
+                emit(response)
                 updateCache(response.data!!, false)
             }
         }

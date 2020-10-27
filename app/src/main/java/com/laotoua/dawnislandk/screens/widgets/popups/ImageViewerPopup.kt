@@ -115,6 +115,19 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
         }
     }
 
+    private var onPageChangeListener: SimpleOnPageChangeListener = object : SimpleOnPageChangeListener() {
+        override fun onPageSelected(i: Int) {
+            position = i
+            showPagerIndicator()
+            showPagerIndicator()
+            preloadImages(i)
+            //更新srcView
+            if (srcViewUpdateListener != null) {
+                srcViewUpdateListener!!.onSrcViewUpdate(this@ImageViewerPopup, i)
+            }
+        }
+    }
+
     init {
         if (implLayoutId > 0) {
             customView = LayoutInflater.from(getContext()).inflate(implLayoutId, container, false)
@@ -167,18 +180,8 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
             currentItem = position
             visibility = View.INVISIBLE
             addOrUpdateSnapshot()
-//            if (isInfinite) offscreenPageLimit = urls.size / 2
-            addOnPageChangeListener(object : SimpleOnPageChangeListener() {
-                override fun onPageSelected(i: Int) {
-                    position = i
-                    showPagerIndicator()
-                    preloadImages(i)
-                    //更新srcView
-//                    if (srcViewUpdateListener != null) {
-//                        srcViewUpdateListener!!.onSrcViewUpdate(this@ImageViewerPopup, i)
-//                    }
-                }
-            })
+            if (isInfinite) offscreenPageLimit = urls.size / 2
+            addOnPageChangeListener(onPageChangeListener)
         }
         if (!isShowIndicator) tvPagerIndicator!!.visibility = View.GONE
         if (!isShowSaveBtn) {
@@ -392,6 +395,7 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
         doDismissAnimation()
     }
 
+
     fun setImageUrls(urls: MutableList<Any>): ImageViewerPopup {
         val currentItem = this.urls.getOrNull(position)
         this.urls = urls
@@ -409,10 +413,10 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
         return this
     }
 
-//    fun setSrcViewUpdateListener(srcViewUpdateListener: OnSrcViewUpdateListener?): ImageViewerPopup {
-//        this.srcViewUpdateListener = srcViewUpdateListener
-//        return this
-//    }
+    fun setSrcViewUpdateListener(srcViewUpdateListener: OnSrcViewUpdateListener?): ImageViewerPopup {
+        this.srcViewUpdateListener = srcViewUpdateListener
+        return this
+    }
 
     fun setXPopupImageLoader(imageLoader: XPopupImageLoader?): ImageViewerPopup {
         this.imageLoader = imageLoader
@@ -491,12 +495,12 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
         if (srcView != null) {
             val locations = IntArray(2)
             this.srcView!!.getLocationInWindow(locations)
-            rect = Rect(
-                locations[0],
-                locations[1],
-                locations[0] + srcView.width,
-                locations[1] + srcView.height
-            )
+            rect = if (XPopupUtils.isLayoutRtl(context)) {
+                val left = -(XPopupUtils.getWindowWidth(context) - locations[0] - srcView.width)
+                Rect(left, locations[1], left + srcView.width, locations[1] + srcView.height)
+            } else {
+                Rect(locations[0], locations[1], locations[0] + srcView.width, locations[1] + srcView.height)
+            }
         }
         // clear cache views when reusing the same popup in images
         pager?.adapter?.notifyDataSetChanged()
@@ -546,6 +550,13 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
         srcViewUpdateListener = null
     }
 
+    override fun destroy() {
+        super.destroy()
+        pager?.removeOnPageChangeListener(onPageChangeListener)
+        imageLoader = null
+        urls.clear()
+    }
+
     private fun getGlideListener() = object : ProgressListener {
         override fun onProgress(progressInfo: ProgressInfo) {
             progressBar?.progress = progressInfo.percent
@@ -560,6 +571,7 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
             }
         }
     }
+
 
     open inner class PhotoViewAdapter : PagerAdapter() {
         override fun getCount(): Int {

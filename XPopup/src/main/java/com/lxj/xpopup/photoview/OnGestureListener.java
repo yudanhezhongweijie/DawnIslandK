@@ -14,6 +14,15 @@
  *  * limitations under the License.
  *
  */
+package com.lxj.xpopup.photoview;
 
-rootProject.name='DawnIslandK'
-include ':app', 'XPopup'
+interface OnGestureListener {
+
+    void onDrag(float dx, float dy);
+
+    void onFling(float startX, float startY, float velocityX,
+                 float velocityY);
+
+    void onScale(float scaleFactor, float focusX, float focusY);
+
+}

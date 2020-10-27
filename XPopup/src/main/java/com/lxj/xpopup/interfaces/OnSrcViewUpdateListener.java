@@ -15,5 +15,16 @@
  *
  */
 
-rootProject.name='DawnIslandK'
-include ':app', 'XPopup'
+package com.lxj.xpopup.interfaces;
+
+import androidx.annotation.NonNull;
+
+import com.lxj.xpopup.core.BasePopupView;
+
+/**
+ * Description:
+ * Create by dance, at 2019/1/29
+ */
+public interface OnSrcViewUpdateListener {
+    void onSrcViewUpdate(@NonNull BasePopupView popupView, int position);
+}

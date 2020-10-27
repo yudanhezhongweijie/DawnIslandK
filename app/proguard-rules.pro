@@ -21,8 +21,8 @@
 #-renamesourcefileattribute SourceFile
 
 # xPopup
--dontwarn com.lxj.xpopup.widget.**
--keep class com.lxj.xpopup.widget.**{*;}
+#-dontwarn com.lxj.xpopup.widget.**
+#-keep class com.lxj.xpopup.widget.**{*;}
 
 # https://issuetracker.google.com/issues/142601969
 -keepnames class androidx.navigation.fragment.NavHostFragment

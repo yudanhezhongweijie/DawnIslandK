@@ -92,11 +92,11 @@ public final class KeyboardUtils {
     }
 
     public static void removeLayoutChangeListener(View decorView, BasePopupView popupView) {
-        onGlobalLayoutListener = null;
         if (decorView == null) return;
         View contentView = decorView.findViewById(android.R.id.content);
         if (contentView == null) return;
         contentView.getViewTreeObserver().removeGlobalOnLayoutListener(onGlobalLayoutListener);
+        onGlobalLayoutListener = null;
         listenerMap.remove(popupView);
     }
 

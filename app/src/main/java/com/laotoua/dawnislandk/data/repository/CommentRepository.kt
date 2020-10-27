@@ -178,7 +178,7 @@ class CommentRepository @Inject constructor(
         result.value = DataResource.create()
         result.addSource(cache) {
             if ((!hasRemote || remote.value?.status == LoadingStatus.NO_DATA)
-                && cache.value?.status == LoadingStatus.SUCCESS
+                && cache.value?.status == LoadingStatus.SUCCESS && page != 1
             ) {
                 result.value = it
             }
@@ -186,8 +186,7 @@ class CommentRepository @Inject constructor(
         result.addSource(remote) {
             // probably post is deleted on server but I have cache, so show message but keep data
             if (cache.value?.status == LoadingStatus.SUCCESS && it.status == LoadingStatus.NO_DATA) {
-                result.value =
-                    DataResource.create(cache.value!!.status, cache.value!!.data, it.message)
+                result.value = DataResource.create(cache.value!!.status, cache.value!!.data, it.message)
             } else {
                 hasRemote = true
                 result.value = it

@@ -19,7 +19,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/restore"
-        android:icon="@drawable/ic_restore_24px"
+        android:icon="@drawable/ic_history_24px"
         android:title="@string/restore"
         app:showAsAction="ifRoom" />
     <item

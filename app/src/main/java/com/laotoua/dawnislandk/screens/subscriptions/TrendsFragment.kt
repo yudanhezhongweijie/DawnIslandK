@@ -25,6 +25,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
@@ -81,15 +82,14 @@ class TrendsFragment : BaseNavFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        if (mAdapter == null){
+        if (mAdapter == null) {
             mAdapter = QuickAdapter<Trend>(R.layout.list_item_trend, sharedVM).apply {
                 loadMoreModule.isEnableLoadMore = false
                 setOnItemClickListener { _, _, position ->
                     val target = getItem(position)
                     viewCaching = DawnApp.applicationDataStore.getViewCaching()
                     getItem(position).toPost(sharedVM.getForumIdByName(target.forum)).run {
-                        val navAction =
-                            MainNavDirections.actionGlobalCommentsFragment(id, fid)
+                        val navAction = MainNavDirections.actionGlobalCommentsFragment(id, fid)
                         findNavController().navigate(navAction)
                     }
                 }
@@ -113,7 +113,27 @@ class TrendsFragment : BaseNavFragment() {
                 setHasFixedSize(true)
                 layoutManager = LinearLayoutManager(context)
                 adapter = mAdapter
+
+                addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                        if (activity == null || !isAdded) return
+                        if (dy > 0) {
+                            binding?.jump?.hide()
+                            binding?.jump?.isClickable = false
+                        } else if (dy < 0) {
+                            binding?.jump?.show()
+                            binding?.jump?.isClickable = true
+                        }
+                    }
+                })
             }
+
+            binding!!.jump.setOnClickListener {
+                val navAction = MainNavDirections.actionGlobalCommentsFragment("15347469", "")
+                navAction.targetPage = viewModel.maxPage
+                findNavController().navigate(navAction)
+            }
+
         }
 
         viewModel.latestTrends.observe(viewLifecycleOwner, trendsObs)
@@ -121,7 +141,7 @@ class TrendsFragment : BaseNavFragment() {
         return binding!!.root
     }
 
-    private fun refreshTrends(){
+    private fun refreshTrends() {
         viewModel.latestTrends.removeObserver(trendsObs)
         viewModel.getLatestTrend()
         viewModel.latestTrends.observe(viewLifecycleOwner, trendsObs)

@@ -29,6 +29,8 @@ class TrendsViewModel @Inject constructor(
     var latestTrends = trendRepo.getLatestTrend()
         private set
 
+    val maxPage: Int get() = trendRepo.maxPage
+
     fun getLatestTrend() {
         Timber.d("Refreshing Trend...")
         latestTrends = trendRepo.getLatestTrend()

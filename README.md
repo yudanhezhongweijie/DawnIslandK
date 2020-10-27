@@ -6,7 +6,7 @@
 
 This app utilizes many latest Android features, concepts, propositions and guidlines, including but not limited to: Single Activity Application, Scoped Storage & MediaStore, Kotlin Coroutine, Navigations, Lifecycle, LiveData, Room, ActivityResultContracts, ViewPager2 and Material Design.
 
-This app uses Retrofit2(& okhttp) for API calls, Dagger2 for Dependency Injection(required for repository behind MVVM), Moshi(which provides better support than Gson in Kotlin, i.e. data class constructor with default value). 
+This app uses Retrofit2(& okhttp) for API calls, Dagger2 for Dependency Injection, Moshi for JSON Parsing.
 
 # Dev Memo 开发者日志
 [Issue faced & Solution](https://github.com/fishballzzz/DawnIslandK/blob/master/DEV_MEMO.md)
@@ -29,19 +29,5 @@ This app uses Retrofit2(& okhttp) for API calls, Dagger2 for Dependency Injectio
 资源有一些贡献者我没有记录下来，如果这个软件使用您的产物或者侵犯了您的权益，请联系我的邮箱`aliaseasy98@gmail.com`
 
 # License
-```
-Copyright 2020 Fishballzzz
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-```
+Apache 2.0
 

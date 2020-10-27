@@ -48,14 +48,16 @@ class TrendRepository @Inject constructor(
     private val trendLength = 32
     private var cache: DailyTrend? = null
 
+    private var _maxPage = 1
+    val maxPage: Int get() = _maxPage
+
     // Remote only acts as a request status responder, actual data will be emitted by local cache
     fun getLatestTrend(): LiveData<DataResource<DailyTrend>> = liveData {
         var getRemoteData = true
         if (cache == null) cache = dailyTrendDao.findLatestDailyTrendSync()
-        var page = 1
         cache?.let {
             emit(DataResource.create(LoadingStatus.SUCCESS, it))
-            page = ceil(it.lastReplyCount.toDouble() / 19).toInt()
+            _maxPage = ceil(it.lastReplyCount.toDouble() / 19).toInt()
             // trends updates daily at 1AM
             val diff = ReadableTime.getTimeAgo(System.currentTimeMillis(), it.date, true)
             val dayTime = ReadableTime.HOUR_MILLIS * 24
@@ -66,7 +68,7 @@ class TrendRepository @Inject constructor(
         }
         if (getRemoteData) {
             emit(DataResource.create())
-            getRemoteTrend(page)?.let { emit(it) }
+            getRemoteTrend(_maxPage)?.let { emit(it) }
         }
     }
 

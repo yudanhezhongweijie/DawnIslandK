@@ -266,6 +266,7 @@ class ProfileFragment : DaggerFragment() {
             MaterialDialog(requireContext()).show {
                 lifecycleOwner(this@ProfileFragment)
                 title(R.string.edit_cookie_remark)
+                message(text = "默认饼干名：${cookie.cookieName}")
                 input(
                     prefill = cookie.cookieDisplayName,
                     hint = cookie.cookieDisplayName

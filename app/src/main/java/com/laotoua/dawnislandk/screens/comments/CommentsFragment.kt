@@ -107,7 +107,7 @@ class CommentsFragment : DaggerFragment() {
     // need to dismiss all before jumping to new post, by lifo
     private val quotePopups: MutableList<QuotePopup> = mutableListOf()
 
-    private val postPopup: PostPopup by lazyOnMainOnly { PostPopup(requireActivity(), sharedVM) }
+    private val postPopup: PostPopup by lazyOnMainOnly { PostPopup(requireActivity() as MainActivity, sharedVM) }
     private var imageViewerPopup: ImageViewerPopup? = null
 
     enum class RVScrollState {

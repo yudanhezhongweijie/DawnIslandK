@@ -19,8 +19,8 @@
     <string name="app_name" translatable="false">黎明岛K</string>
 
     <string name="just_now" translatable="false">刚刚</string>
-    <string name="some_minutes_ago">%d 分钟前</string>
-    <string name="some_hours_ago">%d 小时前</string>
+    <string name="some_minutes_ago" translatable="false">%d 分钟前</string>
+    <string name="some_hours_ago" translatable="false">%d 小时前</string>
     <string name="yesterday" translatable="false">昨天</string>
     <string name="some_days_ago" translatable="false">%d 天前</string>
     <string name="from_the_future" translatable="false">来自未来</string>
@@ -101,9 +101,7 @@
     <string name="toolbar_subtitle" translatable="false">A岛 · adnmb.com</string>
     <string name="need_cookie_to_post" translatable="false">没有饼干不能发串哦。。</string>
     <string name="need_content_to_post" translatable="false">:(没有上传的内容或文件</string>
-    <string name="need_read_storage_permission" translatable="false">需要读取外部存储权限</string>
-    <string name="need_write_storage_permission" translatable="false">需要写入外部存储权限</string>
-    <string name="need_take_picture_permission" translatable="false">需要拍照权限</string>
+    <string name="please_give_permission_and_try_again" translatable="false">请给予权限并重复操作</string>
     <string name="please_try_again" translatable="false">请重复操作</string>
     <string name="please_try_again_later" translatable="false">请稍后再试</string>
     <string name="content_copied" translatable="false">%s已复制</string>
@@ -199,10 +197,10 @@
     <string name="set_ref_cdn_prompt" translatable="false">CDN格式如下:\n<b>https://adnmb2.com\n</b><b>https://adnmb3.com\n\n</b><b>本设置将影响查看串外引用功能\n不能使用 <strike>https://nmb.fastmirror.org\n</strike>注意!错误更改CDN会导致无法读取数据！</b></string>
     <string name="acknowledge" translatable="false">我知道了</string>
     <string name="post_options" translatable="false">串选项</string>
-    <string name="report">举报</string>
-    <string name="download_new_version">下载新版本</string>
-    <string name="compressing_oversize_image">正在压缩超大图片</string>
-    <string name="compressing_oversize_image_error">图片不存在或压缩超大图片出错。如果GIF图片超出2M，请自行压缩</string>
+    <string name="report" translatable="false">举报</string>
+    <string name="download_new_version" translatable="false">下载新版本</string>
+    <string name="compressing_oversize_image" translatable="false">正在压缩超大图片</string>
+    <string name="compressing_oversize_image_error" translatable="false">图片不存在或压缩超大图片出错。如果GIF图片超出2M，请自行压缩</string>
     <string name="app_feed_back" translatable="false">客户端反馈</string>
     <string name="data_range_selection_error" translatable="false">选择日期范围出错</string>
     <string name="no_data_on_page" translatable="false">第 %d 页没有数据嗷</string>

@@ -18,7 +18,6 @@
 package com.laotoua.dawnislandk.screens.profile
 
 import android.Manifest
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -33,9 +32,9 @@ import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.databinding.FragmentDisplaySettingBinding
+import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.screens.util.Layout.updateSwitchSummary
-import com.laotoua.dawnislandk.util.IntentUtil
 
 
 class DisplaySettingFragment : Fragment() {
@@ -147,8 +146,9 @@ class DisplaySettingFragment : Fragment() {
             }
             root.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
-                if (!IntentUtil.checkAndRequestAllPermissions(
-                        requireActivity(),
+                val caller = requireActivity() as MainActivity
+                if (!caller.intentsHelper.checkAndRequestAllPermissions(
+                        caller,
                         arrayOf(
                             Manifest.permission.READ_EXTERNAL_STORAGE,
                             Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -157,14 +157,7 @@ class DisplaySettingFragment : Fragment() {
                 ) {
                     return@setOnClickListener
                 }
-                IntentUtil.setToolbarBackgroundImage(requireActivity()) { uri: Uri? ->
-                    if (uri != null) {
-                        applicationDataStore.setCustomToolbarImagePath(uri.toString())
-                        toast(R.string.restart_to_apply_setting)
-                    } else {
-                        toast(R.string.cannot_load_image_file)
-                    }
-                }
+                caller.intentsHelper.setToolbarBackgroundImage(caller)
             }
         }
 

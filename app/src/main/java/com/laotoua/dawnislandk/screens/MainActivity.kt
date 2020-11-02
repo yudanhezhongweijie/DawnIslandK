@@ -58,6 +58,7 @@ import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbarInitialization
 import com.laotoua.dawnislandk.screens.widgets.DoubleClickListener
 import com.laotoua.dawnislandk.screens.widgets.popups.ForumDrawerPopup
+import com.laotoua.dawnislandk.util.IntentsHelper
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BasePopupView
@@ -78,6 +79,8 @@ import kotlin.math.max
 class MainActivity : DaggerAppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    lateinit var intentsHelper: IntentsHelper
+
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -155,6 +158,10 @@ class MainActivity : DaggerAppCompatActivity() {
             networkStateReceiver = NetworkReceiver()
             registerReceiver(networkStateReceiver, filter)
         }
+
+        intentsHelper = IntentsHelper(activityResultRegistry, this)
+        lifecycle.addObserver(intentsHelper)
+
 
         sharedVM.communityList.observe(this) {
             if (it.status == LoadingStatus.ERROR) {

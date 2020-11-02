@@ -22,7 +22,6 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.content.Context
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Rect
@@ -34,7 +33,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
 import android.widget.*
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.FragmentActivity
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.MutableLiveData
@@ -49,6 +47,7 @@ import com.laotoua.dawnislandk.data.local.entity.Comment
 import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.data.local.entity.PostHistory
 import com.laotoua.dawnislandk.data.remote.SearchResult
+import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.ImageUtil
 import com.laotoua.dawnislandk.util.ReadableTime
@@ -165,7 +164,7 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
         saveButton!!.setOnClickListener {
             if (!isShow) return@setOnClickListener
             addPicToGallery(
-                context as FragmentActivity,
+                context as MainActivity,
                 urls[position]
             )
         }
@@ -625,27 +624,14 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
         }
     }
 
-
-    private fun checkAndRequestExternalStoragePermission(caller: FragmentActivity): Boolean {
-        if (caller.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            caller.registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-                if (it == false) {
-                    Toast.makeText(
-                        context,
-                        R.string.need_write_storage_permission,
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            return false
-        }
-        return true
-    }
-
-    private fun addPicToGallery(caller: FragmentActivity, urlObj: Any) {
+    private fun addPicToGallery(caller: MainActivity, urlObj: Any) {
         val imgUrl: String = getImageUrl(urlObj)
-        val permission = checkAndRequestExternalStoragePermission(caller)
-        if (!permission) return
+        if (!caller.intentsHelper.checkAndRequestSinglePermission(
+                caller,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                true
+            )
+        ) return
 
         caller.lifecycleScope.launch(Dispatchers.IO) {
             Timber.i("Saving image $imgUrl to Gallery... ")

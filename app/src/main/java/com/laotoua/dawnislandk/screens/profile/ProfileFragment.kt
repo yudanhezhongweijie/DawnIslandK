@@ -18,6 +18,7 @@
 package com.laotoua.dawnislandk.screens.profile
 
 import android.Manifest
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -43,9 +44,9 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Cookie
 import com.laotoua.dawnislandk.databinding.FragmentProfileBinding
 import com.laotoua.dawnislandk.databinding.ListItemCookieBinding
+import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.util.ImageUtil
-import com.laotoua.dawnislandk.util.IntentUtil
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import dagger.android.support.DaggerFragment
@@ -168,20 +169,17 @@ class ProfileFragment : DaggerFragment() {
                 lifecycleOwner(this@ProfileFragment)
                 title(R.string.add_cookie)
                 listItems(R.array.cookie_addition_options) { _, index, _ ->
+                    val caller = requireActivity() as MainActivity
                     when (index) {
                         0 -> getCookieImage.launch("image/*")
                         1 -> {
-                            if (IntentUtil.checkAndRequestSinglePermission(
-                                    requireActivity(),
+                            if (caller.intentsHelper.checkAndRequestSinglePermission(
+                                    caller,
                                     Manifest.permission.CAMERA,
                                     true
                                 )
                             ) {
-                                IntentUtil.getCookieFromQRCode(requireActivity()) {
-                                    it?.run {
-                                        saveCookieWithInputName(it)
-                                    }
-                                }
+                                caller.intentsHelper.getCookieFromQRCode(this@ProfileFragment)
                             }
                         }
                         2 -> MaterialDialog(requireContext()).show {
@@ -281,6 +279,11 @@ class ProfileFragment : DaggerFragment() {
                     cookie.cookieDisplayName = cookie.cookieName
                     viewModel.updateCookie(cookie)
                 }
+                @Suppress("DEPRECATION")
+                neutralButton(R.string.cancel) {
+                    dismiss()
+                }
+                getActionButton(WhichButton.NEUTRAL).updateTextColor(Color.RED)
             }
         }
 
@@ -312,7 +315,7 @@ class ProfileFragment : DaggerFragment() {
         }
     }
 
-    private fun saveCookieWithInputName(cookieJson: String) {
+    fun saveCookieWithInputName(cookieJson: String) {
         try {
             val cookieHash = JSONObject(cookieJson).getString("cookie")
             MaterialDialog(requireContext()).show {
@@ -326,6 +329,12 @@ class ProfileFragment : DaggerFragment() {
                 negativeButton(R.string.default_cookie_name) {
                     viewModel.addNewCookie(cookieHash)
                 }
+
+                @Suppress("DEPRECATION")
+                neutralButton(R.string.cancel) {
+                    dismiss()
+                }
+                getActionButton(WhichButton.NEUTRAL).updateTextColor(Color.RED)
             }
         } catch (e: Exception) {
             toast("没有读取到有效饼干。请检查图片有效性。如果确认图片为合理饼干，请通过软件反馈联系作者并附上$cookieJson")

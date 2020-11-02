@@ -210,6 +210,7 @@ class ApplicationDataStore @Inject constructor(
     }
 
     fun setCustomToolbarImagePath(value: String) {
+        setCustomToolbarImageStatus(true)
         customToolbarImagePath = value
         mmkv.putString(DawnConstants.TOOLBAR_IMAGE_PATH, value)
     }

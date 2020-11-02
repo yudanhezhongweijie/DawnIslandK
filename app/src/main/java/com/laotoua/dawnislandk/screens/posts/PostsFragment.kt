@@ -23,6 +23,7 @@ import android.os.Bundle
 import android.view.*
 import android.view.animation.AnimationUtils
 import android.widget.*
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -59,7 +60,7 @@ class PostsFragment : BaseNavFragment() {
     private var redCircle: FrameLayout? = null
     private var countTextView: TextView? = null
     private val viewModel: PostsViewModel by viewModels { viewModelFactory }
-    private val postPopup: PostPopup by lazyOnMainOnly { PostPopup(requireActivity(), sharedVM) }
+    private val postPopup: PostPopup by lazyOnMainOnly { PostPopup(requireActivity() as MainActivity, sharedVM) }
     private var isFabOpen = false
     private var viewCaching = false
     private var refreshing = false
@@ -119,7 +120,7 @@ class PostsFragment : BaseNavFragment() {
                         "bi_$biId", "drawable",
                         context.packageName
                     )
-                    context.getDrawable(resourceId)?.let {
+                    ContextCompat.getDrawable(context, resourceId)?.let {
                         it.setTint(getThemeInverseColor(context))
                         icon(drawable = it)
                     }

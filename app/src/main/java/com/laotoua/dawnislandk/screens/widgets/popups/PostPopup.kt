@@ -28,8 +28,8 @@ import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startActivity
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -44,12 +44,12 @@ import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Cookie
 import com.laotoua.dawnislandk.data.local.entity.Emoji
+import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout
 import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.ImageUtil
-import com.laotoua.dawnislandk.util.IntentUtil
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BasePopupView
 import com.lxj.xpopup.core.BottomPopupView
@@ -61,7 +61,7 @@ import java.io.File
 
 
 @SuppressLint("ViewConstructor")
-class PostPopup(private val caller: FragmentActivity, private val sharedVM: SharedViewModel) :
+class PostPopup(private val caller: MainActivity, private val sharedVM: SharedViewModel) :
     BottomPopupView(caller) {
 
     private var newPost = false
@@ -357,7 +357,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
         }
 
         findViewById<Button>(R.id.postDoodle).setOnClickListener {
-            if (!IntentUtil.checkAndRequestAllPermissions(
+            if (!caller.intentsHelper.checkAndRequestAllPermissions(
                     caller, arrayOf(
                         permission.READ_EXTERNAL_STORAGE,
                         permission.WRITE_EXTERNAL_STORAGE
@@ -367,10 +367,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
                 return@setOnClickListener
             }
             KeyboardUtils.hideSoftInput(postContent!!)
-            IntentUtil.drawNewDoodle(caller) { uri ->
-                Timber.d("Made a doodle. Prepare to upload...")
-                compressAndPreviewImage(uri)
-            }
+            caller.intentsHelper.drawNewDoodle(caller, this)
         }
 
         // TODO: save draft
@@ -398,17 +395,14 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
 
 
         findViewById<Button>(R.id.postImage).setOnClickListener {
-            if (!IntentUtil.checkAndRequestSinglePermission(
+            if (!caller.intentsHelper.checkAndRequestSinglePermission(
                     caller, permission.READ_EXTERNAL_STORAGE, true
                 )
             ) {
                 return@setOnClickListener
             }
             KeyboardUtils.hideSoftInput(postContent!!)
-            IntentUtil.getImageFromGallery(caller, "image/*") { uri: Uri? ->
-                Timber.d("Picked a local image. Prepare to upload...")
-                compressAndPreviewImage(uri)
-            }
+            caller.intentsHelper.getImageFromGallery(this)
         }
 
         findViewById<Button>(R.id.postImageDelete).setOnClickListener {
@@ -418,19 +412,11 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
         }
 
         findViewById<Button>(R.id.postCamera).setOnClickListener {
-            if (!IntentUtil.checkAndRequestSinglePermission(
-                    caller,
-                    permission.CAMERA,
-                    true
-                )
-            ) {
+            if (!caller.intentsHelper.checkAndRequestAllPermissions(caller)) {
                 return@setOnClickListener
             }
             KeyboardUtils.hideSoftInput(postContent!!)
-            IntentUtil.getImageFromCamera(caller) { uri: Uri ->
-                Timber.d("Took a Picture. Prepare to upload...")
-                compressAndPreviewImage(uri)
-            }
+            caller.intentsHelper.getImageFromCamera(caller, this)
         }
 
         findViewById<Button>(R.id.forumRule).setOnClickListener {
@@ -442,7 +428,7 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
                     "bi_$biId", "drawable",
                     context.packageName
                 )
-                context.getDrawable(resourceId)?.let {
+                ContextCompat.getDrawable(context, resourceId)?.let {
                     it.setTint(Layout.getThemeInverseColor(context))
                     icon(drawable = it)
                 }
@@ -464,7 +450,8 @@ class PostPopup(private val caller: FragmentActivity, private val sharedVM: Shar
 
     }
 
-    private fun compressAndPreviewImage(uri: Uri?) {
+    fun compressAndPreviewImage(uri: Uri?) {
+        Timber.d("Picked a local image. Prepare to upload...")
         if (uri == null) {
             Toast.makeText(context, R.string.cannot_load_image_file, Toast.LENGTH_SHORT).show()
             return

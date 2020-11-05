@@ -116,7 +116,10 @@ class TrendRepository @Inject constructor(
     private fun extractLatestTrend(data: Post): DailyTrend? {
         for (reply in data.comments.reversed()) {
             if (reply.userid == po) {
-                val list = reply.content.split(trendDelimiter, ignoreCase = true)
+                val content = if (reply.content.startsWith("@")) reply.content.substringAfter("<br />\n<br />\n")
+                else reply.content
+
+                val list = content.split(trendDelimiter, ignoreCase = true)
                 if (list.size == trendLength) {
                     return DailyTrend(
                         trendId,

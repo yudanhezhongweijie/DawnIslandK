@@ -617,16 +617,18 @@ class MainActivity : DaggerAppCompatActivity() {
                             availableConnections[timeElapsed] = url
                             Timber.d("Available CDNs: $availableConnections")
                             // Base
-                            if (availableConnections.firstKey() == timeElapsed) {
+                            if (base == "auto" && availableConnections.firstKey() == timeElapsed) {
                                 Timber.d("Using $url for Base")
                                 RetrofitUrlManager.getInstance().putDomain("adnmb", url)
                             }
                             // Ref
-                            availableConnections.values.toList().firstOrNull { it in refCDNs }
-                                ?.let {
-                                    Timber.d("Using $it for Ref")
-                                    RetrofitUrlManager.getInstance().putDomain("adnmb", url)
-                                }
+                            if (ref == "auto") {
+                                availableConnections.values.toList().firstOrNull { it in refCDNs }
+                                    ?.let {
+                                        Timber.d("Using $it for Ref")
+                                        RetrofitUrlManager.getInstance().putDomain("adnmb-ref", url)
+                                    }
+                            }
                         }
                     }
                 } catch (e: Exception) {
@@ -634,9 +636,8 @@ class MainActivity : DaggerAppCompatActivity() {
                 } finally {
                     connection?.disconnect()
                 }
-                }
             }
-
+        }
     }
 
     private class NetworkReceiver : BroadcastReceiver() {

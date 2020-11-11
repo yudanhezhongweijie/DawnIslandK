@@ -149,7 +149,7 @@ class SharedViewModel @Inject constructor(
     }
 
     fun setForumMappings(list: List<Community>) {
-        val flatten = list.map { it.forums }.flatten()
+        val flatten = list.filterNot { it.isCommonForums() || it.isCommonPosts() }.map { it.forums }.flatten()
         forumNameMapping =
             flatten.associateBy(keySelector = { it.id }, valueTransform = { it.name })
         forumMsgMapping = flatten.associateBy(keySelector = { it.id }, valueTransform = { it.msg })

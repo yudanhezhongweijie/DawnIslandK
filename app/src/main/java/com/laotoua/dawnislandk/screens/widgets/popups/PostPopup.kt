@@ -19,7 +19,6 @@ package com.laotoua.dawnislandk.screens.widgets.popups
 
 import android.Manifest.permission
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Shader
@@ -29,7 +28,6 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -50,6 +48,7 @@ import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout
 import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.ImageUtil
+import com.laotoua.dawnislandk.util.openLinksWithOtherApps
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BasePopupView
 import com.lxj.xpopup.core.BottomPopupView
@@ -509,11 +508,7 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
                 message(R.string.acknowledge_post_rules)
                 positiveButton(R.string.submit) {
                     applicationDataStore.acknowledgementPostingRule()
-                    val uri = DawnConstants.nmbHost + "/forum"
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uri))
-                    if (intent.resolveActivity(caller.packageManager) != null) {
-                        startActivity(caller, intent, null)
-                    }
+                    openLinksWithOtherApps(DawnConstants.nmbHost + "/forum", caller)
                 }
                 negativeButton(R.string.cancel)
             }

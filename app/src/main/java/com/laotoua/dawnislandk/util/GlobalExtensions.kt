@@ -17,9 +17,16 @@
 
 package com.laotoua.dawnislandk.util
 
+import android.app.Activity
+import android.content.Intent
+import android.content.pm.ResolveInfo
+import android.net.Uri
+import android.os.Parcelable
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Transformations
+import com.laotoua.dawnislandk.BuildConfig
 import com.laotoua.dawnislandk.data.local.entity.Comment
 import timber.log.Timber
 
@@ -70,5 +77,28 @@ fun <T> getLocalLiveDataAndRemoteResponse(
         }
     }
     return result
+}
+
+fun openLinksWithOtherApps(uri: String, activity: Activity) {
+    val activities: List<ResolveInfo> =
+        activity.packageManager.queryIntentActivities(Intent(Intent.ACTION_VIEW, Uri.parse(uri)), 0)
+    val packageNameToHide = BuildConfig.APPLICATION_ID
+    val targetIntents: ArrayList<Intent> = ArrayList()
+    for (currentInfo in activities) {
+        val packageName: String = currentInfo.activityInfo.packageName
+        if (packageNameToHide != packageName) {
+            val targetIntent = Intent(Intent.ACTION_VIEW, Uri.parse(uri))
+            targetIntent.setPackage(packageName)
+            targetIntents.add(targetIntent)
+        }
+    }
+
+    if (targetIntents.isNotEmpty()) {
+        val chooserIntent: Intent = Intent.createChooser(targetIntents.removeAt(0), "请使用以下软件打开链接")
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, targetIntents.toArray(arrayOf<Parcelable>()))
+        activity.startActivity(chooserIntent)
+    } else {
+        Toast.makeText(activity, "没有找到可以打开链接的软件，请和开发者联系", Toast.LENGTH_SHORT).show()
+    }
 }
 

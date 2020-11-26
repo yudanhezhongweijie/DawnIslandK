@@ -17,8 +17,6 @@
 
 package com.laotoua.dawnislandk.screens.posts
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.view.animation.AnimationUtils
@@ -48,6 +46,7 @@ import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
 import com.laotoua.dawnislandk.screens.widgets.popups.PostPopup
 import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
+import com.laotoua.dawnislandk.util.openLinksWithOtherApps
 import com.lxj.xpopup.XPopup
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import timber.log.Timber
@@ -130,13 +129,14 @@ class PostsFragment : BaseNavFragment() {
                             val uri = if (link.startsWith("/")) {
                                 DawnConstants.nmbHost + link
                             } else link
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uri))
-                            if (intent.resolveActivity(requireActivity().packageManager) != null) {
-                                startActivity(intent)
-                            }
+                            openLinksWithOtherApps(uri, requireActivity())
                         }
                     }
                     positiveButton(R.string.acknowledge)
+                    @Suppress("DEPRECATION")
+                    neutralButton(R.string.basic_rules) {
+                        openLinksWithOtherApps(DawnConstants.nmbHost + "/forum", requireActivity())
+                    }
                 }
                 return true
             }
@@ -152,7 +152,7 @@ class PostsFragment : BaseNavFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         if (mAdapter == null) {
             mAdapter = QuickAdapter<Post>(R.layout.list_item_post, sharedVM).apply {
                 setOnItemClickListener { _, _, position ->

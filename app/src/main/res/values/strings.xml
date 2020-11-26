@@ -208,6 +208,7 @@
     <string name="no_more_data" translatable="false">没有更多数据</string>
     <string name="forum" translatable="false">版块</string>
     <string name="announcement" translatable="false">通知</string>
+    <string name="basic_rules" translatable="false">查看总版规</string>
     <string name="forum_rules" translatable="false">版规</string>
     <string name="feed_notification" translatable="false">订阅通知</string>
     <string name="feed_notification_help" translatable="false">在设置开启订阅通知后，黎明岛会在您使用软件的过程中定时更新您的订阅串。\n\n点击串将消除更新数量提示, 滑动拖曳可删除通知\n\n在使用此功能时请确保使用正确的订阅ID，同时请先预载一遍您的订阅。\n初始化记录不会提示更新数量。后续如果有更新会提示数量\n\n<b><u>每个订阅串每天最多更新一次</u></b></string>

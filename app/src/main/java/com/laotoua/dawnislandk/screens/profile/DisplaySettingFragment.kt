@@ -43,7 +43,7 @@ class DisplaySettingFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentDisplaySettingBinding.inflate(inflater, container, false)
 
 

@@ -81,7 +81,7 @@ class TrendsFragment : BaseNavFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         if (mAdapter == null) {
             mAdapter = QuickAdapter<Trend>(R.layout.list_item_trend, sharedVM).apply {
                 loadMoreModule.isEnableLoadMore = false

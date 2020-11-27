@@ -42,7 +42,7 @@ class GeneralSettingFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentGeneralSettingBinding.inflate(inflater, container, false)
         binding?.feedId?.apply {
             var feedId = applicationDataStore.getFeedId()

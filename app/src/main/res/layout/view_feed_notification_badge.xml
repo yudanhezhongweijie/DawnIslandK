@@ -16,6 +16,7 @@
   -->
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="@dimen/menu_item_size"
     android:layout_height="@dimen/menu_item_size">
@@ -39,8 +40,8 @@
             android:layout_height="@dimen/menu_item_icon_size"
             android:layout_gravity="center"
             android:src="@drawable/ic_notifications_24px"
-            android:tint="?android:attr/textColorPrimary"
-            tools:ignore="ContentDescription" />
+            tools:ignore="ContentDescription"
+            app:tint="?android:attr/textColorPrimary" />
 
         <FrameLayout
             android:id="@+id/viewAlertRedCircle"

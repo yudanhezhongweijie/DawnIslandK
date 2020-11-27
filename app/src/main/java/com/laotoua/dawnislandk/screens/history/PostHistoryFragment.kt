@@ -75,7 +75,7 @@ class PostHistoryFragment : BaseNavFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         if (mAdapter == null) {
             mAdapter = QuickMultiBinder(sharedVM).apply {
                 addItemBinder(PostHistoryBinder(sharedVM).apply {

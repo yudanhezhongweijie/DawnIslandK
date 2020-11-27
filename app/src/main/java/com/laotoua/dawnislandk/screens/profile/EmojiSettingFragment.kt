@@ -116,7 +116,7 @@ class EmojiSettingFragment : DaggerFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentEmojiSettingBinding.inflate(inflater, container, false)
 
         emojiAdapter = EmojiAdapter(R.layout.list_item_content_with_remark).apply {

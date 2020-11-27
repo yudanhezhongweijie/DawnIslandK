@@ -165,7 +165,7 @@ class CommentsFragment : DaggerFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         if (mAdapter == null) {
             mAdapter = QuickAdapter<Comment>(R.layout.list_item_comment, sharedVM).apply {
                 setReferenceClickListener(object : ReferenceSpan.ReferenceClickHandler {

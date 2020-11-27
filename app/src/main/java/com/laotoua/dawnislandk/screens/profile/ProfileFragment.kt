@@ -87,7 +87,7 @@ class ProfileFragment : DaggerFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentProfileBinding.inflate(inflater, container, false)
 
 //        binding!!.profileView.visibility = View.GONE

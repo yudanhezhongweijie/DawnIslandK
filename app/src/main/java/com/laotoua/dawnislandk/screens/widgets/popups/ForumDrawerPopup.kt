@@ -23,6 +23,7 @@ import android.content.res.Configuration
 import android.widget.Button
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -115,13 +116,13 @@ class ForumDrawerPopup(
             when (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
                 Configuration.UI_MODE_NIGHT_YES -> {
                     text = "光来 (╬ﾟдﾟ)"
-                    icon = context.getDrawable(R.drawable.ic_brightness_5_24px)
+                    icon = ContextCompat.getDrawable(context, R.drawable.ic_brightness_5_24px)
                     setIconTintResource(R.color.pure_light)
                     nightModeOn = true
                 }
                 Configuration.UI_MODE_NIGHT_NO -> {
                     text = "光走 (;´Д`)"
-                    icon = context.getDrawable(R.drawable.ic_brightness_2_24px)
+                    icon = ContextCompat.getDrawable(context, R.drawable.ic_brightness_2_24px)
                     setIconTintResource(R.color.pure_dark)
                     nightModeOn = false
                 }

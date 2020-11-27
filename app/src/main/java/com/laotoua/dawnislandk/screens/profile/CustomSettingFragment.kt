@@ -64,7 +64,7 @@ class CustomSettingFragment : DaggerFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentCustomSettingBinding.inflate(inflater, container, false)
         binding?.commonForums?.apply {
             key.setText(R.string.common_forum_setting)

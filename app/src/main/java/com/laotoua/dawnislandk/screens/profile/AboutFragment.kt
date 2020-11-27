@@ -51,7 +51,7 @@ class AboutFragment : DaggerFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentAboutBinding.inflate(inflater, container, false)
 
         binding!!.appFeedback.apply {
@@ -145,6 +145,35 @@ class AboutFragment : DaggerFragment() {
                 if (activity == null || !isAdded) return@setOnClickListener
                 val navAction = MainNavDirections.actionGlobalCommentsFragment("11689471", "117")
                 findNavController().navigate(navAction)
+            }
+        }
+
+        binding!!.checkForUpdate.apply {
+            key.setText(R.string.download_latest_version)
+            root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
+                MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@AboutFragment)
+                    title(R.string.download_latest_version)
+                    icon(R.mipmap.ic_launcher)
+                    listItemsSingleChoice(
+                        R.array.download_options,
+                        waitForPositiveButton = true
+                    ) { _, index, _ ->
+                        val uri = when (index) {
+                            0 -> Uri.parse(DawnConstants.DOWNLOAD_ADNMB)
+                            1 -> Uri.parse(DawnConstants.DOWNLOAD_GITHUB)
+                            2 -> Uri.parse(DawnConstants.DOWNLOAD_GOOGLE_PLAY)
+                            else -> Uri.parse("https://github.com/fishballzzz/DawnIslandK")
+                        }
+                        val intent = Intent(Intent.ACTION_VIEW, uri)
+                        if (intent.resolveActivity(this@AboutFragment.requireActivity().packageManager) != null) {
+                            startActivity(intent)
+                        }
+                    }
+                    positiveButton(R.string.submit)
+                    negativeButton(R.string.cancel)
+                }
             }
         }
 

@@ -87,7 +87,7 @@ class CommonForumsFragment : DaggerFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentCommonForumsBinding.inflate(inflater, container, false)
 
         commonForumAdapter = CommonForumAdapter(R.layout.list_item_forum)

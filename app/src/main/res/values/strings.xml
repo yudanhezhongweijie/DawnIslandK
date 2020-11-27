@@ -198,7 +198,6 @@
     <string name="acknowledge" translatable="false">我知道了</string>
     <string name="post_options" translatable="false">串选项</string>
     <string name="report" translatable="false">举报</string>
-    <string name="download_new_version" translatable="false">下载新版本</string>
     <string name="compressing_oversize_image" translatable="false">正在压缩超大图片</string>
     <string name="compressing_oversize_image_error" translatable="false">图片不存在或压缩超大图片出错。如果GIF图片超出2M，请自行压缩</string>
     <string name="app_feed_back" translatable="false">客户端反馈</string>
@@ -221,6 +220,7 @@
     <string name="emoji_sort_by_last_used_at_off" translatable="false">颜文字按添加顺序排序</string>
     <string name="my_profile" translatable="false">个人</string>
     <string name="app_privacy_agreement" translatable="false">软件隐私协议</string>
+    <string name="download_latest_version" translatable="false">下载最新版本</string>
     <string name="change_log" translatable="false">版本更新日志</string>
     <string name="adnmb_privacy_agreement" translatable="false">A岛隐私协议</string>
     <string name="credit" translatable="false">版本号: %s\n鸣谢：@紫岛作者Hippo(代码) @柔柔(代码) @五(设计) @安之(产品) @bug触发器(测试) @第九龙琦(趋势榜) @赛璐璐夙志(APP图标) \n如果您为软件做出了贡献，请通过反馈让作者为您署名\n如果您想体验最新黎明岛K功能或参与内测，请加入Q群783544683</string>

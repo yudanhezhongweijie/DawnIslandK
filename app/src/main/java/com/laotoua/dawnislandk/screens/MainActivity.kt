@@ -58,6 +58,7 @@ import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbarInitialization
 import com.laotoua.dawnislandk.screens.widgets.DoubleClickListener
 import com.laotoua.dawnislandk.screens.widgets.popups.ForumDrawerPopup
+import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.IntentsHelper
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.lxj.xpopup.XPopup
@@ -261,38 +262,22 @@ class MainActivity : DaggerAppCompatActivity() {
             if (this.isFinishing) return@let
             MaterialDialog(this).show {
                 lifecycleOwner(this@MainActivity)
-                title(R.string.download_new_version)
+                title(R.string.download_latest_version)
                 icon(R.mipmap.ic_launcher)
                 message(text = release.message)
                 listItemsSingleChoice(
                     R.array.download_options,
                     waitForPositiveButton = true
                 ) { _, index, _ ->
-                    when (index) {
-                        0 -> {
-                            val intent = Intent(
-                                Intent.ACTION_VIEW,
-                                Uri.parse("https://app.adnmb.com")
-                            )
-                            if (intent.resolveActivity(packageManager) != null) {
-                                startActivity(intent)
-                            }
-                        }
-                        1 -> {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(release.downloadUrl))
-                            if (intent.resolveActivity(packageManager) != null) {
-                                startActivity(intent)
-                            }
-                        }
-                        2 -> {
-                            val intent = Intent(
-                                Intent.ACTION_VIEW,
-                                Uri.parse("https://play.google.com/store/apps/details?id=com.laotoua.dawnislandk")
-                            )
-                            if (intent.resolveActivity(packageManager) != null) {
-                                startActivity(intent)
-                            }
-                        }
+                    val uri = when (index) {
+                        0 -> Uri.parse(DawnConstants.DOWNLOAD_ADNMB)
+                        1 -> Uri.parse(release.downloadUrl)
+                        2 -> Uri.parse(DawnConstants.DOWNLOAD_GOOGLE_PLAY)
+                        else -> Uri.parse("https://github.com/fishballzzz/DawnIslandK")
+                    }
+                    val intent = Intent(Intent.ACTION_VIEW, uri)
+                    if (intent.resolveActivity(packageManager) != null) {
+                        startActivity(intent)
                     }
                 }
                 positiveButton(R.string.submit)

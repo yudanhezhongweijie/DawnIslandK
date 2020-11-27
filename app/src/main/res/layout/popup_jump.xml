@@ -114,13 +114,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="?attr/selectableItemBackground"
-        android:tint="@color/colorPrimary"
         app:layout_constraintEnd_toStartOf="@+id/pageInput"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/pageInput"
         app:srcCompat="@drawable/ic_first_page_black_48px"
-        tools:ignore="ContentDescription" />
+        tools:ignore="ContentDescription"
+        app:tint="@color/colorPrimary" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/pageInput"
@@ -143,13 +143,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="?attr/selectableItemBackground"
-        android:tint="@color/colorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/pageInput"
         app:layout_constraintTop_toTopOf="@+id/pageInput"
         app:srcCompat="@drawable/ic_last_page_black_48px"
         tools:ignore="ContentDescription"
-        tools:layout_constraintHorizontal_weight="1" />
+        tools:layout_constraintHorizontal_weight="1"
+        app:tint="@color/colorPrimary" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

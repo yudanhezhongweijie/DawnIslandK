@@ -90,7 +90,35 @@ class TrendRepository @Inject constructor(
     }
 
     private suspend fun convertLatestTrend(targetPage: Int, data: Post): DataResource<DailyTrend>? {
-        val newDailyTrend: DailyTrend? = extractLatestTrend(data)
+        var newDailyTrend: DailyTrend? = null
+        for (reply in data.comments.reversed()) {
+            if (newDailyTrend != null) break
+            else if (reply.userid == po) {
+                val content = if (reply.content.startsWith("@")) reply.content.substringAfter("<br />\n")
+                else reply.content
+                val list = content.split(trendDelimiter, ignoreCase = true)
+                if (list.size == trendLength) {
+                    try {
+                        newDailyTrend = DailyTrend(
+                            trendId,
+                            po,
+                            ReadableTime.string2Time(reply.now),
+                            list.map { convertStringToTrend(it) },
+                            data.replyCount.toInt()
+                        )
+                    } catch (e: Exception) {
+                        Timber.e(e)
+                        return DataResource.create(
+                            LoadingStatus.ERROR,
+                            null,
+                            "无法读取热榜，请尝试更新版本或者联系开发者"
+                        )
+                    }
+
+                }
+            }
+        }
+
         return when {
             newDailyTrend != null -> {
                 if (newDailyTrend.date != cache?.date) {
@@ -107,31 +135,10 @@ class TrendRepository @Inject constructor(
                 DataResource.create(
                     LoadingStatus.ERROR,
                     null,
-                    "CANNOT GET LATEST TREND FROM ALL PAGES"
+                    "无法读取热榜，请尝试更新版本或者联系开发者"
                 )
             }
         }
-    }
-
-    private fun extractLatestTrend(data: Post): DailyTrend? {
-        for (reply in data.comments.reversed()) {
-            if (reply.userid == po) {
-                val content = if (reply.content.startsWith("@")) reply.content.substringAfter("<br />\n<br />\n")
-                else reply.content
-
-                val list = content.split(trendDelimiter, ignoreCase = true)
-                if (list.size == trendLength) {
-                    return DailyTrend(
-                        trendId,
-                        po,
-                        ReadableTime.string2Time(reply.now),
-                        list.map { convertStringToTrend(it) },
-                        data.replyCount.toInt()
-                    )
-                }
-            }
-        }
-        return null
     }
 
     /**

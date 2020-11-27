@@ -47,12 +47,12 @@
         android:layout_marginTop="4dp"
         android:layout_marginBottom="4dp"
         android:background="@android:color/transparent"
-        android:tint="@color/gray_400"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/remark"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_edit_24px"
-        tools:ignore="ContentDescription" />
+        tools:ignore="ContentDescription"
+        app:tint="@color/gray_400" />
 
     <TextView
         android:id="@+id/content"

@@ -100,7 +100,7 @@ class NotificationFragment : DaggerFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentNotificationBinding.inflate(inflater, container, false)
 
         mAdapter = NotificationAdapter(R.layout.list_item_notification).apply {

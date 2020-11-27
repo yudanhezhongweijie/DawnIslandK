@@ -92,7 +92,7 @@ class CommonPostsFragment : DaggerFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentCommonPostsBinding.inflate(inflater, container, false)
 
         commonPostsAdapter = CommonPostsAdapter(R.layout.list_item_content_with_remark).apply {

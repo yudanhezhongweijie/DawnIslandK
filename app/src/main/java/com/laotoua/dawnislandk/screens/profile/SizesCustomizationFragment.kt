@@ -47,7 +47,7 @@ class SizesCustomizationFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         binding = FragmentSizeCustomizationBinding.inflate(inflater, container, false)
 

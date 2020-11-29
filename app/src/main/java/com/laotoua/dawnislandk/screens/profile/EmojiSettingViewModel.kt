@@ -22,6 +22,7 @@ import androidx.lifecycle.viewModelScope
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.dao.EmojiDao
 import com.laotoua.dawnislandk.data.local.entity.Emoji
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -43,7 +44,12 @@ class EmojiSettingViewModel @Inject constructor(private val emojiDao: EmojiDao) 
     }
 
     fun setEmojiList(list: List<Emoji>) {
-        viewModelScope.launch {
+        // fix ids
+        list.forEachIndexed { index: Int, emoji: Emoji ->
+            emoji.id = index + 1
+        }
+        GlobalScope.launch {
+            emojiDao.nukeEmoji()
             emojiDao.insertAll(list)
         }
     }

@@ -226,6 +226,14 @@ class ProfileFragment : DaggerFragment() {
             }
         }
 
+        binding!!.addCookieHelp.setOnClickListener {
+            MaterialDialog(requireContext()).show {
+                lifecycleOwner(this@ProfileFragment)
+                title(R.string.how_to_add_cookie)
+                message(R.string.add_cookie_help)
+                positiveButton(R.string.acknowledge)
+            }
+        }
         binding!!.credit.apply {
             text = getString(R.string.credit, BuildConfig.VERSION_NAME)
         }
@@ -274,13 +282,14 @@ class ProfileFragment : DaggerFragment() {
                     viewModel.updateCookie(cookie)
                 }
                 positiveButton(R.string.submit)
-                negativeButton(R.string.default_cookie_name) {
+                @Suppress("DEPRECATION")
+                neutralButton(R.string.default_cookie_name) {
                     dismiss()
                     cookie.cookieDisplayName = cookie.cookieName
                     viewModel.updateCookie(cookie)
                 }
-                @Suppress("DEPRECATION")
-                neutralButton(R.string.cancel) {
+
+                negativeButton(R.string.cancel) {
                     dismiss()
                 }
                 getActionButton(WhichButton.NEUTRAL).updateTextColor(Color.RED)
@@ -326,12 +335,12 @@ class ProfileFragment : DaggerFragment() {
                     viewModel.addNewCookie(cookieHash, text.toString())
                 }
                 positiveButton(R.string.submit)
-                negativeButton(R.string.default_cookie_name) {
+                @Suppress("DEPRECATION")
+                neutralButton(R.string.default_cookie_name) {
                     viewModel.addNewCookie(cookieHash)
                 }
 
-                @Suppress("DEPRECATION")
-                neutralButton(R.string.cancel) {
+                negativeButton(R.string.cancel) {
                     dismiss()
                 }
                 getActionButton(WhichButton.NEUTRAL).updateTextColor(Color.RED)

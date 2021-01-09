@@ -250,7 +250,7 @@ class CustomSettingFragment : DaggerFragment() {
                 MaterialDialog(requireActivity()).show {
                     lifecycleOwner(this@CustomSettingFragment)
                     title(R.string.set_base_cdn)
-                    listItemsSingleChoice(R.array.base_cdn_options) { _, index, text ->
+                    listItemsSingleChoice(R.array.base_cdn_options, waitForPositiveButton = true) { _, index, text ->
                         when (index) {
                             0, 1, 2, 3 -> {
                                 baseCDN = if (index == 0) "auto" else text.toString()
@@ -284,6 +284,8 @@ class CustomSettingFragment : DaggerFragment() {
                             }
                         }
                     }
+                    positiveButton(R.string.submit)
+                    negativeButton(R.string.cancel)
                 }
             }
         }
@@ -297,7 +299,7 @@ class CustomSettingFragment : DaggerFragment() {
                 MaterialDialog(requireActivity()).show {
                     title(R.string.set_ref_cdn)
                     lifecycleOwner(this@CustomSettingFragment)
-                    listItemsSingleChoice(R.array.ref_cdn_options) { _, index, text ->
+                    listItemsSingleChoice(R.array.ref_cdn_options, waitForPositiveButton = true) { _, index, text ->
                         when (index) {
                             0, 1, 2 -> {
                                 refCDN = if (index == 0) "auto" else text.toString()
@@ -335,6 +337,8 @@ class CustomSettingFragment : DaggerFragment() {
                             }
                         }
                     }
+                    positiveButton(R.string.submit)
+                    negativeButton(R.string.cancel)
                 }
             }
         }

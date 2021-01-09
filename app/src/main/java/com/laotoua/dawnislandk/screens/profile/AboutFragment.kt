@@ -61,16 +61,13 @@ class AboutFragment : DaggerFragment() {
                 MaterialDialog(requireContext()).show {
                     lifecycleOwner(this@AboutFragment)
                     title(R.string.app_feed_back)
-                    val items =
-                        context.resources.getStringArray(R.array.app_feedback_options).toList()
-                    listItemsSingleChoice(items = items) { _, index, _ ->
+                    icon(R.mipmap.ic_launcher)
+                    val items = context.resources.getStringArray(R.array.app_feedback_options).toList()
+                    listItemsSingleChoice(items = items, waitForPositiveButton = true) { _, index, _ ->
                         when (index) {
                             0 -> {
                                 dismiss()
-                                val navAction = MainNavDirections.actionGlobalCommentsFragment(
-                                    "28951798",
-                                    "117"
-                                )
+                                val navAction = MainNavDirections.actionGlobalCommentsFragment("28951798", "117")
                                 findNavController().navigate(navAction)
                             }
                             1 -> {
@@ -103,6 +100,8 @@ class AboutFragment : DaggerFragment() {
                             }
                         }
                     }
+                    positiveButton(R.string.submit)
+                    negativeButton(R.string.cancel)
                 }
             }
         }

@@ -115,6 +115,18 @@
                 app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
                 app:layout_constraintTop_toBottomOf="@id/cookieList" />
 
+            <ImageButton
+                android:id="@+id/addCookieHelp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:background="?attr/selectableItemBackground"
+                app:layout_constraintBottom_toBottomOf="@+id/addCookie"
+                app:layout_constraintEnd_toStartOf="@+id/addCookie"
+                app:layout_constraintTop_toTopOf="@+id/addCookie"
+                app:srcCompat="@drawable/ic_help_24px"
+                app:tint="?android:attr/textColorSecondary" />
+
             <TextView
                 android:id="@+id/settings"
                 style="@style/PreferenceCategory"

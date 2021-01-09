@@ -245,6 +245,7 @@
         <item>广告Q群</item>
         <item>引战辱骂</item>
         <item>串版自删</item>
+        <item>其他</item>
     </string-array>
 
     <string-array name="adapter_animation_options">

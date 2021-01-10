@@ -23,6 +23,8 @@ import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
 import java.text.ParseException
 import java.text.SimpleDateFormat
+import java.time.*
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 object ReadableTime {
@@ -62,6 +64,12 @@ object ReadableTime {
     private val sDateFormatLock1 = Any()
     private val sDateFormatLock2 = Any()
 
+
+    private val TIME_SERVER_DATETIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", localInstance)
+    private val TIME_DATETIME_FORMAT = DateTimeFormatter.ofPattern("yy/MM/dd HH:mm", localInstance)
+    private val TIME_DATETIME_FORMAT_WITHOUT_YEAR = DateTimeFormatter.ofPattern("MM/dd HH:mm", localInstance)
+    private val TIME_TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm:ss", localInstance)
+
     fun initialize(context: Context) {
         sResources = context.applicationContext.resources
         timeFormat = DawnApp.applicationDataStore.displayTimeFormat
@@ -93,10 +101,15 @@ object ReadableTime {
         return date!!.time
     }
 
+    private fun serverTimeStringToZonedJavaTime(str: String): ZonedDateTime {
+        val s = if (str.contains("(")) str.substring(0, 10) + " " + str.substring(13) else str
+        return LocalDateTime.parse(s, TIME_SERVER_DATETIME_FORMAT).atZone(ZoneId.of("Asia/Shanghai"))
+    }
+
     fun getDisplayTime(time: String): String {
         return when (timeFormat) {
-            1 -> getDisplayTimeAgo(string2Time(time))
-            0 -> getPlainDisplayTime(string2Time(time))
+            1 -> getDisplayTimeAgo(time)
+            0 -> getPlainDisplayTime(time)
             else -> throw Exception("Unhandled time format")
         }
     }
@@ -107,6 +120,51 @@ object ReadableTime {
             0 -> getPlainDisplayTime(time)
             else -> throw Exception("Unhandled time format")
         }
+    }
+
+    private fun getPlainDisplayTime(time: String): String {
+        val nowDate = ZonedDateTime.now()
+        val timeDate = serverTimeStringToZonedJavaTime(time)
+        return if (nowDate.year == timeDate.year && nowDate.dayOfYear == timeDate.dayOfYear) {
+            timeDate.format(TIME_TIME_FORMAT)
+        } else if (nowDate.year == timeDate.year) {
+            timeDate.format(TIME_DATETIME_FORMAT_WITHOUT_YEAR)
+        } else {
+            timeDate.format(TIME_DATETIME_FORMAT)
+        }
+    }
+
+    private fun getDisplayTimeAgo(time: String): String {
+        val resources = sResources!!
+        val nowDate = ZonedDateTime.now()
+        val timeDate = serverTimeStringToZonedJavaTime(time)
+
+        val duration = Duration.between(timeDate, nowDate)
+        when {
+            duration.isNegative -> { // error case
+                return resources.getString(R.string.from_the_future)
+            }
+            duration.toMinutes() < 3 -> {
+                return resources.getString(R.string.just_now)
+            }
+            duration.toHours() < 1 -> {
+                return resources.getString(R.string.some_minutes_ago, duration.toMinutes())
+            }
+            duration.toHours() < 18 -> {
+                return resources.getString(R.string.some_hours_ago, duration.toHours())
+            }
+        }
+        val period = Period.between(timeDate.toLocalDate(), nowDate.toLocalDate())
+        when {
+            period.years == 0 && period.months == 0 && period.days == 1 -> {
+                return resources.getString(R.string.yesterday)
+            }
+            period.years == 0 && period.months == 0 && period.days <= 7 -> {
+                return resources.getString(R.string.some_days_ago, period.days)
+            }
+        }
+        return getPlainDisplayTime(time)
+
     }
 
     private fun getPlainDisplayTime(time: Long): String {

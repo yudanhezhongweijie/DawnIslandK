@@ -17,7 +17,6 @@
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: "androidx.navigation.safeargs"
 apply plugin: 'com.google.gms.google-services'
@@ -46,7 +45,7 @@ android {
     }
 
     compileSdkVersion 29
-    buildToolsVersion "29.0.3"
+//    buildToolsVersion "29.0.3"
     android.ndkVersion "21.1.6352462"
 
     buildFeatures {
@@ -64,6 +63,9 @@ android {
     }
 
     compileOptions {
+        // Flag to enable support for the new language APIs
+        coreLibraryDesugaringEnabled true
+
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -119,6 +121,8 @@ dependencies {
     testImplementation 'junit:junit:4.13.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.1'
 
     implementation "androidx.recyclerview:recyclerview:1.1.0"
     implementation "androidx.activity:activity-ktx:1.2.0-rc01"

@@ -19,13 +19,14 @@ package com.laotoua.dawnislandk.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.time.LocalDateTime
 
 @Entity
 data class Emoji(
     val name: String,
     val value: String,
     var userDefined: Boolean = false,
-    var lastUsedAt: Long
+    var lastUsedAt: LocalDateTime = LocalDateTime.now()
 ) {
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0

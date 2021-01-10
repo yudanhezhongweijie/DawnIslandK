@@ -20,6 +20,7 @@ package com.laotoua.dawnislandk.data.local.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.squareup.moshi.JsonClass
+import java.time.LocalDateTime
 
 @Entity
 data class Feed(
@@ -27,7 +28,7 @@ data class Feed(
     val page: Int, // each page has at most 10 feeds, page also helps sorting
     @PrimaryKey val postId: String, //	该串的id
     val category: String,
-    var lastUpdatedAt: Long = 0 // timestamp which the row is updated
+    var lastUpdatedAt: LocalDateTime = LocalDateTime.now() // timestamp which the row is updated
 ) {
     override fun equals(other: Any?) =
         if (other is Feed) {
@@ -74,7 +75,7 @@ data class Feed(
             status,
             emptyList(),
             "",
-            0
+            LocalDateTime.now()
         )
     }
 }

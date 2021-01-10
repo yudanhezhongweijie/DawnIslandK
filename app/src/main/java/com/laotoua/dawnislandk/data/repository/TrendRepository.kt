@@ -31,6 +31,7 @@ import com.laotoua.dawnislandk.util.ReadableTime
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.ceil
@@ -58,10 +59,8 @@ class TrendRepository @Inject constructor(
         cache?.let {
             emit(DataResource.create(LoadingStatus.SUCCESS, it))
             _maxPage = ceil(it.lastReplyCount.toDouble() / 19).toInt()
-            // trends updates daily at 1AM
-            val diff = ReadableTime.getTimeAgo(System.currentTimeMillis(), it.date, true)
-            val dayTime = ReadableTime.HOUR_MILLIS * 24
-            if (diff - dayTime < 0) {
+            // trends updates daily at 1AM, allows 24 hour CD
+            if (ReadableTime.serverDateTimeToUserLocalDateTime(it.date).plusDays(1).isBefore(LocalDateTime.now())) {
                 getRemoteData = false
                 Timber.d("It's less than 24 hours since Trend last updated. Reusing...")
             }
@@ -92,39 +91,34 @@ class TrendRepository @Inject constructor(
     private suspend fun convertLatestTrend(targetPage: Int, data: Post): DataResource<DailyTrend>? {
         var newDailyTrend: DailyTrend? = null
         for (reply in data.comments.reversed()) {
-            if (newDailyTrend != null) break
-            else if (reply.userid == po) {
+            if (reply.userid == po) {
                 val content = if (reply.content.startsWith("@")) reply.content.substringAfter("<br />\n")
                 else reply.content
                 val list = content.split(trendDelimiter, ignoreCase = true)
                 if (list.size == trendLength) {
                     try {
                         newDailyTrend = DailyTrend(
-                            trendId,
-                            po,
-                            ReadableTime.string2Time(reply.now),
+                            reply.id,
+                            reply.userid,
+                            ReadableTime.serverTimeStringToServerLocalDateTime(reply.now),
                             list.map { convertStringToTrend(it) },
                             data.replyCount.toInt()
                         )
+                        break
                     } catch (e: Exception) {
                         Timber.e(e)
-                        return DataResource.create(
-                            LoadingStatus.ERROR,
-                            null,
-                            "无法读取热榜，请尝试更新版本或者联系开发者"
-                        )
+                        return DataResource.create(LoadingStatus.ERROR, null, "无法读取热榜，请尝试更新版本或者联系开发者")
                     }
-
                 }
             }
         }
 
         return when {
             newDailyTrend != null -> {
-                if (newDailyTrend.date != cache?.date) {
+                if (cache == null || !newDailyTrend.date.toLocalDate().isEqual(cache!!.date.toLocalDate())) {
                     Timber.d("Found new trends. Saving...")
                     cache = newDailyTrend
-                    coroutineScope { launch { dailyTrendDao.insertWithTimeStamp(newDailyTrend) } }
+                    coroutineScope { launch { dailyTrendDao.insert(newDailyTrend) } }
                 }
                 DataResource.create(LoadingStatus.SUCCESS, newDailyTrend)
             }
@@ -132,11 +126,7 @@ class TrendRepository @Inject constructor(
                 getRemoteTrend(targetPage - 1)
             }
             else -> {
-                DataResource.create(
-                    LoadingStatus.ERROR,
-                    null,
-                    "无法读取热榜，请尝试更新版本或者联系开发者"
-                )
+                DataResource.create(LoadingStatus.ERROR, null, "无法读取热榜，请尝试更新版本或者联系开发者")
             }
         }
     }

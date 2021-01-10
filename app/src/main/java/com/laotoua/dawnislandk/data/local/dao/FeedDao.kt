@@ -23,6 +23,7 @@ import androidx.room.*
 import com.laotoua.dawnislandk.data.local.entity.Feed
 import com.laotoua.dawnislandk.data.local.entity.FeedAndPost
 import com.laotoua.dawnislandk.data.local.entity.Post
+import java.time.LocalDateTime
 
 @Dao
 interface FeedDao {
@@ -36,7 +37,7 @@ interface FeedDao {
 
     @Transaction
     @Query("SELECT * From Feed,Post where Feed.postId == Post.id And :targetTime>Post.lastUpdatedAt ORDER BY Feed.lastUpdatedAt ASC, Post.lastUpdatedAt ASC LIMIT 1")
-    suspend fun findMostOutdatedFeedAndPost(targetTime:Long): FeedAndPost?
+    suspend fun findMostOutdatedFeedAndPost(targetTime: LocalDateTime): FeedAndPost?
 
     @Transaction
     @Query("SELECT * From Feed WHERE page==:page ORDER BY id ASC")

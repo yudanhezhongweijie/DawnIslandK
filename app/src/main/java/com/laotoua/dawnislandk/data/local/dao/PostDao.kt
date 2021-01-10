@@ -21,7 +21,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.distinctUntilChanged
 import androidx.room.*
 import com.laotoua.dawnislandk.data.local.entity.Post
-import java.util.*
+import java.time.LocalDateTime
 
 @Dao
 interface PostDao {
@@ -34,8 +34,7 @@ interface PostDao {
     @Query("SELECT * FROM Post WHERE id=:id LIMIT 1")
     suspend fun findPostByIdSync(id: String): Post?
 
-    fun findDistinctPostById(id: String): LiveData<Post> =
-        findPostById(id).distinctUntilChanged()
+    fun findDistinctPostById(id: String): LiveData<Post> = findPostById(id).distinctUntilChanged()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(post: Post)
@@ -45,21 +44,11 @@ interface PostDao {
         insert(post)
     }
 
-    @Update
-    suspend fun updatePosts(vararg posts: Post)
-
-    @Update
-    suspend fun updatePostsWithTimeStamp(vararg posts: Post) {
-        val timestamp = Date().time
-        posts.map { it.setUpdatedTimestamp(timestamp) }
-        updatePosts(*posts)
-    }
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(postList: List<Post>)
 
     suspend fun insertAllWithTimeStamp(postList: List<Post>) {
-        val timestamp = Date().time
+        val timestamp = LocalDateTime.now()
         val listWithTimeStamps = postList.apply { map { it.setUpdatedTimestamp(timestamp) } }
         insertAll(listWithTimeStamps)
     }

@@ -21,7 +21,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import java.util.*
+import java.time.LocalDateTime
 
 @JsonClass(generateAdapter = true)
 @Entity
@@ -40,7 +40,7 @@ data class LuweiNotice(
     val clientsInfo: Map<String, ClientInfo>,
     @Json(name = "whitelist")
     val whitelist: WhiteList,
-    var lastUpdatedAt: Long = 0
+    var lastUpdatedAt: LocalDateTime = LocalDateTime.now()
 ) {
 
     override fun equals(other: Any?) =
@@ -60,8 +60,8 @@ data class LuweiNotice(
         return result
     }
 
-    fun setUpdatedTimestamp(time: Long? = null) {
-        lastUpdatedAt = time ?: Date().time
+    fun setUpdatedTimestamp(time: LocalDateTime = LocalDateTime.now()) {
+        lastUpdatedAt = time
     }
 
     @JsonClass(generateAdapter = true)

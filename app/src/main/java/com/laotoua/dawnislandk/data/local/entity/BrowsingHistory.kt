@@ -18,12 +18,16 @@
 package com.laotoua.dawnislandk.data.local.entity
 
 import androidx.room.Entity
+import androidx.room.PrimaryKey
+import java.time.LocalDateTime
 
-@Entity(primaryKeys = ["browsedDate", "postId"])
+@Entity
 data class BrowsingHistory(
-    val browsedDate: Long, // timestamp indicates date
-    var browsedTime: Long, // timestamp indicates HH:mm:ss since above date
+    var browsedDateTime: LocalDateTime = LocalDateTime.now(),
     val postId: String,
     var postFid: String,
     var pages: MutableSet<Int> // number of pages read
-)
+) {
+    @PrimaryKey(autoGenerate = true)
+    var id: Int = 0
+}

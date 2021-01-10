@@ -32,6 +32,7 @@ import com.laotoua.dawnislandk.screens.widgets.spans.HideSpan
 import com.laotoua.dawnislandk.screens.widgets.spans.ReferenceSpan
 import com.laotoua.dawnislandk.screens.widgets.spans.SegmentSpacingSpan
 import com.laotoua.dawnislandk.util.ReadableTime
+import java.time.LocalDateTime
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -79,7 +80,7 @@ object ContentTransformation {
     }
 
     fun transformTime(now: String): String = ReadableTime.getDisplayTime(now)
-    fun transformTime(now: Long): String = ReadableTime.getDisplayTime(now)
+    fun transformTime(now: LocalDateTime): String = ReadableTime.getDisplayTime(now)
 
     fun transformContent(
         context: Context,

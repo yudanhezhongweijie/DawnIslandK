@@ -37,6 +37,7 @@ import com.laotoua.dawnislandk.screens.widgets.spans.ReferenceSpan
 import com.laotoua.dawnislandk.screens.widgets.spans.RoundBackgroundColorSpan
 import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.GlideApp
+import java.time.LocalDateTime
 
 fun BaseViewHolder.convertUserId(userId: String, admin: String, po: String = ""): BaseViewHolder {
     setText(R.id.userId, ContentTransformation.transformCookie(userId, admin, po))
@@ -49,7 +50,7 @@ fun BaseViewHolder.convertTimeStamp(now: String, isAd: Boolean = false): BaseVie
     return this
 }
 
-fun BaseViewHolder.convertTimeStamp(now: Long): BaseViewHolder {
+fun BaseViewHolder.convertTimeStamp(now: LocalDateTime): BaseViewHolder {
     setText(R.id.timestamp, ContentTransformation.transformTime(now))
     return this
 }

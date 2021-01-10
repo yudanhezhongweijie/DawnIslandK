@@ -142,7 +142,7 @@ class EmojiSettingFragment : DaggerFragment() {
                             val remarkText = remark.text.toString()
                             val contentText = content.text.toString()
                             if (remarkText.isNotBlank() && contentText.isNotBlank()) {
-                                val emoji = Emoji(remarkText, contentText, true, Date().time)
+                                val emoji = Emoji(remarkText, contentText, true)
                                 emoji.id = emojiAdapter?.getItem(position)?.id ?: 0
                                 emojiAdapter?.setData(position, emoji)
                             }
@@ -190,7 +190,7 @@ class EmojiSettingFragment : DaggerFragment() {
                     val remarkText = remark.text.toString()
                     val contentText = content.text.toString()
                     if (remarkText.isNotBlank() && contentText.isNotBlank()) {
-                        emojiAdapter?.addData(Emoji(remarkText, contentText, true, Date().time))
+                        emojiAdapter?.addData(Emoji(remarkText, contentText, true))
                     }
                 }
                 negativeButton(R.string.cancel)

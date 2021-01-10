@@ -21,7 +21,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.distinctUntilChanged
 import androidx.room.*
 import com.laotoua.dawnislandk.data.local.entity.Comment
-import java.util.*
+import java.time.LocalDateTime
 
 @Dao
 interface CommentDao {
@@ -45,13 +45,13 @@ interface CommentDao {
     suspend fun insertAll(commentList: List<Comment>)
 
     suspend fun insertAllWithTimeStamp(commentList: List<Comment>) {
-        val timestamp = Date().time
+        val timestamp = LocalDateTime.now()
         val listWithTimeStamps = commentList.apply { map { it.setUpdatedTimestamp(timestamp) } }
         insertAll(listWithTimeStamps)
     }
 
     suspend fun insertWithTimeStamp(comment: Comment) {
-        comment.setUpdatedTimestamp(Date().time)
+        comment.setUpdatedTimestamp()
         insert(comment)
     }
 

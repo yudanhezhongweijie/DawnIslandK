@@ -34,7 +34,7 @@ import com.laotoua.dawnislandk.util.getLocalListDataResource
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.*
+import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -101,7 +101,7 @@ class FeedRepository @Inject constructor(
         val feeds = mutableListOf<Feed>()
         val posts = mutableListOf<Post>()
         val baseIndex = (page - 1) * 10 + 1
-        val timestamp = Date().time
+        val timestamp = LocalDateTime.now()
         data.mapIndexed { index, serverFeed ->
             feeds.add(Feed(baseIndex + index, page, serverFeed.id, serverFeed.category, timestamp))
             posts.add(serverFeed.toPost())

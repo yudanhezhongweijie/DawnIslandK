@@ -22,7 +22,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.laotoua.dawnislandk.data.local.entity.NMBNotice
-import java.util.*
+import java.time.LocalDateTime
 
 @Dao
 interface NMBNoticeDao {
@@ -43,7 +43,7 @@ interface NMBNoticeDao {
         enable: Boolean,
         read: Boolean,
         date: Long,
-        lastUpdatedAt: Long
+        lastUpdatedAt: LocalDateTime
     )
 
     suspend fun updateNMBNoticeWithTimestamp(
@@ -51,10 +51,9 @@ interface NMBNoticeDao {
         enable: Boolean,
         read: Boolean,
         date: Long,
-        lastUpdatedAt: Long? = null
+        lastUpdatedAt: LocalDateTime = LocalDateTime.now()
     ) {
-        val timestamp = lastUpdatedAt ?: Date().time
-        updateNMBNotice(content, enable, read, date, timestamp)
+        updateNMBNotice(content, enable, read, date, lastUpdatedAt)
     }
 
     @Query("DELETE FROM NMBNotice")

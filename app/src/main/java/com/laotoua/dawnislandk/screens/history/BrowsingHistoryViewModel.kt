@@ -22,29 +22,20 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
 import com.laotoua.dawnislandk.data.local.dao.BrowsingHistoryDao
 import com.laotoua.dawnislandk.data.local.entity.BrowsingHistoryAndPost
-import com.laotoua.dawnislandk.util.ReadableTime
-import java.util.*
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 class BrowsingHistoryViewModel @Inject constructor(private val browsingHistoryDao: BrowsingHistoryDao) :
     ViewModel() {
 
     // get a week's history by default
-    private var endDate = Date().time
-    private var startDate = endDate - ReadableTime.WEEK_MILLIS
+    var endDate: LocalDateTime = LocalDateTime.now()
+    var startDate: LocalDateTime = endDate.minusWeeks(1)
     private var currentList: LiveData<List<BrowsingHistoryAndPost>>? = null
     val browsingHistoryList = MediatorLiveData<List<BrowsingHistoryAndPost>>()
 
     init {
         searchByDate()
-    }
-
-    fun setStartDate(date: Date) {
-        startDate = date.time
-    }
-
-    fun setEndDate(date: Date) {
-        endDate = date.time
     }
 
     fun searchByDate() {
@@ -55,6 +46,6 @@ class BrowsingHistoryViewModel @Inject constructor(private val browsingHistoryDa
         }
     }
 
-    private fun getLiveHistoryInRange(startDate: Long, endDate: Long) =
+    private fun getLiveHistoryInRange(startDate: LocalDateTime, endDate: LocalDateTime): LiveData<List<BrowsingHistoryAndPost>> =
         browsingHistoryDao.getAllBrowsingHistoryAndPostInDateRange(startDate, endDate)
 }

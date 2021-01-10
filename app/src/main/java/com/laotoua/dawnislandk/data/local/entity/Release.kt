@@ -19,6 +19,7 @@ package com.laotoua.dawnislandk.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.time.LocalDateTime
 
 @Entity
 data class Release(
@@ -26,7 +27,7 @@ data class Release(
     val version: String,
     val downloadUrl: String,
     val message: String,
-    val lastUpdatedAt:Long
+    val lastUpdatedAt: LocalDateTime = LocalDateTime.now()
 ){
     val versionCode get() = version.filter { it.isDigit() }.toInt()
 }

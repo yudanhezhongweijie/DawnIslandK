@@ -20,18 +20,19 @@ package com.laotoua.dawnislandk.data.local.dao
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.laotoua.dawnislandk.data.local.entity.PostHistory
+import java.time.LocalDateTime
 
 @Dao
 interface PostHistoryDao {
-    @Query("SELECT * From PostHistory ORDER BY postDate DESC")
+    @Query("SELECT * From PostHistory ORDER BY postDateTime DESC")
     fun getAllPostHistory(): LiveData<List<PostHistory>>
 
     @Transaction
-    @Query("SELECT * From PostHistory WHERE postDate>=:startDate AND postDate<=:endDate ORDER BY postDate DESC ")
-    fun getAllPostHistoryInDateRange(startDate:Long, endDate:Long): LiveData<List<PostHistory>>
+    @Query("SELECT * From PostHistory WHERE postDateTime>=:startDate AND postDateTime<=:endDate ORDER BY postDateTime DESC ")
+    fun getAllPostHistoryInDateRange(startDate: LocalDateTime, endDate: LocalDateTime): LiveData<List<PostHistory>>
 
-    @Query("SELECT * From PostHistory WHERE postDate=:date")
-    fun getPostHistoryByDate(date:Long): LiveData<List<PostHistory>>
+    @Query("SELECT * From PostHistory WHERE postDateTime=:date")
+    fun getPostHistoryByDate(date: LocalDateTime): LiveData<List<PostHistory>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPostHistory(browsingHistory: PostHistory)

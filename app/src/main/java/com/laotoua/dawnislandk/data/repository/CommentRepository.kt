@@ -32,7 +32,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.*
+import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.collections.set
@@ -53,19 +53,14 @@ class CommentRepository @Inject constructor(
      */
     private val cacheCap = 10
     private val postMap = ArrayMap<String, Post>(cacheCap)
-    private val commentsMap =
-        ArrayMap<String, SparseArray<LiveData<DataResource<List<Comment>>>>>(cacheCap)
+    private val commentsMap = ArrayMap<String, SparseArray<LiveData<DataResource<List<Comment>>>>>(cacheCap)
     private val readingPageMap = ArrayMap<String, ReadingPage>(cacheCap)
     private val browsingHistoryMap = ArrayMap<String, BrowsingHistory>(cacheCap)
     private val fifoPostList = mutableListOf<String>()
 
-    private val todayDateLong = ReadableTime.getTodayDateLong()
-
     fun getPo(id: String) = postMap[id]?.userid ?: ""
     fun getMaxPage(id: String) = postMap[id]?.getMaxPage() ?: 1
     fun getFid(id: String) = postMap[id]?.fid ?: ""
-
-    private fun getTimeElapsedToday(): Long = Date().time - todayDateLong
 
     suspend fun setPost(id: String, fid: String) {
         clearCachedPages()
@@ -82,16 +77,8 @@ class CommentRepository @Inject constructor(
         return readingPageDao.getReadingPageById(id) ?: ReadingPage(id, 1)
     }
 
-    private suspend fun getBrowsingHistoryOnId(id: String, fid: String): BrowsingHistory {
-        return browsingHistoryDao.getBrowsingHistoryByTodayAndIdSync(todayDateLong, id)
-            ?: BrowsingHistory(
-                todayDateLong,
-                getTimeElapsedToday(),
-                id,
-                fid,
-                mutableSetOf()
-            )
-    }
+    private fun getBrowsingHistoryOnId(id: String, fid: String): BrowsingHistory =
+        BrowsingHistory(LocalDateTime.now(), id, fid, mutableSetOf())
 
     // get default page
     fun getLandingPage(id: String): Int {
@@ -103,7 +90,7 @@ class CommentRepository @Inject constructor(
     fun getHeaderPost(id: String): Comment? = postMap[id]?.toComment()
 
     suspend fun saveReadingProgress(id: String, progress: Int) {
-        val readingProgress = readingPageMap[id] ?: ReadingPage(id, progress, Date().time)
+        val readingProgress = readingPageMap[id] ?: ReadingPage(id, progress)
         readingProgress.page = progress
         readingPageDao.insertReadingPageWithTimeStamp(readingProgress)
     }
@@ -134,12 +121,7 @@ class CommentRepository @Inject constructor(
     fun checkFullPage(id: String, page: Int): Boolean =
         (commentsMap[id]?.get(page)?.value?.data?.size ?: 0) >= 19
 
-    fun getCommentsOnPage(
-        id: String,
-        page: Int,
-        remoteDataOnly: Boolean,
-        localDataOnly: Boolean
-    ): LiveData<DataResource<List<Comment>>> {
+    fun getCommentsOnPage(id: String, page: Int, remoteDataOnly: Boolean, localDataOnly: Boolean): LiveData<DataResource<List<Comment>>> {
         if (commentsMap[id] == null) {
             commentsMap[id] = SparseArray()
         }
@@ -151,12 +133,7 @@ class CommentRepository @Inject constructor(
         }
     }
 
-    private fun getLivePage(
-        id: String,
-        page: Int,
-        remoteDataOnly: Boolean,
-        localDataOnly: Boolean
-    ): LiveData<DataResource<List<Comment>>> {
+    private fun getLivePage(id: String, page: Int, remoteDataOnly: Boolean, localDataOnly: Boolean): LiveData<DataResource<List<Comment>>> {
         return when {
             localDataOnly -> {
                 getLocalData(id, page, localDataOnly)
@@ -201,17 +178,12 @@ class CommentRepository @Inject constructor(
      *  Note: local data does not guarantee having all pages in db,
      *  hence when trying to load a page without actual cache, error is shown
      */
-    private fun getLocalData(
-        id: String,
-        page: Int,
-        localDataOnly: Boolean = false
-    ): LiveData<DataResource<List<Comment>>> {
+    private fun getLocalData(id: String, page: Int, localDataOnly: Boolean = false): LiveData<DataResource<List<Comment>>> {
         Timber.d("Querying local data for Post $id on $page")
         if (localDataOnly) {
             browsingHistoryMap[id]?.let {
-                it.browsedTime = getTimeElapsedToday()
                 it.pages.add(page)
-                GlobalScope.launch { browsingHistoryDao.insertBrowsingHistory(it) }
+                GlobalScope.launch { browsingHistoryDao.insertOrUpdateBrowsingHistory(it) }
             }
         }
         return getLocalListDataResource(commentDao.findDistinctPageByParentId(id, page))
@@ -229,11 +201,7 @@ class CommentRepository @Inject constructor(
         }
     }
 
-    private suspend fun convertServerData(
-        id: String,
-        data: Post,
-        page: Int
-    ): DataResource<List<Comment>> {
+    private suspend fun convertServerData(id: String, data: Post, page: Int): DataResource<List<Comment>> {
         // update current thread with latest info
         if (data.fid.isBlank() && postMap[id]?.fid?.isNotBlank() == true) {
             data.fid = postMap[id]?.fid.toString()
@@ -243,9 +211,8 @@ class CommentRepository @Inject constructor(
             if (postFid != data.fid) {
                 postFid = data.fid
             }
-            browsedTime = getTimeElapsedToday()
             pages.add(page)
-            browsingHistoryDao.insertBrowsingHistory(this)
+            browsingHistoryDao.insertOrUpdateBrowsingHistory(this)
         }
 
         if (data != postMap[id]) {
@@ -298,7 +265,7 @@ class CommentRepository @Inject constructor(
             if (this is APIMessageResponse.Success && messageType == APIMessageResponse.MessageType.String) {
                 coroutineScope {
                     launch {
-                        val newFeed = Feed(1, 1, id, "", Date().time)
+                        val newFeed = Feed(1, 1, id, "", LocalDateTime.now())
                         feedDao.addFeedToTopAndIncrementFeedIds(newFeed)
                     }
                 }
@@ -310,7 +277,7 @@ class CommentRepository @Inject constructor(
         }
     }
 
-    suspend fun deleteFeed(id: String): SingleLiveEvent<String>{
+    suspend fun deleteFeed(id: String): SingleLiveEvent<String> {
         Timber.d("Deleting Feed $id")
         return webService.delFeed(DawnApp.applicationDataStore.getFeedId(), id).run {
             if (this is APIMessageResponse.Success) {

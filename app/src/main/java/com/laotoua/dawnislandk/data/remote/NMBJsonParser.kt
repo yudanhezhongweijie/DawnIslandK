@@ -18,30 +18,24 @@
 package com.laotoua.dawnislandk.data.remote
 
 import com.laotoua.dawnislandk.data.local.entity.*
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.Types
+import com.laotoua.dawnislandk.util.ReadableTime
+import com.squareup.moshi.*
 import org.json.JSONObject
 import org.jsoup.Jsoup
-import java.util.*
+import java.time.LocalDateTime
 
 
 abstract class NMBJsonParser<T> {
     abstract fun parse(response: String): T
 
     companion object {
-        private val moshi: Moshi = Moshi.Builder().build()
+        private val moshi: Moshi = Moshi.Builder().add(LocalDateTimeAdapter()).build()
     }
 
     class ReleaseParser : NMBJsonParser<Release>() {
         override fun parse(response: String): Release {
             return JSONObject(response).run {
-                Release(
-                    1,
-                    optString("tag_name"),
-                    optString("html_url"),
-                    optString("body"),
-                    Date().time
-                )
+                Release(1, optString("tag_name"), optString("html_url"), optString("body"))
             }
         }
     }
@@ -61,10 +55,7 @@ abstract class NMBJsonParser<T> {
     class CommunityParser : NMBJsonParser<List<Community>>() {
         override fun parse(response: String): List<Community> {
             return moshi.adapter<List<Community>>(
-                Types.newParameterizedType(
-                    List::class.java,
-                    Community::class.java
-                )
+                Types.newParameterizedType(List::class.java, Community::class.java)
             ).fromJson(response)!!
         }
     }
@@ -72,10 +63,7 @@ abstract class NMBJsonParser<T> {
     class PostParser : NMBJsonParser<List<Post>>() {
         override fun parse(response: String): List<Post> {
             return moshi.adapter<List<Post>>(
-                Types.newParameterizedType(
-                    List::class.java,
-                    Post::class.java
-                )
+                Types.newParameterizedType(List::class.java, Post::class.java)
             ).fromJson(response)!!
         }
     }
@@ -83,10 +71,7 @@ abstract class NMBJsonParser<T> {
     class FeedParser : NMBJsonParser<List<Feed.ServerFeed>>() {
         override fun parse(response: String): List<Feed.ServerFeed> {
             return moshi.adapter<List<Feed.ServerFeed>>(
-                Types.newParameterizedType(
-                    List::class.java,
-                    Feed.ServerFeed::class.java
-                )
+                Types.newParameterizedType(List::class.java, Feed.ServerFeed::class.java)
             ).fromJson(response)!!
         }
     }
@@ -100,16 +85,13 @@ abstract class NMBJsonParser<T> {
     class QuoteParser : NMBJsonParser<Comment>() {
         override fun parse(response: String): Comment {
             val thread = Jsoup.parse(response).getElementsByClass("h-threads-item").first()
-            val id = thread.getElementsByClass("h-threads-item-reply h-threads-item-ref").first()
-                .attr("data-threads-id")
+            val id = thread.getElementsByClass("h-threads-item-reply h-threads-item-ref").first().attr("data-threads-id")
             if (id.isNullOrBlank()) throw Exception("无法获取引用")
             val title = thread.getElementsByClass("h-threads-info-title").first().text()
             // key is email but actual content is name???
             val name = thread.getElementsByClass("h-threads-info-email").first().text()
             val now = thread.getElementsByClass("h-threads-info-createdat").first().text()
-            val imageFullPath =
-                thread.getElementsByClass("h-threads-img-a").firstOrNull()?.attr("href")
-                    ?.substringAfter("image/") ?: ""
+            val imageFullPath = thread.getElementsByClass("h-threads-img-a").firstOrNull()?.attr("href")?.substringAfter("image/") ?: ""
             val splitter = imageFullPath.indexOf(".")
             val img = if (splitter > 0) imageFullPath.substring(0, splitter) else ""
             val ext = if (splitter > 0) imageFullPath.substring(splitter) else ""
@@ -181,6 +163,22 @@ abstract class NMBJsonParser<T> {
     class ReedRandomPictureParser : NMBJsonParser<String>() {
         override fun parse(response: String): String {
             return response
+        }
+    }
+
+    class LocalDateTimeAdapter {
+        @ToJson
+        fun toJson(dateTime: LocalDateTime): String {
+            return dateTime.format(ReadableTime.SERVER_DATETIME_FORMAT)
+        }
+
+        @FromJson
+        fun fromJson(str: String): LocalDateTime {
+            return try {
+                ReadableTime.serverTimeStringToServerLocalDateTime(str)
+            } catch (e: Exception) {
+                throw JsonDataException("Unknown DateTime String: $str")
+            }
         }
     }
 }

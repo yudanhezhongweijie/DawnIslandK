@@ -21,7 +21,7 @@ import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.squareup.moshi.JsonClass
-import java.util.*
+import java.time.LocalDateTime
 
 @JsonClass(generateAdapter = true)
 @Entity
@@ -40,7 +40,7 @@ data class Comment(
     val ext: String,
     var page: Int = 1,
     var parentId: String = "",
-    var lastUpdatedAt: Long = 0
+    var lastUpdatedAt: LocalDateTime = LocalDateTime.now()
 ) {
     // used for reply filtering
     @Ignore
@@ -67,7 +67,7 @@ data class Comment(
                 && now == target.now && content == target.content
                 && img == target.img && ext == target.ext
 
-    fun setUpdatedTimestamp(time: Long? = null) {
-        lastUpdatedAt = time ?: Date().time
+    fun setUpdatedTimestamp(time: LocalDateTime = LocalDateTime.now()) {
+        lastUpdatedAt = time
     }
 }

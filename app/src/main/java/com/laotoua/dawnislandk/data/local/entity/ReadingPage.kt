@@ -19,15 +19,15 @@ package com.laotoua.dawnislandk.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.util.*
+import java.time.LocalDateTime
 
 @Entity
 data class ReadingPage(
-    @PrimaryKey val id:String,
-    var page:Int,
-    var lastUpdatedAt: Long = 0
-){
-    fun setUpdatedTimestamp(time: Long? = null) {
-        lastUpdatedAt = time ?: Date().time
+    @PrimaryKey val id: String,
+    var page: Int,
+    var lastUpdatedAt: LocalDateTime = LocalDateTime.now()
+) {
+    fun setUpdatedTimestamp(time: LocalDateTime = LocalDateTime.now()) {
+        lastUpdatedAt = time
     }
 }

@@ -19,7 +19,7 @@ package com.laotoua.dawnislandk.data.local.dao
 
 import androidx.room.*
 import com.laotoua.dawnislandk.data.local.entity.Cookie
-import java.util.*
+import java.time.LocalDateTime
 
 
 @Dao
@@ -43,7 +43,7 @@ interface CookieDao {
     }
 
     suspend fun setLastUsedCookie(cookie: Cookie){
-        cookie.lastUsedAt = Date().time
+        cookie.lastUsedAt = LocalDateTime.now()
         updateCookie(cookie)
     }
     @Update

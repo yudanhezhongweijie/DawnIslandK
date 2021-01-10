@@ -19,6 +19,7 @@ package com.laotoua.dawnislandk.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.time.LocalDateTime
 
 @Entity
 class PostHistory(
@@ -32,7 +33,7 @@ class PostHistory(
     val content: String, //content
     val img: String,
     val ext: String,
-    val postDate: Long
+    val postDateTime: LocalDateTime = LocalDateTime.now()
 ) {
     constructor(id: String, targetPage: Int, img: String, ext: String, draft: Draft) : this(
         id,
@@ -44,7 +45,7 @@ class PostHistory(
         draft.content,
         img,
         ext,
-        draft.postDate
+        draft.postDateTime
     )
 
     class Draft(
@@ -53,7 +54,7 @@ class PostHistory(
         val postTargetFid: String,
         val cookieName: String,
         var content: String, //content
-        val postDate: Long
+        val postDateTime: LocalDateTime
     )
 
     fun getImgUrl() = (img + ext)

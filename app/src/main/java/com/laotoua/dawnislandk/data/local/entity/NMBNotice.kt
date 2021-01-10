@@ -20,7 +20,7 @@ package com.laotoua.dawnislandk.data.local.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.squareup.moshi.JsonClass
-import java.util.*
+import java.time.LocalDateTime
 
 @JsonClass(generateAdapter = true)
 @Entity
@@ -28,10 +28,10 @@ data class NMBNotice(
     @PrimaryKey(autoGenerate = true)
     val id: Int? = null, // only used to keep track of versions
     val content: String,
-    val date: Long,
+    val date: Long, // i.e 2020101917
     val enable: Boolean,
     var read: Boolean = false,
-    var lastUpdatedAt: Long = 0
+    var lastUpdatedAt: LocalDateTime = LocalDateTime.now()
 ){
     override fun equals(other: Any?) =
         if (other is NMBNotice) {
@@ -48,7 +48,7 @@ data class NMBNotice(
         return result
     }
 
-    fun setUpdatedTimestamp(time: Long? = null) {
-        lastUpdatedAt = time ?: Date().time
+    fun setUpdatedTimestamp(time: LocalDateTime = LocalDateTime.now()) {
+        lastUpdatedAt = time
     }
 }

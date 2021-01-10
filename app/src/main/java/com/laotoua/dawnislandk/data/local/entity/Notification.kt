@@ -19,7 +19,7 @@ package com.laotoua.dawnislandk.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.util.*
+import java.time.LocalDateTime
 
 @Entity
 data class Notification(
@@ -28,20 +28,14 @@ data class Notification(
     var newReplyCount: Int,
     val message: String = "", // feed subscription update do not use this field, it is reserved for other notifications
     var read: Boolean = false,
-    var lastUpdatedAt: Long
+    var lastUpdatedAt: LocalDateTime = LocalDateTime.now()
 ) {
     // valid targetId should be all digits, here only checking the first digit should be sufficient
     // fake feed notification should start with some non digit char
     fun isValidFeedPushNotification(): Boolean = id.first().isDigit()
 
     companion object {
-        fun makeNotification(
-            targetId: String,
-            fid: String,
-            newReplyCount: Int,
-            message: String = ""
-        ): Notification {
-            return Notification(targetId, fid, newReplyCount, message, false, Date().time)
-        }
+        fun makeNotification(targetId: String, fid: String, newReplyCount: Int, message: String = ""): Notification =
+            Notification(targetId, fid, newReplyCount, message, false, LocalDateTime.now())
     }
 }

@@ -24,6 +24,8 @@ import com.laotoua.dawnislandk.data.local.entity.NoticeForum
 import com.laotoua.dawnislandk.data.local.entity.Trend
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 class Converter {
@@ -182,6 +184,19 @@ class Converter {
     @TypeConverter
     fun dateToLong(date: Date?): Long? {
         return date?.let { date.time }
+    }
+
+    private val dateTimeFormatter: DateTimeFormatter =
+        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+
+    @TypeConverter
+    fun stringToDateTime(string: String): LocalDateTime {
+        return LocalDateTime.parse(string, dateTimeFormatter)
+    }
+
+    @TypeConverter
+    fun dateTimeToString(dateTime: LocalDateTime): String {
+        return dateTime.format(dateTimeFormatter)
     }
 
 }

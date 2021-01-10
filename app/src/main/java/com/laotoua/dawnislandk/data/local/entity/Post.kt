@@ -22,7 +22,7 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import java.util.*
+import java.time.LocalDateTime
 import kotlin.math.ceil
 
 @JsonClass(generateAdapter = true)
@@ -43,7 +43,7 @@ data class Post(
     val status: String = "",
     @Json(name = "replys") @Ignore var comments: List<Comment> = emptyList(), //replys 	主页展示回复的帖子(5个）
     val replyCount: String = "",
-    var lastUpdatedAt: Long = 0
+    var lastUpdatedAt: LocalDateTime = LocalDateTime.now()
 ) {
     // Room uses this
     constructor(
@@ -61,7 +61,7 @@ data class Post(
         admin: String,
         status: String,
         replyCount: String,
-        lastUpdatedAt: Long
+        lastUpdatedAt: LocalDateTime
     ) : this(
         id,
         fid,
@@ -138,8 +138,8 @@ data class Post(
         return result
     }
 
-    fun setUpdatedTimestamp(time: Long? = null) {
-        lastUpdatedAt = time ?: Date().time
+    fun setUpdatedTimestamp(time: LocalDateTime = LocalDateTime.now()) {
+        lastUpdatedAt = time
     }
 
     fun stripCopy(): Post =

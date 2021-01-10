@@ -47,6 +47,8 @@ import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
 import com.laotoua.dawnislandk.util.ReadableTime
 import com.lxj.xpopup.XPopup
 import timber.log.Timber
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -63,9 +65,6 @@ class BrowsingHistoryFragment : BaseNavFragment() {
     private var viewCaching = false
 
     private val viewModel: BrowsingHistoryViewModel by viewModels { viewModelFactory }
-
-    private var endDate = Calendar.getInstance()
-    private var startDate = Calendar.getInstance().apply { add(Calendar.WEEK_OF_YEAR, -1) }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -91,13 +90,13 @@ class BrowsingHistoryFragment : BaseNavFragment() {
                 adapter = mAdapter
             }
 
-            binding!!.startDate.text = ReadableTime.getDateString(startDate.time.time)
-            binding!!.endDate.text = ReadableTime.getDateString(endDate.time.time)
+            binding!!.startDate.text = ReadableTime.getDateString(viewModel.startDate)
+            binding!!.endDate.text = ReadableTime.getDateString(viewModel.endDate)
             binding!!.startDate.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
                 MaterialDialog(requireContext()).show {
                     lifecycleOwner(this@BrowsingHistoryFragment)
-                    datePicker(currentDate = startDate) { _, date ->
+                    datePicker(currentDate = ReadableTime.localDateTimeToCalendarDate(viewModel.startDate)) { _, date ->
                         setStartDate(date)
                     }
                 }
@@ -107,7 +106,7 @@ class BrowsingHistoryFragment : BaseNavFragment() {
                 if (activity == null || !isAdded) return@setOnClickListener
                 MaterialDialog(requireContext()).show {
                     lifecycleOwner(this@BrowsingHistoryFragment)
-                    datePicker(currentDate = endDate) { _, date ->
+                    datePicker(currentDate = ReadableTime.localDateTimeToCalendarDate(viewModel.endDate)) { _, date ->
                         setEndDate(date)
                     }
                 }
@@ -115,7 +114,7 @@ class BrowsingHistoryFragment : BaseNavFragment() {
 
             binding!!.confirmDate.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
-                if (startDate.before(endDate)) {
+                if (viewModel.startDate.toLocalDate().isBefore(viewModel.endDate.toLocalDate())) {
                     viewModel.searchByDate()
                 } else {
                     toast(R.string.data_range_selection_error)
@@ -133,8 +132,7 @@ class BrowsingHistoryFragment : BaseNavFragment() {
             val data: MutableList<Any> = ArrayList()
             list.map {
                 val dateString = ReadableTime.getDateString(
-                    it.browsingHistory.browsedDate,
-                    ReadableTime.DATE_ONLY_FORMAT
+                    it.browsingHistory.browsedDateTime
                 )
                 if (lastDate == null || dateString != lastDate) {
                     data.add(dateString)
@@ -159,15 +157,13 @@ class BrowsingHistoryFragment : BaseNavFragment() {
     }
 
     private fun setStartDate(date: Calendar) {
-        startDate = date
-        viewModel.setStartDate(date.time)
-        binding?.startDate?.text = ReadableTime.getDateString(date.time)
+        viewModel.startDate = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
+        binding?.startDate?.text = ReadableTime.getDateString(viewModel.startDate)
     }
 
     private fun setEndDate(date: Calendar) {
-        endDate = date
-        viewModel.setEndDate(date.time)
-        binding?.endDate?.text = ReadableTime.getDateString(date.time)
+        viewModel.endDate = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
+        binding?.endDate?.text = ReadableTime.getDateString(viewModel.endDate)
     }
 
     private class DateStringBinder : QuickItemBinder<String>() {
@@ -223,7 +219,7 @@ class BrowsingHistoryFragment : BaseNavFragment() {
 
     private class PostDiffer : DiffUtil.ItemCallback<Post>() {
         override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean {
-            return oldItem.id == newItem.id && oldItem.fid == newItem.fid
+            return oldItem.id == newItem.id
         }
 
         override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean {

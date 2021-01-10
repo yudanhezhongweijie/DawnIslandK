@@ -21,34 +21,42 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.laotoua.dawnislandk.data.local.entity.BrowsingHistory
 import com.laotoua.dawnislandk.data.local.entity.BrowsingHistoryAndPost
+import java.time.LocalDateTime
 
 @Dao
 interface BrowsingHistoryDao {
     @Transaction
-    @Query("SELECT * From BrowsingHistory ORDER BY browsedDate DESC, browsedTime DESC")
+    @Query("SELECT * From BrowsingHistory ORDER BY browsedDateTime DESC")
     fun getAllBrowsingHistoryAndPost(): LiveData<List<BrowsingHistoryAndPost>>
 
     @Transaction
-    @Query("SELECT * From BrowsingHistory WHERE browsedDate>=:startDate AND browsedDate<=:endDate ORDER BY browsedDate DESC, browsedTime DESC ")
+    @Query("SELECT * From BrowsingHistory WHERE browsedDateTime>=date(:startDate) AND browsedDateTime<date(:endDate, '+1 day') ORDER BY browsedDateTime DESC")
     fun getAllBrowsingHistoryAndPostInDateRange(
-        startDate: Long,
-        endDate: Long
+        startDate: LocalDateTime,
+        endDate: LocalDateTime
     ): LiveData<List<BrowsingHistoryAndPost>>
 
-    @Query("SELECT * From BrowsingHistory ORDER BY browsedDate DESC, browsedTime DESC")
+    @Query("SELECT * From BrowsingHistory ORDER BY browsedDateTime DESC")
     suspend fun getAllBrowsingHistory(): List<BrowsingHistory>
 
-    @Query("SELECT * From BrowsingHistory WHERE browsedDate=:date ORDER BY browsedTime DESC")
-    fun getBrowsingHistoryByDate(date: Long): LiveData<List<BrowsingHistory>>
+    @Query("SELECT * From BrowsingHistory WHERE date(browsedDateTime)=date(:date) ORDER BY browsedDateTime DESC")
+    fun getBrowsingHistoryByDate(date: LocalDateTime): LiveData<List<BrowsingHistory>>
 
-    @Query("SELECT * From BrowsingHistory WHERE browsedDate=:today AND postId=:postId")
-    suspend fun getBrowsingHistoryByTodayAndIdSync(today: Long, postId: String): BrowsingHistory?
+    @Query("SELECT * From BrowsingHistory WHERE date(browsedDateTime)=date(:today) AND postId=:postId ORDER BY browsedDateTime DESC LIMIT 1")
+    suspend fun getBrowsingHistoryByTodayAndIdSync(today: LocalDateTime, postId: String): BrowsingHistory?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertBrowsingHistory(browsingHistory: BrowsingHistory)
 
-    @Query("UPDATE BrowsingHistory SET pages =:pages, browsedTime=:browsedTime WHERE browsedDate = :browsedDate AND postId=:postId")
-    suspend fun updateBrowsingPages(pages: String, browsedTime: Long, browsedDate: Long, postId: String)
+    suspend fun insertOrUpdateBrowsingHistory(browsingHistory: BrowsingHistory) {
+        browsingHistory.browsedDateTime = LocalDateTime.now()
+        val cache = getBrowsingHistoryByTodayAndIdSync(browsingHistory.browsedDateTime, browsingHistory.postId)
+        if (cache != null) {
+            browsingHistory.pages.apply { addAll(cache.pages) }
+            browsingHistory.id = cache.id
+        }
+        insertBrowsingHistory(browsingHistory)
+    }
 
     @Query("DELETE FROM BrowsingHistory")
     suspend fun nukeTable()

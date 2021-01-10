@@ -31,12 +31,12 @@ import com.laotoua.dawnislandk.data.repository.CommunityRepository
 import com.laotoua.dawnislandk.screens.util.ContentTransformation
 import com.laotoua.dawnislandk.util.DataResource
 import com.laotoua.dawnislandk.util.LoadingStatus
-import com.laotoua.dawnislandk.util.ReadableTime
 import com.laotoua.dawnislandk.util.SingleLiveEvent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
+import java.time.LocalDateTime
 import java.util.*
 import javax.inject.Inject
 
@@ -53,7 +53,7 @@ class SharedViewModel @Inject constructor(
 
     val communityList: LiveData<DataResource<List<Community>>> = communityRepository.communityList
 
-    val notifications:LiveData<Int> = notificationDao.getLiveUnreadNotificationsCount()
+    val notifications: LiveData<Int> = notificationDao.getLiveUnreadNotificationsCount()
 
     val reedPictureUrl = MutableLiveData<String>()
     private var _selectedForumId = MutableLiveData<String>()
@@ -76,9 +76,9 @@ class SharedViewModel @Inject constructor(
         if (DawnApp.applicationDataStore.getAutoUpdateFeed()) autoUpdateFeeds()
     }
 
-    suspend fun getAllEmoji():List<Emoji>{
+    suspend fun getAllEmoji(): List<Emoji> {
         var res = emojiDao.getAllEmoji(DawnApp.applicationDataStore.getSortEmojiByLastUsedStatus())
-        if (res.isEmpty()){
+        if (res.isEmpty()) {
             emojiDao.resetEmoji()
             res = emojiDao.getAllEmoji(DawnApp.applicationDataStore.getSortEmojiByLastUsedStatus())
         }
@@ -100,11 +100,10 @@ class SharedViewModel @Inject constructor(
         viewModelScope.launch {
             while (true) {
                 Timber.d("Auto Update Feed is on. Looping...")
-                val currentTime = System.currentTimeMillis() - ReadableTime.DAY_MILLIS
-                val outDatedFeedAndPost = feedDao.findMostOutdatedFeedAndPost(currentTime) ?: break
+                val outDatedFeedAndPost = feedDao.findMostOutdatedFeedAndPost(LocalDateTime.now()) ?: break
                 Timber.d("Found outdated Feed ${outDatedFeedAndPost.feed.postId}. Updating...")
                 updateOutdatedFeedAndPost(outDatedFeedAndPost)
-                delay(ReadableTime.MINUTE_MILLIS * 5)
+                delay(5000L)
             }
         }
     }
@@ -141,7 +140,7 @@ class SharedViewModel @Inject constructor(
 
                 // update feed
                 outDatedFeedAndPost.feed.let {
-                    it.lastUpdatedAt = Date().time
+                    it.lastUpdatedAt = LocalDateTime.now()
                     feedDao.insertFeed(it)
                 }
             }
@@ -212,8 +211,7 @@ class SharedViewModel @Inject constructor(
                 if (messageType == APIMessageResponse.MessageType.String) {
                     message
                 } else {
-                    dom!!.getElementsByClass("system-message")
-                        .first().children().not(".jump").text()
+                    dom!!.getElementsByClass("system-message").first().children().not(".jump").text()
                 }
             } else {
                 Timber.e(message)
@@ -237,14 +235,7 @@ class SharedViewModel @Inject constructor(
         }
         viewModelScope.launch {
             delay(3000L) // give some time the server to refresh
-            val draft = PostHistory.Draft(
-                newPost,
-                postTargetId,
-                postTargetFid,
-                cookieName,
-                content,
-                Date().time
-            )
+            val draft = PostHistory.Draft(newPost, postTargetId, postTargetFid, cookieName, content, LocalDateTime.now())
             if (!newPost) searchCommentInPost(draft, postTargetPage, false)
             else searchPostInForum(draft, postTargetFid)
         }
@@ -261,15 +252,7 @@ class SharedViewModel @Inject constructor(
                     if (post.userid == draft.cookieName && striped == draft.content) {
                         // store server's copy
                         draft.content = post.content
-                        postHistoryDao.insertPostHistory(
-                            PostHistory(
-                                post.id,
-                                1,
-                                post.img,
-                                post.ext,
-                                draft
-                            )
-                        )
+                        postHistoryDao.insertPostHistory(PostHistory(post.id, 1, post.img, post.ext, draft))
                         saved = true
                         _savePostStatus.postValue(SingleLiveEvent.create(true))
                         Timber.d("Saved new post with id ${post.id}")
@@ -326,15 +309,7 @@ class SharedViewModel @Inject constructor(
             if (reply.userid == draft.cookieName && striped == draft.content) {
                 // store server's copy
                 draft.content = reply.content
-                postHistoryDao.insertPostHistory(
-                    PostHistory(
-                        reply.id,
-                        targetPage,
-                        reply.img,
-                        reply.ext,
-                        draft
-                    )
-                )
+                postHistoryDao.insertPostHistory(PostHistory(reply.id, targetPage, reply.img, reply.ext, draft))
                 _savePostStatus.postValue(SingleLiveEvent.create(true))
                 Timber.d("Saved posted comment with id ${reply.id}")
                 return

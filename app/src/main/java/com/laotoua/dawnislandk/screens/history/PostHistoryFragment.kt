@@ -49,6 +49,8 @@ import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
 import com.laotoua.dawnislandk.util.ReadableTime
 import com.lxj.xpopup.XPopup
 import timber.log.Timber
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.*
 
 class PostHistoryFragment : BaseNavFragment() {
@@ -62,9 +64,6 @@ class PostHistoryFragment : BaseNavFragment() {
     private var viewCaching = false
 
     private val viewModel: PostHistoryViewModel by viewModels { viewModelFactory }
-
-    private var endDate = Calendar.getInstance()
-    private var startDate = Calendar.getInstance().apply { add(Calendar.DATE, -30) }
 
     private var showNewPosts = true
     private var showReplys = true
@@ -99,13 +98,13 @@ class PostHistoryFragment : BaseNavFragment() {
                 adapter = mAdapter
             }
 
-            binding!!.startDate.text = ReadableTime.getDateString(startDate.time)
-            binding!!.endDate.text = ReadableTime.getDateString(endDate.time)
+            binding!!.startDate.text = ReadableTime.getDateString(viewModel.startDate)
+            binding!!.endDate.text = ReadableTime.getDateString(viewModel.endDate)
             binding!!.startDate.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
                 MaterialDialog(requireContext()).show {
                     lifecycleOwner(this@PostHistoryFragment)
-                    datePicker(currentDate = startDate) { _, date ->
+                    datePicker(currentDate = ReadableTime.localDateTimeToCalendarDate(viewModel.startDate)) { _, date ->
                         setStartDate(date)
                     }
                 }
@@ -115,7 +114,7 @@ class PostHistoryFragment : BaseNavFragment() {
                 if (activity == null || !isAdded) return@setOnClickListener
                 MaterialDialog(requireContext()).show {
                     lifecycleOwner(this@PostHistoryFragment)
-                    datePicker(currentDate = endDate) { _, date ->
+                    datePicker(currentDate = ReadableTime.localDateTimeToCalendarDate(viewModel.endDate)) { _, date ->
                         setEndDate(date)
                     }
                 }
@@ -123,7 +122,7 @@ class PostHistoryFragment : BaseNavFragment() {
 
             binding!!.confirmDate.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
-                if (startDate.before(endDate)) {
+                if (viewModel.startDate.toLocalDate().isBefore(viewModel.endDate.toLocalDate())) {
                     viewModel.searchByDate()
                 } else {
                     toast(R.string.data_range_selection_error)
@@ -143,15 +142,13 @@ class PostHistoryFragment : BaseNavFragment() {
     }
 
     private fun setStartDate(date: Calendar) {
-        startDate = date
-        viewModel.setStartDate(date.time)
-        binding?.startDate?.text = ReadableTime.getDateString(date.time)
+        viewModel.startDate = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
+        binding?.startDate?.text = ReadableTime.getDateString(viewModel.startDate)
     }
 
     private fun setEndDate(date: Calendar) {
-        endDate = date
-        viewModel.setEndDate(date.time)
-        binding?.endDate?.text = ReadableTime.getDateString(date.time)
+        viewModel.endDate = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
+        binding?.endDate?.text = ReadableTime.getDateString(viewModel.endDate)
     }
 
     private fun togglePosts() {
@@ -171,10 +168,7 @@ class PostHistoryFragment : BaseNavFragment() {
         if (showNewPosts) {
             list.filter { it.newPost }.run {
                 map {
-                    val dateString = ReadableTime.getDateString(
-                        it.postDate,
-                        ReadableTime.DATE_ONLY_FORMAT
-                    )
+                    val dateString = ReadableTime.getDateString(it.postDateTime)
                     if (lastDate == null || dateString != lastDate) {
                         data.add(dateString)
                     }
@@ -188,10 +182,7 @@ class PostHistoryFragment : BaseNavFragment() {
             list.filterNot { it.newPost }.run {
                 lastDate = null
                 map {
-                    val dateString = ReadableTime.getDateString(
-                        it.postDate,
-                        ReadableTime.DATE_ONLY_FORMAT
-                    )
+                    val dateString = ReadableTime.getDateString(it.postDateTime)
                     if (lastDate == null || dateString != lastDate) {
                         data.add(dateString)
                     }
@@ -221,7 +212,7 @@ class PostHistoryFragment : BaseNavFragment() {
             holder.convertUserId(cookieDisplayName, "", cookieDisplayName)
                 .convertRefId(context, data.id)
                 .convertTitleAndName("", "")
-                .convertTimeStamp(data.postDate)
+                .convertTimeStamp(data.postDateTime)
                 .convertForumAndReplyCount(
                     "",
                     sharedViewModel.getForumDisplayName(data.postTargetFid)

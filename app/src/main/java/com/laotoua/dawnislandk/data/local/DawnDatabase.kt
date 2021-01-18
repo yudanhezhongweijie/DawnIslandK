@@ -47,7 +47,7 @@ import com.laotoua.dawnislandk.data.local.entity.*
         BlockedId::class,
         Notification::class,
         Emoji::class],
-    version = 20
+    version = 21
 )
 @TypeConverters(Converter::class)
 abstract class DawnDatabase : RoomDatabase() {
@@ -326,12 +326,19 @@ abstract class DawnDatabase : RoomDatabase() {
                 }
             }
 
+            // allow custom Emoji
+            val migrate20To21 = object : Migration(20, 21) {
+                override fun migrate(database: SupportSQLiteDatabase) {
+                    // DailyTrend
+                    database.execSQL("CREATE TABLE IF NOT EXISTS `DailyTrend2` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `postId` TEXT NOT NULL, `po` TEXT NOT NULL, `date` TEXT NOT NULL, `trends` TEXT NOT NULL, `lastReplyCount` INTEGER NOT NULL)")
+                    database.execSQL("INSERT INTO `DailyTrend2`(`postId`, `po`, `date`, `trends`, `lastReplyCount`) SELECT `id`, `po`, `date`, `trends`, `lastReplyCount` FROM DailyTrend")
+                    database.execSQL("DROP TABLE `DailyTrend`")
+                    database.execSQL("ALTER TABLE DailyTrend2 RENAME TO DailyTrend")
+                }
+            }
+
             synchronized(this) {
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    DawnDatabase::class.java,
-                    "dawnDB"
-                )
+                val instance = Room.databaseBuilder(context.applicationContext, DawnDatabase::class.java, "dawnDB")
                     .addMigrations(
                         migrate1To2,
                         migrate2To3,
@@ -351,7 +358,8 @@ abstract class DawnDatabase : RoomDatabase() {
                         migrate16To17,
                         migrate17To18,
                         migrate18To19,
-                        migrate19To20
+                        migrate19To20,
+                        migrate20To21
                     )
                     .build()
                 INSTANCE = instance

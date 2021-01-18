@@ -25,20 +25,24 @@ import java.time.LocalDateTime
 @JsonClass(generateAdapter = true)
 @Entity
 data class DailyTrend(
-    @PrimaryKey val id: String, // id of the specific reply that generates the content
+    val postId: String, // id of the specific reply that generates the content
     val po: String, // userid of the poster
     val date: LocalDateTime, // date when the trends posted
     val trends: List<Trend>,
     val lastReplyCount: Int
 ) {
+    @PrimaryKey(autoGenerate = true)
+    var id: Int = 0
+
     override fun equals(other: Any?): Boolean =
         if (other is DailyTrend) {
-            po == other.po && date.toLocalDate()
-                .isEqual(other.date.toLocalDate()) && trends == other.trends && lastReplyCount == other.lastReplyCount
+            po == other.po && date.toLocalDate().isEqual(other.date.toLocalDate()) && postId == other.postId
+                    && trends == other.trends && lastReplyCount == other.lastReplyCount
         } else false
 
     override fun hashCode(): Int {
         var result = po.hashCode()
+        result = 31 * result + postId.hashCode()
         result = 31 * result + date.hashCode()
         result = 31 * result + trends.hashCode()
         result = 31 * result + lastReplyCount.hashCode()

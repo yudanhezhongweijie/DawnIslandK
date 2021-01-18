@@ -495,16 +495,13 @@ class CommentsFragment : DaggerFragment() {
                 val pageInput = findViewById<TextInputLayout>(R.id.pageInput)
                 pageInput.editText!!.doOnTextChanged { text, _, _, _ ->
                     try {
-                        submitButton.isEnabled = !(text.isNullOrBlank()
-                                || text.length > maxPage.toString().length
-                                || text.toString().toInt() > maxPage)
+                        submitButton.isEnabled =
+                            !(text.isNullOrBlank() || text.length > maxPage.toString().length || text.toString().toInt() > maxPage)
                         if (submitButton.isEnabled) {
                             targetPage = pageInput.editText!!.text.toString().toInt()
                         }
-                        canJump = DawnApp.applicationDataStore.firstCookieHash != null
-                                || targetPage < 100
-                        pageInput.error =
-                            if (!canJump) context.resources.getString(R.string.need_cookie_to_read) else null
+                        canJump = DawnApp.applicationDataStore.firstCookieHash != null || targetPage < 100
+                        pageInput.error = if (!canJump) context.resources.getString(R.string.need_cookie_to_read) else null
                         submitButton.isEnabled = canJump
                     } catch (e: Exception) {
                         submitButton.isEnabled = false
@@ -512,8 +509,7 @@ class CommentsFragment : DaggerFragment() {
                     }
                 }
                 pageInput.editText!!.setText(targetPage.toString())
-                pageInput.error =
-                    if (!canJump) context.resources.getString(R.string.need_cookie_to_read) else null
+                pageInput.error = if (!canJump) context.resources.getString(R.string.need_cookie_to_read) else null
 
                 findViewById<TextView>(R.id.currentPage).text = currentPage.toString()
                 findViewById<TextView>(R.id.maxPage).text = maxPage.toString()

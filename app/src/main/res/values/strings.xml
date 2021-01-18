@@ -39,7 +39,7 @@
     <string name="choose_forum" translatable="false">选择版块</string>
     <string name="edit_text_hint" translatable="false">在这里输入文字</string>
     <string name="please_input_valid_text" translatable="false">请输入有效文字</string>
-    <string name="please_input_page_number" translatable="false">请输入页数</string>
+    <string name="please_input_page_number" translatable="false">请输入有效页数</string>
     <string name="watermark" translatable="false">水印</string>
     <string name="missing_cookie" translatable="false">没有饼干</string>
     <string name="count_text" translatable="false">%d / %d</string>

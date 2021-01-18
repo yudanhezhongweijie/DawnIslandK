@@ -134,17 +134,17 @@ class FeedsFragment : BaseNavFragment() {
                     var page = 0
                     input(
                         waitForPositiveButton = false,
-                        hintRes = R.string.please_input_page_number
+                        hintRes = R.string.please_input_page_number,
+                        maxLength = 9
                     ) { dialog, text ->
                         val inputField = getInputField()
-                        page = if (text.isNotBlank() && text.isDigitsOnly()) {
+                        page = if (text.isNotBlank() && text.length < 10 && text.isDigitsOnly()) {
                             text.toString().toInt()
                         } else {
                             0
                         }
                         val isValid = page > 0
-                        inputField.error =
-                            if (isValid) null else context.resources.getString(R.string.please_input_page_number)
+                        inputField.error = if (isValid) null else context.resources.getString(R.string.please_input_page_number)
                         dialog.setActionButtonEnabled(WhichButton.POSITIVE, isValid)
                     }
                     positiveButton(R.string.submit) {

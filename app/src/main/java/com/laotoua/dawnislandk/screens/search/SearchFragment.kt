@@ -23,7 +23,6 @@ import android.view.*
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.text.isDigitsOnly
 import androidx.core.text.toSpannable
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -33,6 +32,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.WhichButton
+import com.afollestad.materialdialogs.actions.getActionButton
 import com.afollestad.materialdialogs.actions.setActionButtonEnabled
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.input.getInputField
@@ -205,19 +205,21 @@ class SearchFragment : BaseNavFragment() {
                     lifecycleOwner(this@SearchFragment)
                     title(R.string.page_jump)
                     var page = 0
+                    val submitButton = getActionButton(WhichButton.POSITIVE)
                     input(
                         waitForPositiveButton = false,
                         hintRes = R.string.please_input_page_number
                     ) { dialog, text ->
                         val inputField = getInputField()
-                        page = if (text.isNotBlank() && text.isDigitsOnly()) {
+                        val isValid = (text.isBlank() || text.length > viewModel.maxPage.toString().length || text.toString()
+                            .toInt() > viewModel.maxPage).not()
+                        page = if (isValid) {
                             text.toString().toInt()
                         } else {
-                            0
+                            1
                         }
-                        val isValid = page > 0
-                        inputField.error =
-                            if (isValid) null else context.resources.getString(R.string.please_input_page_number)
+                        submitButton.isEnabled = isValid
+                        inputField.error = if (isValid) null else context.resources.getString(R.string.please_input_page_number)
                         dialog.setActionButtonEnabled(WhichButton.POSITIVE, isValid)
                     }
                     positiveButton(R.string.submit) {

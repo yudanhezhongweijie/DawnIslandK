@@ -60,7 +60,7 @@ class TrendRepository @Inject constructor(
             emit(DataResource.create(LoadingStatus.SUCCESS, it))
             _maxPage = ceil(it.lastReplyCount.toDouble() / 19).toInt()
             // trends updates daily at 1AM, allows 24 hour CD
-            if (ReadableTime.serverDateTimeToUserLocalDateTime(it.date).plusDays(1).isBefore(LocalDateTime.now())) {
+            if (ReadableTime.serverDateTimeToUserLocalDateTime(it.date).plusDays(1).isAfter(LocalDateTime.now())) {
                 getRemoteData = false
                 Timber.d("It's less than 24 hours since Trend last updated. Reusing...")
             }

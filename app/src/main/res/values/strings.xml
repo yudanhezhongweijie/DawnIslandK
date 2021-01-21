@@ -232,5 +232,5 @@
     <string name="how_to_add_cookie" translatable="false">如何添加饼干</string>
     <string name="add_cookie_help" translatable="false">本软件尚不支持微信小程序\n请从a岛用户管理系统或微信小程序上保存二维码图片并导入，或保存饼干序列并手动添加\n（如果您有这个能力开发请和我联系或直接PR(*ﾟ∀ﾟ*)）</string>
     <string name="roll_cheat" translatable="false">灌铅(大概)</string>
-    <string name="latest_id_seconds_ago" translatable="false">%s秒前: No.%s</string>
+    <string name="latest_id_posted_at_time" translatable="false">%s   :   No.%s</string>
 </resources>

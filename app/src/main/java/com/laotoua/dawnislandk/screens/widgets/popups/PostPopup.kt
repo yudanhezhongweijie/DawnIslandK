@@ -22,7 +22,9 @@ import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Shader
+import android.graphics.Typeface
 import android.net.Uri
+import android.os.Handler
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.widget.*
@@ -48,6 +50,7 @@ import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout
 import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.ImageUtil
+import com.laotoua.dawnislandk.util.ReadableTime
 import com.laotoua.dawnislandk.util.openLinksWithOtherApps
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BasePopupView
@@ -57,6 +60,9 @@ import com.lxj.xpopup.util.KeyboardUtils
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
+import java.time.Duration
+import java.time.LocalDateTime
+import java.util.*
 
 
 @SuppressLint("ViewConstructor")
@@ -80,7 +86,9 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
     private var postCookie: Button? = null
     private var postForum: Button? = null
     private var rollCheat: Button? = null
+    private var cheatTime: Long = 0
 
+    private var summary: TextView? = null
     private var toggleContainers: ConstraintLayout? = null
     private var expansionContainer: LinearLayout? = null
     private var attachmentContainer: ConstraintLayout? = null
@@ -92,6 +100,41 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
 
     // keyboard height listener
     private var keyboardHolder: LinearLayout? = null
+
+    private var mHandler: Handler? = null
+    private var latestPost: Pair<String, LocalDateTime>? = null
+    private var counterUpdateCallback: Runnable? = null
+
+    private fun setCounterUpdateCallBack() {
+        counterUpdateCallback?.let { mHandler?.removeCallbacks(it) }
+        counterUpdateCallback = object : Runnable {
+            override fun run() {
+                try {
+                    if (latestPost != null) {
+                        summary?.visibility = View.VISIBLE
+                        val seconds = Duration.between(latestPost!!.second, LocalDateTime.now()).seconds
+                        if (seconds <= 120) {
+                            summary?.setTypeface(summary!!.typeface, Typeface.BOLD)
+                            summary?.text = context.getString(R.string.latest_id_posted_at_time, " $seconds 秒前", latestPost!!.first)
+                            mHandler?.postDelayed(this, 1000)
+                        } else {
+                            summary?.setTypeface(summary!!.typeface, Typeface.ITALIC)
+                            summary?.text = context.getString(
+                                R.string.latest_id_posted_at_time,
+                                ReadableTime.getDisplayTime(latestPost!!.second, ReadableTime.TIME_ONLY_FORMAT),
+                                latestPost!!.first
+                            )
+                        }
+                    }
+                } catch (e: Exception) {
+                    counterUpdateCallback?.let { mHandler?.removeCallbacks(it) }
+                }
+            }
+        }
+        mHandler = Handler()
+        counterUpdateCallback?.let { mHandler?.post(it) }
+    }
+
 
     private fun updateTitle(targetId: String?, newPost: Boolean) {
         findViewById<TextView>(R.id.postTitle).text =
@@ -268,6 +311,8 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
             postImagePreview = findViewById(R.id.postImagePreview)
         }
 
+        summary = findViewById<TextView>(R.id.summary).apply { visibility = View.GONE }
+
         postForum = findViewById<Button>(R.id.postForum).apply {
             if (visibility == View.VISIBLE) {
                 setOnClickListener {
@@ -304,14 +349,19 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
             }
         }
 
-        findViewById<Button>(R.id.rollCheat).apply{
+        findViewById<Button>(R.id.rollCheat).apply {
             rollCheat = this
-            visibility = if (!newPost && targetFid == "111")  View.VISIBLE else View.GONE
+            visibility = if (!newPost && targetFid == "111") View.VISIBLE else View.GONE
 
             setOnClickListener {
+                if (System.currentTimeMillis() - cheatTime < 5000) {
+                    Toast.makeText(context, "正在请求数据，请稍后。。。", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                cheatTime = System.currentTimeMillis()
                 caller.lifecycleScope.launch {
-                    val id = sharedVM.getLatestPostId()
-                    Toast.makeText(context, "${id.second}\nNo.${id.first}", Toast.LENGTH_LONG).show()
+                    latestPost = sharedVM.getLatestPostId()
+                    setCounterUpdateCallBack()
                 }
             }
         }
@@ -370,10 +420,8 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
 
         findViewById<Button>(R.id.postDoodle).setOnClickListener {
             if (!caller.intentsHelper.checkAndRequestAllPermissions(
-                    caller, arrayOf(
-                        permission.READ_EXTERNAL_STORAGE,
-                        permission.WRITE_EXTERNAL_STORAGE
-                    )
+                    caller,
+                    arrayOf(permission.READ_EXTERNAL_STORAGE, permission.WRITE_EXTERNAL_STORAGE)
                 )
             ) {
                 return@setOnClickListener
@@ -457,6 +505,14 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
             dismiss()
         }
 
+    }
+
+    override fun onDismiss() {
+        summary?.run { visibility = View.GONE }
+        counterUpdateCallback?.let { mHandler?.removeCallbacks(it) }
+        counterUpdateCallback = null
+        mHandler = null
+        super.onDismiss()
     }
 
     fun compressAndPreviewImage(uri: Uri?) {

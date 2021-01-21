@@ -47,7 +47,7 @@ object ReadableTime {
     private val DATETIME_FORMAT_WITHOUT_YEAR: DateTimeFormatter = DateTimeFormatter.ofPattern("MM/dd HH:mm", Locale.getDefault())
 
     @SuppressLint("ConstantLocale")
-    private val TIME_ONLY_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss", Locale.getDefault())
+    val TIME_ONLY_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss", Locale.getDefault())
 
     @SuppressLint("ConstantLocale")
     private val FILENAME_DATETIME_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss", Locale.getDefault())
@@ -96,7 +96,7 @@ object ReadableTime {
         }
     }
 
-    fun getDisplayTime(time: LocalDateTime): String = time.format(DATETIME_FORMAT)
+    fun getDisplayTime(time: LocalDateTime, format: DateTimeFormatter = DATETIME_FORMAT): String = time.format(format)
 
     private fun getPlainDisplayTime(time: String): String {
         val nowDate = ZonedDateTime.now()

@@ -31,6 +31,7 @@ import com.laotoua.dawnislandk.data.repository.CommunityRepository
 import com.laotoua.dawnislandk.screens.util.ContentTransformation
 import com.laotoua.dawnislandk.util.DataResource
 import com.laotoua.dawnislandk.util.LoadingStatus
+import com.laotoua.dawnislandk.util.ReadableTime
 import com.laotoua.dawnislandk.util.SingleLiveEvent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -324,7 +325,7 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    suspend fun getLatestPostId(): Pair<String, String> {
+    suspend fun getLatestPostId(): Pair<String, LocalDateTime> {
         var id = "0"
         var time = ""
         webNMBServiceClient.getPosts("-1", 1).run {
@@ -348,7 +349,7 @@ class SharedViewModel @Inject constructor(
         return Pair(
             if (id == "0") {
                 "没有读取到串号。。"
-            } else id, time
+            } else id, ReadableTime.serverTimeStringToLocalJavaTime(time)
         )
 
     }

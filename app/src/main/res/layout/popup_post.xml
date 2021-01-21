@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ /* Copyright 2020 Fishballzzz
   ~  *
   ~  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -80,24 +79,23 @@
             android:layout_marginStart="15dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="15dp"
+            app:boxStrokeWidth="0dp"
+            app:boxStrokeWidthFocused="0dp"
             app:layout_constraintBottom_toTopOf="@id/attachmentContainer"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/postTitle"
-            app:boxStrokeWidth="0dp"
-            app:boxStrokeWidthFocused="0dp">
-
+            app:layout_constraintTop_toBottomOf="@id/postTitle">
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:autofillHints=""
                 android:ems="10"
                 android:gravity="clip_horizontal"
                 android:inputType="textMultiLine"
                 android:maxLines="15"
                 android:minLines="6"
                 android:padding="6dp"
-                android:textSize="15sp"
-                android:autofillHints="" />
+                android:textSize="15sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -106,7 +104,7 @@
             android:layout_height="wrap_content"
             android:paddingTop="10dp"
             android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@id/postCookie"
+            app:layout_constraintBottom_toTopOf="@id/summary"
             app:layout_constraintEnd_toEndOf="@id/postContent"
             app:layout_constraintStart_toStartOf="@id/postContent">
 
@@ -146,19 +144,19 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <Button
-            android:id="@+id/postCookie"
-            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+        <TextView
+            android:id="@+id/summary"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/missing_cookie"
-            android:textAllCaps="false"
-            app:icon="@drawable/ic_cookie_black_24px"
-            app:iconGravity="textStart"
-            app:layout_constraintBottom_toTopOf="@+id/ButtonGroupContainer"
-            app:layout_constraintEnd_toStartOf="@id/rollCheat"
-            app:layout_constraintStart_toEndOf="@+id/postForum"
-            app:strokeWidth="0dp" />
+            android:layout_weight="1"
+            android:text="@string/no_data_dots"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textColor="?android:attr/textColorPrimary"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/postCookie"
+            app:layout_constraintEnd_toEndOf="@+id/postContent"
+            app:layout_constraintStart_toStartOf="@+id/postContent" />
 
         <Button
             android:id="@+id/rollCheat"
@@ -173,6 +171,20 @@
             app:layout_constraintBottom_toTopOf="@+id/ButtonGroupContainer"
             app:layout_constraintEnd_toEndOf="@+id/postContent"
             app:layout_constraintStart_toEndOf="@id/postCookie"
+            app:strokeWidth="0dp" />
+
+        <Button
+            android:id="@+id/postCookie"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/missing_cookie"
+            android:textAllCaps="false"
+            app:icon="@drawable/ic_cookie_black_24px"
+            app:iconGravity="textStart"
+            app:layout_constraintBottom_toTopOf="@+id/ButtonGroupContainer"
+            app:layout_constraintEnd_toStartOf="@id/rollCheat"
+            app:layout_constraintStart_toEndOf="@+id/postForum"
             app:strokeWidth="0dp" />
 
         <HorizontalScrollView

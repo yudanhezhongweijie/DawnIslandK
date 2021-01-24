@@ -94,11 +94,7 @@ class CommentsViewModel @Inject constructor(
         viewModelScope.launch { commentRepo.saveReadingProgress(currentPostId, page) }
     }
 
-    fun getNextPage(
-        incrementPage: Boolean = true,
-        readingProgress: Int? = null,
-        forceUpdate: Boolean = true
-    ) {
+    fun getNextPage(incrementPage: Boolean = true, readingProgress: Int? = null, forceUpdate: Boolean = true) {
         var nextPage = readingProgress ?: (commentList.lastOrNull()?.page ?: 1)
         if (incrementPage && commentRepo.checkFullPage(currentPostId, nextPage)) nextPage += 1
         listenToNewPage(nextPage, forceUpdate)

@@ -119,7 +119,7 @@ class CommentRepository @Inject constructor(
      *  Therefore, the first page can have or not have the header post, if using local cache
      */
     fun checkFullPage(id: String, page: Int): Boolean =
-        (commentsMap[id]?.get(page)?.value?.data?.size ?: 0) >= 19
+        (commentsMap[id]?.get(page)?.value?.data?.filter { it.isNotAd() }?.size ?: 0) == 19
 
     fun getCommentsOnPage(id: String, page: Int, remoteDataOnly: Boolean, localDataOnly: Boolean): LiveData<DataResource<List<Comment>>> {
         if (commentsMap[id] == null) {

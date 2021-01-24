@@ -36,7 +36,7 @@ interface FeedDao {
     suspend fun findFeedByPostId(postId: String): Feed?
 
     @Transaction
-    @Query("SELECT * From Feed,Post where Feed.postId == Post.id And :targetTime>Post.lastUpdatedAt ORDER BY Feed.lastUpdatedAt ASC, Post.lastUpdatedAt ASC LIMIT 1")
+    @Query("SELECT * From Feed where date(:targetTime)>date(Feed.lastUpdatedAt) ORDER BY Feed.lastUpdatedAt ASC LIMIT 1")
     suspend fun findMostOutdatedFeedAndPost(targetTime: LocalDateTime): FeedAndPost?
 
     @Transaction

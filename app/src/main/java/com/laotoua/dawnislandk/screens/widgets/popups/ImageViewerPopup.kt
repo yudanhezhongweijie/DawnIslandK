@@ -57,7 +57,6 @@ import com.lxj.xpopup.core.BasePopupView
 import com.lxj.xpopup.enums.PopupStatus
 import com.lxj.xpopup.enums.PopupType
 import com.lxj.xpopup.interfaces.OnDragChangeListener
-import com.lxj.xpopup.interfaces.OnSrcViewUpdateListener
 import com.lxj.xpopup.interfaces.XPopupImageLoader
 import com.lxj.xpopup.photoview.PhotoView
 import com.lxj.xpopup.util.XPopupUtils
@@ -83,7 +82,7 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
     private var argbEvaluator = ArgbEvaluator()
     private var urls: MutableList<Any> = mutableListOf()
     private var imageLoader: XPopupImageLoader? = null
-    private var srcViewUpdateListener: OnSrcViewUpdateListener? = null
+    private var srcViewUpdateListener: IVPopupOnSrcViewUpdateListener? = null
     private var position = 0
     private var rect: Rect? = null
     private var srcView: ImageView? = null //动画起始的View，如果为null，移动和过渡动画效果会没有，只有弹窗的缩放功能
@@ -412,7 +411,7 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
         return this
     }
 
-    fun setSrcViewUpdateListener(srcViewUpdateListener: OnSrcViewUpdateListener?): ImageViewerPopup {
+    fun setSrcViewUpdateListener(srcViewUpdateListener: IVPopupOnSrcViewUpdateListener?): ImageViewerPopup {
         this.srcViewUpdateListener = srcViewUpdateListener
         return this
     }

@@ -76,7 +76,8 @@ class TrendRepository @Inject constructor(
         return webService.getComments(trendId, page).run {
             if (this is APIDataResponse.Success) {
                 val targetPage = ceil(data!!.replyCount.toDouble() / 19).toInt()
-                if (page == 1 || targetPage != page) {
+                if (targetPage != _maxPage) {
+                    _maxPage = targetPage
                     getRemoteTrend(targetPage)
                 } else {
                     convertLatestTrend(targetPage, data)

@@ -95,7 +95,7 @@ class SharedViewModel @Inject constructor(
     }
 
     /** scan cache feed daily, update the most outdated feed
-     *  updates 1 feed per 5 minutes
+     *  updates 1 feed per 5 minute
      */
     private fun autoUpdateFeeds() {
         viewModelScope.launch {
@@ -104,7 +104,7 @@ class SharedViewModel @Inject constructor(
                 val outDatedFeedAndPost = feedDao.findMostOutdatedFeedAndPost(LocalDateTime.now()) ?: break
                 Timber.d("Found outdated Feed ${outDatedFeedAndPost.feed.postId}. Updating...")
                 updateOutdatedFeedAndPost(outDatedFeedAndPost)
-                delay(5000L)
+                delay(300000L)
             }
         }
     }

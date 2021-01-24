@@ -15,5 +15,8 @@
  *
  */
 
-rootProject.name='DawnIslandK'
-include ':app'//, 'XPopup'
+package com.laotoua.dawnislandk.screens.widgets.popups
+
+interface IVPopupOnSrcViewUpdateListener {
+    fun onSrcViewUpdate(popupView: ImageViewerPopup, position: Int)
+}

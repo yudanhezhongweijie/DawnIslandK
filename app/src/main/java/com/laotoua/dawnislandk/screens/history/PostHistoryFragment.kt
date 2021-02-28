@@ -250,8 +250,7 @@ class PostHistoryFragment : BaseNavFragment() {
             if (activity == null || !isAdded) return
             viewCaching = DawnApp.applicationDataStore.getViewCaching()
             if (data.newPost) {
-                val navAction =
-                    MainNavDirections.actionGlobalCommentsFragment(data.id, data.postTargetFid)
+                val navAction = MainNavDirections.actionGlobalCommentsFragment(data.id, data.postTargetFid)
                 findNavController().navigate(navAction)
             } else {
                 val navAction =
@@ -265,8 +264,7 @@ class PostHistoryFragment : BaseNavFragment() {
         }
     }
 
-    inner class SectionHeaderBinder :
-        QuickItemBinder<SectionHeader>() {
+    inner class SectionHeaderBinder : QuickItemBinder<SectionHeader>() {
         override fun convert(holder: BaseViewHolder, data: SectionHeader) {
             holder.setText(R.id.text, data.text)
             if (data.clickListener == null) {
@@ -276,12 +274,7 @@ class PostHistoryFragment : BaseNavFragment() {
             }
         }
 
-        override fun onClick(
-            holder: BaseViewHolder,
-            view: View,
-            data: SectionHeader,
-            position: Int
-        ) {
+        override fun onClick(holder: BaseViewHolder, view: View, data: SectionHeader, position: Int) {
             if (activity == null || !isAdded) return
             if (data.clickListener == null) return
             data.clickListener.onClick(view)

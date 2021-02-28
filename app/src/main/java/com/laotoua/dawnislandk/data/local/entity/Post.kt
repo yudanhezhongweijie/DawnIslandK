@@ -42,7 +42,7 @@ data class Post(
     val admin: String = "0",//admin 	是否是酷炫红名，如果是酷炫红名则userid为红名id
     val status: String = "",
     @Json(name = "replys") @Ignore var comments: List<Comment> = emptyList(), //replys 	主页展示回复的帖子(5个）
-    val replyCount: String = "",
+    val replyCount: String = "0",
     var lastUpdatedAt: LocalDateTime = LocalDateTime.now()
 ) {
     // Room uses this

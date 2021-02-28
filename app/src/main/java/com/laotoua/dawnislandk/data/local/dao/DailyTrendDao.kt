@@ -27,16 +27,19 @@ interface DailyTrendDao {
     @Query("SELECT * FROM DailyTrend")
     suspend fun getAll(): List<DailyTrend>
 
-    @Query("SELECT * FROM DailyTrend ORDER BY id DESC LIMIT 1")
-    suspend fun findLatestDailyTrendSync(): DailyTrend?
+    @Query("SELECT * FROM DailyTrend ORDER BY id DESC LIMIT 7")
+    suspend fun findLatestDailyTrendsSync(): List<DailyTrend>
 
-    @Query("SELECT * FROM DailyTrend ORDER BY id DESC LIMIT 1")
-    fun findLatestDailyTrend(): LiveData<DailyTrend>
+    @Query("SELECT * FROM DailyTrend ORDER BY id DESC LIMIT 7")
+    fun findLatestDailyTrends(): LiveData<List<DailyTrend>>
 
-    fun findDistinctLatestDailyTrend(): LiveData<DailyTrend> = findLatestDailyTrend().distinctUntilChanged()
+    fun findDistinctLatestDailyTrends(): LiveData<List<DailyTrend>> = findLatestDailyTrends().distinctUntilChanged()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(dailyTrend: DailyTrend)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(dailyTrends: List<DailyTrend>)
 
     @Delete
     suspend fun delete(dailyTrend: DailyTrend)

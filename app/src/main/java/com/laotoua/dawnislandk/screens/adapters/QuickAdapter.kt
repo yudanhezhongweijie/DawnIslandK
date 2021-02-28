@@ -34,7 +34,6 @@ import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Comment
 import com.laotoua.dawnislandk.data.local.entity.Emoji
 import com.laotoua.dawnislandk.data.local.entity.Post
-import com.laotoua.dawnislandk.data.local.entity.Trend
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.animators.CustomAnimation1
 import com.laotoua.dawnislandk.screens.adapters.animators.CustomAnimation2
@@ -103,8 +102,6 @@ class QuickAdapter<T>(
             holder.convertPost(item, sharedViewModel!!.getForumDisplayName(item.fid))
         } else if (layoutResId == R.layout.list_item_comment && item is Comment) {
             holder.convertComment(item, po)
-        } else if (layoutResId == R.layout.list_item_trend && item is Trend) {
-            holder.convertTrend(item)
         } else if (layoutResId == R.layout.grid_item_emoji && item is Emoji) {
             holder.convertEmoji(item)
         } else if (layoutResId == R.layout.grid_item_luwei_sticker && item is String) {
@@ -129,7 +126,7 @@ class QuickAdapter<T>(
 
     override fun onCreateDefViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         return when (layoutResId) {
-            R.layout.list_item_post, R.layout.list_item_trend -> {
+            R.layout.list_item_post -> {
                 val view = parent.getItemView(layoutResId).applyTextSizeAndLetterSpacing()
                 PostCardFactory.applySettings(view as MaterialCardView)
                 createBaseViewHolder(view)
@@ -197,14 +194,6 @@ class QuickAdapter<T>(
         convertExpandSummary(context, payload.visible)
     }
 
-    private fun BaseViewHolder.convertTrend(item: Trend) {
-        setText(R.id.trendRank, item.rank)
-        convertRefId(context, item.id)
-        setText(R.id.trendForum, item.forum)
-        setText(R.id.hits, item.hits)
-        convertContent(context, item.content)
-    }
-
     private fun BaseViewHolder.convertEmoji(item: Emoji) {
         setText(R.id.emoji, item.name)
     }
@@ -230,7 +219,6 @@ class QuickAdapter<T>(
                                 && oldItem.visible == newItem.visible
                     }
                 }
-                (oldItem is Trend && newItem is Trend) -> oldItem.id == newItem.id
                 (oldItem is Emoji && newItem is Emoji) -> oldItem == newItem
                 (oldItem is String && newItem is String) -> oldItem == newItem
                 else -> throw Exception("Unhandled type comparison")
@@ -255,9 +243,6 @@ class QuickAdapter<T>(
                             && oldItem.visible == newItem.visible
                             && oldItem.title == newItem.title
                             && oldItem.name == newItem.name
-                }
-                (oldItem is Trend && newItem is Trend) -> {
-                    oldItem.rank == newItem.rank && oldItem.hits == newItem.hits
                 }
                 (oldItem is Emoji && newItem is Emoji) -> true
                 (oldItem is String && newItem is String) -> true
@@ -287,9 +272,6 @@ class QuickAdapter<T>(
                         newItem.getSimplifiedTitle(),
                         newItem.getSimplifiedName()
                     )
-                }
-                (oldItem is Trend && newItem is Trend) -> {
-                    null
                 }
                 else -> throw Exception("Unhandled type comparison")
             }

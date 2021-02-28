@@ -21,6 +21,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.squareup.moshi.JsonClass
 import java.time.LocalDateTime
+import kotlin.math.ceil
 
 @JsonClass(generateAdapter = true)
 @Entity
@@ -33,6 +34,8 @@ data class DailyTrend(
 ) {
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0
+
+    val page: Int get() = ceil(lastReplyCount.toDouble() / 19).toInt()
 
     override fun equals(other: Any?): Boolean =
         if (other is DailyTrend) {

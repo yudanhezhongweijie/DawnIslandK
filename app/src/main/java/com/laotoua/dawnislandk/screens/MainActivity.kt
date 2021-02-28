@@ -617,7 +617,7 @@ class MainActivity : DaggerAppCompatActivity() {
                         }
                     }
                 } catch (e: Exception) {
-                    Timber.e("$url test failed with $e")
+                    Timber.e("$url Host Test failed with $e")
                 } finally {
                     connection?.disconnect()
                 }

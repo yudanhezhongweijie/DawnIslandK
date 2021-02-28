@@ -55,8 +55,7 @@ fun <T> getLocalDataResource(cache: LiveData<T>): LiveData<DataResource<T>> {
 fun <T> getLocalListDataResource(cache: LiveData<List<T>>): LiveData<DataResource<List<T>>> {
     return Transformations.map(cache) {
         Timber.d("Got ${it.size} rows from database")
-        val status: LoadingStatus =
-            if (it.isNullOrEmpty()) LoadingStatus.NO_DATA else LoadingStatus.SUCCESS
+        val status: LoadingStatus = if (it.isNullOrEmpty()) LoadingStatus.NO_DATA else LoadingStatus.SUCCESS
         DataResource.create(status, it)
     }
 }

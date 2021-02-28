@@ -18,9 +18,13 @@
 package com.laotoua.dawnislandk.data.repository
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.dao.DailyTrendDao
 import com.laotoua.dawnislandk.data.local.entity.DailyTrend
+import com.laotoua.dawnislandk.data.local.entity.FeedAndPost
 import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.data.local.entity.Trend
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
@@ -28,6 +32,7 @@ import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.util.DataResource
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.ReadableTime
+import com.laotoua.dawnislandk.util.getLocalListDataResource
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -35,6 +40,7 @@ import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.ceil
+import kotlin.math.max
 
 
 @Singleton
@@ -47,40 +53,70 @@ class TrendRepository @Inject constructor(
     private val trendDelimiter = "\n\u2014\u2014\u2014\u2014\u2014<br />\n<br />\n"
 
     private val trendLength = 32
-    private var cache: DailyTrend? = null
 
-    private var _maxPage = 1
-    val maxPage: Int get() = _maxPage
+    val latestTrends = MediatorLiveData<DataResource<List<DailyTrend>>>()
+    private val cache: LiveData<DataResource<List<DailyTrend>>> = getLocalListDataResource(dailyTrendDao.findDistinctLatestDailyTrends())
+    private lateinit var remote: LiveData<DataResource<List<DailyTrend>>>
+    private var trendsCount = 0
 
-    // Remote only acts as a request status responder, actual data will be emitted by local cache
-    fun getLatestTrend(): LiveData<DataResource<DailyTrend>> = liveData {
-        var getRemoteData = true
-        if (cache == null) cache = dailyTrendDao.findLatestDailyTrendSync()
-        cache?.let {
-            emit(DataResource.create(LoadingStatus.SUCCESS, it))
-            _maxPage = ceil(it.lastReplyCount.toDouble() / 19).toInt()
-            // trends updates daily at 1AM, allows 24 hour CD
-            if (ReadableTime.serverDateTimeToUserLocalDateTime(it.date).plusDays(1).isAfter(LocalDateTime.now())) {
-                getRemoteData = false
-                Timber.d("It's less than 24 hours since Trend last updated. Reusing...")
+
+    var maxPage = 1
+        private set
+
+    init {
+        subscribeToCache()
+    }
+
+
+    private fun subscribeToCache() {
+        latestTrends.addSource(cache) {
+            if (it.status == LoadingStatus.SUCCESS && trendsCount > 0 && trendsCount < 7){
+                latestTrends.value = DataResource.create(data = it.data)
+            } else if (it.status == LoadingStatus.SUCCESS) {
+                latestTrends.value = it
             }
-        }
-        if (getRemoteData) {
-            emit(DataResource.create())
-            getRemoteTrend(_maxPage)?.let { emit(it) }
+            maxPage = it.data?.first()?.page ?: 1
+            subscribeToRemote()
         }
     }
 
-    private suspend fun getRemoteTrend(page: Int): DataResource<DailyTrend>? {
-        Timber.d("Getting remote trend on page $page")
+
+    fun subscribeToRemote() {
+        if (this::remote.isInitialized) latestTrends.removeSource(remote)
+        remote = liveData<DataResource<List<DailyTrend>>> {
+            val lastDate: LocalDateTime? = cache.value?.data?.firstOrNull()?.date
+            if (lastDate != null && ReadableTime.serverDateTimeToUserLocalDateTime(lastDate).plusDays(1).isAfter(LocalDateTime.now())) {
+                Timber.d("It's less than 24 hours since Trend last updated. Reusing...")
+                emit(DataResource.create(LoadingStatus.SUCCESS, cache.value?.data))
+            } else {
+                trendsCount = 0
+                emit(DataResource.create())
+                val result = getRemoteTrend(maxPage)
+                emit(result)
+            }
+        }
+        latestTrends.addSource(remote) {
+            latestTrends.value = DataResource.create(it.status, cache.value?.data, it.message)
+        }
+    }
+
+    // Remote only acts as a request status responder, actual data will be emitted by local cache
+    private suspend fun getRemoteTrend(page: Int): DataResource<List<DailyTrend>> {
+        Timber.d("Getting remote trends on page $page")
         return webService.getComments(trendId, page).run {
             if (this is APIDataResponse.Success) {
-                val targetPage = ceil(data!!.replyCount.toDouble() / 19).toInt()
-                if (targetPage != _maxPage) {
-                    _maxPage = targetPage
-                    getRemoteTrend(targetPage)
+                val newMaxPage = ceil(data!!.replyCount.toDouble() / 19).toInt()
+                if (maxPage < newMaxPage) {
+                    maxPage = newMaxPage
+                    extractLatestTrends(data)
+                    getRemoteTrend(newMaxPage)
                 } else {
-                    convertLatestTrend(targetPage, data)
+                    trendsCount += extractLatestTrends(data)
+                    if (trendsCount < 7) {
+                        Timber.d("Only got $trendsCount/7 Daily Trend from last Page. Need more...")
+                        getRemoteTrend(page - 1)
+                    }
+                    else DataResource.create(LoadingStatus.SUCCESS, emptyList())
                 }
             } else {
                 Timber.e(message)
@@ -89,48 +125,35 @@ class TrendRepository @Inject constructor(
         }
     }
 
-    private suspend fun convertLatestTrend(targetPage: Int, data: Post): DataResource<DailyTrend>? {
-        var newDailyTrend: DailyTrend? = null
-        for (reply in data.comments.reversed()) {
+    suspend fun extractLatestTrends(data: Post): Int {
+        val foundTrends = mutableListOf<DailyTrend>()
+        for (reply in data.comments) {
             if (reply.userid == po) {
-                val content = if (reply.content.startsWith("@")) reply.content.substringAfter("<br />\n")
-                else reply.content
+                val content = if (reply.content.startsWith("@")) reply.content.substringAfter("<br />\n") else reply.content
                 val list = content.split(trendDelimiter, ignoreCase = true)
                 if (list.size == trendLength) {
                     try {
-                        newDailyTrend = DailyTrend(
+                        val newDailyTrend = DailyTrend(
                             reply.id,
                             reply.userid,
                             ReadableTime.serverTimeStringToServerLocalDateTime(reply.now),
                             list.map { convertStringToTrend(it) },
                             data.replyCount.toInt()
                         )
-                        break
+                        foundTrends.add(newDailyTrend)
                     } catch (e: Exception) {
                         Timber.e(e)
-                        return DataResource.create(LoadingStatus.ERROR, null, "无法读取热榜，请尝试更新版本或者联系开发者")
                     }
                 }
             }
         }
-
-        return when {
-            newDailyTrend != null -> {
-                if (cache == null || !newDailyTrend.date.toLocalDate().isEqual(cache!!.date.toLocalDate())) {
-                    Timber.d("Found new trends. Saving...")
-                    cache = newDailyTrend
-                    coroutineScope { launch { dailyTrendDao.insert(newDailyTrend) } }
-                }
-                DataResource.create(LoadingStatus.SUCCESS, newDailyTrend)
-            }
-            targetPage - 1 > 1 -> {
-                getRemoteTrend(targetPage - 1)
-            }
-            else -> {
-                DataResource.create(LoadingStatus.ERROR, null, "无法读取热榜，请尝试更新版本或者联系开发者")
-            }
+        if (foundTrends.isNotEmpty()) {
+            Timber.d("Found ${foundTrends.size} Daily Trend. Saving...")
+            coroutineScope { launch { dailyTrendDao.insertAll(foundTrends) } }
         }
+        return foundTrends.size
     }
+
 
     /**
      * sample

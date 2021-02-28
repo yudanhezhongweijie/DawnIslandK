@@ -90,7 +90,6 @@ class FeedRepository @Inject constructor(
                 )
             }
         }
-
     }
 
     // Note only return request status

@@ -19,12 +19,9 @@ package com.laotoua.dawnislandk.data.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
-import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.dao.DailyTrendDao
 import com.laotoua.dawnislandk.data.local.entity.DailyTrend
-import com.laotoua.dawnislandk.data.local.entity.FeedAndPost
 import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.data.local.entity.Trend
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
@@ -40,7 +37,6 @@ import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.ceil
-import kotlin.math.max
 
 
 @Singleton
@@ -76,7 +72,7 @@ class TrendRepository @Inject constructor(
                 latestTrends.value = it
             }
             maxPage = it.data?.first()?.page ?: 1
-            subscribeToRemote()
+            if (!this::remote.isInitialized) subscribeToRemote()
         }
     }
 

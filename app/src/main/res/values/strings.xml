@@ -185,6 +185,9 @@
     <string name="checked_filtered_comment" translatable="false">查看隐藏%dcm</string>
     <string name="transparent_white" translatable="false">(*´∀`)简约黑白</string>
     <string name="colorful" translatable="false">炫酷全彩(つд⊂)</string>
+    <string name="clear_trend_cache" translatable="false">清除本地热榜缓存</string>
+    <string name="clear_trend_cache_confirm_message" translatable="false">将要清除热榜的本地缓存。清除后数据不能恢复！确认清除吗？</string>
+    <string name="cleared_trend_cache_message" translatable="false">热榜的本地缓存已经清除</string>
     <string name="clear_comment_cache" translatable="false">清除本地串缓存</string>
     <string name="clear_comment_cache_confirm_message" translatable="false">将要清除串的本地缓存，不会清除阅读进度和饼干。清除后数据不能恢复！确认清除吗？</string>
     <string name="cleared_comment_cache_message" translatable="false">串的本地缓存已经清除</string>

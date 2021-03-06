@@ -65,81 +65,6 @@ class GeneralSettingFragment : Fragment() {
             }
         }
 
-        binding?.clearCommentCache?.apply {
-            key.setText(R.string.clear_comment_cache)
-            root.setOnClickListener {
-                if (activity == null || !isAdded) return@setOnClickListener
-                MaterialDialog(requireContext()).show {
-                    lifecycleOwner(this@GeneralSettingFragment)
-                    title(R.string.clear_comment_cache)
-                    message(R.string.clear_comment_cache_confirm_message)
-                    setActionButtonEnabled(WhichButton.POSITIVE, false)
-                    checkBoxPrompt(R.string.acknowledge) { checked ->
-                        setActionButtonEnabled(WhichButton.POSITIVE, checked)
-                    }
-                    positiveButton(R.string.submit) {
-                        applicationDataStore.nukeCommentTable()
-                        toast(R.string.cleared_comment_cache_message)
-                    }
-                    negativeButton(R.string.cancel)
-                }
-            }
-        }
-
-        binding?.restoreBlockedPosts?.apply {
-            key.setText(R.string.restore_blocked_post)
-            root.setOnClickListener {
-                if (activity == null || !isAdded) return@setOnClickListener
-                MaterialDialog(requireContext()).show {
-                    lifecycleOwner(this@GeneralSettingFragment)
-                    title(R.string.restore_blocked_post)
-                    message(R.string.restore_blocked_post_confirm_message)
-                    setActionButtonEnabled(WhichButton.POSITIVE, false)
-                    checkBoxPrompt(R.string.acknowledge) { checked ->
-                        setActionButtonEnabled(WhichButton.POSITIVE, checked)
-                    }
-                    positiveButton(R.string.submit) {
-                        applicationDataStore.nukeBlockedPostTable()
-                        toast(R.string.restored_blocked_post)
-                    }
-                    negativeButton(R.string.cancel)
-                }
-            }
-        }
-
-        binding?.viewCaching?.apply {
-            key.setText(R.string.view_caching)
-            preferenceSwitch.visibility = View.VISIBLE
-            preferenceSwitch.isClickable = true
-            preferenceSwitch.isChecked = applicationDataStore.getViewCaching()
-            updateSwitchSummary(R.string.view_caching_on, R.string.view_caching_off)
-            preferenceSwitch.setOnCheckedChangeListener { _, isChecked ->
-                applicationDataStore.setViewCaching(isChecked)
-                updateSwitchSummary(R.string.view_caching_on, R.string.view_caching_off)
-                toast(R.string.restart_to_apply_setting)
-            }
-            root.setOnClickListener {
-                if (activity == null || !isAdded) return@setOnClickListener
-                if (!preferenceSwitch.isChecked) {
-                    MaterialDialog(requireContext()).show {
-                        lifecycleOwner(this@GeneralSettingFragment)
-                        title(R.string.view_caching)
-                        message(R.string.view_caching_warning)
-                        getActionButton(WhichButton.POSITIVE).isEnabled = false
-                        checkBoxPrompt(R.string.acknowledge) {
-                            getActionButton(WhichButton.POSITIVE).isEnabled = it
-                        }
-                        positiveButton(R.string.submit) {
-                            preferenceSwitch.toggle()
-                        }
-                        negativeButton(R.string.cancel)
-                    }
-                } else {
-                    preferenceSwitch.toggle()
-                }
-            }
-        }
-
         binding?.useReadingProgress?.apply {
             key.setText(R.string.saves_reading_progress)
             preferenceSwitch.visibility = View.VISIBLE
@@ -189,6 +114,108 @@ class GeneralSettingFragment : Fragment() {
                 preferenceSwitch.toggle()
             }
         }
+
+        binding?.viewCaching?.apply {
+            key.setText(R.string.view_caching)
+            preferenceSwitch.visibility = View.VISIBLE
+            preferenceSwitch.isClickable = true
+            preferenceSwitch.isChecked = applicationDataStore.getViewCaching()
+            updateSwitchSummary(R.string.view_caching_on, R.string.view_caching_off)
+            preferenceSwitch.setOnCheckedChangeListener { _, isChecked ->
+                applicationDataStore.setViewCaching(isChecked)
+                updateSwitchSummary(R.string.view_caching_on, R.string.view_caching_off)
+                toast(R.string.restart_to_apply_setting)
+            }
+            root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
+                if (!preferenceSwitch.isChecked) {
+                    MaterialDialog(requireContext()).show {
+                        lifecycleOwner(this@GeneralSettingFragment)
+                        title(R.string.view_caching)
+                        message(R.string.view_caching_warning)
+                        getActionButton(WhichButton.POSITIVE).isEnabled = false
+                        checkBoxPrompt(R.string.acknowledge) {
+                            getActionButton(WhichButton.POSITIVE).isEnabled = it
+                        }
+                        positiveButton(R.string.submit) {
+                            preferenceSwitch.toggle()
+                        }
+                        negativeButton(R.string.cancel)
+                    }
+                } else {
+                    preferenceSwitch.toggle()
+                }
+            }
+        }
+
+        binding?.clearCommentCache?.apply {
+            key.setText(R.string.clear_comment_cache)
+            root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
+                MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@GeneralSettingFragment)
+                    title(R.string.clear_comment_cache)
+                    message(R.string.clear_comment_cache_confirm_message)
+                    setActionButtonEnabled(WhichButton.POSITIVE, false)
+                    checkBoxPrompt(R.string.acknowledge) { checked ->
+                        setActionButtonEnabled(WhichButton.POSITIVE, checked)
+                    }
+                    positiveButton(R.string.submit) {
+                        applicationDataStore.nukeCommentTable()
+                        toast(R.string.cleared_comment_cache_message)
+                    }
+                    negativeButton(R.string.cancel)
+                }
+            }
+        }
+
+        binding?.clearTrendCache?.apply {
+            key.setText(R.string.clear_trend_cache)
+            root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
+                MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@GeneralSettingFragment)
+                    title(R.string.clear_trend_cache)
+                    message(R.string.clear_trend_cache_confirm_message)
+                    setActionButtonEnabled(WhichButton.POSITIVE, false)
+                    checkBoxPrompt(R.string.acknowledge) { checked ->
+                        setActionButtonEnabled(WhichButton.POSITIVE, checked)
+                    }
+                    positiveButton(R.string.submit) {
+                        applicationDataStore.nukeTrendTable()
+                        toast(R.string.cleared_trend_cache_message)
+                    }
+                    negativeButton(R.string.cancel)
+                }
+            }
+        }
+
+        binding?.restoreBlockedPosts?.apply {
+            key.setText(R.string.restore_blocked_post)
+            root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
+                MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@GeneralSettingFragment)
+                    title(R.string.restore_blocked_post)
+                    message(R.string.restore_blocked_post_confirm_message)
+                    setActionButtonEnabled(WhichButton.POSITIVE, false)
+                    checkBoxPrompt(R.string.acknowledge) { checked ->
+                        setActionButtonEnabled(WhichButton.POSITIVE, checked)
+                    }
+                    positiveButton(R.string.submit) {
+                        applicationDataStore.nukeBlockedPostTable()
+                        toast(R.string.restored_blocked_post)
+                    }
+                    negativeButton(R.string.cancel)
+                }
+            }
+        }
+
+
+
+
+
+
         return binding!!.root
     }
 

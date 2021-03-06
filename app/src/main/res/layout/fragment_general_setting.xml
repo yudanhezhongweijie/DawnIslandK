@@ -94,12 +94,21 @@
         app:layout_constraintTop_toBottomOf="@id/viewCaching" />
 
     <include
-        android:id="@+id/restoreBlockedPosts"
+        android:id="@+id/clearTrendCache"
         layout="@layout/list_item_preference"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
         app:layout_constraintStart_toStartOf="@id/guidelineStart"
         app:layout_constraintTop_toBottomOf="@id/clearCommentCache" />
+
+    <include
+        android:id="@+id/restoreBlockedPosts"
+        layout="@layout/list_item_preference"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+        app:layout_constraintStart_toStartOf="@id/guidelineStart"
+        app:layout_constraintTop_toBottomOf="@id/clearTrendCache" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

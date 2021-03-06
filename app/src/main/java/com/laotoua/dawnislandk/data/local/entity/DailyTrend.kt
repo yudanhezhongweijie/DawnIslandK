@@ -28,12 +28,10 @@ import kotlin.math.ceil
 data class DailyTrend(
     val postId: String, // id of the specific reply that generates the content
     val po: String, // userid of the poster
-    val date: LocalDateTime, // date when the trends posted
+    @PrimaryKey val date: LocalDateTime, // date when the trends posted
     val trends: List<Trend>,
     val lastReplyCount: Int
 ) {
-    @PrimaryKey(autoGenerate = true)
-    var id: Int = 0
 
     val page: Int get() = ceil(lastReplyCount.toDouble() / 19).toInt()
 

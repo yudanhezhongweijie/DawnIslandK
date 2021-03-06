@@ -41,6 +41,7 @@ import javax.inject.Singleton
 class ApplicationDataStore @Inject constructor(
     private val cookieDao: CookieDao,
     private val commentDao: CommentDao,
+    private val trendDao: DailyTrendDao,
     private val feedDao: FeedDao,
     private val NMBNoticeDao: NMBNoticeDao,
     private val luweiNoticeDao: LuweiNoticeDao,
@@ -321,6 +322,10 @@ class ApplicationDataStore @Inject constructor(
 
     fun nukeCommentTable() {
         GlobalScope.launch { commentDao.nukeTable() }
+    }
+
+    fun nukeTrendTable() {
+        GlobalScope.launch { trendDao.nukeTable() }
     }
 
     fun nukeBlockedPostTable() {

@@ -27,10 +27,10 @@ interface DailyTrendDao {
     @Query("SELECT * FROM DailyTrend")
     suspend fun getAll(): List<DailyTrend>
 
-    @Query("SELECT * FROM DailyTrend ORDER BY id DESC LIMIT 7")
+    @Query("SELECT * FROM DailyTrend ORDER BY date DESC LIMIT 7")
     suspend fun findLatestDailyTrendsSync(): List<DailyTrend>
 
-    @Query("SELECT * FROM DailyTrend ORDER BY id DESC LIMIT 7")
+    @Query("SELECT * FROM DailyTrend ORDER BY date DESC LIMIT 7")
     fun findLatestDailyTrends(): LiveData<List<DailyTrend>>
 
     fun findDistinctLatestDailyTrends(): LiveData<List<DailyTrend>> = findLatestDailyTrends().distinctUntilChanged()

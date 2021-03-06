@@ -47,7 +47,7 @@ import com.laotoua.dawnislandk.data.local.entity.*
         BlockedId::class,
         Notification::class,
         Emoji::class],
-    version = 21
+    version = 22
 )
 @TypeConverters(Converter::class)
 abstract class DawnDatabase : RoomDatabase() {
@@ -326,12 +326,23 @@ abstract class DawnDatabase : RoomDatabase() {
                 }
             }
 
-            // allow custom Emoji
+            // now store datetime text instead of epoch
             val migrate20To21 = object : Migration(20, 21) {
                 override fun migrate(database: SupportSQLiteDatabase) {
                     // DailyTrend
                     database.execSQL("CREATE TABLE IF NOT EXISTS `DailyTrend2` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `postId` TEXT NOT NULL, `po` TEXT NOT NULL, `date` TEXT NOT NULL, `trends` TEXT NOT NULL, `lastReplyCount` INTEGER NOT NULL)")
                     database.execSQL("INSERT INTO `DailyTrend2`(`postId`, `po`, `date`, `trends`, `lastReplyCount`) SELECT `id`, `po`, `date`, `trends`, `lastReplyCount` FROM DailyTrend")
+                    database.execSQL("DROP TABLE `DailyTrend`")
+                    database.execSQL("ALTER TABLE DailyTrend2 RENAME TO DailyTrend")
+                }
+            }
+
+            // change trendDB primary key from id to date
+            val migrate21To22 = object : Migration(21, 22) {
+                override fun migrate(database: SupportSQLiteDatabase) {
+                    // DailyTrend
+                    database.execSQL("CREATE TABLE IF NOT EXISTS `DailyTrend2` (`postId` TEXT NOT NULL, `po` TEXT NOT NULL, `date` TEXT PRIMARY KEY NOT NULL, `trends` TEXT NOT NULL, `lastReplyCount` INTEGER NOT NULL)")
+                    database.execSQL("INSERT OR IGNORE INTO `DailyTrend2`(`postId`, `po`, `date`, `trends`, `lastReplyCount`) SELECT `postId`, `po`, `date`, `trends`, `lastReplyCount` FROM DailyTrend")
                     database.execSQL("DROP TABLE `DailyTrend`")
                     database.execSQL("ALTER TABLE DailyTrend2 RENAME TO DailyTrend")
                 }
@@ -359,7 +370,8 @@ abstract class DawnDatabase : RoomDatabase() {
                         migrate17To18,
                         migrate18To19,
                         migrate19To20,
-                        migrate20To21
+                        migrate20To21,
+                        migrate21To22
                     )
                     .build()
                 INSTANCE = instance

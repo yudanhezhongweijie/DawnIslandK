@@ -60,6 +60,14 @@ abstract class NMBJsonParser<T> {
         }
     }
 
+    class TimelinesParser : NMBJsonParser<List<Timeline>>() {
+        override fun parse(response: String): List<Timeline> {
+            return moshi.adapter<List<Timeline>>(
+                Types.newParameterizedType(List::class.java, Timeline::class.java)
+            ).fromJson(response)!!
+        }
+    }
+
     class PostParser : NMBJsonParser<List<Post>>() {
         override fun parse(response: String): List<Post> {
             return moshi.adapter<List<Post>>(

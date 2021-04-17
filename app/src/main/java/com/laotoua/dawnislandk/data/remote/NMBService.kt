@@ -56,6 +56,10 @@ interface NMBService {
     fun getNMBForumList(): Call<ResponseBody>
 
     @Headers("Domain-Name: adnmb")
+    @GET("Api/getTimelineList")
+    fun getNMBTimelineList(): Call<ResponseBody>
+
+    @Headers("Domain-Name: adnmb")
     @GET("Api/showf")
     fun getNMBPosts(@Query("id") fid: String, @Query("page") page: Int): Call<ResponseBody>
 
@@ -72,8 +76,8 @@ interface NMBService {
     fun delNMBFeed(@Query("uuid") uuid: String, @Query("tid") tid: String): Call<ResponseBody>
 
     @Headers("Domain-Name: adnmb")
-    @GET("Api/timeline")
-    fun getNMBTimeLine(@Query("page") page: Int): Call<ResponseBody>
+    @GET("Api/timeline/id/{id}")
+    fun getNMBTimeLine(@Path("id") id: Int = 1, @Query("page") page: Int, @Header("Cookie") hash: String?): Call<ResponseBody>
 
     @Headers("Domain-Name: adnmb")
     @GET("Api/thread")

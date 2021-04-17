@@ -47,25 +47,24 @@ class ForumDrawerPopup(
 ) : DrawerPopupView(context) {
     override fun getImplLayoutId(): Int = R.layout.drawer_forum
 
-    private val forumListAdapter =
-        CommunityNodeAdapter(object : CommunityNodeAdapter.ForumClickListener {
-            override fun onForumClick(forum: Forum) {
-                Timber.d("Clicked on Forum ${forum.name}")
-                dismissWith {
-                    if (forum.isFakeForum()){
-                        val action = MainNavDirections.actionGlobalCommentsFragment(forum.id, "")
-                        (context as MainActivity).findNavController(R.id.navHostFragment).navigate(action)
-                    } else {
-                        sharedVM.setForumId(forum.id)
-                    }
+    private val forumListAdapter = CommunityNodeAdapter(object : CommunityNodeAdapter.ForumClickListener {
+        override fun onForumClick(forum: Forum) {
+            Timber.d("Clicked on Forum ${forum.name}")
+            dismissWith {
+                if (forum.isFakeForum()) {
+                    val action = MainNavDirections.actionGlobalCommentsFragment(forum.id, "")
+                    (context as MainActivity).findNavController(R.id.navHostFragment).navigate(action)
+                } else {
+                    sharedVM.setForumId(forum.id)
                 }
             }
-        })
+        }
+    })
 
     private var reedImageUrl: String = ""
     private var reedImageView: ImageView? = null
 
-    fun setData(list: List<Community>) {
+    fun setCommunities(list: List<Community>) {
         forumListAdapter.setData(list)
     }
 
@@ -129,7 +128,7 @@ class ForumDrawerPopup(
             }
             setOnClickListener {
                 if (!isShow) return@setOnClickListener
-                dismissWith{
+                dismissWith {
                     if (nightModeOn) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
                     else AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
                     nightModeOn = !nightModeOn

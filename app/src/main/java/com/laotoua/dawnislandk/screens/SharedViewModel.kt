@@ -53,6 +53,7 @@ class SharedViewModel @Inject constructor(
 ) : ViewModel() {
 
     val communityList: LiveData<DataResource<List<Community>>> = communityRepository.communityList
+    val timelineList: LiveData<DataResource<List<Timeline>>> = communityRepository.timelineList
 
     val notifications: LiveData<Int> = notificationDao.getLiveUnreadNotificationsCount()
 

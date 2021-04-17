@@ -81,10 +81,16 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
         return APIDataResponse.create(service.getNMBForumList(), NMBJsonParser.CommunityParser())
     }
 
-    suspend fun getPosts(fid: String, page: Int): APIDataResponse<List<Post>> {
+    suspend fun getTimeLines(): APIDataResponse<List<Timeline>> {
+        Timber.i("Downloading Timeline Forums...")
+        return APIDataResponse.create(service.getNMBTimelineList(), NMBJsonParser.TimelinesParser())
+    }
+
+    suspend fun getPosts(fid: String, page: Int, userhash: String? = DawnApp.applicationDataStore.firstCookieHash): APIDataResponse<List<Post>> {
         Timber.i("Downloading Posts on Forum $fid...")
+        // TODO
         val call =
-            if (fid == "-1") service.getNMBTimeLine(page)
+            if (fid == "-1") service.getNMBTimeLine(2, page, userhash)
             else service.getNMBPosts(fid, page)
         return APIDataResponse.create(call, NMBJsonParser.PostParser())
     }

@@ -33,6 +33,7 @@ import com.laotoua.dawnislandk.data.local.entity.*
 @Database(
     entities = [
         Community::class,
+        Timeline::class,
         Cookie::class,
         Comment::class,
         Post::class,
@@ -47,12 +48,13 @@ import com.laotoua.dawnislandk.data.local.entity.*
         BlockedId::class,
         Notification::class,
         Emoji::class],
-    version = 22
+    version = 23
 )
 @TypeConverters(Converter::class)
 abstract class DawnDatabase : RoomDatabase() {
     abstract fun cookieDao(): CookieDao
     abstract fun communityDao(): CommunityDao
+    abstract fun timelineDao(): TimelineDao
     abstract fun commentDao(): CommentDao
     abstract fun postDao(): PostDao
     abstract fun dailyTrendDao(): DailyTrendDao
@@ -348,6 +350,13 @@ abstract class DawnDatabase : RoomDatabase() {
                 }
             }
 
+            // add timelineDb
+            val migrate22To23 = object : Migration(22, 23) {
+                override fun migrate(database: SupportSQLiteDatabase) {
+                    database.execSQL("CREATE TABLE IF NOT EXISTS `Timeline` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `display_name` TEXT NOT NULL, `notice` TEXT NOT NULL, `max_page` INTEGER NOT NULL, PRIMARY KEY(`id`))")
+                }
+            }
+
             synchronized(this) {
                 val instance = Room.databaseBuilder(context.applicationContext, DawnDatabase::class.java, "dawnDB")
                     .addMigrations(
@@ -371,7 +380,8 @@ abstract class DawnDatabase : RoomDatabase() {
                         migrate18To19,
                         migrate19To20,
                         migrate20To21,
-                        migrate21To22
+                        migrate21To22,
+                        migrate22To23
                     )
                     .build()
                 INSTANCE = instance

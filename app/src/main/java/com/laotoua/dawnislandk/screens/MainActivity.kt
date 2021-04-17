@@ -170,7 +170,7 @@ class MainActivity : DaggerAppCompatActivity() {
                 return@observe
             }
             if (it.data.isNullOrEmpty()) return@observe
-            forumDrawer?.setData(it.data)
+            forumDrawer?.setCommunities(it.data)
             sharedVM.setForumMappings(it.data)
             if (sharedVM.selectedForumId.value == null) sharedVM.setForumId(applicationDataStore.getDefaultForumId())
             Timber.i("Loaded ${it.data.size} communities to Adapter")
@@ -238,7 +238,7 @@ class MainActivity : DaggerAppCompatActivity() {
                 .setPopupCallback(object : SimpleCallback() {
                     override fun beforeShow(popupView: BasePopupView?) {
                         super.beforeShow(popupView)
-                        sharedVM.communityList.value?.data?.let { drawer.setData(it) }
+                        sharedVM.communityList.value?.data?.let { drawer.setCommunities(it) }
                         sharedVM.reedPictureUrl.value?.let { drawer.setReedPicture(it) }
                         drawer.loadReedPicture()
                     }

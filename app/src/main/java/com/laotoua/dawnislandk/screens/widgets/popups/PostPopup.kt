@@ -25,6 +25,7 @@ import android.graphics.Shader
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.widget.*
@@ -131,7 +132,7 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
                 }
             }
         }
-        mHandler = Handler()
+        mHandler = Handler(Looper.getMainLooper())
         counterUpdateCallback?.let { mHandler?.post(it) }
     }
 
@@ -354,15 +355,17 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
             visibility = if (!newPost && targetFid == "111") View.VISIBLE else View.GONE
 
             setOnClickListener {
-                if (System.currentTimeMillis() - cheatTime < 5000) {
-                    Toast.makeText(context, "正在请求数据，请稍后。。。", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
-                cheatTime = System.currentTimeMillis()
-                caller.lifecycleScope.launch {
-                    latestPost = sharedVM.getLatestPostId()
-                    setCounterUpdateCallBack()
-                }
+                Toast.makeText(context, "ATM is watching you :)", Toast.LENGTH_SHORT).show()
+//                TODO: Need new mechanism for getting latest id
+//                if (System.currentTimeMillis() - cheatTime < 5000) {
+//                    Toast.makeText(context, "正在请求数据，请稍后。。。", Toast.LENGTH_SHORT).show()
+//                    return@setOnClickListener
+//                }
+//                cheatTime = System.currentTimeMillis()
+//                caller.lifecycleScope.launch {
+//                    latestPost = sharedVM.getLatestPostId()
+//                    setCounterUpdateCallBack()
+//                }
             }
         }
 
@@ -489,8 +492,8 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
                     it.setTint(Layout.getThemeInverseColor(context))
                     icon(drawable = it)
                 }
-                title(text = sharedVM.getForumDisplayName(fid))
-                message(text = sharedVM.getForumMsg(fid)) { html() }
+                title(text = sharedVM.getForumOrTimelineDisplayName(fid))
+                message(text = sharedVM.getForumOrTimelineMsg(fid)) { html() }
                 positiveButton(R.string.acknowledge)
             }
         }

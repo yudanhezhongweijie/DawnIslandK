@@ -98,15 +98,14 @@ class CommonForumsFragment : DaggerFragment() {
             setHasFixedSize(true)
         }
 
-        val allForumAdapter =
-            CommunityNodeAdapter(object : CommunityNodeAdapter.ForumClickListener {
-                override fun onForumClick(forum: Forum) {
-                    if (commonForumAdapter?.data?.contains(forum) == false) {
-                        commonForumAdapter?.addData(forum)
-                        updateTitle()
-                    }
+        val allForumAdapter = CommunityNodeAdapter(object : CommunityNodeAdapter.ForumClickListener {
+            override fun onForumClick(forum: Forum) {
+                if (commonForumAdapter?.data?.contains(forum) == false) {
+                    commonForumAdapter?.addData(forum)
+                    updateTitle()
                 }
-            })
+            }
+        })
 
         binding?.allForums?.apply {
             layoutManager = LinearLayoutManager(context)
@@ -123,7 +122,7 @@ class CommonForumsFragment : DaggerFragment() {
             if (it.data.isNullOrEmpty()) return@observe
             val notCommon = it.data.filterNot { c -> c.isCommonForums() || c.isCommonPosts() }
             val common = it.data.firstOrNull { c -> c.isCommonForums() }?.forums ?: emptyList()
-            allForumAdapter.setData(notCommon)
+            allForumAdapter.setCommunities(notCommon)
             commonForumAdapter?.setList(common.toMutableList())
             updateTitle()
         }

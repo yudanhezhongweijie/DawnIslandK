@@ -99,7 +99,7 @@ class QuickAdapter<T>(
      */
     override fun convert(holder: BaseViewHolder, item: T) {
         if (layoutResId == R.layout.list_item_post && item is Post) {
-            holder.convertPost(item, sharedViewModel!!.getForumDisplayName(item.fid))
+            holder.convertPost(item, sharedViewModel!!.getForumOrTimelineDisplayName(item.fid))
         } else if (layoutResId == R.layout.list_item_comment && item is Comment) {
             holder.convertComment(item, po)
         } else if (layoutResId == R.layout.grid_item_emoji && item is Emoji) {
@@ -115,7 +115,7 @@ class QuickAdapter<T>(
         if (layoutResId == R.layout.list_item_post && item is Post) {
             holder.convertPostWithPayload(
                 payloads.first() as Payload.PostPayload,
-                sharedViewModel!!.getForumDisplayName(item.fid)
+                sharedViewModel!!.getForumOrTimelineDisplayName(item.fid)
             )
         } else if (layoutResId == R.layout.list_item_comment && item is Comment) {
             holder.convertCommentWithPayload(payloads.first() as Payload.CommentPayload)

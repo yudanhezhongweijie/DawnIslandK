@@ -238,7 +238,7 @@ class NotificationFragment : DaggerFragment() {
                     ?: "" else item.notification.message
             holder.setText(R.id.content, ContentTransformation.transformContent(context, content))
             holder.setGone(R.id.newReplyCount, item.notification.read)
-            val forumName = SpannableString(sharedVM.getForumDisplayName(item.notification.fid))
+            val forumName = SpannableString(sharedVM.getForumOrTimelineDisplayName(item.notification.fid))
             forumName.setSpan(
                 RoundBackgroundColorSpan(),
                 0,

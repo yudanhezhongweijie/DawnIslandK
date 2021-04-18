@@ -32,6 +32,7 @@ import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.data.local.entity.Forum
+import com.laotoua.dawnislandk.data.local.entity.Timeline
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.CommunityNodeAdapter
@@ -47,12 +48,12 @@ class ForumDrawerPopup(
 ) : DrawerPopupView(context) {
     override fun getImplLayoutId(): Int = R.layout.drawer_forum
 
-    private val forumListAdapter =
-        CommunityNodeAdapter(object : CommunityNodeAdapter.ForumClickListener {
+    private val forumListAdapter = CommunityNodeAdapter(
+        object : CommunityNodeAdapter.ForumClickListener {
             override fun onForumClick(forum: Forum) {
                 Timber.d("Clicked on Forum ${forum.name}")
                 dismissWith {
-                    if (forum.isFakeForum()){
+                    if (forum.isFakeForum()) {
                         val action = MainNavDirections.actionGlobalCommentsFragment(forum.id, "")
                         (context as MainActivity).findNavController(R.id.navHostFragment).navigate(action)
                     } else {
@@ -60,13 +61,24 @@ class ForumDrawerPopup(
                     }
                 }
             }
+        }, object : CommunityNodeAdapter.TimelineClickListener {
+            override fun onTimelineClick(timeline: Timeline) {
+                Timber.d("Clicked on Timeline ${timeline.name}")
+                dismissWith {
+                    sharedVM.setForumId("-${timeline.id}")
+                }
+            }
         })
 
     private var reedImageUrl: String = ""
     private var reedImageView: ImageView? = null
 
-    fun setData(list: List<Community>) {
-        forumListAdapter.setData(list)
+    fun setCommunities(list: List<Community>) {
+        forumListAdapter.setCommunities(list)
+    }
+
+    fun setTimelines(list: List<Timeline>) {
+        forumListAdapter.setTimelines(list)
     }
 
     fun setReedPicture(url: String) {
@@ -129,7 +141,7 @@ class ForumDrawerPopup(
             }
             setOnClickListener {
                 if (!isShow) return@setOnClickListener
-                dismissWith{
+                dismissWith {
                     if (nightModeOn) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
                     else AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
                     nightModeOn = !nightModeOn

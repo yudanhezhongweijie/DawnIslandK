@@ -41,6 +41,12 @@ object DatabaseModule {
 
     @Provides
     @Singleton
+    fun provideTimelineDao(dawnDatabase: DawnDatabase): TimelineDao {
+        return dawnDatabase.timelineDao()
+    }
+
+    @Provides
+    @Singleton
     fun provideCookieDao(dawnDatabase: DawnDatabase): CookieDao {
         return dawnDatabase.cookieDao()
     }

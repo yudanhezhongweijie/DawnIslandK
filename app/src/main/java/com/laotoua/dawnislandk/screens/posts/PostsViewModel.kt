@@ -87,11 +87,11 @@ class PostsViewModel @Inject constructor(
 
     private fun convertServerData(data: List<Post>, fid: String) {
         // assign fid if not timeline
-        if (fid != "-1") data.map { it.fid = fid }
+        if (!fid.startsWith("-")) data.map { it.fid = fid }
         val noDuplicates = data
             .filterNot { postIds.contains(it.id) }
             .filterNot { blockedPostIds?.contains(it.id) ?: false }
-            .filterNot { fid == "-1" && (blockedForumIds?.contains(it.fid) ?: false) }
+            .filterNot { fid.startsWith("-") && (blockedForumIds?.contains(it.fid) ?: false) }
         pageCount += 1
         if (noDuplicates.isNotEmpty()) {
             duplicateCount = 0

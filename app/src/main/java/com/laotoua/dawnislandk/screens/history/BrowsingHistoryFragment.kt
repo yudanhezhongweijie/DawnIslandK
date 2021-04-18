@@ -182,7 +182,7 @@ class BrowsingHistoryFragment : BaseNavFragment() {
                 .convertTimeStamp(data.now)
                 .convertForumAndReplyCount(
                     data.replyCount,
-                    sharedViewModel.getForumDisplayName(data.fid)
+                    sharedViewModel.getForumOrTimelineDisplayName(data.fid)
                 )
                 .convertSage(data.sage, data.isStickyTopBanner())
                 .convertImage(data.getImgUrl())

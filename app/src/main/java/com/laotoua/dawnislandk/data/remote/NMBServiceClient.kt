@@ -54,10 +54,7 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
 
     suspend fun getRandomReedPicture(): APIDataResponse<String> {
         Timber.d("Getting Random Reed Picture...")
-        return APIDataResponse.create(
-            service.getRandomReedPicture(),
-            NMBJsonParser.ReedRandomPictureParser()
-        )
+        return APIDataResponse.create(service.getRandomReedPicture(), NMBJsonParser.ReedRandomPictureParser())
     }
 
     suspend fun getLatestRelease(): APIDataResponse<Release> {
@@ -88,10 +85,8 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
 
     suspend fun getPosts(fid: String, page: Int, userhash: String? = DawnApp.applicationDataStore.firstCookieHash): APIDataResponse<List<Post>> {
         Timber.i("Downloading Posts on Forum $fid...")
-        // TODO
-        val call =
-            if (fid == "-1") service.getNMBTimeLine(2, page, userhash)
-            else service.getNMBPosts(fid, page)
+        val call = if (fid.startsWith("-")) service.getNMBTimeLine(fid.substringAfter("-"), page, userhash)
+        else service.getNMBPosts(fid, page)
         return APIDataResponse.create(call, NMBJsonParser.PostParser())
     }
 

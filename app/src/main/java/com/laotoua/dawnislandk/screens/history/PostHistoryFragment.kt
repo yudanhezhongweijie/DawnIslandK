@@ -215,7 +215,7 @@ class PostHistoryFragment : BaseNavFragment() {
                 .convertTimeStamp(data.postDateTime)
                 .convertForumAndReplyCount(
                     "",
-                    sharedViewModel.getForumDisplayName(data.postTargetFid)
+                    sharedViewModel.getForumOrTimelineDisplayName(data.postTargetFid)
                 )
                 .convertContent(context, data.content)
                 .convertImage(data.getImgUrl())

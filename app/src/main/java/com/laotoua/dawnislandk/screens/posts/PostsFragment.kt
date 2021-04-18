@@ -123,8 +123,8 @@ class PostsFragment : BaseNavFragment() {
                         it.setTint(getThemeInverseColor(context))
                         icon(drawable = it)
                     }
-                    title(text = sharedVM.getForumDisplayName(fid))
-                    message(text = sharedVM.getForumMsg(fid)) {
+                    title(text = sharedVM.getForumOrTimelineDisplayName(fid))
+                    message(text = sharedVM.getForumOrTimelineMsg(fid)) {
                         html { link ->
                             val uri = if (link.startsWith("/")) {
                                 DawnConstants.nmbHost + link

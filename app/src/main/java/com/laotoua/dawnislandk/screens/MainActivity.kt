@@ -176,11 +176,22 @@ class MainActivity : DaggerAppCompatActivity() {
             Timber.i("Loaded ${it.data.size} communities to Adapter")
         }
 
+        sharedVM.timelineList.observe(this) {
+            if (it.status == LoadingStatus.ERROR) {
+                Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
+                return@observe
+            }
+            if (it.data.isNullOrEmpty()) return@observe
+            forumDrawer?.setTimelines(it.data)
+            sharedVM.setTimelineMappings(it.data)
+            Timber.i("Loaded ${it.data.size} timelines to Adapter")
+        }
+
         sharedVM.reedPictureUrl.observe(this) { forumDrawer?.setReedPicture(it) }
 
         sharedVM.selectedForumId.observe(this) {
             if (currentFragmentId == R.id.postsFragment) {
-                setToolbarTitle(sharedVM.getForumDisplayName(it))
+                setToolbarTitle(sharedVM.getForumOrTimelineDisplayName(it))
             }
         }
     }
@@ -195,19 +206,15 @@ class MainActivity : DaggerAppCompatActivity() {
             val raw = data.toString().substringAfterLast("/")
             if (raw.isNotBlank()) {
                 val id = if (raw.contains("?")) raw.substringBefore("?") else raw
-                if ((count == 1 && data.host == "t")
-                    || (count == 2 && path[1] == 't')
-                ) {
+                if ((count == 1 && data.host == "t") || (count == 2 && path[1] == 't')) {
                     val navAction = MainNavDirections.actionGlobalCommentsFragment(id, "")
-                    val navHostFragment =
-                        supportFragmentManager.findFragmentById(R.id.navHostFragment)
+                    val navHostFragment = supportFragmentManager.findFragmentById(R.id.navHostFragment)
                     if (navHostFragment is NavHostFragment) {
                         navHostFragment.navController.navigate(navAction)
                     }
 
                 } else if ((count == 2 && path[1] == 'f')) {
-                    val navHostFragment =
-                        supportFragmentManager.findFragmentById(R.id.navHostFragment)
+                    val navHostFragment = supportFragmentManager.findFragmentById(R.id.navHostFragment)
                     if (navHostFragment is NavHostFragment) {
                         if (navHostFragment.navController.currentDestination?.id != R.id.postsFragment) {
                             navHostFragment.navController.popBackStack(R.id.postsFragment, false)
@@ -216,8 +223,7 @@ class MainActivity : DaggerAppCompatActivity() {
                     val fid = sharedVM.getForumIdByName(URLDecoder.decode(id, "UTF-8"))
                     sharedVM.setForumId(fid)
                 } else if (count == 1 && data.host == "f") {
-                    val navHostFragment =
-                        supportFragmentManager.findFragmentById(R.id.navHostFragment)
+                    val navHostFragment = supportFragmentManager.findFragmentById(R.id.navHostFragment)
                     if (navHostFragment is NavHostFragment) {
                         if (navHostFragment.navController.currentDestination?.id != R.id.postsFragment) {
                             navHostFragment.navController.popBackStack(R.id.postsFragment, false)
@@ -239,6 +245,7 @@ class MainActivity : DaggerAppCompatActivity() {
                     override fun beforeShow(popupView: BasePopupView?) {
                         super.beforeShow(popupView)
                         sharedVM.communityList.value?.data?.let { drawer.setCommunities(it) }
+                        sharedVM.timelineList.value?.data?.let { drawer.setTimelines(it) }
                         sharedVM.reedPictureUrl.value?.let { drawer.setReedPicture(it) }
                         drawer.loadReedPicture()
                     }
@@ -295,9 +302,7 @@ class MainActivity : DaggerAppCompatActivity() {
                 positiveButton(R.string.close) {
                     notice.read = isCheckPromptChecked()
                     if (notice.read) lifecycleScope.launch {
-                        applicationDataStore.readNMBNotice(
-                            notice
-                        )
+                        applicationDataStore.readNMBNotice(notice)
                     }
                 }
             }
@@ -354,14 +359,9 @@ class MainActivity : DaggerAppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if (!doubleBackToExitPressedOnce &&
-            findNavController(R.id.navHostFragment).previousBackStackEntry == null
-        ) {
+        if (!doubleBackToExitPressedOnce && findNavController(R.id.navHostFragment).previousBackStackEntry == null) {
             doubleBackToExitPressedOnce = true
-            Toast.makeText(
-                this,
-                R.string.press_again_to_exit, Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(this, R.string.press_again_to_exit, Toast.LENGTH_SHORT).show()
             mHandler.postDelayed(mRunnable, 2000)
             return
         }
@@ -463,11 +463,7 @@ class MainActivity : DaggerAppCompatActivity() {
 
     private class ToolbarTitleEvaluator(private val animCharCount: Int) :
         TypeEvaluator<StringBuilder> {
-        override fun evaluate(
-            fraction: Float,
-            startValue: StringBuilder,
-            endValue: StringBuilder
-        ): StringBuilder {
+        override fun evaluate(fraction: Float, startValue: StringBuilder, endValue: StringBuilder): StringBuilder {
             val ind = (fraction * animCharCount).toInt()
             for (i in 0..ind) {
                 val newChar = if (i >= endValue.length) ' ' else endValue[i]
@@ -482,7 +478,7 @@ class MainActivity : DaggerAppCompatActivity() {
         when (destination.id) {
             R.id.postsFragment -> {
                 sharedVM.selectedForumId.value?.let {
-                    setToolbarTitle(sharedVM.getForumDisplayName(it))
+                    setToolbarTitle(sharedVM.getForumOrTimelineDisplayName(it))
                 }
                 showNav()
             }

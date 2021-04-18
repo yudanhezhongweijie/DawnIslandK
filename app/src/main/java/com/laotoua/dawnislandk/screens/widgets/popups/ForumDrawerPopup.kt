@@ -32,6 +32,7 @@ import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.data.local.entity.Forum
+import com.laotoua.dawnislandk.data.local.entity.Timeline
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.CommunityNodeAdapter
@@ -47,25 +48,37 @@ class ForumDrawerPopup(
 ) : DrawerPopupView(context) {
     override fun getImplLayoutId(): Int = R.layout.drawer_forum
 
-    private val forumListAdapter = CommunityNodeAdapter(object : CommunityNodeAdapter.ForumClickListener {
-        override fun onForumClick(forum: Forum) {
-            Timber.d("Clicked on Forum ${forum.name}")
-            dismissWith {
-                if (forum.isFakeForum()) {
-                    val action = MainNavDirections.actionGlobalCommentsFragment(forum.id, "")
-                    (context as MainActivity).findNavController(R.id.navHostFragment).navigate(action)
-                } else {
-                    sharedVM.setForumId(forum.id)
+    private val forumListAdapter = CommunityNodeAdapter(
+        object : CommunityNodeAdapter.ForumClickListener {
+            override fun onForumClick(forum: Forum) {
+                Timber.d("Clicked on Forum ${forum.name}")
+                dismissWith {
+                    if (forum.isFakeForum()) {
+                        val action = MainNavDirections.actionGlobalCommentsFragment(forum.id, "")
+                        (context as MainActivity).findNavController(R.id.navHostFragment).navigate(action)
+                    } else {
+                        sharedVM.setForumId(forum.id)
+                    }
                 }
             }
-        }
-    })
+        }, object : CommunityNodeAdapter.TimelineClickListener {
+            override fun onTimelineClick(timeline: Timeline) {
+                Timber.d("Clicked on Timeline ${timeline.name}")
+                dismissWith {
+                    sharedVM.setForumId("-${timeline.id}")
+                }
+            }
+        })
 
     private var reedImageUrl: String = ""
     private var reedImageView: ImageView? = null
 
     fun setCommunities(list: List<Community>) {
-        forumListAdapter.setData(list)
+        forumListAdapter.setCommunities(list)
+    }
+
+    fun setTimelines(list: List<Timeline>) {
+        forumListAdapter.setTimelines(list)
     }
 
     fun setReedPicture(url: String) {

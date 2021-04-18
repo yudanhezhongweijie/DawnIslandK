@@ -77,7 +77,7 @@ interface NMBService {
 
     @Headers("Domain-Name: adnmb")
     @GET("Api/timeline/id/{id}")
-    fun getNMBTimeLine(@Path("id") id: Int = 1, @Query("page") page: Int, @Header("Cookie") hash: String?): Call<ResponseBody>
+    fun getNMBTimeLine(@Path("id") id: String = "1", @Query("page") page: Int, @Header("Cookie") hash: String?): Call<ResponseBody>
 
     @Headers("Domain-Name: adnmb")
     @GET("Api/thread")

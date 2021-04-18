@@ -71,6 +71,10 @@ class SharedViewModel @Inject constructor(
 
     private var forumMsgMapping = mapOf<String, String>()
 
+    var timelineNameMapping = mapOf<String, String>()
+        private set
+    private var timelineMsgMapping = mapOf<String, String>()
+
     var forumRefresh = false
 
     init {
@@ -151,9 +155,13 @@ class SharedViewModel @Inject constructor(
 
     fun setForumMappings(list: List<Community>) {
         val flatten = list.filterNot { it.isCommonForums() || it.isCommonPosts() }.map { it.forums }.flatten()
-        forumNameMapping =
-            flatten.associateBy(keySelector = { it.id }, valueTransform = { it.name })
+        forumNameMapping = flatten.associateBy(keySelector = { it.id }, valueTransform = { it.name })
         forumMsgMapping = flatten.associateBy(keySelector = { it.id }, valueTransform = { it.msg })
+    }
+
+    fun setTimelineMappings(list: List<Timeline>) {
+        timelineNameMapping = list.associateBy({ it.id }, { it.name })
+        timelineMsgMapping = list.associateBy({ it.id }, { it.notice })
     }
 
     fun getRandomReedPicture() {
@@ -166,6 +174,7 @@ class SharedViewModel @Inject constructor(
         }
     }
 
+    // timeline has `-` prefix, otherwise is just regular forum
     fun setForumId(fid: String) {
         Timber.d("Setting forum to id: $fid")
         forumRefresh = _selectedForumId.value == fid
@@ -176,27 +185,38 @@ class SharedViewModel @Inject constructor(
         loadingBible = bible
     }
 
-    fun getRandomLoadingBible(): String =
-        if (this::loadingBible.isInitialized) loadingBible.random()
-        else "正在加载中..."
+    fun getRandomLoadingBible(): String = if (this::loadingBible.isInitialized) loadingBible.random() else "正在加载中..."
 
-    fun getForumMsg(id: String): String = if (id.isBlank()) "" else forumMsgMapping[id] ?: ""
-
-    fun getForumDisplayName(fid: String): String =
-        if (fid.isBlank()) "" else forumNameMapping[fid] ?: "A岛"
-
-    fun getSelectedPostForumName(fid: String): String = getForumDisplayName(fid)
-
-    fun getForumIdByName(name: String): String {
-        return forumNameMapping.filterValues { it == name }.keys.firstOrNull() ?: ""
+    fun getForumOrTimelineMsg(id: String): String = if (id.startsWith("-")) getTimelineMsg(id) else getForumMsg(id)
+    private fun getForumMsg(id: String): String = if (id.isBlank()) "" else forumMsgMapping[id] ?: ""
+    private fun getTimelineMsg(id: String): String {
+        val mid = id.substringAfter("-")
+        return if (mid.isBlank()) "" else timelineMsgMapping[mid] ?: ""
     }
+
+    fun getForumOrTimelineDisplayName(fid: String): String = if (fid.startsWith("-")) getTimelineDisplayName(fid) else getForumDisplayName(fid)
+
+    private fun getForumDisplayName(fid: String): String = if (fid.isBlank()) "" else forumNameMapping[fid] ?: "A岛"
+
+    private fun getTimelineDisplayName(fid: String): String {
+        val id = fid.substringAfter("-")
+        return if (id.isBlank()) "" else timelineNameMapping[id] ?: "A岛"
+    }
+
+    fun getSelectedPostForumName(fid: String): String = getForumOrTimelineDisplayName(fid)
+
+    fun getForumIdByName(name: String): String = forumNameMapping.filterValues { it == name }.keys.firstOrNull() ?: ""
 
     suspend fun sendPost(
         newPost: Boolean,
-        targetId: String, name: String?,
-        email: String?, title: String?,
-        content: String?, waterMark: String?,
-        imageFile: File?, cookieHash: String
+        targetId: String,
+        name: String?,
+        email: String?,
+        title: String?,
+        content: String?,
+        waterMark: String?,
+        imageFile: File?,
+        cookieHash: String
     ): String {
         return webNMBServiceClient.sendPost(
             newPost,

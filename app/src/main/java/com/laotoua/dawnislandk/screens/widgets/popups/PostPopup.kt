@@ -492,8 +492,8 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
                     it.setTint(Layout.getThemeInverseColor(context))
                     icon(drawable = it)
                 }
-                title(text = sharedVM.getForumDisplayName(fid))
-                message(text = sharedVM.getForumMsg(fid)) { html() }
+                title(text = sharedVM.getForumOrTimelineDisplayName(fid))
+                message(text = sharedVM.getForumOrTimelineMsg(fid)) { html() }
                 positiveButton(R.string.acknowledge)
             }
         }

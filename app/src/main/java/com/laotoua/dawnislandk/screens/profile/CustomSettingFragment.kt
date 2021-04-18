@@ -131,7 +131,7 @@ class CustomSettingFragment : DaggerFragment() {
         binding?.defaultForum?.apply {
             key.setText(R.string.default_forum_setting)
             summary.text = ContentTransformation.htmlToSpanned(
-                sharedViewModel.getForumDisplayName(applicationDataStore.getDefaultForumId())
+                sharedViewModel.getForumOrTimelineDisplayName(applicationDataStore.getDefaultForumId())
             )
             root.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
@@ -151,7 +151,7 @@ class CustomSettingFragment : DaggerFragment() {
                         val fid = serverForums!![index].id
                         applicationDataStore.setDefaultForumId(fid)
                         summary.text = ContentTransformation.htmlToSpanned(
-                            sharedViewModel.getForumDisplayName(applicationDataStore.getDefaultForumId())
+                            sharedViewModel.getForumOrTimelineDisplayName(applicationDataStore.getDefaultForumId())
                         )
                     }
                     positiveButton(R.string.submit)

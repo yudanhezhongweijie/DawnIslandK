@@ -23,6 +23,7 @@ import android.view.*
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.text.isDigitsOnly
 import androidx.core.text.toSpannable
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -157,8 +158,7 @@ class SearchFragment : BaseNavFragment() {
         } else {
             Timber.d("Fragment View Created")
             binding = FragmentSearchBinding.inflate(inflater, container, false)
-            binding?.srlAndRv?.refreshLayout?.setOnRefreshListener(object :
-                RefreshingListenerAdapter() {
+            binding?.srlAndRv?.refreshLayout?.setOnRefreshListener(object : RefreshingListenerAdapter() {
                 override fun onRefreshing() {
                     binding?.srlAndRv?.refreshLayout?.refreshComplete(true)
                 }
@@ -173,8 +173,7 @@ class SearchFragment : BaseNavFragment() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                         if (activity == null || !isAdded || binding == null || mAdapter == null) return
 
-                        val firstVisiblePos =
-                            (layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                        val firstVisiblePos = (layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
                         if (firstVisiblePos > 0 && firstVisiblePos < mAdapter!!.data.lastIndex) {
                             if (mAdapter!!.getItem(firstVisiblePos) is SearchResult.Hit) {
                                 updateCurrentPage((mAdapter!!.getItem(firstVisiblePos) as SearchResult.Hit).page)
@@ -211,8 +210,8 @@ class SearchFragment : BaseNavFragment() {
                         hintRes = R.string.please_input_page_number
                     ) { dialog, text ->
                         val inputField = getInputField()
-                        val isValid = (text.isBlank() || text.length > viewModel.maxPage.toString().length || text.toString()
-                            .toInt() > viewModel.maxPage).not()
+                        val isValid = (text.isBlank() || text.length > viewModel.maxPage.toString().length
+                                || !text.toString().isDigitsOnly() || text.toString().toInt() > viewModel.maxPage).not()
                         page = if (isValid) {
                             text.toString().toInt()
                         } else {

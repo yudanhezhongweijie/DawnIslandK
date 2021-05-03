@@ -115,13 +115,17 @@ class PostsFragment : BaseNavFragment() {
                 MaterialDialog(requireContext()).show {
                     lifecycleOwner(this@PostsFragment)
                     val biId = if (fidInt > 0) fidInt else 1
-                    val resourceId: Int = context.resources.getIdentifier(
-                        "bi_$biId", "drawable",
-                        context.packageName
-                    )
-                    ContextCompat.getDrawable(context, resourceId)?.let {
-                        it.setTint(getThemeInverseColor(context))
-                        icon(drawable = it)
+                    try {
+                        val resourceId: Int = context.resources.getIdentifier(
+                            "bi_$biId", "drawable",
+                            context.packageName
+                        )
+                        ContextCompat.getDrawable(context, resourceId)?.let {
+                            it.setTint(getThemeInverseColor(context))
+                            icon(drawable = it)
+                        }
+                    } catch (e: Exception) {
+                        Timber.d("Missing icon for fid $biId")
                     }
                     title(text = sharedVM.getForumOrTimelineDisplayName(fid))
                     message(text = sharedVM.getForumOrTimelineMsg(fid)) {

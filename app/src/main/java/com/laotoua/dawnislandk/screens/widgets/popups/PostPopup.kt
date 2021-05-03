@@ -487,10 +487,14 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
                 lifecycleOwner(caller)
                 val fid = if (newPost && targetId != null) targetId!! else targetFid
                 val biId = if (fid.toInt() > 0) fid.toInt() else 1
-                val resourceId: Int = context.resources.getIdentifier("bi_$biId", "drawable", context.packageName)
-                ContextCompat.getDrawable(context, resourceId)?.let {
-                    it.setTint(Layout.getThemeInverseColor(context))
-                    icon(drawable = it)
+                try {
+                    val resourceId: Int = context.resources.getIdentifier("bi_$biId", "drawable", context.packageName)
+                    ContextCompat.getDrawable(context, resourceId)?.let {
+                        it.setTint(Layout.getThemeInverseColor(context))
+                        icon(drawable = it)
+                    }
+                } catch (e: Exception) {
+                    Timber.d("Missing icon for fid $biId")
                 }
                 title(text = sharedVM.getForumOrTimelineDisplayName(fid))
                 message(text = sharedVM.getForumOrTimelineMsg(fid)) { html() }

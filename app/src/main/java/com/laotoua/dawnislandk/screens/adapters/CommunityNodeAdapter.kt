@@ -189,7 +189,8 @@ class CommunityNodeAdapter(val forumClickListener: ForumClickListener, val timel
         override fun convert(helper: BaseViewHolder, item: BaseNode) {
             val timeline = (item as TimelineNode).timeline
             helper.setText(R.id.forumName, timeline.name)
-            helper.setVisible(R.id.forumIcon, false)
+            val resourceId: Int = context.resources.getIdentifier("bi_1", "drawable", context.packageName)
+            helper.setImageResource(R.id.forumIcon, resourceId)
         }
 
         override fun onClick(helper: BaseViewHolder, view: View, data: BaseNode, position: Int) {

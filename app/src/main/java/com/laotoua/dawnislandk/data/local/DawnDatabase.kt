@@ -120,9 +120,9 @@ abstract class DawnDatabase : RoomDatabase() {
                 override fun migrate(database: SupportSQLiteDatabase) {
                     database.execSQL("ALTER TABLE `Reply` RENAME TO Comment")
                     database.execSQL("CREATE TABLE IF NOT EXISTS `Post` (`id` TEXT NOT NULL, `fid` TEXT NOT NULL, `category` TEXT NOT NULL, `img` TEXT NOT NULL, `ext` TEXT NOT NULL, `now` TEXT NOT NULL, `userid` TEXT NOT NULL, `name` TEXT NOT NULL, `email` TEXT NOT NULL, `title` TEXT NOT NULL, `content` TEXT NOT NULL, `sage` TEXT NOT NULL, `admin` TEXT NOT NULL, `status` TEXT NOT NULL, `replyCount` TEXT NOT NULL, `lastUpdatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))")
-                    database.execSQL("INSERT INTO `Post` SELECT id, fid, category, img, ext, now, userid, name, email, title, content, sage, admin, status, replyCount, lastUpdatedAt FROM Thread")
+                    database.execSQL("INSERT OR IGNORE INTO `Post` SELECT id, fid, category, img, ext, now, userid, name, email, title, content, sage, admin, status, replyCount, lastUpdatedAt FROM Thread")
                     database.execSQL("CREATE TABLE IF NOT EXISTS `ReadingPage` (`id` TEXT NOT NULL, `page` INTEGER NOT NULL, `lastUpdatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))")
-                    database.execSQL("INSERT INTO `ReadingPage` (id,page,lastUpdatedAt) SELECT id,readingProgress,lastUpdatedAt FROM Thread")
+                    database.execSQL("INSERT OR IGNORE INTO `ReadingPage` (id,page,lastUpdatedAt) SELECT id,readingProgress,lastUpdatedAt FROM Thread")
                     database.execSQL("DROP Table `Thread`")
                 }
             }
@@ -168,7 +168,7 @@ abstract class DawnDatabase : RoomDatabase() {
             val migrate10To11 = object : Migration(10, 11) {
                 override fun migrate(database: SupportSQLiteDatabase) {
                     database.execSQL("CREATE TABLE `PostHistory2` (`id` TEXT NOT NULL, `newPost` INTEGER NOT NULL, `postTargetId` TEXT NOT NULL, `postTargetFid` TEXT NOT NULL, `postTargetPage` INTEGER NOT NULL, `cookieName` TEXT NOT NULL, `content` TEXT NOT NULL, `img` TEXT NOT NULL, `ext` TEXT NOT NULL, `postDate` INTEGER NOT NULL, PRIMARY KEY(`id`))")
-                    database.execSQL("INSERT INTO `PostHistory2` SELECT `id`, `newPost`, `postTargetId`, `postTargetFid`, `postTargetPage`, `cookieName`, `content`, `img`, `ext`, `postDate` FROM PostHistory")
+                    database.execSQL("INSERT OR IGNORE INTO `PostHistory2` SELECT `id`, `newPost`, `postTargetId`, `postTargetFid`, `postTargetPage`, `cookieName`, `content`, `img`, `ext`, `postDate` FROM PostHistory")
                     database.execSQL("DROP TABLE PostHistory")
                     database.execSQL("ALTER TABLE PostHistory2 RENAME TO PostHistory")
                 }
@@ -177,7 +177,7 @@ abstract class DawnDatabase : RoomDatabase() {
             val migrate11To12 = object : Migration(11, 12) {
                 override fun migrate(database: SupportSQLiteDatabase) {
                     database.execSQL("CREATE TABLE IF NOT EXISTS `BrowsingHistory2` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `browsedDate` INTEGER NOT NULL, `postId` TEXT NOT NULL, `postFid` TEXT NOT NULL, `pages` TEXT NOT NULL)")
-                    database.execSQL("INSERT INTO `BrowsingHistory2` SELECT NULL,`date`, `postId`, `postFid`, `pages` FROM BrowsingHistory")
+                    database.execSQL("INSERT OR IGNORE INTO `BrowsingHistory2` SELECT NULL,`date`, `postId`, `postFid`, `pages` FROM BrowsingHistory")
                     database.execSQL("DROP TABLE BrowsingHistory")
                     database.execSQL("ALTER TABLE BrowsingHistory2 RENAME TO BrowsingHistory")
                 }
@@ -188,7 +188,7 @@ abstract class DawnDatabase : RoomDatabase() {
                 override fun migrate(database: SupportSQLiteDatabase) {
                     database.execSQL("CREATE TABLE IF NOT EXISTS `Feed` (`id` INTEGER NOT NULL, `postId` TEXT NOT NULL, `category` TEXT NOT NULL, `lastUpdatedAt` INTEGER NOT NULL, PRIMARY KEY(`postId`))")
                     database.execSQL("CREATE TABLE IF NOT EXISTS `Post2` (`id` TEXT NOT NULL, `fid` TEXT NOT NULL, `img` TEXT NOT NULL, `ext` TEXT NOT NULL, `now` TEXT NOT NULL, `userid` TEXT NOT NULL, `name` TEXT NOT NULL, `email` TEXT NOT NULL, `title` TEXT NOT NULL, `content` TEXT NOT NULL, `sage` TEXT NOT NULL, `admin` TEXT NOT NULL, `status` TEXT NOT NULL, `replyCount` TEXT NOT NULL, `lastUpdatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))")
-                    database.execSQL("INSERT INTO `Post2` SELECT `id`, `fid`, `img`, `ext`, `now`, `userid`, `name`, `email`, `title`, `content`, `sage`, `admin`, `status`, `replyCount`, `lastUpdatedAt` FROM Post")
+                    database.execSQL("INSERT OR IGNORE INTO `Post2` SELECT `id`, `fid`, `img`, `ext`, `now`, `userid`, `name`, `email`, `title`, `content`, `sage`, `admin`, `status`, `replyCount`, `lastUpdatedAt` FROM Post")
                     database.execSQL("DROP TABLE Post")
                     database.execSQL("ALTER TABLE Post2 RENAME TO Post")
                 }
@@ -250,79 +250,79 @@ abstract class DawnDatabase : RoomDatabase() {
                 override fun migrate(database: SupportSQLiteDatabase) {
                     // BrowsingHistory
                     database.execSQL("CREATE TABLE IF NOT EXISTS `BrowsingHistory2` (`id` INTEGER NOT NULL, `browsedDateTime` TEXT NOT NULL, `postId` TEXT NOT NULL, `postFid` TEXT NOT NULL, `pages` TEXT NOT NULL, PRIMARY KEY(`id`))")
-                    database.execSQL("INSERT INTO `BrowsingHistory2`(browsedDateTime, postId, postFid, pages) SELECT DATETIME(ROUND((browsedDate + browsedTime)/1000), 'unixepoch'), postId, postFid, pages FROM BrowsingHistory")
+                    database.execSQL("INSERT OR IGNORE INTO `BrowsingHistory2`(browsedDateTime, postId, postFid, pages) SELECT DATETIME(ROUND((browsedDate + browsedTime)/1000), 'unixepoch'), postId, postFid, pages FROM BrowsingHistory")
                     database.execSQL("DROP TABLE `BrowsingHistory`")
                     database.execSQL("ALTER TABLE BrowsingHistory2 RENAME TO BrowsingHistory")
 
                     // Comment
                     database.execSQL("CREATE TABLE IF NOT EXISTS `Comment2` (`id` TEXT NOT NULL, `userid` TEXT NOT NULL, `name` TEXT NOT NULL, `sage` TEXT NOT NULL, `admin` TEXT NOT NULL, `status` TEXT NOT NULL, `title` TEXT NOT NULL, `email` TEXT NOT NULL, `now` TEXT NOT NULL, `content` TEXT NOT NULL, `img` TEXT NOT NULL, `ext` TEXT NOT NULL, `page` INTEGER NOT NULL, `parentId` TEXT NOT NULL, `lastUpdatedAt` TEXT NOT NULL, PRIMARY KEY(`id`))")
-                    database.execSQL("INSERT INTO `Comment2`(`id`, `userid`, `name`, `sage`, `admin`, `status`, `title`, `email`, `now`, `content`, `img`, `ext`, `page`, `parentId`, `lastUpdatedAt`) SELECT `id`, `userid`, `name`, `sage`, `admin`, `status`, `title`, `email`, `now`, `content`, `img`, `ext`, `page`, `parentId`, DATETIME(ROUND(lastUpdatedAt/1000), 'unixepoch') FROM Comment")
+                    database.execSQL("INSERT OR IGNORE INTO `Comment2`(`id`, `userid`, `name`, `sage`, `admin`, `status`, `title`, `email`, `now`, `content`, `img`, `ext`, `page`, `parentId`, `lastUpdatedAt`) SELECT `id`, `userid`, `name`, `sage`, `admin`, `status`, `title`, `email`, `now`, `content`, `img`, `ext`, `page`, `parentId`, DATETIME(ROUND(lastUpdatedAt/1000), 'unixepoch') FROM Comment")
                     database.execSQL("DROP TABLE `Comment`")
                     database.execSQL("ALTER TABLE Comment2 RENAME TO Comment")
 
                     // Cookie
                     database.execSQL("CREATE TABLE IF NOT EXISTS `Cookie2` (`cookieHash` TEXT NOT NULL, `cookieName` TEXT NOT NULL, `cookieDisplayName` TEXT NOT NULL, `lastUsedAt` TEXT NOT NULL, PRIMARY KEY(`cookieHash`))")
-                    database.execSQL("INSERT INTO `Cookie2`(`cookieHash`, `cookieName`, `cookieDisplayName`, `lastUsedAt`) SELECT `cookieHash`, `cookieName`, `cookieDisplayName`, DATETIME(ROUND(lastUsedAt/1000), 'unixepoch') FROM Cookie")
+                    database.execSQL("INSERT OR IGNORE INTO `Cookie2`(`cookieHash`, `cookieName`, `cookieDisplayName`, `lastUsedAt`) SELECT `cookieHash`, `cookieName`, `cookieDisplayName`, DATETIME(ROUND(lastUsedAt/1000), 'unixepoch') FROM Cookie")
                     database.execSQL("DROP TABLE `Cookie`")
                     database.execSQL("ALTER TABLE Cookie2 RENAME TO Cookie")
 
                     // DailyTrend
                     database.execSQL("CREATE TABLE IF NOT EXISTS `DailyTrend2` (`id` TEXT NOT NULL, `po` TEXT NOT NULL, `date` TEXT NOT NULL, `trends` TEXT NOT NULL, `lastReplyCount` INTEGER NOT NULL, PRIMARY KEY(`id`))")
-                    database.execSQL("INSERT INTO `DailyTrend2`(`id`, `po`, `date`, `trends`, `lastReplyCount`) SELECT `id`, `po`, DATETIME(ROUND(date/1000), 'unixepoch'), `trends`, `lastReplyCount` FROM DailyTrend")
+                    database.execSQL("INSERT OR IGNORE INTO `DailyTrend2`(`id`, `po`, `date`, `trends`, `lastReplyCount`) SELECT `id`, `po`, DATETIME(ROUND(date/1000), 'unixepoch'), `trends`, `lastReplyCount` FROM DailyTrend")
                     database.execSQL("DROP TABLE `DailyTrend`")
                     database.execSQL("ALTER TABLE DailyTrend2 RENAME TO DailyTrend")
 
                     // Emoji
                     database.execSQL("CREATE TABLE IF NOT EXISTS `Emoji2` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `value` TEXT NOT NULL, `userDefined` INTEGER NOT NULL, `lastUsedAt` TEXT NOT NULL)")
-                    database.execSQL("INSERT INTO `Emoji2`(`id`, `name`, `value`, `userDefined`, `lastUsedAt`) SELECT `id`, `name`, `value`, `userDefined`, DATETIME(ROUND(lastUsedAt/1000), 'unixepoch') FROM Emoji")
+                    database.execSQL("INSERT OR IGNORE INTO `Emoji2`(`id`, `name`, `value`, `userDefined`, `lastUsedAt`) SELECT `id`, `name`, `value`, `userDefined`, DATETIME(ROUND(lastUsedAt/1000), 'unixepoch') FROM Emoji")
                     database.execSQL("DROP TABLE `Emoji`")
                     database.execSQL("ALTER TABLE Emoji2 RENAME TO Emoji")
 
                     // Feed
                     database.execSQL("CREATE TABLE IF NOT EXISTS `Feed2` (`id` INTEGER NOT NULL, `page` INTEGER NOT NULL, `postId` TEXT NOT NULL, `category` TEXT NOT NULL, `lastUpdatedAt` TEXT NOT NULL, PRIMARY KEY(`postId`))")
-                    database.execSQL("INSERT INTO `Feed2`(`id`, `page`, `postId`, `category`, `lastUpdatedAt`) SELECT `id`, `page`, `postId`, `category`, DATETIME(ROUND(lastUpdatedAt/1000), 'unixepoch') FROM Feed")
+                    database.execSQL("INSERT OR IGNORE INTO `Feed2`(`id`, `page`, `postId`, `category`, `lastUpdatedAt`) SELECT `id`, `page`, `postId`, `category`, DATETIME(ROUND(lastUpdatedAt/1000), 'unixepoch') FROM Feed")
                     database.execSQL("DROP TABLE `Feed`")
                     database.execSQL("ALTER TABLE Feed2 RENAME TO Feed")
 
                     // LuweiNotice
                     database.execSQL("CREATE TABLE IF NOT EXISTS `LuweiNotice2` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `appVersion` TEXT NOT NULL, `beitaiForums` TEXT NOT NULL, `nmbForums` TEXT NOT NULL, `loadingMsgs` TEXT NOT NULL, `clientsInfo` TEXT NOT NULL, `whitelist` TEXT NOT NULL, `lastUpdatedAt` TEXT NOT NULL)")
-                    database.execSQL("INSERT INTO `LuweiNotice2`(`id`, `appVersion` , `beitaiForums`, `nmbForums`, `loadingMsgs`, `clientsInfo`, `whitelist`, `lastUpdatedAt`) SELECT `id`, `appVersion` , `beitaiForums`, `nmbForums`, `loadingMsgs`, `clientsInfo`, `whitelist`, DATETIME(ROUND(lastUpdatedAt/1000), 'unixepoch') FROM LuweiNotice")
+                    database.execSQL("INSERT OR IGNORE INTO `LuweiNotice2`(`id`, `appVersion` , `beitaiForums`, `nmbForums`, `loadingMsgs`, `clientsInfo`, `whitelist`, `lastUpdatedAt`) SELECT `id`, `appVersion` , `beitaiForums`, `nmbForums`, `loadingMsgs`, `clientsInfo`, `whitelist`, DATETIME(ROUND(lastUpdatedAt/1000), 'unixepoch') FROM LuweiNotice")
                     database.execSQL("DROP TABLE `LuweiNotice`")
                     database.execSQL("ALTER TABLE LuweiNotice2 RENAME TO LuweiNotice")
 
                     // NMBNotice
                     database.execSQL("CREATE TABLE IF NOT EXISTS `NMBNotice2` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `content` TEXT NOT NULL, `date` INTEGER NOT NULL, `enable` INTEGER NOT NULL, `read` INTEGER NOT NULL, `lastUpdatedAt` TEXT NOT NULL)")
-                    database.execSQL("INSERT INTO `NMBNotice2`(`id`, `content`, `date`, `enable`, `read`, `lastUpdatedAt`) SELECT `id`, `content`, `date`, `enable`, `read`, DATETIME(ROUND(lastUpdatedAt/1000), 'unixepoch') FROM NMBNotice")
+                    database.execSQL("INSERT OR IGNORE INTO `NMBNotice2`(`id`, `content`, `date`, `enable`, `read`, `lastUpdatedAt`) SELECT `id`, `content`, `date`, `enable`, `read`, DATETIME(ROUND(lastUpdatedAt/1000), 'unixepoch') FROM NMBNotice")
                     database.execSQL("DROP TABLE `NMBNotice`")
                     database.execSQL("ALTER TABLE NMBNotice2 RENAME TO NMBNotice")
 
                     // Notification
                     database.execSQL("CREATE TABLE IF NOT EXISTS `Notification2` (`id` TEXT NOT NULL, `fid` TEXT NOT NULL, `newReplyCount` INTEGER NOT NULL, `message` TEXT NOT NULL, `read` INTEGER NOT NULL, `lastUpdatedAt` TEXT NOT NULL, PRIMARY KEY(`id`))")
-                    database.execSQL("INSERT INTO `Notification2`(`id`, `fid`, `newReplyCount`, `message`, `read`, `lastUpdatedAt`) SELECT `id`, `fid`, `newReplyCount`, `message`, `read`, DATETIME(ROUND(lastUpdatedAt/1000), 'unixepoch') FROM Notification")
+                    database.execSQL("INSERT OR IGNORE INTO `Notification2`(`id`, `fid`, `newReplyCount`, `message`, `read`, `lastUpdatedAt`) SELECT `id`, `fid`, `newReplyCount`, `message`, `read`, DATETIME(ROUND(lastUpdatedAt/1000), 'unixepoch') FROM Notification")
                     database.execSQL("DROP TABLE `Notification`")
                     database.execSQL("ALTER TABLE Notification2 RENAME TO Notification")
 
                     // Post
                     database.execSQL("CREATE TABLE IF NOT EXISTS `Post2` (`id` TEXT NOT NULL, `fid` TEXT NOT NULL, `img` TEXT NOT NULL, `ext` TEXT NOT NULL, `now` TEXT NOT NULL, `userid` TEXT NOT NULL, `name` TEXT NOT NULL, `email` TEXT NOT NULL, `title` TEXT NOT NULL, `content` TEXT NOT NULL, `sage` TEXT NOT NULL, `admin` TEXT NOT NULL, `status` TEXT NOT NULL, `replyCount` TEXT NOT NULL, `lastUpdatedAt` TEXT NOT NULL, PRIMARY KEY(`id`))")
-                    database.execSQL("INSERT INTO `Post2`(`id`, `fid`, `img`, `ext`, `now`, `userid`, `name`, `email`, `title`, `content`, `sage`, `admin`, `status`, `replyCount`, `lastUpdatedAt`) SELECT `id`, `fid`, `img`, `ext`, `now`, `userid`, `name`, `email`, `title`, `content`, `sage`, `admin`, `status`, `replyCount`, DATETIME(ROUND(lastUpdatedAt/1000), 'unixepoch') FROM Post")
+                    database.execSQL("INSERT OR IGNORE INTO `Post2`(`id`, `fid`, `img`, `ext`, `now`, `userid`, `name`, `email`, `title`, `content`, `sage`, `admin`, `status`, `replyCount`, `lastUpdatedAt`) SELECT `id`, `fid`, `img`, `ext`, `now`, `userid`, `name`, `email`, `title`, `content`, `sage`, `admin`, `status`, `replyCount`, DATETIME(ROUND(lastUpdatedAt/1000), 'unixepoch') FROM Post")
                     database.execSQL("DROP TABLE `Post`")
                     database.execSQL("ALTER TABLE Post2 RENAME TO Post")
 
                     // PostHistory
                     database.execSQL("CREATE TABLE IF NOT EXISTS `PostHistory2` (`id` TEXT NOT NULL, `newPost` INTEGER NOT NULL, `postTargetId` TEXT NOT NULL, `postTargetFid` TEXT NOT NULL, `postTargetPage` INTEGER NOT NULL, `cookieName` TEXT NOT NULL, `content` TEXT NOT NULL, `img` TEXT NOT NULL, `ext` TEXT NOT NULL, `postDateTime` TEXT NOT NULL, PRIMARY KEY(`id`))")
-                    database.execSQL("INSERT INTO `PostHistory2`(`id`, `newPost`, `postTargetId`, `postTargetFid`, `postTargetPage`, `cookieName`, `content`, `img`, `ext`, `postDateTime`) SELECT `id`, `newPost`, `postTargetId`, `postTargetFid`, `postTargetPage`, `cookieName`, `content`, `img`, `ext`, DATETIME(ROUND(postDate/1000), 'unixepoch') FROM PostHistory")
+                    database.execSQL("INSERT OR IGNORE INTO `PostHistory2`(`id`, `newPost`, `postTargetId`, `postTargetFid`, `postTargetPage`, `cookieName`, `content`, `img`, `ext`, `postDateTime`) SELECT `id`, `newPost`, `postTargetId`, `postTargetFid`, `postTargetPage`, `cookieName`, `content`, `img`, `ext`, DATETIME(ROUND(postDate/1000), 'unixepoch') FROM PostHistory")
                     database.execSQL("DROP TABLE `PostHistory`")
                     database.execSQL("ALTER TABLE PostHistory2 RENAME TO PostHistory")
 
                     // ReadingPage
                     database.execSQL("CREATE TABLE IF NOT EXISTS `ReadingPage2` (`id` TEXT NOT NULL, `page` INTEGER NOT NULL, `lastUpdatedAt` TEXT NOT NULL, PRIMARY KEY(`id`))")
-                    database.execSQL("INSERT INTO `ReadingPage2`(`id`, `page`, `lastUpdatedAt`) SELECT `id`, `page`, DATETIME(ROUND(lastUpdatedAt/1000), 'unixepoch') FROM ReadingPage")
+                    database.execSQL("INSERT OR IGNORE INTO `ReadingPage2`(`id`, `page`, `lastUpdatedAt`) SELECT `id`, `page`, DATETIME(ROUND(lastUpdatedAt/1000), 'unixepoch') FROM ReadingPage")
                     database.execSQL("DROP TABLE `ReadingPage`")
                     database.execSQL("ALTER TABLE ReadingPage2 RENAME TO ReadingPage")
 
                     // Release
                     database.execSQL("CREATE TABLE IF NOT EXISTS `Release2` (`id` INTEGER NOT NULL, `version` TEXT NOT NULL, `downloadUrl` TEXT NOT NULL, `message` TEXT NOT NULL, `lastUpdatedAt` TEXT NOT NULL, PRIMARY KEY(`id`))")
-                    database.execSQL("INSERT INTO `Release2`(`id`, `version`, `downloadUrl`, `message`, `lastUpdatedAt`) SELECT `id`, `version`, `downloadUrl`, `message`, DATETIME(ROUND(lastUpdatedAt/1000), 'unixepoch') FROM `Release`")
+                    database.execSQL("INSERT OR IGNORE INTO `Release2`(`id`, `version`, `downloadUrl`, `message`, `lastUpdatedAt`) SELECT `id`, `version`, `downloadUrl`, `message`, DATETIME(ROUND(lastUpdatedAt/1000), 'unixepoch') FROM `Release`")
                     database.execSQL("DROP TABLE `Release`")
                     database.execSQL("ALTER TABLE Release2 RENAME TO `Release`")
                 }
@@ -333,7 +333,7 @@ abstract class DawnDatabase : RoomDatabase() {
                 override fun migrate(database: SupportSQLiteDatabase) {
                     // DailyTrend
                     database.execSQL("CREATE TABLE IF NOT EXISTS `DailyTrend2` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `postId` TEXT NOT NULL, `po` TEXT NOT NULL, `date` TEXT NOT NULL, `trends` TEXT NOT NULL, `lastReplyCount` INTEGER NOT NULL)")
-                    database.execSQL("INSERT INTO `DailyTrend2`(`postId`, `po`, `date`, `trends`, `lastReplyCount`) SELECT `id`, `po`, `date`, `trends`, `lastReplyCount` FROM DailyTrend")
+                    database.execSQL("INSERT OR IGNORE INTO `DailyTrend2`(`postId`, `po`, `date`, `trends`, `lastReplyCount`) SELECT `id`, `po`, `date`, `trends`, `lastReplyCount` FROM DailyTrend")
                     database.execSQL("DROP TABLE `DailyTrend`")
                     database.execSQL("ALTER TABLE DailyTrend2 RENAME TO DailyTrend")
                 }

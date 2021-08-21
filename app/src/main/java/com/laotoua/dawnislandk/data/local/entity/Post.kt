@@ -20,6 +20,7 @@ package com.laotoua.dawnislandk.data.local.entity
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import com.laotoua.dawnislandk.DawnApp
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import java.time.LocalDateTime
@@ -43,6 +44,7 @@ data class Post(
     val status: String = "",
     @Json(name = "replys") @Ignore var comments: List<Comment> = emptyList(), //replys 	主页展示回复的帖子(5个）
     val replyCount: String = "0",
+    val domain: String = DawnApp.currentDomain,
     var lastUpdatedAt: LocalDateTime = LocalDateTime.now()
 ) {
     // Room uses this
@@ -61,6 +63,7 @@ data class Post(
         admin: String,
         status: String,
         replyCount: String,
+        domain: String,
         lastUpdatedAt: LocalDateTime
     ) : this(
         id,
@@ -78,6 +81,7 @@ data class Post(
         status,
         emptyList(),
         replyCount,
+        domain,
         lastUpdatedAt
     )
 
@@ -96,7 +100,8 @@ data class Post(
         img,
         ext,
         1,
-        id
+        id,
+        domain
     )
 
     // special handler for sticky top banner
@@ -105,8 +110,7 @@ data class Post(
     fun getImgUrl() = (img + ext)
     fun getSimplifiedTitle(): String = if (title.isNotBlank() && title != "无标题") "标题：$title" else ""
     fun getSimplifiedName(): String = if (name.isNotBlank() && name != "无名氏") "名称：$name" else ""
-    fun getMaxPage() =
-        if (replyCount.isBlank()) 1 else 1.coerceAtLeast(ceil(replyCount.toDouble() / 19).toInt())
+    fun getMaxPage() = if (replyCount.isBlank()) 1 else 1.coerceAtLeast(ceil(replyCount.toDouble() / 19).toInt())
 
     // only compares by server fields
     override fun equals(other: Any?) =
@@ -159,6 +163,7 @@ data class Post(
             status = status,
             comments = emptyList(),
             replyCount = replyCount,
+            domain = domain,
             lastUpdatedAt = lastUpdatedAt
         )
 

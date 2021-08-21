@@ -19,17 +19,18 @@ package com.laotoua.dawnislandk.data.local.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.entity.BlockedId
 
 @Dao
 interface BlockedIdDao {
 
     // returns both blocked post Ids & forum Ids
-    @Query("SELECT * From BlockedId")
-    suspend fun getAllBlockedIds(): List<BlockedId>
+    @Query("SELECT * From BlockedId WHERE domain = :domain")
+    suspend fun getAllBlockedIds(domain: String = DawnApp.currentDomain): List<BlockedId>
 
-    @Query("SELECT * From BlockedId")
-    fun getLiveAllBlockedIds(): LiveData<List<BlockedId>>
+    @Query("SELECT * From BlockedId WHERE domain = :domain")
+    fun getLiveAllBlockedIds(domain: String = DawnApp.currentDomain): LiveData<List<BlockedId>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(blockedId: BlockedId)
@@ -38,7 +39,7 @@ interface BlockedIdDao {
     suspend fun insertAll(blockedIds: List<BlockedId>)
 
     @Transaction
-    suspend fun updateBlockedForumIds(blockedIds: List<BlockedId>){
+    suspend fun updateBlockedForumIds(blockedIds: List<BlockedId>) {
         nukeTimelineForumIds()
         if (blockedIds.isNotEmpty()) insertAll(blockedIds)
     }

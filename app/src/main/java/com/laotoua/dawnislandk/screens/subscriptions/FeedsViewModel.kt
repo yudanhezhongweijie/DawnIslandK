@@ -109,12 +109,17 @@ class FeedsViewModel @Inject constructor(private val feedRepo: FeedRepository) :
         }
     }
 
-    private fun clearCache() {
+    fun clearCache(forceClear: Boolean = false) {
         feedPageIndices.map {
             feedPages[it]?.let { s -> feeds.removeSource(s) }
             feedPages.remove(it)
         }
         feedPageIndices.clear()
+        if (forceClear) {
+            feeds.value = ArrayList()
+            lastJumpPage = 0
+            feedRepo.clearCache()
+        }
     }
 
 }

@@ -19,6 +19,7 @@ package com.laotoua.dawnislandk.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.laotoua.dawnislandk.DawnApp
 
 @Entity
 data class BlockedId(
@@ -26,15 +27,16 @@ data class BlockedId(
     /** type 0 refers blocking post fid (uses in timeline only)
      *  type 1 refers blocking post id (uses in all communities)
      */
-    val type: Int
+    val type: Int,
+    val domain: String = DawnApp.currentDomain
 ) {
     fun isBlockedPost(): Boolean = type == 1
 
     fun isTimelineBlockedForum(): Boolean = type == 0
 
     companion object {
-        fun makeBlockedPost(id: String): BlockedId = BlockedId(id, 1)
+        fun makeBlockedPost(id: String, domain: String = DawnApp.currentDomain): BlockedId = BlockedId(id, 1, domain)
 
-        fun makeTimelineBlockedForum(id: String): BlockedId = BlockedId(id, 0)
+        fun makeTimelineBlockedForum(id: String, domain: String = DawnApp.currentDomain): BlockedId = BlockedId(id, 0, domain)
     }
 }

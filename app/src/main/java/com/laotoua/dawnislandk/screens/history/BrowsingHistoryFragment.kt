@@ -44,6 +44,7 @@ import com.laotoua.dawnislandk.screens.posts.PostCardFactory
 import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
 import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
+import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.ReadableTime
 import com.lxj.xpopup.XPopup
 import timber.log.Timber
@@ -65,6 +66,8 @@ class BrowsingHistoryFragment : BaseNavFragment() {
     private var viewCaching = false
 
     private val viewModel: BrowsingHistoryViewModel by viewModels { viewModelFactory }
+
+    private var cacheDomain: String = DawnConstants.ADNMBDomain
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -152,6 +155,14 @@ class BrowsingHistoryFragment : BaseNavFragment() {
             )
             Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} items")
         }
+
+        sharedVM.currentDomain.observe(viewLifecycleOwner) {
+            if (it != cacheDomain) {
+                viewModel.searchByDate()
+                cacheDomain = it
+            }
+        }
+
         viewCaching = false
         return binding!!.root
     }

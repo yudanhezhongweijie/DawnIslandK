@@ -19,6 +19,7 @@ package com.laotoua.dawnislandk.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.laotoua.dawnislandk.DawnApp
 import java.time.LocalDateTime
 
 @Entity
@@ -33,9 +34,10 @@ class PostHistory(
     val content: String, //content
     val img: String,
     val ext: String,
+    val domain: String = DawnApp.currentDomain,
     val postDateTime: LocalDateTime = LocalDateTime.now()
 ) {
-    constructor(id: String, targetPage: Int, img: String, ext: String, draft: Draft) : this(
+    constructor(id: String, targetPage: Int, img: String, ext: String, domain: String, draft: Draft) : this(
         id,
         draft.newPost,
         draft.postTargetId,
@@ -45,6 +47,7 @@ class PostHistory(
         draft.content,
         img,
         ext,
+        domain,
         draft.postDateTime
     )
 

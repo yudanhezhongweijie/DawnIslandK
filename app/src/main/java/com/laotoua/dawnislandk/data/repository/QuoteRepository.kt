@@ -97,4 +97,9 @@ class QuoteRepository @Inject constructor(
             fifoQuoteList.removeAt(0)
         }
     }
+
+    fun clearCache() {
+        quoteMap.clear()
+        fifoQuoteList.clear()
+    }
 }

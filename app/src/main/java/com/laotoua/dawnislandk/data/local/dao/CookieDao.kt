@@ -18,17 +18,18 @@
 package com.laotoua.dawnislandk.data.local.dao
 
 import androidx.room.*
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.entity.Cookie
 import java.time.LocalDateTime
 
 
 @Dao
 interface CookieDao {
-    @Query("SELECT * FROM Cookie ORDER BY lastUsedAt DESC")
-    suspend fun getAll(): List<Cookie>
+    @Query("SELECT * FROM Cookie WHERE domain=:domain ORDER BY lastUsedAt DESC")
+    suspend fun getAll(domain: String = DawnApp.currentDomain): List<Cookie>
 
-    @Query("SELECT * FROM Cookie WHERE cookieHash=:cookieHash")
-    suspend fun getCookieByHash(cookieHash: String): Cookie
+    @Query("SELECT * FROM Cookie WHERE cookieHash=:cookieHash AND domain=:domain ")
+    suspend fun getCookieByHash(cookieHash: String, domain: String = DawnApp.currentDomain): Cookie
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(cookie: Cookie)

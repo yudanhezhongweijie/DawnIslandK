@@ -116,8 +116,7 @@ abstract class BasePagerFragment : DaggerFragment() {
             object : FragmentStateAdapter(childFragmentManager, viewLifecycleOwner.lifecycle) {
                 override fun getItemCount(): Int = pageFragmentClass.size
                 override fun createFragment(position: Int): Fragment {
-                    return pageFragmentClass[position]?.newInstance()
-                        ?: error("Missing Fragment Class")
+                    return pageFragmentClass[position]?.newInstance() ?: error("Missing Fragment Class")
                 }
             }
 

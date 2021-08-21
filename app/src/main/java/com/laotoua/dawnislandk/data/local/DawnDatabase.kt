@@ -48,7 +48,7 @@ import com.laotoua.dawnislandk.data.local.entity.*
         BlockedId::class,
         Notification::class,
         Emoji::class],
-    version = 23
+    version = 24
 )
 @TypeConverters(Converter::class)
 abstract class DawnDatabase : RoomDatabase() {
@@ -357,6 +357,22 @@ abstract class DawnDatabase : RoomDatabase() {
                 }
             }
 
+            // add domain flags
+            val migrate23To24 = object : Migration(23, 24) {
+                override fun migrate(database: SupportSQLiteDatabase) {
+                    database.execSQL("ALTER TABLE `BlockedId` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'adnmb'")
+                    database.execSQL("ALTER TABLE `BrowsingHistory` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'adnmb'")
+                    database.execSQL("ALTER TABLE `Comment` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'adnmb'")
+                    database.execSQL("ALTER TABLE `Community` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'adnmb'")
+                    database.execSQL("ALTER TABLE `Cookie` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'adnmb'")
+                    database.execSQL("ALTER TABLE `Feed` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'adnmb'")
+                    database.execSQL("ALTER TABLE `Notification` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'adnmb'")
+                    database.execSQL("ALTER TABLE `Post` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'adnmb'")
+                    database.execSQL("ALTER TABLE `PostHistory` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'adnmb'")
+                    database.execSQL("ALTER TABLE `ReadingPage` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'adnmb'")
+                }
+            }
+
             synchronized(this) {
                 val instance = Room.databaseBuilder(context.applicationContext, DawnDatabase::class.java, "dawnDB")
                     .addMigrations(
@@ -381,7 +397,8 @@ abstract class DawnDatabase : RoomDatabase() {
                         migrate19To20,
                         migrate20To21,
                         migrate21To22,
-                        migrate22To23
+                        migrate22To23,
+                        migrate23To24
                     )
                     .build()
                 INSTANCE = instance

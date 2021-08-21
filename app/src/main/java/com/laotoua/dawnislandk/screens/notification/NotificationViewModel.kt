@@ -25,19 +25,24 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class NotificationViewModel @Inject constructor(private val notificationDao: NotificationDao):ViewModel() {
-    val notificationAndPost = notificationDao.getLiveAllNotificationsAndPosts()
+    var notificationAndPost = notificationDao.getLiveAllNotificationsAndPosts()
+        private set
 
-    fun deleteNotification(notification: Notification){
+    fun deleteNotification(notification: Notification) {
         viewModelScope.launch {
             notificationDao.deleteNotifications(notification)
         }
     }
 
-    fun readNotification(notification: Notification){
+    fun readNotification(notification: Notification) {
         viewModelScope.launch {
             notification.read = true
             notification.newReplyCount = 0
             notificationDao.insertNotification(notification)
         }
+    }
+
+    fun refresh() {
+        notificationAndPost = notificationDao.getLiveAllNotificationsAndPosts()
     }
 }

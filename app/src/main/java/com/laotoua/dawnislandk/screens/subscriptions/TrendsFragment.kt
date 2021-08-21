@@ -41,13 +41,10 @@ import com.laotoua.dawnislandk.screens.adapters.*
 import com.laotoua.dawnislandk.screens.posts.PostCardFactory
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
-import com.laotoua.dawnislandk.util.DataResource
-import com.laotoua.dawnislandk.util.EventPayload
-import com.laotoua.dawnislandk.util.LoadingStatus
-import com.laotoua.dawnislandk.util.ReadableTime
+import com.laotoua.dawnislandk.util.*
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import timber.log.Timber
-import java.util.ArrayList
+import java.util.*
 
 class TrendsFragment : BaseNavFragment() {
 
@@ -64,7 +61,7 @@ class TrendsFragment : BaseNavFragment() {
     private val viewModel: TrendsViewModel by viewModels { viewModelFactory }
 
     private val trendsObs = Observer<DataResource<List<DailyTrend>>> {
-        if (mAdapter == null || binding == null) return@Observer
+        if (mAdapter == null || binding == null || sharedVM.currentDomain.value == DawnConstants.TNMBDomain) return@Observer
         updateHeaderAndFooter(
             binding!!.srlAndRv.refreshLayout,
             mAdapter!!,
@@ -144,6 +141,15 @@ class TrendsFragment : BaseNavFragment() {
                 findNavController().navigate(navAction)
             }
 
+        }
+
+        sharedVM.currentDomain.observe(viewLifecycleOwner) {
+            if (it == DawnConstants.TNMBDomain) {
+                mAdapter?.showNoData()
+                mAdapter?.setDiffNewData(ArrayList())
+                if (binding != null) mAdapter?.setFooterView(layoutInflater.inflate(R.layout.view_no_more_data, binding!!.srlAndRv.recyclerView, false))
+
+            }
         }
 
         viewModel.latestTrends.observe(viewLifecycleOwner, trendsObs)

@@ -20,6 +20,7 @@ package com.laotoua.dawnislandk.screens.comments
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
@@ -93,6 +94,7 @@ class CommentsFragment : DaggerFragment() {
 
     private var mAdapter: QuickAdapter<Comment>? = null
     private var viewCaching = false
+    private var cacheDomain = DawnConstants.ADNMBDomain
     private var refreshing = false
 
     // last visible item indicates the current page, uses for remembering last read page
@@ -162,6 +164,7 @@ class CommentsFragment : DaggerFragment() {
         }
     }
 
+    @SuppressLint("CheckResult")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -366,7 +369,7 @@ class CommentsFragment : DaggerFragment() {
                             }
                             1 -> copyText(
                                 "串地址",
-                                "${DawnConstants.nmbHost}/t/${viewModel.currentPostId}"
+                                "${DawnApp.currentDomain}/t/${viewModel.currentPostId}"
                             )
                             2 -> copyText("串号", ">>No.${viewModel.currentPostId}")
                             else -> {
@@ -454,6 +457,13 @@ class CommentsFragment : DaggerFragment() {
                 if (it && currentPage >= viewModel.maxPage - 1) {
                     mAdapter?.loadMoreModule?.loadMoreToLoading()
                 }
+            }
+        }
+
+        sharedVM.currentDomain.observe(viewLifecycleOwner) {
+            if (it != cacheDomain) {
+                viewModel.clearCache(true)
+                cacheDomain = it
             }
         }
     }

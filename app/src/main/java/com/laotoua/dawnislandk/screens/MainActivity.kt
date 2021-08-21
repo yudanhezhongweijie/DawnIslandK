@@ -20,6 +20,7 @@ package com.laotoua.dawnislandk.screens
 import android.animation.Animator
 import android.animation.TypeEvaluator
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -50,6 +51,7 @@ import com.afollestad.materialdialogs.checkbox.isCheckPromptChecked
 import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.google.android.material.animation.AnimationUtils
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
@@ -61,6 +63,7 @@ import com.laotoua.dawnislandk.screens.widgets.popups.ForumDrawerPopup
 import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.IntentsHelper
 import com.laotoua.dawnislandk.util.LoadingStatus
+import com.laotoua.dawnislandk.util.SingleLiveEvent
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BasePopupView
 import com.lxj.xpopup.enums.PopupPosition
@@ -91,6 +94,8 @@ class MainActivity : DaggerAppCompatActivity() {
     // The BroadcastReceiver that tracks network connectivity changes.
     private var networkStateReceiver: NetworkReceiver? = null
     private var lastNetworkTestTime: Long = 0
+    private var lastSuccessfulBaseCDN: String = ""
+    private var lastSuccessfulRefCDN: String = ""
 
 
     private var doubleBackToExitPressedOnce = false
@@ -143,7 +148,7 @@ class MainActivity : DaggerAppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         binding.toolbar.apply {
             immersiveToolbar()
-            setSubtitle(R.string.toolbar_subtitle)
+            setSubtitle(R.string.toolbar_subtitle_adnmb)
         }
         immersiveToolbarInitialization()
         customToolbarBackground()
@@ -170,7 +175,7 @@ class MainActivity : DaggerAppCompatActivity() {
                 return@observe
             }
             if (it.data.isNullOrEmpty()) return@observe
-            forumDrawer?.setCommunities(it.data)
+            if (DawnApp.currentDomain == DawnConstants.ADNMBDomain) forumDrawer?.setCommunities(it.data)
             sharedVM.setForumMappings(it.data)
             if (sharedVM.selectedForumId.value == null) sharedVM.setForumId(applicationDataStore.getDefaultForumId())
             Timber.i("Loaded ${it.data.size} communities to Adapter")
@@ -182,7 +187,7 @@ class MainActivity : DaggerAppCompatActivity() {
                 return@observe
             }
             if (it.data.isNullOrEmpty()) return@observe
-            forumDrawer?.setTimelines(it.data)
+            if (DawnApp.currentDomain == DawnConstants.ADNMBDomain) forumDrawer?.setTimelines(it.data)
             sharedVM.setTimelineMappings(it.data)
             Timber.i("Loaded ${it.data.size} timelines to Adapter")
         }
@@ -206,6 +211,7 @@ class MainActivity : DaggerAppCompatActivity() {
             val raw = data.toString().substringAfterLast("/")
             if (raw.isNotBlank()) {
                 val id = if (raw.contains("?")) raw.substringBefore("?") else raw
+                // TODO tnmb
                 if ((count == 1 && data.host == "t") || (count == 2 && path[1] == 't')) {
                     val navAction = MainNavDirections.actionGlobalCommentsFragment(id, "")
                     val navHostFragment = supportFragmentManager.findFragmentById(R.id.navHostFragment)
@@ -244,8 +250,13 @@ class MainActivity : DaggerAppCompatActivity() {
                 .setPopupCallback(object : SimpleCallback() {
                     override fun beforeShow(popupView: BasePopupView?) {
                         super.beforeShow(popupView)
-                        sharedVM.communityList.value?.data?.let { drawer.setCommunities(it) }
-                        sharedVM.timelineList.value?.data?.let { drawer.setTimelines(it) }
+                        if (DawnApp.currentDomain == DawnConstants.ADNMBDomain) {
+                            sharedVM.communityList.value?.data?.let { drawer.setCommunities(it) }
+                            sharedVM.timelineList.value?.data?.let { drawer.setTimelines(it) }
+                        } else {
+                            sharedVM.beitaiForums.let { drawer.setCommunities(it) }
+                            drawer.setTimelines(emptyList())
+                        }
                         sharedVM.reedPictureUrl.value?.let { drawer.setReedPicture(it) }
                         drawer.loadReedPicture()
                     }
@@ -263,6 +274,7 @@ class MainActivity : DaggerAppCompatActivity() {
     }
 
     // initialize Global resources
+    @SuppressLint("CheckResult")
     private suspend fun loadResources() {
         applicationDataStore.loadCookies()
         applicationDataStore.getLatestRelease()?.let { release ->
@@ -310,6 +322,7 @@ class MainActivity : DaggerAppCompatActivity() {
 
         applicationDataStore.getLatestLuweiNotice()?.let { luweiNotice ->
             sharedVM.setLuweiLoadingBible(luweiNotice.loadingMsgs)
+            sharedVM.setBeiTaiForums(luweiNotice.beitaiForums)
         }
 
         // first time app entry
@@ -553,10 +566,37 @@ class MainActivity : DaggerAppCompatActivity() {
         }
     }
 
+    fun goToADNMB() {
+        Timber.d("Switching to AD......")
+        sharedVM.onADNMB()
+        RetrofitUrlManager.getInstance().putDomain("host", DawnConstants.ADNMBHost)
+        autoSelectCDNs()
+
+        sharedVM.setForumId(applicationDataStore.getDefaultForumId(), true)
+
+        binding.toolbar.setSubtitle(R.string.toolbar_subtitle_adnmb)
+    }
+
+    fun goToTNMB() {
+        Timber.d("Switching to BT......")
+        sharedVM.onTNMB()
+        RetrofitUrlManager.getInstance().putDomain("host", DawnConstants.TNMBHost)
+        RetrofitUrlManager.getInstance().putDomain("nmb", DawnConstants.TNMBHost)
+        RetrofitUrlManager.getInstance().putDomain("nmb-ref", DawnConstants.TNMBHost)
+
+        sharedVM.beitaiForums.firstOrNull()?.forums?.firstOrNull()?.id?.let { sharedVM.setForumId(it, true) }
+
+        binding.toolbar.setSubtitle(R.string.toolbar_subtitle_tnmb)
+    }
+
+
     private fun autoSelectCDNs() {
+        if (DawnApp.currentDomain == DawnConstants.TNMBDomain) return
         val currentTime = System.currentTimeMillis()
         if (currentTime - 20000 <= lastNetworkTestTime) {
             Timber.d("CDN was set less than 20 seconds ago, skipping...")
+            if (lastSuccessfulBaseCDN.isNotBlank()) RetrofitUrlManager.getInstance().putDomain("nmb", lastSuccessfulBaseCDN)
+            if (lastSuccessfulRefCDN.isNotBlank()) RetrofitUrlManager.getInstance().putDomain("nmb-ref", lastSuccessfulRefCDN)
             return
         }
         lastNetworkTestTime = currentTime
@@ -566,12 +606,12 @@ class MainActivity : DaggerAppCompatActivity() {
         val ref = applicationDataStore.getRefCDN()
         if (ref != "auto") {
             Timber.d("Setting ref CDN to $ref")
-            RetrofitUrlManager.getInstance().putDomain("adnmb-ref", ref)
+            RetrofitUrlManager.getInstance().putDomain("nmb-ref", ref)
         }
 
         if (base != "auto") {
             Timber.i("Setting base CDN to $base...")
-            RetrofitUrlManager.getInstance().putDomain("adnmb", base)
+            RetrofitUrlManager.getInstance().putDomain("nmb", base)
         }
         if (ref != "auto" && base != "auto") return
         Timber.i("Auto selecting CDNs...")
@@ -600,16 +640,18 @@ class MainActivity : DaggerAppCompatActivity() {
                             // Base
                             if (base == "auto" && availableConnections.firstKey() == timeElapsed) {
                                 Timber.d("Using $url for Base")
-                                RetrofitUrlManager.getInstance().putDomain("adnmb", url)
+                                lastSuccessfulBaseCDN = url
+                                RetrofitUrlManager.getInstance().putDomain("nmb", lastSuccessfulBaseCDN)
                             }
                             // Ref
                             if (ref == "auto") {
-                                availableConnections.values.toList().firstOrNull { it in refCDNs }
-                                    ?.let {
-                                        Timber.d("Using $it for Ref")
-                                        RetrofitUrlManager.getInstance().putDomain("adnmb-ref", url)
-                                    }
+                                availableConnections.values.toList().firstOrNull { it in refCDNs }?.let {
+                                    Timber.d("Using $it for Ref")
+                                    lastSuccessfulRefCDN = url
+                                    RetrofitUrlManager.getInstance().putDomain("nmb-ref", lastSuccessfulRefCDN)
+                                }
                             }
+                            sharedVM.hostChange.postValue(SingleLiveEvent.create(true))
                         }
                     }
                 } catch (e: Exception) {

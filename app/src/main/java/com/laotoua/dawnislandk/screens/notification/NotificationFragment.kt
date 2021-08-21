@@ -26,6 +26,7 @@ import android.view.*
 import android.widget.TextView
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
@@ -51,6 +52,7 @@ import com.laotoua.dawnislandk.screens.posts.PostCardFactory
 import com.laotoua.dawnislandk.screens.util.ContentTransformation
 import com.laotoua.dawnislandk.screens.util.Layout
 import com.laotoua.dawnislandk.screens.widgets.spans.RoundBackgroundColorSpan
+import com.laotoua.dawnislandk.util.DawnConstants
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
 
@@ -64,6 +66,12 @@ class NotificationFragment : DaggerFragment() {
 
     private var binding: FragmentNotificationBinding? = null
     private var mAdapter: NotificationAdapter? = null
+    private var cacheDomain: String = DawnConstants.ADNMBDomain
+
+    private val notificationObs = Observer<List<NotificationAndPost>> { list ->
+        if (list.isNullOrEmpty()) mAdapter?.showNoData()
+        else mAdapter?.setDiffNewData(list.toMutableList())
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -124,11 +132,16 @@ class NotificationFragment : DaggerFragment() {
         }
 
         mAdapter?.setEmptyView(R.layout.view_no_data)
-        viewModel.notificationAndPost.observe(viewLifecycleOwner) { list ->
-            if (list.isNullOrEmpty()) mAdapter?.showNoData()
-            else mAdapter?.setDiffNewData(list.toMutableList())
-        }
+        viewModel.notificationAndPost.observe(viewLifecycleOwner, notificationObs)
 
+
+        sharedVM.currentDomain.observe(viewLifecycleOwner) {
+            if (it != cacheDomain) {
+                viewModel.refresh()
+                viewModel.notificationAndPost.observe(viewLifecycleOwner, notificationObs)
+                cacheDomain = it
+            }
+        }
         // Inflate the layout for this fragment
         return binding!!.root
     }

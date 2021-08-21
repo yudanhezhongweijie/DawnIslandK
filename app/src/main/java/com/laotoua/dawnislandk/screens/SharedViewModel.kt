@@ -29,10 +29,7 @@ import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.data.repository.CommunityRepository
 import com.laotoua.dawnislandk.screens.util.ContentTransformation
-import com.laotoua.dawnislandk.util.DataResource
-import com.laotoua.dawnislandk.util.LoadingStatus
-import com.laotoua.dawnislandk.util.ReadableTime
-import com.laotoua.dawnislandk.util.SingleLiveEvent
+import com.laotoua.dawnislandk.util.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -71,11 +68,37 @@ class SharedViewModel @Inject constructor(
 
     private var forumMsgMapping = mapOf<String, String>()
 
-    var timelineNameMapping = mapOf<String, String>()
-        private set
+    private var timelineNameMapping = mapOf<String, String>()
     private var timelineMsgMapping = mapOf<String, String>()
 
-    var forumRefresh = false
+    var forceRefresh = false
+    val hostChange: MutableLiveData<SingleLiveEvent<Boolean>> = MutableLiveData()
+
+    // TODO: clear cache when domain change
+    val currentDomain: MutableLiveData<String> = MutableLiveData()
+
+    var beitaiForums: List<Community> = listOf()
+        private set
+
+    fun onADNMB() {
+        DawnApp.onDomain(DawnConstants.ADNMBDomain)
+        currentDomain.value = DawnConstants.ADNMBDomain
+        communityList.value?.data?.filterNot { it.isCommonForums() || it.isCommonPosts() }?.map { it.forums }?.flatten()?.let { flatten ->
+            forumNameMapping = flatten.associateBy(keySelector = { it.id }, valueTransform = { it.name })
+            forumMsgMapping = flatten.associateBy(keySelector = { it.id }, valueTransform = { it.msg })
+        }
+
+    }
+
+    fun onTNMB() {
+        DawnApp.onDomain(DawnConstants.TNMBDomain)
+        currentDomain.value = DawnConstants.TNMBDomain
+        beitaiForums.firstOrNull()?.forums?.let {
+            forumNameMapping = it.associateBy(keySelector = { it.id }, valueTransform = { it.name })
+        }
+        forumMsgMapping = emptyMap()
+
+    }
 
     init {
         getRandomReedPicture()
@@ -159,6 +182,10 @@ class SharedViewModel @Inject constructor(
         forumMsgMapping = flatten.associateBy(keySelector = { it.id }, valueTransform = { it.msg })
     }
 
+    fun setBeiTaiForums(list: List<NoticeForum>) {
+        beitaiForums = listOf(Community(id = "beitai", sort = "", name = "备胎", status = "", forums = list.map { it.toForum() }, domain = DawnConstants.TNMBDomain))
+    }
+
     fun setTimelineMappings(list: List<Timeline>) {
         timelineNameMapping = list.associateBy({ it.id }, { it.name })
         timelineMsgMapping = list.associateBy({ it.id }, { it.notice })
@@ -175,9 +202,9 @@ class SharedViewModel @Inject constructor(
     }
 
     // timeline has `-` prefix, otherwise is just regular forum
-    fun setForumId(fid: String) {
+    fun setForumId(fid: String, refresh: Boolean = false) {
         Timber.d("Setting forum to id: $fid")
-        forumRefresh = _selectedForumId.value == fid
+        forceRefresh = refresh || _selectedForumId.value == fid
         _selectedForumId.value = fid
     }
 
@@ -194,7 +221,13 @@ class SharedViewModel @Inject constructor(
         return if (mid.isBlank()) "" else timelineMsgMapping[mid] ?: ""
     }
 
-    fun getForumOrTimelineDisplayName(fid: String): String = if (fid.startsWith("-")) getTimelineDisplayName(fid) else getForumDisplayName(fid)
+    fun getForumOrTimelineDisplayName(fid: String): String {
+        return if (DawnApp.currentDomain == DawnConstants.ADNMBDomain) {
+            if (fid.startsWith("-")) getTimelineDisplayName(fid) else getForumDisplayName(fid)
+        } else {
+            beitaiForums.firstOrNull()?.forums?.find { it.id == fid }?.getDisplayName() ?: "备胎岛"
+        }
+    }
 
     private fun getForumDisplayName(fid: String): String = if (fid.isBlank()) "" else forumNameMapping[fid] ?: "A岛"
 
@@ -274,7 +307,7 @@ class SharedViewModel @Inject constructor(
                     if (post.userid == draft.cookieName && striped == draft.content) {
                         // store server's copy
                         draft.content = post.content
-                        postHistoryDao.insertPostHistory(PostHistory(post.id, 1, post.img, post.ext, draft))
+                        postHistoryDao.insertPostHistory(PostHistory(post.id, 1, post.img, post.ext, DawnApp.currentDomain, draft))
                         saved = true
                         _savePostStatus.postValue(SingleLiveEvent.create(true))
                         Timber.d("Saved new post with id ${post.id}")
@@ -331,7 +364,7 @@ class SharedViewModel @Inject constructor(
             if (reply.userid == draft.cookieName && striped == draft.content) {
                 // store server's copy
                 draft.content = reply.content
-                postHistoryDao.insertPostHistory(PostHistory(reply.id, targetPage, reply.img, reply.ext, draft))
+                postHistoryDao.insertPostHistory(PostHistory(reply.id, targetPage, reply.img, reply.ext, DawnApp.currentDomain, draft))
                 _savePostStatus.postValue(SingleLiveEvent.create(true))
                 Timber.d("Saved posted comment with id ${reply.id}")
                 return

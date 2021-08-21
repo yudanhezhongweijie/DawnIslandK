@@ -20,6 +20,7 @@ package com.laotoua.dawnislandk.data.local.dao
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.distinctUntilChanged
 import androidx.room.*
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.entity.Feed
 import com.laotoua.dawnislandk.data.local.entity.FeedAndPost
 import com.laotoua.dawnislandk.data.local.entity.Post
@@ -29,21 +30,21 @@ import java.time.LocalDateTime
 interface FeedDao {
 
     @Transaction
-    @Query("SELECT * From Feed")
-    fun getAllFeedAndPost(): LiveData<List<FeedAndPost>>
+    @Query("SELECT * From Feed WHERE domain=:domain")
+    fun getAllFeedAndPost(domain: String = DawnApp.currentDomain): LiveData<List<FeedAndPost>>
 
-    @Query("SELECT * From Feed where postId=:postId")
-    suspend fun findFeedByPostId(postId: String): Feed?
-
-    @Transaction
-    @Query("SELECT * From Feed where date(:targetTime)>date(Feed.lastUpdatedAt) ORDER BY Feed.lastUpdatedAt ASC LIMIT 1")
-    suspend fun findMostOutdatedFeedAndPost(targetTime: LocalDateTime): FeedAndPost?
+    @Query("SELECT * From Feed where postId=:postId AND domain=:domain")
+    suspend fun findFeedByPostId(postId: String, domain: String = DawnApp.currentDomain): Feed?
 
     @Transaction
-    @Query("SELECT * From Feed WHERE page==:page ORDER BY id ASC")
-    fun getFeedAndPostOnPage(page: Int): LiveData<List<FeedAndPost>>
+    @Query("SELECT * From Feed where date(:targetTime)>date(Feed.lastUpdatedAt) AND domain=:domain ORDER BY Feed.lastUpdatedAt ASC LIMIT 1")
+    suspend fun findMostOutdatedFeedAndPost(targetTime: LocalDateTime, domain: String = DawnApp.currentDomain): FeedAndPost?
 
-    fun getDistinctFeedAndPostOnPage(page: Int) = getFeedAndPostOnPage(page).distinctUntilChanged()
+    @Transaction
+    @Query("SELECT * From Feed WHERE page==:page AND domain=:domain ORDER BY id ASC")
+    fun getFeedAndPostOnPage(page: Int, domain: String = DawnApp.currentDomain): LiveData<List<FeedAndPost>>
+
+    fun getDistinctFeedAndPostOnPage(page: Int, domain: String = DawnApp.currentDomain) = getFeedAndPostOnPage(page, domain).distinctUntilChanged()
 
     @Transaction
     suspend fun addFeedToTopAndIncrementFeedIds(feed: Feed) {
@@ -58,24 +59,24 @@ interface FeedDao {
     }
 
     @Transaction
-    suspend fun deleteFeedAndDecrementFeedIdsById(id: String){
+    suspend fun deleteFeedAndDecrementFeedIdsById(id: String) {
         findFeedByPostId(id)?.let {
             decrementFeedIdsAfter(it.id, it.page)
             deleteFeedByPostId(it.postId)
         }
     }
 
-    @Query("UPDATE Feed SET id=id+1 WHERE id>=:id AND page=:page")
-    suspend fun incrementFeedIdsAfter(id: Int, page:Int)
+    @Query("UPDATE Feed SET id=id+1 WHERE domain=:domain AND id>=:id AND page=:page")
+    suspend fun incrementFeedIdsAfter(id: Int, page: Int, domain: String = DawnApp.currentDomain)
 
-    @Query("UPDATE Feed SET id=id-1 WHERE id>:id AND page=:page")
-    suspend fun decrementFeedIdsAfter(id: Int, page:Int)
+    @Query("UPDATE Feed SET id=id-1 WHERE domain=:domain AND id>:id AND page=:page")
+    suspend fun decrementFeedIdsAfter(id: Int, page: Int, domain: String = DawnApp.currentDomain)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertFeed(feed: Feed)
 
-    @Query("DELETE FROM Feed WHERE postId=:postId")
-    suspend fun deleteFeedByPostId(postId: String)
+    @Query("DELETE FROM Feed WHERE postId=:postId AND domain=:domain")
+    suspend fun deleteFeedByPostId(postId: String, domain: String = DawnApp.currentDomain)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllFeed(feedList: List<Feed>)

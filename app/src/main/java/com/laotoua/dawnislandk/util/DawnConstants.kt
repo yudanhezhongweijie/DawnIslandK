@@ -56,11 +56,14 @@ object DawnConstants {
     const val DEFAULT_TOOLBAR_IMAGE_NAME = "toolbar_bg.jpeg"
     const val DEFAULT_CDN = "default_cdn"
     const val REF_CDN = "ref_cdn"
-    const val nmbHost = "https://adnmb3.com"
+    const val ADNMBHost = "https://adnmb2.com"
     const val fastMirrorHost = "nmb.fastmirror.org"
-    private const val imgCDN = "https://nmbimg.fastmirror.org/"
-    const val thumbCDN = "${imgCDN}thumb/"
-    const val imageCDN = "${imgCDN}image/"
+    const val ADNMB_IMG_CDN = "https://nmbimg.fastmirror.org/"
+    const val TNMB_IMG_CDN = "https://www.tnmb.org/Public/Upload/"
+
+    const val ADNMBDomain = "adnmb"
+    const val TNMBDomain = "tnmb"
+    const val TNMBHost = "https://tnmb.org"
 
     const val SERVER_FILE_SIZE_LIMIT = 2097152L // 2MB
     const val CACHE_FILE_LIMIT = 52428800L // 50MB

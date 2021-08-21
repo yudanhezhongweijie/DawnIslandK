@@ -19,6 +19,7 @@ package com.laotoua.dawnislandk.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.laotoua.dawnislandk.DawnApp
 import com.squareup.moshi.JsonClass
 import java.time.LocalDateTime
 
@@ -28,6 +29,7 @@ data class Feed(
     val page: Int, // each page has at most 10 feeds, page also helps sorting
     @PrimaryKey val postId: String, //	该串的id
     val category: String,
+    val domain: String = DawnApp.currentDomain,
     var lastUpdatedAt: LocalDateTime = LocalDateTime.now() // timestamp which the row is updated
 ) {
     override fun equals(other: Any?) =
@@ -57,7 +59,8 @@ data class Feed(
         val title: String,
         val content: String,
         val admin: String = "0",
-        val status: String = ""
+        val status: String = "",
+        val domain: String = DawnApp.currentDomain
     ) {
         fun toPost() = Post(
             id,
@@ -75,6 +78,7 @@ data class Feed(
             status,
             emptyList(),
             "",
+            domain,
             LocalDateTime.now()
         )
     }

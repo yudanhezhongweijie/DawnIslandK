@@ -98,7 +98,8 @@
     <string name="about" translatable="false">关于</string>
     <string name="trend" translatable="false">本周热榜</string>
     <string name="basic_title" translatable="false">A岛</string>
-    <string name="toolbar_subtitle" translatable="false">A岛 · adnmb.com</string>
+    <string name="toolbar_subtitle_adnmb" translatable="false">A岛 · adnmb.com</string>
+    <string name="toolbar_subtitle_tnmb" translatable="false">备胎岛 · tnmb.org</string>
     <string name="need_cookie_to_post" translatable="false">没有饼干不能发串哦。。</string>
     <string name="need_content_to_post" translatable="false">:(没有上传的内容或文件</string>
     <string name="please_give_permission_and_try_again" translatable="false">请给予权限并重复操作</string>

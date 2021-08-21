@@ -75,8 +75,9 @@ class CommunityNodeAdapter(val forumClickListener: ForumClickListener, val timel
     private fun setData() {
         val nodes = mutableListOf<BaseNode>()
         // Timelines
-        val timelineCommunity = TimelineCommunityNode(timelines)
-        nodes.add(timelineCommunity)
+        if (timelines.isNotEmpty()) {
+            nodes.add(TimelineCommunityNode(timelines))
+        }
         // Communities
         val commonForumIds = communities.firstOrNull { it.isCommonForums() }?.forums?.map { it.id } ?: emptyList()
         for (c in communities) {
@@ -92,6 +93,7 @@ class CommunityNodeAdapter(val forumClickListener: ForumClickListener, val timel
                 nodes.add(CommunityNode(noDuplicateCommunity))
             }
         }
+        if (nodes.size == 1 && nodes.first() is BaseExpandNode) (nodes.first() as BaseExpandNode).isExpanded = true
         setList(nodes)
     }
 

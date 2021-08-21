@@ -63,7 +63,7 @@ class CommentRepository @Inject constructor(
     fun getFid(id: String) = postMap[id]?.fid ?: ""
 
     suspend fun setPost(id: String, fid: String) {
-        clearCachedPages()
+        clearCache()
         Timber.d("Setting new Thread: $id")
         fifoPostList.add(id)
         if (commentsMap[id] == null) commentsMap[id] = SparseArray()
@@ -95,7 +95,7 @@ class CommentRepository @Inject constructor(
         readingPageDao.insertReadingPageWithTimeStamp(readingProgress)
     }
 
-    private fun clearCachedPages() {
+    fun clearCache() {
         for (i in 0 until (commentsMap.size - cacheCap)) {
             fifoPostList.first().run {
                 Timber.d("Reached cache Cap. Clearing ${this}...")
@@ -265,7 +265,7 @@ class CommentRepository @Inject constructor(
             if (this is APIMessageResponse.Success && messageType == APIMessageResponse.MessageType.String) {
                 coroutineScope {
                     launch {
-                        val newFeed = Feed(1, 1, id, "", LocalDateTime.now())
+                        val newFeed = Feed(1, 1, id, "", DawnApp.currentDomain, LocalDateTime.now())
                         feedDao.addFeedToTopAndIncrementFeedIds(newFeed)
                     }
                 }

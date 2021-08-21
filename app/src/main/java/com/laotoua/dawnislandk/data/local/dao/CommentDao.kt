@@ -20,23 +20,24 @@ package com.laotoua.dawnislandk.data.local.dao
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.distinctUntilChanged
 import androidx.room.*
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.entity.Comment
 import java.time.LocalDateTime
 
 @Dao
 interface CommentDao {
 
-    @Query("SELECT * FROM Comment WHERE parentId=:parentId")
-    suspend fun findAllByParentId(parentId: String): List<Comment>
+    @Query("SELECT * FROM Comment WHERE domain = :domain AND parentId=:parentId")
+    suspend fun findAllByParentId(parentId: String, domain: String = DawnApp.currentDomain): List<Comment>
 
-    @Query("SELECT * FROM Comment WHERE parentId=:parentId AND page<=:page ORDER BY id ASC")
-    suspend fun findByParentIdUntilPage(parentId: String, page: Int): List<Comment>
+    @Query("SELECT * FROM Comment WHERE domain = :domain AND parentId=:parentId AND page<=:page ORDER BY id ASC")
+    suspend fun findByParentIdUntilPage(parentId: String, page: Int, domain: String = DawnApp.currentDomain): List<Comment>
 
-    @Query("SELECT * FROM Comment WHERE parentId=:parentId AND page=:page ORDER BY id ASC")
-    fun findPageByParentId(parentId: String, page: Int): LiveData<List<Comment>>
+    @Query("SELECT * FROM Comment WHERE domain = :domain AND parentId=:parentId AND page=:page ORDER BY id ASC")
+    fun findPageByParentId(parentId: String, page: Int, domain: String = DawnApp.currentDomain): LiveData<List<Comment>>
 
-    fun findDistinctPageByParentId(parentId: String, page: Int):
-            LiveData<List<Comment>> = findPageByParentId(parentId, page).distinctUntilChanged()
+    fun findDistinctPageByParentId(parentId: String, page: Int, domain: String = DawnApp.currentDomain):
+            LiveData<List<Comment>> = findPageByParentId(parentId, page, domain).distinctUntilChanged()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(comment: Comment)
@@ -55,11 +56,11 @@ interface CommentDao {
         insert(comment)
     }
 
-    @Query("SELECT * FROM Comment WHERE id=:id LIMIT 1")
-    suspend fun findCommentByIdSync(id: String): Comment?
+    @Query("SELECT * FROM Comment WHERE domain = :domain AND id=:id LIMIT 1")
+    suspend fun findCommentByIdSync(id: String, domain: String = DawnApp.currentDomain): Comment?
 
-    @Query("SELECT * FROM Comment WHERE id=:id LIMIT 1")
-    fun findCommentById(id: String): LiveData<Comment>
+    @Query("SELECT * FROM Comment WHERE domain = :domain AND id=:id LIMIT 1")
+    fun findCommentById(id: String, domain: String = DawnApp.currentDomain): LiveData<Comment>
 
     @Delete
     suspend fun delete(comment: Comment)

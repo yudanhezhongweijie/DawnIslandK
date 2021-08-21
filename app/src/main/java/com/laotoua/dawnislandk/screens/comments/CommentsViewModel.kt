@@ -186,12 +186,16 @@ class CommentsViewModel @Inject constructor(
         Timber.d("Got ${comments.value?.size} after merging on $targetPage")
     }
 
-    private fun clearCache(clearFilter: Boolean) {
+    fun clearCache(clearFilter: Boolean, clearEverything: Boolean = false) {
         listeningPagesIndices.map { i -> listeningPages[i]?.let { s -> comments.removeSource(s) } }
         listeningPages.clear()
         listeningPagesIndices.clear()
         commentList.clear()
         if (clearFilter) filterIds.clear()
+        if (clearEverything) {
+            quoteRepo.clearCache()
+            commentRepo.clearCache()
+        }
     }
 
     fun onlyPo() {
@@ -225,7 +229,7 @@ class CommentsViewModel @Inject constructor(
     }
 
     fun getExternalShareContent(): String {
-        return "${ContentTransformation.htmlToSpanned(commentRepo.getHeaderPost(currentPostId)?.content.toString())}\n\n${DawnConstants.nmbHost}/t/${currentPostId}\n"
+        return "${ContentTransformation.htmlToSpanned(commentRepo.getHeaderPost(currentPostId)?.content.toString())}\n\n${DawnConstants.ADNMBHost}/t/${currentPostId}\n"
     }
 
     fun addFeed(id: String) {

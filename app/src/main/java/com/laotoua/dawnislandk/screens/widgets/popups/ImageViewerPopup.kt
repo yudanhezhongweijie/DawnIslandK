@@ -42,13 +42,13 @@ import androidx.transition.*
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager.SimpleOnPageChangeListener
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Comment
 import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.data.local.entity.PostHistory
 import com.laotoua.dawnislandk.data.remote.SearchResult
 import com.laotoua.dawnislandk.screens.MainActivity
-import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.ImageUtil
 import com.laotoua.dawnislandk.util.ReadableTime
 import com.laotoua.dawnislandk.util.SingleLiveEvent
@@ -682,6 +682,6 @@ class ImageViewerPopup(context: Context) : BasePopupView(context), OnDragChangeL
             }
         }
 
-        return if (uri.startsWith("http")) uri else DawnConstants.imageCDN + uri
+        return if (uri.startsWith("http")) uri else DawnApp.currentImgCDN + uri
     }
 }

@@ -17,6 +17,7 @@
 
 package com.laotoua.dawnislandk.screens.posts
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.*
 import android.view.animation.AnimationUtils
@@ -63,6 +64,7 @@ class PostsFragment : BaseNavFragment() {
     private var isFabOpen = false
     private var viewCaching = false
     private var refreshing = false
+    private var cacheDomain = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -131,7 +133,7 @@ class PostsFragment : BaseNavFragment() {
                     message(text = sharedVM.getForumOrTimelineMsg(fid)) {
                         html { link ->
                             val uri = if (link.startsWith("/")) {
-                                DawnConstants.nmbHost + link
+                                DawnConstants.ADNMBHost + link
                             } else link
                             openLinksWithOtherApps(uri, requireActivity())
                         }
@@ -139,7 +141,7 @@ class PostsFragment : BaseNavFragment() {
                     positiveButton(R.string.acknowledge)
                     @Suppress("DEPRECATION")
                     neutralButton(R.string.basic_rules) {
-                        openLinksWithOtherApps(DawnConstants.nmbHost + "/forum", requireActivity())
+                        openLinksWithOtherApps(DawnConstants.ADNMBHost + "/forum", requireActivity())
                     }
                 }
                 return true
@@ -153,6 +155,7 @@ class PostsFragment : BaseNavFragment() {
         }
     }
 
+    @SuppressLint("CheckResult")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -388,11 +391,25 @@ class PostsFragment : BaseNavFragment() {
             if (viewModel.currentFid != it) {
                 refreshing = true
                 viewModel.setForum(it)
-                sharedVM.forumRefresh = false
-            } else if (sharedVM.forumRefresh) {
+                sharedVM.forceRefresh = false
+            } else if (sharedVM.forceRefresh) {
                 refreshing = true
                 viewModel.refresh()
-                sharedVM.forumRefresh = false
+                sharedVM.forceRefresh = false
+            }
+        }
+
+        sharedVM.hostChange.observe(viewLifecycleOwner) {
+            if (it.getContentIfNotHandled() == true && viewModel.posts.value.isNullOrEmpty()) {
+                viewModel.refresh()
+            }
+        }
+
+        sharedVM.currentDomain.observe(viewLifecycleOwner) {
+            if (it != cacheDomain) {
+                viewModel.clearCache()
+                viewModel.getBlockedIds()
+                cacheDomain = it
             }
         }
 

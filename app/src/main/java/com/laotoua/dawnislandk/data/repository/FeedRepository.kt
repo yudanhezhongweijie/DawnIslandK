@@ -45,6 +45,10 @@ class FeedRepository @Inject constructor(
 ) {
     private val feedsMap = SparseArray<LiveData<DataResource<List<FeedAndPost>>>>()
 
+    fun clearCache() {
+        feedsMap.clear()
+    }
+
     fun getLiveFeedPage(page: Int): LiveData<DataResource<List<FeedAndPost>>> {
         feedsMap.put(page, getCombinedFeedPage(page))
         return feedsMap[page]!!
@@ -102,7 +106,7 @@ class FeedRepository @Inject constructor(
         val baseIndex = (page - 1) * 10 + 1
         val timestamp = LocalDateTime.now()
         data.mapIndexed { index, serverFeed ->
-            feeds.add(Feed(baseIndex + index, page, serverFeed.id, serverFeed.category, timestamp))
+            feeds.add(Feed(baseIndex + index, page, serverFeed.id, serverFeed.category, DawnApp.currentDomain, timestamp))
             posts.add(serverFeed.toPost())
         }
 

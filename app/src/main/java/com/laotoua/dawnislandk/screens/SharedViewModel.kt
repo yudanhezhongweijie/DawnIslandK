@@ -203,20 +203,24 @@ class SharedViewModel @Inject constructor(
 
     fun getRandomLoadingBible(): String = if (this::loadingBible.isInitialized) loadingBible.random() else "正在加载中..."
 
-    fun getForumOrTimelineMsg(id: String): String = if (id.startsWith("-")) getTimelineMsg(id) else getForumMsg(id)
-    private fun getForumMsg(id: String): String = if (id.isBlank()) "" else forumMsgMapping[id] ?: ""
-    private fun getTimelineMsg(id: String): String {
-        val mid = id.substringAfter("-")
-        return if (mid.isBlank()) "" else timelineMsgMapping[mid] ?: ""
+    fun getForumOrTimelineMsg(fid: String): String {
+        var msg = forumMsgMapping[fid]
+        if (msg.isNullOrBlank() && fid.startsWith("-")) {
+            val id = fid.substringAfter("-")
+            if (id.isNotBlank()) msg = timelineMsgMapping[id]
+        }
+        if (msg.isNullOrBlank()) msg = ""
+        return msg
     }
 
-    fun getForumOrTimelineDisplayName(fid: String): String = if (fid.startsWith("-")) getTimelineDisplayName(fid) else getForumDisplayName(fid)
-
-    private fun getForumDisplayName(fid: String): String = if (fid.isBlank()) "" else forumNameMapping[fid] ?: "A岛"
-
-    private fun getTimelineDisplayName(fid: String): String {
-        val id = fid.substringAfter("-")
-        return if (id.isBlank()) "" else timelineNameMapping[id] ?: "A岛"
+    fun getForumOrTimelineDisplayName(fid: String): String {
+        var name = forumNameMapping[fid]
+        if (name.isNullOrBlank() && fid.startsWith("-")) {
+            val id = fid.substringAfter("-")
+            if (id.isNotBlank()) name = timelineNameMapping[id]
+        }
+        if (name.isNullOrBlank()) name = "A岛"
+        return name
     }
 
     fun getSelectedPostForumName(fid: String): String = getForumOrTimelineDisplayName(fid)

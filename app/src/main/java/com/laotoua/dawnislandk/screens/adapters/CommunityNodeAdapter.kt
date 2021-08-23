@@ -90,7 +90,7 @@ class CommunityNodeAdapter(val forumClickListener: ForumClickListener, val timel
                     c.name,
                     c.status,
                     c.forums.filterNot { f -> commonForumIds.contains(f.id) })
-                nodes.add(CommunityNode(noDuplicateCommunity))
+                if (c.forums.isNotEmpty()) nodes.add(CommunityNode(noDuplicateCommunity))
             }
         }
         if (nodes.size == 1 && nodes.first() is BaseExpandNode) (nodes.first() as BaseExpandNode).isExpanded = true

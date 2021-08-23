@@ -19,6 +19,7 @@ package com.laotoua.dawnislandk.screens.subscriptions
 
 import android.util.ArrayMap
 import androidx.lifecycle.*
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.entity.Feed
 import com.laotoua.dawnislandk.data.local.entity.FeedAndPost
 import com.laotoua.dawnislandk.data.repository.FeedRepository
@@ -40,9 +41,17 @@ class FeedsViewModel @Inject constructor(private val feedRepo: FeedRepository) :
     private val _delFeedResponse = MutableLiveData<SingleLiveEvent<String>>()
     val delFeedResponse: LiveData<SingleLiveEvent<String>> get() = _delFeedResponse
 
+    private var cacheDomain = DawnApp.currentDomain
+
     // use to flag jumps to a page without any feed
     var lastJumpPage = 0
         private set
+
+    fun changeDomain(domain:String){
+        clearCache(true)
+        getNextPage()
+        cacheDomain = domain
+    }
 
     fun getNextPage() {
         val nextPage = feeds.value?.lastOrNull()?.feed?.page?.plus(1) ?: 1
@@ -109,7 +118,7 @@ class FeedsViewModel @Inject constructor(private val feedRepo: FeedRepository) :
         }
     }
 
-    fun clearCache(forceClear: Boolean = false) {
+    private fun clearCache(forceClear: Boolean = false) {
         feedPageIndices.map {
             feedPages[it]?.let { s -> feeds.removeSource(s) }
             feedPages.remove(it)

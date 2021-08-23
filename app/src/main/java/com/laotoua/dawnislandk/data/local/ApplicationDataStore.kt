@@ -41,6 +41,7 @@ import javax.inject.Singleton
 class ApplicationDataStore @Inject constructor(
     private val cookieDao: CookieDao,
     private val commentDao: CommentDao,
+    private val communityDao: CommunityDao,
     private val trendDao: DailyTrendDao,
     private val feedDao: FeedDao,
     private val NMBNoticeDao: NMBNoticeDao,
@@ -330,6 +331,12 @@ class ApplicationDataStore @Inject constructor(
 
     fun nukeBlockedPostTable() {
         GlobalScope.launch { blockedIdDao.nukeBlockedPostIds() }
+    }
+
+    fun nukeCommunitiesAndTimelinesTables(){
+        GlobalScope.launch {
+            communityDao.nukeTable()
+        }
     }
 
     suspend fun getLatestNMBNotice(): NMBNotice? {

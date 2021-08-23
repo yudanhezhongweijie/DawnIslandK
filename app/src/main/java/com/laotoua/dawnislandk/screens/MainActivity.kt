@@ -175,9 +175,19 @@ class MainActivity : DaggerAppCompatActivity() {
                 return@observe
             }
             if (it.data.isNullOrEmpty()) return@observe
+
             if (DawnApp.currentDomain == DawnConstants.ADNMBDomain) forumDrawer?.setCommunities(it.data)
+
             sharedVM.setForumMappings(it.data)
+
             if (sharedVM.selectedForumId.value == null) sharedVM.setForumId(applicationDataStore.getDefaultForumId())
+
+            sharedVM.selectedForumId.value?.let { fid ->
+                if (fid.isNotBlank()){
+                    setToolbarTitle(sharedVM.getForumOrTimelineDisplayName(fid))
+                }
+            }
+
             Timber.i("Loaded ${it.data.size} communities to Adapter")
         }
 
@@ -211,7 +221,21 @@ class MainActivity : DaggerAppCompatActivity() {
             val raw = data.toString().substringAfterLast("/")
             if (raw.isNotBlank()) {
                 val id = if (raw.contains("?")) raw.substringBefore("?") else raw
-                // TODO tnmb
+                Timber.d("Received intent data $data path ${data.path} schema ${data.scheme}")
+                if (data.scheme != DawnApp.currentDomain){
+                    when (data.scheme) {
+                        DawnConstants.ADNMBDomain -> {
+                            goToADNMB()
+                        }
+                        DawnConstants.TNMBDomain -> {
+                            goToTNMB()
+                        }
+                        else -> {
+                            Timber.e("Unsupported Intent Filter ${data.scheme}")
+                        }
+                    }
+                }
+
                 if ((count == 1 && data.host == "t") || (count == 2 && path[1] == 't')) {
                     val navAction = MainNavDirections.actionGlobalCommentsFragment(id, "")
                     val navHostFragment = supportFragmentManager.findFragmentById(R.id.navHostFragment)
@@ -250,11 +274,10 @@ class MainActivity : DaggerAppCompatActivity() {
                 .setPopupCallback(object : SimpleCallback() {
                     override fun beforeShow(popupView: BasePopupView?) {
                         super.beforeShow(popupView)
+                        sharedVM.communityList.value?.data?.let { drawer.setCommunities(it) }
                         if (DawnApp.currentDomain == DawnConstants.ADNMBDomain) {
-                            sharedVM.communityList.value?.data?.let { drawer.setCommunities(it) }
                             sharedVM.timelineList.value?.data?.let { drawer.setTimelines(it) }
                         } else {
-                            sharedVM.beitaiForums.let { drawer.setCommunities(it) }
                             drawer.setTimelines(emptyList())
                         }
                         sharedVM.reedPictureUrl.value?.let { drawer.setReedPicture(it) }
@@ -322,7 +345,6 @@ class MainActivity : DaggerAppCompatActivity() {
 
         applicationDataStore.getLatestLuweiNotice()?.let { luweiNotice ->
             sharedVM.setLuweiLoadingBible(luweiNotice.loadingMsgs)
-            sharedVM.setBeiTaiForums(luweiNotice.beitaiForums)
         }
 
         // first time app entry
@@ -566,10 +588,21 @@ class MainActivity : DaggerAppCompatActivity() {
         }
     }
 
+    // Reload cache when domain changes
+    private fun refreshApplicationCache(){
+        lifecycleScope.launch { applicationDataStore.loadCookies() }
+        sharedVM.refreshCommunitiesAndTimelines()
+    }
+
     fun goToADNMB() {
         Timber.d("Switching to AD......")
-        sharedVM.onADNMB()
+        // must update host first because cache updates require new host
         RetrofitUrlManager.getInstance().putDomain("host", DawnConstants.ADNMBHost)
+        RetrofitUrlManager.getInstance().putDomain("nmb", DawnConstants.ADNMBHost)
+        RetrofitUrlManager.getInstance().putDomain("nmb-ref", DawnConstants.ADNMBHost)
+
+        sharedVM.onADNMB()
+        refreshApplicationCache()
         autoSelectCDNs()
 
         sharedVM.setForumId(applicationDataStore.getDefaultForumId(), true)
@@ -579,12 +612,15 @@ class MainActivity : DaggerAppCompatActivity() {
 
     fun goToTNMB() {
         Timber.d("Switching to BT......")
-        sharedVM.onTNMB()
+        // must update host first because cache updates require new host
         RetrofitUrlManager.getInstance().putDomain("host", DawnConstants.TNMBHost)
         RetrofitUrlManager.getInstance().putDomain("nmb", DawnConstants.TNMBHost)
         RetrofitUrlManager.getInstance().putDomain("nmb-ref", DawnConstants.TNMBHost)
 
-        sharedVM.beitaiForums.firstOrNull()?.forums?.firstOrNull()?.id?.let { sharedVM.setForumId(it, true) }
+        sharedVM.onTNMB()
+        refreshApplicationCache()
+
+        applicationDataStore.luweiNotice?.beitaiForums?.firstOrNull()?.id?.let { sharedVM.setForumId(it, true) }
 
         binding.toolbar.setSubtitle(R.string.toolbar_subtitle_tnmb)
     }
@@ -652,6 +688,9 @@ class MainActivity : DaggerAppCompatActivity() {
                                 }
                             }
                             sharedVM.hostChange.postValue(SingleLiveEvent.create(true))
+                            if (sharedVM.communityList.value?.data.isNullOrEmpty()){
+                                sharedVM.refreshCommunitiesAndTimelines()
+                            }
                         }
                     }
                 } catch (e: Exception) {

@@ -48,7 +48,7 @@ import com.laotoua.dawnislandk.data.local.entity.*
         BlockedId::class,
         Notification::class,
         Emoji::class],
-    version = 24
+    version = 25
 )
 @TypeConverters(Converter::class)
 abstract class DawnDatabase : RoomDatabase() {
@@ -373,6 +373,77 @@ abstract class DawnDatabase : RoomDatabase() {
                 }
             }
 
+            // update primaryKeys to include domain
+            val migrate24To25 = object : Migration(24, 25) {
+                override fun migrate(database: SupportSQLiteDatabase) {
+                    database.execSQL("CREATE TABLE IF NOT EXISTS `BlockedId2` (`id` TEXT NOT NULL, `type` INTEGER NOT NULL, `domain` TEXT NOT NULL, PRIMARY KEY(`id`,`domain`))")
+                    database.execSQL("INSERT OR IGNORE INTO `BlockedId2`(`id`, `type`, `domain`) SELECT `id`, `type`, `domain` FROM BlockedId")
+                    database.execSQL("DROP TABLE `BlockedId`")
+                    database.execSQL("ALTER TABLE BlockedId2 RENAME TO BlockedId")
+
+
+                    database.execSQL("CREATE TABLE IF NOT EXISTS `Comment2` (`id` TEXT NOT NULL, `userid` TEXT NOT NULL, `name` TEXT NOT NULL, `sage` TEXT NOT NULL, `admin` TEXT NOT NULL, `status` TEXT NOT NULL, `title` TEXT NOT NULL, `email` TEXT NOT NULL, `now` TEXT NOT NULL, `content` TEXT NOT NULL, `img` TEXT NOT NULL, `ext` TEXT NOT NULL, `page` INTEGER NOT NULL, `parentId` TEXT NOT NULL, `domain` TEXT NOT NULL, `lastUpdatedAt` TEXT NOT NULL, PRIMARY KEY(`id`, `domain`))")
+                    database.execSQL("INSERT OR IGNORE INTO `Comment2`(`id`, `userid`, `name`, `sage`, `admin`, `status`, `title` , `email`, `now`, `content`, `img`, `ext`, `page`, `parentId`, `domain`, `lastUpdatedAt`) SELECT `id`, `userid`, `name`, `sage`, `admin`, `status`, `title` , `email`, `now`, `content`, `img`, `ext`, `page`, `parentId`, `domain`, `lastUpdatedAt` FROM Comment")
+                    database.execSQL("DROP TABLE `Comment`")
+                    database.execSQL("ALTER TABLE Comment2 RENAME TO Comment")
+
+
+                    database.execSQL("CREATE TABLE IF NOT EXISTS `Community2` (`id` TEXT NOT NULL, `sort` TEXT NOT NULL, `name` TEXT NOT NULL, `status` TEXT NOT NULL, `forums` TEXT NOT NULL, `domain` TEXT NOT NULL, PRIMARY KEY(`id`, `domain`))")
+                    database.execSQL("INSERT OR IGNORE INTO `Community2`(`id`, `sort`, `name`, `forums`, `domain`) SELECT `id`, `sort`, `name`, `forums`, `domain` FROM Community")
+                    database.execSQL("DROP TABLE `Community`")
+                    database.execSQL("ALTER TABLE Community2 RENAME TO Community")
+
+
+                    database.execSQL("CREATE TABLE IF NOT EXISTS `Cookie2` (`cookieHash` TEXT NOT NULL, `cookieName` TEXT NOT NULL, `cookieDisplayName` TEXT NOT NULL, `lastUsedAt` TEXT NOT NULL, `domain` TEXT NOT NULL, PRIMARY KEY(`cookieHash`,`domain`))")
+                    database.execSQL("INSERT OR IGNORE INTO `Cookie2`(`cookieHash`, `cookieName`, `cookieDisplayName`, `lastUsedAt`, `domain`) SELECT `cookieHash`, `cookieName`, `cookieDisplayName`, `lastUsedAt`, `domain` FROM Cookie")
+                    database.execSQL("DROP TABLE `Cookie`")
+                    database.execSQL("ALTER TABLE Cookie2 RENAME TO Cookie")
+
+
+                    database.execSQL("ALTER TABLE `DailyTrend` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'adnmb'")
+                    database.execSQL("CREATE TABLE IF NOT EXISTS `DailyTrend2` (`postId` TEXT NOT NULL, `po` TEXT NOT NULL, `date` TEXT NOT NULL, `trends` TEXT NOT NULL, `lastReplyCount` INTEGER NOT NULL, `domain` TEXT NOT NULL, PRIMARY KEY(`date`, `domain`))")
+                    database.execSQL("INSERT OR IGNORE INTO `DailyTrend2`(`postId`, `po`, `date`, `trends`, `lastReplyCount`, `domain`) SELECT `postId`, `po`, `date`, `trends`, `lastReplyCount`, `domain` FROM DailyTrend")
+                    database.execSQL("DROP TABLE `DailyTrend`")
+                    database.execSQL("ALTER TABLE DailyTrend2 RENAME TO DailyTrend")
+
+
+                    database.execSQL("CREATE TABLE IF NOT EXISTS `Feed2` (`id` INTEGER NOT NULL, `page` INTEGER NOT NULL, `postId` TEXT NOT NULL, `category` TEXT NOT NULL, `domain` TEXT NOT NULL, `lastUpdatedAt` TEXT NOT NULL, PRIMARY KEY(`postId`,`domain`))")
+                    database.execSQL("INSERT OR IGNORE INTO `Feed2`(`id`, `page`, `postId`, `category`, `domain`, `lastUpdatedAt`) SELECT `id`, `page`, `postId`, `category`, `domain`, `lastUpdatedAt` FROM Feed")
+                    database.execSQL("DROP TABLE `Feed`")
+                    database.execSQL("ALTER TABLE Feed2 RENAME TO Feed")
+
+
+                    database.execSQL("CREATE TABLE IF NOT EXISTS `Notification2` (`id` TEXT NOT NULL, `fid` TEXT NOT NULL, `newReplyCount` INTEGER NOT NULL, `message` TEXT NOT NULL, `read` INTEGER NOT NULL, `domain` TEXT NOT NULL, `lastUpdatedAt` TEXT NOT NULL, PRIMARY KEY(`id`, `domain`))")
+                    database.execSQL("INSERT OR IGNORE INTO `Notification2`(`id`, `fid`, `newReplyCount`, `message`, `read`, `domain`, `lastUpdatedAt`) SELECT `id`, `fid`, `newReplyCount`, `message`, `read`, `domain`, `lastUpdatedAt` FROM Notification")
+                    database.execSQL("DROP TABLE `Notification`")
+                    database.execSQL("ALTER TABLE Notification2 RENAME TO Notification")
+
+
+
+                    database.execSQL("CREATE TABLE IF NOT EXISTS `Post2` (`id` TEXT NOT NULL, `fid` TEXT NOT NULL, `img` TEXT NOT NULL, `ext` TEXT NOT NULL, `now` TEXT NOT NULL, `userid` TEXT NOT NULL, `name` TEXT NOT NULL, `email` TEXT NOT NULL, `title` TEXT NOT NULL, `content` TEXT NOT NULL, `sage` TEXT NOT NULL, `admin` TEXT NOT NULL, `status` TEXT NOT NULL, `replyCount` TEXT NOT NULL, `domain` TEXT NOT NULL, `lastUpdatedAt` TEXT NOT NULL, PRIMARY KEY(`id`, `domain`))")
+                    database.execSQL("INSERT OR IGNORE INTO `Post2`(`id`, `fid`, `img`, `ext`, `now`, `userid`, `name` , `email`, `title`, `content`, `sage`, `admin`, `status`, `replyCount`, `domain`, `lastUpdatedAt`) SELECT `id`, `fid`, `img`, `ext`, `now`, `userid`, `name` , `email`, `title`, `content`, `sage`, `admin`, `status`, `replyCount`, `domain`, `lastUpdatedAt` FROM Post")
+                    database.execSQL("DROP TABLE `Post`")
+                    database.execSQL("ALTER TABLE Post2 RENAME TO Post")
+
+
+
+                    database.execSQL("CREATE TABLE IF NOT EXISTS `PostHistory2` (`id` TEXT NOT NULL, `newPost` INTEGER NOT NULL, `postTargetId` TEXT NOT NULL, `postTargetFid` TEXT NOT NULL, `postTargetPage` INTEGER NOT NULL, `cookieName` TEXT NOT NULL, `content` TEXT NOT NULL, `img` TEXT NOT NULL, `ext` TEXT NOT NULL, `domain` TEXT NOT NULL, `postDateTime` TEXT NOT NULL, PRIMARY KEY(`id`,`domain`))")
+                    database.execSQL("INSERT OR IGNORE INTO `PostHistory2`(`id`, `newPost`, `postTargetId`, `postTargetFid`, `postTargetPage`,`cookieName`, `content`, `img`, `ext`, `domain`, `postDateTime`) SELECT `id`, `newPost`, `postTargetId`, `postTargetFid`, `postTargetPage`,`cookieName`, `content`, `img`, `ext`, `domain`, `postDateTime` FROM PostHistory")
+                    database.execSQL("DROP TABLE `PostHistory`")
+                    database.execSQL("ALTER TABLE PostHistory2 RENAME TO PostHistory")
+
+
+                    database.execSQL("CREATE TABLE IF NOT EXISTS `ReadingPage2` (`id` TEXT NOT NULL, `page` INTEGER NOT NULL, `domain` TEXT NOT NULL, `lastUpdatedAt` TEXT NOT NULL, PRIMARY KEY(`id`, `domain`))")
+                    database.execSQL("INSERT OR IGNORE INTO `ReadingPage2`(`id`, `page`, `domain`, `lastUpdatedAt`) SELECT `id`, `page`, `domain`, `lastUpdatedAt` FROM ReadingPage2")
+                    database.execSQL("DROP TABLE `ReadingPage`")
+                    database.execSQL("ALTER TABLE ReadingPage2 RENAME TO ReadingPage")
+
+
+                    database.execSQL("DROP TABLE `Timeline`")
+                    database.execSQL("CREATE TABLE IF NOT EXISTS `Timeline` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `display_name` TEXT NOT NULL, `notice` TEXT NOT NULL, `max_page` INTEGER NOT NULL, `domain` TEXT NOT NULL, PRIMARY KEY(`id`, `domain`))")
+                }
+            }
+
             synchronized(this) {
                 val instance = Room.databaseBuilder(context.applicationContext, DawnDatabase::class.java, "dawnDB")
                     .addMigrations(
@@ -398,7 +469,8 @@ abstract class DawnDatabase : RoomDatabase() {
                         migrate20To21,
                         migrate21To22,
                         migrate22To23,
-                        migrate23To24
+                        migrate23To24,
+                        migrate24To25
                     )
                     .build()
                 INSTANCE = instance

@@ -57,6 +57,7 @@ class CommentRepository @Inject constructor(
     private val readingPageMap = ArrayMap<String, ReadingPage>(cacheCap)
     private val browsingHistoryMap = ArrayMap<String, BrowsingHistory>(cacheCap)
     private val fifoPostList = mutableListOf<String>()
+    private var currentPostFid = ""
 
     fun getPo(id: String) = postMap[id]?.userid ?: ""
     fun getMaxPage(id: String) = postMap[id]?.getMaxPage() ?: 1
@@ -64,7 +65,8 @@ class CommentRepository @Inject constructor(
 
     suspend fun setPost(id: String, fid: String) {
         clearCache()
-        Timber.d("Setting new Thread: $id")
+        Timber.d("Setting new $fid Thread: $id")
+        currentPostFid = fid
         fifoPostList.add(id)
         if (commentsMap[id] == null) commentsMap[id] = SparseArray()
         if (postMap[id] == null) postMap[id] = postDao.findPostByIdSync(id)
@@ -206,9 +208,13 @@ class CommentRepository @Inject constructor(
         if (data.fid.isBlank() && postMap[id]?.fid?.isNotBlank() == true) {
             data.fid = postMap[id]?.fid.toString()
         }
+        // if api does not return fid, use whatever we got from elsewhere
+        if (data.fid.isBlank() && currentPostFid.isNotBlank()) {
+            data.fid = currentPostFid
+        }
         // update postFid for browse history(search jump does not have fid)
         browsingHistoryMap[id]?.run {
-            if (postFid != data.fid) {
+            if (data.fid.isNotBlank() && postFid != data.fid) {
                 postFid = data.fid
             }
             pages.add(page)
@@ -238,8 +244,7 @@ class CommentRepository @Inject constructor(
     private suspend fun saveComments(id: String, page: Int, serverComments: List<Comment>) =
         coroutineScope {
             launch {
-                val cacheNoAd =
-                    commentsMap[id]?.get(page)?.value?.data?.filter { it.isNotAd() } ?: emptyList()
+                val cacheNoAd = commentsMap[id]?.get(page)?.value?.data?.filter { it.isNotAd() } ?: emptyList()
                 val serverNoAd = serverComments.filter { it.isNotAd() }
                 Timber.d("Got ${serverComments.size} comments and ${serverComments.size - serverNoAd.size} ad from server")
                 if (!cacheNoAd.equalsWithServerComments(serverNoAd)) {

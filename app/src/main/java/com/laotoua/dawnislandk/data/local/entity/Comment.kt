@@ -19,15 +19,14 @@ package com.laotoua.dawnislandk.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.Ignore
-import androidx.room.PrimaryKey
 import com.laotoua.dawnislandk.DawnApp
 import com.squareup.moshi.JsonClass
 import java.time.LocalDateTime
 
 @JsonClass(generateAdapter = true)
-@Entity
+@Entity(primaryKeys=["id","domain"])
 data class Comment(
-    @PrimaryKey val id: String,
+    val id: String,
     val userid: String,
     val name: String = "",
     val sage: String = "0",

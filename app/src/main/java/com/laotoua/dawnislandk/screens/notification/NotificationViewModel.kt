@@ -17,17 +17,44 @@
 
 package com.laotoua.dawnislandk.screens.notification
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.dao.NotificationDao
 import com.laotoua.dawnislandk.data.local.entity.Notification
+import com.laotoua.dawnislandk.data.local.entity.NotificationAndPost
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 class NotificationViewModel @Inject constructor(private val notificationDao: NotificationDao):ViewModel() {
-    var notificationAndPost = notificationDao.getLiveAllNotificationsAndPosts()
-        private set
+    private var _notificationAndPost:LiveData<List<NotificationAndPost>>? = null
+    val notificationAndPost = MediatorLiveData<List<NotificationAndPost>>()
 
+    private var cacheDomain: String = DawnApp.currentDomain
+    
+    fun changeDomain(domain: String) {
+        if (domain != cacheDomain) {
+            getLiveNotifications()
+            cacheDomain = domain
+        }
+    }
+
+    init {
+        getLiveNotifications()
+    }
+
+    private fun getLiveNotifications() {
+        Timber.d("Getting live notifications...")
+        if (_notificationAndPost != null) notificationAndPost.removeSource(_notificationAndPost!!)
+        _notificationAndPost = notificationDao.getLiveAllNotificationsAndPosts()
+        notificationAndPost.addSource(_notificationAndPost!!) {
+            notificationAndPost.value = it
+        }
+    }
+    
     fun deleteNotification(notification: Notification) {
         viewModelScope.launch {
             notificationDao.deleteNotifications(notification)
@@ -41,8 +68,5 @@ class NotificationViewModel @Inject constructor(private val notificationDao: Not
             notificationDao.insertNotification(notification)
         }
     }
-
-    fun refresh() {
-        notificationAndPost = notificationDao.getLiveAllNotificationsAndPosts()
-    }
+    
 }

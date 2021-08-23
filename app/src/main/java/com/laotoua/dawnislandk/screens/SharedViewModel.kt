@@ -49,6 +49,7 @@ class SharedViewModel @Inject constructor(
     private val communityRepository: CommunityRepository
 ) : ViewModel() {
 
+
     val communityList: LiveData<DataResource<List<Community>>> = communityRepository.communityList
     val timelineList: LiveData<DataResource<List<Timeline>>> = communityRepository.timelineList
 
@@ -74,30 +75,22 @@ class SharedViewModel @Inject constructor(
     var forceRefresh = false
     val hostChange: MutableLiveData<SingleLiveEvent<Boolean>> = MutableLiveData()
 
-    // TODO: clear cache when domain change
     val currentDomain: MutableLiveData<String> = MutableLiveData()
 
-    var beitaiForums: List<Community> = listOf()
-        private set
+    fun refreshCommunitiesAndTimelines() {
+        viewModelScope.launch {
+            communityRepository.refreshCommunitiesAndTimelines()
+        }
+    }
 
     fun onADNMB() {
         DawnApp.onDomain(DawnConstants.ADNMBDomain)
-        currentDomain.value = DawnConstants.ADNMBDomain
-        communityList.value?.data?.filterNot { it.isCommonForums() || it.isCommonPosts() }?.map { it.forums }?.flatten()?.let { flatten ->
-            forumNameMapping = flatten.associateBy(keySelector = { it.id }, valueTransform = { it.name })
-            forumMsgMapping = flatten.associateBy(keySelector = { it.id }, valueTransform = { it.msg })
-        }
-
+        currentDomain.postValue(DawnConstants.ADNMBDomain)
     }
 
     fun onTNMB() {
         DawnApp.onDomain(DawnConstants.TNMBDomain)
-        currentDomain.value = DawnConstants.TNMBDomain
-        beitaiForums.firstOrNull()?.forums?.let {
-            forumNameMapping = it.associateBy(keySelector = { it.id }, valueTransform = { it.name })
-        }
-        forumMsgMapping = emptyMap()
-
+        currentDomain.postValue(DawnConstants.TNMBDomain)
     }
 
     init {
@@ -182,10 +175,6 @@ class SharedViewModel @Inject constructor(
         forumMsgMapping = flatten.associateBy(keySelector = { it.id }, valueTransform = { it.msg })
     }
 
-    fun setBeiTaiForums(list: List<NoticeForum>) {
-        beitaiForums = listOf(Community(id = "beitai", sort = "", name = "备胎", status = "", forums = list.map { it.toForum() }, domain = DawnConstants.TNMBDomain))
-    }
-
     fun setTimelineMappings(list: List<Timeline>) {
         timelineNameMapping = list.associateBy({ it.id }, { it.name })
         timelineMsgMapping = list.associateBy({ it.id }, { it.notice })
@@ -221,13 +210,7 @@ class SharedViewModel @Inject constructor(
         return if (mid.isBlank()) "" else timelineMsgMapping[mid] ?: ""
     }
 
-    fun getForumOrTimelineDisplayName(fid: String): String {
-        return if (DawnApp.currentDomain == DawnConstants.ADNMBDomain) {
-            if (fid.startsWith("-")) getTimelineDisplayName(fid) else getForumDisplayName(fid)
-        } else {
-            beitaiForums.firstOrNull()?.forums?.find { it.id == fid }?.getDisplayName() ?: "备胎岛"
-        }
-    }
+    fun getForumOrTimelineDisplayName(fid: String): String = if (fid.startsWith("-")) getTimelineDisplayName(fid) else getForumDisplayName(fid)
 
     private fun getForumDisplayName(fid: String): String = if (fid.isBlank()) "" else forumNameMapping[fid] ?: "A岛"
 

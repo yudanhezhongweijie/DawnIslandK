@@ -18,17 +18,16 @@
 package com.laotoua.dawnislandk.data.repository
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.liveData
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.dao.CommunityDao
 import com.laotoua.dawnislandk.data.local.dao.TimelineDao
 import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.data.local.entity.Timeline
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
-import com.laotoua.dawnislandk.util.DataResource
-import com.laotoua.dawnislandk.util.LoadingStatus
-import com.laotoua.dawnislandk.util.getLocalListDataResource
-import com.laotoua.dawnislandk.util.getLocalLiveDataAndRemoteResponse
+import com.laotoua.dawnislandk.util.*
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -39,8 +38,32 @@ class CommunityRepository @Inject constructor(
     private val communityDao: CommunityDao,
     private val timelineDao: TimelineDao
 ) {
-    val communityList = getLiveData<Community>(communityDao::getAll, webService::getCommunities)
-    val timelineList = getLiveData<Timeline>(timelineDao::getAll, webService::getTimeLines)
+
+    private var currentDomainCommunities: LiveData<DataResource<List<Community>>>? = null
+    private var currentDomainTimelines: LiveData<DataResource<List<Timeline>>>? = null
+
+    val communityList  = MediatorLiveData<DataResource<List<Community>>>()
+    val timelineList  = MediatorLiveData<DataResource<List<Timeline>>>()
+
+    init {
+        refreshCommunitiesAndTimelines()
+    }
+
+    fun refreshCommunitiesAndTimelines() {
+        Timber.d("Refreshing Communities and Timelines for ${DawnApp.currentDomain}...")
+        if (currentDomainCommunities != null) communityList.removeSource(currentDomainCommunities!!)
+        currentDomainCommunities = getLiveData<Community>(communityDao::getAll, webService::getCommunities)
+        communityList.addSource(currentDomainCommunities!!) {
+            communityList.value = it
+        }
+        if  (DawnApp.currentDomain == DawnConstants.ADNMBDomain) {
+            if (currentDomainTimelines != null) timelineList.removeSource(currentDomainTimelines!!)
+            currentDomainTimelines = getLiveData<Timeline>(timelineDao::getAll, webService::getTimeLines)
+            timelineList.addSource(currentDomainTimelines!!) {
+                timelineList.value = it
+            }
+        }
+    }
 
     private inline fun <reified T> getLiveData(
         noinline localFetcher: () -> LiveData<List<T>>,

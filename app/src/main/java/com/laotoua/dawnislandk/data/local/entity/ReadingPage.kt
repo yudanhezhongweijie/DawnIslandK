@@ -18,13 +18,12 @@
 package com.laotoua.dawnislandk.data.local.entity
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 import com.laotoua.dawnislandk.DawnApp
 import java.time.LocalDateTime
 
-@Entity
+@Entity(primaryKeys=["id","domain"])
 data class ReadingPage(
-    @PrimaryKey val id: String,
+    val id: String,
     var page: Int,
     val domain: String = DawnApp.currentDomain,
     var lastUpdatedAt: LocalDateTime = LocalDateTime.now()

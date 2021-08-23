@@ -19,6 +19,7 @@ package com.laotoua.dawnislandk.screens.comments
 
 import android.util.SparseArray
 import androidx.lifecycle.*
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.entity.Comment
 import com.laotoua.dawnislandk.data.repository.CommentRepository
 import com.laotoua.dawnislandk.data.repository.QuoteRepository
@@ -40,6 +41,7 @@ class CommentsViewModel @Inject constructor(
 
     val po get() = commentRepo.getPo(currentPostId)
     val maxPage get() = commentRepo.getMaxPage(currentPostId)
+    private var cacheDomain = DawnApp.currentDomain
 
     private val commentList = mutableListOf<Comment>()
 
@@ -56,6 +58,13 @@ class CommentsViewModel @Inject constructor(
     val loadingStatus = MutableLiveData<SingleLiveEvent<EventPayload<Nothing>>>()
 
     val feedResponse = MutableLiveData<SingleLiveEvent<String>>()
+
+    fun changeDomain(domain:String){
+        if (cacheDomain != domain) {
+            clearCache(true)
+            cacheDomain = domain
+        }
+    }
 
     fun getQuote(id: String): LiveData<DataResource<Comment>> = liveData {
         // try to find quote in current post, if not then in local cache or remote data
@@ -186,7 +195,7 @@ class CommentsViewModel @Inject constructor(
         Timber.d("Got ${comments.value?.size} after merging on $targetPage")
     }
 
-    fun clearCache(clearFilter: Boolean, clearEverything: Boolean = false) {
+    private fun clearCache(clearFilter: Boolean, clearEverything: Boolean = false) {
         listeningPagesIndices.map { i -> listeningPages[i]?.let { s -> comments.removeSource(s) } }
         listeningPages.clear()
         listeningPagesIndices.clear()
@@ -195,6 +204,8 @@ class CommentsViewModel @Inject constructor(
         if (clearEverything) {
             quoteRepo.clearCache()
             commentRepo.clearCache()
+            currentPostFid = "-1"
+            currentPostId = "0"
         }
     }
 

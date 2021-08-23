@@ -18,13 +18,11 @@
 package com.laotoua.dawnislandk.data.local.entity
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 import com.laotoua.dawnislandk.DawnApp
 import java.time.LocalDateTime
 
-@Entity
+@Entity(primaryKeys=["id","domain"])
 class PostHistory(
-    @PrimaryKey
     val id: String, // actual id of post
     val newPost: Boolean,// false if replying
     val postTargetId: String, // equals postTargetFid when sending a new Post

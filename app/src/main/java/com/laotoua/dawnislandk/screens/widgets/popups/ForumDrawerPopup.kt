@@ -41,6 +41,8 @@ import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.GlideApp
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.DrawerPopupView
+import me.dkzwm.widget.srl.MaterialSmoothRefreshLayout
+import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import timber.log.Timber
 
 @SuppressLint("ViewConstructor")
@@ -77,10 +79,12 @@ class ForumDrawerPopup(
 
     fun setCommunities(list: List<Community>) {
         forumListAdapter.setCommunities(list)
+        findViewById<MaterialSmoothRefreshLayout>(R.id.refreshLayout).refreshComplete()
     }
 
     fun setTimelines(list: List<Timeline>) {
         forumListAdapter.setTimelines(list)
+        findViewById<MaterialSmoothRefreshLayout>(R.id.refreshLayout).refreshComplete()
     }
 
     fun setReedPicture(url: String) {
@@ -102,6 +106,14 @@ class ForumDrawerPopup(
 
     override fun onCreate() {
         super.onCreate()
+        findViewById<MaterialSmoothRefreshLayout>(R.id.refreshLayout).apply {
+            setOnRefreshListener(object : RefreshingListenerAdapter() {
+                override fun onRefreshing() {
+                    sharedVM.refreshCommunitiesAndTimelines()
+                    refreshComplete(1000)
+                }
+            })
+        }
 
         reedImageView = findViewById(R.id.reedImageView)
         if (reedImageUrl.isNotBlank()) loadReedPicture()

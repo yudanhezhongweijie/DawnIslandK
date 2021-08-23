@@ -19,7 +19,6 @@ package com.laotoua.dawnislandk.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.Ignore
-import androidx.room.PrimaryKey
 import com.laotoua.dawnislandk.DawnApp
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -27,9 +26,9 @@ import java.time.LocalDateTime
 import kotlin.math.ceil
 
 @JsonClass(generateAdapter = true)
-@Entity
+@Entity(primaryKeys=["id","domain"])
 data class Post(
-    @PrimaryKey val id: String, //	该串的id
+    val id: String, //	该串的id
     var fid: String = "", //	该串的fid, 非时间线的串会被设置
     val img: String,//	该串的图片相对地址
     val ext: String, // 	该串图片的后缀

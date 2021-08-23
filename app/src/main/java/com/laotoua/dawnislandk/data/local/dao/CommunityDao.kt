@@ -40,5 +40,5 @@ interface CommunityDao {
     suspend fun delete(community: Community)
 
     @Query("DELETE FROM Community")
-    fun nukeTable()
+    suspend fun nukeTable()
 }

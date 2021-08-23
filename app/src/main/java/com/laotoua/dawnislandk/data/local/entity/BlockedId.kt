@@ -18,12 +18,11 @@
 package com.laotoua.dawnislandk.data.local.entity
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 import com.laotoua.dawnislandk.DawnApp
 
-@Entity
+@Entity(primaryKeys=["id","domain"])
 data class BlockedId(
-    @PrimaryKey val id: String,
+    val id: String,
     /** type 0 refers blocking post fid (uses in timeline only)
      *  type 1 refers blocking post id (uses in all communities)
      */

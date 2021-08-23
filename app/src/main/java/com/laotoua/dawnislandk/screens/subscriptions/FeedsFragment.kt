@@ -50,7 +50,6 @@ import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
 import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
-import com.laotoua.dawnislandk.util.DawnConstants
 import com.lxj.xpopup.XPopup
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import me.dkzwm.widget.srl.config.Constants
@@ -74,7 +73,6 @@ class FeedsFragment : BaseNavFragment() {
     private var viewCaching = false
     private var refreshing = false
 
-    private var cacheDomain = DawnConstants.ADNMBDomain
 
     @SuppressLint("CheckResult")
     override fun onCreateView(
@@ -173,6 +171,11 @@ class FeedsFragment : BaseNavFragment() {
                 updateHeaderAndFooter(binding!!.srlAndRv.refreshLayout, mAdapter!!, this)
             }
         }
+
+        sharedVM.currentDomain.observe(viewLifecycleOwner) {
+            viewModel.changeDomain(it)
+        }
+
         viewModel.feeds.observe(viewLifecycleOwner) { list ->
             if (mAdapter == null) return@observe
             if (list.isNullOrEmpty()) {
@@ -205,13 +208,6 @@ class FeedsFragment : BaseNavFragment() {
         }
         if (viewModel.feeds.value.isNullOrEmpty()) {
             binding?.srlAndRv?.refreshLayout?.autoRefresh(Constants.ACTION_NOTIFY, false)
-        }
-
-        sharedVM.currentDomain.observe(viewLifecycleOwner) {
-            if (it != cacheDomain) {
-                viewModel.clearCache(true)
-                cacheDomain = it
-            }
         }
 
         viewCaching = false

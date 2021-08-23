@@ -39,6 +39,7 @@ import com.laotoua.dawnislandk.data.local.entity.Trend
 import com.laotoua.dawnislandk.databinding.FragmentSubscriptionTrendBinding
 import com.laotoua.dawnislandk.screens.adapters.*
 import com.laotoua.dawnislandk.screens.posts.PostCardFactory
+import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.screens.util.Layout.updateHeaderAndFooter
 import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
 import com.laotoua.dawnislandk.util.*
@@ -111,7 +112,12 @@ class TrendsFragment : BaseNavFragment() {
             binding!!.srlAndRv.refreshLayout.apply {
                 setOnRefreshListener(object : RefreshingListenerAdapter() {
                     override fun onRefreshing() {
-                        refreshTrends()
+                        if (DawnApp.currentDomain == DawnConstants.TNMBDomain) {
+                           toast("备胎岛没有热榜哦")
+                            refreshComplete()
+                        } else {
+                            refreshTrends()
+                        }
                     }
                 })
             }

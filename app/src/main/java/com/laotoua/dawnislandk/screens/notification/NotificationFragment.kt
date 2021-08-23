@@ -52,7 +52,6 @@ import com.laotoua.dawnislandk.screens.posts.PostCardFactory
 import com.laotoua.dawnislandk.screens.util.ContentTransformation
 import com.laotoua.dawnislandk.screens.util.Layout
 import com.laotoua.dawnislandk.screens.widgets.spans.RoundBackgroundColorSpan
-import com.laotoua.dawnislandk.util.DawnConstants
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
 
@@ -66,7 +65,6 @@ class NotificationFragment : DaggerFragment() {
 
     private var binding: FragmentNotificationBinding? = null
     private var mAdapter: NotificationAdapter? = null
-    private var cacheDomain: String = DawnConstants.ADNMBDomain
 
     private val notificationObs = Observer<List<NotificationAndPost>> { list ->
         if (list.isNullOrEmpty()) mAdapter?.showNoData()
@@ -136,11 +134,7 @@ class NotificationFragment : DaggerFragment() {
 
 
         sharedVM.currentDomain.observe(viewLifecycleOwner) {
-            if (it != cacheDomain) {
-                viewModel.refresh()
-                viewModel.notificationAndPost.observe(viewLifecycleOwner, notificationObs)
-                cacheDomain = it
-            }
+            viewModel.changeDomain(it)
         }
         // Inflate the layout for this fragment
         return binding!!.root

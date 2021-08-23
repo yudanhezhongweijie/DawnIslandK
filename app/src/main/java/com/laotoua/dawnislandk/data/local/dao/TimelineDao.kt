@@ -22,5 +22,5 @@ interface TimelineDao {
     suspend fun delete(Timeline: Timeline)
 
     @Query("DELETE FROM Timeline")
-    fun nukeTable()
+    suspend fun nukeTable()
 }

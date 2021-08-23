@@ -244,7 +244,8 @@
         <item>谣言欺诈</item>
         <item>广告Q群</item>
         <item>引战辱骂</item>
-        <item>串版自删</item>
+        <item>串版</item>
+        <item>自删</item>
         <item>其他</item>
     </string-array>
 

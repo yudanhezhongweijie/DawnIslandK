@@ -97,7 +97,8 @@
     <string name="restore" translatable="false">恢复默认设置</string>
     <string name="about" translatable="false">关于</string>
     <string name="trend" translatable="false">本周热榜</string>
-    <string name="basic_title" translatable="false">A岛</string>
+    <string name="adnmb_title" translatable="false">A岛</string>
+    <string name="tnmb_title" translatable="false">备胎岛</string>
     <string name="toolbar_subtitle_adnmb" translatable="false">A岛 · adnmb.com</string>
     <string name="toolbar_subtitle_tnmb" translatable="false">备胎岛 · tnmb.org</string>
     <string name="need_cookie_to_post" translatable="false">没有饼干不能发串哦。。</string>
@@ -192,6 +193,9 @@
     <string name="clear_comment_cache" translatable="false">清除本地串缓存</string>
     <string name="clear_comment_cache_confirm_message" translatable="false">将要清除串的本地缓存，不会清除阅读进度和饼干。清除后数据不能恢复！确认清除吗？</string>
     <string name="cleared_comment_cache_message" translatable="false">串的本地缓存已经清除</string>
+    <string name="clear_communities_and_timelines_cache" translatable="false">清除本地板块信息缓存</string>
+    <string name="clear_communities_and_timelines_cache_message" translatable="false">将要清除板块信息的本地缓存，刷新板块能获取服务器最新的信息。默认不显示常用板块和常用串。清除后数据不能恢复！确认清除吗？</string>
+    <string name="cleared_communities_and_timelines_cache_message" translatable="false">板块信息的本地缓存已经清除</string>
     <string name="restore_blocked_post" translatable="false">恢复屏蔽串</string>
     <string name="restore_blocked_post_confirm_message" translatable="false">将要清除本地屏蔽串的记录，被屏蔽的串将被恢复。确认恢复吗？</string>
     <string name="restored_blocked_post" translatable="false">本地记录的屏蔽串已经被恢复</string>

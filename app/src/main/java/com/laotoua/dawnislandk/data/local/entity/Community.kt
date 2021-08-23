@@ -18,15 +18,13 @@
 package com.laotoua.dawnislandk.data.local.entity
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.util.DawnConstants
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-@Entity
+@Entity(primaryKeys=["id","domain"])
 data class Community(
-    @PrimaryKey
     val id: String,
     val sort: String,
     val name: String,
@@ -35,11 +33,11 @@ data class Community(
     val domain: String = DawnApp.currentDomain
 ) {
     fun isCommonForums(): Boolean {
-        return id == "1000"
+        return id == "1000" || id == "2000"
     }
 
     fun isCommonPosts(): Boolean {
-        return id == "1001"
+        return id == "1001" || id == "2001"
     }
 
     companion object {

@@ -94,7 +94,6 @@ class CommentsFragment : DaggerFragment() {
 
     private var mAdapter: QuickAdapter<Comment>? = null
     private var viewCaching = false
-    private var cacheDomain = DawnConstants.ADNMBDomain
     private var refreshing = false
 
     // last visible item indicates the current page, uses for remembering last read page
@@ -230,9 +229,10 @@ class CommentsFragment : DaggerFragment() {
                                 lifecycleOwner(this@CommentsFragment)
                                 title(R.string.report_reasons)
                                 listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
+                                    val id = if (DawnApp.currentDomain == DawnConstants.ADNMBDomain) "18" else "5"
                                     postPopup.setupAndShow(
-                                        "18",//值班室
-                                        "18",
+                                        id,//值班室
+                                        id,
                                         newPost = true,
                                         quote = ">>No.${getItem(position).id}\n${
                                             context.getString(
@@ -359,18 +359,15 @@ class CommentsFragment : DaggerFragment() {
                                     )
                                     putExtra(Intent.EXTRA_TEXT, shareContent)
                                     type = "text/html"
-                                    putExtra(
-                                        Intent.EXTRA_TITLE,
-                                        "A岛 · ${sharedVM.getForumOrTimelineDisplayName(viewModel.currentPostFid)} · ${viewModel.currentPostId}"
-                                    )
+                                    val title =
+                                        if (DawnApp.currentDomain == DawnConstants.ADNMBDomain) (requireContext().getString(R.string.adnmb_title)) else (requireContext().getString(R.string.tnmb_title))
+                                    putExtra(Intent.EXTRA_TITLE, "$title · ${sharedVM.getForumOrTimelineDisplayName(viewModel.currentPostFid)} · ${viewModel.currentPostId}")
                                 }
                                 val shareIntent = Intent.createChooser(sendIntent, null)
                                 startActivity(shareIntent)
                             }
-                            1 -> copyText(
-                                "串地址",
-                                "${DawnApp.currentDomain}/t/${viewModel.currentPostId}"
-                            )
+                            1 -> copyText("串地址", "${DawnApp.currentHost}/t/${viewModel.currentPostId}")
+
                             2 -> copyText("串号", ">>No.${viewModel.currentPostId}")
                             else -> {
                             }
@@ -461,10 +458,7 @@ class CommentsFragment : DaggerFragment() {
         }
 
         sharedVM.currentDomain.observe(viewLifecycleOwner) {
-            if (it != cacheDomain) {
-                viewModel.clearCache(true)
-                cacheDomain = it
-            }
+            viewModel.changeDomain(it)
         }
     }
 
@@ -626,11 +620,16 @@ class CommentsFragment : DaggerFragment() {
     }
 
     private fun updateTitle() {
-        if (viewModel.currentPostFid.isNotBlank()) {
-            (requireActivity() as MainActivity).setToolbarTitle(
-                "${sharedVM.getSelectedPostForumName(viewModel.currentPostFid)} • ${viewModel.currentPostId}"
-            )
+        val prefix = if (viewModel.currentPostFid.isNotBlank()) {
+            "${sharedVM.getSelectedPostForumName(viewModel.currentPostFid)} • "
+        } else {
+            when (DawnApp.currentDomain) {
+                DawnConstants.ADNMBDomain -> "${requireContext().getString(R.string.adnmb_title)} • "
+                DawnConstants.TNMBDomain -> "${requireContext().getString(R.string.tnmb_title)} • "
+                else -> ""
+            }
         }
+        (requireActivity() as MainActivity).setToolbarTitle("${prefix}${viewModel.currentPostId}")
     }
 
     private fun updateCurrentPage() {

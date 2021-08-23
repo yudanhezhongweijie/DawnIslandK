@@ -46,6 +46,7 @@ import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
 import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
 import com.laotoua.dawnislandk.screens.widgets.popups.PostPopup
 import com.laotoua.dawnislandk.util.DawnConstants
+import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import com.laotoua.dawnislandk.util.openLinksWithOtherApps
 import com.lxj.xpopup.XPopup
@@ -64,7 +65,6 @@ class PostsFragment : BaseNavFragment() {
     private var isFabOpen = false
     private var viewCaching = false
     private var refreshing = false
-    private var cacheDomain = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -141,7 +141,7 @@ class PostsFragment : BaseNavFragment() {
                     positiveButton(R.string.acknowledge)
                     @Suppress("DEPRECATION")
                     neutralButton(R.string.basic_rules) {
-                        openLinksWithOtherApps(DawnConstants.ADNMBHost + "/forum", requireActivity())
+                        openLinksWithOtherApps("${DawnApp.currentHost}/forum", requireActivity())
                     }
                 }
                 return true
@@ -182,15 +182,12 @@ class PostsFragment : BaseNavFragment() {
                                         lifecycleOwner(this@PostsFragment)
                                         title(R.string.report_reasons)
                                         listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
+                                            val id = if (DawnApp.currentDomain == DawnConstants.ADNMBDomain) "18" else "5"
                                             postPopup.setupAndShow(
-                                                "18",//值班室
-                                                "18",
+                                                id,//值班室
+                                                id,
                                                 newPost = true,
-                                                quote = ">>No.${getItem(position).id}\n${
-                                                    context.getString(
-                                                        R.string.report_reasons
-                                                    )
-                                                }: $text\n"
+                                                quote = ">>No.${getItem(position).id}\n${context.getString(R.string.report_reasons)}: $text\n"
                                             )
                                         }
                                         cancelOnTouchOutside(false)
@@ -260,8 +257,8 @@ class PostsFragment : BaseNavFragment() {
                             hideFabMenu()
                             binding?.fabMenu?.hide()
                             binding?.fabMenu?.isClickable = false
-                            if (llm.findLastVisibleItemPosition() + 4 >= (mAdapter?.data?.size
-                                    ?: Int.MAX_VALUE) && !binding!!.srlAndRv.refreshLayout.isRefreshing
+                            if (llm.findLastVisibleItemPosition() + 4 >= (mAdapter?.data?.size ?: Int.MAX_VALUE)
+                                && !binding!!.srlAndRv.refreshLayout.isRefreshing
                             ) {
                                 recyclerView.post {
                                     mAdapter?.loadMoreModule?.loadMoreToLoading()
@@ -399,19 +396,17 @@ class PostsFragment : BaseNavFragment() {
             }
         }
 
+        sharedVM.currentDomain.observe(viewLifecycleOwner) {
+            viewModel.changeDomain(it)
+        }
+
+        // only refresh when domain is not changed and initial get failed
         sharedVM.hostChange.observe(viewLifecycleOwner) {
-            if (it.getContentIfNotHandled() == true && viewModel.posts.value.isNullOrEmpty()) {
+            if (it.getContentIfNotHandled() == true && viewModel.posts.value.isNullOrEmpty() && viewModel.loadingStatus.value?.peekContent()?.loadingStatus == LoadingStatus.ERROR) {
                 viewModel.refresh()
             }
         }
 
-        sharedVM.currentDomain.observe(viewLifecycleOwner) {
-            if (it != cacheDomain) {
-                viewModel.clearCache()
-                viewModel.getBlockedIds()
-                cacheDomain = it
-            }
-        }
 
         sharedVM.notifications.observe(viewLifecycleOwner) { updateFeedNotificationIcon(it) }
 

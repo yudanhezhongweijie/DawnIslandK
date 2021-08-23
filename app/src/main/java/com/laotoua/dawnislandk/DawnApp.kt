@@ -44,6 +44,16 @@ class DawnApp : DaggerApplication() {
             currentDomain = domain
         }
 
+        val currentHost: String
+            get() =
+                when (currentDomain) {
+                    DawnConstants.ADNMBDomain -> DawnConstants.ADNMBHost
+                    DawnConstants.TNMBDomain -> DawnConstants.TNMBHost
+                    else -> {
+                        throw Exception("Unhandled Thumb CDN $currentDomain")
+                    }
+                }
+
         val currentThumbCDN: String
             get() =
                 when (currentDomain) {

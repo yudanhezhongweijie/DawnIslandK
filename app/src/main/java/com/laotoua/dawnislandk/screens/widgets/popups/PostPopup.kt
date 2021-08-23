@@ -106,6 +106,7 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
     private var mHandler: Handler? = null
     private var latestPost: Pair<String, LocalDateTime>? = null
     private var counterUpdateCallback: Runnable? = null
+    private var postDomain: String = DawnApp.currentDomain
 
     private fun setCounterUpdateCallBack() {
         counterUpdateCallback?.let { mHandler?.removeCallbacks(it) }
@@ -152,8 +153,10 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
     private fun updateForumButton(targetId: String?, newPost: Boolean) {
         findViewById<Button>(R.id.postForum).apply {
             visibility = if (!newPost) View.GONE else View.VISIBLE
-            if (newPost && targetId != null && targetId != "-1") {
-                text = getForumTitle(targetId)
+            text = if (newPost && targetId != null && targetId != "-1") {
+                getForumTitle(targetId)
+            } else {
+                context.getString(R.string.choose_forum)
             }
         }
     }
@@ -185,10 +188,20 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
         targetFid: String,
         newPost: Boolean = false,
         targetPage: Int = 1,
-        quote: String? = null
+        quote: String? = null,
+        postDomain:String = DawnApp.currentDomain,
+
     ) {
+
+        if (this.postDomain != postDomain){
+            this.targetId = null
+            this.cookieHash = ""
+            this.selectedCookie = null
+            this.postDomain = postDomain
+        }
         this.targetPage = targetPage
         this.targetFid = targetFid
+
         XPopup.Builder(context)
             .setPopupCallback(object : SimpleCallback() {
                 override fun beforeShow(popupView: BasePopupView?) {
@@ -485,7 +498,7 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
         }
 
         findViewById<Button>(R.id.forumRule).setOnClickListener {
-            val fid = if (DawnApp.currentDomain == DawnConstants.ADNMBDomain) if (newPost && targetId != null) targetId!! else targetFid else (sharedVM.selectedForumId.value!!)
+            val fid = if (newPost && targetId != null) targetId!! else targetFid
             try {
                 val biId = if (fid.toInt() > 0) fid.toInt() else 1
                 MaterialDialog(context).show {

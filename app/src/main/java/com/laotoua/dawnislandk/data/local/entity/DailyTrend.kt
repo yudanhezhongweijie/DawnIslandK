@@ -18,19 +18,20 @@
 package com.laotoua.dawnislandk.data.local.entity
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
+import com.laotoua.dawnislandk.util.DawnConstants
 import com.squareup.moshi.JsonClass
 import java.time.LocalDateTime
 import kotlin.math.ceil
 
 @JsonClass(generateAdapter = true)
-@Entity
+@Entity(primaryKeys = ["date","domain"])
 data class DailyTrend(
     val postId: String, // id of the specific reply that generates the content
     val po: String, // userid of the poster
-    @PrimaryKey val date: LocalDateTime, // date when the trends posted
+    val date: LocalDateTime, // date when the trends posted
     val trends: List<Trend>,
-    val lastReplyCount: Int
+    val lastReplyCount: Int,
+    val domain:String = DawnConstants.ADNMBDomain
 ) {
 
     val page: Int get() = ceil(lastReplyCount.toDouble() / 19).toInt()

@@ -46,7 +46,6 @@ import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.screens.widgets.BaseNavFragment
 import com.laotoua.dawnislandk.screens.widgets.SectionHeader
 import com.laotoua.dawnislandk.screens.widgets.popups.ImageViewerPopup
-import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.ReadableTime
 import com.lxj.xpopup.XPopup
 import timber.log.Timber
@@ -63,7 +62,6 @@ class PostHistoryFragment : BaseNavFragment() {
     private var binding: FragmentHistoryPostBinding? = null
     private var mAdapter: QuickMultiBinder? = null
     private var viewCaching = false
-    private var cacheDomain = DawnConstants.ADNMBDomain
 
     private val viewModel: PostHistoryViewModel by viewModels { viewModelFactory }
 
@@ -131,6 +129,11 @@ class PostHistoryFragment : BaseNavFragment() {
                 }
             }
         }
+
+        sharedVM.currentDomain.observe(viewLifecycleOwner) {
+            viewModel.changeDomain(it)
+        }
+
         viewModel.postHistoryList.observe(viewLifecycleOwner) { list ->
             if (mAdapter == null || binding == null || activity == null || !isAdded) return@observe
             if (list.isEmpty()) {
@@ -138,13 +141,6 @@ class PostHistoryFragment : BaseNavFragment() {
                 return@observe
             }
             displayList(list)
-        }
-
-        sharedVM.currentDomain.observe(viewLifecycleOwner) {
-            if (it != cacheDomain) {
-                viewModel.searchByDate()
-                cacheDomain = it
-            }
         }
 
         viewCaching = false

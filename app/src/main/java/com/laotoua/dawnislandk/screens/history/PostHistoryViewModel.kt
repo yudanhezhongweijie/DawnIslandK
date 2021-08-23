@@ -20,6 +20,7 @@ package com.laotoua.dawnislandk.screens.history
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.dao.PostHistoryDao
 import com.laotoua.dawnislandk.data.local.entity.PostHistory
 import java.time.LocalDateTime
@@ -30,9 +31,17 @@ class PostHistoryViewModel @Inject constructor(private val postHistoryDao: PostH
     var startDate: LocalDateTime = endDate.minusWeeks(1)
     private var currentList: LiveData<List<PostHistory>>? = null
     val postHistoryList = MediatorLiveData<List<PostHistory>>()
+    private var cacheDomain: String = DawnApp.currentDomain
 
     init {
         searchByDate()
+    }
+
+    fun changeDomain(domain: String) {
+        if (domain != cacheDomain) {
+            searchByDate()
+            cacheDomain = domain
+        }
     }
 
     fun searchByDate() {

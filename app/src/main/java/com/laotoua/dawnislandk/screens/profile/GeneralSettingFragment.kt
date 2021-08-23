@@ -169,6 +169,27 @@ class GeneralSettingFragment : Fragment() {
             }
         }
 
+        binding?.clearCommunitiesAndTimelinesCache?.apply {
+            key.setText(R.string.clear_communities_and_timelines_cache)
+            root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
+                MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@GeneralSettingFragment)
+                    title(R.string.clear_communities_and_timelines_cache)
+                    message(R.string.clear_communities_and_timelines_cache_message)
+                    setActionButtonEnabled(WhichButton.POSITIVE, false)
+                    checkBoxPrompt(R.string.acknowledge) { checked ->
+                        setActionButtonEnabled(WhichButton.POSITIVE, checked)
+                    }
+                    positiveButton(R.string.submit) {
+                        applicationDataStore.nukeCommunitiesAndTimelinesTables()
+                        toast(R.string.cleared_communities_and_timelines_cache_message)
+                    }
+                    negativeButton(R.string.cancel)
+                }
+            }
+        }
+
         binding?.clearTrendCache?.apply {
             key.setText(R.string.clear_trend_cache)
             root.setOnClickListener {

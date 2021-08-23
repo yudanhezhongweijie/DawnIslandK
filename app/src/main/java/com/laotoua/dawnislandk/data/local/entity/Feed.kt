@@ -23,11 +23,11 @@ import com.laotoua.dawnislandk.DawnApp
 import com.squareup.moshi.JsonClass
 import java.time.LocalDateTime
 
-@Entity
+@Entity(primaryKeys=["postId","domain"])
 data class Feed(
     val id: Int = 1, // table id for sorting
     val page: Int, // each page has at most 10 feeds, page also helps sorting
-    @PrimaryKey val postId: String, //	该串的id
+    val postId: String, //	该串的id
     val category: String,
     val domain: String = DawnApp.currentDomain,
     var lastUpdatedAt: LocalDateTime = LocalDateTime.now() // timestamp which the row is updated

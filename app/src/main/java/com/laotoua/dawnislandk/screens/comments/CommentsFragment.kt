@@ -20,6 +20,7 @@ package com.laotoua.dawnislandk.screens.comments
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
@@ -29,6 +30,7 @@ import android.os.SystemClock
 import android.text.style.UnderlineSpan
 import android.view.*
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.text.toSpannable
@@ -162,6 +164,7 @@ class CommentsFragment : DaggerFragment() {
         }
     }
 
+    @SuppressLint("CheckResult")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -198,7 +201,7 @@ class CommentsFragment : DaggerFragment() {
                                 Timber.e("Did not find image in for comment #$position")
                                 return@setOnItemChildClickListener
                             }
-                            getImageViewerPopup().setSrcView(null, pos)
+                            getImageViewerPopup().setSrcView(view as ImageView, pos)
                             XPopup.Builder(context)
                                 .asCustom(getImageViewerPopup())
                                 .show()
@@ -227,9 +230,10 @@ class CommentsFragment : DaggerFragment() {
                                 lifecycleOwner(this@CommentsFragment)
                                 title(R.string.report_reasons)
                                 listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
+                                    val id = if (DawnApp.currentDomain == DawnConstants.ADNMBDomain) "18" else "5"
                                     postPopup.setupAndShow(
-                                        "18",//值班室
-                                        "18",
+                                        id,//值班室
+                                        id,
                                         newPost = true,
                                         quote = ">>No.${getItem(position).id}\n${
                                             context.getString(
@@ -356,18 +360,15 @@ class CommentsFragment : DaggerFragment() {
                                     )
                                     putExtra(Intent.EXTRA_TEXT, shareContent)
                                     type = "text/html"
-                                    putExtra(
-                                        Intent.EXTRA_TITLE,
-                                        "A岛 · ${sharedVM.getForumOrTimelineDisplayName(viewModel.currentPostFid)} · ${viewModel.currentPostId}"
-                                    )
+                                    val title =
+                                        if (DawnApp.currentDomain == DawnConstants.ADNMBDomain) (requireContext().getString(R.string.adnmb_title)) else (requireContext().getString(R.string.tnmb_title))
+                                    putExtra(Intent.EXTRA_TITLE, "$title · ${sharedVM.getForumOrTimelineDisplayName(viewModel.currentPostFid)} · ${viewModel.currentPostId}")
                                 }
                                 val shareIntent = Intent.createChooser(sendIntent, null)
                                 startActivity(shareIntent)
                             }
-                            1 -> copyText(
-                                "串地址",
-                                "${DawnConstants.nmbHost}/t/${viewModel.currentPostId}"
-                            )
+                            1 -> copyText("串地址", "${DawnApp.currentHost}/t/${viewModel.currentPostId}")
+
                             2 -> copyText("串号", ">>No.${viewModel.currentPostId}")
                             else -> {
                             }
@@ -455,6 +456,10 @@ class CommentsFragment : DaggerFragment() {
                     mAdapter?.loadMoreModule?.loadMoreToLoading()
                 }
             }
+        }
+
+        sharedVM.currentDomain.observe(viewLifecycleOwner) {
+            viewModel.changeDomain(it)
         }
     }
 
@@ -616,11 +621,16 @@ class CommentsFragment : DaggerFragment() {
     }
 
     private fun updateTitle() {
-        if (viewModel.currentPostFid.isNotBlank()) {
-            (requireActivity() as MainActivity).setToolbarTitle(
-                "${sharedVM.getSelectedPostForumName(viewModel.currentPostFid)} • ${viewModel.currentPostId}"
-            )
+        val prefix = if (viewModel.currentPostFid.isNotBlank()) {
+            "${sharedVM.getSelectedPostForumName(viewModel.currentPostFid)} • "
+        } else {
+            when (DawnApp.currentDomain) {
+                DawnConstants.ADNMBDomain -> "${requireContext().getString(R.string.adnmb_title)} • "
+                DawnConstants.TNMBDomain -> "${requireContext().getString(R.string.tnmb_title)} • "
+                else -> ""
+            }
         }
+        (requireActivity() as MainActivity).setToolbarTitle("${prefix}${viewModel.currentPostId}")
     }
 
     private fun updateCurrentPage() {

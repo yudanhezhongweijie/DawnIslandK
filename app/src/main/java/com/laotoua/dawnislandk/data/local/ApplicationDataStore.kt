@@ -41,6 +41,7 @@ import javax.inject.Singleton
 class ApplicationDataStore @Inject constructor(
     private val cookieDao: CookieDao,
     private val commentDao: CommentDao,
+    private val communityDao: CommunityDao,
     private val trendDao: DailyTrendDao,
     private val feedDao: FeedDao,
     private val NMBNoticeDao: NMBNoticeDao,
@@ -91,7 +92,7 @@ class ApplicationDataStore @Inject constructor(
     fun setBaseCDN(newHost: String) {
         baseCDN = newHost
         mmkv.putString(DawnConstants.DEFAULT_CDN, newHost)
-        if (newHost != "auto") RetrofitUrlManager.getInstance().putDomain("adnmb", baseCDN)
+        if (newHost != "auto") RetrofitUrlManager.getInstance().putDomain("nmb", baseCDN)
     }
 
     private var refCDN: String? = null
@@ -105,7 +106,7 @@ class ApplicationDataStore @Inject constructor(
     fun setRefCDN(newHost: String) {
         refCDN = newHost
         mmkv.putString(DawnConstants.REF_CDN, newHost)
-        if (newHost != "auto") RetrofitUrlManager.getInstance().putDomain("adnmb-ref", refCDN)
+        if (newHost != "auto") RetrofitUrlManager.getInstance().putDomain("nmb-ref", refCDN)
     }
 
     private var feedId: String? = null
@@ -330,6 +331,12 @@ class ApplicationDataStore @Inject constructor(
 
     fun nukeBlockedPostTable() {
         GlobalScope.launch { blockedIdDao.nukeBlockedPostIds() }
+    }
+
+    fun nukeCommunitiesAndTimelinesTables(){
+        GlobalScope.launch {
+            communityDao.nukeTable()
+        }
     }
 
     suspend fun getLatestNMBNotice(): NMBNotice? {

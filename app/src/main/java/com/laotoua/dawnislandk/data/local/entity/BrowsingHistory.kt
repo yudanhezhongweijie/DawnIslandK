@@ -19,6 +19,7 @@ package com.laotoua.dawnislandk.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.laotoua.dawnislandk.DawnApp
 import java.time.LocalDateTime
 
 @Entity
@@ -26,7 +27,8 @@ data class BrowsingHistory(
     var browsedDateTime: LocalDateTime = LocalDateTime.now(),
     val postId: String,
     var postFid: String,
-    var pages: MutableSet<Int> // number of pages read
+    var pages: MutableSet<Int>, // number of pages read
+    val domain: String = DawnApp.currentDomain
 ) {
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0

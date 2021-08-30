@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ /* Copyright 2020 Fishballzzz
   ~  *
   ~  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,27 +46,44 @@
         app:layout_constraintEnd_toEndOf="@id/reedImageView"
         app:strokeWidth="0dp" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/forumContainer"
+    <me.dkzwm.widget.srl.MaterialSmoothRefreshLayout
+        android:id="@+id/refreshLayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:overScrollMode="never"
         app:layout_constraintBottom_toTopOf="@id/themeToggle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/reedImageView">
 
-    </androidx.recyclerview.widget.RecyclerView>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/forumContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:overScrollMode="never">
+
+        </androidx.recyclerview.widget.RecyclerView>
+    </me.dkzwm.widget.srl.MaterialSmoothRefreshLayout>
+
+    <Button
+        android:id="@+id/hostToggle"
+        style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="?android:attr/textColorPrimary"
+        app:iconGravity="textStart"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/themeToggle"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/themeToggle"
         style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:iconGravity="textStart"
         android:textColor="?android:attr/textColorPrimary"
+        app:iconGravity="textStart"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toEndOf="@id/hostToggle" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

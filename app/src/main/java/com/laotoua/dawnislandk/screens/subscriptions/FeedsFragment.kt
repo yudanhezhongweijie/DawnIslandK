@@ -17,6 +17,7 @@
 
 package com.laotoua.dawnislandk.screens.subscriptions
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -54,6 +55,7 @@ import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import me.dkzwm.widget.srl.config.Constants
 import timber.log.Timber
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class FeedsFragment : BaseNavFragment() {
@@ -71,6 +73,8 @@ class FeedsFragment : BaseNavFragment() {
     private var viewCaching = false
     private var refreshing = false
 
+
+    @SuppressLint("CheckResult")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -167,6 +171,11 @@ class FeedsFragment : BaseNavFragment() {
                 updateHeaderAndFooter(binding!!.srlAndRv.refreshLayout, mAdapter!!, this)
             }
         }
+
+        sharedVM.currentDomain.observe(viewLifecycleOwner) {
+            viewModel.changeDomain(it)
+        }
+
         viewModel.feeds.observe(viewLifecycleOwner) { list ->
             if (mAdapter == null) return@observe
             if (list.isNullOrEmpty()) {

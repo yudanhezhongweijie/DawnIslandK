@@ -18,16 +18,17 @@
 package com.laotoua.dawnislandk.data.local.entity
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
+import com.laotoua.dawnislandk.DawnApp
 import java.time.LocalDateTime
 
-@Entity
+@Entity(primaryKeys=["id","domain"])
 data class Notification(
-    @PrimaryKey val id: String,
+    val id: String,
     val fid: String,
     var newReplyCount: Int,
     val message: String = "", // feed subscription update do not use this field, it is reserved for other notifications
     var read: Boolean = false,
+    val domain: String = DawnApp.currentDomain,
     var lastUpdatedAt: LocalDateTime = LocalDateTime.now()
 ) {
     // valid targetId should be all digits, here only checking the first digit should be sufficient
@@ -35,7 +36,7 @@ data class Notification(
     fun isValidFeedPushNotification(): Boolean = id.first().isDigit()
 
     companion object {
-        fun makeNotification(targetId: String, fid: String, newReplyCount: Int, message: String = ""): Notification =
-            Notification(targetId, fid, newReplyCount, message, false, LocalDateTime.now())
+        fun makeNotification(targetId: String, fid: String, newReplyCount: Int, message: String = "", domain: String = DawnApp.currentDomain): Notification =
+            Notification(targetId, fid, newReplyCount, message, false, domain, LocalDateTime.now())
     }
 }

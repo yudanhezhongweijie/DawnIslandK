@@ -18,31 +18,38 @@
 package com.laotoua.dawnislandk.data.local.entity
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
+import com.laotoua.dawnislandk.DawnApp
+import com.laotoua.dawnislandk.util.DawnConstants
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-@Entity
+@Entity(primaryKeys=["id","domain"])
 data class Community(
-    @PrimaryKey
     val id: String,
     val sort: String,
     val name: String,
     val status: String,
-    val forums: List<Forum>
+    val forums: List<Forum>,
+    val domain: String = DawnApp.currentDomain
 ) {
     fun isCommonForums(): Boolean {
-        return id == "1000"
+        return id == "1000" || id == "2000"
     }
 
     fun isCommonPosts(): Boolean {
-        return id == "1001"
+        return id == "1001" || id == "2001"
     }
 
     companion object {
-        fun makeCommonForums(forums: List<Forum>): Community = Community("1000", "0", "常用板块", "n", forums)
+        fun makeCommonForums(forums: List<Forum>, domain: String): Community {
+            val id = if (domain == DawnConstants.ADNMBDomain) "1000" else "2000"
+            return Community(id, "0", "常用板块", "n", forums, domain)
+        }
 
-        fun makeCommonPosts(fakeForums: List<Forum>): Community = Community("1001", "-1", "常用串", "n", fakeForums)
+        fun makeCommonPosts(fakeForums: List<Forum>, domain: String): Community {
+            val id = if (domain == DawnConstants.ADNMBDomain) "1001" else "2001"
+            return Community(id, "-1", "常用串", "n", fakeForums, domain)
+        }
 
     }
 }

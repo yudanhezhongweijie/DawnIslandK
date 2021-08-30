@@ -129,6 +129,11 @@ class PostHistoryFragment : BaseNavFragment() {
                 }
             }
         }
+
+        sharedVM.currentDomain.observe(viewLifecycleOwner) {
+            viewModel.changeDomain(it)
+        }
+
         viewModel.postHistoryList.observe(viewLifecycleOwner) { list ->
             if (mAdapter == null || binding == null || activity == null || !isAdded) return@observe
             if (list.isEmpty()) {
@@ -137,6 +142,7 @@ class PostHistoryFragment : BaseNavFragment() {
             }
             displayList(list)
         }
+
         viewCaching = false
         return binding!!.root
     }

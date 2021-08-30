@@ -21,6 +21,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.dao.BlockedIdDao
 import com.laotoua.dawnislandk.data.local.entity.BlockedId
 import com.laotoua.dawnislandk.data.local.entity.Post
@@ -46,6 +47,7 @@ class PostsViewModel @Inject constructor(
     private var _currentFid: String? = null
     val currentFid: String? get() = _currentFid
     private var pageCount = 1
+    private var cacheDomain = DawnApp.currentDomain
 
     // allow certain attempts on auto getting next page, afterwards require user interaction
     private var duplicateCount = 0
@@ -55,20 +57,35 @@ class PostsViewModel @Inject constructor(
     val loadingStatus: LiveData<SingleLiveEvent<EventPayload<Nothing>>>
         get() = _loadingStatus
 
-    fun getPosts() {
+    init {
+        getBlockedIds()
+    }
+
+    fun changeDomain(domain:String){
+        if (domain != cacheDomain) {
+            clearCache()
+            getBlockedIds()
+            cacheDomain = domain
+        }
+    }
+
+    private fun getBlockedIds() {
         viewModelScope.launch {
-            if (blockedPostIds == null || blockedForumIds == null) {
-                val blockedIds = blockedIdDao.getAllBlockedIds()
-                blockedPostIds = mutableListOf()
-                blockedForumIds = mutableListOf()
-                for (blockedId in blockedIds) {
-                    if (blockedId.isBlockedPost()) {
-                        blockedPostIds!!.add(blockedId.id)
-                    } else if (blockedId.isTimelineBlockedForum()) {
-                        blockedForumIds!!.add(blockedId.id)
-                    }
+            val blockedIds = blockedIdDao.getAllBlockedIds()
+            blockedPostIds = mutableListOf()
+            blockedForumIds = mutableListOf()
+            for (blockedId in blockedIds) {
+                if (blockedId.isBlockedPost()) {
+                    blockedPostIds!!.add(blockedId.id)
+                } else if (blockedId.isTimelineBlockedForum()) {
+                    blockedForumIds!!.add(blockedId.id)
                 }
             }
+        }
+    }
+
+    fun getPosts() {
+        viewModelScope.launch {
             _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.LOADING))
             val fid = _currentFid ?: "-1"
             Timber.d("Getting threads from $fid on page $pageCount")
@@ -97,15 +114,9 @@ class PostsViewModel @Inject constructor(
             duplicateCount = 0
             postIds.addAll(noDuplicates.map { it.id })
             postList.addAll(noDuplicates)
-            Timber.d(
-                "New thread + ads has size of ${noDuplicates.size}, threadIds size ${postIds.size}, Forum $currentFid now have ${postList.size} threads"
-            )
+            Timber.d("New thread + ads has size of ${noDuplicates.size}, threadIds size ${postIds.size}, Forum $currentFid now have ${postList.size} threads")
             _posts.postValue(postList)
-            _loadingStatus.postValue(
-                SingleLiveEvent.create(
-                    LoadingStatus.SUCCESS
-                )
-            )
+            _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.SUCCESS))
             // possible page X+1's data is identical page X's data when server updates too quickly
         } else {
             Timber.d("Last page were all duplicates. Making new request")
@@ -123,22 +134,24 @@ class PostsViewModel @Inject constructor(
         }
     }
 
-    fun setForum(fid: String) {
-        if (fid == currentFid) return
+    fun setForum(fid: String, forceRefresh: Boolean = false) {
+        if (fid == currentFid && !forceRefresh) return
         Timber.i("Forum has changed. Cleaning old threads...")
-        postList.clear()
-        postIds.clear()
+        clearCache()
         Timber.d("Setting new forum: $fid")
         _currentFid = fid
-        pageCount = 1
         getPosts()
+    }
+
+    fun clearCache() {
+        postList.clear()
+        postIds.clear()
+        pageCount = 1
     }
 
     fun refresh() {
         Timber.d("Refreshing forum $currentFid...")
-        postList.clear()
-        postIds.clear()
-        pageCount = 1
+        clearCache()
         getPosts()
     }
 

@@ -19,27 +19,28 @@ package com.laotoua.dawnislandk.data.local.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.entity.Notification
 import com.laotoua.dawnislandk.data.local.entity.NotificationAndPost
 
 @Dao
 interface NotificationDao {
 
-    @Query("SELECT * FROM Notification ORDER BY lastUpdatedAt DESC")
-    fun getLiveAllNotifications(): LiveData<List<Notification>>
+    @Query("SELECT * FROM Notification WHERE domain=:domain ORDER BY lastUpdatedAt DESC")
+    fun getLiveAllNotifications(domain: String = DawnApp.currentDomain): LiveData<List<Notification>>
 
-    @Query("SELECT COUNT(*) FROM Notification WHERE read=0 ORDER BY lastUpdatedAt DESC")
-    fun getLiveUnreadNotificationsCount(): LiveData<Int>
+    @Query("SELECT COUNT(*) FROM Notification WHERE read=0 AND domain=:domain ORDER BY lastUpdatedAt DESC")
+    fun getLiveUnreadNotificationsCount(domain: String = DawnApp.currentDomain): LiveData<Int>
 
     @Transaction
-    @Query("SELECT * From Notification ORDER BY lastUpdatedAt DESC")
-    fun getLiveAllNotificationsAndPosts(): LiveData<List<NotificationAndPost>>
+    @Query("SELECT * From Notification WHERE domain=:domain ORDER BY lastUpdatedAt DESC")
+    fun getLiveAllNotificationsAndPosts(domain: String = DawnApp.currentDomain): LiveData<List<NotificationAndPost>>
 
-    @Query("SELECT * FROM Notification WHERE id=:id LIMIT 1")
-    suspend fun getNotificationByIdSync(id: String): Notification?
+    @Query("SELECT * FROM Notification WHERE id=:id AND domain=:domain LIMIT 1")
+    suspend fun getNotificationByIdSync(id: String, domain: String = DawnApp.currentDomain): Notification?
 
-    @Query("UPDATE Notification SET read=1, newReplyCount=0 WHERE id=:id")
-    suspend fun readNotificationByIdSync(id: String)
+    @Query("UPDATE Notification SET read=1, newReplyCount=0 WHERE id=:id AND domain=:domain")
+    suspend fun readNotificationByIdSync(id: String, domain: String = DawnApp.currentDomain)
 
     @Transaction
     suspend fun insertOrUpdateNotification(notification: Notification) {
@@ -56,8 +57,8 @@ interface NotificationDao {
     @Delete
     suspend fun deleteNotifications(vararg notifications: Notification)
 
-    @Query("DELETE FROM Notification WHERE id=:id")
-    suspend fun deleteNotificationById(id: String)
+    @Query("DELETE FROM Notification WHERE id=:id AND domain=:domain")
+    suspend fun deleteNotificationById(id: String, domain: String = DawnApp.currentDomain)
 
     @Query("DELETE FROM Notification")
     suspend fun nukeTable()

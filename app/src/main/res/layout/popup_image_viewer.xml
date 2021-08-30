@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ /* Copyright 2020 Fishballzzz
   ~  *
   ~  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,35 +22,8 @@
     android:layout_height="match_parent"
     tools:viewBindingIgnore="true">
 
-    <com.lxj.xpopup.widget.BlankView
-        android:id="@+id/placeholderView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="invisible" />
-
-    <com.lxj.xpopup.widget.PhotoViewContainer
-        android:id="@+id/photoViewContainer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <com.lxj.xpopup.widget.HackyViewPager
-            android:id="@+id/pager"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-    </com.lxj.xpopup.widget.PhotoViewContainer>
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:clickable="false"
-        android:focusable="false"
-        android:visibility="gone"
-        android:layout_gravity="center" />
-
     <TextView
-        android:id="@+id/tv_pager_indicator"
+        android:id="@+id/page_indicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
@@ -60,14 +32,15 @@
         android:textColor="@android:color/white"
         android:textSize="16sp" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/save_button"
-            style="@style/Widget.MaterialComponents.FloatingActionButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="16dp"
-            android:visibility="visible"
-            app:srcCompat="@drawable/ic_save_black_24px" />
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/save_button"
+        style="@style/Widget.MaterialComponents.FloatingActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:visibility="visible"
+        app:srcCompat="@drawable/ic_save_black_24px"
+        android:contentDescription="@string/save" />
 
 </FrameLayout>

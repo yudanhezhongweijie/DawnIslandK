@@ -28,6 +28,7 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.MainNavDirections
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Community
@@ -36,9 +37,12 @@ import com.laotoua.dawnislandk.data.local.entity.Timeline
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.CommunityNodeAdapter
+import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.GlideApp
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.DrawerPopupView
+import me.dkzwm.widget.srl.MaterialSmoothRefreshLayout
+import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import timber.log.Timber
 
 @SuppressLint("ViewConstructor")
@@ -75,10 +79,12 @@ class ForumDrawerPopup(
 
     fun setCommunities(list: List<Community>) {
         forumListAdapter.setCommunities(list)
+        findViewById<MaterialSmoothRefreshLayout>(R.id.refreshLayout).refreshComplete()
     }
 
     fun setTimelines(list: List<Timeline>) {
         forumListAdapter.setTimelines(list)
+        findViewById<MaterialSmoothRefreshLayout>(R.id.refreshLayout).refreshComplete()
     }
 
     fun setReedPicture(url: String) {
@@ -100,6 +106,14 @@ class ForumDrawerPopup(
 
     override fun onCreate() {
         super.onCreate()
+        findViewById<MaterialSmoothRefreshLayout>(R.id.refreshLayout).apply {
+            setOnRefreshListener(object : RefreshingListenerAdapter() {
+                override fun onRefreshing() {
+                    sharedVM.refreshCommunitiesAndTimelines()
+                    refreshComplete(1000)
+                }
+            })
+        }
 
         reedImageView = findViewById(R.id.reedImageView)
         if (reedImageUrl.isNotBlank()) loadReedPicture()
@@ -145,6 +159,25 @@ class ForumDrawerPopup(
                     if (nightModeOn) AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
                     else AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
                     nightModeOn = !nightModeOn
+                }
+            }
+        }
+
+
+        findViewById<MaterialButton>(R.id.hostToggle).apply {
+            when (DawnApp.currentDomain) {
+                DawnConstants.ADNMBDomain -> {
+                    text = "B(*ﾟ∇ﾟ)T"
+                }
+                DawnConstants.TNMBDomain -> {
+                    text = "A(*´∀`)A"
+                }
+            }
+            setOnClickListener {
+                if (!isShow) return@setOnClickListener
+                dismissWith {
+                    if (DawnApp.currentDomain == DawnConstants.TNMBDomain) (context as MainActivity).goToADNMB()
+                    else (context as MainActivity).goToTNMB()
                 }
             }
         }

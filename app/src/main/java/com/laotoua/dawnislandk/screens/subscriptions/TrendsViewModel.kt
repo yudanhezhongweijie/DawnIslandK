@@ -32,7 +32,7 @@ class TrendsViewModel @Inject constructor(
 
     fun getLatestTrend() {
         Timber.d("Refreshing Trend...")
-       trendRepo.subscribeToRemote()
+        trendRepo.subscribeToRemote()
     }
 
 }

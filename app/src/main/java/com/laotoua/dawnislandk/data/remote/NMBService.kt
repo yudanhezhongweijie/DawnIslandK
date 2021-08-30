@@ -51,35 +51,35 @@ interface NMBService {
         @Header("Host") host: String
     ): Call<ResponseBody>
 
-    @Headers("Domain-Name: adnmb")
+    @Headers("Domain-Name: nmb")
     @GET("Api/getForumList")
     fun getNMBForumList(): Call<ResponseBody>
 
-    @Headers("Domain-Name: adnmb")
+    @Headers("Domain-Name: nmb")
     @GET("Api/getTimelineList")
     fun getNMBTimelineList(): Call<ResponseBody>
 
-    @Headers("Domain-Name: adnmb")
+    @Headers("Domain-Name: nmb")
     @GET("Api/showf")
     fun getNMBPosts(@Query("id") fid: String, @Query("page") page: Int): Call<ResponseBody>
 
-    @Headers("Domain-Name: adnmb")
+    @Headers("Domain-Name: nmb")
     @GET("Api/feed")
     fun getNMBFeeds(@Query("uuid") uuid: String, @Query("page") page: Int): Call<ResponseBody>
 
-    @Headers("Domain-Name: adnmb")
+    @Headers("Domain-Name: nmb")
     @GET("Api/addFeed")
     fun addNMBFeed(@Query("uuid") uuid: String, @Query("tid") tid: String): Call<ResponseBody>
 
-    @Headers("Domain-Name: adnmb")
+    @Headers("Domain-Name: nmb")
     @GET("Api/delFeed")
     fun delNMBFeed(@Query("uuid") uuid: String, @Query("tid") tid: String): Call<ResponseBody>
 
-    @Headers("Domain-Name: adnmb")
+    @Headers("Domain-Name: nmb")
     @GET("Api/timeline/id/{id}")
     fun getNMBTimeLine(@Path("id") id: String = "1", @Query("page") page: Int, @Header("Cookie") hash: String?): Call<ResponseBody>
 
-    @Headers("Domain-Name: adnmb")
+    @Headers("Domain-Name: nmb")
     @GET("Api/thread")
     fun getNMBComments(
         @Header("Cookie") hash: String?,
@@ -87,11 +87,11 @@ interface NMBService {
         @Query("page") page: Int
     ): Call<ResponseBody>
 
-    @Headers("Domain-Name: adnmb-ref")
+    @Headers("Domain-Name: nmb-ref")
     @GET("Home/Forum/ref")
     fun getNMBQuote(@Query("id") id: String): Call<ResponseBody>
 
-    @Headers("Domain-Name: adnmb")
+    @Headers("Domain-Name: nmb")
     @Multipart
     @POST("Home/Forum/doReplyThread.html")
     fun postComment(
@@ -101,7 +101,7 @@ interface NMBService {
         @Part image: MultipartBody.Part?, @Header("Cookie") hash: String
     ): Call<ResponseBody>
 
-    @Headers("Domain-Name: adnmb")
+    @Headers("Domain-Name: nmb")
     @Multipart
     @POST("Home/Forum/doPostThread.html")
     fun postNewPost(

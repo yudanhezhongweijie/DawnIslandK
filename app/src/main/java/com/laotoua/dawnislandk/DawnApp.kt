@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.laotoua.dawnislandk.data.local.ApplicationDataStore
 import com.laotoua.dawnislandk.di.DaggerDawnAppComponent
+import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.ReadableTime
 import com.tencent.mmkv.MMKV
 import com.tencent.mmkv.MMKVHandler
@@ -36,6 +37,42 @@ class DawnApp : DaggerApplication() {
 
     companion object {
         lateinit var applicationDataStore: ApplicationDataStore
+        var currentDomain: String = DawnConstants.ADNMBDomain
+            private set
+
+        fun onDomain(domain: String) {
+            currentDomain = domain
+        }
+
+        val currentHost: String
+            get() =
+                when (currentDomain) {
+                    DawnConstants.ADNMBDomain -> DawnConstants.ADNMBHost
+                    DawnConstants.TNMBDomain -> DawnConstants.TNMBHost
+                    else -> {
+                        throw Exception("Unhandled Thumb CDN $currentDomain")
+                    }
+                }
+
+        val currentThumbCDN: String
+            get() =
+                when (currentDomain) {
+                    DawnConstants.ADNMBDomain -> "${DawnConstants.ADNMB_IMG_CDN}thumb/"
+                    DawnConstants.TNMBDomain -> "${DawnConstants.TNMB_IMG_CDN}thumb/"
+                    else -> {
+                        throw Exception("Unhandled Thumb CDN $currentDomain")
+                    }
+                }
+
+        val currentImgCDN: String
+            get() =
+                when (currentDomain) {
+                    DawnConstants.ADNMBDomain -> "${DawnConstants.ADNMB_IMG_CDN}image/"
+                    DawnConstants.TNMBDomain -> "${DawnConstants.TNMB_IMG_CDN}image/"
+                    else -> {
+                        throw Exception("Unhandled Image CDN $currentDomain")
+                    }
+                }
     }
 
     override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
@@ -56,6 +93,8 @@ class DawnApp : DaggerApplication() {
         }
 
         applicationDataStore = mApplicationDataStore
+
+        // domain
 
         // MMKV
         MMKV.initialize(this)

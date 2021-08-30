@@ -122,6 +122,11 @@ class BrowsingHistoryFragment : BaseNavFragment() {
             }
         }
 
+
+        sharedVM.currentDomain.observe(viewLifecycleOwner) {
+            viewModel.changeDomain(it)
+        }
+
         viewModel.browsingHistoryList.observe(viewLifecycleOwner) { list ->
             if (mAdapter == null || binding == null) return@observe
             if (list.isEmpty()) {
@@ -152,6 +157,7 @@ class BrowsingHistoryFragment : BaseNavFragment() {
             )
             Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} items")
         }
+
         viewCaching = false
         return binding!!.root
     }

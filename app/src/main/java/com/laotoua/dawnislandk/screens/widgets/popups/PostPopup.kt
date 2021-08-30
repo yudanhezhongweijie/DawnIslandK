@@ -41,6 +41,7 @@ import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.textfield.TextInputLayout
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Cookie
@@ -105,6 +106,7 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
     private var mHandler: Handler? = null
     private var latestPost: Pair<String, LocalDateTime>? = null
     private var counterUpdateCallback: Runnable? = null
+    private var postDomain: String = DawnApp.currentDomain
 
     private fun setCounterUpdateCallBack() {
         counterUpdateCallback?.let { mHandler?.removeCallbacks(it) }
@@ -151,8 +153,10 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
     private fun updateForumButton(targetId: String?, newPost: Boolean) {
         findViewById<Button>(R.id.postForum).apply {
             visibility = if (!newPost) View.GONE else View.VISIBLE
-            if (newPost && targetId != null && targetId != "-1") {
-                text = getForumTitle(targetId)
+            text = if (newPost && targetId != null && targetId != "-1") {
+                getForumTitle(targetId)
+            } else {
+                context.getString(R.string.choose_forum)
             }
         }
     }
@@ -184,10 +188,20 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
         targetFid: String,
         newPost: Boolean = false,
         targetPage: Int = 1,
-        quote: String? = null
+        quote: String? = null,
+        postDomain:String = DawnApp.currentDomain,
+
     ) {
+
+        if (this.postDomain != postDomain){
+            this.targetId = null
+            this.cookieHash = ""
+            this.selectedCookie = null
+            this.postDomain = postDomain
+        }
         this.targetPage = targetPage
         this.targetFid = targetFid
+
         XPopup.Builder(context)
             .setPopupCallback(object : SimpleCallback() {
                 override fun beforeShow(popupView: BasePopupView?) {
@@ -229,6 +243,7 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
         KeyboardUtils.hideSoftInput(postContent)
     }
 
+    @SuppressLint("CheckResult")
     override fun onCreate() {
         super.onCreate()
         postContent = findViewById<TextInputLayout>(R.id.postContent).apply {
@@ -331,9 +346,9 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
                         }
                     }.onDismiss {
                         if (targetId == null) return@onDismiss
-                        postContent?.editText?.hint =
-                            applicationDataStore.luweiNotice?.nmbForums?.firstOrNull { f -> f.id == targetId }
-                                ?.getPostRule()
+                        if (DawnApp.currentDomain == DawnConstants.ADNMBDomain) {
+                            postContent?.editText?.hint = applicationDataStore.luweiNotice?.nmbForums?.firstOrNull { f -> f.id == targetId }?.getPostRule()
+                        }
                         updateTitle(targetId, newPost)
                         if (postForum!!.text == "值班室") {
                             MaterialDialog(context).show {
@@ -483,22 +498,23 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
         }
 
         findViewById<Button>(R.id.forumRule).setOnClickListener {
-            MaterialDialog(context).show {
-                lifecycleOwner(caller)
-                val fid = if (newPost && targetId != null) targetId!! else targetFid
+            val fid = if (newPost && targetId != null) targetId!! else targetFid
+            try {
                 val biId = if (fid.toInt() > 0) fid.toInt() else 1
-                try {
+                MaterialDialog(context).show {
+                    lifecycleOwner(caller)
+
                     val resourceId: Int = context.resources.getIdentifier("bi_$biId", "drawable", context.packageName)
                     ContextCompat.getDrawable(context, resourceId)?.let {
                         it.setTint(Layout.getThemeInverseColor(context))
                         icon(drawable = it)
                     }
-                } catch (e: Exception) {
-                    Timber.d("Missing icon for fid $biId")
+                    title(text = sharedVM.getForumOrTimelineDisplayName(fid))
+                    message(text = sharedVM.getForumOrTimelineMsg(fid)) { html() }
+                    positiveButton(R.string.acknowledge)
                 }
-                title(text = sharedVM.getForumOrTimelineDisplayName(fid))
-                message(text = sharedVM.getForumOrTimelineMsg(fid)) { html() }
-                positiveButton(R.string.acknowledge)
+            } catch (e: Exception) {
+                Timber.d("Missing icon for fid $fid")
             }
         }
 
@@ -581,7 +597,7 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
                 message(R.string.acknowledge_post_rules)
                 positiveButton(R.string.submit) {
                     applicationDataStore.acknowledgementPostingRule()
-                    openLinksWithOtherApps(DawnConstants.nmbHost + "/forum", caller)
+                    openLinksWithOtherApps(DawnConstants.ADNMBHost + "/forum", caller)
                 }
                 negativeButton(R.string.cancel)
             }

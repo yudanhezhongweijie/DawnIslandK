@@ -20,21 +20,22 @@ package com.laotoua.dawnislandk.data.local.dao
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.distinctUntilChanged
 import androidx.room.*
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.entity.Post
 import java.time.LocalDateTime
 
 @Dao
 interface PostDao {
-    @Query("SELECT * FROM Post")
-    suspend fun getAll(): List<Post>
+    @Query("SELECT * FROM Post WHERE domain=:domain")
+    suspend fun getAll(domain: String = DawnApp.currentDomain): List<Post>
 
-    @Query("SELECT * FROM Post WHERE id=:id LIMIT 1")
-    fun findPostById(id: String): LiveData<Post>
+    @Query("SELECT * FROM Post WHERE id=:id AND domain=:domain LIMIT 1")
+    fun findPostById(id: String, domain: String = DawnApp.currentDomain): LiveData<Post>
 
-    @Query("SELECT * FROM Post WHERE id=:id LIMIT 1")
-    suspend fun findPostByIdSync(id: String): Post?
+    @Query("SELECT * FROM Post WHERE id=:id AND domain=:domain LIMIT 1")
+    suspend fun findPostByIdSync(id: String, domain: String = DawnApp.currentDomain): Post?
 
-    fun findDistinctPostById(id: String): LiveData<Post> = findPostById(id).distinctUntilChanged()
+    fun findDistinctPostById(id: String, domain: String = DawnApp.currentDomain): LiveData<Post> = findPostById(id, domain).distinctUntilChanged()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(post: Post)
@@ -57,5 +58,5 @@ interface PostDao {
     suspend fun delete(post: Post)
 
     @Query("DELETE FROM Post")
-    fun nukeTable()
+    suspend fun nukeTable()
 }

@@ -121,7 +121,7 @@ class TrendRepository @Inject constructor(
         }
     }
 
-    suspend fun extractLatestTrends(data: Post): Int {
+    private suspend fun extractLatestTrends(data: Post): Int {
         val foundTrends = mutableListOf<DailyTrend>()
         for (reply in data.comments) {
             if (reply.userid == po) {

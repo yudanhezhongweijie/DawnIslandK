@@ -19,6 +19,7 @@ package com.laotoua.dawnislandk.data.local.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.entity.BrowsingHistory
 import com.laotoua.dawnislandk.data.local.entity.BrowsingHistoryAndPost
 import java.time.LocalDateTime
@@ -26,24 +27,25 @@ import java.time.LocalDateTime
 @Dao
 interface BrowsingHistoryDao {
     @Transaction
-    @Query("SELECT * From BrowsingHistory ORDER BY browsedDateTime DESC")
-    fun getAllBrowsingHistoryAndPost(): LiveData<List<BrowsingHistoryAndPost>>
+    @Query("SELECT * From BrowsingHistory WHERE domain = :domain ORDER BY browsedDateTime DESC")
+    fun getAllBrowsingHistoryAndPost(domain: String = DawnApp.currentDomain): LiveData<List<BrowsingHistoryAndPost>>
 
     @Transaction
-    @Query("SELECT * From BrowsingHistory WHERE browsedDateTime>=date(:startDate) AND browsedDateTime<date(:endDate, '+1 day') ORDER BY browsedDateTime DESC")
+    @Query("SELECT * From BrowsingHistory WHERE domain = :domain AND browsedDateTime>=date(:startDate) AND browsedDateTime<date(:endDate, '+1 day') ORDER BY browsedDateTime DESC")
     fun getAllBrowsingHistoryAndPostInDateRange(
         startDate: LocalDateTime,
-        endDate: LocalDateTime
+        endDate: LocalDateTime,
+        domain: String = DawnApp.currentDomain
     ): LiveData<List<BrowsingHistoryAndPost>>
 
-    @Query("SELECT * From BrowsingHistory ORDER BY browsedDateTime DESC")
-    suspend fun getAllBrowsingHistory(): List<BrowsingHistory>
+    @Query("SELECT * From BrowsingHistory WHERE domain = :domain  ORDER BY browsedDateTime DESC")
+    suspend fun getAllBrowsingHistory(domain: String = DawnApp.currentDomain): List<BrowsingHistory>
 
-    @Query("SELECT * From BrowsingHistory WHERE date(browsedDateTime)=date(:date) ORDER BY browsedDateTime DESC")
-    fun getBrowsingHistoryByDate(date: LocalDateTime): LiveData<List<BrowsingHistory>>
+    @Query("SELECT * From BrowsingHistory WHERE domain = :domain AND date(browsedDateTime)=date(:date) ORDER BY browsedDateTime DESC")
+    fun getBrowsingHistoryByDate(date: LocalDateTime, domain: String = DawnApp.currentDomain): LiveData<List<BrowsingHistory>>
 
-    @Query("SELECT * From BrowsingHistory WHERE date(browsedDateTime)=date(:today) AND postId=:postId ORDER BY browsedDateTime DESC LIMIT 1")
-    suspend fun getBrowsingHistoryByTodayAndIdSync(today: LocalDateTime, postId: String): BrowsingHistory?
+    @Query("SELECT * From BrowsingHistory WHERE domain = :domain AND date(browsedDateTime)=date(:today) AND postId=:postId ORDER BY browsedDateTime DESC LIMIT 1")
+    suspend fun getBrowsingHistoryByTodayAndIdSync(today: LocalDateTime, postId: String, domain: String = DawnApp.currentDomain): BrowsingHistory?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertBrowsingHistory(browsingHistory: BrowsingHistory)

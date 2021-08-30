@@ -26,6 +26,7 @@ import android.view.*
 import android.widget.TextView
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
@@ -64,6 +65,11 @@ class NotificationFragment : DaggerFragment() {
 
     private var binding: FragmentNotificationBinding? = null
     private var mAdapter: NotificationAdapter? = null
+
+    private val notificationObs = Observer<List<NotificationAndPost>> { list ->
+        if (list.isNullOrEmpty()) mAdapter?.showNoData()
+        else mAdapter?.setDiffNewData(list.toMutableList())
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -124,11 +130,12 @@ class NotificationFragment : DaggerFragment() {
         }
 
         mAdapter?.setEmptyView(R.layout.view_no_data)
-        viewModel.notificationAndPost.observe(viewLifecycleOwner) { list ->
-            if (list.isNullOrEmpty()) mAdapter?.showNoData()
-            else mAdapter?.setDiffNewData(list.toMutableList())
-        }
+        viewModel.notificationAndPost.observe(viewLifecycleOwner, notificationObs)
 
+
+        sharedVM.currentDomain.observe(viewLifecycleOwner) {
+            viewModel.changeDomain(it)
+        }
         // Inflate the layout for this fragment
         return binding!!.root
     }

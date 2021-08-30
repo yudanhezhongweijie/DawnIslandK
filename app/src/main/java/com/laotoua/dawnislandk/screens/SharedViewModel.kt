@@ -29,10 +29,7 @@ import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.data.repository.CommunityRepository
 import com.laotoua.dawnislandk.screens.util.ContentTransformation
-import com.laotoua.dawnislandk.util.DataResource
-import com.laotoua.dawnislandk.util.LoadingStatus
-import com.laotoua.dawnislandk.util.ReadableTime
-import com.laotoua.dawnislandk.util.SingleLiveEvent
+import com.laotoua.dawnislandk.util.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -51,6 +48,7 @@ class SharedViewModel @Inject constructor(
     private val emojiDao: EmojiDao,
     private val communityRepository: CommunityRepository
 ) : ViewModel() {
+
 
     val communityList: LiveData<DataResource<List<Community>>> = communityRepository.communityList
     val timelineList: LiveData<DataResource<List<Timeline>>> = communityRepository.timelineList
@@ -71,11 +69,29 @@ class SharedViewModel @Inject constructor(
 
     private var forumMsgMapping = mapOf<String, String>()
 
-    var timelineNameMapping = mapOf<String, String>()
-        private set
+    private var timelineNameMapping = mapOf<String, String>()
     private var timelineMsgMapping = mapOf<String, String>()
 
-    var forumRefresh = false
+    var forceRefresh = false
+    val hostChange: MutableLiveData<SingleLiveEvent<Boolean>> = MutableLiveData()
+
+    val currentDomain: MutableLiveData<String> = MutableLiveData()
+
+    fun refreshCommunitiesAndTimelines() {
+        viewModelScope.launch {
+            communityRepository.refreshCommunitiesAndTimelines()
+        }
+    }
+
+    fun onADNMB() {
+        DawnApp.onDomain(DawnConstants.ADNMBDomain)
+        currentDomain.postValue(DawnConstants.ADNMBDomain)
+    }
+
+    fun onTNMB() {
+        DawnApp.onDomain(DawnConstants.TNMBDomain)
+        currentDomain.postValue(DawnConstants.TNMBDomain)
+    }
 
     init {
         getRandomReedPicture()
@@ -175,9 +191,9 @@ class SharedViewModel @Inject constructor(
     }
 
     // timeline has `-` prefix, otherwise is just regular forum
-    fun setForumId(fid: String) {
+    fun setForumId(fid: String, refresh: Boolean = false) {
         Timber.d("Setting forum to id: $fid")
-        forumRefresh = _selectedForumId.value == fid
+        forceRefresh = refresh || _selectedForumId.value == fid
         _selectedForumId.value = fid
     }
 
@@ -187,20 +203,24 @@ class SharedViewModel @Inject constructor(
 
     fun getRandomLoadingBible(): String = if (this::loadingBible.isInitialized) loadingBible.random() else "正在加载中..."
 
-    fun getForumOrTimelineMsg(id: String): String = if (id.startsWith("-")) getTimelineMsg(id) else getForumMsg(id)
-    private fun getForumMsg(id: String): String = if (id.isBlank()) "" else forumMsgMapping[id] ?: ""
-    private fun getTimelineMsg(id: String): String {
-        val mid = id.substringAfter("-")
-        return if (mid.isBlank()) "" else timelineMsgMapping[mid] ?: ""
+    fun getForumOrTimelineMsg(fid: String): String {
+        var msg = forumMsgMapping[fid]
+        if (msg.isNullOrBlank() && fid.startsWith("-")) {
+            val id = fid.substringAfter("-")
+            if (id.isNotBlank()) msg = timelineMsgMapping[id]
+        }
+        if (msg.isNullOrBlank()) msg = ""
+        return msg
     }
 
-    fun getForumOrTimelineDisplayName(fid: String): String = if (fid.startsWith("-")) getTimelineDisplayName(fid) else getForumDisplayName(fid)
-
-    private fun getForumDisplayName(fid: String): String = if (fid.isBlank()) "" else forumNameMapping[fid] ?: "A岛"
-
-    private fun getTimelineDisplayName(fid: String): String {
-        val id = fid.substringAfter("-")
-        return if (id.isBlank()) "" else timelineNameMapping[id] ?: "A岛"
+    fun getForumOrTimelineDisplayName(fid: String): String {
+        var name = forumNameMapping[fid]
+        if (name.isNullOrBlank() && fid.startsWith("-")) {
+            val id = fid.substringAfter("-")
+            if (id.isNotBlank()) name = timelineNameMapping[id]
+        }
+        if (name.isNullOrBlank()) name = "A岛"
+        return name
     }
 
     fun getSelectedPostForumName(fid: String): String = getForumOrTimelineDisplayName(fid)
@@ -274,7 +294,7 @@ class SharedViewModel @Inject constructor(
                     if (post.userid == draft.cookieName && striped == draft.content) {
                         // store server's copy
                         draft.content = post.content
-                        postHistoryDao.insertPostHistory(PostHistory(post.id, 1, post.img, post.ext, draft))
+                        postHistoryDao.insertPostHistory(PostHistory(post.id, 1, post.img, post.ext, DawnApp.currentDomain, draft))
                         saved = true
                         _savePostStatus.postValue(SingleLiveEvent.create(true))
                         Timber.d("Saved new post with id ${post.id}")
@@ -331,7 +351,7 @@ class SharedViewModel @Inject constructor(
             if (reply.userid == draft.cookieName && striped == draft.content) {
                 // store server's copy
                 draft.content = reply.content
-                postHistoryDao.insertPostHistory(PostHistory(reply.id, targetPage, reply.img, reply.ext, draft))
+                postHistoryDao.insertPostHistory(PostHistory(reply.id, targetPage, reply.img, reply.ext, DawnApp.currentDomain, draft))
                 _savePostStatus.postValue(SingleLiveEvent.create(true))
                 Timber.d("Saved posted comment with id ${reply.id}")
                 return

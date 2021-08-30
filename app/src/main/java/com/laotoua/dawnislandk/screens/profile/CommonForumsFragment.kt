@@ -33,6 +33,7 @@ import com.chad.library.adapter.base.listener.OnItemDragListener
 import com.chad.library.adapter.base.listener.OnItemSwipeListener
 import com.chad.library.adapter.base.module.DraggableModule
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.data.local.entity.Community
 import com.laotoua.dawnislandk.data.local.entity.Forum
@@ -139,7 +140,7 @@ class CommonForumsFragment : DaggerFragment() {
     }
 
     override fun onDestroyView() {
-        val common = Community.makeCommonForums(commonForumAdapter?.data ?: emptyList())
+        val common = Community.makeCommonForums(commonForumAdapter?.data ?: emptyList(), DawnApp.currentDomain)
         sharedVM.saveCommonCommunity(common)
         toast(R.string.might_need_to_restart_to_apply_setting)
         super.onDestroyView()

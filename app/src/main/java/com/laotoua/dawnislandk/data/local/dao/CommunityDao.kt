@@ -19,15 +19,16 @@ package com.laotoua.dawnislandk.data.local.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.entity.Community
 
 @Dao
 interface CommunityDao {
-    @Query("SELECT * FROM Community ORDER BY sort ASC")
-    fun getAll(): LiveData<List<Community>>
+    @Query("SELECT * FROM Community WHERE domain = :domain ORDER BY sort ASC")
+    fun getAll(domain: String = DawnApp.currentDomain): LiveData<List<Community>>
 
-    @Query("SELECT * FROM Community WHERE id=:id")
-    suspend fun getCommunityById(id: String): Community
+    @Query("SELECT * FROM Community WHERE id=:id AND domain = :domain")
+    suspend fun getCommunityById(id: String, domain: String = DawnApp.currentDomain): Community
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(community: Community)
@@ -39,5 +40,5 @@ interface CommunityDao {
     suspend fun delete(community: Community)
 
     @Query("DELETE FROM Community")
-    fun nukeTable()
+    suspend fun nukeTable()
 }

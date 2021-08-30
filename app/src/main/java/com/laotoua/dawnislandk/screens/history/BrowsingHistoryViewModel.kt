@@ -20,6 +20,7 @@ package com.laotoua.dawnislandk.screens.history
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.dao.BrowsingHistoryDao
 import com.laotoua.dawnislandk.data.local.entity.BrowsingHistoryAndPost
 import java.time.LocalDateTime
@@ -33,9 +34,17 @@ class BrowsingHistoryViewModel @Inject constructor(private val browsingHistoryDa
     var startDate: LocalDateTime = endDate.minusWeeks(1)
     private var currentList: LiveData<List<BrowsingHistoryAndPost>>? = null
     val browsingHistoryList = MediatorLiveData<List<BrowsingHistoryAndPost>>()
+    private var cacheDomain: String = DawnApp.currentDomain
 
     init {
         searchByDate()
+    }
+
+    fun changeDomain(domain: String) {
+        if (cacheDomain != domain) {
+            searchByDate()
+            cacheDomain = domain
+        }
     }
 
     fun searchByDate() {

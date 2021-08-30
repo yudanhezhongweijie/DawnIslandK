@@ -30,14 +30,14 @@ data class Forum(
     val fgroup: String = "",
     val sort: String = "",
     val name: String,
-    val showName: String = "",
+    val showName: String? = "",
     val msg: String,
     val interval: String = "",
     val createdAt: String = "",
     val updateAt: String = "",
     val status: String = ""
 ) {
-    fun getDisplayName(): String =  if (showName.isNotBlank()) showName else name
+    fun getDisplayName(): String =  if (!showName.isNullOrBlank()) showName else name
 
     fun isFakeForum():Boolean = fgroup == "42" && sort == "42" && name == "42"  && msg == "42"
 

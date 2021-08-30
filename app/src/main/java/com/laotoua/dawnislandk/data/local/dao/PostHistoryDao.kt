@@ -19,20 +19,21 @@ package com.laotoua.dawnislandk.data.local.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.entity.PostHistory
 import java.time.LocalDateTime
 
 @Dao
 interface PostHistoryDao {
-    @Query("SELECT * From PostHistory ORDER BY postDateTime DESC")
-    fun getAllPostHistory(): LiveData<List<PostHistory>>
+    @Query("SELECT * From PostHistory WHERE domain=:domain ORDER BY postDateTime DESC")
+    fun getAllPostHistory(domain: String = DawnApp.currentDomain): LiveData<List<PostHistory>>
 
     @Transaction
-    @Query("SELECT * From PostHistory WHERE postDateTime>=:startDate AND postDateTime<=:endDate ORDER BY postDateTime DESC ")
-    fun getAllPostHistoryInDateRange(startDate: LocalDateTime, endDate: LocalDateTime): LiveData<List<PostHistory>>
+    @Query("SELECT * From PostHistory WHERE postDateTime>=:startDate AND postDateTime<=:endDate AND domain=:domain ORDER BY postDateTime DESC ")
+    fun getAllPostHistoryInDateRange(startDate: LocalDateTime, endDate: LocalDateTime, domain: String = DawnApp.currentDomain): LiveData<List<PostHistory>>
 
-    @Query("SELECT * From PostHistory WHERE postDateTime=:date")
-    fun getPostHistoryByDate(date: LocalDateTime): LiveData<List<PostHistory>>
+    @Query("SELECT * From PostHistory WHERE postDateTime=:date AND domain=:domain")
+    fun getPostHistoryByDate(date: LocalDateTime, domain: String = DawnApp.currentDomain): LiveData<List<PostHistory>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPostHistory(browsingHistory: PostHistory)

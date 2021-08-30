@@ -30,6 +30,7 @@ import android.os.SystemClock
 import android.text.style.UnderlineSpan
 import android.view.*
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.text.toSpannable
@@ -200,7 +201,7 @@ class CommentsFragment : DaggerFragment() {
                                 Timber.e("Did not find image in for comment #$position")
                                 return@setOnItemChildClickListener
                             }
-                            getImageViewerPopup().setSrcView(null, pos)
+                            getImageViewerPopup().setSrcView(view as ImageView, pos)
                             XPopup.Builder(context)
                                 .asCustom(getImageViewerPopup())
                                 .show()

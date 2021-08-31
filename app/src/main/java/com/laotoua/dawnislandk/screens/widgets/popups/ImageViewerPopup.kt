@@ -81,8 +81,7 @@ class ImageViewerPopup(context: Context) : ImageViewerPopupView(context) {
             //更新srcView
             //一定要post，因为setCurrentItem内部实现是RecyclerView.scrollTo()，这个是异步的
             pager?.post { //由于ViewPager2内部是包裹了一个RecyclerView，而RecyclerView始终维护一个子View
-                val fl = pager.getChildAt(0) as FrameLayout
-                this@ImageViewerPopup.updateSrcView(fl.getChildAt(0) as ImageView)
+                ((pager.getChildAt(0) as? FrameLayout)?.getChildAt(0) as? ImageView)?.let { imageView -> this@ImageViewerPopup.updateSrcView(imageView) }
             }
 
         }
@@ -289,8 +288,7 @@ class ImageViewerPopup(context: Context) : ImageViewerPopupView(context) {
             pager?.adapter?.notifyDataSetChanged()
             pager?.setCurrentItem(position, false)
             pager?.post { //由于ViewPager2内部是包裹了一个RecyclerView，而RecyclerView始终维护一个子View
-                val fl = pager.getChildAt(0) as FrameLayout
-                this@ImageViewerPopup.updateSrcView(fl.getChildAt(0) as ImageView)
+                ((pager.getChildAt(0) as? FrameLayout)?.getChildAt(0) as? ImageView)?.let { imageView -> this@ImageViewerPopup.updateSrcView(imageView) }
             }
             // clear loading flag
             nextPageLoading = false

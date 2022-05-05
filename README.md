@@ -1,3 +1,15 @@
+# Notice 须知
+**因为原网站已经不再运营，这个客户端也就失去了存在的意义。。。感谢曾经的用户以及各位的朋友的支持和帮助( ´_っ`)**
+
+**This repository is no longer maintained because its website has come to an end of support. Thank you for using this app, I really appreciated it.**
+
+-----
+-----
+-----
+-----
+-----
+-----
+
 # DawnIslandK 黎明岛K
 这是一个浮夸的A岛(adnmb.com)客户端，特性功能请看截图。
 如果对app使用有问题或建议请提交新的issue。

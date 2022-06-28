@@ -1,22 +1,12 @@
-# Notice 须知
-**正在复活中。。请耐心等待**
-
-**Updating to the new domain...**
-
 ![image](https://user-images.githubusercontent.com/43075130/174718178-4b95e919-5fdb-4fc5-80c1-377e28a6976f.png)
-
------
------
------
------
 -----
 -----
 
 # DawnIslandK 黎明岛K
-这是一个浮夸的A岛(adnmb.com)客户端，特性功能请看截图。
+这是一个浮夸的X岛(nmbxd.com)客户端，特性功能请看截图(gif更新就摸了。。）。
 如果对app使用有问题或建议请提交新的issue。
 
-**DawnIslandK** is an Android client for adnmb.com. It is based on MVVM, following structural designs of [todoapp](https://github.com/android/architecture-samples) and [dagger-android](https://github.com/android/architecture-samples/tree/dagger-android) by Google.
+**DawnIslandK** is an Android client for nmbxd.com. It is based on MVVM, following structural designs of [todoapp](https://github.com/android/architecture-samples) and [dagger-android](https://github.com/android/architecture-samples/tree/dagger-android) by Google.
 
 This app utilizes many latest Android features, concepts, propositions and guidlines, including but not limited to: Single Activity Application, Scoped Storage & MediaStore, Kotlin Coroutine, Navigations, Lifecycle, LiveData, Room, ActivityResultContracts, ViewPager2 and Material Design.
 

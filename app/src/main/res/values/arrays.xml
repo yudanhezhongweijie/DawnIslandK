@@ -299,7 +299,7 @@
     </string-array>
 
     <string-array name="download_options">
-        <item>A岛(下载前请检查版本)</item>
+        <item>X岛(下载前请检查版本)</item>
         <item>Github</item>
         <item>Google Play</item>
     </string-array>

@@ -72,7 +72,7 @@ class IntentsHelper(private val registry: ActivityResultRegistry, private val ma
 
     override fun onCreate(owner: LifecycleOwner) {
         requestSinglePermission =
-            registry.register("request_single_perm", owner, ActivityResultContracts.RequestPermission()) {
+            registry.register(REQUEST_SINGLE_PERM, owner, ActivityResultContracts.RequestPermission()) {
                 if (it) {
                     toast(R.string.please_try_again)
                 } else {
@@ -81,7 +81,7 @@ class IntentsHelper(private val registry: ActivityResultRegistry, private val ma
             }
 
         requestMultiplePermissions = registry.register(
-            "request_multiple_perms",
+            REQUEST_MULTIPLE_PERMS,
             owner,
             ActivityResultContracts.RequestMultiplePermissions()
         ) { permissions ->
@@ -93,13 +93,13 @@ class IntentsHelper(private val registry: ActivityResultRegistry, private val ma
         }
 
         getImageFromGallery =
-            registry.register("get_image_from_gallery", owner, ActivityResultContracts.GetContent()) { uri ->
+            registry.register(GET_IMAGE_FROM_GALLERY, owner, ActivityResultContracts.GetContent()) { uri ->
                 // Handle the returned Uri
                 postPopup?.compressAndPreviewImage(uri)
                 postPopup = null
             }
 
-        takePicture = registry.register("take_picture", owner, ActivityResultContracts.TakePicture()) {
+        takePicture = registry.register(TAKE_PICTURE, owner, ActivityResultContracts.TakePicture()) {
             if (it == true) {
                 // Handle the returned Uri
                 postPopup?.compressAndPreviewImage(placeHolderUri)
@@ -109,20 +109,20 @@ class IntentsHelper(private val registry: ActivityResultRegistry, private val ma
             }
         }
 
-        drawNewDoodle = registry.register("make_doodle", owner, MakeDoodle()) { uri ->
+        drawNewDoodle = registry.register(MAKE_DOODLE, owner, MakeDoodle()) { uri ->
             Timber.d("Made a doodle. Prepare to upload...")
             postPopup?.compressAndPreviewImage(uri)
             postPopup = null
         }
 
-        getCookieFromQRCode = registry.register("get_cookie_from_qr_code", owner, ScanQRCode()) { cookie ->
+        getCookieFromQRCode = registry.register(GET_COOKIE_FROM_QR_CODE, owner, ScanQRCode()) { cookie ->
             cookie?.run {
                 profileFragment?.saveCookieWithInputName(this)
             }
             profileFragment = null
         }
 
-        cropToolbarImage = registry.register("crop_toolbar_image", owner, CropToolbarImage()) { uri ->
+        cropToolbarImage = registry.register(CROP_TOOLBAR_IMAGE, owner, CropToolbarImage()) { uri ->
             if (uri != null) {
                 DawnApp.applicationDataStore.setCustomToolbarImagePath(uri.toString())
                 toast(R.string.restart_to_apply_setting)
@@ -214,7 +214,7 @@ class IntentsHelper(private val registry: ActivityResultRegistry, private val ma
 
         override fun parseResult(resultCode: Int, intent: Intent?): String? {
             return if (intent == null || resultCode != Activity.RESULT_OK) null else intent.getStringExtra(
-                "SCAN_RESULT"
+                CAMERA_SCAN_RESULT
             )
         }
     }
@@ -239,5 +239,17 @@ class IntentsHelper(private val registry: ActivityResultRegistry, private val ma
     override fun onDestroy(owner: LifecycleOwner) {
         super.onDestroy(owner)
         postPopup = null
+    }
+
+    companion object {
+
+        const val REQUEST_SINGLE_PERM = "request_single_perm"
+        const val REQUEST_MULTIPLE_PERMS = "request_multiple_perms"
+        const val CROP_TOOLBAR_IMAGE = "crop_toolbar_image"
+        const val GET_IMAGE_FROM_GALLERY = "get_image_from_gallery"
+        const val TAKE_PICTURE = "take_picture"
+        const val MAKE_DOODLE = "make_doodle"
+        const val GET_COOKIE_FROM_QR_CODE = "get_cookie_from_qr_code"
+        const val CAMERA_SCAN_RESULT = "camera_scan_result"
     }
 }

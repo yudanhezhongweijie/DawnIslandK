@@ -277,32 +277,34 @@ class SharedViewModel @Inject constructor(
             delay(3000L) // give some time the server to refresh
             val draft = PostHistory.Draft(newPost, postTargetId, postTargetFid, cookieName, content, LocalDateTime.now())
             if (!newPost) searchCommentInPost(draft, postTargetPage, false)
-            else searchPostInForum(draft, postTargetFid)
+            else searchPostInForum(draft, postTargetFid, 1)
         }
     }
 
-    private suspend fun searchPostInForum(draft: PostHistory.Draft, targetFid: String) {
-        Timber.d("Searching new Post in the first page of forum $targetFid")
+    // Search up to last 3 pages
+    private suspend fun searchPostInForum(draft: PostHistory.Draft, targetFid: String, page: Int) {
+        if (page > 3) {
+            Timber.e("Failed to save new post after searching more than $page pages in forum $targetFid")
+            return
+        }
+        Timber.d("Searching new Post in the $page page of forum $targetFid")
         var saved = false
-        webNMBServiceClient.getPosts(targetFid, 1).run {
+        webNMBServiceClient.getPosts(targetFid, page).run {
             if (this is APIDataResponse.Success) {
                 for (post in data!!) {
-                    // content may be formatted to html by server hence compared by unformatted string
                     if (post.userHash == draft.cookieName) {
                         // store server's copy
                         draft.content = post.content
                         postHistoryDao.insertPostHistory(PostHistory(post.id, 1, post.img, post.ext, DawnApp.currentDomain, draft))
                         saved = true
                         Timber.d("Saved new post with id ${post.id}")
-                        break
                     }
                 }
                 postDao.insertAll(data)
             }
             _savePostStatus.postValue(SingleLiveEvent.create(saved))
-            if (!saved) {
-                Timber.e("Failed to save new post")
-            }
+            if (!saved) searchPostInForum(draft, targetFid, page + 1)
+
         }
     }
 
@@ -341,17 +343,18 @@ class SharedViewModel @Inject constructor(
         targetPage: Int,
         targetPageUpperBound: Boolean
     ) {
-        for (reply in data.comments.reversed()) {
+        var saved = false
+        for (reply in data.comments) {
             // store every server message as long as name match
             if (reply.userHash == draft.cookieName) {
                 draft.content = reply.content
+                saved = true
                 postHistoryDao.insertPostHistory(PostHistory(reply.id, targetPage, reply.img, reply.ext, DawnApp.currentDomain, draft))
                 _savePostStatus.postValue(SingleLiveEvent.create(true))
                 Timber.d("Saved posted comment with id ${reply.id}")
-                return
             }
         }
-        searchCommentInPost(draft, targetPage - 1, targetPageUpperBound)
+        if (!saved) searchCommentInPost(draft, targetPage - 1, targetPageUpperBound)
     }
 
     fun saveCommonCommunity(commonCommunity: Community) {

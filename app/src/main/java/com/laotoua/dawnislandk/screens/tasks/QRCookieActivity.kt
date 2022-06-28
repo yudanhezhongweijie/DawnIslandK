@@ -33,6 +33,7 @@ import com.king.zxing.util.LogUtils
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.screens.util.ToolBar.themeStatusBar
 import com.laotoua.dawnislandk.util.ImageUtil
+import com.laotoua.dawnislandk.util.IntentsHelper.Companion.CAMERA_SCAN_RESULT
 import timber.log.Timber
 
 class QRCookieActivity : CaptureActivity() {
@@ -51,7 +52,8 @@ class QRCookieActivity : CaptureActivity() {
                     val res = CodeUtils.parseQRCode(file.path)
                     if (res != null) {
                         val intent = Intent()
-                        intent.putExtra(Intents.Scan.RESULT, res)
+
+                        intent.putExtra(CAMERA_SCAN_RESULT, res)
                         setResult(Activity.RESULT_OK, intent)
                         finish()
                     } else {

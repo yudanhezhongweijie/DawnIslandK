@@ -35,11 +35,11 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
     suspend fun getNMBSearch(
         query: String,
         page: Int = 1,
-        userhash: String
+        userHash: String
     ): APIDataResponse<SearchResult> {
         Timber.d("Getting search result for $query on Page $page...")
         return APIDataResponse.create(
-            service.getNMBSearch(query, page, userhash, DawnConstants.fastMirrorHost),
+            service.getNMBSearch(query, page, userHash, DawnConstants.NMBXDHost),
             NMBJsonParser.SearchResultParser(query, page)
         )
     }

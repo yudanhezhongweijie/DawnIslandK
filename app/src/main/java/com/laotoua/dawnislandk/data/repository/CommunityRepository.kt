@@ -56,7 +56,7 @@ class CommunityRepository @Inject constructor(
         communityList.addSource(currentDomainCommunities!!) {
             communityList.value = it
         }
-        if  (DawnApp.currentDomain == DawnConstants.ADNMBDomain) {
+        if (DawnApp.currentDomain == DawnConstants.NMBXDDomain) {
             if (currentDomainTimelines != null) timelineList.removeSource(currentDomainTimelines!!)
             currentDomainTimelines = getLiveData<Timeline>(timelineDao::getAll, webService::getTimeLines)
             timelineList.addSource(currentDomainTimelines!!) {

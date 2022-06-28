@@ -33,16 +33,16 @@ data class Post(
     val img: String,//	该串的图片相对地址
     val ext: String, // 	该串图片的后缀
     val now: String,// 	该串的可视化发言时间
-    val userid: String, // 	该串的饼干
+    @Json(name = "user_hash") val userHash: String, // 	该串的饼干
     val name: String,
-    val email: String,
+    val email: String = "",
     val title: String,
     val content: String,
     val sage: String = "",
     val admin: String = "0",//admin 	是否是酷炫红名，如果是酷炫红名则userid为红名id
     val status: String = "",
-    @Json(name = "replys") @Ignore var comments: List<Comment> = emptyList(), //replys 	主页展示回复的帖子(5个）
-    val replyCount: String = "0",
+    @Json(name = "Replies") @Ignore var comments: List<Comment> = emptyList(), //replys 	主页展示回复的帖子(5个）
+    @Json(name = "ReplyCount") val replyCount: String = "0",
     val domain: String = DawnApp.currentDomain,
     var lastUpdatedAt: LocalDateTime = LocalDateTime.now()
 ) {
@@ -53,7 +53,7 @@ data class Post(
         img: String,
         ext: String,
         now: String,
-        userid: String,
+        userHash: String,
         name: String,
         email: String,
         title: String,
@@ -70,7 +70,7 @@ data class Post(
         img,
         ext,
         now,
-        userid,
+        userHash,
         name,
         email,
         title,
@@ -87,7 +87,7 @@ data class Post(
     // convert threadList to Reply
     fun toComment() = Comment(
         id,
-        userid,
+        userHash,
         name,
         sage,
         admin,
@@ -116,7 +116,7 @@ data class Post(
         if (other is Post) {
             id == other.id && fid == other.fid && img == other.img
                     && ext == other.ext && now == other.now
-                    && userid == other.userid && name == other.name
+                    && userHash == other.userHash && name == other.name
                     && email == other.email && title == other.title
                     && content == other.content && sage == other.sage
                     && admin == other.admin && status == other.status
@@ -129,7 +129,7 @@ data class Post(
         result = 31 * result + img.hashCode()
         result = 31 * result + ext.hashCode()
         result = 31 * result + now.hashCode()
-        result = 31 * result + userid.hashCode()
+        result = 31 * result + userHash.hashCode()
         result = 31 * result + name.hashCode()
         result = 31 * result + email.hashCode()
         result = 31 * result + title.hashCode()
@@ -152,7 +152,7 @@ data class Post(
             img = img,
             ext = ext,
             now = now,
-            userid = userid,
+            userHash = userHash,
             name = name,
             email = email,
             title = title,

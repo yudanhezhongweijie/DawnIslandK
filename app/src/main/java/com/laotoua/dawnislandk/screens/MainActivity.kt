@@ -148,7 +148,7 @@ class MainActivity : DaggerAppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         binding.toolbar.apply {
             immersiveToolbar()
-            setSubtitle(R.string.toolbar_subtitle_adnmb)
+            setSubtitle(R.string.toolbar_subtitle_nmbxd)
         }
         immersiveToolbarInitialization()
         customToolbarBackground()
@@ -176,7 +176,7 @@ class MainActivity : DaggerAppCompatActivity() {
             }
             if (it.data.isNullOrEmpty()) return@observe
 
-            if (DawnApp.currentDomain == DawnConstants.ADNMBDomain) forumDrawer?.setCommunities(it.data)
+            if (DawnApp.currentDomain == DawnConstants.NMBXDDomain) forumDrawer?.setCommunities(it.data)
 
             sharedVM.setForumMappings(it.data)
 
@@ -197,7 +197,7 @@ class MainActivity : DaggerAppCompatActivity() {
                 return@observe
             }
             if (it.data.isNullOrEmpty()) return@observe
-            if (DawnApp.currentDomain == DawnConstants.ADNMBDomain) forumDrawer?.setTimelines(it.data)
+            if (DawnApp.currentDomain == DawnConstants.NMBXDDomain) forumDrawer?.setTimelines(it.data)
             sharedVM.setTimelineMappings(it.data)
             Timber.i("Loaded ${it.data.size} timelines to Adapter")
         }
@@ -224,8 +224,8 @@ class MainActivity : DaggerAppCompatActivity() {
                 Timber.d("Received intent data $data path ${data.path} schema ${data.scheme}")
                 if (data.scheme != DawnApp.currentDomain){
                     when (data.scheme) {
-                        DawnConstants.ADNMBDomain -> {
-                            goToADNMB()
+                        DawnConstants.NMBXDDomain -> {
+                            goToNMBXD()
                         }
                         DawnConstants.TNMBDomain -> {
                             goToTNMB()
@@ -275,7 +275,7 @@ class MainActivity : DaggerAppCompatActivity() {
                     override fun beforeShow(popupView: BasePopupView?) {
                         super.beforeShow(popupView)
                         sharedVM.communityList.value?.data?.let { drawer.setCommunities(it) }
-                        if (DawnApp.currentDomain == DawnConstants.ADNMBDomain) {
+                        if (DawnApp.currentDomain == DawnConstants.NMBXDDomain) {
                             sharedVM.timelineList.value?.data?.let { drawer.setTimelines(it) }
                         } else {
                             drawer.setTimelines(emptyList())
@@ -312,7 +312,7 @@ class MainActivity : DaggerAppCompatActivity() {
                     waitForPositiveButton = true
                 ) { _, index, _ ->
                     val uri = when (index) {
-                        0 -> Uri.parse(DawnConstants.DOWNLOAD_ADNMB)
+                        0 -> Uri.parse(DawnConstants.DOWNLOAD_NMBXD)
                         1 -> Uri.parse(release.downloadUrl)
                         2 -> Uri.parse(DawnConstants.DOWNLOAD_GOOGLE_PLAY)
                         else -> Uri.parse("https://github.com/fishballzzz/DawnIslandK")
@@ -337,7 +337,7 @@ class MainActivity : DaggerAppCompatActivity() {
                 positiveButton(R.string.close) {
                     notice.read = isCheckPromptChecked()
                     if (notice.read) lifecycleScope.launch {
-                        applicationDataStore.readNMBNotice(notice)
+                        applicationDataStore.readNMBXDNotice(notice)
                     }
                 }
             }
@@ -594,20 +594,20 @@ class MainActivity : DaggerAppCompatActivity() {
         sharedVM.refreshCommunitiesAndTimelines()
     }
 
-    fun goToADNMB() {
+    fun goToNMBXD() {
         Timber.d("Switching to AD......")
         // must update host first because cache updates require new host
-        RetrofitUrlManager.getInstance().putDomain("host", DawnConstants.ADNMBHost)
-        RetrofitUrlManager.getInstance().putDomain("nmb", DawnConstants.ADNMBHost)
-        RetrofitUrlManager.getInstance().putDomain("nmb-ref", DawnConstants.ADNMBHost)
+        RetrofitUrlManager.getInstance().putDomain("host", DawnConstants.NMBXDHost)
+        RetrofitUrlManager.getInstance().putDomain("nmb", DawnConstants.NMBXDHost)
+        RetrofitUrlManager.getInstance().putDomain("nmb-ref", DawnConstants.NMBXDHost)
 
-        sharedVM.onADNMB()
+        sharedVM.onNMBXD()
         refreshApplicationCache()
         autoSelectCDNs()
 
         sharedVM.setForumId(applicationDataStore.getDefaultForumId(), true)
 
-        binding.toolbar.setSubtitle(R.string.toolbar_subtitle_adnmb)
+        binding.toolbar.setSubtitle(R.string.toolbar_subtitle_nmbxd)
     }
 
     fun goToTNMB() {

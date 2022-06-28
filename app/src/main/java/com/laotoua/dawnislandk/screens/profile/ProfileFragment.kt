@@ -69,6 +69,7 @@ class ProfileFragment : DaggerFragment() {
                     val file = ImageUtil.getImageFileFromUri(requireActivity(), uri)
                         ?: return@registerForActivityResult
                     val res = CodeUtils.parseQRCode(file.path)
+                    Timber.d("Extracted result from Cookie Image $res")
                     if (res != null) {
                         saveCookieWithInputName(res)
                     } else {
@@ -213,13 +214,6 @@ class ProfileFragment : DaggerFragment() {
                                     !text.isNullOrBlank() && !cookieName.text.isNullOrBlank()
                                 neuralButton.isEnabled = !text.isNullOrBlank()
                             }
-                            @Suppress("DEPRECATION")
-                            neutralButton(R.string.default_cookie_name) {
-                                val cookieHashText = cookieHash.text.toString()
-                                if (cookieHashText.isNotBlank()) {
-                                    viewModel.addNewCookie(cookieHashText)
-                                }
-                            }
                         }
                     }
                 }
@@ -319,7 +313,7 @@ class ProfileFragment : DaggerFragment() {
                 binding?.cookieList?.childCount ?: 0,
                 cookieLimit
             )
-        if (binding?.cookieList?.childCount ?: 0 >= 5) {
+        if ((binding?.cookieList?.childCount ?: 0) >= 5) {
             binding?.addCookie?.isEnabled = false
         }
     }
@@ -327,17 +321,18 @@ class ProfileFragment : DaggerFragment() {
     fun saveCookieWithInputName(cookieJson: String) {
         try {
             val cookieHash = JSONObject(cookieJson).getString("cookie")
+            val cookieName = JSONObject(cookieJson).getString("name")
             MaterialDialog(requireContext()).show {
                 lifecycleOwner(this@ProfileFragment)
                 title(R.string.edit_cookie_remark)
                 cancelable(false)
-                input(hint = cookieHash) { _, text ->
-                    viewModel.addNewCookie(cookieHash, text.toString())
+                input(hint = cookieName) { _, text ->
+                    viewModel.addNewCookie(cookieHash, cookieName, text.toString())
                 }
                 positiveButton(R.string.submit)
                 @Suppress("DEPRECATION")
                 neutralButton(R.string.default_cookie_name) {
-                    viewModel.addNewCookie(cookieHash)
+                    viewModel.addNewCookie(cookieHash, cookieName)
                 }
 
                 negativeButton(R.string.cancel) {

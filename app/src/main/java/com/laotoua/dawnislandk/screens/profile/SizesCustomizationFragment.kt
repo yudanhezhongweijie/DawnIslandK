@@ -58,7 +58,7 @@ class SizesCustomizationFragment : Fragment() {
             name.visibility = View.VISIBLE
             name.text = "名称： 无名氏"
             refId.setText(R.string.sample_ref_id)
-            userId.setText(R.string.sample_user_id)
+            userHash.setText(R.string.sample_user_hash)
             timestamp.setText(R.string.sample_timestamp_simplified)
             attachedImage.setImageResource(R.mipmap.ic_launcher)
             val threadForumAndReplyCount =

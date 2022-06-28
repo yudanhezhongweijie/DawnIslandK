@@ -265,7 +265,7 @@ class CustomSettingFragment : DaggerFragment() {
                                     message(R.string.set_base_cdn_prompt)
                                     input(
                                         hint = baseCDN,
-                                        prefill = baseCDN,
+                                        prefill = if (baseCDN == "auto") "" else baseCDN,
                                         waitForPositiveButton = false
                                     ) { dialog, text ->
                                         val inputField = dialog.getInputField()
@@ -314,7 +314,7 @@ class CustomSettingFragment : DaggerFragment() {
                                     message(R.string.set_ref_cdn_prompt)
                                     input(
                                         hint = refCDN,
-                                        prefill = refCDN,
+                                        prefill = if (refCDN == "auto") "" else refCDN,
                                         waitForPositiveButton = false
                                     ) { dialog, text ->
                                         val inputField = dialog.getInputField()

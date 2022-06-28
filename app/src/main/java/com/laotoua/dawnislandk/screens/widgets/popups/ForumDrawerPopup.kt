@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
@@ -166,19 +167,20 @@ class ForumDrawerPopup(
 
         findViewById<MaterialButton>(R.id.hostToggle).apply {
             when (DawnApp.currentDomain) {
-                DawnConstants.ADNMBDomain -> {
+                DawnConstants.NMBXDDomain -> {
                     text = "B(*ﾟ∇ﾟ)T"
                 }
                 DawnConstants.TNMBDomain -> {
-                    text = "A(*´∀`)A"
+                    text = "X(*´∀`)D"
                 }
             }
             setOnClickListener {
-                if (!isShow) return@setOnClickListener
-                dismissWith {
-                    if (DawnApp.currentDomain == DawnConstants.TNMBDomain) (context as MainActivity).goToADNMB()
-                    else (context as MainActivity).goToTNMB()
-                }
+                Toast.makeText(context, "大概也许没了吧？", Toast.LENGTH_LONG).show()
+//                if (!isShow) return@setOnClickListener
+//                dismissWith {
+//                    if (DawnApp.currentDomain == DawnConstants.TNMBDomain) (context as MainActivity).goToNMBXD()
+//                    else (context as MainActivity).goToTNMB()
+//                }
             }
         }
     }

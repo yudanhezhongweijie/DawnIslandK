@@ -31,7 +31,7 @@ data class DailyTrend(
     val date: LocalDateTime, // date when the trends posted
     val trends: List<Trend>,
     val lastReplyCount: Int,
-    val domain:String = DawnConstants.ADNMBDomain
+    val domain: String = DawnConstants.NMBXDDomain
 ) {
 
     val page: Int get() = ceil(lastReplyCount.toDouble() / 19).toInt()

@@ -42,12 +42,12 @@ data class Community(
 
     companion object {
         fun makeCommonForums(forums: List<Forum>, domain: String): Community {
-            val id = if (domain == DawnConstants.ADNMBDomain) "1000" else "2000"
+            val id = if (domain == DawnConstants.NMBXDDomain) "1000" else "2000"
             return Community(id, "0", "常用板块", "n", forums, domain)
         }
 
         fun makeCommonPosts(fakeForums: List<Forum>, domain: String): Community {
-            val id = if (domain == DawnConstants.ADNMBDomain) "1001" else "2001"
+            val id = if (domain == DawnConstants.NMBXDDomain) "1001" else "2001"
             return Community(id, "-1", "常用串", "n", fakeForums, domain)
         }
 

@@ -59,7 +59,7 @@ class CommentRepository @Inject constructor(
     private val fifoPostList = mutableListOf<String>()
     private var currentPostFid = ""
 
-    fun getPo(id: String) = postMap[id]?.userid ?: ""
+    fun getPo(id: String) = postMap[id]?.userHash ?: ""
     fun getMaxPage(id: String) = postMap[id]?.getMaxPage() ?: 1
     fun getFid(id: String) = postMap[id]?.fid ?: ""
 

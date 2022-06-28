@@ -230,7 +230,7 @@ class CommentsFragment : DaggerFragment() {
                                 lifecycleOwner(this@CommentsFragment)
                                 title(R.string.report_reasons)
                                 listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
-                                    val id = if (DawnApp.currentDomain == DawnConstants.ADNMBDomain) "18" else "5"
+                                    val id = if (DawnApp.currentDomain == DawnConstants.NMBXDDomain) "18" else "5"
                                     postPopup.setupAndShow(
                                         id,//值班室
                                         id,
@@ -361,7 +361,7 @@ class CommentsFragment : DaggerFragment() {
                                     putExtra(Intent.EXTRA_TEXT, shareContent)
                                     type = "text/html"
                                     val title =
-                                        if (DawnApp.currentDomain == DawnConstants.ADNMBDomain) (requireContext().getString(R.string.adnmb_title)) else (requireContext().getString(R.string.tnmb_title))
+                                        if (DawnApp.currentDomain == DawnConstants.NMBXDDomain) (requireContext().getString(R.string.nmbxd_title)) else (requireContext().getString(R.string.tnmb_title))
                                     putExtra(Intent.EXTRA_TITLE, "$title · ${sharedVM.getForumOrTimelineDisplayName(viewModel.currentPostFid)} · ${viewModel.currentPostId}")
                                 }
                                 val shareIntent = Intent.createChooser(sendIntent, null)
@@ -625,7 +625,7 @@ class CommentsFragment : DaggerFragment() {
             "${sharedVM.getSelectedPostForumName(viewModel.currentPostFid)} • "
         } else {
             when (DawnApp.currentDomain) {
-                DawnConstants.ADNMBDomain -> "${requireContext().getString(R.string.adnmb_title)} • "
+                DawnConstants.NMBXDDomain -> "${requireContext().getString(R.string.nmbxd_title)} • "
                 DawnConstants.TNMBDomain -> "${requireContext().getString(R.string.tnmb_title)} • "
                 else -> ""
             }

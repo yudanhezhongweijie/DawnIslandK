@@ -41,7 +41,7 @@ import com.laotoua.dawnislandk.screens.posts.PostCardFactory
 import com.laotoua.dawnislandk.screens.widgets.spans.ReferenceSpan
 
 
-class QuickAdapter<T>(
+class QuickAdapter<T : Any>(
     private val layoutResId: Int,
     private val sharedViewModel: SharedViewModel? = null
 ) :
@@ -143,7 +143,7 @@ class QuickAdapter<T>(
 
 
     private fun BaseViewHolder.convertPost(item: Post, forumDisplayName: String) {
-        convertUserId(item.userid, item.admin)
+        convertUserHash(item.userHash, item.admin)
         convertTitleAndName(item.getSimplifiedTitle(), item.getSimplifiedName())
         convertRefId(context, item.id)
         convertTimeStamp(item.now)
@@ -164,8 +164,8 @@ class QuickAdapter<T>(
     }
 
     private fun BaseViewHolder.convertComment(item: Comment, po: String) {
-        convertUserId(item.userid, item.admin, po)
-        setGone(R.id.OPHighlight, item.userid != po)
+        convertUserHash(item.userHash, item.admin, po)
+        setGone(R.id.OPHighlight, item.userHash != po)
         convertTimeStamp(item.now, item.isAd())
         convertSage(item.sage)
         convertRefId(context, item.id, item.isAd())
@@ -206,15 +206,14 @@ class QuickAdapter<T>(
         setImageResource(R.id.luweiSticker, resourceId)
     }
 
-    private class DiffItemCallback<T> : DiffUtil.ItemCallback<T>() {
+    private class DiffItemCallback<T : Any> : DiffUtil.ItemCallback<T>() {
         override fun areItemsTheSame(oldItem: T, newItem: T): Boolean {
             return when {
                 (oldItem is Post && newItem is Post) -> oldItem.id == newItem.id && oldItem.fid == newItem.fid
                 (oldItem is Comment && newItem is Comment) -> {
                     if (oldItem.isAd() && newItem.isAd()) {
                         oldItem.page == newItem.page && oldItem.content == newItem.content
-                    }
-                    else{
+                    } else {
                         oldItem.id == newItem.id && oldItem.content == newItem.content
                                 && oldItem.visible == newItem.visible
                     }

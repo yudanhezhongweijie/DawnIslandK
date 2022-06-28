@@ -20,6 +20,7 @@ package com.laotoua.dawnislandk.data.local.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.laotoua.dawnislandk.DawnApp
+import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import java.time.LocalDateTime
 
@@ -53,9 +54,9 @@ data class Feed(
         val img: String,
         val ext: String,
         val now: String,
-        val userid: String,
+        @Json(name = "user_hash") val userHash: String,
         val name: String,
-        val email: String,
+        val email: String = "",
         val title: String,
         val content: String,
         val admin: String = "0",
@@ -68,7 +69,7 @@ data class Feed(
             img,
             ext,
             now,
-            userid,
+            userHash,
             name,
             email,
             title,

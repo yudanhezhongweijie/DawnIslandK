@@ -74,6 +74,7 @@ class ToolbarBackgroundCropActivity : AppCompatActivity() {
         getImage.launch("image/*")
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == UCrop.REQUEST_CROP && resultCode == Activity.RESULT_OK) {

@@ -2,12 +2,13 @@ package com.laotoua.dawnislandk.data.local.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.entity.Timeline
 
 @Dao
 interface TimelineDao {
-    @Query("SELECT * FROM Timeline")
-    fun getAll(): LiveData<List<Timeline>>
+    @Query("SELECT * FROM Timeline WHERE domain = :domain ")
+    fun getAll(domain: String = DawnApp.currentDomain): LiveData<List<Timeline>>
 
     @Query("SELECT * FROM Timeline WHERE id=:id")
     suspend fun getTimelineById(id: String): Timeline

@@ -48,7 +48,7 @@ import com.laotoua.dawnislandk.data.local.entity.*
         BlockedId::class,
         Notification::class,
         Emoji::class],
-    version = 25
+    version = 26
 )
 @TypeConverters(Converter::class)
 abstract class DawnDatabase : RoomDatabase() {
@@ -360,16 +360,16 @@ abstract class DawnDatabase : RoomDatabase() {
             // add domain flags
             val migrate23To24 = object : Migration(23, 24) {
                 override fun migrate(database: SupportSQLiteDatabase) {
-                    database.execSQL("ALTER TABLE `BlockedId` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'adnmb'")
-                    database.execSQL("ALTER TABLE `BrowsingHistory` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'adnmb'")
-                    database.execSQL("ALTER TABLE `Comment` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'adnmb'")
-                    database.execSQL("ALTER TABLE `Community` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'adnmb'")
-                    database.execSQL("ALTER TABLE `Cookie` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'adnmb'")
-                    database.execSQL("ALTER TABLE `Feed` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'adnmb'")
-                    database.execSQL("ALTER TABLE `Notification` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'adnmb'")
-                    database.execSQL("ALTER TABLE `Post` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'adnmb'")
-                    database.execSQL("ALTER TABLE `PostHistory` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'adnmb'")
-                    database.execSQL("ALTER TABLE `ReadingPage` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'adnmb'")
+                    database.execSQL("ALTER TABLE `BlockedId` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'nmbxd'")
+                    database.execSQL("ALTER TABLE `BrowsingHistory` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'nmbxd'")
+                    database.execSQL("ALTER TABLE `Comment` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'nmbxd'")
+                    database.execSQL("ALTER TABLE `Community` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'nmbxd'")
+                    database.execSQL("ALTER TABLE `Cookie` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'nmbxd'")
+                    database.execSQL("ALTER TABLE `Feed` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'nmbxd'")
+                    database.execSQL("ALTER TABLE `Notification` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'nmbxd'")
+                    database.execSQL("ALTER TABLE `Post` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'nmbxd'")
+                    database.execSQL("ALTER TABLE `PostHistory` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'nmbxd'")
+                    database.execSQL("ALTER TABLE `ReadingPage` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'nmbxd'")
                 }
             }
 
@@ -400,7 +400,7 @@ abstract class DawnDatabase : RoomDatabase() {
                     database.execSQL("ALTER TABLE Cookie2 RENAME TO Cookie")
 
 
-                    database.execSQL("ALTER TABLE `DailyTrend` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'adnmb'")
+                    database.execSQL("ALTER TABLE `DailyTrend` ADD COLUMN `domain` TEXT NOT NULL DEFAULT 'nmbxd'")
                     database.execSQL("CREATE TABLE IF NOT EXISTS `DailyTrend2` (`postId` TEXT NOT NULL, `po` TEXT NOT NULL, `date` TEXT NOT NULL, `trends` TEXT NOT NULL, `lastReplyCount` INTEGER NOT NULL, `domain` TEXT NOT NULL, PRIMARY KEY(`date`, `domain`))")
                     database.execSQL("INSERT OR IGNORE INTO `DailyTrend2`(`postId`, `po`, `date`, `trends`, `lastReplyCount`, `domain`) SELECT `postId`, `po`, `date`, `trends`, `lastReplyCount`, `domain` FROM DailyTrend")
                     database.execSQL("DROP TABLE `DailyTrend`")
@@ -444,6 +444,14 @@ abstract class DawnDatabase : RoomDatabase() {
                 }
             }
 
+            val migrate25To26 = object : Migration(25, 26) {
+                override fun migrate(database: SupportSQLiteDatabase) {
+                    database.execSQL("ALTER TABLE `Post` RENAME COLUMN userid TO userHash;")
+                    database.execSQL("ALTER TABLE `Comment` RENAME COLUMN userid TO userHash;")
+                }
+
+            }
+
             synchronized(this) {
                 val instance = Room.databaseBuilder(context.applicationContext, DawnDatabase::class.java, "dawnDB")
                     .addMigrations(
@@ -470,7 +478,8 @@ abstract class DawnDatabase : RoomDatabase() {
                         migrate21To22,
                         migrate22To23,
                         migrate23To24,
-                        migrate24To25
+                        migrate24To25,
+                        migrate25To26
                     )
                     .build()
                 INSTANCE = instance

@@ -80,10 +80,10 @@ class QuotePopup(
     private fun convertQuote(quote: Comment, po: String) {
         mLiveQuote?.removeObserver(liveQuoteObs)
 
-        findViewById<TextView>(R.id.userId).text = transformCookie(quote.userid, quote.admin, po)
+        findViewById<TextView>(R.id.userHash).text = transformCookie(quote.userHash, quote.admin, po)
 
         findViewById<ImageView>(R.id.OPHighlight).visibility =
-            if (quote.userid == po) View.VISIBLE else View.GONE
+            if (quote.userHash == po) View.VISIBLE else View.GONE
 
         findViewById<TextView>(R.id.timestamp).text = transformTime(quote.now)
 

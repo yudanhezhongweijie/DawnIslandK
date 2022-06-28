@@ -357,7 +357,7 @@ class ApplicationDataStore @Inject constructor(
         return null
     }
 
-    suspend fun readNMBNotice(notice: NMBNotice) {
+    suspend fun readNMBXDNotice(notice: NMBNotice) {
         NMBNoticeDao.updateNMBNoticeWithTimestamp(
             notice.content,
             notice.enable,

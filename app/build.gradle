@@ -56,8 +56,8 @@ android {
         applicationId "com.laotoua.dawnislandk"
         minSdkVersion 23
         targetSdkVersion 30
-        versionCode 51
-        versionName "v1.4.01"
+        versionCode 56
+        versionName "v1.5.05"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

@@ -28,14 +28,12 @@ import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.data.repository.CommunityRepository
-import com.laotoua.dawnislandk.screens.util.ContentTransformation
 import com.laotoua.dawnislandk.util.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
 import java.time.LocalDateTime
-import java.util.*
 import javax.inject.Inject
 
 class SharedViewModel @Inject constructor(
@@ -83,9 +81,9 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun onADNMB() {
-        DawnApp.onDomain(DawnConstants.ADNMBDomain)
-        currentDomain.postValue(DawnConstants.ADNMBDomain)
+    fun onNMBXD() {
+        DawnApp.onDomain(DawnConstants.NMBXDDomain)
+        currentDomain.postValue(DawnConstants.NMBXDDomain)
     }
 
     fun onTNMB() {
@@ -290,21 +288,19 @@ class SharedViewModel @Inject constructor(
             if (this is APIDataResponse.Success) {
                 for (post in data!!) {
                     // content may be formatted to html by server hence compared by unformatted string
-                    val striped = ContentTransformation.htmlToSpanned(post.content).toString()
-                    if (post.userid == draft.cookieName && striped == draft.content) {
+                    if (post.userHash == draft.cookieName) {
                         // store server's copy
                         draft.content = post.content
                         postHistoryDao.insertPostHistory(PostHistory(post.id, 1, post.img, post.ext, DawnApp.currentDomain, draft))
                         saved = true
-                        _savePostStatus.postValue(SingleLiveEvent.create(true))
                         Timber.d("Saved new post with id ${post.id}")
                         break
                     }
                 }
                 postDao.insertAll(data)
             }
+            _savePostStatus.postValue(SingleLiveEvent.create(saved))
             if (!saved) {
-                _savePostStatus.postValue(SingleLiveEvent.create(false))
                 Timber.e("Failed to save new post")
             }
         }
@@ -346,10 +342,8 @@ class SharedViewModel @Inject constructor(
         targetPageUpperBound: Boolean
     ) {
         for (reply in data.comments.reversed()) {
-            // content may be formatted to html by server hence compared by unformatted string
-            val striped = ContentTransformation.htmlToSpanned(reply.content).toString()
-            if (reply.userid == draft.cookieName && striped == draft.content) {
-                // store server's copy
+            // store every server message as long as name match
+            if (reply.userHash == draft.cookieName) {
                 draft.content = reply.content
                 postHistoryDao.insertPostHistory(PostHistory(reply.id, targetPage, reply.img, reply.ext, DawnApp.currentDomain, draft))
                 _savePostStatus.postValue(SingleLiveEvent.create(true))

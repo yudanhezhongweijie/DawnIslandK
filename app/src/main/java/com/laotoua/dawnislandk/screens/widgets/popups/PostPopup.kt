@@ -64,7 +64,6 @@ import timber.log.Timber
 import java.io.File
 import java.time.Duration
 import java.time.LocalDateTime
-import java.util.*
 
 
 @SuppressLint("ViewConstructor")
@@ -346,7 +345,7 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
                         }
                     }.onDismiss {
                         if (targetId == null) return@onDismiss
-                        if (DawnApp.currentDomain == DawnConstants.ADNMBDomain) {
+                        if (DawnApp.currentDomain == DawnConstants.NMBXDDomain) {
                             postContent?.editText?.hint = applicationDataStore.luweiNotice?.nmbForums?.firstOrNull { f -> f.id == targetId }?.getPostRule()
                         }
                         updateTitle(targetId, newPost)
@@ -455,7 +454,7 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
 
         postCookie = findViewById<Button>(R.id.postCookie).apply {
             setOnClickListener {
-                if (!applicationDataStore.cookies.isNullOrEmpty()) {
+                if (applicationDataStore.cookies.isNotEmpty()) {
                     KeyboardUtils.hideSoftInput(postContent!!)
                     MaterialDialog(context).show {
                         lifecycleOwner(caller)
@@ -597,7 +596,7 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
                 message(R.string.acknowledge_post_rules)
                 positiveButton(R.string.submit) {
                     applicationDataStore.acknowledgementPostingRule()
-                    openLinksWithOtherApps(DawnConstants.ADNMBHost + "/forum", caller)
+                    openLinksWithOtherApps(DawnConstants.NMBXDHost + "/forum", caller)
                 }
                 negativeButton(R.string.cancel)
             }

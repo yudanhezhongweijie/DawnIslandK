@@ -54,8 +54,6 @@ import com.lxj.xpopup.XPopup
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import me.dkzwm.widget.srl.config.Constants
 import timber.log.Timber
-import java.util.*
-import kotlin.collections.ArrayList
 
 
 class FeedsFragment : BaseNavFragment() {
@@ -160,11 +158,11 @@ class FeedsFragment : BaseNavFragment() {
             }
         }
 
-        viewModel.delFeedResponse.observe(viewLifecycleOwner, {
+        viewModel.delFeedResponse.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let { message ->
                 toast(message)
             }
-        })
+        }
         viewModel.loadingStatus.observe(viewLifecycleOwner) {
             if (mAdapter == null || binding == null) return@observe
             it.getContentIfNotHandled()?.run {
@@ -233,7 +231,7 @@ class FeedsFragment : BaseNavFragment() {
 
     inner class FeedAndPostBinder : QuickItemBinder<FeedAndPost>() {
         override fun convert(holder: BaseViewHolder, data: FeedAndPost) {
-            holder.convertUserId(data.post!!.userid, "0")
+            holder.convertUserHash(data.post!!.userHash, "0")
                 .convertRefId(context, data.post.id)
                 .convertTimeStamp(data.post.now)
                 .convertTitleAndName(

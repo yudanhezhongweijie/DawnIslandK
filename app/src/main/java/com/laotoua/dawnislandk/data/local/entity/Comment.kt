@@ -20,6 +20,7 @@ package com.laotoua.dawnislandk.data.local.entity
 import androidx.room.Entity
 import androidx.room.Ignore
 import com.laotoua.dawnislandk.DawnApp
+import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import java.time.LocalDateTime
 
@@ -27,13 +28,13 @@ import java.time.LocalDateTime
 @Entity(primaryKeys=["id","domain"])
 data class Comment(
     val id: String,
-    val userid: String,
+    @Json(name = "user_hash") val userHash: String,
     val name: String = "",
     val sage: String = "0",
     val admin: String = "0",
     val status: String = "n",
     val title: String,
-    val email: String,
+    val email: String = "",
     val now: String,
     val content: String,
     val img: String,
@@ -48,6 +49,38 @@ data class Comment(
     var visible: Boolean = true
 
 
+    // only compares by server fields
+    override fun equals(other: Any?): Boolean =
+        if (other is Comment) {
+            id == other.id && parentId == other.parentId && page == other.page && img == other.img
+                    && ext == other.ext && now == other.now
+                    && userHash == other.userHash && name == other.name
+                    && email == other.email && title == other.title
+                    && content == other.content && sage == other.sage
+                    && admin == other.admin && status == other.status
+                    && domain == other.domain
+        } else false
+
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + parentId.hashCode()
+        result = 31 * result + page.hashCode()
+        result = 31 * result + img.hashCode()
+        result = 31 * result + ext.hashCode()
+        result = 31 * result + now.hashCode()
+        result = 31 * result + userHash.hashCode()
+        result = 31 * result + name.hashCode()
+        result = 31 * result + email.hashCode()
+        result = 31 * result + title.hashCode()
+        result = 31 * result + content.hashCode()
+        result = 31 * result + sage.hashCode()
+        result = 31 * result + admin.hashCode()
+        result = 31 * result + status.hashCode()
+        result = 31 * result + domain.hashCode()
+        return result
+    }
+
     fun getSimplifiedTitle(): String =
         if (isAd()) "广告"
         else if (title.isNotBlank() && title != "无标题") "标题：$title"
@@ -61,7 +94,7 @@ data class Comment(
 
     fun equalsWithServerData(target: Comment?): Boolean =
         if (target == null) false
-        else id == target.id && userid == target.userid
+        else id == target.id && userHash == target.userHash
                 && name == target.name && sage == target.sage
                 && admin == target.admin && status == target.status
                 && title == target.title && email == target.email

@@ -66,10 +66,10 @@ class PostHistoryFragment : BaseNavFragment() {
     private val viewModel: PostHistoryViewModel by viewModels { viewModelFactory }
 
     private var showNewPosts = true
-    private var showReplys = true
+    private var showReplies = true
 
     private var postHeader = SectionHeader("发布") { togglePosts() }
-    private var replyHeader = SectionHeader("回复") { toggleReplys() }
+    private var replyHeader = SectionHeader("回复") { toggleReplies() }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -162,8 +162,8 @@ class PostHistoryFragment : BaseNavFragment() {
         displayList(viewModel.postHistoryList.value ?: emptyList())
     }
 
-    private fun toggleReplys() {
-        showReplys = !showReplys
+    private fun toggleReplies() {
+        showReplies = !showReplies
         displayList(viewModel.postHistoryList.value ?: emptyList())
     }
 
@@ -184,7 +184,7 @@ class PostHistoryFragment : BaseNavFragment() {
             }
         }
         data.add(replyHeader)
-        if (showReplys) {
+        if (showReplies) {
             list.filterNot { it.newPost }.run {
                 lastDate = null
                 map {
@@ -215,7 +215,7 @@ class PostHistoryFragment : BaseNavFragment() {
             val cookieDisplayName =
                 DawnApp.applicationDataStore.getCookieDisplayName(data.cookieName)
                     ?: data.cookieName
-            holder.convertUserId(cookieDisplayName, "", cookieDisplayName)
+            holder.convertUserHash(cookieDisplayName, "", cookieDisplayName)
                 .convertRefId(context, data.id)
                 .convertTitleAndName("", "")
                 .convertTimeStamp(data.postDateTime)

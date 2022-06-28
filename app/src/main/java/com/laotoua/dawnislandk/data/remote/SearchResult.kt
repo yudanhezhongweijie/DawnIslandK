@@ -17,6 +17,8 @@
 
 package com.laotoua.dawnislandk.data.remote
 
+import com.squareup.moshi.Json
+
 data class SearchResult(
     val query: String = "", // to be set in VM
     val queryHits: Int, // # of return result matching the query
@@ -27,12 +29,12 @@ data class SearchResult(
         val id: String,
         val now: String,
         val time: String,
-        val sage:String = "0",
+        val sage: String = "0",
         val img: String = "",
         val ext: String = "",
         val title: String = "",
         val resto: String, // the parent id that the hit replys to
-        val userid: String,
+        @Json(name = "user_hash") val userHash: String,
         val email: String,
         val content: String
     ) {

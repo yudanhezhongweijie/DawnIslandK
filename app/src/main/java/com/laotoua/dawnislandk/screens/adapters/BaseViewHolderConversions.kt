@@ -38,8 +38,8 @@ import com.laotoua.dawnislandk.screens.widgets.spans.RoundBackgroundColorSpan
 import com.laotoua.dawnislandk.util.GlideApp
 import java.time.LocalDateTime
 
-fun BaseViewHolder.convertUserId(userId: String, admin: String, po: String = ""): BaseViewHolder {
-    setText(R.id.userId, ContentTransformation.transformCookie(userId, admin, po))
+fun BaseViewHolder.convertUserHash(userHash: String, admin: String, po: String = ""): BaseViewHolder {
+    setText(R.id.userHash, ContentTransformation.transformCookie(userHash, admin, po))
     return this
 }
 

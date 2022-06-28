@@ -37,7 +37,7 @@ class DawnApp : DaggerApplication() {
 
     companion object {
         lateinit var applicationDataStore: ApplicationDataStore
-        var currentDomain: String = DawnConstants.ADNMBDomain
+        var currentDomain: String = DawnConstants.NMBXDDomain
             private set
 
         fun onDomain(domain: String) {
@@ -47,7 +47,7 @@ class DawnApp : DaggerApplication() {
         val currentHost: String
             get() =
                 when (currentDomain) {
-                    DawnConstants.ADNMBDomain -> DawnConstants.ADNMBHost
+                    DawnConstants.NMBXDDomain -> DawnConstants.NMBXDHost
                     DawnConstants.TNMBDomain -> DawnConstants.TNMBHost
                     else -> {
                         throw Exception("Unhandled Thumb CDN $currentDomain")
@@ -57,7 +57,7 @@ class DawnApp : DaggerApplication() {
         val currentThumbCDN: String
             get() =
                 when (currentDomain) {
-                    DawnConstants.ADNMBDomain -> "${DawnConstants.ADNMB_IMG_CDN}thumb/"
+                    DawnConstants.NMBXDDomain -> "${DawnConstants.NMBXD_IMG_CDN}thumb/"
                     DawnConstants.TNMBDomain -> "${DawnConstants.TNMB_IMG_CDN}thumb/"
                     else -> {
                         throw Exception("Unhandled Thumb CDN $currentDomain")
@@ -67,7 +67,7 @@ class DawnApp : DaggerApplication() {
         val currentImgCDN: String
             get() =
                 when (currentDomain) {
-                    DawnConstants.ADNMBDomain -> "${DawnConstants.ADNMB_IMG_CDN}image/"
+                    DawnConstants.NMBXDDomain -> "${DawnConstants.NMBXD_IMG_CDN}image/"
                     DawnConstants.TNMBDomain -> "${DawnConstants.TNMB_IMG_CDN}image/"
                     else -> {
                         throw Exception("Unhandled Image CDN $currentDomain")
@@ -149,6 +149,7 @@ class DawnApp : DaggerApplication() {
                 }
                 MMKVLogLevel.LevelNone -> {
                 }
+                else -> {}
             }
         }
 

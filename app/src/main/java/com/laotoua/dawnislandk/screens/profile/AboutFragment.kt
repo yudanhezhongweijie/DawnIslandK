@@ -138,8 +138,8 @@ class AboutFragment : DaggerFragment() {
             }
         }
 
-        binding!!.adnmbPrivacyAgreement.apply {
-            key.setText(R.string.adnmb_privacy_agreement)
+        binding!!.nmbxdPrivacyAgreement.apply {
+            key.setText(R.string.nmbxd_privacy_agreement)
             root.setOnClickListener {
                 if (activity == null || !isAdded) return@setOnClickListener
                 val navAction = MainNavDirections.actionGlobalCommentsFragment("11689471", "117")
@@ -160,7 +160,7 @@ class AboutFragment : DaggerFragment() {
                         waitForPositiveButton = true
                     ) { _, index, _ ->
                         val uri = when (index) {
-                            0 -> Uri.parse(DawnConstants.DOWNLOAD_ADNMB)
+                            0 -> Uri.parse(DawnConstants.DOWNLOAD_NMBXD)
                             1 -> Uri.parse(DawnConstants.DOWNLOAD_GITHUB)
                             2 -> Uri.parse(DawnConstants.DOWNLOAD_GOOGLE_PLAY)
                             else -> Uri.parse("https://github.com/fishballzzz/DawnIslandK")

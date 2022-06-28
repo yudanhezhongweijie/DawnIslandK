@@ -34,7 +34,7 @@ data class Trend(
             img = "",
             ext = "",
             now = "",
-            userid = "",
+            userHash = "",
             name = "",
             email = "",
             title = "",

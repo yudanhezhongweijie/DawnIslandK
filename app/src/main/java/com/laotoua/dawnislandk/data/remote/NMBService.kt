@@ -36,7 +36,7 @@ interface NMBService {
     @GET("https://api.github.com/repos/fishballzzz/DawnIslandK/releases/latest")
     fun getLatestRelease(): Call<ResponseBody>
 
-    @GET("https://cover.acfunwiki.org/nmb-notice.json")
+    @GET("http://nmb.ovear.info/nmb-notice.json")
     fun getNMBNotice(): Call<ResponseBody>
 
     @GET("https://cover.acfunwiki.org/luwei.json")

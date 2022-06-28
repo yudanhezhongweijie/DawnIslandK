@@ -124,14 +124,14 @@ class TrendRepository @Inject constructor(
     private suspend fun extractLatestTrends(data: Post): Int {
         val foundTrends = mutableListOf<DailyTrend>()
         for (reply in data.comments) {
-            if (reply.userid == po) {
+            if (reply.userHash == po) {
                 val content = if (reply.content.startsWith("@")) reply.content.substringAfter("<br />\n") else reply.content
                 val list = content.split(trendDelimiter, ignoreCase = true)
                 if (list.size == trendLength) {
                     try {
                         val newDailyTrend = DailyTrend(
                             reply.id,
-                            reply.userid,
+                            reply.userHash,
                             ReadableTime.serverTimeStringToServerLocalDateTime(reply.now),
                             list.map { convertStringToTrend(it) },
                             data.replyCount.toInt()

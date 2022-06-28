@@ -228,7 +228,7 @@ class CommentsViewModel @Inject constructor(
     // keep ad as well
     private fun applyFilterToList(list: List<Comment>) {
         if (filterIds.isNotEmpty()) list.map {
-            it.visible = filterIds.contains(it.userid) || it.isAd()
+            it.visible = filterIds.contains(it.userHash) || it.isAd()
         }
     }
 
@@ -240,7 +240,7 @@ class CommentsViewModel @Inject constructor(
     }
 
     fun getExternalShareContent(): String {
-        return "${ContentTransformation.htmlToSpanned(commentRepo.getHeaderPost(currentPostId)?.content.toString())}\n\n${DawnConstants.ADNMBHost}/t/${currentPostId}\n"
+        return "${ContentTransformation.htmlToSpanned(commentRepo.getHeaderPost(currentPostId)?.content.toString())}\n\n${DawnConstants.NMBXDHost}/t/${currentPostId}\n"
     }
 
     fun addFeed(id: String) {

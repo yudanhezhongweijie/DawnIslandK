@@ -133,7 +133,7 @@ class PostsFragment : BaseNavFragment() {
                     message(text = sharedVM.getForumOrTimelineMsg(fid)) {
                         html { link ->
                             val uri = if (link.startsWith("/")) {
-                                DawnConstants.ADNMBHost + link
+                                DawnConstants.NMBXDHost + link
                             } else link
                             openLinksWithOtherApps(uri, requireActivity())
                         }
@@ -182,7 +182,7 @@ class PostsFragment : BaseNavFragment() {
                                         lifecycleOwner(this@PostsFragment)
                                         title(R.string.report_reasons)
                                         listItemsSingleChoice(res = R.array.report_reasons) { _, _, text ->
-                                            val id = if (DawnApp.currentDomain == DawnConstants.ADNMBDomain) "18" else "5"
+                                            val id = if (DawnApp.currentDomain == DawnConstants.NMBXDDomain) "18" else "5"
                                             postPopup.setupAndShow(
                                                 id,//值班室
                                                 id,

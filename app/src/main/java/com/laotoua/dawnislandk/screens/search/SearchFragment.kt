@@ -59,7 +59,6 @@ import com.lxj.xpopup.XPopup
 import me.dkzwm.widget.srl.RefreshingListenerAdapter
 import me.dkzwm.widget.srl.config.Constants
 import timber.log.Timber
-import java.util.*
 
 
 class SearchFragment : BaseNavFragment() {
@@ -305,7 +304,7 @@ class SearchFragment : BaseNavFragment() {
 
     inner class HitBinder : QuickItemBinder<SearchResult.Hit>() {
         override fun convert(holder: BaseViewHolder, data: SearchResult.Hit) {
-            holder.convertUserId(data.userid, "0")
+            holder.convertUserHash(data.userHash, "0")
                 .convertRefId(context, data.id)
                 .convertTimeStamp(data.now)
                 .convertImage(data.getImgUrl())

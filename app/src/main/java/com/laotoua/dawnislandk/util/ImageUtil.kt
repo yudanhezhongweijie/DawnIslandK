@@ -219,7 +219,7 @@ object ImageUtil {
 
     suspend fun getCompressedImageFileFromUri(caller: FragmentActivity, uri: Uri): File? {
         val source = getImageFileFromUri(caller, uri)
-        if (source == null || source.extension.toLowerCase(Locale.getDefault()) == "gif") {
+        if (source == null || source.extension.lowercase(Locale.getDefault()) == "gif") {
             Timber.e("Did not get file from uri. Cannot compress...")
             return null
         }

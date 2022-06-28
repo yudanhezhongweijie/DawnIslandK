@@ -34,7 +34,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.king.zxing.Intents
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.R
 import com.laotoua.dawnislandk.screens.MainActivity
@@ -215,7 +214,7 @@ class IntentsHelper(private val registry: ActivityResultRegistry, private val ma
 
         override fun parseResult(resultCode: Int, intent: Intent?): String? {
             return if (intent == null || resultCode != Activity.RESULT_OK) null else intent.getStringExtra(
-                Intents.Scan.RESULT
+                "SCAN_RESULT"
             )
         }
     }

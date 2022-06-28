@@ -37,7 +37,7 @@
         app:layout_optimizationLevel="standard|chains|dimensions">
 
         <TextView
-            android:id="@+id/userId"
+            android:id="@+id/userHash"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
@@ -74,7 +74,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:barrierDirection="bottom"
-            app:constraint_referenced_ids="userId,refId,forumAndReplyCount" />
+            app:constraint_referenced_ids="userHash,refId,forumAndReplyCount" />
 
         <TextView
             android:id="@+id/timestamp"

@@ -20,12 +20,13 @@ package com.laotoua.dawnislandk.data.local.dao
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.distinctUntilChanged
 import androidx.room.*
+import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.entity.DailyTrend
 
 @Dao
 interface DailyTrendDao {
-    @Query("SELECT * FROM DailyTrend")
-    suspend fun getAll(): List<DailyTrend>
+    @Query("SELECT * FROM DailyTrend WHERE domain=:domain")
+    suspend fun getAll(domain: String = DawnApp.currentDomain): List<DailyTrend>
 
     @Query("SELECT * FROM DailyTrend ORDER BY date DESC LIMIT 7")
     suspend fun findLatestDailyTrendsSync(): List<DailyTrend>

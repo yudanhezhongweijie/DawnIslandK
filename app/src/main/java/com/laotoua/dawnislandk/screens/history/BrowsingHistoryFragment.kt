@@ -50,7 +50,6 @@ import timber.log.Timber
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
-import kotlin.collections.ArrayList
 
 class BrowsingHistoryFragment : BaseNavFragment() {
 
@@ -182,7 +181,7 @@ class BrowsingHistoryFragment : BaseNavFragment() {
 
     inner class PostBinder(private val sharedViewModel: SharedViewModel) : QuickItemBinder<Post>() {
         override fun convert(holder: BaseViewHolder, data: Post) {
-            holder.convertUserId(data.userid, data.admin)
+            holder.convertUserHash(data.userHash, data.admin)
                 .convertTitleAndName(data.getSimplifiedTitle(), data.getSimplifiedName())
                 .convertRefId(context, data.id)
                 .convertTimeStamp(data.now)

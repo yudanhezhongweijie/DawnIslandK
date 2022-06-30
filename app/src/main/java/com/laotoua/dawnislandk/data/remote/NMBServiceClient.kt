@@ -162,5 +162,8 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
         }
     }
 
-
+    suspend fun getBackupDomains(): APIDataResponse<List<String>> {
+        Timber.d("Checking backup domain...")
+        return APIDataResponse.create(service.getNMBBackupDomains(), NMBJsonParser.BackupDomainParser())
+    }
 }

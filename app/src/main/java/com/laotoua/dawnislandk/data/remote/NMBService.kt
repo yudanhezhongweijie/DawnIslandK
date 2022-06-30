@@ -42,6 +42,9 @@ interface NMBService {
     @GET("https://cover.acfunwiki.org/luwei.json")
     fun getLuweiNotice(): Call<ResponseBody>
 
+    @GET("Api/backupUrl")
+    fun getNMBBackupDomains(): Call<ResponseBody>
+
     // uses Host
     @GET("Api/search")
     fun getNMBSearch(

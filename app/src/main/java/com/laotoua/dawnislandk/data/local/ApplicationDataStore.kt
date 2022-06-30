@@ -73,6 +73,21 @@ class ApplicationDataStore @Inject constructor(
 
     val mmkv: MMKV by lazyOnMainOnly { MMKV.defaultMMKV() }
 
+    private var backupDomains: Set<String>? = null
+
+    fun getBackupDomains(): Set<String> {
+        if (backupDomains == null) {
+            backupDomains = mmkv.getStringSet(DawnConstants.BACKUP_DOMAINS, setOf())
+        }
+        return backupDomains!!
+    }
+
+    fun setBackupDomains(domains: Set<String>) {
+        backupDomains = domains
+        mmkv.putStringSet(DawnConstants.BACKUP_DOMAINS, domains)
+    }
+
+
     val defaultTheme: Int by lazyOnMainOnly {
         mmkv.getInt(DawnConstants.DEFAULT_THEME, 0)
     }
@@ -333,7 +348,7 @@ class ApplicationDataStore @Inject constructor(
         GlobalScope.launch { blockedIdDao.nukeBlockedPostIds() }
     }
 
-    fun nukeCommunitiesAndTimelinesTables(){
+    fun nukeCommunitiesAndTimelinesTables() {
         GlobalScope.launch {
             communityDao.nukeTable()
         }
@@ -437,4 +452,5 @@ class ApplicationDataStore @Inject constructor(
         mmkv.putInt(DawnConstants.HISTORY_PAGER_BROWSING_INDEX, browseIndex)
     }
 
+    suspend fun checkBackupDomains(): List<String>? = webService.getBackupDomains().data
 }

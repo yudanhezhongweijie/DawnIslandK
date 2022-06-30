@@ -40,6 +40,14 @@ abstract class NMBJsonParser<T> {
         }
     }
 
+    class BackupDomainParser : NMBJsonParser<List<String>>() {
+        override fun parse(response: String): List<String> {
+            return moshi.adapter<List<String>>(
+                Types.newParameterizedType(List::class.java, String::class.java)
+            ).fromJson(response)!!
+        }
+    }
+
     class NMBNoticeParser : NMBJsonParser<NMBNotice>() {
         override fun parse(response: String): NMBNotice {
             return moshi.adapter(NMBNotice::class.java).fromJson(response)!!

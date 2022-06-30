@@ -130,7 +130,6 @@ class MainActivity : DaggerAppCompatActivity() {
     init {
         // load Resources
         lifecycleScope.launchWhenCreated {
-            autoSelectCDNs()
             loadResources()
         }
     }
@@ -364,6 +363,12 @@ class MainActivity : DaggerAppCompatActivity() {
                     }
                 }
             }
+        }
+
+        // check backup domain
+        applicationDataStore.checkBackupDomains()?.let {
+            applicationDataStore.setBackupDomains(it.toSet())
+            autoSelectCDNs()
         }
     }
 
@@ -652,8 +657,14 @@ class MainActivity : DaggerAppCompatActivity() {
         if (ref != "auto" && base != "auto") return
         Timber.i("Auto selecting CDNs...")
         val availableConnections = sortedMapOf<Long, String>()
-        val baseCDNs = resources.getStringArray(R.array.base_cdn_options).drop(1).dropLast(1)
-        val refCDNs = resources.getStringArray(R.array.ref_cdn_options).drop(1).dropLast(1)
+        val baseCDNs = mutableListOf<String>()
+        baseCDNs.addAll(resources.getStringArray(R.array.base_cdn_options).drop(1).dropLast(1))
+        baseCDNs.addAll(applicationDataStore.getBackupDomains())
+
+        val refCDNs = mutableListOf<String>()
+        refCDNs.addAll(resources.getStringArray(R.array.ref_cdn_options).drop(1).dropLast(1))
+//        refCDNs.addAll(applicationDataStore.getBackupDomains())
+
         for (url in if (base == "auto") baseCDNs else refCDNs) {
             lifecycleScope.launch(Dispatchers.IO) {
                 var connection: HttpsURLConnection? = null

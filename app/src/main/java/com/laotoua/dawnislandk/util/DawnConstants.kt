@@ -51,6 +51,7 @@ object DawnConstants {
     const val SUBSCRIPTION_PAGER_FEED_INDEX = "subscription_pager_feed_index"
     const val HISTORY_PAGER_BROWSING_INDEX = "history_pager_browsing_index"
     const val CUSTOM_TOOLBAR_STATUS = "custom_toolbar_status"
+    const val BACKUP_DOMAINS = "backup_domains"
     const val TOOLBAR_IMAGE_PATH = "toolbar_image_path"
     const val DEFAULT_THEME = "default_theme"
     const val DEFAULT_TOOLBAR_IMAGE_NAME = "toolbar_bg.jpeg"

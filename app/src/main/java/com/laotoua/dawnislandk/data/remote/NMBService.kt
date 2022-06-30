@@ -61,7 +61,10 @@ interface NMBService {
 
     @Headers("Domain-Name: nmb")
     @GET("Api/showf")
-    fun getNMBPosts(@Query("id") fid: String, @Query("page") page: Int): Call<ResponseBody>
+    fun getNMBPosts(
+        @Query("id") fid: String, @Query("page") page: Int,
+        @Header("Cookie") hash: String?,
+    ): Call<ResponseBody>
 
     @Headers("Domain-Name: nmb")
     @GET("Api/feed")
@@ -82,9 +85,9 @@ interface NMBService {
     @Headers("Domain-Name: nmb")
     @GET("Api/thread")
     fun getNMBComments(
-        @Header("Cookie") hash: String?,
         @Query("id") id: String,
-        @Query("page") page: Int
+        @Query("page") page: Int,
+        @Header("Cookie") hash: String?
     ): Call<ResponseBody>
 
     @Headers("Domain-Name: nmb-ref")

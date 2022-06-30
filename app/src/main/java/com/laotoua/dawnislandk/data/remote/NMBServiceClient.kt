@@ -83,21 +83,21 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
         return APIDataResponse.create(service.getNMBTimelineList(), NMBJsonParser.TimelinesParser())
     }
 
-    suspend fun getPosts(fid: String, page: Int, userhash: String? = DawnApp.applicationDataStore.firstCookieHash): APIDataResponse<List<Post>> {
+    suspend fun getPosts(fid: String, page: Int, userHash: String? = DawnApp.applicationDataStore.firstCookieHash): APIDataResponse<List<Post>> {
         Timber.i("Downloading Posts on Forum $fid...")
-        val call = if (fid.startsWith("-")) service.getNMBTimeLine(fid.substringAfter("-"), page, userhash)
-        else service.getNMBPosts(fid, page)
+        val call = if (fid.startsWith("-")) service.getNMBTimeLine(fid.substringAfter("-"), page, userHash)
+        else service.getNMBPosts(fid, page, userHash)
         return APIDataResponse.create(call, NMBJsonParser.PostParser())
     }
 
     suspend fun getComments(
         id: String,
         page: Int,
-        userhash: String? = DawnApp.applicationDataStore.firstCookieHash
+        userHash: String? = DawnApp.applicationDataStore.firstCookieHash
     ): APIDataResponse<Post> {
         Timber.i("Downloading Comments on Post $id on Page $page...")
         return APIDataResponse.create(
-            service.getNMBComments(userhash, id, page),
+            service.getNMBComments(id, page, userHash),
             NMBJsonParser.CommentParser()
         )
     }
@@ -124,14 +124,14 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
         return APIMessageResponse.create(service.delNMBFeed(uuid, tid))
     }
 
-    // Note: userhash should be already converted to header style beforehand
-    // i.e. "userhash=v%C6%CB...."
+    // Note: userHash should be already converted to header style beforehand
+    // i.e. "userHash=v%C6%CB...."
     suspend fun sendPost(
         newPost: Boolean,
         targetId: String, name: String?,
         email: String?, title: String?,
         content: String?, water: String?,
-        image: File?, userhash: String
+        image: File?, userHash: String
     ): APIMessageResponse {
         return withContext(Dispatchers.IO) {
             Timber.d("Posting to $targetId...")
@@ -147,7 +147,7 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
                     email?.toRequestBody(), title?.toRequestBody(),
                     content?.toRequestBody(), water?.toRequestBody(),
                     imagePart,
-                    userhash
+                    userHash
                 )
             } else {
                 service.postComment(
@@ -155,7 +155,7 @@ class NMBServiceClient @Inject constructor(private val service: NMBService) {
                     email?.toRequestBody(), title?.toRequestBody(),
                     content?.toRequestBody(), water?.toRequestBody(),
                     imagePart,
-                    userhash
+                    userHash
                 )
             }
             APIMessageResponse.create(call)

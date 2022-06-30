@@ -595,7 +595,7 @@ class MainActivity : DaggerAppCompatActivity() {
     }
 
     fun goToNMBXD() {
-        Timber.d("Switching to AD......")
+        Timber.d("Switching to XD......")
         // must update host first because cache updates require new host
         RetrofitUrlManager.getInstance().putDomain("host", DawnConstants.NMBXDHost)
         RetrofitUrlManager.getInstance().putDomain("nmb", DawnConstants.NMBXDHost)

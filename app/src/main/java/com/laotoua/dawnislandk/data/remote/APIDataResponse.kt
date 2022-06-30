@@ -22,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
 import org.apache.commons.text.StringEscapeUtils
+import org.json.JSONObject
 import retrofit2.Call
 import timber.log.Timber
 
@@ -68,8 +69,9 @@ sealed class APIDataResponse<T>(
                         } catch (e: Exception) {
                             // server returns non json string
                             Timber.e("Parse failed: $e")
-                            Timber.d("Response is non JSON data...")
-                            BlankData(StringEscapeUtils.unescapeJava(resBody.replace("\"", "")))
+                            Timber.d("Response is non JSON data...$resBody")
+                            val resJson = JSONObject(StringEscapeUtils.unescapeJava(resBody.replace("\"", "")))
+                            Error(StringEscapeUtils.unescapeJava(resJson.optString("error").toByteArray().decodeToString()))
                         }
                     }
 

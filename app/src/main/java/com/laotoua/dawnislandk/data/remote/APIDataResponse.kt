@@ -70,8 +70,15 @@ sealed class APIDataResponse<T>(
                             // server returns non json string
                             Timber.e("Parse failed: $e")
                             Timber.d("Response is non JSON data...$resBody")
-                            val resJson = JSONObject(StringEscapeUtils.unescapeJava(resBody.replace("\"", "")))
-                            Error(StringEscapeUtils.unescapeJava(resJson.optString("error").toByteArray().decodeToString()))
+                            val clean = resBody.replace("\"", "")
+                            val error = try {
+                                val resJson = JSONObject(StringEscapeUtils.unescapeJava(clean))
+                                resJson.optString("error").toByteArray().decodeToString()
+                            } catch (e2: Exception) {
+                                Timber.e("Parse JSON catch failed: $e2")
+                                clean
+                            }
+                            Error(StringEscapeUtils.unescapeJava(error))
                         }
                     }
 

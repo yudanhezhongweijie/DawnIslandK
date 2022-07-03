@@ -22,6 +22,7 @@ import com.laotoua.dawnislandk.util.ReadableTime
 import com.squareup.moshi.*
 import org.json.JSONObject
 import org.jsoup.Jsoup
+import timber.log.Timber
 import java.time.LocalDateTime
 
 
@@ -116,8 +117,9 @@ abstract class NMBJsonParser<T> {
             val userid = if (uidText.startsWith("ID:")) uidText.substring(3) else uidText
             val admin = if (uid.childNodeSize() > 1) "1" else "0"
             val href = thread.getElementsByClass("h-threads-info-id").first().attr("href")
-            val endIndex = href.indexOf("?")
-            val parentId = if (endIndex < 0) href.substring(3) else href.substring(3, endIndex)
+            Timber.d("Extracting id from $href")
+            val parentId = href.substringAfterLast("/").substringBefore("?")
+            Timber.d("Extracted parentId $parentId")
             val content = thread.getElementsByClass("h-threads-content").first().html()
             return Comment(
                 id,

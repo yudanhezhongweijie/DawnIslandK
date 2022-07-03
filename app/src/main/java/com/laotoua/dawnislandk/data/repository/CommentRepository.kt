@@ -111,18 +111,10 @@ class CommentRepository @Inject constructor(
     }
 
     /**
-     *  A page does not include the header post in comments
-     *  w. cookie, a page of comments can have 20 reply w. ad, or 19 reply w/o ad
-     *  w/o cookie, always have 20 reply w. ad
-     *  *** here DB only store nonAd data
-     *  **********************************************
      *  By default, a post is only stored in the post table, but not stored in the comment table.
      *  However when requesting references, all references are stored as comment in comment table.
      *  Therefore, the first page can have or not have the header post, if using local cache
-     */
-    fun checkFullPage(id: String, page: Int): Boolean =
-        (commentsMap[id]?.get(page)?.value?.data?.filter { it.isNotAd() }?.size ?: 0) == 19
-
+     * */
     fun getCommentsOnPage(id: String, page: Int, remoteDataOnly: Boolean, localDataOnly: Boolean): LiveData<DataResource<List<Comment>>> {
         if (commentsMap[id] == null) {
             commentsMap[id] = SparseArray()

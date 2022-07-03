@@ -64,7 +64,7 @@ class QuotePopup(
             }
             LoadingStatus.ERROR -> {
                 dismiss()
-                Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "无法获取引用。", Toast.LENGTH_LONG).show()
             }
             // do nothing when loading or no data
             else -> {}
@@ -161,7 +161,7 @@ class QuotePopup(
         }
 
         findViewById<Button>(R.id.jumpToQuotedPost).run {
-            visibility = if (quote.parentId != currentPostId) View.VISIBLE else View.GONE
+            visibility = if (quote.parentId == quote.id && quote.parentId != currentPostId) View.VISIBLE else View.GONE
             setOnClickListener {
                 if (isShow) {
                     mCaller?.jumpToNewPost(quote.parentId)

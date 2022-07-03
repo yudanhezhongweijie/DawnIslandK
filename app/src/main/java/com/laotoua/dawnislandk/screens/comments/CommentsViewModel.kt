@@ -105,13 +105,13 @@ class CommentsViewModel @Inject constructor(
 
     fun getNextPage(incrementPage: Boolean = true, readingProgress: Int? = null, forceUpdate: Boolean = true) {
         var nextPage = readingProgress ?: (commentList.lastOrNull()?.page ?: 1)
-        if (incrementPage && commentRepo.checkFullPage(currentPostId, nextPage)) nextPage += 1
+        if (incrementPage && maxPage > nextPage) nextPage += 1
         listenToNewPage(nextPage, forceUpdate)
     }
 
     fun getPreviousPage(forceUpdate: Boolean = true) {
         // Refresh when no data, usually error occurs
-        if (commentList.isNullOrEmpty()) {
+        if (commentList.isEmpty()) {
             getNextPage()
             return
         }

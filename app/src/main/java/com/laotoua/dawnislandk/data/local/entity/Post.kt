@@ -109,6 +109,16 @@ data class Post(
     fun getImgUrl() = (img + ext)
     fun getSimplifiedTitle(): String = if (title.isNotBlank() && title != "无标题") "标题：$title" else ""
     fun getSimplifiedName(): String = if (name.isNotBlank() && name != "无名氏") "名称：$name" else ""
+
+    /**
+     *  A page does not include the header post in comments
+     *  w. cookie, a page of comments can have 20 reply w. ad, or 19 reply w/o ad
+     *  w/o cookie, always have 20 reply w. ad
+     *  Note: Using replyCount will always result into correct page number, however, some pages
+     *      may have less than 19 replies(i.e. some replies are deleted)
+     *  *** here DB only store nonAd data
+     *  **********************************************
+     */
     fun getMaxPage() = if (replyCount.isBlank()) 1 else 1.coerceAtLeast(ceil(replyCount.toDouble() / 19).toInt())
 
     // only compares by server fields

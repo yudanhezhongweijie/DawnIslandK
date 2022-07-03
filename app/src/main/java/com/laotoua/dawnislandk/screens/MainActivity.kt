@@ -216,24 +216,24 @@ class MainActivity : DaggerAppCompatActivity() {
         if (action == Intent.ACTION_VIEW && data != null) {
             val path = data.path
             if (path.isNullOrBlank()) return
-            val count = path.filter { it == '/' }.count()
+            val count = path.count { it == '/' }
             val raw = data.toString().substringAfterLast("/")
             if (raw.isNotBlank()) {
                 val id = if (raw.contains("?")) raw.substringBefore("?") else raw
-                Timber.d("Received intent data $data path ${data.path} schema ${data.scheme}")
-                if (data.scheme != DawnApp.currentDomain){
-                    when (data.scheme) {
-                        DawnConstants.NMBXDDomain -> {
-                            goToNMBXD()
-                        }
-                        DawnConstants.TNMBDomain -> {
-                            goToTNMB()
-                        }
-                        else -> {
-                            Timber.e("Unsupported Intent Filter ${data.scheme}")
-                        }
-                    }
-                }
+                Timber.d("Received intent data $data path ${data.path} host ${data.host} schema ${data.scheme}")
+//                if (data.scheme != DawnApp.currentDomain){
+//                    when (data.scheme) {
+//                        DawnConstants.NMBXDDomain -> {
+//                            goToNMBXD()
+//                        }
+//                        DawnConstants.TNMBDomain -> {
+//                            goToTNMB()
+//                        }
+//                        else -> {
+//                            Timber.e("Unsupported Intent Filter ${data.scheme}")
+//                        }
+//                    }
+//                }
 
                 if ((count == 1 && data.host == "t") || (count == 2 && path[1] == 't')) {
                     val navAction = MainNavDirections.actionGlobalCommentsFragment(id, "")

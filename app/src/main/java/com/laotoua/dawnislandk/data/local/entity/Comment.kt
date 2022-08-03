@@ -25,7 +25,7 @@ import com.squareup.moshi.JsonClass
 import java.time.LocalDateTime
 
 @JsonClass(generateAdapter = true)
-@Entity(primaryKeys=["id","domain"])
+@Entity(primaryKeys = ["id", "domain"])
 data class Comment(
     val id: String,
     @Json(name = "user_hash") val userHash: String,
@@ -51,7 +51,7 @@ data class Comment(
 
     // only compares by server fields
     override fun equals(other: Any?): Boolean =
-        if (other is Comment) {
+        if (other is Comment)
             id == other.id && parentId == other.parentId && page == other.page && img == other.img
                     && ext == other.ext && now == other.now
                     && userHash == other.userHash && name == other.name
@@ -59,7 +59,7 @@ data class Comment(
                     && content == other.content && sage == other.sage
                     && admin == other.admin && status == other.status
                     && domain == other.domain
-        } else false
+        else false
 
 
     override fun hashCode(): Int {
@@ -95,6 +95,9 @@ data class Comment(
     fun equalsWithServerData(target: Comment?): Boolean =
         if (target == null) false
         else id == target.id && userHash == target.userHash
+                && parentId == target.parentId
+                && content == target.content
+                && domain == target.domain
                 && name == target.name && sage == target.sage
                 && admin == target.admin && status == target.status
                 && title == target.title && email == target.email

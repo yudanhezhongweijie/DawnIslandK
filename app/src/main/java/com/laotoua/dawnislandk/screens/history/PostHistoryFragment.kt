@@ -172,29 +172,25 @@ class PostHistoryFragment : BaseNavFragment() {
         val data: MutableList<Any> = ArrayList()
         data.add(postHeader)
         if (showNewPosts) {
-            list.filter { it.newPost }.run {
-                map {
-                    val dateString = ReadableTime.getDateString(it.postDateTime)
-                    if (lastDate == null || dateString != lastDate) {
-                        data.add(dateString)
-                    }
-                    data.add(it)
-                    lastDate = dateString
+            list.filter { it.newPost }.forEach {
+                val dateString = ReadableTime.getDateString(it.postDateTime)
+                if (lastDate == null || dateString != lastDate) {
+                    data.add(dateString)
                 }
+                data.add(it)
+                lastDate = dateString
             }
         }
         data.add(replyHeader)
         if (showReplies) {
-            list.filterNot { it.newPost }.run {
-                lastDate = null
-                map {
-                    val dateString = ReadableTime.getDateString(it.postDateTime)
-                    if (lastDate == null || dateString != lastDate) {
-                        data.add(dateString)
-                    }
-                    data.add(it)
-                    lastDate = dateString
+            lastDate = null
+            list.filterNot { it.newPost }.forEach {
+                val dateString = ReadableTime.getDateString(it.postDateTime)
+                if (lastDate == null || dateString != lastDate) {
+                    data.add(dateString)
                 }
+                data.add(it)
+                lastDate = dateString
             }
         }
         mAdapter?.setDiffNewData(data)
@@ -206,7 +202,7 @@ class PostHistoryFragment : BaseNavFragment() {
             )
         )
 
-        Timber.i("${this.javaClass.simpleName} Adapter will have ${list.size} items")
+        Timber.i("${this.javaClass.simpleName} Adapter will have ${data.size} items")
     }
 
     inner class PostHistoryBinder(private val sharedViewModel: SharedViewModel) :

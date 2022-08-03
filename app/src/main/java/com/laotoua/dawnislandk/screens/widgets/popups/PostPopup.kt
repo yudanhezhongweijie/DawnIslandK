@@ -161,9 +161,9 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
     }
 
     private fun updateCookies() {
-        if (selectedCookie == null || applicationDataStore.cookies.isNullOrEmpty()) {
+        if (selectedCookie == null || applicationDataStore.cookies.isEmpty()) {
             findViewById<Button>(R.id.postCookie)?.run {
-                text = if (applicationDataStore.cookies.isNullOrEmpty()) {
+                text = if (applicationDataStore.cookies.isEmpty()) {
                     context.getString(R.string.missing_cookie)
                 } else {
                     selectedCookie = applicationDataStore.cookies[0]
@@ -412,7 +412,7 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
                     R.id.postFace -> {
                         if (isChecked) {
                             KeyboardUtils.hideSoftInput(postContent!!)
-                            if (emojiAdapter.data.isNullOrEmpty()) {
+                            if (emojiAdapter.data.isEmpty()) {
                                 caller.lifecycleScope.launch {
                                     emojiAdapter.setDiffNewData(
                                         sharedVM.getAllEmoji().toMutableList()
@@ -649,6 +649,7 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
                 cookieHash
             ).let { message ->
                 postProgressDialog.dismiss()
+                Timber.d("Post successfully sent with response $message")
                 dismissWith {
                     if (message.substring(0, 2) == ":)") {
                         sharedVM.searchAndSavePost(

@@ -69,6 +69,7 @@ object DawnConstants {
     const val SERVER_FILE_SIZE_LIMIT = 2097152L // 2MB
     const val CACHE_FILE_LIMIT = 52428800L // 50MB
 
+    const val FEEDBACK_POST_ID = "50283640"
     const val AUTHOR_EMAIL = "aliaseasy98@gmail.com"
     const val GITHUB_ADDRESS = "https://github.com/fishballzzz/DawnIslandK/issues"
     const val DOWNLOAD_NMBXD = "https://app.nmbxd.com"

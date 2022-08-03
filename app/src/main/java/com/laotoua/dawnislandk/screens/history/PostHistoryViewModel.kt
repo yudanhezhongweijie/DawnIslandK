@@ -23,11 +23,12 @@ import androidx.lifecycle.ViewModel
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.dao.PostHistoryDao
 import com.laotoua.dawnislandk.data.local.entity.PostHistory
+import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.inject.Inject
 
 class PostHistoryViewModel @Inject constructor(private val postHistoryDao: PostHistoryDao) : ViewModel() {
-    var endDate: LocalDateTime = LocalDateTime.now()
+    var endDate: LocalDateTime = LocalDate.now().atTime(23, 59)
     var startDate: LocalDateTime = endDate.minusWeeks(1)
     private var currentList: LiveData<List<PostHistory>>? = null
     val postHistoryList = MediatorLiveData<List<PostHistory>>()

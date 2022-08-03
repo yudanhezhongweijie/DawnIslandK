@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModel
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.data.local.dao.BrowsingHistoryDao
 import com.laotoua.dawnislandk.data.local.entity.BrowsingHistoryAndPost
+import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -30,7 +31,7 @@ class BrowsingHistoryViewModel @Inject constructor(private val browsingHistoryDa
     ViewModel() {
 
     // get a week's history by default
-    var endDate: LocalDateTime = LocalDateTime.now()
+    var endDate: LocalDateTime = LocalDate.now().atTime(23, 59)
     var startDate: LocalDateTime = endDate.minusWeeks(1)
     private var currentList: LiveData<List<BrowsingHistoryAndPost>>? = null
     val browsingHistoryList = MediatorLiveData<List<BrowsingHistoryAndPost>>()

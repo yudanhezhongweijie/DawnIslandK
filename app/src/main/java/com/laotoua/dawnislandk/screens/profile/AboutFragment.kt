@@ -67,7 +67,7 @@ class AboutFragment : DaggerFragment() {
                         when (index) {
                             0 -> {
                                 dismiss()
-                                val navAction = MainNavDirections.actionGlobalCommentsFragment("28951798", "117")
+                                val navAction = MainNavDirections.actionGlobalCommentsFragment(DawnConstants.FEEDBACK_POST_ID, "117")
                                 findNavController().navigate(navAction)
                             }
                             1 -> {
@@ -82,9 +82,8 @@ class AboutFragment : DaggerFragment() {
                             }
                             else -> {
                                 dismiss()
-                                val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                val intent = Intent(Intent.ACTION_SEND).apply {
                                     type = "*/*"
-                                    data = Uri.parse("mailto:")
                                     putExtra(
                                         Intent.EXTRA_EMAIL,
                                         arrayOf(DawnConstants.AUTHOR_EMAIL)
@@ -92,6 +91,10 @@ class AboutFragment : DaggerFragment() {
                                     putExtra(
                                         Intent.EXTRA_SUBJECT,
                                         context.resources.getString(R.string.app_feed_back)
+                                    )
+                                    putExtra(
+                                        Intent.EXTRA_TEXT,
+                                        context.resources.getString(R.string.app_feed_back_template)
                                     )
                                 }
                                 if (intent.resolveActivity(requireActivity().packageManager) != null) {

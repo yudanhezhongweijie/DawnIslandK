@@ -26,7 +26,6 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import com.king.zxing.CaptureActivity
 import com.king.zxing.DecodeFormatManager
-import com.king.zxing.Intents
 import com.king.zxing.camera.FrontLightMode
 import com.king.zxing.util.CodeUtils
 import com.king.zxing.util.LogUtils
@@ -52,7 +51,6 @@ class QRCookieActivity : CaptureActivity() {
                     val res = CodeUtils.parseQRCode(file.path)
                     if (res != null) {
                         val intent = Intent()
-
                         intent.putExtra(CAMERA_SCAN_RESULT, res)
                         setResult(Activity.RESULT_OK, intent)
                         finish()
@@ -86,5 +84,13 @@ class QRCookieActivity : CaptureActivity() {
             .vibrate(true) //震动
             .decodeFormats(DecodeFormatManager.QR_CODE_FORMATS)//设置只识别二维码会提升速度
             .frontLightMode(FrontLightMode.OFF) //设置闪光灯模式
+    }
+
+    override fun onResultCallback(result: String?): Boolean {
+        val intent = Intent()
+        intent.putExtra(CAMERA_SCAN_RESULT, result)
+        setResult(Activity.RESULT_OK, intent)
+        finish()
+        return true
     }
 }

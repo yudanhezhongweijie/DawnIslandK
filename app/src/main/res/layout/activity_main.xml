@@ -42,14 +42,14 @@
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         android:focusable="false"
+        android:paddingBottom="1dp"
         app:contentInsetStartWithNavigation="0dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:subtitle="nmbxd.com"
         app:subtitleTextColor="?android:attr/textColorPrimary"
-        app:title="时间线"
-        app:titleTextColor="?android:attr/textColorPrimary"
-        android:paddingBottom="1dp" />
+        app:title="@string/timeline"
+        app:titleTextColor="?android:attr/textColorPrimary" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/navHostFragment"

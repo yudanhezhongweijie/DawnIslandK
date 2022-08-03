@@ -366,7 +366,7 @@ class SharedViewModel @Inject constructor(
     suspend fun getLatestPostId(): Pair<String, LocalDateTime> {
         var id = "0"
         var time = ""
-        webNMBServiceClient.getPosts("-1", 1).run {
+        webNMBServiceClient.getPosts(DawnConstants.TIMELINE_COMMUNITY_ID, 1).run {
             if (this is APIDataResponse.Success) {
                 data?.map { post ->
                     if (post.id > id) {

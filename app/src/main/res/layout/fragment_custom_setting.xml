@@ -75,13 +75,22 @@
         app:layout_constraintTop_toBottomOf="@id/timelineFilter" />
 
     <include
-        android:id="@+id/defaultSubscriptionPage"
+        android:id="@+id/defaultExpandCommunities"
         layout="@layout/list_item_preference"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
         app:layout_constraintStart_toStartOf="@id/guidelineStart"
         app:layout_constraintTop_toBottomOf="@id/defaultForum" />
+
+    <include
+        android:id="@+id/defaultSubscriptionPage"
+        layout="@layout/list_item_preference"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+        app:layout_constraintStart_toStartOf="@id/guidelineStart"
+        app:layout_constraintTop_toBottomOf="@id/defaultExpandCommunities" />
 
     <include
         android:id="@+id/defaultHistoryPage"

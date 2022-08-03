@@ -79,6 +79,8 @@
     <string name="common_forum_setting_help" translatable="false"><b>点击下方版块即添加至常用分组\n\n长按并上下拖曳版块可排序\n\n长按并左右拖曳版块可从常用分组中移除\n\n编辑完成后返回即保存设置</b></string>
     <string name="pager_usage_help" translatable="false">本页面支持左滑右滑切换内容。\n\n可在自定义设置改变默认页面</string>
     <string name="default_forum_setting" translatable="false">App启动默认打开版块设置</string>
+    <string name="communities_expansion_setting" translatable="false">默认展开版块设置</string>
+    <string name="communities_expansion_setting_summary" translatable="false">默认展开板块: %s</string>
     <string name="common_posts_setting" translatable="false">常用串设置</string>
     <string name="add_common_post" translatable="false">添加常用串</string>
     <string name="add_common_post_remark" translatable="false">常用串备注</string>
@@ -242,4 +244,5 @@
     <string name="add_cookie_help" translatable="false">本软件尚不支持微信小程序\n请从a岛用户管理系统或微信小程序上保存二维码图片并导入，或保存饼干序列并手动添加\n（如果您有这个能力开发请和我联系或直接PR(*ﾟ∀ﾟ*)）</string>
     <string name="roll_cheat" translatable="false">灌铅(大概)</string>
     <string name="latest_id_posted_at_time" translatable="false">%s   :   No.%s</string>
+    <string name="timeline">时间线</string>
 </resources>

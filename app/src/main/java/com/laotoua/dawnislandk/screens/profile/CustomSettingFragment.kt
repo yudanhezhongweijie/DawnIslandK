@@ -94,11 +94,11 @@ class CustomSettingFragment : DaggerFragment() {
                     toast(R.string.please_try_again_later)
                     return@setOnClickListener
                 }
-                val nonTimeline = serverForums!!.filter { f -> f.id != "-1" }
-                val blockingFidIndex = mutableListOf<Int>()
+                val nonTimeline = serverForums!!.filter { f -> f.id != DawnConstants.TIMELINE_COMMUNITY_ID }
+                val blockingFidIndices = mutableListOf<Int>()
                 for ((ind, f) in nonTimeline.withIndex()) {
                     if (blockedForumIds!!.contains(f.id)) {
-                        blockingFidIndex.add(ind)
+                        blockingFidIndices.add(ind)
                     }
                 }
 
@@ -108,7 +108,7 @@ class CustomSettingFragment : DaggerFragment() {
                     message(R.string.please_select_timeline_filter_forums)
                     listItemsMultiChoice(
                         items = nonTimeline.map { f -> ContentTransformation.htmlToSpanned(f.getDisplayName()) },
-                        initialSelection = blockingFidIndex.toIntArray(),
+                        initialSelection = blockingFidIndices.toIntArray(),
                         allowEmptySelection = true
                     ) { _, indices, _ ->
                         val blockedForumIds = mutableListOf<BlockedId>()
@@ -153,6 +153,60 @@ class CustomSettingFragment : DaggerFragment() {
                         summary.text = ContentTransformation.htmlToSpanned(
                             sharedViewModel.getForumOrTimelineDisplayName(applicationDataStore.getDefaultForumId())
                         )
+                    }
+                    positiveButton(R.string.submit)
+                    negativeButton(R.string.cancel)
+                }
+            }
+        }
+
+        binding?.defaultExpandCommunities?.apply {
+            key.setText(R.string.communities_expansion_setting)
+            val communities = sharedViewModel.communityList.value?.data ?: listOf()
+            val expandedIDs = applicationDataStore.getExpandedCommunityIDs()
+            val expandedNames = mutableListOf<String>()
+            if (expandedIDs.contains(DawnConstants.TIMELINE_COMMUNITY_ID)) expandedNames.add(requireContext().getString(R.string.timeline))
+            expandedIDs.filterNot { it == DawnConstants.TIMELINE_COMMUNITY_ID }.map { id -> communities.find { c -> c.id == id }?.name }
+                .forEach { name -> if (!name.isNullOrBlank()) expandedNames.add(name) }
+
+            summary.text = getString(R.string.communities_expansion_setting_summary, expandedNames.joinToString(","))
+            root.setOnClickListener {
+                if (activity == null || !isAdded) return@setOnClickListener
+                if (serverForums == null) {
+                    toast(R.string.please_try_again_later)
+                    return@setOnClickListener
+                }
+                MaterialDialog(requireContext()).show {
+                    lifecycleOwner(this@CustomSettingFragment)
+                    title(R.string.communities_expansion_setting)
+                    val items = mutableListOf<String>()
+                    items.add(context.getString(R.string.timeline))
+                    items.addAll(communities.map { it.name })
+                    val expanded = applicationDataStore.getExpandedCommunityIDs()
+                    // find items indices
+                    val expandedIndices = mutableListOf<Int>()
+                    // timeline
+                    if (expanded.contains(DawnConstants.TIMELINE_COMMUNITY_ID)) expandedIndices.add(0)
+                    // communities
+                    for ((ind, c) in communities.withIndex()) {
+                        if (expanded.contains(c.id)) {
+                            expandedIndices.add(ind + 1)
+                        }
+                    }
+                    listItemsMultiChoice(
+                        items = items,
+                        initialSelection = expandedIndices.toIntArray(),
+                        allowEmptySelection = true
+                    ) { _, indices, _ ->
+                        val newIDs = mutableListOf<String>()
+                        if (indices.contains(0)) newIDs.add(DawnConstants.TIMELINE_COMMUNITY_ID)
+                        newIDs.addAll(indices.filterNot { it == 0 }.map { communities[it - 1].id })
+                        applicationDataStore.setExpandedCommunityIDs(newIDs.toSet())
+                        val names = mutableListOf<String>()
+                        if (newIDs.contains(DawnConstants.TIMELINE_COMMUNITY_ID)) names.add(requireContext().getString(R.string.timeline))
+                        newIDs.filterNot { it == DawnConstants.TIMELINE_COMMUNITY_ID }.map { id -> communities.find { c -> c.id == id }?.name }
+                            .forEach { name -> if (!name.isNullOrBlank()) names.add(name) }
+                        summary.text = getString(R.string.communities_expansion_setting_summary, names.joinToString(","))
                     }
                     positiveButton(R.string.submit)
                     negativeButton(R.string.cancel)

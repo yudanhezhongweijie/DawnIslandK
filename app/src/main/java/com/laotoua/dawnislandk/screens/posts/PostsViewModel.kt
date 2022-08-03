@@ -27,6 +27,7 @@ import com.laotoua.dawnislandk.data.local.entity.BlockedId
 import com.laotoua.dawnislandk.data.local.entity.Post
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
+import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.EventPayload
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.SingleLiveEvent
@@ -87,7 +88,7 @@ class PostsViewModel @Inject constructor(
     fun getPosts() {
         viewModelScope.launch {
             _loadingStatus.postValue(SingleLiveEvent.create(LoadingStatus.LOADING))
-            val fid = _currentFid ?: "-1"
+            val fid = _currentFid ?: DawnConstants.TIMELINE_COMMUNITY_ID
             Timber.d("Getting threads from $fid on page $pageCount")
             webService.getPosts(fid, pageCount).run {
                 if (this is APIDataResponse.Error) {
@@ -143,7 +144,7 @@ class PostsViewModel @Inject constructor(
         getPosts()
     }
 
-    fun clearCache() {
+    private fun clearCache() {
         postList.clear()
         postIds.clear()
         pageCount = 1

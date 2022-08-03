@@ -143,11 +143,25 @@ class ApplicationDataStore @Inject constructor(
         mmkv.putString(DawnConstants.FEED_ID, value)
     }
 
+    private var expandedCommunityIDs: Set<String>? = null
+
+    fun getExpandedCommunityIDs(): Set<String> {
+        if (expandedCommunityIDs == null) {
+            expandedCommunityIDs = mmkv.getStringSet(DawnConstants.EXPANDED_COMMUNITY_IDS, setOf())
+        }
+        return expandedCommunityIDs!!
+    }
+
+    fun setExpandedCommunityIDs(set: Set<String>) {
+        expandedCommunityIDs = set
+        mmkv.putStringSet(DawnConstants.EXPANDED_COMMUNITY_IDS, set)
+    }
+
     private var defaultForumId: String? = null
 
     fun getDefaultForumId(): String {
         if (defaultForumId == null) {
-            defaultForumId = mmkv.getString(DawnConstants.DEFAULT_FORUM_ID, "-1")
+            defaultForumId = mmkv.getString(DawnConstants.DEFAULT_FORUM_ID, DawnConstants.TIMELINE_COMMUNITY_ID)
         }
         return defaultForumId!!
     }

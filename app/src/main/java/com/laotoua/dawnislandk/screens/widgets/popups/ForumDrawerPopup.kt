@@ -73,7 +73,8 @@ class ForumDrawerPopup(
                     sharedVM.setForumId("-${timeline.id}")
                 }
             }
-        })
+        }, DawnApp.applicationDataStore.getExpandedCommunityIDs()
+    )
 
     private var reedImageUrl: String = ""
     private var reedImageView: ImageView? = null

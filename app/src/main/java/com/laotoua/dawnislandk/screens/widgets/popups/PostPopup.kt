@@ -145,14 +145,14 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
     }
 
     private fun getForumTitle(targetId: String): String {
-        return if (targetId == "-1") ""
+        return if (targetId == DawnConstants.TIMELINE_COMMUNITY_ID) ""
         else sharedVM.forumNameMapping[targetId] ?: ""
     }
 
     private fun updateForumButton(targetId: String?, newPost: Boolean) {
         findViewById<Button>(R.id.postForum).apply {
             visibility = if (!newPost) View.GONE else View.VISIBLE
-            text = if (newPost && targetId != null && targetId != "-1") {
+            text = if (newPost && targetId != null && targetId != DawnConstants.TIMELINE_COMMUNITY_ID) {
                 getForumTitle(targetId)
             } else {
                 context.getString(R.string.choose_forum)
@@ -174,7 +174,7 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
     }
 
     fun updateView(targetId: String?, newPost: Boolean, quote: String?) {
-        if (targetId != "-1") this.targetId = targetId // cannot post to timeline
+        if (targetId != DawnConstants.TIMELINE_COMMUNITY_ID) this.targetId = targetId // cannot post to timeline
         this.newPost = newPost
         updateTitle(targetId, newPost)
         updateCookies()

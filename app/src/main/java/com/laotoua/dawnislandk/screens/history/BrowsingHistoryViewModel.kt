@@ -32,7 +32,7 @@ class BrowsingHistoryViewModel @Inject constructor(private val browsingHistoryDa
 
     // get a week's history by default
     var endDate: LocalDateTime = LocalDate.now().atTime(23, 59)
-    var startDate: LocalDateTime = endDate.minusWeeks(1)
+    var startDate: LocalDateTime = LocalDate.now().atTime(0, 0).minusWeeks(1)
     private var currentList: LiveData<List<BrowsingHistoryAndPost>>? = null
     val browsingHistoryList = MediatorLiveData<List<BrowsingHistoryAndPost>>()
     private var cacheDomain: String = DawnApp.currentDomain

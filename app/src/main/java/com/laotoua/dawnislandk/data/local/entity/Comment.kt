@@ -36,7 +36,7 @@ data class Comment(
     val title: String,
     val email: String = "",
     val now: String,
-    val content: String,
+    var content: String,
     val img: String,
     val ext: String,
     var page: Int = 1,
@@ -96,6 +96,7 @@ data class Comment(
         if (target == null) false
         else id == target.id && userHash == target.userHash
                 && parentId == target.parentId
+                && page == target.page
                 && content == target.content
                 && domain == target.domain
                 && name == target.name && sage == target.sage

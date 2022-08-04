@@ -136,17 +136,16 @@
 
         <TextView
             android:id="@+id/sage"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:background="@drawable/sage_background"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:gravity="bottom|center_horizontal"
             android:text="@string/sage_text"
             android:textSize="18sp"
             android:textStyle="bold"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="@id/barrier2"
-            tools:layout_editor_absoluteX="15dp" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

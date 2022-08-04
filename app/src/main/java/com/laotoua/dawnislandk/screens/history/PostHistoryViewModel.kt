@@ -29,7 +29,7 @@ import javax.inject.Inject
 
 class PostHistoryViewModel @Inject constructor(private val postHistoryDao: PostHistoryDao) : ViewModel() {
     var endDate: LocalDateTime = LocalDate.now().atTime(23, 59)
-    var startDate: LocalDateTime = endDate.minusWeeks(1)
+    var startDate: LocalDateTime = LocalDate.now().atTime(0, 0).minusWeeks(1)
     private var currentList: LiveData<List<PostHistory>>? = null
     val postHistoryList = MediatorLiveData<List<PostHistory>>()
     private var cacheDomain: String = DawnApp.currentDomain

@@ -241,8 +241,10 @@ class NotificationFragment : DaggerFragment() {
                 "检查时间: ${ContentTransformation.transformTime(item.notification.lastUpdatedAt)}"
             )
             val content =
-                if (item.notification.message.isBlank()) item.post?.content
-                    ?: "" else item.notification.message
+                item.notification.message.ifBlank {
+                    item.post?.content
+                        ?: ""
+                }
             holder.setText(R.id.content, ContentTransformation.transformContent(context, content))
             holder.setGone(R.id.newReplyCount, item.notification.read)
             val forumName = SpannableString(sharedVM.getForumOrTimelineDisplayName(item.notification.fid))

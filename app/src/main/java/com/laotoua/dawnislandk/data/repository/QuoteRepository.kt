@@ -67,7 +67,7 @@ class QuoteRepository @Inject constructor(
             } else {
                 val message =
                     if (response.status == LoadingStatus.NO_DATA) "无法获取引用" else response.message
-                emit(DataResource.create<Comment>(LoadingStatus.ERROR, null, message))
+                emit(DataResource.create(LoadingStatus.ERROR, null, message))
             }
         }
     }

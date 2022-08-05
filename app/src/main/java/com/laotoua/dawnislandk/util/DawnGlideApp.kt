@@ -22,5 +22,4 @@ import com.bumptech.glide.module.AppGlideModule
 
 
 @GlideModule
-class DawnGlideApp : AppGlideModule() {
-}
+class DawnGlideApp : AppGlideModule()

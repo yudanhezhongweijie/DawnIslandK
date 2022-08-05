@@ -241,7 +241,7 @@
     <string name="blocked_post" translatable="false">No.%s 已经被屏蔽</string>
     <string name="external_share_content" translatable="false">%s\n分享自%s\n下载地址:\nhttps://app.nmbxd.com\nhttps://play.google.com/store/apps/details?id=com.laotoua.dawnislandk</string>
     <string name="how_to_add_cookie" translatable="false">如何添加饼干</string>
-    <string name="add_cookie_help" translatable="false">本软件尚不支持微信小程序\n请从a岛用户管理系统或微信小程序上保存二维码图片并导入，或保存饼干序列并手动添加\n（如果您有这个能力开发请和我联系或直接PR(*ﾟ∀ﾟ*)）</string>
+    <string name="add_cookie_help" translatable="false">本软件尚不支持微信小程序\n请从X岛用户管理系统或微信小程序上保存二维码图片并导入，或保存饼干序列并手动添加\n（如果您有这个能力开发请和我联系或直接PR(*ﾟ∀ﾟ*)）</string>
     <string name="roll_cheat" translatable="false">灌铅(大概)</string>
     <string name="latest_id_posted_at_time" translatable="false">%s   :   No.%s</string>
     <string name="timeline">时间线</string>

@@ -44,7 +44,7 @@ android {
         }
     }
 
-    compileSdkVersion 30
+    compileSdkVersion 32
 //    buildToolsVersion "29.0.3"
     android.ndkVersion "21.1.6352462"
 
@@ -55,7 +55,7 @@ android {
     defaultConfig {
         applicationId "com.laotoua.dawnislandk"
         minSdkVersion 23
-        targetSdkVersion 30
+        targetSdkVersion 32
         versionCode 63
         versionName "v1.6.06"
 
@@ -114,40 +114,40 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.21"
-    implementation 'androidx.core:core-ktx:1.6.0'
+    implementation 'androidx.core:core-ktx:1.8.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'com.tencent:mmkv-static:1.2.2'
-    testImplementation 'junit:junit:4.13.1'
+    implementation 'com.tencent:mmkv:1.2.13'
+    testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 
     implementation "androidx.recyclerview:recyclerview:1.2.1"
-    implementation "androidx.activity:activity-ktx:1.3.1"
-    implementation "androidx.fragment:fragment-ktx:1.3.6"
+    implementation "androidx.activity:activity-ktx:1.5.1"
+    implementation "androidx.fragment:fragment-ktx:1.5.1"
 
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1"
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.3.1"
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.3.1"
-    implementation "androidx.lifecycle:lifecycle-common-java8:2.3.1"
+    def lifecycle_version = "2.5.1"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
 
 
-    implementation 'com.google.android.material:material:1.5.0-alpha02'
+    implementation 'com.google.android.material:material:1.7.0-alpha03'
 
-    implementation "androidx.appcompat:appcompat:1.4.0-alpha03"
+    implementation "androidx.appcompat:appcompat:1.6.0-alpha05"
 
-    implementation "androidx.constraintlayout:constraintlayout:2.1.0"
+    implementation "androidx.constraintlayout:constraintlayout:2.1.4"
 
     implementation 'com.jakewharton.timber:timber:4.7.1'
 
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.okhttp3:okhttp:4.9.0'
-    implementation 'com.squareup.moshi:moshi-kotlin:1.12.0'
-    kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.12.0'
+    implementation 'com.squareup.moshi:moshi-kotlin:1.13.0'
+    kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.13.0'
 
-    implementation 'me.jessyan:retrofit-url-manager:1.4.0'
+    implementation 'com.github.JessYanCoding:RetrofitUrlManager:v1.4.0'
 
     implementation 'org.jsoup:jsoup:1.13.1'
     implementation 'org.apache.commons:commons-text:1.9'
@@ -163,14 +163,14 @@ dependencies {
     implementation "com.afollestad.material-dialogs:bottomsheets:$material_dialog_version"
     implementation "com.afollestad.material-dialogs:lifecycle:$material_dialog_version"
 
-    def srl_version = "1.7.1.3.androidx"
-    implementation "me.dkzwm.widget.srl:core:$srl_version"
-    implementation "me.dkzwm.widget.srl:ext-util:$srl_version"
-    implementation "me.dkzwm.widget.srl:ext-material:$srl_version"
+    def srl_version = "1.7.2.4"
+    implementation "com.github.dkzwm:srl-core:$srl_version"
+    implementation "com.github.dkzwm:srl-ext-util:$srl_version"
+    implementation "com.github.dkzwm:srl-ext-material:$srl_version"
 
     implementation 'com.github.yalantis:ucrop:2.2.5'
 
-    implementation 'com.king.zxing:zxing-lite:1.1.9-androidx'
+    implementation 'com.github.jenly1314:zxing-lite:2.2.1'
 
     implementation 'com.github.zhpanvip:viewpagerindicator:1.0.4'
 
@@ -180,20 +180,20 @@ dependencies {
     kapt 'com.github.bumptech.glide:compiler:4.12.0'
     implementation 'com.github.bumptech.glide:okhttp3-integration:4.12.0'
 
-    implementation 'id.zelory:compressor:3.0.0'
-    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.19'
+    implementation 'id.zelory:compressor:3.0.1'
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.24'
 
-    def room_version = "2.3.0"
+    def room_version = "2.4.3"
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
 
-    def nav_version = "2.4.0-alpha06"
+    def nav_version = "2.5.1"
     // Kotlin navigation
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
 
-    def dagger_version = '2.38.1'
+    def dagger_version = '2.42'
     implementation "com.google.dagger:dagger:$dagger_version"
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
 //    implementation "com.google.dagger:dagger-android:$dagger_version"
@@ -209,6 +209,5 @@ dependencies {
     implementation 'com.google.firebase:firebase-config-ktx'
     implementation 'com.google.firebase:firebase-perf-ktx'
 
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.3'
-    debugImplementation 'com.amitshekhar.android:debug-db:1.0.6'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.9.1'
 }

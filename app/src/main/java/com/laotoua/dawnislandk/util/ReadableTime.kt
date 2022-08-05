@@ -32,7 +32,7 @@ object ReadableTime {
 
     // The website use GMT+08:00
     // rests use local TZ
-    val serverZoneID: ZoneId get() = ZoneId.of("Asia/Shanghai")
+    private val serverZoneID: ZoneId get() = ZoneId.of("Asia/Shanghai")
 
     @SuppressLint("ConstantLocale")
     private val DATE_ONLY_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.getDefault())

@@ -48,7 +48,6 @@ import com.laotoua.dawnislandk.databinding.FragmentEmojiSettingBinding
 import com.laotoua.dawnislandk.screens.util.Layout
 import dagger.android.support.DaggerFragment
 import kotlinx.coroutines.launch
-import java.util.*
 import javax.inject.Inject
 
 class EmojiSettingFragment : DaggerFragment() {

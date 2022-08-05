@@ -29,9 +29,9 @@ data class NoticeForum(
     val fgroup: String,
     val rule: String = "" // default rule
 ){
-    fun getDisplayName(): String = if (showName.isNotBlank()) showName else name
+    fun getDisplayName(): String = showName.ifBlank { name }
 
-    fun getPostRule(): String = if (rule.isNotBlank()) rule else "请遵守总版规"
+    fun getPostRule(): String = rule.ifBlank { "请遵守总版规" }
 
     fun toForum(): Forum = Forum(id = id, sort = sort, name = name, showName = showName, fgroup = fgroup, msg = rule)
 }

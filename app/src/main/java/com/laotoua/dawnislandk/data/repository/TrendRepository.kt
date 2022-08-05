@@ -79,7 +79,7 @@ class TrendRepository @Inject constructor(
 
     fun subscribeToRemote() {
         if (this::remote.isInitialized) latestTrends.removeSource(remote)
-        remote = liveData<DataResource<List<DailyTrend>>> {
+        remote = liveData {
             val lastDate: LocalDateTime? = cache.value?.data?.firstOrNull()?.date
             if (lastDate != null && ReadableTime.serverDateTimeToUserLocalDateTime(lastDate).plusDays(1).isAfter(LocalDateTime.now())) {
                 Timber.d("It's less than 24 hours since Trend last updated. Reusing...")

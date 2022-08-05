@@ -67,7 +67,7 @@ object Layout {
             LoadingStatus.ERROR -> {
                 refreshLayout.refreshComplete(false, headerDismissalDelayDuration)
                 mAdapter.loadMoreModule.loadMoreFail()
-                if (mAdapter.data.isNullOrEmpty()) {
+                if (mAdapter.data.isEmpty()) {
                     if (!mAdapter.hasEmptyView()) mAdapter.setEmptyView(R.layout.view_no_data)
                     mAdapter.setList(null)
                 }
@@ -78,7 +78,7 @@ object Layout {
             LoadingStatus.NO_DATA -> {
                 refreshLayout.refreshComplete(true, headerDismissalDelayDuration)
                 mAdapter.loadMoreModule.loadMoreEnd()
-                if (mAdapter.data.isNullOrEmpty()) {
+                if (mAdapter.data.isEmpty()) {
                     if (!mAdapter.hasEmptyView()) mAdapter.setEmptyView(R.layout.view_no_data)
                     mAdapter.setList(null)
                 }

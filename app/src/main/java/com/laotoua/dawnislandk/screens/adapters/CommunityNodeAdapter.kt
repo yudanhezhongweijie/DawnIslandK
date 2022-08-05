@@ -35,7 +35,8 @@ import com.laotoua.dawnislandk.util.DawnConstants
 import timber.log.Timber
 
 
-class CommunityNodeAdapter(val forumClickListener: ForumClickListener, val timelineClickListener: TimelineClickListener? = null, val expandedCommunities: Set<String>? = null) : BaseNodeAdapter() {
+class CommunityNodeAdapter(val forumClickListener: ForumClickListener, val timelineClickListener: TimelineClickListener? = null, private val expandedCommunities: Set<String>? = null) :
+    BaseNodeAdapter() {
 
     companion object {
         const val EXPAND_COLLAPSE_PAYLOAD = 110

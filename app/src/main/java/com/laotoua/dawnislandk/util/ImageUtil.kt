@@ -248,7 +248,7 @@ object ImageUtil {
             inputStream.close()
             outputStream.close()
             file
-        } catch (e:Exception){
+        } catch (e: Exception) {
             Timber.e(e, "Did not get drawable file $fileName")
             null
         }
@@ -259,7 +259,8 @@ object ImageUtil {
         val projection = arrayOf(MediaStore.Images.ImageColumns.DISPLAY_NAME)
         caller.contentResolver.query(fileUri, projection, null, null, null)?.use {
             it.moveToFirst()
-            name = it.getString(it.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+            val colInd = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (colInd >= 0) name = it.getString(colInd)
         }
         return name
     }

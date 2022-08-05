@@ -29,14 +29,13 @@ import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewPropertyAnimator
+import android.view.*
+import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.net.toUri
+import androidx.core.view.MenuProvider
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavDestination
@@ -50,7 +49,6 @@ import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
 import com.afollestad.materialdialogs.checkbox.isCheckPromptChecked
 import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
-import com.google.android.material.animation.AnimationUtils
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.DawnApp.Companion.applicationDataStore
 import com.laotoua.dawnislandk.MainNavDirections
@@ -113,19 +111,6 @@ class MainActivity : DaggerAppCompatActivity() {
 
     private var forumDrawer: ForumDrawerPopup? = null
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_activity_main, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> {
-                findNavController(R.id.navHostFragment).popBackStack()
-            }
-        }
-        return false
-    }
 
     init {
         // load Resources
@@ -208,6 +193,22 @@ class MainActivity : DaggerAppCompatActivity() {
                 setToolbarTitle(sharedVM.getForumOrTimelineDisplayName(it))
             }
         }
+
+        addMenuProvider(object : MenuProvider {
+
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_activity_main, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                when (menuItem.itemId) {
+                    android.R.id.home -> {
+                        findNavController(R.id.navHostFragment).popBackStack()
+                    }
+                }
+                return false
+            }
+        })
     }
 
     private fun handleIntentFilterNavigation(intent: Intent?) {
@@ -425,7 +426,7 @@ class MainActivity : DaggerAppCompatActivity() {
             alpha(0f)
             translationY(binding.bottomNavBar.height.toFloat())
             duration = 250
-            interpolator = AnimationUtils.FAST_OUT_LINEAR_IN_INTERPOLATOR
+            interpolator = LinearInterpolator()
             setListener(object : Animator.AnimatorListener {
                 override fun onAnimationRepeat(animation: Animator?) {}
                 override fun onAnimationEnd(animation: Animator?) {
@@ -451,7 +452,7 @@ class MainActivity : DaggerAppCompatActivity() {
             alpha(1f)
             translationY(0f)
             duration = 250
-            interpolator = AnimationUtils.LINEAR_OUT_SLOW_IN_INTERPOLATOR
+            interpolator = LinearInterpolator()
             setListener(object : Animator.AnimatorListener {
                 override fun onAnimationRepeat(animation: Animator?) {}
                 override fun onAnimationEnd(animation: Animator?) {

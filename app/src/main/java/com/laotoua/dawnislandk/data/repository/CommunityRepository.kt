@@ -52,13 +52,13 @@ class CommunityRepository @Inject constructor(
     fun refreshCommunitiesAndTimelines() {
         Timber.d("Refreshing Communities and Timelines for ${DawnApp.currentDomain}...")
         if (currentDomainCommunities != null) communityList.removeSource(currentDomainCommunities!!)
-        currentDomainCommunities = getLiveData<Community>(communityDao::getAll, webService::getCommunities)
+        currentDomainCommunities = getLiveData(communityDao::getAll, webService::getCommunities)
         communityList.addSource(currentDomainCommunities!!) {
             communityList.value = it
         }
         if (DawnApp.currentDomain == DawnConstants.NMBXDDomain) {
             if (currentDomainTimelines != null) timelineList.removeSource(currentDomainTimelines!!)
-            currentDomainTimelines = getLiveData<Timeline>(timelineDao::getAll, webService::getTimeLines)
+            currentDomainTimelines = getLiveData(timelineDao::getAll, webService::getTimeLines)
             timelineList.addSource(currentDomainTimelines!!) {
                 timelineList.value = it
             }

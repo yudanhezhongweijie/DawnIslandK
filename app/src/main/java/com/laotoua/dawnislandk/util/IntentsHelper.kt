@@ -48,13 +48,13 @@ import java.io.File
 
 class IntentsHelper(private val registry: ActivityResultRegistry, private val mainActivity: MainActivity) :
     DefaultLifecycleObserver {
-    lateinit var requestSinglePermission: ActivityResultLauncher<String>
-    lateinit var requestMultiplePermissions: ActivityResultLauncher<Array<String>>
-    lateinit var getImageFromGallery: ActivityResultLauncher<String>
-    lateinit var takePicture: ActivityResultLauncher<Uri>
-    lateinit var drawNewDoodle: ActivityResultLauncher<FragmentActivity>
-    lateinit var getCookieFromQRCode: ActivityResultLauncher<FragmentActivity>
-    lateinit var cropToolbarImage: ActivityResultLauncher<FragmentActivity>
+    private lateinit var requestSinglePermission: ActivityResultLauncher<String>
+    private lateinit var requestMultiplePermissions: ActivityResultLauncher<Array<String>>
+    private lateinit var getImageFromGallery: ActivityResultLauncher<String>
+    private lateinit var takePicture: ActivityResultLauncher<Uri>
+    private lateinit var drawNewDoodle: ActivityResultLauncher<FragmentActivity>
+    private lateinit var getCookieFromQRCode: ActivityResultLauncher<FragmentActivity>
+    private lateinit var cropToolbarImage: ActivityResultLauncher<FragmentActivity>
 
     private var postPopup: PostPopup? = null
     private var profileFragment: ProfileFragment? = null
@@ -85,7 +85,7 @@ class IntentsHelper(private val registry: ActivityResultRegistry, private val ma
             owner,
             ActivityResultContracts.RequestMultiplePermissions()
         ) { permissions ->
-            if (permissions.filterValues { it == false }.isEmpty()) {
+            if (permissions.filterValues { !it }.isEmpty()) {
                 toast(R.string.please_try_again)
             } else {
                 toast(R.string.please_give_permission_and_try_again)

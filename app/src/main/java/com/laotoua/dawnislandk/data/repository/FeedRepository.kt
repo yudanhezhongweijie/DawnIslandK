@@ -83,10 +83,10 @@ class FeedRepository @Inject constructor(
             val response =
                 DataResource.create(webService.getFeeds(DawnApp.applicationDataStore.getFeedId(), page))
             if (response.status == LoadingStatus.SUCCESS) {
-                emit(DataResource.create<List<FeedAndPost>>(convertFeedData(response.data!!, page), emptyList()))
+                emit(DataResource.create(convertFeedData(response.data!!, page), emptyList()))
             } else {
                 emit(
-                    DataResource.create<List<FeedAndPost>>(
+                    DataResource.create(
                         response.status,
                         emptyList(),
                         "无法读取订阅...\n${response.message}"

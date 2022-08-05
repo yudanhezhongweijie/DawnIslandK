@@ -18,6 +18,7 @@
 package com.laotoua.dawnislandk.screens.profile
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
@@ -84,6 +85,7 @@ class ProfileFragment : DaggerFragment() {
 
     private var binding: FragmentProfileBinding? = null
 
+    @SuppressLint("CheckResult")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -181,6 +183,8 @@ class ProfileFragment : DaggerFragment() {
                                 )
                             ) {
                                 caller.intentsHelper.getCookieFromQRCode(this@ProfileFragment)
+                            } else {
+                                toast("读取饼干失败")
                             }
                         }
                         2 -> MaterialDialog(requireContext()).show {
@@ -258,6 +262,7 @@ class ProfileFragment : DaggerFragment() {
 //        }
 //    }
 
+    @SuppressLint("CheckResult")
     private fun addCookieToLayout(cookie: Cookie) {
         if (binding == null) return
         val view = ListItemCookieBinding.inflate(layoutInflater, binding!!.root, false)
@@ -318,6 +323,7 @@ class ProfileFragment : DaggerFragment() {
         }
     }
 
+    @SuppressLint("CheckResult")
     fun saveCookieWithInputName(cookieJson: String) {
         try {
             val cookieHash = JSONObject(cookieJson).getString("cookie")

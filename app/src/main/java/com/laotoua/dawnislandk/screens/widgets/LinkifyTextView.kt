@@ -28,7 +28,7 @@ import androidx.appcompat.widget.AppCompatTextView
 class LinkifyTextView : AppCompatTextView {
     var currentSpan: ClickableSpan? = null
         private set
-    var currentMotionEvent: MotionEvent? = null
+    private var currentMotionEvent: MotionEvent? = null
         private set
 
     constructor(context: Context) : super(context)

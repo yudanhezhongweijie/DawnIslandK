@@ -97,7 +97,7 @@ class SearchViewModel @Inject constructor(private val webNMBServiceClient: NMBSe
             )
             return
         }
-        if (!page.hits.isNullOrEmpty()) {
+        if (page.hits.isNotEmpty()) {
             pageResults.add(page)
         }
         foundHits += page.hits.size

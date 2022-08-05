@@ -249,7 +249,7 @@ class QuickAdapter<T : Any>(
             }
         }
 
-        override fun getChangePayload(oldItem: T, newItem: T): Any? {
+        override fun getChangePayload(oldItem: T, newItem: T): Any {
             return when {
                 (oldItem is Post && newItem is Post) -> {
                     Payload.PostPayload(

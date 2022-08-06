@@ -19,7 +19,9 @@ package com.laotoua.dawnislandk.screens.widgets
 
 import android.os.Bundle
 import android.view.*
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -45,51 +47,6 @@ abstract class BasePagerFragment : DaggerFragment() {
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
             updateTitle(pageTitleResIds[position] ?: error("Missing title ResIds"))
-        }
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_fragment_base_pager, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        menu.findItem(R.id.pageIndicator)?.actionView?.findViewById<IndicatorView>(R.id.pageIndicatorView)
-            ?.apply {
-                setSliderColor(
-                    requireContext().getColor(R.color.lime_500),
-                    requireContext().getColor(R.color.pure_light)
-                )
-                setSliderWidth(requireContext().resources.getDimension(R.dimen.dp_10))
-                setSliderHeight(requireContext().resources.getDimension(R.dimen.dp_10))
-                setSliderGap(requireContext().resources.getDimension(R.dimen.dp_8))
-                setSlideMode(IndicatorSlideMode.WORM)
-                setIndicatorStyle(IndicatorStyle.CIRCLE)
-                setupWithViewPager(binding!!.viewPager2)
-            }
-        context?.let { menu.findItem(R.id.help)?.icon?.setTint(Layout.getThemeInverseColor(it)) }
-        super.onPrepareOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.help -> {
-                MaterialDialog(requireContext()).show {
-                    lifecycleOwner(this@BasePagerFragment)
-                    title(R.string.help)
-                    message(R.string.pager_usage_help)
-                    positiveButton(R.string.acknowledge)
-                }
-                true
-            }
-            else -> {
-                super.onOptionsItemSelected(item)
-            }
         }
     }
 
@@ -121,6 +78,45 @@ abstract class BasePagerFragment : DaggerFragment() {
             }
 
         binding!!.viewPager2.registerOnPageChangeCallback(titleUpdateCallback)
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_fragment_base_pager, menu)
+            }
+
+            override fun onPrepareMenu(menu: Menu) {
+                menu.findItem(R.id.pageIndicator)?.actionView?.findViewById<IndicatorView>(R.id.pageIndicatorView)
+                    ?.apply {
+                        setSliderColor(
+                            requireContext().getColor(R.color.lime_500),
+                            requireContext().getColor(R.color.pure_light)
+                        )
+                        setSliderWidth(requireContext().resources.getDimension(R.dimen.dp_10))
+                        setSliderHeight(requireContext().resources.getDimension(R.dimen.dp_10))
+                        setSliderGap(requireContext().resources.getDimension(R.dimen.dp_8))
+                        setSlideMode(IndicatorSlideMode.WORM)
+                        setIndicatorStyle(IndicatorStyle.CIRCLE)
+                        setupWithViewPager(binding!!.viewPager2)
+                    }
+                context?.let { menu.findItem(R.id.help)?.icon?.setTint(Layout.getThemeInverseColor(it)) }
+                super.onPrepareMenu(menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.help -> {
+                        MaterialDialog(requireContext()).show {
+                            lifecycleOwner(this@BasePagerFragment)
+                            title(R.string.help)
+                            message(R.string.pager_usage_help)
+                            positiveButton(R.string.acknowledge)
+                        }
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     override fun onDestroyView() {

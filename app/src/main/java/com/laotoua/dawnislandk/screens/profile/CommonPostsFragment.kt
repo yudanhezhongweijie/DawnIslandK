@@ -22,8 +22,10 @@ import android.graphics.Canvas
 import android.os.Bundle
 import android.view.*
 import android.widget.EditText
+import androidx.core.view.MenuProvider
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -62,33 +64,6 @@ class CommonPostsFragment : DaggerFragment() {
     private val sharedVM: SharedViewModel by activityViewModels { viewModelFactory }
 
     private var commonPostsAdapter : CommonPostsAdapter? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_fragment_base_with_help, menu)
-        context?.let { menu.findItem(R.id.help)?.icon?.setTint(Layout.getThemeInverseColor(it)) }
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.help -> {
-                if (activity == null || !isAdded) return true
-                MaterialDialog(requireContext()).show {
-                    lifecycleOwner(this@CommonPostsFragment)
-                    title(R.string.common_posts_setting)
-                    message(R.string.common_posts_setting_help)
-                    positiveButton(R.string.acknowledge)
-                }
-                return true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -189,6 +164,33 @@ class CommonPostsFragment : DaggerFragment() {
         }
 
         return binding!!.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_fragment_base_with_help, menu)
+                context?.let { menu.findItem(R.id.help)?.icon?.setTint(Layout.getThemeInverseColor(it)) }
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.help -> {
+                        if (activity == null || !isAdded) return true
+                        MaterialDialog(requireContext()).show {
+                            lifecycleOwner(this@CommonPostsFragment)
+                            title(R.string.common_posts_setting)
+                            message(R.string.common_posts_setting_help)
+                            positiveButton(R.string.acknowledge)
+                        }
+                        return true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     private fun updateTitle() {

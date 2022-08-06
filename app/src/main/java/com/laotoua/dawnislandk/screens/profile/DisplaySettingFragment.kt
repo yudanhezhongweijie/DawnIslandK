@@ -18,6 +18,7 @@
 package com.laotoua.dawnislandk.screens.profile
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -40,6 +41,8 @@ import com.laotoua.dawnislandk.screens.util.Layout.updateSwitchSummary
 class DisplaySettingFragment : Fragment() {
 
     private var binding: FragmentDisplaySettingBinding? = null
+
+    @SuppressLint("CheckResult")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

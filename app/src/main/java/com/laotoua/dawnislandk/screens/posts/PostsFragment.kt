@@ -23,7 +23,9 @@ import android.view.*
 import android.view.animation.AnimationUtils
 import android.widget.*
 import androidx.core.content.ContextCompat
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -66,30 +68,6 @@ class PostsFragment : BaseNavFragment() {
     private var viewCaching = false
     private var refreshing = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_fragment_post, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        val rootView = menu.findItem(R.id.feedNotification)
-        rootView.actionView.apply {
-            redCircle = findViewById(R.id.viewAlertRedCircle)
-            countTextView = findViewById(R.id.viewAlertCountTextView)
-            // sometimes menu is prepared after sharedVM observation, add a catch update here
-            val count = sharedVM.notifications.value ?: 0
-            updateFeedNotificationIcon(count)
-            setOnClickListener { onOptionsItemSelected(rootView) }
-        }
-        context?.let { menu.findItem(R.id.forumRule).icon.setTint(getThemeInverseColor(it)) }
-        super.onPrepareOptionsMenu(menu)
-    }
-
     private fun updateFeedNotificationIcon(count: Int) {
         if (DawnApp.applicationDataStore.getAutoUpdateFeedDot()) {
             // if alert count extends into two digits, just show the red circle
@@ -98,62 +76,6 @@ class PostsFragment : BaseNavFragment() {
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.forumRule -> {
-                if (activity == null || !isAdded) return true
-                val fid = sharedVM.selectedForumId.value
-                if (fid == null) {
-                    toast(R.string.please_try_again_later)
-                    return true
-                }
-                val fidInt: Int?
-                try {
-                    fidInt = fid.toInt()
-                } catch (e: Exception) {
-                    toast(R.string.did_not_select_forum_id)
-                    return true
-                }
-                MaterialDialog(requireContext()).show {
-                    lifecycleOwner(this@PostsFragment)
-                    val biId = if (fidInt > 0) fidInt else 1
-                    try {
-                        val resourceId: Int = context.resources.getIdentifier(
-                            "bi_$biId", "drawable",
-                            context.packageName
-                        )
-                        ContextCompat.getDrawable(context, resourceId)?.let {
-                            it.setTint(getThemeInverseColor(context))
-                            icon(drawable = it)
-                        }
-                    } catch (e: Exception) {
-                        Timber.d("Missing icon for fid $biId")
-                    }
-                    title(text = sharedVM.getForumOrTimelineDisplayName(fid))
-                    message(text = sharedVM.getForumOrTimelineMsg(fid)) {
-                        html { link ->
-                            val uri = if (link.startsWith("/")) {
-                                DawnConstants.NMBXDHost + link
-                            } else link
-                            openLinksWithOtherApps(uri, requireActivity())
-                        }
-                    }
-                    positiveButton(R.string.acknowledge)
-                    @Suppress("DEPRECATION")
-                    neutralButton(R.string.basic_rules) {
-                        openLinksWithOtherApps("${DawnApp.currentHost}/forum", requireActivity())
-                    }
-                }
-                return true
-            }
-            R.id.feedNotification -> {
-                val action = PostsFragmentDirections.actionPostsFragmentToNotificationFragment()
-                findNavController().navigate(action)
-                return true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
 
     @SuppressLint("CheckResult")
     override fun onCreateView(
@@ -412,6 +334,88 @@ class PostsFragment : BaseNavFragment() {
 
         viewCaching = false
         return binding!!.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                // Add menu items here
+                menuInflater.inflate(R.menu.menu_fragment_post, menu)
+            }
+
+            override fun onPrepareMenu(menu: Menu) {
+                val rootView = menu.findItem(R.id.feedNotification)
+                rootView.actionView.apply {
+                    redCircle = findViewById(R.id.viewAlertRedCircle)
+                    countTextView = findViewById(R.id.viewAlertCountTextView)
+                    // sometimes menu is prepared after sharedVM observation, add a catch update here
+                    val count = sharedVM.notifications.value ?: 0
+                    updateFeedNotificationIcon(count)
+                    setOnClickListener { onMenuItemSelected(rootView) }
+                }
+                context?.let { menu.findItem(R.id.forumRule).icon.setTint(getThemeInverseColor(it)) }
+                super.onPrepareMenu(menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.forumRule -> {
+                        if (activity == null || !isAdded) return true
+                        val fid = sharedVM.selectedForumId.value
+                        if (fid == null) {
+                            toast(R.string.please_try_again_later)
+                            return true
+                        }
+                        val fidInt: Int?
+                        try {
+                            fidInt = fid.toInt()
+                        } catch (e: Exception) {
+                            toast(R.string.did_not_select_forum_id)
+                            return true
+                        }
+                        MaterialDialog(requireContext()).show {
+                            lifecycleOwner(this@PostsFragment)
+                            val biId = if (fidInt > 0) fidInt else 1
+                            try {
+                                val resourceId: Int = context.resources.getIdentifier(
+                                    "bi_$biId", "drawable",
+                                    context.packageName
+                                )
+                                ContextCompat.getDrawable(context, resourceId)?.let {
+                                    it.setTint(getThemeInverseColor(context))
+                                    icon(drawable = it)
+                                }
+                            } catch (e: Exception) {
+                                Timber.d("Missing icon for fid $biId")
+                            }
+                            title(text = sharedVM.getForumOrTimelineDisplayName(fid))
+                            message(text = sharedVM.getForumOrTimelineMsg(fid)) {
+                                html { link ->
+                                    val uri = if (link.startsWith("/")) {
+                                        DawnConstants.NMBXDHost + link
+                                    } else link
+                                    openLinksWithOtherApps(uri, requireActivity())
+                                }
+                            }
+                            positiveButton(R.string.acknowledge)
+                            @Suppress("DEPRECATION")
+                            neutralButton(R.string.basic_rules) {
+                                openLinksWithOtherApps("${DawnApp.currentHost}/forum", requireActivity())
+                            }
+                        }
+                        return true
+                    }
+                    R.id.feedNotification -> {
+                        val action = PostsFragmentDirections.actionPostsFragmentToNotificationFragment()
+                        findNavController().navigate(action)
+                        return true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     private fun hideFabMenu() {

@@ -17,6 +17,7 @@
 
 package com.laotoua.dawnislandk.screens.profile
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -48,6 +49,7 @@ class AboutFragment : DaggerFragment() {
 
     private var binding: FragmentAboutBinding? = null
 
+    @SuppressLint("CheckResult")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

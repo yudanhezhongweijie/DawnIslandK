@@ -22,8 +22,10 @@ import android.graphics.Canvas
 import android.os.Bundle
 import android.view.*
 import android.widget.EditText
+import androidx.core.view.MenuProvider
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -60,57 +62,6 @@ class EmojiSettingFragment : DaggerFragment() {
     private val viewModel: EmojiSettingViewModel by viewModels { viewModelFactory }
 
     private var emojiAdapter: EmojiAdapter? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_fragment_emoji_setting, menu)
-        context?.let {
-            menu.findItem(R.id.help)?.icon?.setTint(Layout.getThemeInverseColor(it))
-            menu.findItem(R.id.restore)?.icon?.setTint(Layout.getThemeInverseColor(it))
-        }
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.help -> {
-                if (activity == null || !isAdded) return true
-                MaterialDialog(requireContext()).show {
-                    lifecycleOwner(this@EmojiSettingFragment)
-                    title(R.string.emoji_setting)
-                    message(R.string.emoji_setting_help)
-                    positiveButton(R.string.acknowledge)
-                }
-                return true
-            }
-            R.id.restore -> {
-                if (activity == null || !isAdded) return true
-                MaterialDialog(requireContext()).show {
-                    lifecycleOwner(this@EmojiSettingFragment)
-                    title(R.string.restore)
-                    message(R.string.emoji_restore)
-                    setActionButtonEnabled(WhichButton.POSITIVE, false)
-                    checkBoxPrompt(R.string.acknowledge) { checked ->
-                        setActionButtonEnabled(WhichButton.POSITIVE, checked)
-                    }
-                    positiveButton(R.string.submit) {
-                        viewModel.resetEmoji()
-                        this@EmojiSettingFragment.lifecycleScope.launch {
-                            if (activity == null || !isAdded) return@launch
-                            emojiAdapter?.setList(viewModel.getAllEmoji().toMutableList())
-                        }
-                    }
-                    negativeButton(R.string.cancel)
-                }
-                return true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -204,6 +155,57 @@ class EmojiSettingFragment : DaggerFragment() {
         }
 
         return binding!!.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_fragment_emoji_setting, menu)
+                context?.let {
+                    menu.findItem(R.id.help)?.icon?.setTint(Layout.getThemeInverseColor(it))
+                    menu.findItem(R.id.restore)?.icon?.setTint(Layout.getThemeInverseColor(it))
+                }
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.help -> {
+                        if (activity == null || !isAdded) return true
+                        MaterialDialog(requireContext()).show {
+                            lifecycleOwner(this@EmojiSettingFragment)
+                            title(R.string.emoji_setting)
+                            message(R.string.emoji_setting_help)
+                            positiveButton(R.string.acknowledge)
+                        }
+                        return true
+                    }
+                    R.id.restore -> {
+                        if (activity == null || !isAdded) return true
+                        MaterialDialog(requireContext()).show {
+                            lifecycleOwner(this@EmojiSettingFragment)
+                            title(R.string.restore)
+                            message(R.string.emoji_restore)
+                            setActionButtonEnabled(WhichButton.POSITIVE, false)
+                            checkBoxPrompt(R.string.acknowledge) { checked ->
+                                setActionButtonEnabled(WhichButton.POSITIVE, checked)
+                            }
+                            positiveButton(R.string.submit) {
+                                viewModel.resetEmoji()
+                                this@EmojiSettingFragment.lifecycleScope.launch {
+                                    if (activity == null || !isAdded) return@launch
+                                    emojiAdapter?.setList(viewModel.getAllEmoji().toMutableList())
+                                }
+                            }
+                            negativeButton(R.string.cancel)
+                        }
+                        return true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     override fun onDestroyView() {

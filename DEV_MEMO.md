@@ -7,7 +7,7 @@
 
 ## Saving image in Scoped Storage 
 [Open Permission Denied](https://medium.com/@sriramaripirala/android-10-open-failed-eacces-permission-denied-da8b630a89df)
-[Scope Stroage](https://proandroiddev.com/scoped-storage-on-android-11-2c5da70fb077)
+[Scope Storage](https://proandroiddev.com/scoped-storage-on-android-11-2c5da70fb077)
 [Handling files](https://android.jlelse.eu/handling-files-in-code-after-the-android-10-released-2bea0e16d35)
 
 ## Kotlin Coroutines

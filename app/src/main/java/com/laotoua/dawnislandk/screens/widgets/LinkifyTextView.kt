@@ -29,7 +29,6 @@ class LinkifyTextView : AppCompatTextView {
     var currentSpan: ClickableSpan? = null
         private set
     private var currentMotionEvent: MotionEvent? = null
-        private set
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(

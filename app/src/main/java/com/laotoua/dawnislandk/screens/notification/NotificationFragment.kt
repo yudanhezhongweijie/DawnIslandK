@@ -24,8 +24,10 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.view.*
 import android.widget.TextView
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -71,38 +73,6 @@ class NotificationFragment : DaggerFragment() {
         else mAdapter?.setDiffNewData(list.toMutableList())
     }
 
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_fragment_base_with_help, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        context?.let { menu.findItem(R.id.help)?.icon?.setTint(Layout.getThemeInverseColor(it)) }
-        super.onPrepareOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.help -> {
-                if (activity == null || !isAdded) return true
-                MaterialDialog(requireContext()).show {
-                    lifecycleOwner(this@NotificationFragment)
-                    title(R.string.feed_notification)
-                    message(R.string.feed_notification_help)
-                    positiveButton(R.string.acknowledge)
-                }
-                return true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -138,6 +108,39 @@ class NotificationFragment : DaggerFragment() {
         }
         // Inflate the layout for this fragment
         return binding!!.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                // Add menu items here
+                menuInflater.inflate(R.menu.menu_fragment_base_with_help, menu)
+            }
+
+            override fun onPrepareMenu(menu: Menu) {
+                context?.let { menu.findItem(R.id.help)?.icon?.setTint(Layout.getThemeInverseColor(it)) }
+                super.onPrepareMenu(menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                // Handle the menu selection
+                return when (menuItem.itemId) {
+                    R.id.help -> {
+                        if (activity == null || !isAdded) return true
+                        MaterialDialog(requireContext()).show {
+                            lifecycleOwner(this@NotificationFragment)
+                            title(R.string.feed_notification)
+                            message(R.string.feed_notification_help)
+                            positiveButton(R.string.acknowledge)
+                        }
+                        return true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     private class NotificationDiffer : DiffUtil.ItemCallback<NotificationAndPost>() {

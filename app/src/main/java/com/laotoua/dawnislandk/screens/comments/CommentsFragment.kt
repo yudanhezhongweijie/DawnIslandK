@@ -26,18 +26,22 @@ import android.content.ClipboardManager
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 import android.text.style.UnderlineSpan
 import android.view.*
+import android.view.animation.LinearInterpolator
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.text.toSpannable
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -54,7 +58,6 @@ import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.customview.getCustomView
 import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
-import com.google.android.material.animation.AnimationUtils
 import com.google.android.material.textfield.TextInputLayout
 import com.laotoua.dawnislandk.DawnApp
 import com.laotoua.dawnislandk.MainNavDirections
@@ -119,50 +122,6 @@ class CommentsFragment : DaggerFragment() {
 
     private var currentState: RVScrollState? = null
     private var currentAnimatorSet: ViewPropertyAnimator? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_fragment_comment, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        menu.findItem(R.id.pageCounter).actionView.apply {
-            pageCounter = findViewById(R.id.text)
-            setOnClickListener { showJumpPageDialog() }
-        }
-        context?.let { menu.findItem(R.id.filter).icon.setTint(Layout.getThemeInverseColor(it)) }
-        super.onPrepareOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.filter -> {
-                filterActivated = filterActivated.not()
-                if (!filterActivated) {
-                    viewModel.clearFilter()
-                    toast(R.string.comment_filter_off)
-                } else {
-                    viewModel.onlyPo()
-                    toast(R.string.comment_filter_on)
-                }
-                (binding?.srlAndRv?.recyclerView?.layoutManager as LinearLayoutManager?)?.run {
-                    val startPos = findFirstVisibleItemPosition()
-                    val itemCount = findLastVisibleItemPosition() - startPos
-                    mAdapter?.notifyItemRangeChanged(
-                        startPos + mAdapter!!.headerLayoutCount,
-                        itemCount + initialPrefetchItemCount - mAdapter!!.footerLayoutCount
-                    )
-                }
-                return true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
 
     @SuppressLint("CheckResult")
     override fun onCreateView(
@@ -413,6 +372,47 @@ class CommentsFragment : DaggerFragment() {
         viewModel.setPost(args.id, args.fid, args.targetPage)
         requireTitleUpdate = args.fid.isBlank()
         updateTitle()
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_fragment_comment, menu)
+            }
+
+            override fun onPrepareMenu(menu: Menu) {
+                menu.findItem(R.id.pageCounter).actionView.apply {
+                    pageCounter = findViewById(R.id.text)
+                    setOnClickListener { showJumpPageDialog() }
+                }
+                context?.let { menu.findItem(R.id.filter).icon.setTint(Layout.getThemeInverseColor(it)) }
+                super.onPrepareMenu(menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.filter -> {
+                        filterActivated = filterActivated.not()
+                        if (!filterActivated) {
+                            viewModel.clearFilter()
+                            toast(R.string.comment_filter_off)
+                        } else {
+                            viewModel.onlyPo()
+                            toast(R.string.comment_filter_on)
+                        }
+                        (binding?.srlAndRv?.recyclerView?.layoutManager as LinearLayoutManager?)?.run {
+                            val startPos = findFirstVisibleItemPosition()
+                            val itemCount = findLastVisibleItemPosition() - startPos
+                            mAdapter?.notifyItemRangeChanged(
+                                startPos + mAdapter!!.headerLayoutCount,
+                                itemCount + initialPrefetchItemCount - mAdapter!!.footerLayoutCount
+                            )
+                        }
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+
     }
 
     private fun subscribeUI() {
@@ -580,7 +580,7 @@ class CommentsFragment : DaggerFragment() {
             alpha(0f)
             translationY(binding!!.bottomToolbar.height.toFloat())
             duration = 250
-            interpolator = AnimationUtils.FAST_OUT_LINEAR_IN_INTERPOLATOR
+            interpolator = LinearInterpolator()
             setListener(object : Animator.AnimatorListener {
                 override fun onAnimationRepeat(animation: Animator?) {}
                 override fun onAnimationEnd(animation: Animator?) {
@@ -606,7 +606,7 @@ class CommentsFragment : DaggerFragment() {
             alpha(1f)
             translationY(0f)
             duration = 250
-            interpolator = AnimationUtils.LINEAR_OUT_SLOW_IN_INTERPOLATOR
+            interpolator = LinearInterpolator()
             setListener(object : Animator.AnimatorListener {
                 override fun onAnimationRepeat(animation: Animator?) {}
                 override fun onAnimationEnd(animation: Animator?) {
@@ -713,7 +713,7 @@ class CommentsFragment : DaggerFragment() {
     }
 
     fun jumpToNewPost(id: String) {
-        Handler().postDelayed({
+        Handler(Looper.getMainLooper()).postDelayed({
             if (activity == null || !isAdded) return@postDelayed
             viewCaching = DawnApp.applicationDataStore.getViewCaching()
             val navAction = MainNavDirections.actionGlobalCommentsFragment(id, "")

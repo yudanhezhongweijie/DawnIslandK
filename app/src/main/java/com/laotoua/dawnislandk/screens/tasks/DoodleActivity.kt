@@ -18,6 +18,7 @@
 package com.laotoua.dawnislandk.screens.tasks
 
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -25,6 +26,7 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.ColorUtils
@@ -53,7 +55,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
     private var mSideAnimator: ValueAnimator = ValueAnimator()
     private var mShowSide = true
     private var mHideSideRunnable: Runnable? = null
-    private val handler = Handler()
+    private val handler = Handler(Looper.getMainLooper())
 
     private val getImageBackground =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -237,6 +239,7 @@ class DoodleActivity : AppCompatActivity(), DoodleView.Helper {
         )
     }
 
+    @SuppressLint("CheckResult")
     private fun showPickColorDialog() {
         defaultColors[0] = binding.doodleView.paintColor
         MaterialDialog(this).show {

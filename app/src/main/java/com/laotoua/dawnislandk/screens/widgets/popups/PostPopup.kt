@@ -76,6 +76,7 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
     private var email = ""
     var title = ""
     var content = ""
+    private var cheatCD = 3000
 
     private var waterMark: String? = null
     private var imageFile: File? = null
@@ -369,17 +370,18 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
             visibility = if (!newPost && targetFid == "111") View.VISIBLE else View.GONE
 
             setOnClickListener {
-                Toast.makeText(context, "ATM is watching you :)", Toast.LENGTH_SHORT).show()
-//                TODO: Need new mechanism for getting latest id
-//                if (System.currentTimeMillis() - cheatTime < 5000) {
-//                    Toast.makeText(context, "正在请求数据，请稍后。。。", Toast.LENGTH_SHORT).show()
-//                    return@setOnClickListener
-//                }
-//                cheatTime = System.currentTimeMillis()
-//                caller.lifecycleScope.launch {
-//                    latestPost = sharedVM.getLatestPostId()
-//                    setCounterUpdateCallBack()
-//                }
+                val timePassed = System.currentTimeMillis() - cheatTime
+                if (timePassed < cheatCD) {
+                    Toast.makeText(context, "冷却中。。。还有${(cheatCD - timePassed) / 1000 + 1}秒", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+
+                cheatTime = System.currentTimeMillis()
+                refreshCheatCD()
+                caller.lifecycleScope.launch {
+                    latestPost = sharedVM.getLatestPostId()
+                    setCounterUpdateCallBack()
+                }
             }
         }
 
@@ -586,6 +588,10 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
         attachmentContainer?.visibility = View.GONE
         findViewById<MaterialButtonToggleGroup>(R.id.toggleButtonGroup).clearChecked()
         findViewById<MaterialButtonToggleGroup>(R.id.luweiStickerToggle).clearChecked()
+    }
+
+    private fun refreshCheatCD() {
+        cheatCD = (300000..600000).random()
     }
 
     private fun send() {

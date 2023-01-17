@@ -285,7 +285,6 @@
 
     <string-array name="base_cdn_options">
         <item>自动</item>
-        <item>https://nmbxd.com</item>
         <item>https://nmbxd1.com</item>
         <item>https://api.nmb.fastmirror.org</item>
         <item>自定义</item>
@@ -293,13 +292,12 @@
 
     <string-array name="ref_cdn_options">
         <item>自动</item>
-        <item>https://nmbxd.com</item>
         <item>https://nmbxd1.com</item>
         <item>自定义</item>
     </string-array>
 
     <string-array name="download_options">
-        <item>X岛(下载前请检查版本)</item>
+        <item>X岛</item>
         <item>Github</item>
         <item>Google Play</item>
     </string-array>

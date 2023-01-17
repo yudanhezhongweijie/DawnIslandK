@@ -17,7 +17,6 @@
 
 package com.laotoua.dawnislandk.screens.profile
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.net.Uri
@@ -48,6 +47,7 @@ import com.laotoua.dawnislandk.databinding.ListItemCookieBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.util.ImageUtil
+import com.laotoua.dawnislandk.util.IntentsHelper
 import com.laotoua.dawnislandk.util.LoadingStatus
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
 import dagger.android.support.DaggerFragment
@@ -176,11 +176,7 @@ class ProfileFragment : DaggerFragment() {
                     when (index) {
                         0 -> getCookieImage.launch("image/*")
                         1 -> {
-                            if (caller.intentsHelper.checkAndRequestSinglePermission(
-                                    caller,
-                                    Manifest.permission.CAMERA,
-                                    true
-                                )
+                            if (caller.intentsHelper.checkAndRequestAllPermissions(caller, IntentsHelper.CAMERA_PERMISSIONS)
                             ) {
                                 caller.intentsHelper.getCookieFromQRCode(this@ProfileFragment)
                             } else {

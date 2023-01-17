@@ -223,8 +223,8 @@ class SearchFragment : BaseNavFragment() {
             }
 
             override fun onPrepareMenu(menu: Menu) {
-                pageCounter = menu.findItem(R.id.pageCounter).actionView.findViewById(R.id.text)
-                context?.let { menu.findItem(R.id.search).icon.setTint(Layout.getThemeInverseColor(it)) }
+                pageCounter = menu.findItem(R.id.pageCounter).actionView?.findViewById(R.id.text)
+                context?.let { menu.findItem(R.id.search).icon?.setTint(Layout.getThemeInverseColor(it)) }
                 super.onPrepareMenu(menu)
             }
 

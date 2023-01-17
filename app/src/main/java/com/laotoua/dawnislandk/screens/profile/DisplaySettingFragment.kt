@@ -17,7 +17,6 @@
 
 package com.laotoua.dawnislandk.screens.profile
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -36,6 +35,7 @@ import com.laotoua.dawnislandk.databinding.FragmentDisplaySettingBinding
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.util.Layout.toast
 import com.laotoua.dawnislandk.screens.util.Layout.updateSwitchSummary
+import com.laotoua.dawnislandk.util.IntentsHelper
 
 
 class DisplaySettingFragment : Fragment() {
@@ -152,10 +152,7 @@ class DisplaySettingFragment : Fragment() {
                 val caller = requireActivity() as MainActivity
                 if (!caller.intentsHelper.checkAndRequestAllPermissions(
                         caller,
-                        arrayOf(
-                            Manifest.permission.READ_EXTERNAL_STORAGE,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE
-                        )
+                        IntentsHelper.REQUIRED_MEDIA_PERMISSIONS
                     )
                 ) {
                     return@setOnClickListener

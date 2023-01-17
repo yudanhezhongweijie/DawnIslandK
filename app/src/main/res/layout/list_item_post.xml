@@ -120,9 +120,11 @@
             android:ellipsize="end"
             android:maxLines="8"
             android:textColor="?android:attr/textColorPrimary"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/attachedImage"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/barrier2" />
+            app:layout_constraintTop_toBottomOf="@id/barrier2"
+            app:layout_constraintBottom_toTopOf="@id/sage" />
 
         <ImageView
             android:id="@+id/attachedImage"
@@ -140,8 +142,9 @@
             android:layout_height="wrap_content"
             android:gravity="bottom|center_horizontal"
             android:text="@string/sage_text"
+            android:textColor="@color/green_ntr"
             android:textSize="18sp"
-            android:textStyle="bold"
+            android:textStyle="bold|italic"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

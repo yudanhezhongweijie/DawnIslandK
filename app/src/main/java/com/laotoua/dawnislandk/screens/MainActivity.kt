@@ -433,14 +433,14 @@ class MainActivity : DaggerAppCompatActivity() {
             duration = 250
             interpolator = LinearInterpolator()
             setListener(object : Animator.AnimatorListener {
-                override fun onAnimationRepeat(animation: Animator?) {}
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationRepeat(animation: Animator) {}
+                override fun onAnimationEnd(animation: Animator) {
                     currentAnimatorSet = null
                     binding.bottomNavBar.visibility = View.GONE
                 }
 
-                override fun onAnimationCancel(animation: Animator?) {}
-                override fun onAnimationStart(animation: Animator?) {}
+                override fun onAnimationCancel(animation: Animator) {}
+                override fun onAnimationStart(animation: Animator) {}
             })
         }
         currentAnimatorSet!!.start()
@@ -459,13 +459,13 @@ class MainActivity : DaggerAppCompatActivity() {
             duration = 250
             interpolator = LinearInterpolator()
             setListener(object : Animator.AnimatorListener {
-                override fun onAnimationRepeat(animation: Animator?) {}
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationRepeat(animation: Animator) {}
+                override fun onAnimationEnd(animation: Animator) {
                     currentAnimatorSet = null
                 }
 
-                override fun onAnimationCancel(animation: Animator?) {}
-                override fun onAnimationStart(animation: Animator?) {}
+                override fun onAnimationCancel(animation: Animator) {}
+                override fun onAnimationStart(animation: Animator) {}
             })
         }
         currentAnimatorSet!!.start()

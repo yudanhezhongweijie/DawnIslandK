@@ -21,7 +21,9 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.drawable.ColorDrawable
 import android.os.Environment
-import android.view.*
+import android.view.Gravity
+import android.view.View
+import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
 import android.widget.*
 import androidx.fragment.app.FragmentActivity
@@ -40,6 +42,7 @@ import com.laotoua.dawnislandk.data.local.entity.PostHistory
 import com.laotoua.dawnislandk.data.remote.SearchResult
 import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.util.ImageUtil
+import com.laotoua.dawnislandk.util.IntentsHelper
 import com.laotoua.dawnislandk.util.ReadableTime
 import com.laotoua.dawnislandk.util.SingleLiveEvent
 import com.lxj.xpopup.core.ImageViewerPopupView
@@ -401,7 +404,7 @@ class ImageViewerPopup(context: Context) : ImageViewerPopupView(context) {
 
     private fun addPicToGallery(caller: MainActivity, urlObj: Any) {
         val imgUrl: String = getImageUrl(urlObj)
-        if (!caller.intentsHelper.checkAndRequestSinglePermission(caller, android.Manifest.permission.WRITE_EXTERNAL_STORAGE, true)) return
+        if (!caller.intentsHelper.checkAndRequestAllPermissions(caller, IntentsHelper.REQUIRED_MEDIA_PERMISSIONS)) return
 
         caller.lifecycleScope.launch(Dispatchers.IO) {
             Timber.i("Saving image $imgUrl to Gallery... ")

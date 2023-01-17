@@ -17,7 +17,6 @@
 
 package com.laotoua.dawnislandk.screens.widgets.popups
 
-import android.Manifest.permission
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.LinearGradient
@@ -50,10 +49,7 @@ import com.laotoua.dawnislandk.screens.MainActivity
 import com.laotoua.dawnislandk.screens.SharedViewModel
 import com.laotoua.dawnislandk.screens.adapters.QuickAdapter
 import com.laotoua.dawnislandk.screens.util.Layout
-import com.laotoua.dawnislandk.util.DawnConstants
-import com.laotoua.dawnislandk.util.ImageUtil
-import com.laotoua.dawnislandk.util.ReadableTime
-import com.laotoua.dawnislandk.util.openLinksWithOtherApps
+import com.laotoua.dawnislandk.util.*
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BasePopupView
 import com.lxj.xpopup.core.BottomPopupView
@@ -438,11 +434,7 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
         }
 
         findViewById<Button>(R.id.postDoodle).setOnClickListener {
-            if (!caller.intentsHelper.checkAndRequestAllPermissions(
-                    caller,
-                    arrayOf(permission.READ_EXTERNAL_STORAGE, permission.WRITE_EXTERNAL_STORAGE)
-                )
-            ) {
+            if (!caller.intentsHelper.checkAndRequestAllPermissions(caller, IntentsHelper.REQUIRED_MEDIA_PERMISSIONS)) {
                 return@setOnClickListener
             }
             KeyboardUtils.hideSoftInput(postContent!!)
@@ -474,10 +466,8 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
 
 
         findViewById<Button>(R.id.postImage).setOnClickListener {
-            if (!caller.intentsHelper.checkAndRequestSinglePermission(
-                    caller, permission.READ_EXTERNAL_STORAGE, true
-                )
-            ) {
+
+            if (!caller.intentsHelper.checkAndRequestAllPermissions(caller, IntentsHelper.REQUIRED_MEDIA_PERMISSIONS)) {
                 return@setOnClickListener
             }
             KeyboardUtils.hideSoftInput(postContent!!)

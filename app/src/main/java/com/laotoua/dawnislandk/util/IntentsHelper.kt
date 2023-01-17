@@ -48,7 +48,6 @@ import java.io.File
 
 class IntentsHelper(private val registry: ActivityResultRegistry, private val mainActivity: MainActivity) :
     DefaultLifecycleObserver {
-    private lateinit var requestSinglePermission: ActivityResultLauncher<String>
     private lateinit var requestMultiplePermissions: ActivityResultLauncher<Array<String>>
     private lateinit var getImageFromGallery: ActivityResultLauncher<String>
     private lateinit var takePicture: ActivityResultLauncher<Uri>
@@ -60,26 +59,11 @@ class IntentsHelper(private val registry: ActivityResultRegistry, private val ma
     private var profileFragment: ProfileFragment? = null
     private var placeHolderUri: Uri? = null
 
-    private val allPermissions = arrayOf(
-        Manifest.permission.READ_EXTERNAL_STORAGE,
-        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        Manifest.permission.CAMERA
-    )
-
     private fun toast(stringId: Int) {
         Toast.makeText(mainActivity, stringId, Toast.LENGTH_SHORT).show()
     }
 
     override fun onCreate(owner: LifecycleOwner) {
-        requestSinglePermission =
-            registry.register(REQUEST_SINGLE_PERM, owner, ActivityResultContracts.RequestPermission()) {
-                if (it) {
-                    toast(R.string.please_try_again)
-                } else {
-                    toast(R.string.please_give_permission_and_try_again)
-                }
-            }
-
         requestMultiplePermissions = registry.register(
             REQUEST_MULTIPLE_PERMS,
             owner,
@@ -133,29 +117,23 @@ class IntentsHelper(private val registry: ActivityResultRegistry, private val ma
 
     }
 
-    fun checkAndRequestSinglePermission(
+    private fun checkAndRequestSinglePermission(
         caller: FragmentActivity,
-        permission: String,
-        request: Boolean
+        permission: String
     ): Boolean {
-        if (caller.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
-            if (request) {
-                Timber.i("requesting $permission permission...")
-                requestSinglePermission.launch(permission)
-            }
-            return false
-        }
-        return true
+        return caller.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
     }
 
     fun checkAndRequestAllPermissions(
         caller: FragmentActivity,
-        permissions: Array<String> = allPermissions
+        permissions: Array<String> = REQUIRED_ALL_PERMISSIONS
     ): Boolean {
         val missingPermissions = permissions.filterNot {
-            checkAndRequestSinglePermission(caller, it, false)
+            checkAndRequestSinglePermission(caller, it)
         }.toTypedArray()
+
         if (missingPermissions.isNotEmpty()) {
+            Timber.i("Requesting permissions...")
             requestMultiplePermissions.launch(missingPermissions)
         }
         return missingPermissions.isEmpty()
@@ -243,7 +221,6 @@ class IntentsHelper(private val registry: ActivityResultRegistry, private val ma
 
     companion object {
 
-        const val REQUEST_SINGLE_PERM = "request_single_perm"
         const val REQUEST_MULTIPLE_PERMS = "request_multiple_perms"
         const val CROP_TOOLBAR_IMAGE = "crop_toolbar_image"
         const val GET_IMAGE_FROM_GALLERY = "get_image_from_gallery"
@@ -251,5 +228,28 @@ class IntentsHelper(private val registry: ActivityResultRegistry, private val ma
         const val MAKE_DOODLE = "make_doodle"
         const val GET_COOKIE_FROM_QR_CODE = "get_cookie_from_qr_code"
         const val CAMERA_SCAN_RESULT = "camera_scan_result"
+
+        val REQUIRED_MEDIA_PERMISSIONS = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU)
+            arrayOf(Manifest.permission.READ_MEDIA_IMAGES)
+        else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) arrayOf(
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        ) else arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+
+        val REQUIRED_ALL_PERMISSIONS = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU)
+            arrayOf(
+                Manifest.permission.READ_MEDIA_IMAGES,
+                Manifest.permission.CAMERA
+            )
+        else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) arrayOf(
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.CAMERA
+        )
+        else arrayOf(
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.CAMERA
+        )
+
+        val CAMERA_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
     }
 }

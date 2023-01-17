@@ -379,11 +379,11 @@ class CommentsFragment : DaggerFragment() {
             }
 
             override fun onPrepareMenu(menu: Menu) {
-                menu.findItem(R.id.pageCounter).actionView.apply {
+                menu.findItem(R.id.pageCounter).actionView?.apply {
                     pageCounter = findViewById(R.id.text)
                     setOnClickListener { showJumpPageDialog() }
                 }
-                context?.let { menu.findItem(R.id.filter).icon.setTint(Layout.getThemeInverseColor(it)) }
+                context?.let { menu.findItem(R.id.filter).icon?.setTint(Layout.getThemeInverseColor(it)) }
                 super.onPrepareMenu(menu)
             }
 
@@ -582,14 +582,14 @@ class CommentsFragment : DaggerFragment() {
             duration = 250
             interpolator = LinearInterpolator()
             setListener(object : Animator.AnimatorListener {
-                override fun onAnimationRepeat(animation: Animator?) {}
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationRepeat(animation: Animator) {}
+                override fun onAnimationEnd(animation: Animator) {
                     currentAnimatorSet = null
                     binding?.bottomToolbar?.visibility = View.GONE
                 }
 
-                override fun onAnimationCancel(animation: Animator?) {}
-                override fun onAnimationStart(animation: Animator?) {}
+                override fun onAnimationCancel(animation: Animator) {}
+                override fun onAnimationStart(animation: Animator) {}
             })
         }
         currentAnimatorSet?.start()
@@ -608,13 +608,13 @@ class CommentsFragment : DaggerFragment() {
             duration = 250
             interpolator = LinearInterpolator()
             setListener(object : Animator.AnimatorListener {
-                override fun onAnimationRepeat(animation: Animator?) {}
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationRepeat(animation: Animator) {}
+                override fun onAnimationEnd(animation: Animator) {
                     currentAnimatorSet = null
                 }
 
-                override fun onAnimationCancel(animation: Animator?) {}
-                override fun onAnimationStart(animation: Animator?) {}
+                override fun onAnimationCancel(animation: Animator) {}
+                override fun onAnimationStart(animation: Animator) {}
             })
         }
         currentAnimatorSet?.start()

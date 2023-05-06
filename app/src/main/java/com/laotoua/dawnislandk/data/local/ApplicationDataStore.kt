@@ -24,6 +24,7 @@ import com.laotoua.dawnislandk.data.local.entity.LuweiNotice
 import com.laotoua.dawnislandk.data.local.entity.NMBNotice
 import com.laotoua.dawnislandk.data.local.entity.Release
 import com.laotoua.dawnislandk.data.remote.APIDataResponse
+import com.laotoua.dawnislandk.data.remote.APIMessageResponse
 import com.laotoua.dawnislandk.data.remote.NMBServiceClient
 import com.laotoua.dawnislandk.util.DawnConstants
 import com.laotoua.dawnislandk.util.lazyOnMainOnly
@@ -416,6 +417,26 @@ class ApplicationDataStore @Inject constructor(
 
     fun acknowledgementPostingRule() {
         mmkv.putBoolean(DawnConstants.ACKNOWLEDGE_POSTING_RULES, true)
+    }
+
+    private fun checkAcknowledgementAppTerms(): Boolean {
+        return mmkv.getBoolean(DawnConstants.ACKNOWLEDGE_APP_PRIVACY_TERMS, false)
+    }
+
+    fun acknowledgementAppTerms() {
+        mmkv.putBoolean(DawnConstants.ACKNOWLEDGE_APP_PRIVACY_TERMS, true)
+    }
+
+    suspend fun getAppPrivacyTerms(): String? {
+        return if (checkAcknowledgementAppTerms()) null
+        else webService.getPrivacyAgreement().run {
+            if (this is APIMessageResponse.Success) {
+                dom!!.toString()
+            } else {
+                Timber.d(message)
+                ""
+            }
+        }
     }
 
     suspend fun getLatestRelease(): Release? {

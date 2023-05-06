@@ -58,10 +58,7 @@ import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbar
 import com.laotoua.dawnislandk.screens.util.ToolBar.immersiveToolbarInitialization
 import com.laotoua.dawnislandk.screens.widgets.DoubleClickListener
 import com.laotoua.dawnislandk.screens.widgets.popups.ForumDrawerPopup
-import com.laotoua.dawnislandk.util.DawnConstants
-import com.laotoua.dawnislandk.util.IntentsHelper
-import com.laotoua.dawnislandk.util.LoadingStatus
-import com.laotoua.dawnislandk.util.SingleLiveEvent
+import com.laotoua.dawnislandk.util.*
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BasePopupView
 import com.lxj.xpopup.enums.PopupPosition
@@ -114,13 +111,6 @@ class MainActivity : DaggerAppCompatActivity() {
     private var forumDrawer: ForumDrawerPopup? = null
 
 
-    init {
-        // load Resources
-        lifecycleScope.launchWhenCreated {
-            loadResources()
-        }
-    }
-
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         handleIntentFilterNavigation(intent)
@@ -130,6 +120,9 @@ class MainActivity : DaggerAppCompatActivity() {
     private var currentFragmentId: Int = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // load Resources
+        lifecycleScope.launch { loadResources() }
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         binding.toolbar.apply {
@@ -214,6 +207,7 @@ class MainActivity : DaggerAppCompatActivity() {
             }
         })
     }
+
 
     private fun handleIntentFilterNavigation(intent: Intent?) {
         val action: String? = intent?.action
@@ -300,10 +294,8 @@ class MainActivity : DaggerAppCompatActivity() {
         }
     }
 
-    // initialize Global resources
     @SuppressLint("CheckResult")
-    private suspend fun loadResources() {
-        applicationDataStore.loadCookies()
+    private suspend fun loadNotices() {
         applicationDataStore.getLatestRelease()?.let { release ->
             if (this.isFinishing) return@let
             MaterialDialog(this).show {
@@ -369,6 +361,42 @@ class MainActivity : DaggerAppCompatActivity() {
                 }
             }
         }
+
+
+        if (!applicationDataStore.checkAcknowledgementPostingRule()) {
+            MaterialDialog(this@MainActivity).show {
+                lifecycleOwner(this@MainActivity)
+                title(R.string.please_comply_rules)
+                cancelOnTouchOutside(false)
+                message(R.string.acknowledge_post_rules)
+                checkBoxPrompt(R.string.acknowledge) {}
+                positiveButton(R.string.submit) {
+                    if (isCheckPromptChecked()) {
+                        applicationDataStore.acknowledgementPostingRule()
+                    }
+                    openLinksWithOtherApps(DawnConstants.NMBXDHost + "/forum", this@MainActivity)
+                }
+            }
+        }
+
+        applicationDataStore.getAppPrivacyTerms()?.let { terms ->
+            if (this.isFinishing) return@let
+            MaterialDialog(this@MainActivity).show {
+                lifecycleOwner(this@MainActivity)
+                title(res = R.string.app_privacy_agreement)
+                cancelOnTouchOutside(false)
+                message(text = terms) { html() }
+                positiveButton(R.string.acknowledge) {
+                    applicationDataStore.acknowledgementAppTerms()
+                }
+            }
+        }
+    }
+
+
+    // initialize Global resources
+    private suspend fun loadResources() {
+        applicationDataStore.loadCookies()
 
         // check backup domain
         applicationDataStore.checkBackupDomains()?.let {
@@ -479,6 +507,12 @@ class MainActivity : DaggerAppCompatActivity() {
                 }
             })
         )
+    }
+
+    override fun onResume() {
+        super.onResume()
+        lifecycleScope.launch { loadNotices() }
+
     }
 
     private var oldTitle = ""

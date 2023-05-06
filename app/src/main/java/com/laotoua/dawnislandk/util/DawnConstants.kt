@@ -50,6 +50,7 @@ object DawnConstants {
     const val EXPANDED_COMMUNITY_IDS = "expanded_community_ids"
     const val USE_APP_FIRST_TIME = "use_app_first_time"
     const val ACKNOWLEDGE_POSTING_RULES = "acknowledge_posting_rules"
+    const val ACKNOWLEDGE_APP_PRIVACY_TERMS = "acknowledge_app_privacy_terms"
     const val SUBSCRIPTION_PAGER_FEED_INDEX = "subscription_pager_feed_index"
     const val HISTORY_PAGER_BROWSING_INDEX = "history_pager_browsing_index"
     const val CUSTOM_TOOLBAR_STATUS = "custom_toolbar_status"

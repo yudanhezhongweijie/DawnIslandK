@@ -1,4 +1,13 @@
 # ChangeLog 更新日志
+- 1.6.10
+  - comply google play policy
+  - updates dependencies
+
+- 1.6.08
+  - 重启灌铅
+  - 更新库
+  - 修复安卓11权限问题
+
 - 1.6.06
   - 新增自定义板块展开设置
   - 修复发言历史保存错误

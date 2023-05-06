@@ -25,7 +25,7 @@ import android.os.Parcelable
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.map
 import com.laotoua.dawnislandk.BuildConfig
 import com.laotoua.dawnislandk.data.local.entity.Comment
 import timber.log.Timber
@@ -44,7 +44,7 @@ fun List<Comment>?.equalsWithServerComments(targetList: List<Comment>?): Boolean
 
 
 fun <T> getLocalDataResource(cache: LiveData<T>): LiveData<DataResource<T>> {
-    return Transformations.map(cache) {
+    return cache.map {
         Timber.d("Got ${if (it == null) "NO" else ""} data from database")
         val status: LoadingStatus =
             if (it == null) LoadingStatus.NO_DATA else LoadingStatus.SUCCESS
@@ -53,9 +53,9 @@ fun <T> getLocalDataResource(cache: LiveData<T>): LiveData<DataResource<T>> {
 }
 
 fun <T> getLocalListDataResource(cache: LiveData<List<T>>): LiveData<DataResource<List<T>>> {
-    return Transformations.map(cache) {
+    return cache.map {
         Timber.d("Got ${it.size} rows from database")
-        val status: LoadingStatus = if (it.isNullOrEmpty()) LoadingStatus.NO_DATA else LoadingStatus.SUCCESS
+        val status: LoadingStatus = if (it.isEmpty()) LoadingStatus.NO_DATA else LoadingStatus.SUCCESS
         DataResource.create(status, it)
     }
 }

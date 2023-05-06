@@ -17,8 +17,8 @@
 
 package com.laotoua.dawnislandk.screens.profile
 
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.map
 import com.laotoua.dawnislandk.data.local.dao.BlockedIdDao
 import com.laotoua.dawnislandk.data.local.entity.BlockedId
 import kotlinx.coroutines.GlobalScope
@@ -31,7 +31,7 @@ class CustomSettingViewModel @Inject constructor(
     ViewModel() {
 
     val timelineBlockedForumIds =
-        Transformations.map(blockedIdDao.getLiveAllBlockedIds()) { list ->
+        blockedIdDao.getLiveAllBlockedIds().map { list ->
             list.filter { it.isTimelineBlockedForum() }.map { it.id }
         }
 

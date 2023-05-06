@@ -585,19 +585,6 @@ class PostPopup(private val caller: MainActivity, private val sharedVM: SharedVi
     }
 
     private fun send() {
-        if (!applicationDataStore.checkAcknowledgementPostingRule()) {
-            MaterialDialog(context).show {
-                lifecycleOwner(caller)
-                title(R.string.please_comply_rules)
-                message(R.string.acknowledge_post_rules)
-                positiveButton(R.string.submit) {
-                    applicationDataStore.acknowledgementPostingRule()
-                    openLinksWithOtherApps(DawnConstants.NMBXDHost + "/forum", caller)
-                }
-                negativeButton(R.string.cancel)
-            }
-            return
-        }
 
         if (selectedCookie == null) {
             Toast.makeText(caller, R.string.need_cookie_to_post, Toast.LENGTH_SHORT).show()

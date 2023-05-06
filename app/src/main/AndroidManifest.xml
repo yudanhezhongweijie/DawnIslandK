@@ -15,8 +15,7 @@
   ~  */
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.laotoua.dawnislandk">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -94,12 +93,9 @@
                 <data android:host="www.nmbxd1.com" />
                 <!--                <data android:host="tnmb.org" />-->
                 <data android:pathPrefix="/t/" />
-                <data
-                    android:host="f"
-                    android:pathPrefix="/" />
-                <data
-                    android:host="t"
-                    android:pathPrefix="/" />
+                <data android:host="f" />
+                <data android:host="t" />
+                <data android:pathPrefix="/" />
             </intent-filter>
 
         </activity>

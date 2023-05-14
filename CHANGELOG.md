@@ -1,4 +1,8 @@
 # ChangeLog 更新日志
+- 1.6.12
+  - 修复引用读取错误
+  - 支持 xdnmb.com 域名
+
 - 1.6.10
   - comply google play policy
   - updates dependencies

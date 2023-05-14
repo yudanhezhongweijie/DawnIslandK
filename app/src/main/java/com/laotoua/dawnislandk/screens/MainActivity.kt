@@ -734,7 +734,7 @@ class MainActivity : DaggerAppCompatActivity() {
                             if (ref == "auto") {
                                 availableConnections.values.toList().firstOrNull { it in refCDNs }?.let {
                                     Timber.d("Using $it for Ref")
-                                    lastSuccessfulRefCDN = url
+                                    lastSuccessfulRefCDN = it
                                     RetrofitUrlManager.getInstance().putDomain("nmb-ref", lastSuccessfulRefCDN)
                                 }
                             }

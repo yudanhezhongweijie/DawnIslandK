@@ -50,7 +50,7 @@ data class Feed(
     data class ServerFeed(
         @PrimaryKey val id: String,
         val fid: String = "",
-        val category: String,
+        val category: String = "",
         val img: String,
         val ext: String,
         val now: String,

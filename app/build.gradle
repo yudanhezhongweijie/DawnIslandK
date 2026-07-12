@@ -26,14 +26,18 @@ apply plugin: 'com.google.firebase.firebase-perf'
 android {
     signingConfigs {
         release {
+            // Signing details come from local.properties (local builds) or
+            // environment variables (CI). Absent both, the build is unsigned.
+            Properties properties = new Properties()
             if (project.rootProject.file("local.properties").exists()) {
-                Properties properties = new Properties()
                 properties.load(project.rootProject.file("local.properties").newDataInputStream())
-                def store_file = properties.getProperty("storeFile")
-                def store_password = properties.getProperty("storePassword")
-                def key_alias = properties.getProperty("keyAlias")
-                def key_password = properties.getProperty("keyPassword")
+            }
+            def store_file = properties.getProperty("storeFile") ?: System.getenv("KEYSTORE_FILE")
+            def store_password = properties.getProperty("storePassword") ?: System.getenv("KEYSTORE_PASSWORD")
+            def key_alias = properties.getProperty("keyAlias") ?: System.getenv("KEY_ALIAS")
+            def key_password = properties.getProperty("keyPassword") ?: System.getenv("KEY_PASSWORD")
 
+            if (store_file != null) {
                 storeFile file(store_file)
                 storePassword store_password
                 keyAlias key_alias

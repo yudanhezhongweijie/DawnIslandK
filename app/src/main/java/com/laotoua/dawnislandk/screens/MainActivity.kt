@@ -647,8 +647,10 @@ class MainActivity : DaggerAppCompatActivity() {
         RetrofitUrlManager.getInstance().putDomain("nmb-ref", DawnConstants.NMBXDHost)
 
         sharedVM.onNMBXD()
-        refreshApplicationCache()
+        // Re-point nmb/nmb-ref to the pinned CDN before refreshing, otherwise
+        // the refresh requests race to NMBXDHost first (issue #277).
         autoSelectCDNs()
+        refreshApplicationCache()
 
         sharedVM.setForumId(applicationDataStore.getDefaultForumId(), true)
 

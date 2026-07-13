@@ -11,6 +11,10 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    # Signing secrets live in the "release" environment, which gates on a
+    # required reviewer. The job waits for manual approval before it starts,
+    # so the keystore is never exposed to an unapproved run.
+    environment: release
     steps:
       - uses: actions/checkout@v4
 

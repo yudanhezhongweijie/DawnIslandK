@@ -99,6 +99,17 @@ class DawnApp : DaggerApplication() {
         // MMKV
         MMKV.initialize(this)
         MMKV.registerHandler(handler)
+
+        // Apply persisted CDN overrides before the first requests fire, so a
+        // user-pinned CDN is honored on cold start instead of falling through
+        // to NMBXDHost (which fails when nmbxd.com is DNS-poisoned).
+        applicationDataStore.getBaseCDN().let {
+            if (it != "auto") RetrofitUrlManager.getInstance().putDomain("nmb", it)
+        }
+        applicationDataStore.getRefCDN().let {
+            if (it != "auto") RetrofitUrlManager.getInstance().putDomain("nmb-ref", it)
+        }
+
         setDefaultDayNightMode()
         // Time
         ReadableTime.initialize(this)

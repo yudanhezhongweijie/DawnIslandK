@@ -74,8 +74,8 @@ object DawnConstants {
 
     const val FEEDBACK_POST_ID = "50283640"
     const val AUTHOR_EMAIL = "aliaseasy98@gmail.com"
-    const val GITHUB_ADDRESS = "https://github.com/fishballzzz/DawnIslandK/issues"
+    const val GITHUB_ADDRESS = "https://github.com/yudanhezhongweijie/DawnIslandK/issues"
     const val DOWNLOAD_NMBXD = "https://app.nmbxd.com"
-    const val DOWNLOAD_GITHUB = "https://github.com/fishballzzz/DawnIslandK/releases/latest"
+    const val DOWNLOAD_GITHUB = "https://github.com/yudanhezhongweijie/DawnIslandK/releases/latest"
     const val DOWNLOAD_GOOGLE_PLAY = "https://play.google.com/store/apps/details?id=com.laotoua.dawnislandk"
 }

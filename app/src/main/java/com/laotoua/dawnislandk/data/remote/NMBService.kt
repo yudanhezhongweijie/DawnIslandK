@@ -24,16 +24,16 @@ import retrofit2.Call
 import retrofit2.http.*
 
 interface NMBService {
-    @GET("https://raw.githubusercontent.com/fishballzzz/DawnIslandK/master/CHANGELOG.md")
+    @GET("https://raw.githubusercontent.com/yudanhezhongweijie/DawnIslandK/master/CHANGELOG.md")
     fun getChangeLog(): Call<ResponseBody>
 
-    @GET("https://raw.githubusercontent.com/fishballzzz/DawnIslandK/master/privacy_policy_CN.html")
+    @GET("https://raw.githubusercontent.com/yudanhezhongweijie/DawnIslandK/master/privacy_policy_CN.html")
     fun getPrivacyAgreement(): Call<ResponseBody>
 
     @GET("https://reed.mfweb.top/Functions/Pictures/GetRandomPicture")
     fun getRandomReedPicture(): Call<ResponseBody>
 
-    @GET("https://api.github.com/repos/fishballzzz/DawnIslandK/releases/latest")
+    @GET("https://api.github.com/repos/yudanhezhongweijie/DawnIslandK/releases/latest")
     fun getLatestRelease(): Call<ResponseBody>
 
     @GET("http://nmb.ovear.info/nmb-notice.json")

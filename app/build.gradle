@@ -28,16 +28,19 @@ android {
         release {
             // Signing details come from local.properties (local builds) or
             // environment variables (CI). Absent both, the build is unsigned.
+            // The alias and key password default sensibly so CI needs only
+            // KEYSTORE_FILE + KEYSTORE_PASSWORD when the keystore uses one
+            // password and the "key0" alias.
             Properties properties = new Properties()
             if (project.rootProject.file("local.properties").exists()) {
                 properties.load(project.rootProject.file("local.properties").newDataInputStream())
             }
             def store_file = properties.getProperty("storeFile") ?: System.getenv("KEYSTORE_FILE")
             def store_password = properties.getProperty("storePassword") ?: System.getenv("KEYSTORE_PASSWORD")
-            def key_alias = properties.getProperty("keyAlias") ?: System.getenv("KEY_ALIAS")
-            def key_password = properties.getProperty("keyPassword") ?: System.getenv("KEY_PASSWORD")
+            def key_alias = properties.getProperty("keyAlias") ?: System.getenv("KEY_ALIAS") ?: "key0"
+            def key_password = properties.getProperty("keyPassword") ?: System.getenv("KEY_PASSWORD") ?: store_password
 
-            if (store_file != null) {
+            if (store_file) {
                 storeFile file(store_file)
                 storePassword store_password
                 keyAlias key_alias

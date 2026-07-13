@@ -30,8 +30,11 @@ jobs:
         env:
           KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
 
+      # Only KEYSTORE_B64 and KEYSTORE_PASSWORD are required. KEY_ALIAS defaults
+      # to "key0" and KEY_PASSWORD falls back to KEYSTORE_PASSWORD (see
+      # app/build.gradle); set them only if the keystore differs.
       - name: Build release APK
-        run: gradle assembleRelease
+        run: gradle assembleRelease --stacktrace
         env:
           KEYSTORE_FILE: ${{ runner.temp }}/release.jks
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}

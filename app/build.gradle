@@ -63,11 +63,22 @@ android {
         applicationId "com.laotoua.dawnislandk"
         minSdkVersion 23
         targetSdkVersion 33
-        // CI passes -PappVersionCode/-PappVersionName derived from the release
-        // tag (see .github/workflows/release.yml). Local builds fall back to
-        // the last shipped values.
-        versionCode (project.findProperty("appVersionCode") ?: "72").toString().toInteger()
-        versionName (project.findProperty("appVersionName") ?: "v1.6.12").toString()
+        // Version is supplied by the CI release workflow via -PappVersionCode /
+        // -PappVersionName (derived from the release tag; see
+        // .github/workflows/release.yml). No hardcoded default: a local or
+        // dispatch build must pass them, or the build fails fast here.
+        // NOTE: compute into locals first — a parenthesized expression passed
+        // directly to the versionCode/versionName DSL setters triggers a
+        // "Value is null" BeanDynamicObject error under Gradle 8.0.2.
+        def appVersionCode = project.findProperty("appVersionCode")
+        def appVersionName = project.findProperty("appVersionName")
+        if (appVersionCode == null || appVersionName == null) {
+            throw new GradleException(
+                "appVersionCode / appVersionName must be set via -PappVersionCode / -PappVersionName " +
+                "(the CI release workflow derives them from the tag).")
+        }
+        versionCode appVersionCode.toString().toInteger()
+        versionName appVersionName.toString()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

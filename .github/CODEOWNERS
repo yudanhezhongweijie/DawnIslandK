@@ -1,0 +1,8 @@
+# These files execute on CI with the release signing secrets in scope, so a
+# change to any of them could exfiltrate the keystore. Require the repo owner's
+# review before they can be merged. Enforced only when branch protection has
+# "Require review from Code Owners" enabled on the default branch.
+/.github/          @yudanhezhongweijie
+/build.gradle      @yudanhezhongweijie
+/app/build.gradle  @yudanhezhongweijie
+/settings.gradle   @yudanhezhongweijie

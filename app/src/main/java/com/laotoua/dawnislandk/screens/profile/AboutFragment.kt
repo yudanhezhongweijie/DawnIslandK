@@ -168,7 +168,7 @@ class AboutFragment : DaggerFragment() {
                             0 -> Uri.parse(DawnConstants.DOWNLOAD_NMBXD)
                             1 -> Uri.parse(DawnConstants.DOWNLOAD_GITHUB)
                             2 -> Uri.parse(DawnConstants.DOWNLOAD_GOOGLE_PLAY)
-                            else -> Uri.parse("https://github.com/fishballzzz/DawnIslandK")
+                            else -> Uri.parse("https://github.com/yudanhezhongweijie/DawnIslandK")
                         }
                         val intent = Intent(Intent.ACTION_VIEW, uri)
                         if (intent.resolveActivity(this@AboutFragment.requireActivity().packageManager) != null) {

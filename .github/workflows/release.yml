@@ -1,0 +1,75 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    # Signing secrets live in the "release" environment, which gates on a
+    # required reviewer. The job waits for manual approval before it starts,
+    # so the keystore is never exposed to an unapproved run.
+    environment: release
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # The Gradle wrapper is gitignored in this repo, so install Gradle
+      # directly. AGP 8.0.1 requires Gradle 8.0+.
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.0.2'
+
+      - name: Decode signing keystore
+        run: printf '%s' "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+
+      # On a tag like v1.6.13, derive versionName ("v1.6.13") and a versionCode
+      # from the numbers (1*10000 + 6*100 + 13 = 10613), so releases never need
+      # a manual bump. Dispatch (non-tag) test builds skip this and use the
+      # fallback values in app/build.gradle.
+      - name: Derive version from tag
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          NAME="${GITHUB_REF_NAME}"
+          IFS=. read -r MAJOR MINOR PATCH <<< "${NAME#v}"
+          echo "APP_VERSION_NAME=$NAME" >> "$GITHUB_ENV"
+          echo "APP_VERSION_CODE=$(( MAJOR * 10000 + MINOR * 100 + PATCH ))" >> "$GITHUB_ENV"
+
+      # Only KEYSTORE_B64 and KEYSTORE_PASSWORD are required. KEY_ALIAS defaults
+      # to "key0" and KEY_PASSWORD falls back to KEYSTORE_PASSWORD (see
+      # app/build.gradle); set them only if the keystore differs.
+      - name: Build release APK
+        run: |
+          gradle assembleRelease --stacktrace \
+            ${APP_VERSION_CODE:+-PappVersionCode=$APP_VERSION_CODE -PappVersionName=$APP_VERSION_NAME}
+        env:
+          KEYSTORE_FILE: ${{ runner.temp }}/release.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Rename APK
+        run: cp app/build/outputs/apk/release/app-release.apk "K_${GITHUB_REF_NAME}.apk"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-apk
+          path: K_*.apk
+
+      - name: Create draft GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          files: K_*.apk

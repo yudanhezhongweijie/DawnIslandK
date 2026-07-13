@@ -13,18 +13,18 @@ This app utilizes many latest Android features, concepts, propositions and guidl
 This app uses Retrofit2(& okhttp) for API calls, Dagger2 for Dependency Injection, Moshi for JSON Parsing.
 
 # Dev Memo 开发者日志
-[Issue faced & Solution](https://github.com/fishballzzz/DawnIslandK/blob/master/DEV_MEMO.md)
+[Issue faced & Solution](https://github.com/yudanhezhongweijie/DawnIslandK/blob/master/DEV_MEMO.md)
 
 # Screenshots 截图
-<img src="https://github.com/fishballzzz/DawnIslandK/blob/master/demo/demo1.gif" width="240">         <img src="https://github.com/fishballzzz/DawnIslandK/blob/master/demo/demo2.gif" width="240">       <img src="https://github.com/fishballzzz/DawnIslandK/blob/master/demo/demo3.gif" width="240"> 
-<img src="https://github.com/fishballzzz/DawnIslandK/blob/master/demo/demo4.gif" width="240"> 
+<img src="https://github.com/yudanhezhongweijie/DawnIslandK/blob/master/demo/demo1.gif" width="240">         <img src="https://github.com/yudanhezhongweijie/DawnIslandK/blob/master/demo/demo2.gif" width="240">       <img src="https://github.com/yudanhezhongweijie/DawnIslandK/blob/master/demo/demo3.gif" width="240"> 
+<img src="https://github.com/yudanhezhongweijie/DawnIslandK/blob/master/demo/demo4.gif" width="240"> 
 
 # Downloads 下载
 <a href='https://play.google.com/store/apps/details?id=com.laotoua.dawnislandk&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img width="240" alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'/></a>
 
-[Release Asset](https://github.com/fishballzzz/DawnIslandK/releases/latest) 
+[Release Asset](https://github.com/yudanhezhongweijie/DawnIslandK/releases/latest) 
 
-# [ChangeLog 更新日志](https://github.com/fishballzzz/DawnIslandK/blob/master/CHANGELOG.md)
+# [ChangeLog 更新日志](https://github.com/yudanhezhongweijie/DawnIslandK/blob/master/CHANGELOG.md)
 
 # Thanks 鸣谢
 - [Nimingban](https://github.com/seven332/Nimingban)

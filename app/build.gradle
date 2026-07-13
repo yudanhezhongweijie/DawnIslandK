@@ -63,8 +63,11 @@ android {
         applicationId "com.laotoua.dawnislandk"
         minSdkVersion 23
         targetSdkVersion 33
-        versionCode 72
-        versionName "v1.6.12"
+        // CI passes -PappVersionCode/-PappVersionName derived from the release
+        // tag (see .github/workflows/release.yml). Local builds fall back to
+        // the last shipped values.
+        versionCode (project.findProperty("appVersionCode") ?: "72").toString().toInteger()
+        versionName (project.findProperty("appVersionName") ?: "v1.6.12").toString()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

@@ -34,11 +34,25 @@ jobs:
         env:
           KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
 
+      # On a tag like v1.6.13, derive versionName ("v1.6.13") and a versionCode
+      # from the numbers (1*10000 + 6*100 + 13 = 10613), so releases never need
+      # a manual bump. Dispatch (non-tag) test builds skip this and use the
+      # fallback values in app/build.gradle.
+      - name: Derive version from tag
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          NAME="${GITHUB_REF_NAME}"
+          IFS=. read -r MAJOR MINOR PATCH <<< "${NAME#v}"
+          echo "APP_VERSION_NAME=$NAME" >> "$GITHUB_ENV"
+          echo "APP_VERSION_CODE=$(( MAJOR * 10000 + MINOR * 100 + PATCH ))" >> "$GITHUB_ENV"
+
       # Only KEYSTORE_B64 and KEYSTORE_PASSWORD are required. KEY_ALIAS defaults
       # to "key0" and KEY_PASSWORD falls back to KEYSTORE_PASSWORD (see
       # app/build.gradle); set them only if the keystore differs.
       - name: Build release APK
-        run: gradle assembleRelease --stacktrace
+        run: |
+          gradle assembleRelease --stacktrace \
+            ${APP_VERSION_CODE:+-PappVersionCode=$APP_VERSION_CODE -PappVersionName=$APP_VERSION_NAME}
         env:
           KEYSTORE_FILE: ${{ runner.temp }}/release.jks
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
